@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "inlineSourceMap": false
+  },
+  "files": [
+    "../../src/app.ts",
+    "../../tools/build/whatwg-fetch.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
