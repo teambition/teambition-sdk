@@ -3,11 +3,11 @@ const path = require('path')
 module.exports = {
   entry: [
     'whatwg-fetch',
-    path.join(process.cwd(), 'src/app.ts')
+    path.join(process.cwd(), 'test/app.ts')
   ],
   output: {
     filename: 'bundle.js',
-    path: path.join(process.cwd(), 'test')
+    path: path.join(process.cwd(), 'test/')
   },
   preLoaders: [
     {test: /\.js?$/, loader: 'source-map'}
