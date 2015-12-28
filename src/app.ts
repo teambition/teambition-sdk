@@ -1,2 +1,2 @@
-export * from './fetch'
+export * from './utils/fetch'
 export * from './apis'

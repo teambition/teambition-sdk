@@ -53,5 +53,5 @@ account-wx-service.iml
 .tsdrc
 jsconfig.json
 
-src/token.ts
+test/token.ts
 test/bundle.js

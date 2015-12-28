@@ -28,5 +28,8 @@ module.exports = {
     silent: true
   },
   devtool: 'inline-source-map',
-  watch: true
+  watch: true,
+  devServer: {
+    port: 8087
+  }
 }

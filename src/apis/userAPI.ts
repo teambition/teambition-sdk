@@ -1,11 +1,26 @@
 'use strict'
-import {tbFetch} from '../fetch'
+import {tbFetch} from '../utils/fetch'
+import {userModel} from '../models'
+import {IUserMe} from 'teambition'
 
 export const UserAPI = {
   getUserMe() {
     return tbFetch.get({
       Type: 'users',
       Id: 'me'
+    })
+    .then((userMe: IUserMe) => {
+      return userModel.set(userMe)
+    })
+  },
+
+  update(patch: any) {
+    return tbFetch.put({
+      Type: 'users',
+      Id: 'me'
+    }, patch)
+    .then((userMe: IUserMe) => {
+      userModel.update(userMe)
     })
   }
 }

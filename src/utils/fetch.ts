@@ -1,7 +1,7 @@
 'use strict'
-import {assign, forEach} from './utils'
+import {assign, forEach} from './'
 
-let apiHost = 'https://api.teambition.com'
+let apiHost: string
 const apiPath = ['Version', 'Type', 'Id', 'Path1', 'Path2', 'Path3']
 
 interface IRestPaths {
@@ -30,9 +30,14 @@ class Fetch {
     apiHost = 'https://www.teambition.com/api'
   }
 
+  setAPIHost(host: string) {
+    apiHost = host
+  }
+
   setToken(token: string) {
     delete this.opts.credentials
     this.opts.headers.Authorization = `OAuth2 ${token}`
+    apiHost = 'https://api.teambition.com'
   }
 
   get(paths: IRestPaths) {
