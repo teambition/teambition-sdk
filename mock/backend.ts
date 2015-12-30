@@ -1,7 +1,18 @@
 'use strict'
 import {HttpResponse} from './response'
+import {fetchStack} from './mock'
+import {forEach} from './utils'
 
-class Backend {
+export const flushState = {
+  flushed: false
+}
+
+export class Backend {
+
+  constructor() {
+    flushState.flushed = false
+  }
+
   whenGET(uri: string) {
     return new HttpResponse(uri, 'get')
   }
@@ -17,6 +28,13 @@ class Backend {
   whenDELETE(uri: string) {
     return new HttpResponse(uri, 'delete')
   }
-}
 
-export const httpBackend = new Backend()
+  flush() {
+    forEach(fetchStack, (value: any, key: string) => {
+      forEach(value.flushQueue, (resolves: any[]) => {
+        resolves[0](resolves[1])
+      })
+    })
+    flushState.flushed = true
+  }
+}

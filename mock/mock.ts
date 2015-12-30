@@ -1,5 +1,8 @@
 'use strict'
 import {IUserMe, ITaskData} from 'teambition'
+import {flushState} from './backend'
+
+declare const global
 
 export const fetchStack = {}
 
@@ -19,17 +22,23 @@ export const parseObject = (obj: any) => {
   return result
 }
 
-window.fetch = (uri: string, options?: {
+const context = typeof window !== 'undefined' ? window : global
+
+context['fetch'] = (uri: string, options?: {
   method?: any,
   body?: any
-}): Promise<any> => {
+}) => {
   const method = options.method ? options.method.toLowerCase() : ''
   if (method !== 'options') {
     const dataPath = options.body ? parseObject(options.body) : ''
     const result = fetchStack[uri + method + dataPath]
     if (result && result.status === 200) {
       const promise = new Promise((resolve, reject) => {
-        resolve(result)
+        if (flushState.flushed) {
+          resolve(result)
+        }else {
+          result.flushQueue.push([resolve, result])
+        }
       })
       return promise
     }else if (result && result.status) {

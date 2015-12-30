@@ -20,6 +20,7 @@ export const trackObject = (target: any) => {
           forEach(trackIndex[_id], (trackVal: any) => {
             trackVal[key] = newValue
           })
+          val = newValue
         },
         get() {
           return val

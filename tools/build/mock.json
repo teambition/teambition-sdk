@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "inlineSourceMap": false
+  },
+  "files": [
+    "../../mock/index.ts",
+    "../../src/teambition.d.ts",
+    "../../tools/build/index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

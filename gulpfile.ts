@@ -2,6 +2,9 @@
 import * as gulp from 'gulp'
 import * as uglify from 'gulp-uglify'
 import * as path from 'path'
+import * as watch from 'gulp-watch'
+import * as mocha from 'gulp-mocha'
+const batch  = require('batch')
 const config = require('./webpack.config')
 const webpack = require('gulp-webpack')
 
@@ -27,17 +30,71 @@ gulp.task('bundle.es6', () => {
 
 gulp.task('default', ['bundle.es6'])
 
-gulp.task('build', () => {
-  const webpackConfig = config
+gulp.task('build.mock', () => {
+  const webpackConfig = Object.assign({}, config)
   webpackConfig.watch = false
-  config.entry = [
+  webpackConfig.entry = [
+    path.join(process.cwd(), 'mock/index.ts')
+  ]
+  webpackConfig.output.filename = 'mock.js'
+  webpackConfig.ts.configFileName = path.join(process.cwd(), 'tools/build/mock.json')
+  delete webpackConfig.output.path
+  return gulp.src('./mock/index.ts')
+    .pipe(webpack(webpackConfig))
+    .pipe(gulp.dest('./dist/'))
+})
+
+gulp.task('build.test', () => {
+  const webpackConfig = Object.assign({}, config)
+  webpackConfig.watch = false
+  webpackConfig.entry = [
+    path.join(process.cwd(), 'test/index.ts')
+  ]
+  webpackConfig.output.filename = 'spec.js'
+  webpackConfig.ts.configFileName = path.join(process.cwd(), 'tools/build/test.json')
+  delete webpackConfig.output.path
+  return gulp.src('./test/index.ts')
+    .pipe(webpack(webpackConfig))
+    .pipe(gulp.dest('./.tmp/test'))
+})
+
+gulp.task('watch', (done: any) => {
+  const watchPath = [
+    './src/**/*.ts',
+    './mock/**/*.ts',
+    './test/**/*.ts'
+  ]
+  const specPath = './.tmp/test/spec.js'
+  watch(watchPath, function() {
+    gulp.start('build.test')
+  })
+
+  watch(specPath, () => {
+    gulp.start('mocha', done)
+  })
+})
+
+gulp.task('mocha', () => {
+  gulp.src('./.tmp/test/spec.js')
+    .pipe(mocha({
+      reporter: 'spec'
+    }))
+    .on('error', (e: any) => {
+      console.log(e)
+    })
+})
+
+gulp.task('build', () => {
+  const webpackConfig = Object.assign({}, config)
+  webpackConfig.watch = false
+  webpackConfig.entry = [
     'es6-promise',
     'whatwg-fetch',
     path.join(process.cwd(), 'src/app.ts')
   ]
   delete webpackConfig.output.path
   return gulp.src('./src/app.ts')
-  .pipe(webpack(webpackConfig))
-  .pipe(uglify())
-  .pipe(gulp.dest('./dist/'))
+    .pipe(webpack(webpackConfig))
+    .pipe(uglify())
+    .pipe(gulp.dest('./dist/'))
 })

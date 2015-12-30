@@ -18,6 +18,7 @@ export class HttpResponse {
   respond(data: any) {
     fetchStack[this.namespace] = {
       status: 200,
+      flushQueue: [],
       json: () => {
         return data
       }

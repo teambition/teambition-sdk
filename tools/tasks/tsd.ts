@@ -6,12 +6,13 @@ const GetAPI  = Tsd.getAPI
 const tsdJson = path.join(process.cwd(), 'tsd.json')
 const tsdApi  = new GetAPI(tsdJson)
 
-(async function () {
+const install = async function () {
   let packageJson = require(path.join(process.cwd(), 'package.json'))
-  let deps = Object.keys(packageJson.dependencies)
   // removed tsd from dependencies
   delete packageJson.devDependencies.tsd
   delete packageJson.dependencies['whatwg-fetch']
+  delete packageJson.dependencies['es6-promise']
+  let deps = Object.keys(packageJson.dependencies)
   let devDeps = Object.keys(packageJson.devDependencies)
   let query = new Tsd.Query()
   deps.concat(devDeps).forEach(dependency => query.addNamePattern(dependency))
@@ -38,4 +39,6 @@ const tsdApi  = new GetAPI(tsdJson)
   skipped.forEach(function (dts) {
     console.log('Definition file skipped: ' + dts)
   })
-})()
+}
+
+install()

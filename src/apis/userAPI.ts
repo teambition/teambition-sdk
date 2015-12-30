@@ -5,13 +5,20 @@ import {IUserMe} from 'teambition'
 
 export const UserAPI = {
   getUserMe() {
-    return tbFetch.get({
-      Type: 'users',
-      Id: 'me'
-    })
-    .then((userMe: IUserMe) => {
-      return userModel.set(userMe)
-    })
+    const cache = userModel.get()
+    if (cache) {
+      return new Promise((resolve, reject) => {
+        resolve(cache)
+      })
+    }else {
+      return tbFetch.get({
+        Type: 'users',
+        Id: 'me'
+      })
+      .then((userMe: IUserMe) => {
+        return userModel.set(userMe)
+      })
+    }
   },
 
   update(patch: any) {

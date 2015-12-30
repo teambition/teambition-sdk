@@ -24,17 +24,20 @@ export const assign = (target: any, origin: any) => {
 }
 
 export const clone = (target: any, origin: any) => {
-  if (!origin || typeof origin !== 'object') {
+  if (typeof origin === 'undefined' || typeof origin !== 'object') {
     return
   }
   if (typeof target === 'object') {
     forEach(origin, (val: any, key: string) => {
       if (typeof val === 'object') {
-        target[key] = clone({}, val)
+        // null
+        if (val) {
+          target[key] = clone({}, val)
+        }else {
+          target[key] = val
+        }
       }
-      if (val) {
-        target[key] = val
-      }
+      target[key] = val
     })
     return target
   }else {
