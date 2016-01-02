@@ -31,3 +31,13 @@ export const trackObject = (target: any) => {
     })
   }
 }
+
+export const trackCollection = (target: any[], trackBy?: string) => {
+  if (target instanceof Array) {
+    forEach(target, (val: any, key: string) => {
+
+    })
+  }else {
+    throw new Error('Could not track a none array object')
+  }
+}

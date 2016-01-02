@@ -1,6 +1,6 @@
-const path = require('path')
+import * as path from 'path'
 
-module.exports = {
+export default {
   entry: [
     'whatwg-fetch',
     path.join(process.cwd(), 'test/app.ts')

@@ -26,7 +26,6 @@
     "whatwg-fetch": "^0.10.1"
   },
   "devDependencies": {
-    "batch": "^0.5.3",
     "chai": "^3.4.1",
     "gulp": "^3.9.0",
     "gulp-mocha": "^2.2.0",

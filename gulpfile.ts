@@ -4,8 +4,7 @@ import * as uglify from 'gulp-uglify'
 import * as path from 'path'
 import * as watch from 'gulp-watch'
 import * as mocha from 'gulp-mocha'
-const batch  = require('batch')
-const config = require('./webpack.config')
+import config from './webpack.config'
 const webpack = require('gulp-webpack')
 
 const bundle = (watch: boolean, opts?: any) => {

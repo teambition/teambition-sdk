@@ -1,5 +1,5 @@
 'use strict'
-import {clone, assign} from '../utils'
+import {clone, assign, forEach} from '../utils'
 import {trackObject, trackOne} from '../utils/track'
 import {BaseObject, ObjectIndex} from './BaseObject'
 
@@ -22,10 +22,8 @@ class DataBase {
   }
 
   storeOne(index: string, data: any, expire = 0) {
-    if (this.data[index]) {
-      throw 'Can not store an existed data'
-    }else {
-      const result = this.data[index] = clone({}, data)
+    if (!this.data[index]) {
+      const result = this.data[index] = data
       if (expire && typeof expire === 'number') {
         let timeoutIndex = window.setTimeout(() => {
           delete this.data[index]
@@ -37,6 +35,34 @@ class DataBase {
         }
       }
       trackObject(result)
+    }
+  }
+
+  storeCollection(index: string, collection: any[], expire = 0) {
+    if (this.data[index]) {
+      throw 'Can not store an existed collection'
+    }else {
+      const result = []
+      forEach(collection, (val: any, key: string) => {
+        const cache = this.getOne(val._id)
+        if (cache) {
+          result.push(cache)
+        }else {
+          result.push(val)
+          this.storeOne(val._id, val)
+        }
+      })
+      this.data[index] = result
+      if (expire && typeof expire === 'number') {
+        let timeoutIndex = window.setTimeout(() => {
+          delete this.data[index]
+        }, expire)
+        this.timeoutIndex[index] = {
+          timer: timeoutIndex,
+          begin: Date.now(),
+          expire: expire
+        }
+      }
     }
   }
 

@@ -2,5 +2,5 @@
 
 export const apihost = 'https://api.teambition.com'
 
-export * from './utils/utils'
+export * from './utils'
 export * from './apis'

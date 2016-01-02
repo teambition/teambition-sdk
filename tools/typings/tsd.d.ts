@@ -4,7 +4,6 @@
 /// <reference path="gulp/gulp.d.ts" />
 /// <reference path="orchestrator/orchestrator.d.ts" />
 /// <reference path="q/Q.d.ts" />
-/// <reference path="gulp-babel/gulp-babel.d.ts" />
 /// <reference path="gulp-sourcemaps/gulp-sourcemaps.d.ts" />
 /// <reference path="gulp-uglify/gulp-uglify.d.ts" />
 /// <reference path="webpack/webpack.d.ts" />

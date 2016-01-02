@@ -7,6 +7,10 @@ export default class Model {
     return DataBase.getOne(namespace)
   }
 
+  protected setCollection(namespace: string, data: any[]) {
+
+  }
+
   protected getOne(namespace: string) {
     return DataBase.getOne(namespace)
   }
