@@ -7,11 +7,17 @@ class OrganizationModel extends Model {
     return this.getOne('organization')
   }
 
-  getOne(id: string) {
+  getOrganization(id: string) {
     return this.getOne(`organization:${id}`)
   }
 
   setAll(organizations: IOrganizationData[]) {
     this.setCollection('organization', organizations)
   }
+
+  setOrganization(id: string, data: IOrganizationData) {
+    this.setOne(`organization:${id}`, data)
+  }
 }
+
+export const organizationModel = new OrganizationModel()

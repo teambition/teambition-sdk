@@ -49,7 +49,8 @@ export default describe('UserAPI test', () => {
       expect(me.name).to.equal('test')
       done()
     })
-
-    httpBackend.flush()
+    setTimeout(() => {
+      httpBackend.flush()
+    }, 500)
   })
 })

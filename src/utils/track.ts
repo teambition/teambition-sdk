@@ -3,8 +3,8 @@ import {forEach} from './'
 
 const trackIndex = {}
 
-export const trackOne = (target: any) => {
-  const _id = target._id
+export const trackOne = (target: any, index?: string) => {
+  const _id = index ? index : target._id
   if (_id && trackIndex[_id].indexOf(target) === -1) {
     trackIndex[_id].push(target)
   }
@@ -32,11 +32,23 @@ export const trackObject = (target: any) => {
   }
 }
 
-export const trackCollection = (target: any[], trackBy?: string) => {
+export const trackCollection = (index: string, target: any[]) => {
   if (target instanceof Array) {
-    forEach(target, (val: any, key: string) => {
-
-    })
+    trackIndex[index] = []
+    const splice = target.splice
+    const push = target.push
+    target.splice = function() {
+      forEach(trackIndex[index], function(collection: any[]) {
+        splice.apply(collection, arguments)
+      })
+      return splice.apply(target, arguments)
+    }
+    target.push = function() {
+      forEach(trackIndex[index], function(collection: any[]) {
+        push.apply(collection, arguments)
+      })
+      return push.apply(target, arguments)
+    }
   }else {
     throw new Error('Could not track a none array object')
   }

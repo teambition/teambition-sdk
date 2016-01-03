@@ -1,6 +1,6 @@
 'use strict'
 import {clone, assign, forEach} from '../utils'
-import {trackObject, trackOne} from '../utils/track'
+import {trackObject, trackOne, trackCollection} from '../utils/track'
 import {BaseObject, ObjectIndex} from './BaseObject'
 
 class DataBase {
@@ -16,9 +16,14 @@ class DataBase {
     }
   }
 
+  private typeIndex: {
+    [index: string]: string
+  }
+
   constructor() {
     this.data = {}
     this.timeoutIndex = {}
+    this.typeIndex = {}
   }
 
   storeOne(index: string, data: any, expire = 0) {
@@ -35,6 +40,7 @@ class DataBase {
         }
       }
       trackObject(result)
+      this.typeIndex[index] = 'object'
     }
   }
 
@@ -63,6 +69,8 @@ class DataBase {
           expire: expire
         }
       }
+      trackCollection(index, result)
+      this.typeIndex[index] = 'collection'
     }
   }
 
@@ -92,10 +100,16 @@ class DataBase {
 
   getOne(index: string): any {
     const data = this.data[index]
+    let result: any
     if (data) {
-      const object = new BaseObject(data)
-      trackOne(object)
-      return object
+      if (this.typeIndex[index] === 'collection') {
+        result = clone({}, data)
+        trackOne(result, index)
+      }else {
+        result = new BaseObject(data)
+        trackOne(result)
+      }
+      return result
     }else {
       return false
     }
