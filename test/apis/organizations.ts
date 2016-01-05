@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import {Backend, OrganizationAPI, forEach, clone} from '../'
+import {Backend, OrganizationAPI} from '../'
 import {apihost} from '../app'
 import {organizations} from '../mock'
 import {IOrganizationData} from 'teambition'

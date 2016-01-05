@@ -31,5 +31,6 @@ export default {
   watch: true,
   devServer: {
     port: 8087
-  }
+  },
+  plugins: []
 }

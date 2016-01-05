@@ -1,6 +1,6 @@
 'use strict'
-import {IUserMe, ITaskData} from 'teambition'
 import {flushState} from './backend'
+import {forEach} from './utils'
 
 declare const global
 
@@ -11,14 +11,13 @@ export const parseObject = (obj: any) => {
     obj = JSON.parse(obj)
   }
   let result = ''
-  for (let key in obj) {
-    let element = obj[key];
+  forEach(obj, (element: any, key: string) => {
     if (element && typeof element === 'object') {
       result += key + parseObject(element)
     }else {
       result += key + element
     }
-  }
+  })
   return result
 }
 
@@ -42,8 +41,10 @@ context['fetch'] = (uri: string, options?: {
       })
       return promise
     }else if (result && result.status) {
+      console.error(result.data)
       throw new Error(result.data)
     }else {
+      console.error('nothing expect return from server')
       throw new Error('nothing expect return from server')
     }
   }

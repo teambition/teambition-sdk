@@ -7,7 +7,7 @@ export const ObjectIndex = {}
 export class BaseObject {
   public $id = `$${$id}`
   constructor(target: any) {
-    const data = clone({}, target)
+    const data = clone(target)
     const objectIndex = ObjectIndex[`$${$id}`] = {
       dataKeys: []
     }

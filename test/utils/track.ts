@@ -9,7 +9,7 @@ export default describe('Object Track test', () => {
       _id: 1,
       foo: 'bar'
     }
-    const b = clone({}, a)
+    const b = clone(a)
     trackObject(a)
     trackOne(b)
     a.foo = 'kkk'

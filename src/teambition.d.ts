@@ -552,7 +552,7 @@ declare module 'teambition' {
     _roleId: number;
   }
 
-  interface ISubtaskData{
+  interface ISubtaskData {
     _id: string;
     _projectId: string;
     _creatorId: string;

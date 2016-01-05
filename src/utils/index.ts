@@ -23,27 +23,28 @@ export const assign = (target: any, origin: any) => {
   return target
 }
 
-export const clone = (target: any, origin: any) => {
+export const clone = <T>(origin: T): T => {
   if (typeof origin === 'undefined' || typeof origin !== 'object') {
     return
   }
-  if (typeof target === 'object') {
-    forEach(origin, (val: any, key: string) => {
-      if (typeof val === 'object') {
-        // null
-        if (val) {
-          target[key] = clone({}, val)
-        }else {
-          target[key] = val
-        }
-      }
-      target[key] = val
-    })
-    return target
+  let target
+  if (origin instanceof Array) {
+    target = new Array()
   }else {
-    console.error('Type error, clone target mush be an Object')
-    return
+    target = Object.create(null)
   }
+  forEach(origin, (val: any, key: string) => {
+    if (typeof val === 'object') {
+      // null
+      if (val) {
+        target[key] = clone(val)
+      }else {
+        target[key] = val
+      }
+    }
+    target[key] = val
+  })
+  return target
 }
 
 const s4 = () => {

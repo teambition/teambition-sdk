@@ -4,7 +4,12 @@ import * as uglify from 'gulp-uglify'
 import * as path from 'path'
 import * as watch from 'gulp-watch'
 import * as mocha from 'gulp-mocha'
+import * as lint from 'gulp-tslint'
+import * as gutil from 'gulp-util'
+import * as istanbul from 'gulp-istanbul'
+import * as typescript from 'gulp-typescript'
 import config from './webpack.config'
+const stylish = require('gulp-tslint-stylish')
 const webpack = require('gulp-webpack')
 
 const bundle = (watch: boolean, opts?: any) => {
@@ -43,18 +48,29 @@ gulp.task('build.mock', () => {
     .pipe(gulp.dest('./dist/'))
 })
 
-gulp.task('build.test', () => {
-  const webpackConfig = Object.assign({}, config)
-  webpackConfig.watch = false
-  webpackConfig.entry = [
-    path.join(process.cwd(), 'test/index.ts')
+const buildTest = (path?: string, destPath?: string) => {
+  const Path = path ? [path] : [
+    './src/**/*.ts',
+    './mock/**/*.ts',
+    './test/**/*.ts'
   ]
-  webpackConfig.output.filename = 'spec.js'
-  webpackConfig.ts.configFileName = path.join(process.cwd(), 'tools/build/test.json')
-  delete webpackConfig.output.path
-  return gulp.src('./test/index.ts')
-    .pipe(webpack(webpackConfig))
-    .pipe(gulp.dest('./.tmp/test'))
+  let endPipe: any
+  Path.forEach((item: string) => {
+    const destDir = item.split('/')[1]
+    destPath = destPath ? destPath : `./.tmp/${destDir}`
+    endPipe = gulp.src(item)
+    .pipe(typescript({
+      module: 'commonjs',
+      target: 'es5',
+      isolatedModules: true
+    }))
+    .pipe(gulp.dest(destPath))
+  })
+  return endPipe
+}
+
+gulp.task('build.test', () => {
+  return buildTest()
 })
 
 gulp.task('watch', (done: any) => {
@@ -63,24 +79,40 @@ gulp.task('watch', (done: any) => {
     './mock/**/*.ts',
     './test/**/*.ts'
   ]
-  const specPath = './.tmp/test/spec.js'
-  watch(watchPath, function() {
-    gulp.start('build.test')
+  const specPath = './.tmp/**/*.js'
+  watch(watchPath, (event) => {
+    const sourcePath: string = event.path
+    const dirLength = process.cwd().length
+    const destDirArr = sourcePath.substr(dirLength + 1).split('/')
+    destDirArr.pop()
+    let dest = destDirArr.join('/')
+    dest = path.join(process.cwd(), `.tmp/${dest}/`)
+    buildTest(sourcePath, dest)
   })
 
   watch(specPath, () => {
     gulp.start('mocha', done)
+    gulp.start('lint')
   })
 })
 
-gulp.task('mocha', () => {
-  gulp.src('./.tmp/test/spec.js')
+gulp.task('pre-test', () => {
+  return gulp.src([
+    './.tmp/mock/**/*.js',
+    './.tmp/src/**/*.js',
+    '!./.tmp/**/index.js'
+  ])
+    .pipe(istanbul())
+    .pipe(istanbul.hookRequire())
+})
+
+gulp.task('mocha', ['pre-test'], () => {
+  return gulp.src('./.tmp/test/index.js')
     .pipe(mocha({
       reporter: 'spec'
     }))
-    .on('error', (e: any) => {
-      console.log(e)
-    })
+    .pipe(istanbul.writeReports())
+    .on('error', gutil.log)
 })
 
 gulp.task('build', () => {
@@ -96,4 +128,20 @@ gulp.task('build', () => {
     .pipe(webpack(webpackConfig))
     .pipe(uglify())
     .pipe(gulp.dest('./dist/'))
+})
+
+gulp.task('lint', () => {
+  gulp.src([
+    './mock/**/*.ts',
+    './src/**/*.ts',
+    './test/**/*.ts',
+    './gulpfile.ts'
+  ])
+    .pipe(lint())
+    .pipe(lint.report(stylish, <any>{
+      emitError: false,
+      sort: true,
+      bell: true,
+      fullPath: true
+    }))
 })

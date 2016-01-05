@@ -40,10 +40,10 @@ export default describe('utils test', () => {
   })
 
   it('clone should ok', () => {
-    const testObject = clone({}, userMe)
+    const testObject = clone(userMe)
     expect(testObject).deep.equal(userMe)
     const testArray = [0, 1, 2, 3]
-    expect(clone([], testArray)).deep.equal(testArray)
+    expect(clone(testArray)).deep.equal(testArray)
   })
 
   it('assign should ok', () => {

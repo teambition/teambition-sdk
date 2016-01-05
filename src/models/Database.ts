@@ -1,7 +1,7 @@
 'use strict'
 import {clone, assign, forEach} from '../utils'
 import {trackObject, trackOne, trackCollection} from '../utils/track'
-import {BaseObject, ObjectIndex} from './BaseObject'
+import {BaseObject} from './BaseObject'
 
 class DataBase {
   private data: {
@@ -20,10 +20,15 @@ class DataBase {
     [index: string]: string
   }
 
+  private collectionIndex: {
+    [index: string]: string[]
+  }
+
   constructor() {
     this.data = {}
     this.timeoutIndex = {}
     this.typeIndex = {}
+    this.collectionIndex = {}
   }
 
   storeOne(index: string, data: any, expire = 0) {
@@ -45,9 +50,7 @@ class DataBase {
   }
 
   storeCollection(index: string, collection: any[], expire = 0) {
-    if (this.data[index]) {
-      throw 'Can not store an existed collection'
-    }else {
+    if (!this.data[index]) {
       const result = []
       forEach(collection, (val: any, key: string) => {
         const cache = this.getOne(val._id)
@@ -74,8 +77,34 @@ class DataBase {
     }
   }
 
+  updateCollection(index: string, patch: any[]) {
+    const cache: any[] = this.data[index]
+    if (cache && patch instanceof Array) {
+      const indexs = this.collectionIndex[index]
+      forEach(patch, (val: any, key: number) => {
+        const oldEle = cache[key]
+        if (oldEle._id === val._id) {
+          assign(oldEle, val)
+        }else {
+          const targetId = val._id
+          if (indexs.indexOf(targetId) === -1) {
+            cache.splice(key, 0, val)
+            indexs.splice(key, 0, targetId)
+            this.storeOne(val._id, val)
+          }else {
+            const oldIndex = indexs.indexOf(targetId, key)
+            cache.splice(oldIndex, 1)
+            indexs.splice(oldIndex, 1)
+            cache.splice(key, 0, val)
+            indexs.splice(key, 0, targetId)
+          }
+        }
+      })
+    }
+  }
+
   updateOne(index: string, patch: any, expire = 0): void {
-    const _patch = clone({}, patch)
+    const _patch = clone(patch)
     let val = this.data[index]
     if (val) {
       if (typeof patch === 'object') {
@@ -103,7 +132,7 @@ class DataBase {
     let result: any
     if (data) {
       if (this.typeIndex[index] === 'collection') {
-        result = clone({}, data)
+        result = clone(data)
         trackOne(result, index)
       }else {
         result = new BaseObject(data)

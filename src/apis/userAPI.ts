@@ -29,5 +29,28 @@ export const UserAPI = {
     .then((userMe: IUserMe) => {
       userModel.update(userMe)
     })
+  },
+
+  addEmail(email: string) {
+    return tbFetch.post({
+      Type: 'users',
+      Id: 'email'
+    }, {
+      email: email
+    }).then((data: any) => {
+      userModel.update(data)
+    })
+  },
+
+  bindPhone(phone: string, vcode: string) {
+    return tbFetch.put({
+      Type: 'users',
+      Id: 'phone'
+    }, {
+      phone: phone,
+      vcode: vcode
+    }).then((data: any) => {
+      userModel.update(data)
+    })
   }
 }

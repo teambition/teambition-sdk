@@ -8,7 +8,8 @@ export default class Model {
   }
 
   protected setCollection(namespace: string, data: any[]) {
-
+    DataBase.storeCollection(namespace, data)
+    return DataBase.getOne(namespace)
   }
 
   protected getOne(namespace: string) {
