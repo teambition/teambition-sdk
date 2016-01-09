@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/teambition/teambition-sdk#readme",
   "dependencies": {
+    "es6-collections": "^0.5.5",
     "es6-promise": "^3.0.2",
     "whatwg-fetch": "^0.10.1"
   },

@@ -12,8 +12,8 @@ export default class Model {
     return DataBase.getOne(namespace)
   }
 
-  protected getOne(namespace: string) {
-    return DataBase.getOne(namespace)
+  protected getOne<T>(namespace: string) {
+    return DataBase.getOne<T>(namespace)
   }
 
   protected updateOne(namespace: string, patch) {
@@ -21,5 +21,9 @@ export default class Model {
     if (Cache) {
       DataBase.updateOne(namespace, patch)
     }
+  }
+
+  protected removeOne(namespace: string) {
+    return DataBase
   }
 }

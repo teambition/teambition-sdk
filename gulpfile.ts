@@ -91,7 +91,7 @@ gulp.task('watch', (done: any) => {
   })
 
   watch(specPath, () => {
-    gulp.start('mocha', done)
+    gulp.start('mocha')
     gulp.start('lint')
   })
 })
@@ -106,13 +106,22 @@ gulp.task('pre-test', () => {
     .pipe(istanbul.hookRequire())
 })
 
-gulp.task('mocha', ['pre-test'], () => {
-  return gulp.src('./.tmp/test/index.js')
+gulp.task('mocha', ['pre-test'], (done) => {
+  let error = false
+  const stream = gulp.src('./.tmp/test/index.js')
     .pipe(mocha({
       reporter: 'spec'
     }))
-    .pipe(istanbul.writeReports())
-    .on('error', gutil.log)
+  stream.on('error', function() {
+    gutil.log.apply(gutil, arguments)
+    error = true
+    this.emit('end')
+  })
+  if (error) {
+    return stream
+  }else {
+    return stream.pipe(istanbul.writeReports())
+  }
 })
 
 gulp.task('build', () => {
@@ -121,6 +130,7 @@ gulp.task('build', () => {
   webpackConfig.entry = [
     'es6-promise',
     'whatwg-fetch',
+    'es6-collections',
     path.join(process.cwd(), 'src/app.ts')
   ]
   delete webpackConfig.output.path

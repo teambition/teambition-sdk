@@ -24,10 +24,15 @@ class DataBase {
     [index: string]: string[]
   }
 
+  private dataMaps: {
+    [index: string]: string[]
+  }
+
   constructor() {
     this.data = {}
     this.timeoutIndex = {}
     this.typeIndex = {}
+    this.dataMaps = {}
     this.collectionIndex = {}
   }
 
@@ -50,6 +55,7 @@ class DataBase {
   }
 
   storeCollection(index: string, collection: any[], expire = 0) {
+    const indexes = this.collectionIndex[index] = []
     if (!this.data[index]) {
       const result = []
       forEach(collection, (val: any, key: string) => {
@@ -60,6 +66,13 @@ class DataBase {
           result.push(val)
           this.storeOne(val._id, val)
         }
+        const maps = this.dataMaps[val._id]
+        if (maps) {
+          maps.push(val._id)
+        }else {
+          this.dataMaps[val._id] = [val._id]
+        }
+        indexes.push(val._id)
       })
       this.data[index] = result
       if (expire && typeof expire === 'number') {
@@ -127,7 +140,7 @@ class DataBase {
     }
   }
 
-  getOne(index: string): any {
+  getOne<T>(index: string): any {
     const data = this.data[index]
     let result: any
     if (data) {
@@ -142,6 +155,10 @@ class DataBase {
     }else {
       return false
     }
+  }
+
+  delete(index: string) {
+    delete this.data[index]
   }
 
   getExpire(index: string) {
