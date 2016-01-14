@@ -1,35 +1,51 @@
 'use strict'
 import {forEach} from '../utils'
-import {IMemberData} from 'teambition'
 
-export const setSchema = <T extends Schema>(target: T) => {
+export const setSchema = <T extends Schema>(target: T, data: any) => {
+  target.$$keys.forEach((key) => {
+    target[key] = data[key]
+  })
+  target.$$data = data
   forEach(target, (value, key) => {
-    let hasSet = false
-    target.$$keys.add(key)
-    Object.defineProperty(target, key, {
-      get() {
-        return value
-      },
-      set(newVal: any) {
-        hasSet = true
-        value = newVal
-        if (!hasSet) {
-          target.$$keys.delete(key)
+    if (key === '$$data') {
+      Object.defineProperty(target, key, {
+        enumerable: false,
+        configurable: true
+      })
+    }else if (key === '$$keys') {
+      Object.defineProperty(target, key, {
+        enumerable: false,
+        set(newVal) {
+          value = newVal
+        },
+        get() {
+          return value
         }
+      })
+    }else {
+      if (typeof data[key] === 'undefined') {
+        target.$$keys.add(key)
       }
-    })
+      Object.defineProperty(target, key, {
+        get() {
+          if (target.$$data) {
+            return target.$$data[key]
+          }
+        },
+        set(newVal: any) {
+          if (target.$$data) {
+            target.$$data[key] = newVal
+            target.$$keys.delete(key)
+          }
+        },
+        configurable: true
+      })
+    }
   })
   return target
 }
 
 export class Schema {
   $$keys = new Set<string>()
-
-  $$setData(member: IMemberData) {
-    for (const key of this.$$keys) {
-      this[key] = member[key]
-    }
-    console.log(this.$$keys)
-    return this
-  }
+  $$data: any
 }

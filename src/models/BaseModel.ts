@@ -2,28 +2,28 @@
 import DataBase from './DataBase'
 
 export default class Model {
-  protected setOne(namespace: string, data: any) {
+  protected setOne<T>(namespace: string, data: T): T {
     DataBase.storeOne(namespace, data)
-    return DataBase.getOne(namespace)
-  }
-
-  protected setCollection(namespace: string, data: any[]) {
-    DataBase.storeCollection(namespace, data)
-    return DataBase.getOne(namespace)
-  }
-
-  protected getOne<T>(namespace: string) {
     return DataBase.getOne<T>(namespace)
   }
 
-  protected updateOne(namespace: string, patch) {
+  protected setCollection<T>(namespace: string, data: T[]): T[] {
+    DataBase.storeCollection(namespace, data)
+    return DataBase.getOne<T[]>(namespace)
+  }
+
+  protected getOne<T>(namespace: string): T {
+    return DataBase.getOne<T>(namespace)
+  }
+
+  protected updateOne(namespace: string, patch): void {
     const Cache = DataBase.getOne(namespace)
     if (Cache) {
       DataBase.updateOne(namespace, patch)
     }
   }
 
-  protected removeOne(namespace: string) {
-    return DataBase
+  protected removeOne(namespace: string): void {
+    return DataBase.delete(namespace)
   }
 }

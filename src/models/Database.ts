@@ -68,9 +68,9 @@ class DataBase {
         }
         const maps = this.dataMaps[val._id]
         if (maps) {
-          maps.push(val._id)
+          maps.push(index)
         }else {
-          this.dataMaps[val._id] = [val._id]
+          this.dataMaps[val._id] = [index]
         }
         indexes.push(val._id)
       })
@@ -159,6 +159,16 @@ class DataBase {
 
   delete(index: string) {
     delete this.data[index]
+    const maps = this.dataMaps[index]
+    if (maps && maps.length) {
+      forEach(maps, (collectionIndex: string) => {
+        const indexes = this.collectionIndex[collectionIndex]
+        const collection = this.data[collectionIndex]
+        const position = indexes.indexOf(index)
+        indexes.splice(position, 1)
+        collection.splice(position, 1)
+      })
+    }
   }
 
   getExpire(index: string) {

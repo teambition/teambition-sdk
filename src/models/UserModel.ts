@@ -18,4 +18,4 @@ class UserModel extends Model {
   }
 }
 
-export const userModel = new UserModel()
+export default new UserModel()

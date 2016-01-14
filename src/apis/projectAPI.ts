@@ -4,8 +4,8 @@ import MemberModel from '../models/MemberModel'
 import {Member} from '../schemas/member'
 import {IMemberData} from 'teambition'
 
-export const MemberAPI = {
-  getProjectMembers(projectId: string): Promise<Member[]> {
+export const ProjectAPI = {
+  getMembers(projectId: string): Promise<Member[]> {
     const cache = MemberModel.getProjectMembers(projectId)
     if (cache) {
       return new Promise<Member[]>((resolve, reject) => {
@@ -23,13 +23,13 @@ export const MemberAPI = {
     }
   },
 
-  deleteProjectMember(memberId: string) {
+  deleteMember(memberId: string) {
     return tbFetch.delete({
       Type: 'members',
       Id: memberId
     })
     .then(() => {
-
+      MemberModel.removeMember(memberId)
     })
   }
 }

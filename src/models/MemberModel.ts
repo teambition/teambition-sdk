@@ -1,25 +1,39 @@
 'use strict'
 import BaseModel from './BaseModel'
 import {forEach} from '../utils'
-import {MemberSchema, Member} from '../schemas/member'
+import {Member} from '../schemas/member'
+import {setSchema} from '../schemas/schema'
 import {IMemberData} from 'teambition'
 
 class MemberModel extends BaseModel {
-  setProjectMembers(projectId: string, members: IMemberData[]) {
+  setProjectMembers(projectId: string, members: IMemberData[]): Member[] {
     const result = []
     forEach(members, (member: IMemberData) => {
-      result.push(MemberSchema.$$setData(member))
+      result.push(setSchema(new Member(), member))
     })
     this.setCollection(`members:${projectId}`, result)
     return result
   }
 
   getProjectMembers(projectId: string): Member[] {
-    return this.getOne<Array<Member>>(`members:${projectId}`);
+    return this.getOne<Array<Member>>(`members:${projectId}`)
   }
 
   removeMember(memberId: string) {
+    this.removeOne(memberId)
+  }
 
+  setOrgMember(organizationId: string, members: IMemberData[]): Member[] {
+    const result = []
+    forEach(members, (member: IMemberData) => {
+      result.push(setSchema(new Member(), member))
+    })
+    this.setCollection(`members:${organizationId}`, result)
+    return result
+  }
+
+  getOrgMember(organizationId: string): Member[] {
+    return this.getOne<Array<Member>>(`members:${organizationId}`)
   }
 }
 

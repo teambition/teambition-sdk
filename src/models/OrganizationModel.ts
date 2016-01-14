@@ -3,21 +3,21 @@ import Model from './BaseModel'
 import {IOrganizationData} from 'teambition'
 
 class OrganizationModel extends Model {
-  getAll() {
-    return this.getOne('organization')
+  getAll(): Array<IOrganizationData> {
+    return this.getOne<IOrganizationData[]>('organization')
   }
 
-  getOrganization(id: string) {
-    return this.getOne(`organization:${id}`)
+  get(id: string): IOrganizationData {
+    return this.getOne<IOrganizationData>(id)
   }
 
-  setAll(organizations: IOrganizationData[]) {
-    this.setCollection('organization', organizations)
+  setAll(organizations: IOrganizationData[]): IOrganizationData[] {
+    return this.setCollection<IOrganizationData>('organization', organizations)
   }
 
-  setOrganization(id: string, data: IOrganizationData) {
-    this.setOne(`organization:${id}`, data)
+  set(data: IOrganizationData): IOrganizationData {
+    return this.setOne<IOrganizationData>(data._id, data)
   }
 }
 
-export const organizationModel = new OrganizationModel()
+export default new OrganizationModel()

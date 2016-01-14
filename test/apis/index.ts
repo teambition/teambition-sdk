@@ -1,3 +1,3 @@
 export * from './user'
 export * from './organizations'
-export * from './member'
+export * from './project'

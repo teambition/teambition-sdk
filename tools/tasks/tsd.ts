@@ -12,6 +12,7 @@ const install = async function () {
   delete packageJson.devDependencies.tsd
   delete packageJson.dependencies['whatwg-fetch']
   delete packageJson.dependencies['es6-promise']
+  delete packageJson.dependencies['es6-collections']
   let deps = Object.keys(packageJson.dependencies)
   let devDeps = Object.keys(packageJson.devDependencies)
   let query = new Tsd.Query()

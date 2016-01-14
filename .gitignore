@@ -53,3 +53,4 @@ account-wx-service.iml
 .tsdrc
 jsconfig.json
 coverage
+.vscode

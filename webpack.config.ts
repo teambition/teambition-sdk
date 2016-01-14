@@ -28,7 +28,7 @@ export default {
     silent: true
   },
   devtool: 'inline-source-map',
-  watch: true,
+  watch: false,
   devServer: {
     port: 8087
   },

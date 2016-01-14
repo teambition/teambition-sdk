@@ -1,6 +1,5 @@
 'use strict'
 import * as gulp from 'gulp'
-import * as uglify from 'gulp-uglify'
 import * as path from 'path'
 import * as watch from 'gulp-watch'
 import * as mocha from 'gulp-mocha'
@@ -9,43 +8,51 @@ import * as gutil from 'gulp-util'
 import * as istanbul from 'gulp-istanbul'
 import * as typescript from 'gulp-typescript'
 import config from './webpack.config'
+const webpack = require('webpack')
 const stylish = require('gulp-tslint-stylish')
-const webpack = require('gulp-webpack')
 
-const bundle = (watch: boolean, opts?: any) => {
-  let webpackConfig = Object.assign({}, config)
-  webpackConfig.entry = [
+const buildConfigFile = path.join(process.cwd(), 'tools/build/bundle.json')
+
+const bundle = (entry: any, output: string, minify: boolean, tsconfig?: string, callback?: any) => {
+  let webpackConfig: any = Object.assign({}, config)
+  let plugins = []
+  if (minify) {
+    plugins.push(new webpack.optimize.UglifyJsPlugin({
+      mangle: {
+        except: ['$super', '$', 'exports', 'require']
+      }
+    }))
+  }
+  if (tsconfig) {
+    webpackConfig.ts.configFileName = tsconfig
+  }
+  webpackConfig.entry =  entry
+  webpackConfig.plugins = plugins
+  delete webpackConfig.output.path
+  webpackConfig.output.filename = `dist/${output}`
+  return webpack(webpackConfig, (err, stats) => {
+    if (err) {
+      throw new gutil.PluginError('webpack', err)
+    }
+    gutil.log('[webpack]', stats.toString())
+    callback()
+  })
+}
+
+gulp.task('bundle.es6', (done) => {
+  const entry = [
     'whatwg-fetch',
     path.join(process.cwd(), 'src/app.ts')
   ]
-  webpackConfig = Object.assign(webpackConfig, opts)
-  webpackConfig.watch = watch
-  delete webpackConfig.output.path
-  return gulp.src('./src/app.ts')
-  .pipe(webpack(
-    webpackConfig
-  ))
-}
-
-gulp.task('bundle.es6', () => {
-  return bundle(false)
-    .pipe(gulp.dest('./dist/'))
+  return bundle(entry, 'tbsdk.js', false, buildConfigFile, done)
 })
 
 gulp.task('default', ['bundle.es6'])
 
-gulp.task('build.mock', () => {
-  const webpackConfig = Object.assign({}, config)
-  webpackConfig.watch = false
-  webpackConfig.entry = [
-    path.join(process.cwd(), 'mock/index.ts')
-  ]
-  webpackConfig.output.filename = 'mock.js'
-  webpackConfig.ts.configFileName = path.join(process.cwd(), 'tools/build/mock.json')
-  delete webpackConfig.output.path
-  return gulp.src('./mock/index.ts')
-    .pipe(webpack(webpackConfig))
-    .pipe(gulp.dest('./dist/'))
+gulp.task('build.mock', (done) => {
+  const entry = path.join(process.cwd(), 'mock/index.ts')
+  const configFileName = path.join(process.cwd(), 'tools/build/mock.json')
+  return bundle(entry, 'mock.js', false, configFileName, done)
 })
 
 const buildTest = (path?: string, destPath?: string) => {
@@ -57,14 +64,14 @@ const buildTest = (path?: string, destPath?: string) => {
   let endPipe: any
   Path.forEach((item: string) => {
     const destDir = item.split('/')[1]
-    destPath = destPath ? destPath : `./.tmp/${destDir}`
+    const dest = destPath ? destPath : `./.tmp/${destDir}`
     endPipe = gulp.src(item)
     .pipe(typescript({
       module: 'commonjs',
       target: 'es5',
       isolatedModules: true
     }))
-    .pipe(gulp.dest(destPath))
+    .pipe(gulp.dest(dest))
   })
   return endPipe
 }
@@ -72,6 +79,22 @@ const buildTest = (path?: string, destPath?: string) => {
 gulp.task('build.test', () => {
   return buildTest()
 })
+
+const mochaRunner = (report: boolean) => {
+  const stream = gulp.src('./.tmp/test/index.js')
+  .pipe(mocha({
+    reporter: 'spec'
+  }))
+  stream.on('error', function(err: any) {
+    console.error(err)
+    this.emit('end')
+  })
+  if (!report) {
+    return stream
+  }else {
+    return stream.pipe(istanbul.writeReports())
+  }
+}
 
 gulp.task('watch', (done: any) => {
   const watchPath = [
@@ -91,7 +114,7 @@ gulp.task('watch', (done: any) => {
   })
 
   watch(specPath, () => {
-    gulp.start('mocha')
+    mochaRunner(false)
     gulp.start('lint')
   })
 })
@@ -106,38 +129,19 @@ gulp.task('pre-test', () => {
     .pipe(istanbul.hookRequire())
 })
 
-gulp.task('mocha', ['pre-test'], (done) => {
-  let error = false
-  const stream = gulp.src('./.tmp/test/index.js')
-    .pipe(mocha({
-      reporter: 'spec'
-    }))
-  stream.on('error', function() {
-    gutil.log.apply(gutil, arguments)
-    error = true
-    this.emit('end')
-  })
-  if (error) {
-    return stream
-  }else {
-    return stream.pipe(istanbul.writeReports())
-  }
+gulp.task('test', ['pre-test'], (done: any) => {
+  return mochaRunner(true)
 })
 
-gulp.task('build', () => {
-  const webpackConfig = Object.assign({}, config)
-  webpackConfig.watch = false
-  webpackConfig.entry = [
+gulp.task('build', (done) => {
+  const entry = [
     'es6-promise',
     'whatwg-fetch',
     'es6-collections',
     path.join(process.cwd(), 'src/app.ts')
   ]
-  delete webpackConfig.output.path
-  return gulp.src('./src/app.ts')
-    .pipe(webpack(webpackConfig))
-    .pipe(uglify())
-    .pipe(gulp.dest('./dist/'))
+  const output = 'tbsdk.min.js'
+  bundle(entry, output, true, buildConfigFile, done)
 })
 
 gulp.task('lint', () => {

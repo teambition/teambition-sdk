@@ -16,7 +16,7 @@ export const forEach = (target: any, eachFunc: (val: any, key: any) => any) => {
   }
 }
 
-export const assign = (target: any, origin: any) => {
+export const assign = <T>(target: any, origin: T): T => {
   forEach(origin, (val: any, key: string) => {
     target[key] = origin[key]
   })
