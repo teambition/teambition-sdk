@@ -66,7 +66,7 @@ export default describe('UserAPI test', () => {
     mockResponse.emails = mockResponse.emails.concat([updateData])
     httpBackend.whenPOST(`${apihost}/users/email`, {
       email: updateData.email
-    }).respond(mockResponse)
+    }).respond(mockResponse.emails)
 
     UserAPI.getUserMe().then((data: IUserMe) => {
       me = data
@@ -81,6 +81,9 @@ export default describe('UserAPI test', () => {
       expect(data.emails.length).to.equal(2)
       expect(data.emails[1]).to.deep.equal(updateData)
       done()
+    })
+    .catch((reason: Error) => {
+      console.error(reason)
     })
 
     httpBackend.flush()

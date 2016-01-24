@@ -1,10 +1,10 @@
 'use strict'
 import {tbFetch} from '../utils/fetch'
-import UserModel from '../models/UserModel'
-import {IUserMe} from 'teambition'
+import UserModel from '../models/user_model'
+import {IUserMe, IUserEmail} from 'teambition'
 
 export const UserAPI = {
-  getUserMe() {
+  getUserMe(): Promise<IUserMe> {
     const cache = UserModel.get()
     if (cache) {
       return new Promise((resolve, reject) => {
@@ -21,28 +21,32 @@ export const UserAPI = {
     }
   },
 
-  update(patch: any) {
+  update<T extends {
+    _id: string
+  }>(patch: any): Promise<T> {
     return tbFetch.put({
       Type: 'users',
       Id: 'me'
     }, patch)
-    .then((userMe: IUserMe) => {
+    .then((userMe: any) => {
       UserModel.update(userMe)
+      return userMe
     })
   },
 
-  addEmail(email: string) {
+  addEmail(email: string): Promise<IUserEmail[]> {
     return tbFetch.post({
       Type: 'users',
       Id: 'email'
     }, {
       email: email
-    }).then((data: any) => {
-      UserModel.update(data)
+    }).then((data: IUserEmail[]) => {
+      UserModel.updateEmail(data)
+      return data
     })
   },
 
-  bindPhone(phone: string, vcode: string) {
+  bindPhone(phone: string, vcode: string): Promise<void> {
     return tbFetch.put({
       Type: 'users',
       Id: 'phone'
@@ -50,7 +54,9 @@ export const UserAPI = {
       phone: phone,
       vcode: vcode
     }).then((data: any) => {
-      UserModel.update(data)
+      UserModel.update({
+        phone: phone
+      })
     })
   }
 }

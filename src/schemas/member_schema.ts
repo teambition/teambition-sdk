@@ -1,7 +1,7 @@
 'use strict'
 import {Schema} from './schema'
 
-export class Member extends Schema {
+export default class Member extends Schema {
   _id: string = undefined
   _boundToObjectId: string = undefined
   boundToObjectType: string = undefined

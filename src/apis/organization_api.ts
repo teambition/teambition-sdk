@@ -1,7 +1,7 @@
 'use strict'
 import {tbFetch} from '../utils/fetch'
-import OrganizationModel from '../models/OrganizationModel'
-import MemberModel from '../models/MemberModel'
+import OrganizationModel from '../models/organization_model'
+import MemberModel from '../models/member_model'
 import {IOrganizationData, IMemberData} from 'teambition'
 
 export const OrganizationAPI = {

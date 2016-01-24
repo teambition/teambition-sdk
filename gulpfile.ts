@@ -61,7 +61,7 @@ const buildTest = (path?: string, destPath?: string) => {
     './mock/**/*.ts',
     './test/**/*.ts'
   ]
-  let endPipe: any
+  let endPipe: NodeJS.ReadWriteStream
   Path.forEach((item: string) => {
     const destDir = item.split('/')[1]
     const dest = destPath ? destPath : `./.tmp/${destDir}`

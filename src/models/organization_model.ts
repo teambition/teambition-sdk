@@ -1,5 +1,5 @@
 'use strict'
-import Model from './BaseModel'
+import Model from './model'
 import {IOrganizationData} from 'teambition'
 
 class OrganizationModel extends Model {

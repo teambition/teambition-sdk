@@ -1,7 +1,7 @@
 'use strict'
 import {clone, assign, forEach} from '../utils'
 import {trackObject, trackOne, trackCollection} from '../utils/track'
-import {BaseObject} from './BaseObject'
+import {BaseObject} from './union_object'
 
 class DataBase {
   private data: {
@@ -133,7 +133,7 @@ class DataBase {
         }
         this.data[index] = val
       }else {
-        throw 'Patch should be Object'
+        throw 'Patch target should be Object'
       }
     }else {
       throw 'Data is not existed, can not update'

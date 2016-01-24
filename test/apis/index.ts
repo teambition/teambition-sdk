@@ -1,3 +1,3 @@
-export * from './user'
-export * from './organizations'
-export * from './project'
+export * from './user_api_spec'
+export * from './organizations_api_spec'
+export * from './project_api_spec'

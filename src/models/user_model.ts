@@ -1,5 +1,6 @@
-import Model from './BaseModel'
-import {IUserMe} from 'teambition'
+'use strict'
+import Model from './model'
+import {IUserMe, IUserEmail} from 'teambition'
 
 class UserModel extends Model {
 
@@ -10,11 +11,17 @@ class UserModel extends Model {
   }
 
   get(): IUserMe {
-    return this.getOne(this.namespace)
+    return this.getOne<IUserMe>(this.namespace)
   }
 
   update(patch: any): void {
     this.updateOne(this.namespace, patch)
+  }
+
+  updateEmail(emails: IUserEmail[]) {
+    this.updateOne(this.namespace, {
+      emails: emails
+    })
   }
 }
 

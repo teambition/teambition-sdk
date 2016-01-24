@@ -1,5 +1,5 @@
 'use strict'
-import DataBase from './DataBase'
+import DataBase from './database'
 
 export default class Model {
   protected setOne<T>(namespace: string, data: T): T {
@@ -16,7 +16,7 @@ export default class Model {
     return DataBase.getOne<T>(namespace)
   }
 
-  protected updateOne(namespace: string, patch): void {
+  protected updateOne(namespace: string, patch: any): void {
     const Cache = DataBase.getOne(namespace)
     if (Cache) {
       DataBase.updateOne(namespace, patch)

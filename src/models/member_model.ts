@@ -1,7 +1,7 @@
 'use strict'
-import BaseModel from './BaseModel'
+import BaseModel from './model'
 import {forEach} from '../utils'
-import {Member} from '../schemas/member'
+import Member from '../schemas/member_schema'
 import {setSchema} from '../schemas/schema'
 import {IMemberData} from 'teambition'
 
@@ -9,7 +9,7 @@ class MemberModel extends BaseModel {
   setProjectMembers(projectId: string, members: IMemberData[]): Member[] {
     const result = []
     forEach(members, (member: IMemberData) => {
-      result.push(setSchema(new Member(), member))
+      result.push(setSchema<Member>(new Member(), member))
     })
     this.setCollection(`members:${projectId}`, result)
     return result

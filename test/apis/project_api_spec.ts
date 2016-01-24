@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import {Backend, ProjectAPI} from '../'
-import {Member} from '../../src/schemas/member'
+import Member from '../../src/schemas/member_schema'
 import {apihost} from '../app'
 import {members} from '../mock'
 

@@ -1,3 +1,6 @@
+'use strict'
+import {setSchema, Schema} from '../schemas/schema'
+
 export const forEach = (target: any, eachFunc: (val: any, key: any) => any) => {
   let length: number
   if (target instanceof Array) {
@@ -62,4 +65,12 @@ export const uuid = () => {
   }
   uuidStack.push(UUID)
   return UUID
+}
+
+export const datasToSchemas = <T, U extends Schema>(datas: T[], Schema: U): U[] => {
+  const result = new Array<U>()
+  forEach(datas, (data: T, index: number) => {
+    result.push(setSchema(Schema, data))
+  })
+  return result
 }
