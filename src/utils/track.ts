@@ -1,5 +1,5 @@
 'use strict'
-import {forEach} from './'
+import {forEach} from './index'
 
 const trackIndex = {}
 

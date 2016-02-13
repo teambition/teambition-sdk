@@ -2,16 +2,14 @@
 import {tbFetch} from '../utils/fetch'
 import OrganizationModel from '../models/organization_model'
 import MemberModel from '../models/member_model'
+import Member from '../schemas/member_schema'
 import {IOrganizationData, IMemberData} from 'teambition'
 
 export const OrganizationAPI = {
-  getAll: (): Promise<IOrganizationData[]> => {
+  getOrgs: (): Promise<IOrganizationData[]> => {
     const cache = OrganizationModel.getAll()
-    return cache ?
-    new Promise((resolve, reject) => {
-      resolve(cache)
-    }) :
-    tbFetch.get({
+    if (cache) return Promise.resolve(cache)
+    return tbFetch.get({
       Type: 'organizations'
     }).then((organizations: IOrganizationData[]) => {
       return OrganizationModel.setAll(organizations)
@@ -19,11 +17,8 @@ export const OrganizationAPI = {
   },
   getOne: (organizationId: string): Promise<IOrganizationData> => {
     const cache = OrganizationModel.get(organizationId)
-    return cache ?
-    new Promise((resolve, reject) => {
-      resolve(cache)
-    }) :
-    tbFetch.get({
+    if (cache) return Promise.resolve(cache)
+    return tbFetch.get({
       Type: 'organizations',
       Id: organizationId
     })
@@ -31,19 +26,16 @@ export const OrganizationAPI = {
       return OrganizationModel.set(organization)
     })
   },
-  getMembers: (organizationId: string): Promise<IMemberData[]> => {
-    const cache = MemberModel.getOrgMember(organizationId)
-    return cache ?
-    new Promise((resolve, reject) => {
-      resolve(cache)
-    }) :
-    tbFetch.get({
+  getMembers: (organizationId: string): Promise<Member[]> => {
+    const cache = MemberModel.getOrgMembers(organizationId)
+    if (cache) return Promise.resolve(cache)
+    return tbFetch.get({
       Version: 'V2',
       Type: 'organizations',
       Id: organizationId,
       Path1: 'members'
     }).then((members: IMemberData[]) => {
-      return MemberModel.setOrgMember(organizationId, members)
+      return MemberModel.addOrgMembers(organizationId, members)
     })
   }
 }

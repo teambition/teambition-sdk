@@ -10,7 +10,7 @@
       "check-space",
       "check-lowercase"
     ],
-    "curly": true,
+    "curly": false,
     "eofline": true,
     "forin": true,
     "indent": [true, 2],

@@ -20,6 +20,9 @@ const bundle = (entry: any, output: string, minify: boolean, tsconfig?: string, 
     plugins.push(new webpack.optimize.UglifyJsPlugin({
       mangle: {
         except: ['$super', '$', 'exports', 'require']
+      },
+      compress: {
+        warnings: false
       }
     }))
   }
@@ -133,7 +136,7 @@ gulp.task('test', ['pre-test'], (done: any) => {
   return mochaRunner(true)
 })
 
-gulp.task('build', (done) => {
+gulp.task('build.sdk', (done) => {
   const entry = [
     'es6-promise',
     'whatwg-fetch',

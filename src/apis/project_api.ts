@@ -19,7 +19,7 @@ export const ProjectAPI = {
       Path1: 'members'
     })
     .then((members: IMemberData[]) => {
-      return MemberModel.setProjectMembers(projectId, members)
+      return MemberModel.addProjectMembers(projectId, members)
     })
   },
 
@@ -43,7 +43,7 @@ export const ProjectAPI = {
       Type: 'projects'
     })
     .then((projects: IProjectData[]) => {
-      return ProjectModel.setProjects(projects)
+      return ProjectModel.addProjects(projects)
     })
   }
 }

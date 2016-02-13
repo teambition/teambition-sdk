@@ -4,7 +4,8 @@ import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
 import {Backend, OrganizationAPI, clone, forEach} from '../'
 import {apihost} from '../app'
-import {organizations} from '../mock'
+import Member from '../../src/schemas/member_schema'
+import {organizations, members} from '../mock'
 import {IOrganizationData} from 'teambition'
 
 const expect = chai.expect
@@ -18,14 +19,16 @@ export default describe('organizations API test', () => {
     .whenGET(`${apihost}/organizations`)
     .respond(organizations)
   })
+
   it('get organizations should ok', (done: Function) => {
-    OrganizationAPI.getAll()
+    OrganizationAPI.getOrgs()
     .then((data: IOrganizationData[]) => {
       expect(data).to.instanceof(Array)
       done()
     })
     httpBackend.flush()
   })
+
   it('get one organization should ok', (done: Function) => {
     const id = organizations[0]._id
     let orgs: IOrganizationData[]
@@ -36,7 +39,7 @@ export default describe('organizations API test', () => {
     .whenGET(`${apihost}/organizations/${id}`)
     .respond(clone(organizations[0]))
 
-    OrganizationAPI.getAll()
+    OrganizationAPI.getOrgs()
     .then((data: IOrganizationData[]) => {
       orgs = data
       fetch = spy
@@ -54,6 +57,22 @@ export default describe('organizations API test', () => {
     .catch((reason) => {
       fetch = originFetch
       console.error(reason)
+    })
+
+    httpBackend.flush()
+  })
+
+  it('get organization members should ok', (done: Function) => {
+    const id = organizations[0]._id
+
+    httpBackend
+    .whenGET(`${apihost}/V2/organizations/${id}/members`)
+    .respond(members)
+
+    OrganizationAPI.getMembers(id)
+    .then((members: Member[]) => {
+      expect(members).to.instanceof(Array)
+      done()
     })
 
     httpBackend.flush()

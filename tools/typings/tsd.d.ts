@@ -21,3 +21,5 @@
 /// <reference path="gulp-typescript/gulp-typescript.d.ts" />
 /// <reference path="gulp-util/gulp-util.d.ts" />
 /// <reference path="through2/through2.d.ts" />
+/// <reference path="source-map/source-map.d.ts" />
+/// <reference path="uglify-js/uglify-js.d.ts" />

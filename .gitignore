@@ -36,8 +36,6 @@ plugins
 ionic.project
 config.xml
 www
-dist
-bower_components
 .tmp
 
 .DS_Store

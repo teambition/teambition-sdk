@@ -1,5 +1,5 @@
 'use strict'
-import {assign, forEach} from './'
+import {assign, forEach} from './index'
 
 let apiHost: string
 const apiPath = ['Version', 'Type', 'Id', 'Path1', 'Path2', 'Path3']
@@ -93,6 +93,10 @@ class Fetch {
         querys.push(`${key}=${val}`)
       }
     })
+    const version = uris[0]
+    if (typeof version !== 'undefined') {
+      uris[0] = `/${version}`
+    }
     let url = apiHost + uris.join('/')
     url = querys.length ? url + '?' + querys.join('&') : url
     return url

@@ -6,7 +6,7 @@ import {setSchema} from '../schemas/schema'
 import {IMemberData} from 'teambition'
 
 class MemberModel extends BaseModel {
-  setProjectMembers(projectId: string, members: IMemberData[]): Member[] {
+  addProjectMembers(projectId: string, members: IMemberData[]): Member[] {
     const result = []
     forEach(members, (member: IMemberData) => {
       result.push(setSchema<Member>(new Member(), member))
@@ -23,7 +23,7 @@ class MemberModel extends BaseModel {
     this.removeOne(memberId)
   }
 
-  setOrgMember(organizationId: string, members: IMemberData[]): Member[] {
+  addOrgMembers(organizationId: string, members: IMemberData[]): Member[] {
     const result = []
     forEach(members, (member: IMemberData) => {
       result.push(setSchema(new Member(), member))
@@ -32,7 +32,7 @@ class MemberModel extends BaseModel {
     return result
   }
 
-  getOrgMember(organizationId: string): Member[] {
+  getOrgMembers(organizationId: string): Member[] {
     return this.getOne<Array<Member>>(`members:${organizationId}`)
   }
 }
