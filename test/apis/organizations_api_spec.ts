@@ -11,7 +11,7 @@ import {IOrganizationData} from 'teambition'
 const expect = chai.expect
 chai.use(sinonChai)
 
-export default describe('organizations API test', () => {
+export default describe('Organizations API test', () => {
   let httpBackend: Backend
   beforeEach(() => {
     httpBackend = new Backend()

@@ -1,41 +1,49 @@
 'use strict'
-import {tbFetch} from '../utils/fetch'
+import BaseAPI from './base_api'
 import OrganizationModel from '../models/organization_model'
 import MemberModel from '../models/member_model'
 import Member from '../schemas/member_schema'
 import {IOrganizationData, IMemberData} from 'teambition'
 
-export const OrganizationAPI = {
-  getOrgs: (): Promise<IOrganizationData[]> => {
-    const cache = OrganizationModel.getAll()
+class Organizations extends BaseAPI {
+
+  private MemberModel = new MemberModel()
+  private OrganizationModel = new OrganizationModel()
+
+  getOrgs (): Promise<IOrganizationData[]> {
+    const cache = this.OrganizationModel.getAll()
     if (cache) return Promise.resolve(cache)
-    return tbFetch.get({
+    return this.tbFetch.get({
       Type: 'organizations'
     }).then((organizations: IOrganizationData[]) => {
-      return OrganizationModel.setAll(organizations)
+      return this.OrganizationModel.saveAll(organizations)
     })
-  },
-  getOne: (organizationId: string): Promise<IOrganizationData> => {
-    const cache = OrganizationModel.get(organizationId)
+  }
+
+  getOne (organizationId: string): Promise<IOrganizationData> {
+    const cache = this.OrganizationModel.get(organizationId)
     if (cache) return Promise.resolve(cache)
-    return tbFetch.get({
+    return this.tbFetch.get({
       Type: 'organizations',
       Id: organizationId
     })
     .then((organization: IOrganizationData) => {
-      return OrganizationModel.set(organization)
+      return this.OrganizationModel.set(organization)
     })
-  },
-  getMembers: (organizationId: string): Promise<Member[]> => {
-    const cache = MemberModel.getOrgMembers(organizationId)
+  }
+
+  getMembers (organizationId: string): Promise<Member[]> {
+    const cache = this.MemberModel.getOrgMembers(organizationId)
     if (cache) return Promise.resolve(cache)
-    return tbFetch.get({
+    return this.tbFetch.get({
       Version: 'V2',
       Type: 'organizations',
       Id: organizationId,
       Path1: 'members'
     }).then((members: IMemberData[]) => {
-      return MemberModel.addOrgMembers(organizationId, members)
+      return this.MemberModel.saveOrgMembers(organizationId, members)
     })
   }
 }
+
+export const OrganizationAPI = new Organizations()

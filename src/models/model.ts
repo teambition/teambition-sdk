@@ -1,29 +1,25 @@
 'use strict'
-import DataBase from './database'
+import DataBase from '../storage/database'
 
 export default class Model {
-  protected setOne<T>(namespace: string, data: T): T {
-    DataBase.storeOne(namespace, data)
-    return DataBase.getOne<T>(namespace)
+
+  private DataBase = new DataBase()
+
+  protected _save<T>(namespace: string, data: T): T {
+    this.DataBase.store(namespace, data)
+    return this.DataBase.getOne<T>(namespace)
   }
 
-  protected setCollection<T>(namespace: string, data: T[]): T[] {
-    DataBase.storeCollection(namespace, data)
-    return DataBase.getOne<T[]>(namespace)
+  protected _get<T>(namespace: string): T {
+    return this.DataBase.getOne<T>(namespace)
   }
 
-  protected getOne<T>(namespace: string): T {
-    return DataBase.getOne<T>(namespace)
+  protected _update(namespace: string, patch: any): void {
+    const Cache = this.DataBase.getOne(namespace)
+    if (Cache) this.DataBase.update(namespace, patch)
   }
 
-  protected updateOne(namespace: string, patch: any): void {
-    const Cache = DataBase.getOne(namespace)
-    if (Cache) {
-      DataBase.updateOne(namespace, patch)
-    }
-  }
-
-  protected removeOne(namespace: string): void {
-    return DataBase.delete(namespace)
+  protected _delete(namespace: string): void {
+    return this.DataBase.delete(namespace)
   }
 }

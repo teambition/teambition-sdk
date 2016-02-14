@@ -4,16 +4,14 @@ import {datasToSchemas} from '../utils'
 import Project from '../schemas/project_schema'
 import {IProjectData} from 'teambition'
 
-class ProjectModel extends BaseModel {
+export default class ProjectModel extends BaseModel {
   addProjects(projects: IProjectData[]): Project[] {
     const result = datasToSchemas(projects, new Project())
-    this.setCollection(`projects`, result)
+    this._save(`projects`, result)
     return result
   }
 
   getProjects(): Project[] {
-    return this.getOne<Project[]>('projects')
+    return this._get<Project[]>('projects')
   }
 }
-
-export default new ProjectModel()

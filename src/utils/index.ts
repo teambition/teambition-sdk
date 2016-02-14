@@ -1,7 +1,15 @@
 'use strict'
 import {setSchema, Schema} from '../schemas/schema'
 
-export const forEach = (target: any, eachFunc: (val: any, key: any) => any) => {
+export function forEach<T>(target: Array<T>, eachFunc: (val: T, key: number) => void): void
+
+export function forEach<T>(target: {
+  [index: string]: T
+}, eachFunc: (val: T, key: string) => void): void
+
+export function forEach(target: any, eachFunc: (val: any, key: any) => void) : void
+
+export function forEach (target: any, eachFunc: (val: any, key: any) => any) {
   let length: number
   if (target instanceof Array) {
     length = target.length
@@ -19,17 +27,15 @@ export const forEach = (target: any, eachFunc: (val: any, key: any) => any) => {
   }
 }
 
-export const assign = <T>(target: any, origin: T): T => {
-  forEach(origin, (val: any, key: string) => {
+export const assign = <T, U>(target: T, origin: U): T & U => {
+  forEach(origin, (val, key) => {
     target[key] = origin[key]
   })
-  return target
+  return <T & U>target
 }
 
 export const clone = <T>(origin: T): T => {
-  if (typeof origin === 'undefined' || typeof origin !== 'object') {
-    return
-  }
+  if (typeof origin === 'undefined' || typeof origin !== 'object') return
   let target
   if (origin instanceof Array) {
     target = new Array()

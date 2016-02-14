@@ -9,7 +9,8 @@
     "../../src/app.ts",
     "../../src/teambition.d.ts",
     "../../tools/build/whatwg-fetch.d.ts",
-    "../../tools/build/es6-set.d.ts"
+    "../../tools/build/es6-set.d.ts",
+    "../../tools/build/es6-reflect-proxy.d.ts"
   ],
   "exclude": [
     "node_modules"

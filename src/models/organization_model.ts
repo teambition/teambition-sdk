@@ -2,22 +2,20 @@
 import Model from './model'
 import {IOrganizationData} from 'teambition'
 
-class OrganizationModel extends Model {
+export default class OrganizationModel extends Model {
   getAll(): Array<IOrganizationData> {
-    return this.getOne<IOrganizationData[]>('organization')
+    return this._get<IOrganizationData[]>('organization')
   }
 
   get(id: string): IOrganizationData {
-    return this.getOne<IOrganizationData>(id)
+    return this._get<IOrganizationData>(id)
   }
 
-  setAll(organizations: IOrganizationData[]): IOrganizationData[] {
-    return this.setCollection<IOrganizationData>('organization', organizations)
+  saveAll(organizations: IOrganizationData[]): IOrganizationData[] {
+    return this._save<IOrganizationData[]>('organization', organizations)
   }
 
   set(data: IOrganizationData): IOrganizationData {
-    return this.setOne<IOrganizationData>(data._id, data)
+    return this._save<IOrganizationData>(data._id, data)
   }
 }
-
-export default new OrganizationModel()

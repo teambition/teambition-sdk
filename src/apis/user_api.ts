@@ -1,62 +1,62 @@
 'use strict'
-import {tbFetch} from '../utils/fetch'
+import BaseAPI from './base_api'
 import UserModel from '../models/user_model'
 import {IUserMe, IUserEmail} from 'teambition'
 
-export const UserAPI = {
+class User extends BaseAPI {
+
+  private UserModel = new UserModel()
+
   getUserMe(): Promise<IUserMe> {
-    const cache = UserModel.get()
-    if (cache) {
-      return new Promise((resolve, reject) => {
-        resolve(cache)
-      })
-    }else {
-      return tbFetch.get({
-        Type: 'users',
-        Id: 'me'
-      })
-      .then((userMe: IUserMe) => {
-        return UserModel.set(userMe)
-      })
-    }
-  },
+    const cache = this.UserModel.get()
+    if (cache) return Promise.resolve(cache)
+    return this.tbFetch.get({
+      Type: 'users',
+      Id: 'me'
+    })
+    .then((userMe: IUserMe) => {
+      return this.UserModel.set(userMe)
+    })
+  }
 
   update<T extends {
     _id: string
   }>(patch: any): Promise<T> {
-    return tbFetch.put({
+    return this.tbFetch.put({
       Type: 'users',
       Id: 'me'
     }, patch)
     .then((userMe: any) => {
-      UserModel.update(userMe)
+      this.UserModel.update(userMe)
       return userMe
     })
-  },
+  }
 
   addEmail(email: string): Promise<IUserEmail[]> {
-    return tbFetch.post({
+    return this.tbFetch.post({
       Type: 'users',
       Id: 'email'
     }, {
       email: email
     }).then((data: IUserEmail[]) => {
-      UserModel.updateEmail(data)
+      this.UserModel.updateEmail(data)
       return data
     })
-  },
+  }
 
   bindPhone(phone: string, vcode: string): Promise<void> {
-    return tbFetch.put({
+    return this.tbFetch.put({
       Type: 'users',
       Id: 'phone'
     }, {
       phone: phone,
       vcode: vcode
     }).then((data: any) => {
-      UserModel.update({
+      this.UserModel.update({
         phone: phone
       })
     })
   }
 }
+
+export const UserAPI = new User()

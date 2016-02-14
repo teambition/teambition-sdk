@@ -1,8 +1,8 @@
 'use strict'
 import {mockToken} from './mock'
-import {tbFetch} from '../src/utils/fetch'
+import Fetch from '../src/utils/fetch'
 
-tbFetch.setToken(mockToken)
+Fetch.setToken(mockToken)
 
 export {Backend} from '../mock'
 export * from '../src/app'

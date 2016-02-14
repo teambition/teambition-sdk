@@ -1,7 +1,6 @@
 'use strict'
 import {assign, forEach} from './index'
 
-let apiHost: string
 const apiPath = ['Version', 'Type', 'Id', 'Path1', 'Path2', 'Path3']
 
 interface IRestPaths {
@@ -16,35 +15,33 @@ interface IRestPaths {
   [index: string]: any;
 }
 
-class Fetch {
+export default class Fetch {
 
-  private opts: any = {
+  private static opts: any = {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
-    }
+    },
+    credentials: 'include'
   }
 
-  constructor() {
-    this.opts.credentials = 'include'
-    apiHost = 'https://www.teambition.com/api'
+  private static apiHost = 'https://www.teambition.com/api'
+
+  public static setAPIHost(host: string) {
+    Fetch.apiHost = host
   }
 
-  setAPIHost(host: string) {
-    apiHost = host
-  }
-
-  setToken(token: string) {
-    delete this.opts.credentials
-    this.opts.headers.Authorization = `OAuth2 ${token}`
-    apiHost = 'https://api.teambition.com'
+  public static setToken(token: string) {
+    delete Fetch.opts.credentials
+    Fetch.opts.headers.Authorization = `OAuth2 ${token}`
+    Fetch.apiHost = 'https://api.teambition.com'
   }
 
   get(paths: IRestPaths) {
     const url = this.buildURI(paths)
     return fetch(url, assign({
       method: 'get'
-    }, this.opts))
+    }, Fetch.opts))
     .then((data: Response) => {
       return data.json()
     })
@@ -55,7 +52,7 @@ class Fetch {
     return fetch(url, assign({
       method: 'post',
       body: JSON.stringify(data)
-    }, this.opts))
+    }, Fetch.opts))
     .then((data: Response) => {
       return data.json()
     })
@@ -66,7 +63,7 @@ class Fetch {
     return fetch(url, assign({
       method: 'put',
       body: JSON.stringify(data)
-    }, this.opts))
+    }, Fetch.opts))
     .then((data: Response) => {
       return data.json()
     })
@@ -76,7 +73,7 @@ class Fetch {
     const url = this.buildURI(paths)
     return fetch(url, assign({
       method: 'delete'
-    }, this.opts))
+    }, Fetch.opts))
     .then((data: Response) => {
       return data.json()
     })
@@ -97,10 +94,8 @@ class Fetch {
     if (typeof version !== 'undefined') {
       uris[0] = `/${version}`
     }
-    let url = apiHost + uris.join('/')
+    let url = Fetch.apiHost + uris.join('/')
     url = querys.length ? url + '?' + querys.join('&') : url
     return url
   }
 }
-
-export const tbFetch = new Fetch()

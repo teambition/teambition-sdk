@@ -5,36 +5,34 @@ import Member from '../schemas/member_schema'
 import {setSchema} from '../schemas/schema'
 import {IMemberData} from 'teambition'
 
-class MemberModel extends BaseModel {
-  addProjectMembers(projectId: string, members: IMemberData[]): Member[] {
+export default class MemberModel extends BaseModel {
+  saveProjectMembers(projectId: string, members: IMemberData[]): Member[] {
     const result = []
     forEach(members, (member: IMemberData) => {
       result.push(setSchema<Member>(new Member(), member))
     })
-    this.setCollection(`members:${projectId}`, result)
+    this._save(`members:${projectId}`, result)
     return result
   }
 
   getProjectMembers(projectId: string): Member[] {
-    return this.getOne<Array<Member>>(`members:${projectId}`)
+    return this._get<Array<Member>>(`members:${projectId}`)
   }
 
   removeMember(memberId: string) {
-    this.removeOne(memberId)
+    this._delete(memberId)
   }
 
-  addOrgMembers(organizationId: string, members: IMemberData[]): Member[] {
+  saveOrgMembers(organizationId: string, members: IMemberData[]): Member[] {
     const result = []
     forEach(members, (member: IMemberData) => {
       result.push(setSchema(new Member(), member))
     })
-    this.setCollection(`members:${organizationId}`, result)
+    this._save(`members:${organizationId}`, result)
     return result
   }
 
   getOrgMembers(organizationId: string): Member[] {
-    return this.getOne<Array<Member>>(`members:${organizationId}`)
+    return this._get<Array<Member>>(`members:${organizationId}`)
   }
 }
-
-export default new MemberModel()

@@ -14,7 +14,7 @@ const stylish = require('gulp-tslint-stylish')
 const buildConfigFile = path.join(process.cwd(), 'tools/build/bundle.json')
 
 const bundle = (entry: any, output: string, minify: boolean, tsconfig?: string, callback?: any) => {
-  let webpackConfig: any = Object.assign({}, config)
+  let webpackConfig = Object.assign<{[index: string]: any}, typeof config>({}, config)
   let plugins = []
   if (minify) {
     plugins.push(new webpack.optimize.UglifyJsPlugin({
@@ -25,6 +25,7 @@ const bundle = (entry: any, output: string, minify: boolean, tsconfig?: string, 
         warnings: false
       }
     }))
+    delete webpackConfig.devtool
   }
   if (tsconfig) {
     webpackConfig.ts.configFileName = tsconfig
