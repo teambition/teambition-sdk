@@ -4,7 +4,7 @@
   "description": "Front-End SDK for Teambition",
   "main": "index.js",
   "scripts": {
-    "test": "gulp mocha",
+    "test": "gulp test",
     "tsd": "ts-node tools/tasks/tsd.ts",
     "postinstall": "tsd install && ts-node tools/tasks/tsd.ts"
   },
