@@ -1,16 +1,12 @@
 'use strict'
 import BaseModel from './model'
-import {forEach} from '../utils'
+import {datasToSchemas} from '../utils'
 import Member from '../schemas/member_schema'
-import {setSchema} from '../schemas/schema'
 import {IMemberData} from 'teambition'
 
 export default class MemberModel extends BaseModel {
   saveProjectMembers(projectId: string, members: IMemberData[]): Member[] {
-    const result = []
-    forEach(members, (member: IMemberData) => {
-      result.push(setSchema<Member>(new Member(), member))
-    })
+    const result = datasToSchemas<IMemberData, Member>(members, Member)
     this._save(`members:${projectId}`, result)
     return result
   }
@@ -24,10 +20,7 @@ export default class MemberModel extends BaseModel {
   }
 
   saveOrgMembers(organizationId: string, members: IMemberData[]): Member[] {
-    const result = []
-    forEach(members, (member: IMemberData) => {
-      result.push(setSchema(new Member(), member))
-    })
+    const result = datasToSchemas<IMemberData, Member>(members, Member)
     this._save(`members:${organizationId}`, result)
     return result
   }

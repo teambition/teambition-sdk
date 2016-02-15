@@ -64,7 +64,7 @@ export default class DataBase {
     }
   }
 
-  getOne<T>(index: string): any {
+  getOne<T>(index: string): T {
     const data = this.data[index]
     let result: any
     if (!data) return
@@ -97,7 +97,7 @@ export default class DataBase {
 
   getExpire(index: string) {
     const timerIndex = this.timeoutIndex[index]
-    return timerIndex.begin - timerIndex.expire
+    return timerIndex.expire - (Date.now() - timerIndex.begin)
   }
 
   update<T, U>(index: string, patch: T | Array<U>): void {
@@ -109,16 +109,7 @@ export default class DataBase {
 
   private storeOne(index: string, data: any, expire = 0) {
     const result = this.data[index] = data
-    if (expire && typeof expire === 'number') {
-      let timeoutIndex = setTimeout(() => {
-        delete this.data[index]
-      }, expire)
-      this.timeoutIndex[index] = {
-        timer: timeoutIndex,
-        begin: Date.now(),
-        expire: expire
-      }
-    }
+    this.setExpire(index, expire)
     trackObject(result)
     this.typeIndex[index] = 'object'
   }
@@ -129,9 +120,9 @@ export default class DataBase {
     if (this.data[index]) return
     const result = []
     forEach(collection, (val, key) => {
-      const cache = this.getOne(val[unionFlag])
+      const cache = this.data[val[unionFlag]]
       if (cache) {
-        result.push(cache)
+        result.push(assign(cache, val))
       }else {
         result.push(val)
         this.storeOne(val[unionFlag], val)
@@ -145,36 +136,34 @@ export default class DataBase {
       indexes.push(val[unionFlag])
     })
     this.data[index] = result
-    if (expire && typeof expire === 'number') {
-      let timeoutIndex = setTimeout(() => {
-        delete this.data[index]
-      }, expire)
-      this.timeoutIndex[index] = {
-        timer: timeoutIndex,
-        begin: Date.now(),
-        expire: expire
-      }
-    }
+    this.setExpire(index, expire)
     trackCollection(index, result)
     this.typeIndex[index] = 'collection'
+  }
+
+  private setExpire(index: string, expire: number) {
+    if (!(expire && typeof expire === 'number')) return
+    const timer = this.timeoutIndex[index] ? this.timeoutIndex[index].timer : undefined
+    if (typeof timer !== 'undefined') {
+      clearTimeout(timer)
+    }
+    let timeoutIndex = setTimeout(() => {
+      this.delete(index)
+    }, expire)
+    this.timeoutIndex[index] = {
+      timer: timeoutIndex,
+      begin: Date.now(),
+      expire: expire
+    }
   }
 
   private updateOne(index: string, patch: any): void {
     const _patch = clone(patch)
     let val = this.data[index]
-    if (!val) throw 'Data is not existed, can not update'
-    if (typeof patch !== 'object') throw 'Patch target should be Object'
+    if (typeof patch !== 'object') throw 'A patch should be Object'
     val = assign(val, _patch)
     const expire = patch.expire
-    if (expire && typeof expire === 'number') {
-      const timer = this.timeoutIndex[index].timer
-      this.timeoutIndex[index].expire = expire
-      this.timeoutIndex[index].begin = Date.now()
-      clearTimeout(timer)
-      setTimeout(() => {
-        delete this.data[index]
-      }, expire)
-    }
+    this.setExpire(index, expire)
     this.data[index] = val
   }
 
@@ -190,7 +179,7 @@ export default class DataBase {
     const indexs = this.collectionIndex[index]
     forEach(patch, (val, key) => {
       const oldEle = cache[key]
-      if (oldEle[unionFlag] === val[unionFlag]) {
+      if (oldEle && oldEle[unionFlag] === val[unionFlag]) {
         assign(oldEle, val)
       }else {
         const targetId = val[unionFlag]
@@ -200,9 +189,10 @@ export default class DataBase {
           this.storeOne(val[unionFlag], val)
         }else {
           const oldIndex = indexs.indexOf(targetId, key)
+          const oldOne = cache[oldIndex]
           cache.splice(oldIndex, 1)
           indexs.splice(oldIndex, 1)
-          cache.splice(key, 0, val)
+          cache.splice(key, 0, assign(oldOne, val))
           indexs.splice(key, 0, targetId)
         }
       }

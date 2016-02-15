@@ -7,7 +7,7 @@ import {members} from '../mock'
 
 const expect = chai.expect
 
-export default describe('Member API test', () => {
+export default describe('Project API test', () => {
   let httpBackend: Backend
   beforeEach(() => {
     httpBackend = new Backend()
@@ -30,15 +30,16 @@ export default describe('Member API test', () => {
   })
 
   it('delete member from project should ok', (done: Function) => {
-    let members: Member[]
+    let Members: Member[]
     let length: number
+    let memberId = members[0]._id
 
     httpBackend
-    .whenDELETE(`${apihost}/members/55c0496b266e692f55d50239`)
+    .whenDELETE(`${apihost}/members/${memberId}`)
     .respond({})
 
     ProjectAPI.getMembers('projectId').then((data) => {
-      members = data
+      Members = data
       length = data.length
       return ProjectAPI.deleteMember(data[0]._id)
     })
@@ -49,7 +50,7 @@ export default describe('Member API test', () => {
       expect(data.length + 1).to.equal(length)
       let inData = false
       data.forEach((val) => {
-        if (val._id === '55c0496b266e692f55d50239') {
+        if (val._id === memberId) {
           inData = true
         }
       })

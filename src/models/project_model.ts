@@ -6,7 +6,7 @@ import {IProjectData} from 'teambition'
 
 export default class ProjectModel extends BaseModel {
   addProjects(projects: IProjectData[]): Project[] {
-    const result = datasToSchemas(projects, new Project())
+    const result = datasToSchemas<IProjectData, Project>(projects, Project)
     this._save(`projects`, result)
     return result
   }

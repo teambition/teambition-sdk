@@ -7,6 +7,7 @@ import * as lint from 'gulp-tslint'
 import * as gutil from 'gulp-util'
 import * as istanbul from 'gulp-istanbul'
 import * as typescript from 'gulp-typescript'
+import * as sourcemaps from 'gulp-sourcemaps'
 import config from './webpack.config'
 const webpack = require('webpack')
 const stylish = require('gulp-tslint-stylish')
@@ -70,11 +71,15 @@ const buildTest = (path?: string, destPath?: string) => {
     const destDir = item.split('/')[1]
     const dest = destPath ? destPath : `./.tmp/${destDir}`
     endPipe = gulp.src(item)
+    .pipe(sourcemaps.init({
+      loadMaps: true
+    }))
     .pipe(typescript({
       module: 'commonjs',
       target: 'es5',
       isolatedModules: true
     }))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest(dest))
   })
   return endPipe

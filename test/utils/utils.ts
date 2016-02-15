@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import {userMe} from '../mock'
-import {forEach, clone, assign} from '../'
+import {forEach, clone, assign, uuid} from '../'
 
 const expect = chai.expect
 
@@ -39,6 +39,24 @@ export default describe('utils test', () => {
     expect(times).to.equal(6)
   })
 
+  it('inverse forEach should ok', () => {
+    const arr = [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+    const result = []
+    forEach(arr, (val) => {
+      result.push(val)
+    }, true)
+    for (let i = 0; i < arr.length ; i ++) {
+      expect(result[5 - i]).to.equal(arr[i])
+    }
+  })
+
   it('clone should ok', () => {
     const testObject = clone(userMe)
     expect(testObject).deep.equal(userMe)
@@ -55,6 +73,15 @@ export default describe('utils test', () => {
     const testTarget = assign({a: 5}, testObject)
     expect(testTarget.c).equal(testObject.c)
     expect(testTarget.a).equal(0)
+  })
+
+  it('uuid should ok', () => {
+    const uuidStack = []
+    for (let index = 0; index < 10000; index++) {
+      const uu = uuid()
+      expect(uuidStack.indexOf(uu)).to.equal(-1)
+      uuidStack.push(uu)
+    }
   })
 
 })

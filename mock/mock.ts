@@ -31,6 +31,7 @@ context['fetch'] = (uri: string, options?: {
   if (method !== 'options') {
     const dataPath = options.body ? parseObject(options.body) : ''
     const result = fetchStack[uri + method + dataPath]
+    // console.log(uri + method + dataPath, fetchStack)
     if (result && result.status === 200) {
       const promise = new Promise((resolve, reject) => {
         if (flushState.flushed) {
@@ -41,9 +42,11 @@ context['fetch'] = (uri: string, options?: {
       })
       return promise
     }else if (result && result.status) {
+      /* istanbul ignore if */
       console.error(result.data)
       throw new Error(result.data)
     }else {
+      /* istanbul ignore if */
       console.error('nothing expect return from server')
       throw new Error('nothing expect return from server')
     }
