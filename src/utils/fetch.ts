@@ -3,7 +3,7 @@ import {assign, forEach} from './index'
 
 const apiPath = ['Version', 'Type', 'Id', 'Path1', 'Path2', 'Path3']
 
-interface IRestPaths {
+export interface IRestPaths {
   Version?: string;
   Type: string;
   Id?: string;

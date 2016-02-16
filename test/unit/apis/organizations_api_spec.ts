@@ -4,7 +4,7 @@ import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
 import {Backend, OrganizationAPI, clone, forEach} from '../'
 import {apihost} from '../app'
-import Member from '../../src/schemas/member_schema'
+import Member from '../../../src/schemas/member_schema'
 import {organizations, members} from '../mock'
 import {IOrganizationData} from 'teambition'
 

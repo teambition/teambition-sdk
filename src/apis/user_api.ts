@@ -3,7 +3,7 @@ import BaseAPI from './base_api'
 import UserModel from '../models/user_model'
 import {IUserMe, IUserEmail} from 'teambition'
 
-class User extends BaseAPI {
+export class User extends BaseAPI {
 
   private UserModel = new UserModel()
 

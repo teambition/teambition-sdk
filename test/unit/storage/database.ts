@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import {forEach} from '../'
-import Database from '../../src/storage/database'
+import Database from '../../../src/storage/database'
 
 const expect = chai.expect
 chai.use(sinonChai)

@@ -4,52 +4,20 @@ import * as path from 'path'
 import * as watch from 'gulp-watch'
 import * as mocha from 'gulp-mocha'
 import * as lint from 'gulp-tslint'
-import * as gutil from 'gulp-util'
 import * as istanbul from 'gulp-istanbul'
 import * as typescript from 'gulp-typescript'
 import * as sourcemaps from 'gulp-sourcemaps'
-import config from './webpack.config'
-const webpack = require('webpack')
+import {bundle} from './tools/tasks/bundle'
 const stylish = require('gulp-tslint-stylish')
 
 const buildConfigFile = path.join(process.cwd(), 'tools/build/bundle.json')
-
-const bundle = (entry: any, output: string, minify: boolean, tsconfig?: string, callback?: any) => {
-  let webpackConfig = Object.assign<{[index: string]: any}, typeof config>({}, config)
-  let plugins = []
-  if (minify) {
-    plugins.push(new webpack.optimize.UglifyJsPlugin({
-      mangle: {
-        except: ['$super', '$', 'exports', 'require']
-      },
-      compress: {
-        warnings: false
-      }
-    }))
-    delete webpackConfig.devtool
-  }
-  if (tsconfig) {
-    webpackConfig.ts.configFileName = tsconfig
-  }
-  webpackConfig.entry =  entry
-  webpackConfig.plugins = plugins
-  delete webpackConfig.output.path
-  webpackConfig.output.filename = `dist/${output}`
-  return webpack(webpackConfig, (err, stats) => {
-    if (err) {
-      throw new gutil.PluginError('webpack', err)
-    }
-    gutil.log('[webpack]', stats.toString())
-    callback()
-  })
-}
 
 gulp.task('bundle.es6', (done) => {
   const entry = [
     'whatwg-fetch',
     path.join(process.cwd(), 'src/app.ts')
   ]
-  return bundle(entry, 'tbsdk.js', false, buildConfigFile, done)
+  return bundle(entry, 'tbsdk.js', buildConfigFile, 'dist', false, false, done)
 })
 
 gulp.task('default', ['bundle.es6'])
@@ -57,7 +25,7 @@ gulp.task('default', ['bundle.es6'])
 gulp.task('build.mock', (done) => {
   const entry = path.join(process.cwd(), 'mock/index.ts')
   const configFileName = path.join(process.cwd(), 'tools/build/mock.json')
-  return bundle(entry, 'mock.js', false, configFileName, done)
+  return bundle(entry, 'mock.js', configFileName, 'dist', false, false, done)
 })
 
 const buildTest = (path?: string, destPath?: string) => {
@@ -149,8 +117,8 @@ gulp.task('build.sdk', (done) => {
     'es6-collections',
     path.join(process.cwd(), 'src/app.ts')
   ]
-  const output = 'tbsdk.min.js'
-  bundle(entry, output, true, buildConfigFile, done)
+  const output = 'dist/tbsdk.min.js'
+  bundle(entry, output, buildConfigFile, 'dist', false, true, done)
 })
 
 gulp.task('lint', () => {

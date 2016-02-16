@@ -5,7 +5,7 @@ import MemberModel from '../models/member_model'
 import Member from '../schemas/member_schema'
 import {IOrganizationData, IMemberData} from 'teambition'
 
-class Organizations extends BaseAPI {
+export class Organizations extends BaseAPI {
 
   private MemberModel = new MemberModel()
   private OrganizationModel = new OrganizationModel()

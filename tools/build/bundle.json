@@ -3,11 +3,13 @@
     "target": "es5",
     "module": "commonjs",
     "experimentalDecorators": true,
-    "inlineSourceMap": false
+    "inlineSourceMap": false,
+    "declaration": true
   },
   "files": [
     "../../src/app.ts",
     "../../src/teambition.d.ts",
+    "../../tools/build/node-require.d.ts",
     "../../tools/build/whatwg-fetch.d.ts",
     "../../tools/build/es6-set.d.ts",
     "../../tools/build/es6-reflect-proxy.d.ts"

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "gulp build.test && gulp test",
     "tsd": "ts-node tools/tasks/tsd.ts",
+    "serve": "ts-node tools/tasks/serve.ts",
     "postinstall": "tsd install && ts-node tools/tasks/tsd.ts"
   },
   "repository": {
@@ -29,7 +30,11 @@
     "whatwg-fetch": "^0.10.1"
   },
   "devDependencies": {
+    "browser-sync": "^2.11.1",
     "chai": "^3.4.1",
+    "et-dependency": "^0.3.7",
+    "et-template": "^0.3.7",
+    "file-loader": "^0.8.5",
     "gulp": "^3.9.0",
     "gulp-istanbul": "^0.10.3",
     "gulp-mocha": "^2.2.0",
@@ -49,6 +54,6 @@
     "tslint": "^3.2.1",
     "typescript": "^1.7.5",
     "webpack": "^1.12.10",
-    "webpack-dev-server": "^1.14.0"
+    "zone.js": "^0.5.14"
   }
 }
