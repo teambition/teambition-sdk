@@ -117,7 +117,7 @@ gulp.task('build.sdk', (done) => {
     'es6-collections',
     path.join(process.cwd(), 'src/app.ts')
   ]
-  const output = 'dist/tbsdk.min.js'
+  const output = 'tbsdk.min.js'
   bundle(entry, output, buildConfigFile, 'dist', false, true, done)
 })
 

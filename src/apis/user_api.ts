@@ -3,7 +3,7 @@ import BaseAPI from './base_api'
 import UserModel from '../models/user_model'
 import {IUserMe, IUserEmail} from 'teambition'
 
-export class User extends BaseAPI {
+export class UserAPI extends BaseAPI {
 
   private UserModel = new UserModel()
 
@@ -19,12 +19,12 @@ export class User extends BaseAPI {
     })
   }
 
-  update<T extends {
-    _id: string
-  }>(patch: any): Promise<T> {
+  update(patch: any): Promise<any> {
+    if (!patch || !patch.name) {
+      return Promise.reject('User name is required')
+    }
     return this.tbFetch.put({
-      Type: 'users',
-      Id: 'me'
+      Type: 'users'
     }, patch)
     .then((userMe: any) => {
       this.UserModel.update(userMe)
@@ -58,5 +58,3 @@ export class User extends BaseAPI {
     })
   }
 }
-
-export const UserAPI = new User()

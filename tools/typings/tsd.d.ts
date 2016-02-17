@@ -29,3 +29,4 @@
 /// <reference path="parse-glob/parse-glob.d.ts" />
 /// <reference path="gulp-concat/gulp-concat.d.ts" />
 /// <reference path="zone.js/zone.js.d.ts" />
+/// <reference path="opn/opn.d.ts" />

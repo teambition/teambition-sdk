@@ -45,6 +45,7 @@
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.5",
     "mocha": "^2.3.4",
+    "opn": "^4.0.0",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
     "source-map-loader": "^0.1.5",

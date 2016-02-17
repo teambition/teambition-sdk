@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
-import {Backend, OrganizationAPI, clone, forEach} from '../'
+import {Backend, OrganizationsAPI, clone, forEach} from '../'
 import {apihost} from '../app'
 import Member from '../../../src/schemas/member_schema'
 import {organizations, members} from '../mock'
@@ -13,6 +13,7 @@ chai.use(sinonChai)
 
 export default describe('Organizations API test', () => {
   let httpBackend: Backend
+  const OrganizationAPI = new OrganizationsAPI()
   beforeEach(() => {
     httpBackend = new Backend()
     httpBackend

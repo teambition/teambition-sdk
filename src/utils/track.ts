@@ -1,13 +1,35 @@
 'use strict'
 import {forEach} from './index'
 
+declare const zone
+
 const trackIndex = {}
+
+const _zone = typeof zone !== 'undefined' ? zone.fork() : {
+  run: (fn) => {
+    if (typeof fn === 'function') fn()
+  }
+}
 
 export const trackOne = (index: string, target: any) => {
   const indexes =  trackIndex[index]
   if (indexes.indexOf(target) === -1) {
     indexes.push(target)
   }
+}
+
+const $digest = (target) => {
+  if (!target || typeof target.$digest !== 'function') return -1
+  let timer: number
+  _zone.run(() => {
+    if (target.timer) clearTimeout(target.timer)
+    timer = setTimeout(() => {
+      target.$digest()
+      delete target.timer
+    })
+    target.timer = timer
+  })
+  return timer
 }
 
 export const trackObject = (target: any, unionKey = target._id) => {
@@ -18,6 +40,8 @@ export const trackObject = (target: any, unionKey = target._id) => {
     Object.defineProperty(target, key, {
       set(newValue: any) {
         forEach(trackIndex[unionKey], (trackVal: any) => {
+          const oldVal = trackVal[key]
+          if (oldVal !== newValue) $digest(trackVal)
           trackVal[key] = newValue
         })
         val = newValue

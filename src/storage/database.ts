@@ -107,6 +107,10 @@ export default class DataBase {
     if (objectType === 'collection') return this.updateCollection(index, <Array<U>>patch)
   }
 
+  exist(index: string): boolean {
+    return !!this.data[index]
+  }
+
   private storeOne(index: string, data: any, expire = 0) {
     const result = this.data[index] = data
     this.setExpire(index, expire)

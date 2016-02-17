@@ -1,6 +1,6 @@
 'use strict'
 import {mockToken} from './mock'
-import Fetch from '../../src/utils/fetch'
+import {Fetch} from '../../src/utils/fetch'
 
 Fetch.setToken(mockToken)
 

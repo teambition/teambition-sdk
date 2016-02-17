@@ -1,12 +1,12 @@
 'use strict'
-import TbFetch from '../utils/fetch'
+import {Fetch} from '../utils/fetch'
 
-const tbFetch = new TbFetch()
+const tbFetch = new Fetch()
 
 export default class BaseAPI {
   public static tbFetch = tbFetch
 
-  protected tbFetch: TbFetch
+  protected tbFetch: Fetch
 
   constructor() {
     this.tbFetch = tbFetch

@@ -6,6 +6,7 @@ export const ObjectIndex = {}
 
 export class BaseObject {
   public $id = `$${$id}`
+
   constructor(target: any) {
     const data = clone(target)
     const objectIndex = ObjectIndex[`$${$id}`] = {
@@ -17,4 +18,6 @@ export class BaseObject {
     })
     $id ++
   }
+
+  public $digest() {}
 }

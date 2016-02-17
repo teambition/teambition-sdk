@@ -15,8 +15,7 @@ export default class Model {
   }
 
   protected _update(namespace: string, patch: any): void {
-    const Cache = this.DataBase.getOne(namespace)
-    if (Cache) this.DataBase.update(namespace, patch)
+    if (this.DataBase.exist(namespace)) this.DataBase.update(namespace, patch)
   }
 
   protected _delete(namespace: string): void {

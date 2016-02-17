@@ -15,7 +15,7 @@ export interface IRestPaths {
   [index: string]: any;
 }
 
-export default class Fetch {
+export class Fetch {
 
   private static opts: any = {
     headers: {

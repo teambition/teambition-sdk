@@ -6,7 +6,7 @@ import Member from '../schemas/member_schema'
 import Project from '../schemas/project_schema'
 import {IMemberData, IProjectData} from 'teambition'
 
-export class Projects extends BaseAPI {
+export class ProjectsAPI extends BaseAPI {
 
   private MemberModel = new MemberModel()
   private ProjectModel = new ProjectModel()
@@ -45,5 +45,3 @@ export class Projects extends BaseAPI {
     })
   }
 }
-
-export const ProjectAPI = new Projects()

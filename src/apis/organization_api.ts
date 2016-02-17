@@ -5,7 +5,7 @@ import MemberModel from '../models/member_model'
 import Member from '../schemas/member_schema'
 import {IOrganizationData, IMemberData} from 'teambition'
 
-export class Organizations extends BaseAPI {
+export class OrganizationsAPI extends BaseAPI {
 
   private MemberModel = new MemberModel()
   private OrganizationModel = new OrganizationModel()
@@ -45,5 +45,3 @@ export class Organizations extends BaseAPI {
     })
   }
 }
-
-export const OrganizationAPI = new Organizations()

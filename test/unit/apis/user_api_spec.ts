@@ -31,7 +31,7 @@ export default describe('UserAPI test', () => {
     const mockPut = clone(userMe)
     mockPut.name = 'test'
 
-    httpBackend.whenPUT(`${apihost}/users/me`, {
+    httpBackend.whenPUT(`${apihost}/users`, {
       name: 'test'
     }).respond(mockPut)
 
