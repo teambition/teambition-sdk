@@ -28,18 +28,8 @@ gulp.task('build.mock', (done) => {
   return bundle(entry, 'mock.js', configFileName, 'dist', false, false, done)
 })
 
-const buildTest = (path?: string, destPath?: string) => {
-  const Path = path ? [path] : [
-    './src/**/*.ts',
-    './mock/**/*.ts',
-    './test/**/*.ts'
-  ]
-  let endPipe: NodeJS.ReadWriteStream
-  Path.forEach((item: string) => {
-    const destDir = item.split('/')[1]
-    const dest = destPath ? destPath : `./.tmp/${destDir}`
-    endPipe = gulp.src(item)
-    .pipe(sourcemaps.init({
+const buildTest = (stream: NodeJS.ReadWriteStream) => {
+  return stream.pipe(sourcemaps.init({
       loadMaps: true
     }))
     .pipe(typescript({
@@ -48,17 +38,19 @@ const buildTest = (path?: string, destPath?: string) => {
       isolatedModules: true
     }))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest(dest))
-  })
-  return endPipe
+    .pipe(gulp.dest('./.tmp'))
 }
 
 gulp.task('build.test', () => {
-  return buildTest()
+  const stream = gulp.src([
+    './**/*.ts',
+    '!node_modules/**'
+  ])
+  return buildTest(stream)
 })
 
 const mochaRunner = (report: boolean) => {
-  const stream = gulp.src('./.tmp/test/index.js')
+  const stream = gulp.src('./.tmp/test/unit/index.js')
   .pipe(mocha({
     reporter: 'spec'
   }))
@@ -74,26 +66,23 @@ const mochaRunner = (report: boolean) => {
 }
 
 gulp.task('watch', (done: any) => {
-  const watchPath = [
-    './src/**/*.ts',
-    './mock/**/*.ts',
-    './test/**/*.ts'
-  ]
-  const specPath = './.tmp/**/*.js'
-  watch(watchPath, (event) => {
-    const sourcePath: string = event.path
-    const dirLength = process.cwd().length
-    const destDirArr = sourcePath.substr(dirLength + 1).split('/')
-    destDirArr.pop()
-    let dest = destDirArr.join('/')
-    dest = path.join(process.cwd(), `.tmp/${dest}/`)
-    buildTest(sourcePath, dest)
-  })
-
-  watch(specPath, () => {
+  watch([
+    './**/*.ts',
+    '!./node_modules'
+  ], () => {
     mochaRunner(false)
     gulp.start('lint')
   })
+    .pipe(sourcemaps.init({
+      loadMaps: true
+    }))
+    .pipe(typescript({
+      module: 'commonjs',
+      target: 'es5',
+      isolatedModules: true
+    }))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('./.tmp'))
 })
 
 gulp.task('pre-test', () => {

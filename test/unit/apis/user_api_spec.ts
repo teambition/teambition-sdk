@@ -7,6 +7,8 @@ import {IUserMe} from 'teambition'
 
 const expect = chai.expect
 
+const User = new UserAPI()
+
 export default describe('UserAPI test', () => {
 
   let httpBackend: Backend
@@ -17,7 +19,7 @@ export default describe('UserAPI test', () => {
   })
 
   it('get user me should ok', (done: Function) => {
-    UserAPI.getUserMe().then((data: IUserMe) => {
+    User.getUserMe().then((data: IUserMe) => {
       forEach(userMe, (value: any, key: string) => {
         expect(userMe[key]).deep.equal(data[key])
       })
@@ -35,14 +37,14 @@ export default describe('UserAPI test', () => {
       name: 'test'
     }).respond(mockPut)
 
-    UserAPI.getUserMe().then((data: IUserMe) => {
+    User.getUserMe().then((data: IUserMe) => {
       me = data
-      return UserAPI.update({
+      return User.update({
         name: 'test'
       })
     })
     .then(() => {
-      return UserAPI.getUserMe()
+      return User.getUserMe()
     })
     .then((data: IUserMe) => {
       expect(data.name).to.equal('test')
@@ -68,12 +70,12 @@ export default describe('UserAPI test', () => {
       email: updateData.email
     }).respond(mockResponse.emails)
 
-    UserAPI.getUserMe().then((data: IUserMe) => {
+    User.getUserMe().then((data: IUserMe) => {
       me = data
-      return UserAPI.addEmail(updateData.email)
+      return User.addEmail(updateData.email)
     })
     .then(() => {
-      return UserAPI.getUserMe()
+      return User.getUserMe()
     })
     .then((data: IUserMe) => {
       expect(me.emails.length).to.equal(2)
@@ -102,12 +104,12 @@ export default describe('UserAPI test', () => {
     .whenPUT(`${apihost}/users/phone`, updateData)
     .respond(mockResponse)
 
-    UserAPI.getUserMe().then((data: IUserMe) => {
+    User.getUserMe().then((data: IUserMe) => {
       me = data
-      return UserAPI.bindPhone(updateData.phone, updateData.vcode)
+      return User.bindPhone(updateData.phone, updateData.vcode)
     })
     .then(() => {
-      return UserAPI.getUserMe()
+      return User.getUserMe()
     })
     .then((data: IUserMe) => {
       expect(me.phone).to.equal(updateData.phone)

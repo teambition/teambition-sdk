@@ -88,3 +88,7 @@ export const datasToSchemas = <T, U extends Schema>(datas: T[], Schema: any): U[
   })
   return result
 }
+
+export const noop = function() {
+  return
+}

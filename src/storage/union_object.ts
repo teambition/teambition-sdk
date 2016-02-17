@@ -1,5 +1,5 @@
 'use strict'
-import {forEach, clone} from '../utils'
+import {forEach, clone, noop} from '../utils'
 
 let $id = 1
 export const ObjectIndex = {}
@@ -19,5 +19,7 @@ export class BaseObject {
     $id ++
   }
 
-  public $digest() {}
+  public $digest() {
+    noop()
+  }
 }

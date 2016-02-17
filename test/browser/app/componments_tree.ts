@@ -1,6 +1,5 @@
 'use strict'
 import {getComponment} from './componment'
-import {forEach} from './tbsdk'
 
 export class ComponmentsTree {
 

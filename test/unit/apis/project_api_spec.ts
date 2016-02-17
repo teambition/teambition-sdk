@@ -1,11 +1,13 @@
 'use strict'
 import * as chai from 'chai'
-import {Backend, ProjectAPI} from '../'
+import {Backend, ProjectsAPI} from '../'
 import Member from '../../../src/schemas/member_schema'
 import {apihost} from '../app'
 import {members} from '../mock'
 
 const expect = chai.expect
+
+const ProjectAPI = new ProjectsAPI()
 
 export default describe('Project API test', () => {
   let httpBackend: Backend
