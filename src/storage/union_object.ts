@@ -1,5 +1,5 @@
 'use strict'
-import {forEach, clone, noop} from '../utils'
+import {forEach} from '../utils'
 
 let $id = 1
 export const ObjectIndex = {}
@@ -7,19 +7,21 @@ export const ObjectIndex = {}
 export class BaseObject {
   public $id = `$${$id}`
 
-  constructor(target: any) {
-    const data = clone(target)
+  public $timer: number
+
+  constructor(target?: any) {
+    $id ++
     const objectIndex = ObjectIndex[`$${$id}`] = {
       dataKeys: []
     }
-    forEach(data, (val: any, key: string) => {
+    if (typeof target !== 'object') return
+    forEach(target, (val: any, key: string) => {
       objectIndex.dataKeys.push(key)
       this[key] = val
     })
-    $id ++
   }
 
-  public $digest() {
-    noop()
+  public onChange(patch) {
+    return patch
   }
 }

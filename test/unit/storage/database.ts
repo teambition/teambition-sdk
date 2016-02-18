@@ -113,7 +113,11 @@ export default describe('database test', () => {
       ]
       Storage.update('collection_test_1', patchData)
       const result = Storage.getOne<typeof data>('collection_test_1')
-      expect(result).deep.equal(patchData)
+      forEach(patchData, (value, index) => {
+        forEach(value, (val, key) => {
+          expect(val).to.equal(result[index][key])
+        })
+      })
     })
 
     it('update collection not exist ele should ok', () => {
@@ -149,7 +153,11 @@ export default describe('database test', () => {
 
       Storage.update('collection_test_2', patchData)
       const result = Storage.getOne<typeof data>('collection_test_2')
-      expect(result).deep.equal(patchData)
+      forEach(patchData, (value, index) => {
+        forEach(value, (val, key) => {
+          expect(val).to.equal(result[index][key])
+        })
+      })
     })
 
     it('patch data is not Array should return undefined', () => {
@@ -206,7 +214,7 @@ export default describe('database test', () => {
         const result = Storage.getOne<typeof data>('15.15')
         expect(result).to.be.undefined
         done()
-      }, 200)
+      }, 300)
     })
 
     it('patch target not exist should return undefined', () => {

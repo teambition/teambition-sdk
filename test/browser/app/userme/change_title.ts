@@ -1,5 +1,5 @@
 'use strict'
-import {componments} from '../componment'
+import {componments} from '../component'
 import {UserAPI} from '../tbsdk'
 
 const changeFile = require('./input.html')

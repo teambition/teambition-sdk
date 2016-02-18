@@ -1,6 +1,6 @@
 'use strict'
 
-import {componments} from '../componment'
+import {componments} from '../component'
 import {OrganizationsAPI} from '../tbsdk'
 import {IOrganizationData} from 'teambition'
 

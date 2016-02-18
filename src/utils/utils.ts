@@ -89,6 +89,18 @@ export const datasToSchemas = <T, U extends Schema>(datas: T[], Schema: any): U[
   return result
 }
 
+export const applyMixins = (derivedCtor: any, baseCtors: any[]) => {
+  forEach(baseCtors, baseCtor => {
+    forEach(Object.getOwnPropertyNames(baseCtor.prototype), name => {
+      derivedCtor.prototype[name] = baseCtor.prototype[name]
+    })
+  })
+}
+
+export const isFunction = (target) => {
+  return typeof target === 'function'
+}
+
 export const noop = function() {
   return
 }

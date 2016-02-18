@@ -1,5 +1,5 @@
 'use strict'
-import {componments} from '../componment'
+import {componments} from '../component'
 import {UserAPI} from '../tbsdk'
 import {ChangeTitle} from './change_title'
 import {IUserMe} from 'teambition'

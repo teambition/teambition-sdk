@@ -1,5 +1,5 @@
 'use strict'
-import {forEach} from './tbsdk'
+import {forEach, BaseObject} from './tbsdk'
 
 const injectorMap = new Map<string, any>()
 
@@ -19,6 +19,19 @@ export function buildInjectable(context, injects: any[]) {
   return results
 }
 
+function bindObjectContext (res, context) {
+  if (res instanceof BaseObject) {
+    res.onChange = function (patch) {
+      if (!context || !context.$$template) return
+      context.$$template.update()
+    }
+  }else if (res instanceof Array) {
+    forEach(res, val => {
+      bindObjectContext(val, context)
+    })
+  }
+}
+
 function bindContext(context, instance) {
   const keys = Object.keys(Object.getPrototypeOf(instance))
   forEach(keys, (propertyName) => {
@@ -26,13 +39,10 @@ function bindContext(context, instance) {
     if (typeof property !== 'function') return
     instance[propertyName] = function () {
       const result = property.apply(instance, arguments)
-      if (result && result instanceof Promise) {
-        result.then((res) => {
-          if (typeof res.$digest !== 'function') return
-          res.$digest = function () {
-            if (!context || !context.$$template) return
-            context.$$template.update()
-          }
+      if (typeof result === 'undefined') return
+      if (result instanceof Promise) {
+        result.then(res => {
+          bindObjectContext(res, context)
         })
       }
       return result

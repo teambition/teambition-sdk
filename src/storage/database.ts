@@ -71,7 +71,7 @@ export default class DataBase {
     if (this.typeIndex[index] === 'collection') {
       result = []
       forEach(data, (val) => {
-        result.push(this.data[val[this.unionFlag]])
+        result.push(this.getOne(val[this.unionFlag]))
       })
       trackOne(index, result)
     }else {

@@ -1,15 +1,21 @@
 'use strict'
-import {forEach} from './index'
+import {forEach, isFunction} from './index'
+import {BaseObject} from '../storage/union_object'
 
 declare const zone
 
-const trackIndex = {}
+const trackIndex: {
+  [index: string]: any
+} = <any>{}
 
 const _zone = typeof zone !== 'undefined' ? zone.fork() : {
   run: (fn) => {
-    if (typeof fn === 'function') fn()
+    if (isFunction(fn)) fn()
   }
 }
+
+// 用的时候记得清理这个对象，用来存储 onChange 里面改变了哪些key, value
+const _tempPatch = {}
 
 export const trackOne = (index: string, target: any) => {
   const indexes =  trackIndex[index]
@@ -18,30 +24,35 @@ export const trackOne = (index: string, target: any) => {
   }
 }
 
-const $digest = (target) => {
-  if (!target || typeof target.$digest !== 'function') return -1
+const $digest = (target: BaseObject, key, value) => {
+  if (!target || !(target instanceof BaseObject)) return -1
   let timer: number
+  const targetId = target.$id
+  let tempPatch = _tempPatch[targetId]
+  if (!tempPatch) tempPatch = _tempPatch[targetId] = {}
+  tempPatch[key] = value
   _zone.run(() => {
-    if (target.timer) clearTimeout(target.timer)
+    if (target.$timer) return
     timer = setTimeout(() => {
-      target.$digest()
-      delete target.timer
+      target.onChange(tempPatch)
+      delete _tempPatch[targetId]
+      delete target.$timer
     })
-    target.timer = timer
+    target.$timer = timer
   })
   return timer
 }
 
-export const trackObject = (target: any, unionKey = target._id) => {
+export const trackObject = <T extends BaseObject>(target: T, unionKey = target['_id']) => {
   /* istanbul ignore if */
   if (!unionKey) return
   trackIndex[unionKey] = []
   forEach(target, (val: any, key: string) => {
     Object.defineProperty(target, key, {
       set(newValue: any) {
-        forEach(trackIndex[unionKey], (trackVal: any) => {
+        forEach(trackIndex[unionKey], (trackVal) => {
           const oldVal = trackVal[key]
-          if (oldVal !== newValue) $digest(trackVal)
+          if (oldVal !== newValue) $digest(trackVal, key, newValue)
           trackVal[key] = newValue
         })
         val = newValue

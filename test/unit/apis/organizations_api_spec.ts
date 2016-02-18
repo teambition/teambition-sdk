@@ -50,7 +50,7 @@ export default describe('Organizations API test', () => {
       const org = orgs[0]
       expect(spy.notCalled).to.be.true
       forEach(org, ((val, key) => {
-        expect(val).to.equal(data[key])
+        if (key !== '$id') expect(val).to.equal(data[key])
       }))
       fetch = originFetch
       done()

@@ -1,5 +1,5 @@
 'use strict'
-import {componments} from './componment'
+import {componments} from './component'
 import {UserComponment} from './userme/user_componment'
 import {OrgComponment} from './orgs/org_componment'
 import {Fetch} from '../../../src/app'

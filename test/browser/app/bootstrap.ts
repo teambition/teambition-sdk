@@ -1,7 +1,7 @@
 'use strict'
 import {Zone} from 'zone.js'
-import {getComponment, setComponment} from './componment'
-import {ComponmentsTree} from './componments_tree'
+import {getComponment, setComponment} from './component'
+import {ComponmentsTree} from './components_tree'
 
 
 export const rootZone = new Zone()

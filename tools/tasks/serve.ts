@@ -9,7 +9,6 @@ const buildConfigFile = path.join(process.cwd(), 'tools/build/bundle.json')
 
 const entry = [
   'zone.js',
-  path.join(process.cwd(), './.tmp/et/bundle.js'),
   path.join(process.cwd(), './dist/tbsdk.js'),
   path.join(process.cwd(), './test/browser/app/app.ts')
 ]
