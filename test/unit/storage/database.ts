@@ -160,7 +160,7 @@ export default describe('database test', () => {
       })
     })
 
-    it('patch data is not Array should return undefined', () => {
+    it('patch data to collection is not Array should return undefined', () => {
       const data = [
         {
           _id: '12.12',
@@ -222,6 +222,23 @@ export default describe('database test', () => {
         _id: 'teambtion',
         data: 'tbsdk_test teambtion'
       })).to.be.undefined
+    })
+
+    it('patch object exist in other object should ok', () => {
+      const data = {
+        _id: '20.20',
+        data: {
+          _id: '21.21',
+          data: 'tbsdk_test 21'
+        }
+      }
+      Storage.store('20.20', data)
+      const result = Storage.getOne<typeof data>('20.20')
+      const patch = {
+        data: 'tbsdk_test 21.21'
+      }
+      Storage.update('21.21', patch)
+      expect(result.data.data).to.equal(patch.data)
     })
   })
 

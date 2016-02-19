@@ -4,9 +4,9 @@ import {BaseObject} from '../storage/union_object'
 
 declare const zone
 
-const trackIndex: {
-  [index: string]: any
-} = <any>{}
+export type onChangeFn = (patch: Map<BaseObject, any>) => any
+
+const trackIndex = new Map<string, any[]>()
 
 const _zone = typeof zone !== 'undefined' ? zone.fork() : {
   run: (fn) => {
@@ -17,10 +17,26 @@ const _zone = typeof zone !== 'undefined' ? zone.fork() : {
 // 用的时候记得清理这个对象，用来存储 onChange 里面改变了哪些key, value
 const _tempPatch = {}
 
+const collectionOnchangeFnMap = new Map<string, onChangeFn>()
+const onChange = function (patch: Map<BaseObject, any>) {
+  return patch
+}
+
 export const trackOne = (index: string, target: any) => {
-  const indexes =  trackIndex[index]
+  const indexes = trackIndex.get(index)
   if (indexes.indexOf(target) === -1) {
     indexes.push(target)
+  }
+  if (typeof target.onChange !== 'function') {
+    collectionOnchangeFnMap.set(index, onChange)
+    Object.defineProperty(target, 'onChange', {
+      get() {
+        return collectionOnchangeFnMap.get(index)
+      },
+      set(newValue: onChangeFn) {
+        collectionOnchangeFnMap.set(index, newValue)
+      }
+    })
   }
 }
 
@@ -46,11 +62,11 @@ const $digest = (target: BaseObject, key, value) => {
 export const trackObject = <T extends BaseObject>(target: T, unionKey = target['_id']) => {
   /* istanbul ignore if */
   if (!unionKey) return
-  trackIndex[unionKey] = []
+  trackIndex.set(unionKey, [])
   forEach(target, (val: any, key: string) => {
     Object.defineProperty(target, key, {
       set(newValue: any) {
-        forEach(trackIndex[unionKey], (trackVal) => {
+        forEach(trackIndex.get(unionKey), (trackVal) => {
           const oldVal = trackVal[key]
           if (oldVal !== newValue) $digest(trackVal, key, newValue)
           trackVal[key] = newValue
@@ -90,7 +106,8 @@ const collectionHandler = (target: Array<any>, method: string, trackList: any[])
 
 export const trackCollection = (index: string, target: any[]) => {
   if (!(target instanceof Array)) throw new Error('Could not track a none array object')
-  const trackList = trackIndex[index] = []
+  const trackList = []
+  trackIndex.set(index, trackList)
   const proxyList = ['splice', 'push', 'unshift', 'pop']
   forEach(proxyList, (val) => {
     target[val] = collectionHandler(target, val, trackList)

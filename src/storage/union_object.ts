@@ -2,7 +2,9 @@
 import {forEach} from '../utils'
 
 let $id = 1
-export const ObjectIndex = {}
+export const ObjectIndex = new Map<string, {
+  dataKeys: string[]
+}>()
 
 export class BaseObject {
   public $id = `$${$id}`
@@ -11,7 +13,7 @@ export class BaseObject {
 
   constructor(target?: any) {
     $id ++
-    const objectIndex = ObjectIndex[`$${$id}`] = {
+    const objectIndex = {
       dataKeys: []
     }
     if (typeof target !== 'object') return
@@ -19,6 +21,7 @@ export class BaseObject {
       objectIndex.dataKeys.push(key)
       this[key] = val
     })
+    ObjectIndex.set(`$${$id}`, objectIndex)
   }
 
   public onChange(patch) {
