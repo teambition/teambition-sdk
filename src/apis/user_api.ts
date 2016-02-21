@@ -8,14 +8,16 @@ export class UserAPI extends BaseAPI {
   private UserModel = new UserModel()
 
   getUserMe(): Promise<IUserMe> {
-    const cache = this.UserModel.get()
-    if (cache) return Promise.resolve(cache)
-    return this.tbFetch.get({
-      Type: 'users',
-      Id: 'me'
-    })
-    .then((userMe: IUserMe) => {
-      return this.UserModel.set(userMe)
+    return this.UserModel.get()
+    .then(cache => {
+      if (cache) return Promise.resolve(cache)
+      return this.tbFetch.get({
+        Type: 'users',
+        Id: 'me'
+      })
+      .then((userMe: IUserMe) => {
+        return this.UserModel.set(userMe)
+      })
     })
   }
 
@@ -27,20 +29,18 @@ export class UserAPI extends BaseAPI {
       Type: 'users'
     }, patch)
     .then((userMe: any) => {
-      this.UserModel.update(userMe)
-      return userMe
+      return this.UserModel.update(userMe)
     })
   }
 
-  addEmail(email: string): Promise<IUserEmail[]> {
+  addEmail(email: string): Promise<void> {
     return this.tbFetch.post({
       Type: 'users',
       Id: 'email'
     }, {
       email: email
     }).then((data: IUserEmail[]) => {
-      this.UserModel.updateEmail(data)
-      return data
+      return this.UserModel.updateEmail(data)
     })
   }
 
@@ -52,7 +52,7 @@ export class UserAPI extends BaseAPI {
       phone: phone,
       vcode: vcode
     }).then((data: any) => {
-      this.UserModel.update({
+      return this.UserModel.update({
         phone: phone
       })
     })

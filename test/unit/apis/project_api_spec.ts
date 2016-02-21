@@ -31,7 +31,7 @@ export default describe('Project API test', () => {
     httpBackend.flush()
   })
 
-  it('delete member from project should ok', (done: Function) => {
+  it('delete member from project should ok', (done) => {
     let Members: Member[]
     let length: number
     let memberId = members[0]._id

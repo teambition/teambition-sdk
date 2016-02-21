@@ -40,58 +40,74 @@ export default class DataBase {
 
   constructor(private unionFlag = '_id') {}
 
-  store(index: string, data: any, expire = 0) {
-	  if (data instanceof Array && data[0] && data[0][this.unionFlag]) {
-      this.storeCollection(index, data, expire)
-    }else {
-      this.storeOne(index, data, expire)
-    }
-  }
-
-  getOne<T>(index: string): T {
-    const data = this.data.get(index)
-    let result: any
-    if (!data) return
-    if (this.typeIndex.get(index) === 'collection') {
-      result = []
-      forEach(data, (val) => {
-        result.push(this.getOne(val[this.unionFlag]))
+  store(index: string, data: any, expire = 0): Promise<void> {
+    return new Promise<void>(resolve => {
+      setTimeout(() => {
+        if (data instanceof Array && data[0] && data[0][this.unionFlag]) {
+          this.storeCollection(index, data, expire)
+          return resolve()
+        }else {
+          this.storeOne(index, data, expire)
+          return resolve()
+        }
       })
-      trackOne(index, result)
-    }else {
-      result = new BaseObject(data)
-      trackOne(result[this.unionFlag], result)
-    }
-    return result
-  }
-
-  delete(index: string) {
-    this.data.delete(index)
-    const maps = this.dataMaps.get(index)
-    if (!(maps && maps.length)) return
-    forEach(maps, (collectionIndex: string) => {
-      const indexes = this.collectionIndex.get(collectionIndex)
-      const collection = this.data.get(collectionIndex)
-      const position = indexes.indexOf(index)
-      indexes.splice(position, 1)
-      collection.splice(position, 1)
     })
   }
 
-  getExpire(index: string) {
-    const timerIndex = this.timeoutIndex.get(index)
-    return timerIndex.expire - (Date.now() - timerIndex.begin)
+  getOne<T>(index: string): Promise<T> {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const data = this.data.get(index)
+        let result: any
+        if (!data) return resolve()
+        if (this.typeIndex.get(index) === 'collection') {
+          result = []
+          Promise.all(data.map(val => {
+            this.getOne(val[this.unionFlag])
+            .then(obj => {
+              result.push(obj)
+              trackOne(index, result)
+              return resolve(result)
+            })
+          }))
+        }else {
+          result = new BaseObject(data)
+          trackOne(result[this.unionFlag], result)
+          return resolve(result)
+        }
+      })
+    })
   }
 
-  update<T, U>(index: string, patch: T | Array<U>): void {
+  delete(index: string): Promise<void> {
+    return new Promise<void>(resolve => {
+      setTimeout(() => {
+        this.data.delete(index)
+        const maps = this.dataMaps.get(index)
+        if (!(maps && maps.length)) return resolve()
+        forEach(maps, (collectionIndex: string) => {
+          const indexes = this.collectionIndex.get(collectionIndex)
+          const collection = this.data.get(collectionIndex)
+          const position = indexes.indexOf(index)
+          indexes.splice(position, 1)
+          collection.splice(position, 1)
+        })
+        resolve()
+      })
+    })
+  }
+
+  update<T, U>(index: string, patch: T | Array<U>): Promise<void> {
     const objectType = this.typeIndex.get(index)
-    if (!objectType) return
+    if (!objectType) return Promise.resolve()
     if (objectType === 'object') return this.updateOne(index, patch)
     if (objectType === 'collection') return this.updateCollection(index, <Array<U>>patch)
   }
 
-  exist(index: string): boolean {
-    return this.data.has(index)
+  exist(index: string): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      resolve(this.data.has(index))
+    })
   }
 
   private storeOne(index: string, data: any, expire = 0) {
@@ -155,13 +171,18 @@ export default class DataBase {
     })
   }
 
-  private updateOne(index: string, patch: any): void {
-    if (typeof patch !== 'object') throw 'A patch should be Object'
-    const val = this.data.get(index)
-    const expire = patch.expire
-    if (typeof expire !== 'undefined') delete patch.expire
-    this.setExpire(index, expire)
-    this.data.set(index, assign(val, patch))
+  private updateOne(index: string, patch: any): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (typeof patch !== 'object') return reject('A patch should be Object')
+      setTimeout(() => {
+        const val = this.data.get(index)
+        const expire = patch.expire
+        if (typeof expire !== 'undefined') delete patch.expire
+        this.setExpire(index, expire)
+        this.data.set(index, assign(val, patch))
+        resolve()
+      })
+    })
   }
 
   /**
@@ -169,30 +190,35 @@ export default class DataBase {
    * @param  {T[]} patch  新的列表内容
    * @return void
    */
-  private updateCollection<T>(index: string, patch: T[]) {
-    const cache: T[] = this.data.get(index)
-    const unionFlag = this.unionFlag
-    if (!(cache && patch instanceof Array)) return
-    const indexs = this.collectionIndex.get(index)
-    forEach(patch, (val, key) => {
-      const oldEle = cache[key]
-      if (oldEle && oldEle[unionFlag] === val[unionFlag]) {
-        assign(oldEle, val)
-      }else {
-        const targetId = val[unionFlag]
-        if (indexs.indexOf(targetId) === -1) {
-          cache.splice(key, 0, val)
-          indexs.splice(key, 0, targetId)
-          this.storeOne(val[unionFlag], val)
-        }else {
-          const oldIndex = indexs.indexOf(targetId, key)
-          const oldOne = cache[oldIndex]
-          cache.splice(oldIndex, 1)
-          indexs.splice(oldIndex, 1)
-          cache.splice(key, 0, assign(oldOne, val))
-          indexs.splice(key, 0, targetId)
-        }
-      }
+  private updateCollection<T>(index: string, patch: T[]): Promise<void> {
+    return new Promise<void>(resolve => {
+      const cache: T[] = this.data.get(index)
+      const unionFlag = this.unionFlag
+      if (!(cache && patch instanceof Array)) return resolve()
+      setTimeout(() => {
+        const indexs = this.collectionIndex.get(index)
+        forEach(patch, (val, key) => {
+          const oldEle = cache[key]
+          if (oldEle && oldEle[unionFlag] === val[unionFlag]) {
+            assign(oldEle, val)
+          }else {
+            const targetId = val[unionFlag]
+            if (indexs.indexOf(targetId) === -1) {
+              cache.splice(key, 0, val)
+              indexs.splice(key, 0, targetId)
+              this.storeOne(val[unionFlag], val)
+            }else {
+              const oldIndex = indexs.indexOf(targetId, key)
+              const oldOne = cache[oldIndex]
+              cache.splice(oldIndex, 1)
+              indexs.splice(oldIndex, 1)
+              cache.splice(key, 0, assign(oldOne, val))
+              indexs.splice(key, 0, targetId)
+            }
+          }
+        })
+        resolve()
+      })
     })
   }
 }

@@ -5,27 +5,28 @@ import Member from '../schemas/member_schema'
 import {IMemberData} from 'teambition'
 
 export default class MemberModel extends BaseModel {
-  saveProjectMembers(projectId: string, members: IMemberData[]): Member[] {
+  saveProjectMembers(projectId: string, members: IMemberData[]): Promise<Member[]> {
     const result = datasToSchemas<IMemberData, Member>(members, Member)
-    this._save(`members:${projectId}`, result)
-    return result
+    return this._save(`members:${projectId}`, result)
   }
 
-  getProjectMembers(projectId: string): Member[] {
+  getProjectMembers(projectId: string): Promise<Member[]> {
     return this._get<Array<Member>>(`members:${projectId}`)
   }
 
-  removeMember(memberId: string) {
-    this._delete(memberId)
+  removeMember(memberId: string): Promise<void> {
+    return this._delete(memberId)
   }
 
-  saveOrgMembers(organizationId: string, members: IMemberData[]): Member[] {
+  saveOrgMembers(organizationId: string, members: IMemberData[]): Promise<Member[]> {
     const result = datasToSchemas<IMemberData, Member>(members, Member)
-    this._save(`members:${organizationId}`, result)
-    return result
+    return this._save(`members:${organizationId}`, result)
+    .then(() => {
+      return result
+    })
   }
 
-  getOrgMembers(organizationId: string): Member[] {
+  getOrgMembers(organizationId: string): Promise<Member[]> {
     return this._get<Array<Member>>(`members:${organizationId}`)
   }
 }

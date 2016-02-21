@@ -11,37 +11,43 @@ export class OrganizationsAPI extends BaseAPI {
   private OrganizationModel = new OrganizationModel()
 
   getOrgs (): Promise<IOrganizationData[]> {
-    const cache = this.OrganizationModel.getAll()
-    if (cache) return Promise.resolve(cache)
-    return this.tbFetch.get({
-      Type: 'organizations'
-    }).then((organizations: IOrganizationData[]) => {
-      return this.OrganizationModel.saveAll(organizations)
+    return this.OrganizationModel.getAll()
+    .then(cache => {
+      if (cache) return Promise.resolve(cache)
+      return this.tbFetch.get({
+        Type: 'organizations'
+      }).then((organizations: IOrganizationData[]) => {
+        return this.OrganizationModel.saveAll(organizations)
+      })
     })
   }
 
   getOne (organizationId: string): Promise<IOrganizationData> {
-    const cache = this.OrganizationModel.get(organizationId)
-    if (cache) return Promise.resolve(cache)
-    return this.tbFetch.get({
-      Type: 'organizations',
-      Id: organizationId
-    })
-    .then((organization: IOrganizationData) => {
-      return this.OrganizationModel.set(organization)
+    return this.OrganizationModel.get(organizationId)
+    .then(cache => {
+      if (cache) return Promise.resolve(cache)
+      return this.tbFetch.get({
+        Type: 'organizations',
+        Id: organizationId
+      })
+      .then((organization: IOrganizationData) => {
+        return this.OrganizationModel.set(organization)
+      })
     })
   }
 
   getMembers (organizationId: string): Promise<Member[]> {
-    const cache = this.MemberModel.getOrgMembers(organizationId)
-    if (cache) return Promise.resolve(cache)
-    return this.tbFetch.get({
-      Version: 'V2',
-      Type: 'organizations',
-      Id: organizationId,
-      Path1: 'members'
-    }).then((members: IMemberData[]) => {
-      return this.MemberModel.saveOrgMembers(organizationId, members)
+    return this.MemberModel.getOrgMembers(organizationId)
+    .then(cache => {
+      if (cache) return Promise.resolve(cache)
+      return this.tbFetch.get({
+        Version: 'V2',
+        Type: 'organizations',
+        Id: organizationId,
+        Path1: 'members'
+      }).then((members: IMemberData[]) => {
+        return this.MemberModel.saveOrgMembers(organizationId, members)
+      })
     })
   }
 }

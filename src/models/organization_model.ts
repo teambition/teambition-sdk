@@ -3,19 +3,19 @@ import Model from './model'
 import {IOrganizationData} from 'teambition'
 
 export default class OrganizationModel extends Model {
-  getAll(): Array<IOrganizationData> {
+  getAll(): Promise<Array<IOrganizationData>> {
     return this._get<IOrganizationData[]>('organization')
   }
 
-  get(id: string): IOrganizationData {
+  get(id: string): Promise<IOrganizationData> {
     return this._get<IOrganizationData>(id)
   }
 
-  saveAll(organizations: IOrganizationData[]): IOrganizationData[] {
+  saveAll(organizations: IOrganizationData[]): Promise<IOrganizationData[]> {
     return this._save<IOrganizationData[]>('organization', organizations)
   }
 
-  set(data: IOrganizationData): IOrganizationData {
+  set(data: IOrganizationData): Promise<IOrganizationData> {
     return this._save<IOrganizationData>(data._id, data)
   }
 }

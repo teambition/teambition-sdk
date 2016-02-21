@@ -5,13 +5,14 @@ import Project from '../schemas/project_schema'
 import {IProjectData} from 'teambition'
 
 export default class ProjectModel extends BaseModel {
-  addProjects(projects: IProjectData[]): Project[] {
+  addProjects(projects: IProjectData[]): Promise<Project[]> {
     const result = datasToSchemas<IProjectData, Project>(projects, Project)
-    this._save(`projects`, result)
-    return result
+    return this._save(`projects`, result).then(() => {
+      return result
+    })
   }
 
-  getProjects(): Project[] {
+  getProjects(): Promise<Project[]> {
     return this._get<Project[]>('projects')
   }
 }
