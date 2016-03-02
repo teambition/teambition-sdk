@@ -20,16 +20,16 @@ export default describe('Organizations API test', () => {
     .respond(organizations)
   })
 
-  it('get organizations should ok', (done: Function) => {
+  it('get organizations should ok', done => {
     OrganizationAPI.getOrgs()
-    .then((data: IOrganizationData[]) => {
+    .then(data => {
       expect(data).to.instanceof(Array)
       done()
     })
     httpBackend.flush()
   })
 
-  it('get one organization should ok', (done: Function) => {
+  it('get one organization should ok', done => {
     const id = organizations[0]._id
     let orgs: IOrganizationData[]
     const spy = sinon.spy()
@@ -40,12 +40,12 @@ export default describe('Organizations API test', () => {
     .respond(clone(organizations[0]))
 
     OrganizationAPI.getOrgs()
-    .then((data: IOrganizationData[]) => {
+    .then(data => {
       orgs = data
       fetch = spy
       return OrganizationAPI.getOne(id)
     })
-    .then((data: IOrganizationData) => {
+    .then(data => {
       const org = orgs[0]
       expect(spy.notCalled).to.be.true
       forEach(org, ((val, key) => {
@@ -54,7 +54,7 @@ export default describe('Organizations API test', () => {
       fetch = originFetch
       done()
     })
-    .catch((reason) => {
+    .catch(reason => {
       fetch = originFetch
       console.error(reason)
     })

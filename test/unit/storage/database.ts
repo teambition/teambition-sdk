@@ -15,14 +15,14 @@ export default describe('database test', () => {
     Storage = new Database()
   })
 
-  it('database storeOne/getOne should ok', (done) => {
+  it('database storeOne/getOne should ok', done => {
     const data = {
       _id: '1111',
       data: 'tbsdk_test 1'
     }
     Storage.store('1111', data)
     .then(() => {
-      return Storage.getOne('1111').then((result) => {
+      return Storage.getOne('1111').then(result => {
         forEach(data, (val, key) => {
           expect(val).to.equal(result[key])
         })
@@ -31,14 +31,14 @@ export default describe('database test', () => {
     })
   })
 
-  it('database expire should ok', (done) => {
+  it('database expire should ok', done => {
     const data = {
       _id: '2222',
       data: 'tbsdk_test 2'
     }
     Storage.store('2222', data, 200)
     .then(() => {
-      return Storage.getOne('2222').then((result) => {
+      return Storage.getOne('2222').then(result => {
         forEach(data, (val, key) => {
           expect(val).to.equal(result[key])
         })
@@ -52,7 +52,7 @@ export default describe('database test', () => {
       })
     })
     .then(() => {
-      return Storage.getOne('2222').then((result) => {
+      return Storage.getOne('2222').then(result => {
         forEach(data, (val, key) => {
           expect(val).to.equal(result[key])
         })
@@ -66,7 +66,7 @@ export default describe('database test', () => {
       })
     })
     .then(() => {
-      return Storage.getOne('2222').then((result) => {
+      return Storage.getOne('2222').then(result => {
         expect(result).to.be.undefined
         done()
       })
@@ -77,7 +77,7 @@ export default describe('database test', () => {
     })
   })
 
-  it('database delete should ok', (done) => {
+  it('database delete should ok', done => {
     const data = {
       _id: '3333',
       data: 'tbsdk_test 3'
@@ -101,7 +101,7 @@ export default describe('database test', () => {
 
 
   describe('update should ok', () => {
-    it('update object should ok', (done) => {
+    it('update object should ok', done => {
       const data = {
         _id: '5555',
         data: 'tbsdk_test 5'
@@ -115,7 +115,7 @@ export default describe('database test', () => {
       })
       .then(() => {
         return Storage.getOne<typeof data>('5555')
-        .then((result) => {
+        .then(result => {
           expect(result.data).to.equal(patchData.data)
           done()
         })
@@ -149,7 +149,7 @@ export default describe('database test', () => {
       })
       .then(() => {
         return Storage.getOne<typeof data>('collection_test_1')
-        .then((result) => {
+        .then(result => {
           forEach(patchData, (value, index) => {
             forEach(value, (val, key) => {
               expect(val).to.equal(result[index][key])
@@ -195,7 +195,7 @@ export default describe('database test', () => {
       })
       .then(() => {
         return Storage.getOne<typeof data>('collection_test_2')
-        .then((result) => {
+        .then(result => {
           forEach(patchData, (value, index) => {
             forEach(value, (val, key) => {
               expect(val).to.equal(result[index][key])
@@ -224,7 +224,7 @@ export default describe('database test', () => {
           data: 'tbsdk_test 13'
         })
       })
-      .then((result) => {
+      .then(result => {
         expect(result).to.be.undefined
       })
     })
@@ -251,7 +251,7 @@ export default describe('database test', () => {
       Storage.store('15.15', data, 50)
       .then(() => {
         setTimeout(() => {
-          Storage.getOne<typeof data>('15.15').then((result) => {
+          Storage.getOne<typeof data>('15.15').then(result => {
             forEach(data, (val, key) => {
               expect(result[key]).to.deep.equal(val)
             })
@@ -261,14 +261,14 @@ export default describe('database test', () => {
           })
         }, 25)
         setTimeout(() => {
-          Storage.getOne<typeof data>('15.15').then((result) => {
+          Storage.getOne<typeof data>('15.15').then(result => {
             forEach(data, (val, key) => {
               expect(result[key]).to.deep.equal(val)
             })
           })
         }, 100)
         setTimeout(() => {
-          Storage.getOne<typeof data>('15.15').then((result) => {
+          Storage.getOne<typeof data>('15.15').then(result => {
             expect(result).to.be.undefined
             done()
           })
@@ -358,7 +358,7 @@ export default describe('database test', () => {
     })
     .then(() => {
       return Storage.getOne<typeof objEle>('collection_test_5')
-      .then((result) => {
+      .then(result => {
         expect(result[0].data).to.equal(colEle[0].data)
       })
     })

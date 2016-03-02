@@ -25,7 +25,7 @@ export default describe('member api test', () => {
     .respond(members)
 
     Member.getOrgMembers(id)
-    .then((members: Member[]) => {
+    .then(members => {
       expect(members).to.instanceof(Array)
       done()
     })
@@ -33,8 +33,9 @@ export default describe('member api test', () => {
     httpBackend.flush()
   })
 
-  it ('getMembers from project should ok', (done: Function) => {
-    Member.getProjectMembers('projectId').then((data) => {
+  it ('getMembers from project should ok', done => {
+    Member.getProjectMembers('projectId')
+    .then(data => {
       expect(data).to.be.instanceof(Array)
       expect(data.length).to.equal(members.length)
       done()
@@ -46,7 +47,7 @@ export default describe('member api test', () => {
     httpBackend.flush()
   })
 
-  it('delete member from project should ok', (done) => {
+  it('delete member from project should ok', done => {
     let Members: Member[]
     let length: number
     let memberId = members[0]._id
@@ -55,7 +56,8 @@ export default describe('member api test', () => {
     .whenDELETE(`${apihost}/members/${memberId}`)
     .respond({})
 
-    Member.getProjectMembers('projectId').then((data) => {
+    Member.getProjectMembers('projectId')
+    .then(data => {
       Members = data
       length = data.length
       return Member.deleteMember(data[0]._id)
@@ -63,7 +65,7 @@ export default describe('member api test', () => {
     .then(() => {
       return Member.getProjectMembers('projectId')
     })
-    .then((data) => {
+    .then(data => {
       expect(data.length + 1).to.equal(length)
       let inData = false
       data.forEach((val) => {
@@ -74,7 +76,7 @@ export default describe('member api test', () => {
       expect(inData).to.be.false
       done()
     })
-    .catch((reason) => {
+    .catch(reason => {
       console.error(reason.stack)
     })
 

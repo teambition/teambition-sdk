@@ -18,8 +18,9 @@ export default describe('UserAPI test', () => {
     httpBackend.whenGET(`${apihost}/users/me`).respond(userMe)
   })
 
-  it('get user me should ok', (done: Function) => {
-    User.getUserMe().then((data: IUserMe) => {
+  it('get user me should ok', done => {
+    User.getUserMe()
+    .then(data => {
       forEach(userMe, (value: any, key: string) => {
         expect(userMe[key]).deep.equal(data[key])
       })
@@ -33,11 +34,13 @@ export default describe('UserAPI test', () => {
     const mockPut = clone(userMe)
     mockPut.name = 'test'
 
-    httpBackend.whenPUT(`${apihost}/users`, {
+    httpBackend
+    .whenPUT(`${apihost}/users`, {
       name: 'test'
     }).respond(mockPut)
 
-    User.getUserMe().then((data: IUserMe) => {
+    User.getUserMe()
+    .then(data => {
       me = data
       return User.update({
         name: 'test'
@@ -46,7 +49,7 @@ export default describe('UserAPI test', () => {
     .then(() => {
       return User.getUserMe()
     })
-    .then((data: IUserMe) => {
+    .then(data => {
       expect(data.name).to.equal('test')
       expect(me.name).to.equal('test')
       done()
@@ -56,7 +59,7 @@ export default describe('UserAPI test', () => {
     }, 500)
   })
 
-  it('add email should ok', (done: Function) => {
+  it('add email should ok', done => {
     const mockResponse = clone(userMe)
     const updateData = {
       email: 'test@teambition.com',
@@ -70,21 +73,22 @@ export default describe('UserAPI test', () => {
       email: updateData.email
     }).respond(mockResponse.emails)
 
-    User.getUserMe().then((data: IUserMe) => {
+    User.getUserMe()
+    .then(data => {
       me = data
       return User.addEmail(updateData.email)
     })
     .then(() => {
       return User.getUserMe()
     })
-    .then((data: IUserMe) => {
+    .then(data => {
       expect(me.emails.length).to.equal(2)
       expect(me.emails[1]).to.deep.equal(updateData)
       expect(data.emails.length).to.equal(2)
       expect(data.emails[1]).to.deep.equal(updateData)
       done()
     })
-    .catch((reason: Error) => {
+    .catch(reason => {
       console.error(reason)
     })
 
@@ -92,7 +96,7 @@ export default describe('UserAPI test', () => {
 
   })
 
-  it('bind phone should ok', (done: Function) => {
+  it('bind phone should ok', done => {
     const mockResponse = clone(userMe)
     const updateData = {
       phone: '13334444555',
@@ -104,14 +108,14 @@ export default describe('UserAPI test', () => {
     .whenPUT(`${apihost}/users/phone`, updateData)
     .respond(mockResponse)
 
-    User.getUserMe().then((data: IUserMe) => {
+    User.getUserMe().then(data => {
       me = data
       return User.bindPhone(updateData.phone, updateData.vcode)
     })
     .then(() => {
       return User.getUserMe()
     })
-    .then((data: IUserMe) => {
+    .then(data => {
       expect(me.phone).to.equal(updateData.phone)
       expect(data.phone).to.equal(updateData.phone)
       done()
