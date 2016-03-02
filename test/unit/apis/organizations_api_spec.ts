@@ -4,8 +4,7 @@ import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
 import {Backend, OrganizationsAPI, clone, forEach} from '../'
 import {apihost} from '../app'
-import Member from '../../../src/schemas/member_schema'
-import {organizations, members} from '../mock'
+import {organizations} from '../mock'
 import {IOrganizationData} from 'teambition'
 
 const expect = chai.expect
@@ -58,22 +57,6 @@ export default describe('Organizations API test', () => {
     .catch((reason) => {
       fetch = originFetch
       console.error(reason)
-    })
-
-    httpBackend.flush()
-  })
-
-  it('get organization members should ok', (done: Function) => {
-    const id = organizations[0]._id
-
-    httpBackend
-    .whenGET(`${apihost}/V2/organizations/${id}/members`)
-    .respond(members)
-
-    OrganizationAPI.getMembers(id)
-    .then((members: Member[]) => {
-      expect(members).to.instanceof(Array)
-      done()
     })
 
     httpBackend.flush()

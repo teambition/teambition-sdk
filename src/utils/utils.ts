@@ -42,7 +42,8 @@ export const assign = <T, U>(target: T, origin: U): T & U => {
 }
 
 export const clone = <T>(origin: T): T => {
-  if (typeof origin === 'undefined' || typeof origin !== 'object') return
+  /* istanbul ignore if */
+  if (!origin || typeof origin !== 'object') return
   let target
   if (origin instanceof Array) {
     target = new Array()
@@ -89,18 +90,6 @@ export const datasToSchemas = <T, U extends Schema>(datas: T[], Schema: any): U[
   return result
 }
 
-export const applyMixins = (derivedCtor: any, baseCtors: any[]) => {
-  forEach(baseCtors, baseCtor => {
-    forEach(Object.getOwnPropertyNames(baseCtor.prototype), name => {
-      derivedCtor.prototype[name] = baseCtor.prototype[name]
-    })
-  })
-}
-
 export const isFunction = (target) => {
   return typeof target === 'function'
-}
-
-export const noop = function() {
-  return
 }

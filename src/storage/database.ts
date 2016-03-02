@@ -99,7 +99,7 @@ export default class DataBase {
 
   update<T, U>(index: string, patch: T | Array<U>): Promise<void> {
     const objectType = this.typeIndex.get(index)
-    if (!objectType) return Promise.resolve()
+    if (!objectType) return Promise.resolve<void>(undefined)
     if (objectType === 'object') return this.updateOne(index, patch)
     if (objectType === 'collection') return this.updateCollection(index, <Array<U>>patch)
   }
