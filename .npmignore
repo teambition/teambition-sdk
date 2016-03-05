@@ -51,3 +51,13 @@ jsconfig.json
 coverage
 .vscode
 dist
+.npmignore
+src
+mock
+.travis.yml
+tsconfig.json
+tsd.json
+tslint.json
+webpack.config.ts
+.gitignore
+tools

@@ -17,7 +17,7 @@ gulp.task('bundle.es6', (done) => {
     'whatwg-fetch',
     path.join(process.cwd(), 'src/app.ts')
   ]
-  return bundle(entry, 'tbsdk.js', buildConfigFile, 'dist', false, false, done)
+  return bundle(entry, 'tbsdk.js', null, 'dist/es6', false, false, done)
 })
 
 gulp.task('default', ['bundle.es6'])
@@ -25,7 +25,7 @@ gulp.task('default', ['bundle.es6'])
 gulp.task('build.mock', (done) => {
   const entry = path.join(process.cwd(), 'mock/index.ts')
   const configFileName = path.join(process.cwd(), 'tools/build/mock.json')
-  return bundle(entry, 'mock.js', configFileName, 'dist', false, false, done)
+  return bundle(entry, 'mock.js', configFileName, 'dist/mock', false, false, done)
 })
 
 const buildTest = (stream: NodeJS.ReadWriteStream) => {
@@ -106,8 +106,8 @@ gulp.task('build.sdk', (done) => {
     'es6-collections',
     path.join(process.cwd(), 'src/app.ts')
   ]
-  const output = 'tbsdk.min.js'
-  bundle(entry, output, buildConfigFile, 'dist', false, true, done)
+  const output = 'tbsdk.js'
+  bundle(entry, output, buildConfigFile, 'dist/bundle', false, false, done)
 })
 
 gulp.task('lint', () => {
