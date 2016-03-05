@@ -50,7 +50,6 @@ account-wx-service.iml
 jsconfig.json
 coverage
 .vscode
-dist
 .npmignore
 src
 mock
@@ -61,3 +60,4 @@ tslint.json
 webpack.config.ts
 .gitignore
 tools
+gulpfile.ts
