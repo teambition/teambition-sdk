@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Front-End SDK for Teambition",
   "main": "dist/cjs/app.js",
   "typings": "dist/cjs/app.d.ts",
