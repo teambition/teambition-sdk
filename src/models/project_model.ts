@@ -2,11 +2,11 @@
 import BaseModel from './model'
 import {datasToSchemas} from '../utils'
 import Project from '../schemas/project_schema'
-import {IProjectData} from 'teambition'
+import {ProjectData} from '../teambition'
 
 export default class ProjectModel extends BaseModel {
-  addProjects(projects: IProjectData[]): Promise<Project[]> {
-    const result = datasToSchemas<IProjectData, Project>(projects, Project)
+  addProjects(projects: ProjectData[]): Promise<Project[]> {
+    const result = datasToSchemas<ProjectData, Project>(projects, Project)
     return this._save(`projects`, result).then(() => {
       return result
     })

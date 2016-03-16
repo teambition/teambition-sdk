@@ -1,22 +1,22 @@
 'use strict'
 import BaseAPI from './base_api'
 import UserModel from '../models/user_model'
-import {IUserMe, IUserEmail} from 'teambition'
+import {UserMe, UserEmail} from '../teambition'
 
 export class UserAPI extends BaseAPI {
 
-  private UserModel = new UserModel()
+  public static UserModel = new UserModel()
 
-  getUserMe(): Promise<IUserMe> {
-    return this.UserModel.get()
+  getUserMe(): Promise<UserMe> {
+    return UserAPI.UserModel.get()
     .then(cache => {
       if (cache) return Promise.resolve(cache)
       return this.tbFetch.get({
         Type: 'users',
         Id: 'me'
       })
-      .then((userMe: IUserMe) => {
-        return this.UserModel.set(userMe)
+      .then((userMe: UserMe) => {
+        return UserAPI.UserModel.set(userMe)
       })
     })
   }
@@ -29,7 +29,7 @@ export class UserAPI extends BaseAPI {
       Type: 'users'
     }, patch)
     .then((userMe: any) => {
-      return this.UserModel.update(userMe)
+      return UserAPI.UserModel.update(userMe)
     })
   }
 
@@ -39,8 +39,8 @@ export class UserAPI extends BaseAPI {
       Id: 'email'
     }, {
       email: email
-    }).then((data: IUserEmail[]) => {
-      return this.UserModel.updateEmail(data)
+    }).then((data: UserEmail[]) => {
+      return UserAPI.UserModel.updateEmail(data)
     })
   }
 
@@ -52,7 +52,7 @@ export class UserAPI extends BaseAPI {
       phone: phone,
       vcode: vcode
     }).then((data: any) => {
-      return this.UserModel.update({
+      return UserAPI.UserModel.update({
         phone: phone
       })
     })

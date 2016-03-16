@@ -2,21 +2,21 @@
 import BaseAPI from './base_api'
 import ProjectModel from '../models/project_model'
 import Project from '../schemas/project_schema'
-import {IProjectData} from 'teambition'
+import {ProjectData} from '../teambition'
 
 export class ProjectsAPI extends BaseAPI {
 
-  private ProjectModel = new ProjectModel()
+  public static ProjectModel = new ProjectModel()
 
   getAll(): Promise<Project[]> {
-    return this.ProjectModel.getProjects()
+    return ProjectsAPI.ProjectModel.getProjects()
     .then(cache => {
       if (cache) return Promise.resolve(cache)
       return this.tbFetch.get({
         Type: 'projects'
       })
-      .then((projects: IProjectData[]) => {
-        return this.ProjectModel.addProjects(projects)
+      .then((projects: ProjectData[]) => {
+        return ProjectsAPI.ProjectModel.addProjects(projects)
       })
     })
   }

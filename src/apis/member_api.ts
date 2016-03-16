@@ -2,10 +2,10 @@
 import BaseAPI from './base_api'
 import MemberModel from '../models/member_model'
 import Member from '../schemas/member_schema'
-import {IMemberData} from 'teambition'
+import {MemberData} from '../teambition'
 
 export class MemberAPI extends BaseAPI {
-  private MemberModel = new MemberModel()
+  public static MemberModel = new MemberModel()
 
   deleteMember(memberId: string): Promise<void> {
     return this.tbFetch.delete({
@@ -13,12 +13,12 @@ export class MemberAPI extends BaseAPI {
       Id: memberId
     })
     .then(() => {
-      return this.MemberModel.removeMember(memberId)
+      return MemberAPI.MemberModel.removeMember(memberId)
     })
   }
 
   getOrgMembers (organizationId: string): Promise<Member[]> {
-    return this.MemberModel.getOrgMembers(organizationId)
+    return MemberAPI.MemberModel.getOrgMembers(organizationId)
     .then(cache => {
       if (cache) return Promise.resolve(cache)
       return this.tbFetch.get({
@@ -26,14 +26,14 @@ export class MemberAPI extends BaseAPI {
         Type: 'organizations',
         Id: organizationId,
         Path1: 'members'
-      }).then((members: IMemberData[]) => {
-        return this.MemberModel.saveOrgMembers(organizationId, members)
+      }).then((members: MemberData[]) => {
+        return MemberAPI.MemberModel.saveOrgMembers(organizationId, members)
       })
     })
   }
 
   getProjectMembers(projectId: string): Promise<Member[]> {
-    return this.MemberModel.getProjectMembers(projectId)
+    return MemberAPI.MemberModel.getProjectMembers(projectId)
     .then(cache => {
       if (cache) return Promise.resolve(cache)
       return this.tbFetch.get({
@@ -41,8 +41,8 @@ export class MemberAPI extends BaseAPI {
         Id: projectId,
         Path1: 'members'
       })
-      .then((members: IMemberData[]) => {
-        return this.MemberModel.saveProjectMembers(projectId, members)
+      .then((members: MemberData[]) => {
+        return MemberAPI.MemberModel.saveProjectMembers(projectId, members)
       })
     })
   }

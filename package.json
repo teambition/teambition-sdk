@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "description": "Front-End SDK for Teambition",
   "main": "dist/cjs/app.js",
+  "typings": "dist/cjs/app.d.ts",
   "scripts": {
     "test": "gulp build.test && gulp test",
     "tsd": "ts-node tools/tasks/tsd.ts",
@@ -58,7 +59,7 @@
     "ts-node": "^0.5.4",
     "tsd": "^0.6.5",
     "tslint": "^3.2.1",
-    "typescript": "^1.7.5",
+    "typescript": "^1.8.7",
     "webpack": "^1.12.10",
     "zone.js": "^0.5.14"
   }

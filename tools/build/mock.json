@@ -7,7 +7,6 @@
   },
   "files": [
     "../../mock/index.ts",
-    "../../src/teambition.d.ts",
     "../../tools/build/test.d.ts"
   ],
   "exclude": [

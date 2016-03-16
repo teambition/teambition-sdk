@@ -2,11 +2,11 @@
 import BaseModel from './model'
 import {datasToSchemas} from '../utils'
 import Member from '../schemas/member_schema'
-import {IMemberData} from 'teambition'
+import {MemberData} from '../teambition'
 
 export default class MemberModel extends BaseModel {
-  saveProjectMembers(projectId: string, members: IMemberData[]): Promise<Member[]> {
-    const result = datasToSchemas<IMemberData, Member>(members, Member)
+  saveProjectMembers(projectId: string, members: MemberData[]): Promise<Member[]> {
+    const result = datasToSchemas<MemberData, Member>(members, Member)
     return this._save(`members:${projectId}`, result)
   }
 
@@ -18,8 +18,8 @@ export default class MemberModel extends BaseModel {
     return this._delete(memberId)
   }
 
-  saveOrgMembers(organizationId: string, members: IMemberData[]): Promise<Member[]> {
-    const result = datasToSchemas<IMemberData, Member>(members, Member)
+  saveOrgMembers(organizationId: string, members: MemberData[]): Promise<Member[]> {
+    const result = datasToSchemas<MemberData, Member>(members, Member)
     return this._save(`members:${organizationId}`, result)
     .then(() => {
       return result

@@ -2,10 +2,10 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
-import {Backend, OrganizationsAPI, clone, forEach} from '../'
+import {Backend, OrganizationsAPI, clone, forEach} from '../index'
 import {apihost} from '../app'
 import {organizations} from '../mock'
-import {IOrganizationData} from 'teambition'
+import {OrganizationData} from '../type'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -31,7 +31,7 @@ export default describe('Organizations API test', () => {
 
   it('get one organization should ok', done => {
     const id = organizations[0]._id
-    let orgs: IOrganizationData[]
+    let orgs: OrganizationData[]
     const spy = sinon.spy()
     const originFetch = fetch
 

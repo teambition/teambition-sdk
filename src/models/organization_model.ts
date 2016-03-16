@@ -1,21 +1,21 @@
 'use strict'
 import Model from './model'
-import {IOrganizationData} from 'teambition'
+import {OrganizationData} from '../teambition'
 
 export default class OrganizationModel extends Model {
-  getAll(): Promise<Array<IOrganizationData>> {
-    return this._get<IOrganizationData[]>('organization')
+  getAll(): Promise<Array<OrganizationData>> {
+    return this._get<OrganizationData[]>('organization')
   }
 
-  get(id: string): Promise<IOrganizationData> {
-    return this._get<IOrganizationData>(id)
+  get(id: string): Promise<OrganizationData> {
+    return this._get<OrganizationData>(id)
   }
 
-  saveAll(organizations: IOrganizationData[]): Promise<IOrganizationData[]> {
-    return this._save<IOrganizationData[]>('organization', organizations)
+  saveAll(organizations: OrganizationData[]): Promise<OrganizationData[]> {
+    return this._save<OrganizationData[]>('organization', organizations)
   }
 
-  set(data: IOrganizationData): Promise<IOrganizationData> {
-    return this._save<IOrganizationData>(data._id, data)
+  set(data: OrganizationData): Promise<OrganizationData> {
+    return this._save<OrganizationData>(data._id, data)
   }
 }

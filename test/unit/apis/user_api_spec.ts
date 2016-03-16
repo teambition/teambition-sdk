@@ -3,7 +3,7 @@ import * as chai from 'chai'
 import {Backend, UserAPI, forEach, clone} from '../'
 import {apihost} from '../app'
 import {userMe} from '../mock'
-import {IUserMe} from 'teambition'
+import {UserMe} from '../type'
 
 const expect = chai.expect
 
@@ -30,7 +30,7 @@ export default describe('UserAPI test', () => {
   })
 
   it('update user me should ok', (done: Function) => {
-    let me: IUserMe
+    let me: UserMe
     const mockPut = clone(userMe)
     mockPut.name = 'test'
 
@@ -67,7 +67,7 @@ export default describe('UserAPI test', () => {
       _id: '54cb6200d1b4c6af47abe111',
       id: '54cb6200d1b4c6af47abe111'
     }
-    let me: IUserMe
+    let me: UserMe
     mockResponse.emails = mockResponse.emails.concat([updateData])
     httpBackend.whenPOST(`${apihost}/users/email`, {
       email: updateData.email
@@ -102,7 +102,7 @@ export default describe('UserAPI test', () => {
       phone: '13334444555',
       vcode: '4843'
     }
-    let me: IUserMe
+    let me: UserMe
     mockResponse.phone = updateData.phone
     httpBackend
     .whenPUT(`${apihost}/users/phone`, updateData)

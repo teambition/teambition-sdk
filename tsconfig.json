@@ -3,7 +3,9 @@
     "target": "es6",
     "experimentalDecorators": true,
     "inlineSourceMap": true,
-    "outDir": "test"
+    "outDir": "test",
+    "module": "commonjs",
+    "emitDecoratorMetadata": true
   },
   "exclude": [
     "node_modules",
