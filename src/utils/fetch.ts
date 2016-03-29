@@ -4,15 +4,15 @@ import {assign, forEach} from './index'
 const apiPath = ['Version', 'Type', 'Id', 'Path1', 'Path2', 'Path3']
 
 export interface IRestPaths {
-  Version?: string;
-  Type: string;
-  Id?: string;
-  Path1?: string;
-  Path2?: string;
-  Path3?: string;
-  _boundToObjectId?: string;
-  fields?: string;
-  [index: string]: any;
+  Version?: string
+  Type: string
+  Id?: string
+  Path1?: string
+  Path2?: string
+  Path3?: string
+  _boundToObjectId?: string
+  fields?: string
+  [index: string]: any
 }
 
 export class Fetch {
@@ -42,7 +42,7 @@ export class Fetch {
     return fetch(url, assign({
       method: 'get'
     }, Fetch.opts))
-    .then((data: Response) => {
+    .then(data => {
       return data.json()
     })
   }
@@ -53,7 +53,7 @@ export class Fetch {
       method: 'post',
       body: JSON.stringify(data)
     }, Fetch.opts))
-    .then((data: Response) => {
+    .then(data => {
       return data.json()
     })
   }
@@ -64,7 +64,7 @@ export class Fetch {
       method: 'put',
       body: JSON.stringify(data)
     }, Fetch.opts))
-    .then((data: Response) => {
+    .then(data => {
       return data.json()
     })
   }
@@ -74,7 +74,7 @@ export class Fetch {
     return fetch(url, assign({
       method: 'delete'
     }, Fetch.opts))
-    .then((data: Response) => {
+    .then(data => {
       return data.json()
     })
   }

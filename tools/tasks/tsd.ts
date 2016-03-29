@@ -7,28 +7,28 @@ const tsdJson = path.join(process.cwd(), 'tsd.json')
 const tsdApi  = new GetAPI(tsdJson)
 
 const install = async function () {
-  let packageJson = require(path.join(process.cwd(), 'package.json'))
+  const packageJson = require(path.join(process.cwd(), 'package.json'))
   // removed tsd from dependencies
   delete packageJson.devDependencies.tsd
   delete packageJson.dependencies['whatwg-fetch']
   delete packageJson.dependencies['es6-promise']
   delete packageJson.dependencies['es6-collections']
-  let deps = Object.keys(packageJson.dependencies)
-  let devDeps = Object.keys(packageJson.devDependencies)
-  let query = new Tsd.Query()
+  const deps = Object.keys(packageJson.dependencies)
+  const devDeps = Object.keys(packageJson.devDependencies)
+  const query = new Tsd.Query()
   deps.concat(devDeps).forEach(dependency => query.addNamePattern(dependency))
-  let options = new Tsd.Options()
+  const options = new Tsd.Options()
   options.resolveDependencies = true
   options.overwriteFiles = true
   options.saveBundle = true
 
   await tsdApi.readConfig()
 
-  let selection = await tsdApi.select(query, options)
-  let installResult = await tsdApi.install(selection, options)
-  let written = Object.keys(installResult.written.dict)
-  let removed = Object.keys(installResult.removed.dict)
-  let skipped = Object.keys(installResult.skipped.dict)
+  const selection = await tsdApi.select(query, options)
+  const installResult = await tsdApi.install(selection, options)
+  const written = Object.keys(installResult.written.dict)
+  const removed = Object.keys(installResult.removed.dict)
+  const skipped = Object.keys(installResult.skipped.dict)
   written.forEach(function (dts) {
     console.log('Definition file written: ' + dts)
   })

@@ -2,7 +2,7 @@ import * as path from 'path'
 
 export default {
   entry: [
-    'whatwg-fetch',
+    'isomorphic-fetch',
     path.join(process.cwd(), 'test/app.ts')
   ],
   output: {
