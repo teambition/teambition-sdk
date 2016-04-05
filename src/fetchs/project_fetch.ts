@@ -5,9 +5,7 @@ import {ProjectData} from '../teambition'
 export class ProjectsFetch extends BaseFetch {
 
   getAll(): Promise<ProjectData[]> {
-    return this.tbFetch.get({
-      Type: 'projects'
-    })
+    return this.tbFetch.get(`/projects`)
   }
 }
 

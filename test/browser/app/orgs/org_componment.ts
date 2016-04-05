@@ -1,8 +1,7 @@
 'use strict'
 
 import {componments} from '../component'
-import {OrganizationsAPI} from '../tbsdk'
-import {IOrganizationData} from 'teambition'
+import {OrganizationsAPI, OrganizationData} from '../tbsdk'
 
 const orgs = require('./orgs.html')
 
@@ -13,14 +12,14 @@ const orgs = require('./orgs.html')
 })
 export class OrgComponment {
 
-  org: IOrganizationData = <any>{}
+  org: OrganizationData = <any>{}
 
   private orgs = [
     '56988e7d05ead4ae7bb8dcf5',
     '56c3e05d550bf4c61af3ad96',
     '56c3e06c550bf4c61af3ad9a',
     '56c3e078550bf4c61af3ad9e'
-  ];
+  ]
 
   private index = 0
 

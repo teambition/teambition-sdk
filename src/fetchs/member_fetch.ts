@@ -4,27 +4,15 @@ import {MemberData} from '../teambition'
 
 export class MemberFetch extends BaseFetch {
   deleteMember(memberId: string): Promise<void> {
-    return this.tbFetch.delete({
-      Type: 'members',
-      Id: memberId
-    })
+    return this.tbFetch.delete(`/members/${memberId}`)
   }
 
   getOrgMembers (organizationId: string): Promise<MemberData[]> {
-    return this.tbFetch.get({
-      Version: 'V2',
-      Type: 'organizations',
-      Id: organizationId,
-      Path1: 'members'
-    })
+    return this.tbFetch.get(`/V2/organizations/${organizationId}/members`)
   }
 
   getProjectMembers(projectId: string): Promise<MemberData[]> {
-    return this.tbFetch.get({
-      Type: 'projects',
-      Id: projectId,
-      Path1: 'members'
-    })
+    return this.tbFetch.get(`/projects/${projectId}/members`)
   }
 }
 

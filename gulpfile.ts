@@ -58,7 +58,7 @@ const mochaRunner = (report: boolean) => {
 }
 
 gulp.task('watch', (done: any) => {
-  watch([
+  return watch([
     './**/*.ts',
     '!./node_modules'
   ], () => {
@@ -99,11 +99,12 @@ gulp.task('build.sdk', (done) => {
     path.join(process.cwd(), 'src/app.ts')
   ]
   const output = 'tbsdk.js'
-  bundle(entry, output, buildConfigFile, 'dist/bundle', false, false, done)
+  return bundle(entry, output, buildConfigFile, 'dist/bundle', false, false, done)
 })
 
 gulp.task('lint', () => {
-  gulp.src([
+  return gulp.src([
+    '!./test/unit/mock/**/*.ts',
     './mock/**/*.ts',
     './src/**/*.ts',
     './test/**/*.ts',

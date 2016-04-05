@@ -4,11 +4,11 @@ import {Fetch} from '../utils/fetch'
 const tbFetch = new Fetch()
 
 export default class BaseAPI {
-  public static tbFetch = tbFetch
+  public static fetch = tbFetch
 
   protected tbFetch: Fetch
 
   constructor() {
-    this.tbFetch = tbFetch
+    this.tbFetch = BaseAPI.fetch
   }
 }
