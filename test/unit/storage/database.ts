@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
-import {forEach} from '../'
+import {forEach} from '../index'
 import Database from '../../../src/storage/database'
 
 const expect = chai.expect

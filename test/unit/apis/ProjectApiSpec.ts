@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import {Backend, ProjectsAPI} from '../index'
 import {apihost} from '../app'
-import {projects} from '../mock'
+import {projects} from '../mock/projects'
 
 const expect = chai.expect
 

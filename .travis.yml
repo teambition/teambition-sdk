@@ -1,3 +1,6 @@
 language: node_js
 node_js:
   - "4.3"
+
+before_script:
+  - "npm run build_all"

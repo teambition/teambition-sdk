@@ -1,7 +1,9 @@
 'use strict'
-import OrganizationFetch from '../fetchs/organization_fetch'
-import OrganizationModel from '../models/organization_model'
+import {OrganizationFetch} from '../fetchs/OrganizationFetch'
+import OrganizationModel from '../models/OrganizationModel'
 import {OrganizationData} from '../teambition'
+
+const organizationFetch = new OrganizationFetch()
 
 export class OrganizationsAPI {
 
@@ -11,7 +13,7 @@ export class OrganizationsAPI {
     return OrganizationsAPI.OrganizationModel.getAll()
     .then(cache => {
       if (cache) return Promise.resolve(cache)
-      return OrganizationFetch
+      return organizationFetch
         .getOrgs()
         .then((organizations: OrganizationData[]) => {
           return OrganizationsAPI.OrganizationModel.saveAll(organizations)
@@ -23,7 +25,7 @@ export class OrganizationsAPI {
     return OrganizationsAPI.OrganizationModel.get(organizationId)
     .then(cache => {
       if (cache) return Promise.resolve(cache)
-      return OrganizationFetch
+      return organizationFetch
         .getOne(organizationId)
         .then((organization: OrganizationData) => {
           return OrganizationsAPI.OrganizationModel.set(organization)

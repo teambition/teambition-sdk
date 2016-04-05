@@ -1,6 +1,6 @@
 'use strict'
 import {forEach, isFunction} from './index'
-import {BaseObject} from '../storage/union_object'
+import {BaseObject} from '../storage/UnionObject'
 
 declare const zone
 
@@ -59,8 +59,9 @@ const $digest = (target: BaseObject, key, value) => {
   return timer
 }
 
-export const trackObject = <T extends BaseObject>(target: T, unionKey = target['_id']) => {
+export const trackObject = <T extends BaseObject>(target: T, unionKey?: string) => {
   /* istanbul ignore if */
+  if (typeof unionKey !== 'string') unionKey = target['_id']
   if (!unionKey) return
   trackIndex.set(unionKey, [])
   forEach(target, (val: any, key: string) => {

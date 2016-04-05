@@ -2,11 +2,9 @@
 import BaseFetch from './base'
 import {ProjectData} from '../teambition'
 
-export class ProjectsFetch extends BaseFetch {
+export class ProjectFetch extends BaseFetch {
 
   getAll(): Promise<ProjectData[]> {
     return this.fetch.get(`/projects`)
   }
 }
-
-export default new ProjectsFetch()

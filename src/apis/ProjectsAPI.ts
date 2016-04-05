@@ -1,8 +1,10 @@
 'use strict'
-import ProjectFetch from '../fetchs/project_fetch'
-import ProjectModel from '../models/project_model'
-import Project from '../schemas/project_schema'
+import {ProjectFetch} from '../fetchs/ProjectFetch'
+import ProjectModel from '../models/ProjectModel'
+import Project from '../schemas/Project'
 import {ProjectData} from '../teambition'
+
+const projectFetch = new ProjectFetch()
 
 export class ProjectsAPI {
 
@@ -12,7 +14,7 @@ export class ProjectsAPI {
     return ProjectsAPI.ProjectModel.getProjects()
     .then(cache => {
       if (cache) return Promise.resolve(cache)
-      return ProjectFetch
+      return projectFetch
         .getAll()
         .then((projects: ProjectData[]) => {
           return ProjectsAPI.ProjectModel.addProjects(projects)

@@ -1,3 +1,4 @@
+'use strict'
 import * as path from 'path'
 
 export default {
@@ -23,17 +24,6 @@ export default {
       {
         test: /\.ts$/,
         loader: 'ts-loader'
-      },
-      {
-        test: /index\.html/,
-        loader: 'file',
-        query: {
-          name: 'index.html'
-        }
-      },
-      {
-        test: /\.html/,
-        loader: 'et'
       }
     ]
   },

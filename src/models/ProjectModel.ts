@@ -1,7 +1,7 @@
 'use strict'
 import BaseModel from './model'
 import {datasToSchemas} from '../utils/index'
-import Project from '../schemas/project_schema'
+import Project from '../schemas/Project'
 import {ProjectData} from '../teambition'
 
 export default class ProjectModel extends BaseModel {

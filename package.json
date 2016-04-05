@@ -39,11 +39,7 @@
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
-    "browser-sync": "^2.11.1",
     "chai": "^3.4.1",
-    "et-dependency": "^0.3.7",
-    "et-template": "^0.3.7",
-    "file-loader": "^0.8.5",
     "gulp": "^3.9.1",
     "gulp-istanbul": "^0.10.3",
     "gulp-mocha": "^2.2.0",
@@ -54,7 +50,6 @@
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.5",
     "mocha": "^2.3.4",
-    "opn": "^4.0.0",
     "rxjs": "^5.0.0-beta.4",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",

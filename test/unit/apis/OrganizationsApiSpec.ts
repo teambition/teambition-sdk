@@ -4,7 +4,7 @@ import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
 import {Backend, OrganizationsAPI, clone, forEach} from '../index'
 import {apihost} from '../app'
-import {organizations} from '../mock'
+import {organizations} from '../mock/organizations'
 import {OrganizationData} from '../type'
 
 const expect = chai.expect
