@@ -1,5 +1,5 @@
 'use strict'
-import {assign, forEach} from '../utils'
+import {assign, forEach} from '../utils/index'
 import {trackObject, trackOne, trackCollection} from '../utils/track'
 import {BaseObject} from './union_object'
 
@@ -40,7 +40,7 @@ export default class DataBase {
 
   constructor(private unionFlag = '_id') {}
 
-  store(index: string, data: any, expire = 0): Promise<void> {
+  set(index: string, data: any, expire = 0): Promise<void> {
     return new Promise<void>(resolve => {
       setTimeout(() => {
         if (data instanceof Array && data[0] && data[0][this.unionFlag]) {
@@ -54,7 +54,7 @@ export default class DataBase {
     })
   }
 
-  getOne<T>(index: string): Promise<T> {
+  get<T>(index: string): Promise<T> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const data = this.data.get(index)
@@ -63,7 +63,7 @@ export default class DataBase {
         if (this.typeIndex.get(index) === 'collection') {
           result = []
           Promise.all(data.map(val => {
-            this.getOne(val[this.unionFlag])
+            this.get(val[this.unionFlag])
             .then(obj => {
               result.push(obj)
               trackOne(index, result)

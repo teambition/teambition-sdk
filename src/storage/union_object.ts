@@ -1,5 +1,5 @@
 'use strict'
-import {forEach} from '../utils'
+import {forEach} from '../utils/index'
 
 let $id = 1
 export const ObjectIndex = new Map<string, {

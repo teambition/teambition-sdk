@@ -20,9 +20,9 @@ export default describe('database test', () => {
       _id: '1111',
       data: 'tbsdk_test 1'
     }
-    Storage.store('1111', data)
+    Storage.set('1111', data)
     .then(() => {
-      return Storage.getOne('1111').then(result => {
+      return Storage.get('1111').then(result => {
         forEach(data, (val, key) => {
           expect(val).to.equal(result[key])
         })
@@ -36,9 +36,9 @@ export default describe('database test', () => {
       _id: '2222',
       data: 'tbsdk_test 2'
     }
-    Storage.store('2222', data, 200)
+    Storage.set('2222', data, 200)
     .then(() => {
-      return Storage.getOne('2222').then(result => {
+      return Storage.get('2222').then(result => {
         forEach(data, (val, key) => {
           expect(val).to.equal(result[key])
         })
@@ -52,7 +52,7 @@ export default describe('database test', () => {
       })
     })
     .then(() => {
-      return Storage.getOne('2222').then(result => {
+      return Storage.get('2222').then(result => {
         forEach(data, (val, key) => {
           expect(val).to.equal(result[key])
         })
@@ -66,7 +66,7 @@ export default describe('database test', () => {
       })
     })
     .then(() => {
-      return Storage.getOne('2222').then(result => {
+      return Storage.get('2222').then(result => {
         expect(result).to.be.undefined
         done()
       })
@@ -82,12 +82,12 @@ export default describe('database test', () => {
       _id: '3333',
       data: 'tbsdk_test 3'
     }
-    Storage.store('3333', data)
+    Storage.set('3333', data)
       .then(() => {
         return Storage.delete('3333')
       })
       .then(() => {
-        return Storage.getOne('3333')
+        return Storage.get('3333')
           .then(result => {
             expect(result).to.be.undefined
             done()
@@ -109,12 +109,12 @@ export default describe('database test', () => {
       const patchData = {
         data: 'tbsdk_test 6'
       }
-      Storage.store('5555', data)
+      Storage.set('5555', data)
       .then(() => {
         return Storage.update('5555', patchData)
       })
       .then(() => {
-        return Storage.getOne<typeof data>('5555')
+        return Storage.get<typeof data>('5555')
         .then(result => {
           expect(result.data).to.equal(patchData.data)
           done()
@@ -143,12 +143,12 @@ export default describe('database test', () => {
           data: 'tbsdk_test 77'
         }
       ]
-	    Storage.store('collection_test_1', data)
+	    Storage.set('collection_test_1', data)
       .then(() => {
         return Storage.update('collection_test_1', patchData)
       })
       .then(() => {
-        return Storage.getOne<typeof data>('collection_test_1')
+        return Storage.get<typeof data>('collection_test_1')
         .then(result => {
           forEach(patchData, (value, index) => {
             forEach(value, (val, key) => {
@@ -189,12 +189,12 @@ export default describe('database test', () => {
         }
       ]
 
-	    Storage.store('collection_test_2', data)
+	    Storage.set('collection_test_2', data)
       .then(() => {
         return Storage.update('collection_test_2', patchData)
       })
       .then(() => {
-        return Storage.getOne<typeof data>('collection_test_2')
+        return Storage.get<typeof data>('collection_test_2')
         .then(result => {
           forEach(patchData, (value, index) => {
             forEach(value, (val, key) => {
@@ -217,7 +217,7 @@ export default describe('database test', () => {
           data: 'tbsdk_test 13'
         }
       ]
-	    Storage.store('collection_test_3', data)
+	    Storage.set('collection_test_3', data)
       .then(() => {
         return Storage.update('collection_test_3', {
           _id: 'collection_test_3',
@@ -230,7 +230,7 @@ export default describe('database test', () => {
     })
 
     it('patch data is not object should throw', (done) => {
-      Storage.store('14.14', {
+      Storage.set('14.14', {
         _id: '14.14',
         data: 'tbsdk_test 14'
       })
@@ -248,10 +248,10 @@ export default describe('database test', () => {
         _id: '15.15',
         data: 'tbsdk_test 15'
       }
-      Storage.store('15.15', data, 50)
+      Storage.set('15.15', data, 50)
       .then(() => {
         setTimeout(() => {
-          Storage.getOne<typeof data>('15.15').then(result => {
+          Storage.get<typeof data>('15.15').then(result => {
             forEach(data, (val, key) => {
               expect(result[key]).to.deep.equal(val)
             })
@@ -261,14 +261,14 @@ export default describe('database test', () => {
           })
         }, 25)
         setTimeout(() => {
-          Storage.getOne<typeof data>('15.15').then(result => {
+          Storage.get<typeof data>('15.15').then(result => {
             forEach(data, (val, key) => {
               expect(result[key]).to.deep.equal(val)
             })
           })
         }, 100)
         setTimeout(() => {
-          Storage.getOne<typeof data>('15.15').then(result => {
+          Storage.get<typeof data>('15.15').then(result => {
             expect(result).to.be.undefined
             done()
           })
@@ -297,9 +297,9 @@ export default describe('database test', () => {
         data: 'tbsdk_test 21.21'
       }
       let res: typeof data
-      Storage.store('20.20', data)
+      Storage.set('20.20', data)
       .then(() => {
-        return Storage.getOne<typeof data>('20.20')
+        return Storage.get<typeof data>('20.20')
       })
       .then(result => {
         res = result
@@ -312,14 +312,14 @@ export default describe('database test', () => {
   })
 
   it('store exist collection should return undefined', () => {
-    Storage.store('collection_test_4', [
+    Storage.set('collection_test_4', [
       {
         _id: '16.16',
         data: 'tbsdk_test 16'
       }
     ])
     .then(() => {
-      Storage.store('collection_test_4', [
+      Storage.set('collection_test_4', [
         {
           _id: '17.17',
           data: 'tbsdk_test 17'
@@ -352,12 +352,12 @@ export default describe('database test', () => {
         data: 'tbsdk_test 19.19'
       }
     ]
-    Storage.store('collection_test_5', objEle)
+    Storage.set('collection_test_5', objEle)
     .then(() => {
-      return Storage.store('collection_test_6', colEle)
+      return Storage.set('collection_test_6', colEle)
     })
     .then(() => {
-      return Storage.getOne<typeof objEle>('collection_test_5')
+      return Storage.get<typeof objEle>('collection_test_5')
       .then(result => {
         expect(result[0].data).to.equal(colEle[0].data)
       })

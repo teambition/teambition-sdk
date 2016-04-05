@@ -12,15 +12,7 @@ const stylish = require('gulp-tslint-stylish')
 
 const buildConfigFile = path.join(process.cwd(), 'tools/build/bundle.json')
 
-gulp.task('bundle.es6', (done) => {
-  const entry = [
-    'whatwg-fetch',
-    path.join(process.cwd(), 'src/app.ts')
-  ]
-  return bundle(entry, 'tbsdk.js', null, 'dist/es6', false, false, done)
-})
-
-gulp.task('default', ['bundle.es6'])
+gulp.task('default', ['build.sdk'])
 
 gulp.task('build.mock', (done) => {
   const entry = path.join(process.cwd(), 'mock/index.ts')

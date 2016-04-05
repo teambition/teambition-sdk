@@ -9,6 +9,7 @@
   "files": [
     "../../src/app.ts",
     "../../tools/build/node-require.d.ts",
+    "../../tools/build/es6-promise.d.ts",
     "../../tools/build/whatwg-fetch.d.ts",
     "../../tools/build/es6-set.d.ts",
     "../../tools/build/es6-reflect-proxy.d.ts"

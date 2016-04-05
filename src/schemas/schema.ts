@@ -1,5 +1,5 @@
 'use strict'
-import {forEach} from '../utils'
+import {forEach} from '../utils/index'
 
 export const setSchema = <T extends Schema>(target: T, data: any) => {
   target.$$keys.forEach((key) => {

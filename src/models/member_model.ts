@@ -1,6 +1,6 @@
 'use strict'
 import BaseModel from './model'
-import {datasToSchemas} from '../utils'
+import {datasToSchemas} from '../utils/index'
 import Member from '../schemas/member_schema'
 import {MemberData} from '../teambition'
 

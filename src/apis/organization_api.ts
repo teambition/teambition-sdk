@@ -1,9 +1,9 @@
 'use strict'
-import BaseAPI from './base_api'
+import OrganizationFetch from '../fetchs/organization_fetch'
 import OrganizationModel from '../models/organization_model'
 import {OrganizationData} from '../teambition'
 
-export class OrganizationsAPI extends BaseAPI {
+export class OrganizationsAPI {
 
   public static OrganizationModel = new OrganizationModel()
 
@@ -11,11 +11,11 @@ export class OrganizationsAPI extends BaseAPI {
     return OrganizationsAPI.OrganizationModel.getAll()
     .then(cache => {
       if (cache) return Promise.resolve(cache)
-      return this.tbFetch.get({
-        Type: 'organizations'
-      }).then((organizations: OrganizationData[]) => {
-        return OrganizationsAPI.OrganizationModel.saveAll(organizations)
-      })
+      return OrganizationFetch
+        .getOrgs()
+        .then((organizations: OrganizationData[]) => {
+          return OrganizationsAPI.OrganizationModel.saveAll(organizations)
+        })
     })
   }
 
@@ -23,13 +23,11 @@ export class OrganizationsAPI extends BaseAPI {
     return OrganizationsAPI.OrganizationModel.get(organizationId)
     .then(cache => {
       if (cache) return Promise.resolve(cache)
-      return this.tbFetch.get({
-        Type: 'organizations',
-        Id: organizationId
-      })
-      .then((organization: OrganizationData) => {
-        return OrganizationsAPI.OrganizationModel.set(organization)
-      })
+      return OrganizationFetch
+        .getOne(organizationId)
+        .then((organization: OrganizationData) => {
+          return OrganizationsAPI.OrganizationModel.set(organization)
+        })
     })
   }
 }
