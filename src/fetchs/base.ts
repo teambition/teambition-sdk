@@ -6,9 +6,9 @@ const tbFetch = new Fetch()
 export default class BaseAPI {
   public static fetch = tbFetch
 
-  protected tbFetch: Fetch
+  protected fetch: Fetch
 
   constructor() {
-    this.tbFetch = BaseAPI.fetch
+    this.fetch = BaseAPI.fetch
   }
 }

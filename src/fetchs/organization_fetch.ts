@@ -5,11 +5,11 @@ import {OrganizationData} from '../teambition'
 export class OrganizationsFetch extends BaseFetch {
 
   getOrgs (): Promise<OrganizationData[]> {
-    return this.tbFetch.get('/organizations')
+    return this.fetch.get('/organizations')
   }
 
   getOne (organizationId: string): Promise<OrganizationData> {
-    return this.tbFetch.get(`/organizations/${organizationId}`)
+    return this.fetch.get(`/organizations/${organizationId}`)
   }
 }
 

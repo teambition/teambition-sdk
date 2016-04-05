@@ -5,21 +5,21 @@ import {UserMe, UserEmail} from '../teambition'
 export class UserFetch extends BaseFetch {
 
   getUserMe(): Promise<UserMe> {
-    return this.tbFetch.get(`/users/me`)
+    return this.fetch.get(`/users/me`)
   }
 
   update(patch: any): Promise<any> {
-    return this.tbFetch.put('/users', patch)
+    return this.fetch.put('/users', patch)
   }
 
   addEmail(email: string): Promise<UserEmail[]> {
-    return this.tbFetch.post('/users/email', {
+    return this.fetch.post('/users/email', {
       email: email
     })
   }
 
   bindPhone(phone: string, vcode: string): Promise<void> {
-    return this.tbFetch.put('/users/phone', {
+    return this.fetch.put<void>('/users/phone', {
       phone: phone,
       vcode: vcode
     })

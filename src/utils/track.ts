@@ -24,7 +24,7 @@ const onChange = function (patch: Map<BaseObject, any>) {
 
 export const trackOne = (index: string, target: any) => {
   const indexes = trackIndex.get(index)
-  if (indexes.indexOf(target) === -1) {
+  if (indexes && indexes.indexOf(target) === -1) {
     indexes.push(target)
   }
   if (typeof target.onChange !== 'function') {

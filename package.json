@@ -29,6 +29,9 @@
   "bugs": {
     "url": "https://github.com/teambition/teambition-sdk/issues"
   },
+  "files": [
+    "dist/cjs/**"
+  ],
   "homepage": "https://github.com/teambition/teambition-sdk#readme",
   "dependencies": {
     "es6-collections": "^0.5.5",

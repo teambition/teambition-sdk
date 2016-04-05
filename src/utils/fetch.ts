@@ -1,6 +1,8 @@
 'use strict'
 import {assign} from './index'
 
+require('isomorphic-fetch')
+
 export class Fetch {
 
   private static opts: any = {
@@ -23,42 +25,40 @@ export class Fetch {
     Fetch.apiHost = 'https://api.teambition.com'
   }
 
-  get(url: string) {
+  get<T>(url: string): Promise<T> {
     return fetch(Fetch.apiHost + url, assign({
       method: 'get'
     }, Fetch.opts))
-    .then(data => {
-      return data.json()
-    })
+    .then(this._dataHandle)
   }
 
-  post(url: string, data?: any) {
+  post<T>(url: string, data?: any): Promise<T> {
     return fetch(Fetch.apiHost + url, assign({
       method: 'post',
       body: JSON.stringify(data)
     }, Fetch.opts))
-    .then(data => {
-      return data.json()
-    })
+    .then(this._dataHandle)
   }
 
-  put(url: string, data?: any) {
+  put<T>(url: string, data?: any): Promise<T> {
     return fetch(Fetch.apiHost + url, assign({
       method: 'put',
       body: JSON.stringify(data)
     }, Fetch.opts))
-    .then(data => {
-      return data.json()
-    })
+    .then(this._dataHandle)
   }
 
-  delete(url: string) {
+  delete<T>(url: string): Promise<T> {
     return fetch(Fetch.apiHost + url, assign({
       method: 'delete'
     }, Fetch.opts))
-    .then(data => {
-      return data.json()
-    })
+    .then(this._dataHandle)
+  }
+
+  private _dataHandle<T>(data: Response): Promise<T> {
+    const status = data.status
+    if (status >= 400 || status === 0) return Promise.reject<T>(data)
+    return data.json<T>()
   }
 
 }
