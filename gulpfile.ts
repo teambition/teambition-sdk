@@ -8,6 +8,7 @@ import * as istanbul from 'gulp-istanbul'
 import * as typescript from 'gulp-typescript'
 import * as sourcemaps from 'gulp-sourcemaps'
 import {bundle} from './tools/tasks/bundle'
+const plumber = require('gulp-plumber')
 const stylish = require('gulp-tslint-stylish')
 
 const buildConfigFile = path.join(process.cwd(), 'tools/build/bundle.json')
@@ -44,7 +45,7 @@ gulp.task('build.test', () => {
 const mochaRunner = (report: boolean) => {
   const stream = gulp.src('./.tmp/test/unit/index.js')
   .pipe(mocha({
-    reporter: 'spec'
+    reporter: 'dot'
   }))
   stream.on('error', function(err: any) {
     this.emit('end')
@@ -62,8 +63,8 @@ gulp.task('watch', (done: any) => {
     '!./node_modules'
   ], () => {
     mochaRunner(false)
-    gulp.start('lint')
   })
+    .pipe(plumber())
     .pipe(sourcemaps.init({
       loadMaps: true
     }))
