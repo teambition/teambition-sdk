@@ -1,7 +1,7 @@
 'use strict'
 import BaseModel from './model'
 import {datasToSchemas} from '../utils/index'
-import Member from '../schemas/member_schema'
+import Member from '../schemas/Member'
 import {MemberData} from '../teambition'
 
 export default class MemberModel extends BaseModel {

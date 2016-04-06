@@ -25,5 +25,3 @@ export class UserFetch extends BaseFetch {
     })
   }
 }
-
-export default new UserFetch()

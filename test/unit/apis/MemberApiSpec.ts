@@ -1,8 +1,9 @@
 'use strict'
 import * as chai from 'chai'
 import {MemberAPI, Backend, apihost} from '../index'
-import Member from '../../../src/schemas/member_schema'
-import {organizations, members} from '../mock'
+import Member from '../../../src/schemas/Member'
+import {members} from '../mock/members'
+import {organizations} from '../mock/organizations'
 
 const expect = chai.expect
 

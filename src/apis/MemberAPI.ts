@@ -1,14 +1,16 @@
 'use strict'
-import MemberFetch from '../fetchs/member_fetch'
-import MemberModel from '../models/member_model'
-import Member from '../schemas/member_schema'
+import {MemberFetch} from '../fetchs/MemberFetch'
+import MemberModel from '../models/MemberModel'
+import Member from '../schemas/Member'
 import {MemberData} from '../teambition'
+
+const memberFetch = new MemberFetch()
 
 export class MemberAPI {
   public static MemberModel = new MemberModel()
 
   deleteMember(memberId: string): Promise<void> {
-    return MemberFetch.deleteMember(memberId)
+    return memberFetch.deleteMember(memberId)
     .then(() => {
       return MemberAPI.MemberModel.removeMember(memberId)
     })
@@ -18,7 +20,7 @@ export class MemberAPI {
     return MemberAPI.MemberModel.getOrgMembers(organizationId)
     .then(cache => {
       if (cache) return Promise.resolve(cache)
-      return MemberFetch
+      return memberFetch
         .getOrgMembers(organizationId)
         .then((members: MemberData[]) => {
           return MemberAPI.MemberModel.saveOrgMembers(organizationId, members)
@@ -30,7 +32,7 @@ export class MemberAPI {
     return MemberAPI.MemberModel.getProjectMembers(projectId)
     .then(cache => {
       if (cache) return Promise.resolve(cache)
-      return MemberFetch
+      return memberFetch
         .getProjectMembers(projectId)
         .then((members: MemberData[]) => {
           return MemberAPI.MemberModel.saveProjectMembers(projectId, members)

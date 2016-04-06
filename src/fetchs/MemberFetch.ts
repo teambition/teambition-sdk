@@ -15,5 +15,3 @@ export class MemberFetch extends BaseFetch {
     return this.fetch.get<MemberData[]>(`/projects/${projectId}/members`)
   }
 }
-
-export default new MemberFetch()

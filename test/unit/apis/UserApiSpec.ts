@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import {Backend, UserAPI, forEach, clone} from '../'
 import {apihost} from '../app'
-import {userMe} from '../mock'
+import {userMe} from '../mock/userme'
 import {UserMe} from '../type'
 
 const expect = chai.expect

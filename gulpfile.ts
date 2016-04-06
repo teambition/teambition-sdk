@@ -47,7 +47,6 @@ const mochaRunner = (report: boolean) => {
     reporter: 'spec'
   }))
   stream.on('error', function(err: any) {
-    console.error(err)
     this.emit('end')
   })
   if (!report) {

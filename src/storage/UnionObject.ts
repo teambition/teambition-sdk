@@ -24,7 +24,7 @@ export class BaseObject {
     ObjectIndex.set(`$${$id}`, objectIndex)
   }
 
-  public onChange(patch) {
+  public onChange(patch: any) {
     return patch
   }
 }

@@ -1,6 +1,6 @@
 import * as chai from 'chai'
 import {trackObject, trackOne, clone, trackCollection} from '../index'
-import {organizations} from '../mock'
+import {organizations} from '../mock/organizations'
 
 const expect = chai.expect
 
@@ -11,7 +11,7 @@ export default describe('Object Track test', () => {
       foo: 'bar'
     }
     const b = clone(a)
-    trackObject(a)
+    trackObject(<any>a)
     trackOne('1', b)
     a.foo = 'kkk'
     expect(b.foo).to.equal('kkk')
