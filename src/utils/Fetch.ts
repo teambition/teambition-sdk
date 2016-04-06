@@ -15,6 +15,10 @@ export class Fetch {
 
   private static apiHost = 'https://www.teambition.com/api'
 
+  public static getAPIHost(): string {
+    return Fetch.apiHost
+  }
+
   public static setAPIHost(host: string) {
     Fetch.apiHost = host
   }
@@ -25,40 +29,27 @@ export class Fetch {
     Fetch.apiHost = 'https://api.teambition.com'
   }
 
-  get<T>(url: string): Promise<T> {
-    return fetch(Fetch.apiHost + url, assign({
-      method: 'get'
-    }, Fetch.opts))
-    .then(this._dataHandle)
-  }
+  get get () { return this.createMethod('get') }
+  get post () { return this.createMethod('post') }
+  get put () { return this.createMethod('put') }
+  get delete () { return this.createMethod('delete') }
 
-  post<T>(url: string, data?: any): Promise<T> {
-    return fetch(Fetch.apiHost + url, assign({
-      method: 'post',
-      body: JSON.stringify(data)
-    }, Fetch.opts))
-    .then(this._dataHandle)
+  private createMethod<T>(method: String) {
+    return (url: String, body?: any): Promise<T> => {
+      let options = assign({
+        method: method
+      }, Fetch.opts)
+      if (body) {
+        options.body = body
+      }
+      return fetch(Fetch.apiHost + url, options)
+        .then((response: Response) => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json<T>()
+          } else {
+            return Promise.reject<T>(response)
+          }
+        })
+    }
   }
-
-  put<T>(url: string, data?: any): Promise<T> {
-    return fetch(Fetch.apiHost + url, assign({
-      method: 'put',
-      body: JSON.stringify(data)
-    }, Fetch.opts))
-    .then(this._dataHandle)
-  }
-
-  delete<T>(url: string): Promise<T> {
-    return fetch(Fetch.apiHost + url, assign({
-      method: 'delete'
-    }, Fetch.opts))
-    .then(this._dataHandle)
-  }
-
-  private _dataHandle <T>(data: Response): Promise<T> {
-    const status = data.status
-    if (status >= 400 || status === 0) return Promise.reject<any>(data)
-    return data.json()
-  }
-
 }
