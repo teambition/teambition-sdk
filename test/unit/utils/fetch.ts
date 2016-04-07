@@ -7,7 +7,7 @@ const expect = chai.expect
 
 export default describe('utils/fetch', () => {
 
-  let fetch
+  let fetch: Fetch
 
   beforeEach(() => {
     fetch = new Fetch()

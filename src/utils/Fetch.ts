@@ -29,13 +29,24 @@ export class Fetch {
     Fetch.apiHost = 'https://api.teambition.com'
   }
 
-  get get () { return this.createMethod('get') }
-  get post () { return this.createMethod('post') }
-  get put () { return this.createMethod('put') }
-  get delete () { return this.createMethod('delete') }
+  public get <T>(url: string, body?: any) {
+     return this.createMethod<T>('get')(url, body)
+  }
+
+  public post <T>(url: string, body?: any) {
+    return this.createMethod<T>('post')(url, body)
+  }
+
+  public put <T>(url: string, body?: any) {
+    return this.createMethod<T>('put')(url, body)
+  }
+
+  public delete <T>(url: string, body?: any) {
+    return this.createMethod<T>('delete')(url, body)
+  }
 
   private createMethod<T>(method: String) {
-    return (url: String, body?: any): Promise<T> => {
+    return (url: string, body?: any): Promise<T> => {
       let options = assign({
         method: method
       }, Fetch.opts)
