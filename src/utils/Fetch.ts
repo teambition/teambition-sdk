@@ -29,8 +29,8 @@ export class Fetch {
     Fetch.apiHost = 'https://api.teambition.com'
   }
 
-  public get <T>(url: string, body?: any) {
-     return this.createMethod<T>('get')(url, body)
+  public get <T>(url: string) {
+    return this.createMethod<T>('get')(url)
   }
 
   public post <T>(url: string, body?: any) {
@@ -41,8 +41,8 @@ export class Fetch {
     return this.createMethod<T>('put')(url, body)
   }
 
-  public delete <T>(url: string, body?: any) {
-    return this.createMethod<T>('delete')(url, body)
+  public delete <T>(url: string) {
+    return this.createMethod<T>('delete')(url)
   }
 
   private createMethod<T>(method: String) {
