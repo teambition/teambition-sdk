@@ -1,5 +1,5 @@
 'use strict'
-import {Fetch} from '../utils/fetch'
+import {Fetch} from '../utils/Fetch'
 
 const tbFetch = new Fetch()
 
