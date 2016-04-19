@@ -1,7 +1,7 @@
 'use strict'
+import * as Rx from 'rxjs'
 import {assign, forEach} from '../utils/index'
-import {trackObject, trackOne, trackCollection} from '../utils/track'
-import {BaseObject} from './UnionObject'
+import {createNewsignal} from './signals'
 
 export default class DataBase {
   /**
@@ -40,6 +40,8 @@ export default class DataBase {
 
   private unionFlag = '_id'
 
+  private types = ['set', 'update', 'update', 'delete']
+
   constructor(unionFlag?: string) {
     if (unionFlag) this.unionFlag = unionFlag
   }
@@ -71,13 +73,10 @@ export default class DataBase {
             this.get(val[this.unionFlag])
             .then(obj => {
               result.push(obj)
-              trackOne(index, result)
               return resolve(result)
             })
           }))
         }else {
-          result = new BaseObject(data)
-          trackOne(result[this.unionFlag], result)
           return resolve(result)
         }
       })
@@ -129,7 +128,6 @@ export default class DataBase {
     })
     this.data.set(index, result)
     this.setExpire(index, expire)
-    trackObject(result)
     this.typeIndex.set(index, 'object')
   }
 
@@ -158,7 +156,6 @@ export default class DataBase {
     })
     this.data.set(index, result)
     this.setExpire(index, expire)
-    trackCollection(index, result)
     this.typeIndex.set(index, 'collection')
   }
 
@@ -227,5 +224,11 @@ export default class DataBase {
         resolve()
       })
     })
+  }
+
+  private _createAllTypesSignals <T> (_id: string, data?: any): Rx.Observable<T> {
+    return Rx.Observable
+      .from(this.types.map(t => createNewsignal<T>(_id, <any>t, data)))
+      .mergeAll()
   }
 }
