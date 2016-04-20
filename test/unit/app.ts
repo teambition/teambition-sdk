@@ -4,7 +4,7 @@ export const apihost = 'https://api.teambition.com'
 
 export * from './utils/utils'
 
-// export * from './storage/database'
+export * from './storage/database'
 export * from './storage/signals'
 
 // export * from './apis/MemberApiSpec'
