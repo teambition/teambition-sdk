@@ -2,6 +2,8 @@
 import {mockToken} from './mock/token'
 import {Fetch} from '../../src/utils/fetch'
 
+export const apihost = Fetch.getAPIHost()
+
 Fetch.setToken(mockToken)
 
 export {Backend} from '../../mock'

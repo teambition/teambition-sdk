@@ -1,10 +1,10 @@
 'use strict'
 import BaseFetch from './base'
-import {ProjectData} from '../teambition'
+import Project from '../schemas/Project'
 
 export class ProjectFetch extends BaseFetch {
 
-  getAll(): Promise<ProjectData[]> {
+  getAll(): Promise<Project[]> {
     return this.fetch.get(`/projects`)
   }
 }

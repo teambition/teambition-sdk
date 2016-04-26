@@ -1,29 +1,28 @@
 'use strict'
+import * as Rx from 'rxjs'
 import DataBase from '../storage/database'
 
 export default class Model {
 
-  private DataBase = new DataBase()
+  public static DataBase = new DataBase()
 
-  protected _save<T>(namespace: string, data: T): Promise<T> {
-    return this.DataBase.set(namespace, data)
-    .then(() => {
-      return this.DataBase.get<T>(namespace)
-    })
+  protected _save<T>(namespace: string, data: T): Rx.Observable<T> {
+    return Model.DataBase.set<T>(namespace, data)
   }
 
-  protected _get<T>(namespace: string): Promise<T> {
-    return this.DataBase.get<T>(namespace)
+  protected _get<T>(namespace: string): Rx.Observable<T> {
+    return Model.DataBase.get<T>(namespace)
   }
 
-  protected _update(namespace: string, patch: any): Promise<void> {
-    return this.DataBase.exist(namespace)
-    .then(result => {
-      if (result) return this.DataBase.update(namespace, patch)
-    })
+  protected _update<T>(namespace: string, patch: any): Rx.Observable<T> {
+    return Model.DataBase.exist(namespace)
+      .concatMap(x => {
+        if (x) return Model.DataBase.update(namespace, patch)
+        return Rx.Observable.of(false)
+      })
   }
 
-  protected _delete(namespace: string): Promise<void> {
-    return this.DataBase.delete(namespace)
+  protected _delete(namespace: string): Rx.Observable<void> {
+    return Model.DataBase.delete(namespace)
   }
 }

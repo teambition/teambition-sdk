@@ -85,7 +85,7 @@ export const uuid = () => {
 export const datasToSchemas = <T, U extends Schema>(datas: T[], Schema: any): U[] => {
   const result = new Array<U>()
   forEach(datas, (data: T, index: number) => {
-    result.push(setSchema(new Schema(), data))
+    result.push(new Schema(data))
   })
   return result
 }

@@ -15,7 +15,7 @@ export function flushsignals (_id?: string) {
   }
 }
 
-export type SignalType = 'set' | 'get' | 'delete' | 'update'
+export type SignalType = 'set' | 'delete' | 'update'
 
 export function createNewsignal <T>(_id: string, type: SignalType, data?: T): Rx.Observable<T> {
   const observerNamespace = `${_id}:${type}`
@@ -42,21 +42,4 @@ export function createNewsignal <T>(_id: string, type: SignalType, data?: T): Rx
     maps.set(type, destsignal)
   }
   return destsignal
-}
-
-export function getSignal <T>(_id: string, type: string) {
-  return SignalMap.get(_id).get(type)
-}
-
-export function getSignalsById <T>(_id: string) {
-  const signals: Rx.Observable<T>[] = []
-  SignalMap.get(_id).forEach(signal => signals.push(signal))
-  return Rx.Observable.from(signals)
-    .mergeAll()
-}
-
-export function getSignalsByIds <T> (_ids: string[]) {
-  return Rx.Observable
-    .from(_ids.map(i => getSignalsById(i)))
-    .mergeAll()
 }
