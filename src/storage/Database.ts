@@ -38,8 +38,6 @@ export default class DataBase {
    */
   private dataMaps = new Map<string, string[]>()
 
-  private allTypesSignalsMap = new Map<string, Rx.Observable<any>[]>()
-
   private signalsMap = new Map<string, Rx.Observable<any>>()
 
   private unionFlag = '_id'
@@ -53,7 +51,7 @@ export default class DataBase {
 
   set<T>(index: string, data: any, expire?: number): Rx.Observable<T> {
     if (typeof expire !== 'number') expire = 0
-    if (data instanceof Array && data[0] && typeof data[0][this.unionFlag] !== 'undefined') {
+    if (data instanceof Array) {
       return this.storeCollection(index, data, expire)
     }else {
       return this.storeOne<T>(index, data, expire)
@@ -77,15 +75,20 @@ export default class DataBase {
             const position = indexes.indexOf(index)
             indexes.splice(position, 1)
             collection.splice(position, 1)
+            createNewsignal(collectionIndex, 'set', this.data.get(collectionIndex))
           })
           this._deleteFromMaps(index)
           resolve(null)
         })
       })
+      .then(r => {
+        createNewsignal(index, 'set', r)
+        return r
+      })
     }
 
-    return Rx.Observable.fromPromise(action())
-      .combineLatest(createNewsignal(index, 'delete'))
+    return createNewsignal(index, 'delete')
+      .concatMap(x => action())
       .flatMap(x => [null])
   }
 
@@ -108,7 +111,6 @@ export default class DataBase {
     this.typeIndex.clear()
     this.collectionIndex.clear()
     this.dataMaps.clear()
-    this.allTypesSignalsMap.clear()
     this.signalsMap.clear()
     flushsignals()
   }
@@ -128,7 +130,10 @@ export default class DataBase {
     this.data.set(index, result)
     this.setExpire(index, expire)
     this.typeIndex.set(index, 'object')
-    const destSignal = this._createAllTypesSignals<T>(index, data)
+    const destSignal = createNewsignal(index, 'set', result)
+      .flatMap(x => {
+        return [clone(this.data.get(index))]
+      })
     this.signalsMap.set(index, destSignal)
     return destSignal
   }
@@ -171,7 +176,7 @@ export default class DataBase {
       clearTimeout(timer)
     }
     const timeoutIndex = setTimeout(() => {
-      this.delete(index)
+      this.delete(index).subscribe()
     }, expire)
     this.timeoutIndex.set(index, {
       timer: timeoutIndex,
@@ -192,6 +197,10 @@ export default class DataBase {
           this.data.set(index, assign(val, patch))
           resolve(clone(this.data.get(index)))
         })
+      })
+      .then(r => {
+        createNewsignal(index, 'set', r)
+        return r
       })
     }
     return createNewsignal(index, 'update', patch)
@@ -234,6 +243,10 @@ export default class DataBase {
           resolve(clone(cache))
         })
       })
+      .then(r => {
+        createNewsignal(index, 'set', r)
+        return r
+      })
     }
     return createNewsignal(index, 'update', cache)
       .concatMap(x => action())
@@ -242,29 +255,9 @@ export default class DataBase {
   private _deleteFromMaps (index: string) {
     this.dataMaps.delete(index)
     this.signalsMap.delete(index)
-    this.allTypesSignalsMap.delete(index)
     this.typeIndex.delete(index)
     this.timeoutIndex.delete(index)
     this.collectionIndex.delete(index)
-  }
-
-  private _createAllTypesSignals <T> (_id: string, data: any): Rx.Observable<T> {
-    const cacheSignals = this.allTypesSignalsMap.get(_id)
-    let allTypesSignals: Rx.Observable<any>[]
-    if (cacheSignals) {
-      allTypesSignals = cacheSignals
-    }else {
-      allTypesSignals = this.types.map(t => {
-        if (t !== 'set') return createNewsignal<T>(_id, <any>t)
-        return createNewsignal<T>(_id, <any>t, data)
-      })
-      this.allTypesSignalsMap.set(_id, allTypesSignals)
-    }
-    return Rx.Observable
-      .from(allTypesSignals)
-      .mergeAll()
-      .skip(2)
-      .flatMap(x => [clone(this.data.get(_id))])
   }
 
   private _mergeCollectionSignals <T extends Array<any>> (index: string, data: T): Rx.Observable<T> {

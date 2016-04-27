@@ -15,22 +15,18 @@ export class MemberAPI {
   }
 
   getOrgMembers (organizationId: string): Rx.Observable<Member[]> {
-    return MemberModel.getOrgMembers(organizationId)
-      .concatMap(x => {
-        if (x) return Rx.Observable.of(x)
-        return Rx.Observable
-          .fromPromise(memberFetch.getOrgMembers(organizationId))
-          .concatMap(x => MemberModel.saveOrgMembers(organizationId, x))
-      })
+    const get = MemberModel.getOrgMembers(organizationId)
+    if (get) return get
+    return Rx.Observable
+      .fromPromise(memberFetch.getOrgMembers(organizationId))
+      .concatMap(x => MemberModel.saveOrgMembers(organizationId, x))
   }
 
   getProjectMembers(projectId: string): Rx.Observable<Member[]> {
-    return MemberModel.getProjectMembers(projectId)
-      .concatMap(x => {
-        if (x) return Rx.Observable.of(x)
-        return Rx.Observable
-          .fromPromise(memberFetch.getProjectMembers(projectId))
-          .concatMap(x => MemberModel.saveProjectMembers(projectId, x))
-      })
+    const get = MemberModel.getProjectMembers(projectId)
+    if (get) return get
+    return Rx.Observable
+      .fromPromise(memberFetch.getProjectMembers(projectId))
+      .concatMap(x => MemberModel.saveProjectMembers(projectId, x))
   }
 }

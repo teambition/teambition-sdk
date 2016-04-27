@@ -48,8 +48,4 @@ export const setSchema = <T extends Schema>(target: T, data: any) => {
 export class Schema {
   $$keys = new Set<string>()
   $$data: any
-
-  constructor(data: any) {
-    setSchema(this, data)
-  }
 }

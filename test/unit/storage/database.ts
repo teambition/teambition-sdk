@@ -36,11 +36,15 @@ export default describe('database test', () => {
     }
     const set = Storage.set('2222', data, 200)
     const get = Storage.get('2222')
-
-    set.combineLatest(timeout(get, 100), timeout(get, 220))
+    const get1 = timeout(get, 100)
+    const get2 = timeout(get, 220)
+    set.concatMap(x => get1.concat())
+      .concatMap(x => {
+        expect(x).to.deep.equal(data)
+        return get2
+      })
       .subscribe(r => {
-        expect(r[1]).to.deep.equal(data)
-        expect(r[2]).to.be.undefined
+        expect(r).to.be.undefined
         done()
       })
   })
@@ -203,13 +207,21 @@ export default describe('database test', () => {
         expire: 100
       })
 
-      set.combineLatest(timeout(get, 20), timeout(update, 40), timeout(get, 100), timeout(get, 200))
-        .subscribe(r => {
-          expect(r[1]).to.deep.equal(data)
-          expect(r[3]).to.deep.equal(data)
-          expect(r[4]).to.be.undefined
-          done()
-        })
+      set.concatMap(x => {
+        return timeout(get, 20).merge(update)
+      })
+      .concatMap(x => {
+        expect(x).to.deep.equal(data)
+        return timeout(get, 50)
+      })
+      .concatMap(x => {
+        expect(x).to.deep.equal(data)
+        return timeout(get, 200)
+      })
+      .subscribe(r => {
+        expect(r).to.be.undefined
+        done()
+      })
     })
 
     it('patch target not exist should return undefined', done => {

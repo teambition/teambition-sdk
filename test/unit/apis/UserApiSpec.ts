@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import {Backend, UserAPI, forEach, clone} from '../index'
-import Model from '../../../src/models/model'
+import {flushDatabase} from '../utils'
 import {apihost} from '../index'
 import {userMe} from '../mock/userme'
 import {UserMe} from '../type'
@@ -16,7 +16,7 @@ export default describe('UserAPI test', () => {
   beforeEach(() => {
     User = new UserAPI()
     httpBackend = new Backend()
-    Model.DataBase.clearAll()
+    flushDatabase()
     httpBackend.whenGET(`${apihost}/users/me`).respond(userMe)
   })
 
@@ -41,90 +41,93 @@ export default describe('UserAPI test', () => {
     }).respond(mockPut)
 
     const get = User.getUserMe()
-
-    get.subscribe(r => {
-      console.log('r: ', typeof r)
+    const update = User.update({
+      name: 'test'
     })
 
-    setTimeout(() => {
-      get.concatMap(x => User.update({
-        name: 'test'
-      }))
-      .concatMap(x => get)
-      .subscribe(r => {
-        expect(r.name).to.equal('test')
-        // done()
-      })
-
-    }, 1000)
+    get.concatMap(x => {
+      expect(x.name).to.equal(userMe.name)
+      return update
+    })
+    .concatMap(x => get)
+    .subscribe(r => {
+      expect(r.name).to.equal('test')
+      done()
+    })
 
     httpBackend.flush()
 
   })
 
-  // it('add email should ok', done => {
-  //   const mockResponse = clone(userMe)
-  //   const updateData = {
-  //     email: 'test@teambition.com',
-  //     state: 1,
-  //     _id: '54cb6200d1b4c6af47abe111',
-  //     id: '54cb6200d1b4c6af47abe111'
-  //   }
-  //   let me: UserMe
-  //   mockResponse.emails = mockResponse.emails.concat([updateData])
-  //   httpBackend.whenPOST(`${apihost}/users/email`, {
-  //     email: updateData.email
-  //   }).respond(mockResponse.emails)
+  it('add email should ok', done => {
+    const mockResponse = clone(userMe)
+    const updateData = {
+      email: 'test@teambition.com',
+      state: 1,
+      _id: '54cb6200d1b4c6af47abe111',
+      id: '54cb6200d1b4c6af47abe111'
+    }
 
-  //   User.getUserMe()
-  //   .then(data => {
-  //     me = data
-  //     return User.addEmail(updateData.email)
-  //   })
-  //   .then(() => {
-  //     return User.getUserMe()
-  //   })
-  //   .then(data => {
-  //     expect(me.emails.length).to.equal(2)
-  //     expect(me.emails[1]).to.deep.equal(updateData)
-  //     expect(data.emails.length).to.equal(2)
-  //     expect(data.emails[1]).to.deep.equal(updateData)
-  //     done()
-  //   })
-  //   .catch(reason => {
-  //     console.error(reason)
-  //   })
+    mockResponse.emails = mockResponse.emails.concat([updateData])
+    httpBackend.whenPOST(`${apihost}/users/email`, {
+      email: updateData.email
+    }).respond(mockResponse.emails)
 
-  //   httpBackend.flush()
+    const get = User.getUserMe()
+    const add = User.addEmail(updateData.email)
 
-  // })
+    let times = 0
 
-  // it('bind phone should ok', done => {
-  //   const mockResponse = clone(userMe)
-  //   const updateData = {
-  //     phone: '13334444555',
-  //     vcode: '4843'
-  //   }
-  //   let me: UserMe
-  //   mockResponse.phone = updateData.phone
-  //   httpBackend
-  //   .whenPUT(`${apihost}/users/phone`, updateData)
-  //   .respond(mockResponse)
+    get.subscribe(data => {
+      switch(++times) {
+        case 1:
+          expect(data.emails.length).to.equal(1)
+          break;
+        case 2:
+          expect(data.emails.length).to.equal(2)
+          expect(data.emails[1]).to.deep.equal(updateData)
+          done()
+          break;
+      }
+    })
 
-  //   User.getUserMe().then(data => {
-  //     me = data
-  //     return User.bindPhone(updateData.phone, updateData.vcode)
-  //   })
-  //   .then(() => {
-  //     return User.getUserMe()
-  //   })
-  //   .then(data => {
-  //     expect(me.phone).to.equal(updateData.phone)
-  //     expect(data.phone).to.equal(updateData.phone)
-  //     done()
-  //   })
+    add.subscribe()
 
-  //   httpBackend.flush()
+    httpBackend.flush()
 
-  // })
+  })
+
+  it('bind phone should ok', done => {
+    const mockResponse = clone(userMe)
+    const updateData = {
+      phone: '13334444555',
+      vcode: '4843'
+    }
+    mockResponse.phone = updateData.phone
+    httpBackend
+    .whenPUT(`${apihost}/users/phone`, updateData)
+    .respond(mockResponse)
+
+    const get = User.getUserMe()
+    const bind = User.bindPhone(updateData.phone, updateData.vcode)
+
+    let times = 0
+
+    get.subscribe(data => {
+      switch (++times) {
+        case 1:
+          expect(data.phone).to.equal('')
+          break
+        case 2:
+          expect(data.phone).to.equal(updateData.phone)
+          done()
+          break
+      }
+    })
+
+    bind.subscribe()
+
+    httpBackend.flush()
+
+  })
 })

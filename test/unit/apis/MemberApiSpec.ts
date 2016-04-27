@@ -1,9 +1,10 @@
 'use strict'
 import * as chai from 'chai'
-import {MemberAPI, Backend, apihost} from '../index'
+import {MemberAPI, Backend, apihost, clone} from '../index'
 import Member from '../../../src/schemas/Member'
 import {members} from '../mock/members'
 import {organizations} from '../mock/organizations'
+import {flushDatabase} from '../utils'
 
 const expect = chai.expect
 
@@ -15,7 +16,9 @@ export default describe('member api test', () => {
     httpBackend = new Backend()
     httpBackend
     .whenGET(`${apihost}/projects/projectId/members`)
-    .respond(members)
+    .respond(clone(members))
+
+    flushDatabase()
   })
 
   it('get organization members should ok', (done: Function) => {
@@ -26,7 +29,7 @@ export default describe('member api test', () => {
     .respond(members)
 
     Member.getOrgMembers(id)
-    .then(members => {
+    .subscribe(members => {
       expect(members).to.instanceof(Array)
       done()
     })
@@ -36,13 +39,10 @@ export default describe('member api test', () => {
 
   it ('getMembers from project should ok', done => {
     Member.getProjectMembers('projectId')
-    .then(data => {
+    .subscribe(data => {
       expect(data).to.be.instanceof(Array)
       expect(data.length).to.equal(members.length)
       done()
-    })
-    .catch((reason) => {
-      console.error(reason.stack)
     })
 
     httpBackend.flush()
@@ -50,36 +50,36 @@ export default describe('member api test', () => {
 
   it('delete member from project should ok', done => {
     let Members: Member[]
-    let length: number
     let memberId = members[0]._id
 
     httpBackend
     .whenDELETE(`${apihost}/members/${memberId}`)
     .respond({})
 
-    Member.getProjectMembers('projectId')
-    .then(data => {
-      Members = data
-      length = data.length
-      return Member.deleteMember(data[0]._id)
+    const get = Member.getProjectMembers('projectId')
+    const del = _id => Member.deleteMember(_id)
+
+    let times = 0
+    get.subscribe(data => {
+      switch (++times) {
+        case 1:
+          expect(data.length).to.equal(members.length)
+          break
+        case 2:
+          expect(data.length).to.equal(members.length - 1)
+          let inData = false
+          data.forEach((val) => {
+            if (val._id === memberId) {
+              inData = true
+            }
+          })
+          expect(inData).to.be.false
+          done()
+          break
+      }
     })
-    .then(() => {
-      return Member.getProjectMembers('projectId')
-    })
-    .then(data => {
-      expect(data.length + 1).to.equal(length)
-      let inData = false
-      data.forEach((val) => {
-        if (val._id === memberId) {
-          inData = true
-        }
-      })
-      expect(inData).to.be.false
-      done()
-    })
-    .catch(reason => {
-      console.error(reason.stack)
-    })
+
+    del(memberId).subscribe()
 
     httpBackend.flush()
   })
