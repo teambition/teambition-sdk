@@ -14,4 +14,10 @@ export class MemberFetch extends BaseFetch {
   getProjectMembers(projectId: string): Promise<Member[]> {
     return this.fetch.get<Member[]>(`/projects/${projectId}/members`)
   }
+
+  updateRole(memberId: string, roleId: string): Promise<{roleId: string}> {
+    return this.fetch.put(`members/${memberId}/_roleId`, {
+      _roleId: roleId
+    })
+  }
 }

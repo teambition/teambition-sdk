@@ -535,3 +535,37 @@ export interface SubtaskData {
   order: number
   exector: MemberData
 }
+
+export interface HomeActivity {
+  _id: string
+  _creatorId: string
+  action: string
+  content: {
+    objects: any[],
+    objectType: 'post' | 'task' | 'event' | 'work',
+    creator: string
+  },
+  rootId: string,
+  created: string
+  _boundToObjectId: string,
+  boundToObjectType: 'post' | 'task' | 'event' | 'work'
+  rawAction: string
+  creator: Executor
+  title: string
+  likes: LikeData[]
+  isLike: boolean
+}
+
+export interface Executor {
+  name: string
+  avatarUrl: string
+  _id: string
+}
+
+export interface InviteLinkData {
+  inviteLink: string
+  mobileInviteLink: string
+  signCode: string
+  created: string
+  expiration: string
+}
