@@ -1,0 +1,27 @@
+{
+  "name": "teambition-sdk",
+  "version": false,
+  "dependencies": {},
+  "ambientDependencies": {
+    "browser-sync": "registry:dt/browser-sync#0.0.0+20160316155526",
+    "chai": "registry:dt/chai#3.4.0+20160317120654",
+    "chalk": "registry:dt/chalk#0.4.0+20160317120654",
+    "chokidar": "registry:dt/chokidar#1.4.3+20160316155526",
+    "gulp": "registry:dt/gulp#3.8.0+20160316155526",
+    "gulp-istanbul": "registry:dt/gulp-istanbul#0.9.0+20160317120654",
+    "gulp-mocha": "registry:dt/gulp-mocha#0.0.0+20160316155526",
+    "gulp-sourcemaps": "registry:dt/gulp-sourcemaps#0.0.0+20160316155526",
+    "gulp-tslint": "registry:dt/gulp-tslint#3.6.0+20160316155526",
+    "gulp-typescript": "registry:dt/gulp-typescript#0.0.0+20160317120654",
+    "gulp-util": "registry:dt/gulp-util#0.0.0+20160316155526",
+    "gulp-watch": "registry:dt/gulp-watch#4.1.1+20160316155526",
+    "micromatch": "registry:dt/micromatch#2.3.7+20160123140905",
+    "mocha": "registry:dt/mocha#2.2.5+20160317120654",
+    "node": "registry:dt/node#4.0.0+20160423143914",
+    "orchestrator": "registry:dt/orchestrator#0.0.0+20160316155526",
+    "parse-glob": "registry:dt/parse-glob#3.0.4+20160110125512",
+    "q": "registry:dt/q#0.0.0+20160417152954",
+    "through2": "registry:dt/through2#2.0.0+20160317120654",
+    "vinyl": "registry:dt/vinyl#1.1.0+20160316155526"
+  }
+}

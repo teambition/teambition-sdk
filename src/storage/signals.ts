@@ -1,4 +1,4 @@
-'use strit'
+'use strict'
 import * as Rx from 'rxjs'
 
 const SignalMap = new Map<string, Map<string, Rx.Observable<any>>>()

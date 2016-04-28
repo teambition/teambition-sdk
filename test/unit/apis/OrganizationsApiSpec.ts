@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
-import {Backend, OrganizationsAPI, clone, forEach, apihost} from '../index'
+import {Backend, OrganizationsAPI, clone, apihost} from '../index'
 import {organizations} from '../mock/organizations'
 import {flushDatabase} from '../utils'
 

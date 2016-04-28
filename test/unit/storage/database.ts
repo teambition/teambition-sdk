@@ -2,7 +2,6 @@
 import * as Rx from 'rxjs'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
-import {forEach} from '../index'
 import {timeout} from '../utils'
 import Database from '../../../src/storage/database'
 

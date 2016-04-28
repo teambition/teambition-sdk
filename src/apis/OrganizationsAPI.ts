@@ -10,7 +10,7 @@ export class OrganizationsAPI {
 
   getOrgs (): Observable<OrganizationData[]> {
     const get = OrganizationModel.getAll()
-    if(get) return get
+    if (get) return get
     return Observable.fromPromise(organizationFetch.getOrgs())
       .concatMap(x => OrganizationModel.saveAll(x))
   }

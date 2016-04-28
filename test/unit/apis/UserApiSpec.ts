@@ -4,7 +4,6 @@ import {Backend, UserAPI, forEach, clone} from '../index'
 import {flushDatabase} from '../utils'
 import {apihost} from '../index'
 import {userMe} from '../mock/userme'
-import {UserMe} from '../type'
 
 const expect = chai.expect
 
@@ -79,15 +78,15 @@ export default describe('UserAPI test', () => {
     let times = 0
 
     get.subscribe(data => {
-      switch(++times) {
+      switch (++times) {
         case 1:
           expect(data.emails.length).to.equal(1)
-          break;
+          break
         case 2:
           expect(data.emails.length).to.equal(2)
           expect(data.emails[1]).to.deep.equal(updateData)
           done()
-          break;
+          break
       }
     })
 

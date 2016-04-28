@@ -2,7 +2,7 @@
 import {Observable} from 'rxjs'
 import {UserFetch} from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
-import {UserMe, UserEmail} from '../teambition'
+import {UserMe} from '../teambition'
 
 const userFetch = new UserFetch()
 

@@ -44,7 +44,7 @@ export const assign = <T, U>(target: T, origin: U): T & U => {
 export const clone = <T>(origin: T): T => {
   /* istanbul ignore if */
   if (!origin || typeof origin !== 'object') return
-  let target
+  let target: any
   if (origin instanceof Array) {
     target = new Array()
   }else {
@@ -70,7 +70,7 @@ const s4 = () => {
     .substring(1)
 }
 
-let uuidStack = []
+let uuidStack: string[] = []
 
 export const uuid = () => {
   let UUID = s4() + s4()
@@ -90,6 +90,6 @@ export const datasToSchemas = <T, U extends Schema>(datas: T[], SchemaClass: any
   return result
 }
 
-export const isFunction = (target) => {
+export const isFunction = (target: any) => {
   return typeof target === 'function'
 }

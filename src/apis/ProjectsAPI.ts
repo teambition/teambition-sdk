@@ -10,6 +10,7 @@ export class ProjectsAPI {
 
   getAll(): Observable<Project[]> {
     const get = ProjectModel.getProjects()
+    if (get) return get
     return Observable.fromPromise(projectFetch.getAll())
       .concatMap(projects => ProjectModel.addProjects(projects))
   }

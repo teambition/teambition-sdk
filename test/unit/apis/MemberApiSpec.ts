@@ -1,7 +1,6 @@
 'use strict'
 import * as chai from 'chai'
 import {MemberAPI, Backend, apihost, clone} from '../index'
-import Member from '../../../src/schemas/Member'
 import {members} from '../mock/members'
 import {organizations} from '../mock/organizations'
 import {flushDatabase} from '../utils'
@@ -49,7 +48,6 @@ export default describe('member api test', () => {
   })
 
   it('delete member from project should ok', done => {
-    let Members: Member[]
     let memberId = members[0]._id
 
     httpBackend

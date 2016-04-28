@@ -42,8 +42,6 @@ export default class DataBase {
 
   private unionFlag = '_id'
 
-  private types = ['set', 'update', 'delete']
-
   constructor(unionFlag?: string) {
     if (unionFlag) this.unionFlag = unionFlag
     flushsignals()
@@ -140,10 +138,10 @@ export default class DataBase {
 
   private storeCollection <T extends Array<any>> (index: string, collection: T, expire?: number): Rx.Observable<T> {
     if (typeof expire !== 'number') expire = 0
-    const indexes = []
-    this.collectionIndex.set(index, indexes)
+    const indexes: any[] = []
     const unionFlag = this.unionFlag
     if (this.data.has(index)) return Rx.Observable.throw(new Error('Can not store an existed collection'))
+    this.collectionIndex.set(index, indexes)
     const result: T = <any>[]
     forEach(collection, (val, key) => {
       const cache = this.data.get(val[unionFlag])
