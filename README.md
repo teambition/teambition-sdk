@@ -66,12 +66,11 @@
   ```ts
   import {meAPI} from 'tbsdk'
   import * as moment from 'moment'
-  import {sortMyRecent, errorHandler} from 'utils'
+  import {sortMyRecent, filterMyRecent, errorHandler} from 'utils'
   let recents: any
   const week = moment().add(7, 'day').valueOf()
   meAPI.observable.getRecents()
-  .filter(data => data.dueDate && moment(data.dueDate).valueOf() < week)
-  .filter(data => data.endDate && moment(data.endDate).valueOf() < week)
+  .filter(data => filterMyRecent(data)
   .sort(data => sortMyRecent(data))
   .done(data => recents = data)
   .error(err => errorHandler(error))

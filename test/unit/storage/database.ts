@@ -1,7 +1,8 @@
 'use strict'
+import * as Rx from 'rxjs'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
-import {forEach} from '../index'
+import {timeout} from '../utils'
 import Database from '../../../src/storage/database'
 
 const expect = chai.expect
@@ -21,14 +22,10 @@ export default describe('database test', () => {
       data: 'tbsdk_test 1'
     }
     Storage.set('1111', data)
-    .then(() => {
-      return Storage.get('1111').then(result => {
-        forEach(data, (val, key) => {
-          expect(val).to.equal(result[key])
-        })
+      .subscribe(res => {
+        expect(res).to.deep.equal(data)
         done()
       })
-    })
   })
 
   it('database expire should ok', done => {
@@ -36,45 +33,19 @@ export default describe('database test', () => {
       _id: '2222',
       data: 'tbsdk_test 2'
     }
-    Storage.set('2222', data, 200)
-    .then(() => {
-      return Storage.get('2222').then(result => {
-        forEach(data, (val, key) => {
-          expect(val).to.equal(result[key])
-        })
+    const set = Storage.set('2222', data, 200)
+    const get = Storage.get('2222')
+    const get1 = timeout(get, 100)
+    const get2 = timeout(get, 220)
+    set.concatMap(x => get1.concat())
+      .concatMap(x => {
+        expect(x).to.deep.equal(data)
+        return get2
       })
-    })
-    .then(() => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve()
-        }, 50)
-      })
-    })
-    .then(() => {
-      return Storage.get('2222').then(result => {
-        forEach(data, (val, key) => {
-          expect(val).to.equal(result[key])
-        })
-      })
-    })
-    .then(() => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve()
-        }, 210)
-      })
-    })
-    .then(() => {
-      return Storage.get('2222').then(result => {
-        expect(result).to.be.undefined
+      .subscribe(r => {
+        expect(r).to.be.undefined
         done()
       })
-    })
-    .catch((e) => {
-      console.error(e)
-      done()
-    })
   })
 
   it('database delete should ok', done => {
@@ -82,19 +53,16 @@ export default describe('database test', () => {
       _id: '3333',
       data: 'tbsdk_test 3'
     }
-    Storage.set('3333', data)
-      .then(() => {
-        return Storage.delete('3333')
-      })
-      .then(() => {
-        return Storage.get('3333')
-          .then(result => {
-            expect(result).to.be.undefined
-            done()
-          })
-      })
-      .catch(e => {
-        console.error(e)
+    const set = Storage.set('3333', data)
+
+    const del = Storage.delete('3333')
+
+    const get = Storage.get('3333')
+
+    set.concatMap(x => get)
+      .concatMap(x => del)
+      .subscribe(x => {
+        expect(x).to.be.null
         done()
       })
   })
@@ -109,20 +77,20 @@ export default describe('database test', () => {
       const patchData = {
         data: 'tbsdk_test 6'
       }
-      Storage.set('5555', data)
-      .then(() => {
-        return Storage.update('5555', patchData)
-      })
-      .then(() => {
-        return Storage.get<typeof data>('5555')
-        .then(result => {
-          expect(result.data).to.equal(patchData.data)
+      const set = Storage.set<typeof data>('5555', data)
+      const update = Storage.update('5555', patchData)
+      const get = Storage.get<typeof data>('5555')
+
+      set.delayWhen(() => update.delayWhen(() => get, get), update)
+        .subscribe(r => {
+          expect(r.data).to.equal(patchData.data)
           done()
         })
-      })
+
+
     })
 
-    it('update collection exist ele should ok', () => {
+    it('update collection exist ele should ok', done => {
       const data = [
         {
           _id: '6666',
@@ -131,6 +99,10 @@ export default describe('database test', () => {
         {
           _id: '7777',
           data: 'tbsdk_test 7'
+        },
+        {
+          _id: '8888',
+          data: 'tbsdk_test 8'
         }
       ]
       const patchData = [
@@ -141,25 +113,26 @@ export default describe('database test', () => {
         {
           _id: '7777',
           data: 'tbsdk_test 77'
+        },
+        {
+          _id: '8888',
+          data: 'tbsdk_test 88'
         }
       ]
-	    Storage.set('collection_test_1', data)
-      .then(() => {
-        return Storage.update('collection_test_1', patchData)
-      })
-      .then(() => {
-        return Storage.get<typeof data>('collection_test_1')
-        .then(result => {
-          forEach(patchData, (value, index) => {
-            forEach(value, (val, key) => {
-              expect(val).to.equal(result[index][key])
-            })
-          })
+	    const set = Storage.set('collection_test_1', data)
+      const update = Storage.update('collection_test_1', patchData)
+      const get = Storage.get<typeof data>('collection_test_1')
+
+
+      set.concatMap(val => update)
+        .concatMap(val => get)
+        .subscribe(r => {
+          expect(r).to.deep.equal(patchData)
+          done()
         })
-      })
     })
 
-    it('update collection not exist ele should ok', () => {
+    it('update collection not exist ele should ok', done => {
       const data = [
         {
           _id: '8888',
@@ -189,103 +162,79 @@ export default describe('database test', () => {
         }
       ]
 
-	    Storage.set('collection_test_2', data)
-      .then(() => {
-        return Storage.update('collection_test_2', patchData)
-      })
-      .then(() => {
-        return Storage.get<typeof data>('collection_test_2')
-        .then(result => {
-          forEach(patchData, (value, index) => {
-            forEach(value, (val, key) => {
-              expect(val).to.equal(result[index][key])
-            })
-          })
+	    const set = Storage.set('collection_test_2', data)
+      const update = Storage.update('collection_test_2', patchData)
+      const get = Storage.get<typeof data>('collection_test_2')
+
+      set.concatMap(r => update)
+        .concatMap(r => get)
+        .subscribe(r => {
+          expect(r).to.deep.equal(patchData)
+          done()
         })
-      })
 
     })
 
-    it('patch data to collection is not Array should return undefined', () => {
-      const data = [
-        {
-          _id: '12.12',
-          data: 'tbsdk_test 12'
-        },
-        {
-          _id: '13.13',
-          data: 'tbsdk_test 13'
-        }
-      ]
-	    Storage.set('collection_test_3', data)
-      .then(() => {
-        return Storage.update('collection_test_3', {
-          _id: 'collection_test_3',
-          data: 'tbsdk_test 13'
-        })
-      })
-      .then(result => {
-        expect(result).to.be.undefined
-      })
-    })
-
-    it('patch data is not object should throw', (done) => {
-      Storage.set('14.14', {
+    it('patch data is not object should throw', done => {
+      const set = Storage.set('14.14', {
         _id: '14.14',
         data: 'tbsdk_test 14'
       })
-      .then(() => {
-        return Storage.update('14.14', '5555')
-      })
-      .catch(e => {
-        expect(e).to.equal('A patch should be Object')
-        done()
-      })
+
+      const update = Storage.update('14.14', '5555')
+
+      set.concatMap(r => update)
+        .catch(e => {
+          expect(e).to.equal('A patch should be Object')
+          return Rx.Observable.of(null)
+        })
+        .subscribe(val => {
+          expect(val).to.be.null
+          done()
+        })
+
     })
 
-    it('update object expire should ok', (done) => {
+    it('update object expire should ok', done => {
       const data = {
         _id: '15.15',
         data: 'tbsdk_test 15'
       }
-      Storage.set('15.15', data, 50)
-      .then(() => {
-        setTimeout(() => {
-          Storage.get<typeof data>('15.15').then(result => {
-            forEach(data, (val, key) => {
-              expect(result[key]).to.deep.equal(val)
-            })
-            Storage.update('15.15', {
-              expire: 100
-            })
-          })
-        }, 25)
-        setTimeout(() => {
-          Storage.get<typeof data>('15.15').then(result => {
-            forEach(data, (val, key) => {
-              expect(result[key]).to.deep.equal(val)
-            })
-          })
-        }, 100)
-        setTimeout(() => {
-          Storage.get<typeof data>('15.15').then(result => {
-            expect(result).to.be.undefined
-            done()
-          })
-        }, 300)
+      const set = Storage.set('15.15', data, 50)
+      const get = Storage.get<typeof data>('15.15')
+      const update = Storage.update('15.15', {
+        expire: 100
+      })
+
+      set.concatMap(x => {
+        return timeout(get, 20).merge(update)
+      })
+      .concatMap(x => {
+        expect(x).to.deep.equal(data)
+        return timeout(get, 50)
+      })
+      .concatMap(x => {
+        expect(x).to.deep.equal(data)
+        return timeout(get, 200)
+      })
+      .subscribe(r => {
+        expect(r).to.be.undefined
+        done()
       })
     })
 
-    it('patch target not exist should return undefined', () => {
+    it('patch target not exist should return undefined', done => {
       Storage.update('teambtion', {
         _id: 'teambtion',
         data: 'tbsdk_test teambtion'
-      }).then(result => {
-        expect(result).to.be.undefined
+      })
+      .subscribe(null, err => {
+        expect(err.message).to.equal('Patch target not exist')
+        done()
       })
     })
 
-    it('patch object exist in other object should ok', () => {
+    it('patch object exist in other object should ok', done => {
       const data = {
         _id: '20.20',
         data: {
@@ -296,42 +245,44 @@ export default describe('database test', () => {
       const patch = {
         data: 'tbsdk_test 21.21'
       }
-      let res: typeof data
-      Storage.set('20.20', data)
-      .then(() => {
-        return Storage.get<typeof data>('20.20')
-      })
-      .then(result => {
-        res = result
-        return Storage.update('21.21', patch)
-      })
-      .then(() => {
-        expect(res.data.data).to.equal(patch.data)
-      })
+
+      const set = Storage.set<typeof data>('20.20', data)
+      const get = Storage.get<typeof data>('20.20')
+      const update = Storage.update('21.21', patch)
+
+      set.concatMap(x => get)
+        .concatMap(x => update)
+        .concatMap(x => get)
+        .subscribe(r => {
+          expect(r.data.data).to.equal(patch.data)
+          done()
+        })
     })
   })
 
-  it('store exist collection should return undefined', () => {
-    Storage.set('collection_test_4', [
+  it('store exist collection should return undefined', done => {
+    const set1 = Storage.set('collection_test_4', [
       {
         _id: '16.16',
         data: 'tbsdk_test 16'
       }
     ])
-    .then(() => {
-      Storage.set('collection_test_4', [
-        {
-          _id: '17.17',
-          data: 'tbsdk_test 17'
-        }
-      ])
-      .then(result => {
-        expect(result).to.be.undefined
+
+    const set2 = Storage.set('collection_test_4', [
+      {
+        _id: '17.17',
+        data: 'tbsdk_test 17'
+      }
+    ])
+
+    set1.concatMap(x => set2)
+      .subscribe(null, err => {
+        expect(err.message).to.equal('Can not store an existed collection')
+        done()
       })
-    })
   })
 
-  it('store collection that include exist object, the old one should be updated', () => {
+  it('store collection that include exist object, the old one should be updated', done => {
     const objEle = [
       {
         _id: '18.18',
@@ -352,15 +303,15 @@ export default describe('database test', () => {
         data: 'tbsdk_test 19.19'
       }
     ]
-    Storage.set('collection_test_5', objEle)
-    .then(() => {
-      return Storage.set('collection_test_6', colEle)
-    })
-    .then(() => {
-      return Storage.get<typeof objEle>('collection_test_5')
-      .then(result => {
-        expect(result[0].data).to.equal(colEle[0].data)
+    const set1 = Storage.set('collection_test_5', objEle)
+    const set2 = Storage.set('collection_test_6', colEle)
+    const get = Storage.get<typeof objEle>('collection_test_5')
+    set1.concatMap(x => set2)
+      .concatMap(x => get)
+      .subscribe(r => {
+        expect(r[0].data).to.equal(colEle[0].data)
+        done()
       })
-    })
+
   })
 })

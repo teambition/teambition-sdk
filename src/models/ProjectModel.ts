@@ -1,18 +1,18 @@
 'use strict'
+import {Observable} from 'rxjs'
 import BaseModel from './model'
 import {datasToSchemas} from '../utils/index'
 import Project from '../schemas/Project'
-import {ProjectData} from '../teambition'
 
-export default class ProjectModel extends BaseModel {
-  addProjects(projects: ProjectData[]): Promise<Project[]> {
-    const result = datasToSchemas<ProjectData, Project>(projects, Project)
-    return this._save(`projects`, result).then(() => {
-      return result
-    })
+export class ProjectModel extends BaseModel {
+  addProjects(projects: Project[]): Observable<Project[]> {
+    const result = datasToSchemas<Project, Project>(projects, Project)
+    return this._save(`projects`, result)
   }
 
-  getProjects(): Promise<Project[]> {
+  getProjects(): Observable<Project[]> {
     return this._get<Project[]>('projects')
   }
 }
+
+export default new ProjectModel()

@@ -3,14 +3,16 @@
     "target": "es6",
     "experimentalDecorators": true,
     "inlineSourceMap": true,
-    "outDir": "test",
+    "outDir": ".tmp",
     "module": "commonjs",
     "emitDecoratorMetadata": true
   },
   "exclude": [
     "node_modules",
     "tools/build",
-    "dist"
+    "dist",
+    "typings/browser",
+    "typings/browser.d.ts"
   ],
   "compileOnSave": false
 }

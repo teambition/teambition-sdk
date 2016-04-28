@@ -1,5 +1,5 @@
 'use strict'
-import {setSchema, Schema} from '../schemas/schema'
+import {Schema, setSchema} from '../schemas/schema'
 
 export function forEach<T>(target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 
@@ -44,7 +44,7 @@ export const assign = <T, U>(target: T, origin: U): T & U => {
 export const clone = <T>(origin: T): T => {
   /* istanbul ignore if */
   if (!origin || typeof origin !== 'object') return
-  let target
+  let target: any
   if (origin instanceof Array) {
     target = new Array()
   }else {
@@ -70,7 +70,7 @@ const s4 = () => {
     .substring(1)
 }
 
-let uuidStack = []
+let uuidStack: string[] = []
 
 export const uuid = () => {
   let UUID = s4() + s4()
@@ -82,14 +82,14 @@ export const uuid = () => {
   return UUID
 }
 
-export const datasToSchemas = <T, U extends Schema>(datas: T[], Schema: any): U[] => {
+export const datasToSchemas = <T, U extends Schema>(datas: T[], SchemaClass: any): U[] => {
   const result = new Array<U>()
   forEach(datas, (data: T, index: number) => {
-    result.push(setSchema(new Schema(), data))
+    result.push(setSchema(new SchemaClass(), data))
   })
   return result
 }
 
-export const isFunction = (target) => {
+export const isFunction = (target: any) => {
   return typeof target === 'function'
 }

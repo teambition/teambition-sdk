@@ -1,8 +1,8 @@
 'use strict'
 import * as chai from 'chai'
-import {Backend, ProjectsAPI} from '../index'
-import {apihost} from '../app'
+import {Backend, ProjectsAPI, apihost} from '../index'
 import {projects} from '../mock/projects'
+import {flushDatabase} from '../utils'
 
 const expect = chai.expect
 
@@ -11,6 +11,7 @@ const Project = new ProjectsAPI()
 export default describe('Project API test', () => {
   let httpBackend: Backend
   beforeEach(() => {
+    flushDatabase()
     httpBackend = new Backend()
   })
 
@@ -20,7 +21,7 @@ export default describe('Project API test', () => {
       .respond(projects)
 
     Project.getAll()
-      .then(projects => {
+      .subscribe(projects => {
         expect(projects).to.be.instanceof(Array)
         done()
       })

@@ -8,12 +8,13 @@
     "test": "gulp build.test && gulp test",
     "tsd": "ts-node tools/tasks/tsd.ts",
     "serve": "ts-node tools/tasks/serve.ts",
-    "build_cjs": "rm -rf dist/cjs && ./node_modules/.bin/tsc tools/build/bundle.d.ts src/app.ts -m commonjs --outDir dist/cjs --sourcemap --sourceRoot src --target ES5 -d --diagnostics --pretty --suppressImplicitAnyIndexErrors",
-    "build_es6": "rm -rf dist/es6 && ./node_modules/.bin/tsc tools/build/target-es6.d.ts src/app.ts -m es2015 --outDir dist/es6 --sourcemap --sourceRoot src --target ES2015 -d --diagnostics --pretty --suppressImplicitAnyIndexErrors",
+    "build_cjs": "rm -rf dist/cjs && ./node_modules/.bin/tsc tools/build/bundle.d.ts src/app.ts -m commonjs --outDir dist/cjs --sourcemap --sourceRoot src --target ES5 -d --diagnostics --pretty --noImplicitAny --suppressImplicitAnyIndexErrors --moduleResolution node",
+    "build_es6": "rm -rf dist/es6 && ./node_modules/.bin/tsc tools/build/target-es6.d.ts src/app.ts -m es2015 --outDir dist/es6 --sourcemap --sourceRoot src --target ES2015 -d --diagnostics --pretty --noImplicitAny --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_bundle": "rm -rf dist/bundle && gulp build.sdk",
     "build_mock": "rm -rf dist/mock && gulp build.mock",
     "build_all": "npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_es6",
-    "prepublish": "npm run test && npm run build_all"
+    "prepublish": "npm run test && npm run build_all",
+    "postinstall": "typings install"
   },
   "repository": {
     "type": "git",
@@ -36,7 +37,8 @@
   "dependencies": {
     "es6-collections": "^0.5.5",
     "es6-promise": "^3.0.2",
-    "isomorphic-fetch": "^2.2.1"
+    "isomorphic-fetch": "^2.2.1",
+    "rxjs": "^5.0.0-beta.7"
   },
   "devDependencies": {
     "chai": "^3.4.1",
@@ -48,20 +50,18 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-tslint": "^4.2.2",
     "gulp-tslint-stylish": "^1.1.1",
-    "gulp-typescript": "^2.10.0",
+    "gulp-typescript": "^2.13.0",
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.5",
     "mocha": "^2.3.4",
-    "rxjs": "^5.0.0-beta.4",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
     "source-map-loader": "^0.1.5",
     "ts-loader": "^0.7.2",
     "ts-node": "^0.5.4",
-    "tsd": "^0.6.5",
     "tslint": "^3.7.0",
-    "typescript": "^1.8.7",
-    "webpack": "^1.12.10",
-    "zone.js": "^0.5.14"
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1",
+    "webpack": "^1.12.10"
   }
 }

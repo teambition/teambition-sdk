@@ -1,26 +1,27 @@
 'use strict'
 import * as chai from 'chai'
-import {Backend, UserAPI, forEach, clone} from '../'
-import {apihost} from '../app'
+import {Backend, UserAPI, forEach, clone} from '../index'
+import {flushDatabase} from '../utils'
+import {apihost} from '../index'
 import {userMe} from '../mock/userme'
-import {UserMe} from '../type'
 
 const expect = chai.expect
-
-const User = new UserAPI()
 
 export default describe('UserAPI test', () => {
 
   let httpBackend: Backend
+  let User: UserAPI
 
   beforeEach(() => {
+    User = new UserAPI()
     httpBackend = new Backend()
+    flushDatabase()
     httpBackend.whenGET(`${apihost}/users/me`).respond(userMe)
   })
 
   it('get user me should ok', done => {
     User.getUserMe()
-    .then(data => {
+    .subscribe(data => {
       forEach(userMe, (value: any, key: string) => {
         expect(userMe[key]).deep.equal(data[key])
       })
@@ -29,8 +30,7 @@ export default describe('UserAPI test', () => {
     httpBackend.flush()
   })
 
-  it('update user me should ok', (done: Function) => {
-    let me: UserMe
+  it('update user me should ok', done => {
     const mockPut = clone(userMe)
     mockPut.name = 'test'
 
@@ -39,24 +39,23 @@ export default describe('UserAPI test', () => {
       name: 'test'
     }).respond(mockPut)
 
-    User.getUserMe()
-    .then(data => {
-      me = data
-      return User.update({
-        name: 'test'
-      })
+    const get = User.getUserMe()
+    const update = User.update({
+      name: 'test'
     })
-    .then(() => {
-      return User.getUserMe()
+
+    get.concatMap(x => {
+      expect(x.name).to.equal(userMe.name)
+      return update
     })
-    .then(data => {
-      expect(data.name).to.equal('test')
-      expect(me.name).to.equal('test')
+    .concatMap(x => get)
+    .subscribe(r => {
+      expect(r.name).to.equal('test')
       done()
     })
-    setTimeout(() => {
-      httpBackend.flush()
-    }, 500)
+
+    httpBackend.flush()
+
   })
 
   it('add email should ok', done => {
@@ -67,30 +66,31 @@ export default describe('UserAPI test', () => {
       _id: '54cb6200d1b4c6af47abe111',
       id: '54cb6200d1b4c6af47abe111'
     }
-    let me: UserMe
+
     mockResponse.emails = mockResponse.emails.concat([updateData])
     httpBackend.whenPOST(`${apihost}/users/email`, {
       email: updateData.email
     }).respond(mockResponse.emails)
 
-    User.getUserMe()
-    .then(data => {
-      me = data
-      return User.addEmail(updateData.email)
+    const get = User.getUserMe()
+    const add = User.addEmail(updateData.email)
+
+    let times = 0
+
+    get.subscribe(data => {
+      switch (++times) {
+        case 1:
+          expect(data.emails.length).to.equal(1)
+          break
+        case 2:
+          expect(data.emails.length).to.equal(2)
+          expect(data.emails[1]).to.deep.equal(updateData)
+          done()
+          break
+      }
     })
-    .then(() => {
-      return User.getUserMe()
-    })
-    .then(data => {
-      expect(me.emails.length).to.equal(2)
-      expect(me.emails[1]).to.deep.equal(updateData)
-      expect(data.emails.length).to.equal(2)
-      expect(data.emails[1]).to.deep.equal(updateData)
-      done()
-    })
-    .catch(reason => {
-      console.error(reason)
-    })
+
+    add.subscribe()
 
     httpBackend.flush()
 
@@ -102,24 +102,29 @@ export default describe('UserAPI test', () => {
       phone: '13334444555',
       vcode: '4843'
     }
-    let me: UserMe
     mockResponse.phone = updateData.phone
     httpBackend
     .whenPUT(`${apihost}/users/phone`, updateData)
     .respond(mockResponse)
 
-    User.getUserMe().then(data => {
-      me = data
-      return User.bindPhone(updateData.phone, updateData.vcode)
+    const get = User.getUserMe()
+    const bind = User.bindPhone(updateData.phone, updateData.vcode)
+
+    let times = 0
+
+    get.subscribe(data => {
+      switch (++times) {
+        case 1:
+          expect(data.phone).to.equal('')
+          break
+        case 2:
+          expect(data.phone).to.equal(updateData.phone)
+          done()
+          break
+      }
     })
-    .then(() => {
-      return User.getUserMe()
-    })
-    .then(data => {
-      expect(me.phone).to.equal(updateData.phone)
-      expect(data.phone).to.equal(updateData.phone)
-      done()
-    })
+
+    bind.subscribe()
 
     httpBackend.flush()
 

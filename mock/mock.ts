@@ -47,7 +47,6 @@ context['fetch'] = (uri: string, options?: {
       throw new Error(result.data)
     }else {
       /* istanbul ignore if */
-      console.error('nothing expect return from server')
       throw new Error('nothing expect return from server')
     }
   }

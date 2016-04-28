@@ -46,6 +46,7 @@ public/app.dist.less
 # Intellij project configration
 account-wx-service.iml
 
+typings
 .tsdrc
 jsconfig.json
 coverage

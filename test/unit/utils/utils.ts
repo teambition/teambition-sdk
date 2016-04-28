@@ -77,7 +77,7 @@ export default describe('utils test', () => {
 
   it('uuid should ok', () => {
     const uuidStack = []
-    for (let index = 0; index < 10000; index++) {
+    for (let index = 0; index < 100; index++) {
       const uu = uuid()
       expect(uuidStack.indexOf(uu)).to.equal(-1)
       uuidStack.push(uu)

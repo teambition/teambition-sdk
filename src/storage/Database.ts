@@ -1,7 +1,7 @@
 'use strict'
-import {assign, forEach} from '../utils/index'
-import {trackObject, trackOne, trackCollection} from '../utils/track'
-import {BaseObject} from './UnionObject'
+import * as Rx from 'rxjs'
+import {assign, forEach, clone} from '../utils/index'
+import {createNewsignal, flushsignals} from './signals'
 
 export default class DataBase {
   /**
@@ -38,84 +38,82 @@ export default class DataBase {
    */
   private dataMaps = new Map<string, string[]>()
 
+  private signalsMap = new Map<string, Rx.Observable<any>>()
+
   private unionFlag = '_id'
 
   constructor(unionFlag?: string) {
     if (unionFlag) this.unionFlag = unionFlag
+    flushsignals()
   }
 
-  set(index: string, data: any, expire?: number): Promise<void> {
+  set<T>(index: string, data: any, expire?: number): Rx.Observable<T> {
     if (typeof expire !== 'number') expire = 0
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        if (data instanceof Array && data[0] && data[0][this.unionFlag]) {
-          this.storeCollection(index, data, expire)
-          return resolve()
-        }else {
-          this.storeOne(index, data, expire)
-          return resolve()
-        }
-      })
-    })
+    if (data instanceof Array) {
+      return this.storeCollection(index, data, expire)
+    }else {
+      return this.storeOne<T>(index, data, expire)
+    }
   }
 
-  get<T>(index: string): Promise<T> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const data = this.data.get(index)
-        let result: any
-        if (!data) return resolve()
-        if (this.typeIndex.get(index) === 'collection') {
-          result = []
-          Promise.all(data.map(val => {
-            this.get(val[this.unionFlag])
-            .then(obj => {
-              result.push(obj)
-              trackOne(index, result)
-              return resolve(result)
-            })
-          }))
-        }else {
-          result = new BaseObject(data)
-          trackOne(result[this.unionFlag], result)
-          return resolve(result)
-        }
-      })
-    })
+  get<T>(index: string): Rx.Observable<T> {
+    return this.signalsMap.get(index)
   }
 
-  delete(index: string): Promise<void> {
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        this.data.delete(index)
-        const maps = this.dataMaps.get(index)
-        if (!(maps && maps.length)) return resolve()
-        forEach(maps, (collectionIndex: string) => {
-          const indexes = this.collectionIndex.get(collectionIndex)
-          const collection = this.data.get(collectionIndex)
-          const position = indexes.indexOf(index)
-          indexes.splice(position, 1)
-          collection.splice(position, 1)
+  delete(index: string): Rx.Observable<any> {
+    const action = () => {
+      return new Promise<void>(resolve => {
+        setTimeout(() => {
+          this.data.delete(index)
+          const maps = this.dataMaps.get(index)
+          if (!(maps && maps.length)) return resolve(null)
+          forEach(maps, (collectionIndex: string) => {
+            const indexes = this.collectionIndex.get(collectionIndex)
+            const collection = this.data.get(collectionIndex)
+            const position = indexes.indexOf(index)
+            indexes.splice(position, 1)
+            collection.splice(position, 1)
+            createNewsignal(collectionIndex, 'set', this.data.get(collectionIndex))
+          })
+          this._deleteFromMaps(index)
+          resolve(null)
         })
-        resolve()
       })
-    })
+      .then(r => {
+        createNewsignal(index, 'set', r)
+        return r
+      })
+    }
+
+    return createNewsignal(index, 'delete')
+      .concatMap(x => action())
+      .flatMap(x => [null])
   }
 
-  update<T, U>(index: string, patch: T | Array<U>): Promise<void> {
+  update<T>(index: string, patch: T | Array<T>): Rx.Observable<any> {
     const objectType = this.typeIndex.get(index)
-    if (!objectType) return Promise.resolve<void>(undefined)
+    if (!objectType) return Rx.Observable.throw(new Error('Patch target not exist'))
     if (objectType === 'object') return this.updateOne(index, patch)
-    if (objectType === 'collection') return this.updateCollection(index, <Array<U>>patch)
+    if (objectType === 'collection') return this.updateCollection(index, <Array<T>>patch)
   }
 
-  exist(index: string): Promise<boolean> {
-    return new Promise<boolean>(resolve => {
-      resolve(this.data.has(index))
+  exist(index: string): Rx.Observable<boolean> {
+    return Rx.Observable.create((observer: Rx.Observer<boolean>) => {
+      observer.next(this.data.has(index))
     })
   }
 
-  private storeOne(index: string, data: any, expire?: number) {
+  clearAll() {
+    this.data.clear()
+    this.timeoutIndex.clear()
+    this.typeIndex.clear()
+    this.collectionIndex.clear()
+    this.dataMaps.clear()
+    this.signalsMap.clear()
+    flushsignals()
+  }
+
+  private storeOne <T>(index: string, data: T, expire?: number): Rx.Observable<T> {
     if (typeof expire !== 'number') expire = 0
     const result = data
     forEach(data, (value, key) => {
@@ -129,17 +127,22 @@ export default class DataBase {
     })
     this.data.set(index, result)
     this.setExpire(index, expire)
-    trackObject(result)
     this.typeIndex.set(index, 'object')
+    const destSignal = createNewsignal(index, 'set', result)
+      .flatMap(x => {
+        return [clone(this.data.get(index))]
+      })
+    this.signalsMap.set(index, destSignal)
+    return destSignal
   }
 
-  private storeCollection(index: string, collection: any[], expire?: number) {
+  private storeCollection <T extends Array<any>> (index: string, collection: T, expire?: number): Rx.Observable<T> {
     if (typeof expire !== 'number') expire = 0
-    const indexes = []
-    this.collectionIndex.set(index, indexes)
+    const indexes: any[] = []
     const unionFlag = this.unionFlag
-    if (this.data.has(index)) return
-    const result = []
+    if (this.data.has(index)) return Rx.Observable.throw(new Error('Can not store an existed collection'))
+    this.collectionIndex.set(index, indexes)
+    const result: T = <any>[]
     forEach(collection, (val, key) => {
       const cache = this.data.get(val[unionFlag])
       if (cache) {
@@ -158,8 +161,10 @@ export default class DataBase {
     })
     this.data.set(index, result)
     this.setExpire(index, expire)
-    trackCollection(index, result)
     this.typeIndex.set(index, 'collection')
+    const destSignal = this._mergeCollectionSignals<T>(index, result)
+    this.signalsMap.set(index, destSignal)
+    return destSignal
   }
 
   private setExpire(index: string, expire: number) {
@@ -168,8 +173,8 @@ export default class DataBase {
     if (typeof timer !== 'undefined') {
       clearTimeout(timer)
     }
-    let timeoutIndex = setTimeout(() => {
-      this.delete(index)
+    const timeoutIndex = setTimeout(() => {
+      this.delete(index).subscribe()
     }, expire)
     this.timeoutIndex.set(index, {
       timer: timeoutIndex,
@@ -178,18 +183,26 @@ export default class DataBase {
     })
   }
 
-  private updateOne(index: string, patch: any): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (typeof patch !== 'object') return reject('A patch should be Object')
-      setTimeout(() => {
-        const val = this.data.get(index)
-        const expire = patch.expire
-        if (typeof expire !== 'undefined') delete patch.expire
-        this.setExpire(index, expire)
-        this.data.set(index, assign(val, patch))
-        resolve()
+  private updateOne (index: string, patch: any) {
+    const action = () => {
+      return new Promise<void>((resolve, reject) => {
+        if (typeof patch !== 'object') return reject('A patch should be Object')
+        setTimeout(() => {
+          const val = this.data.get(index)
+          const expire = patch.expire
+          if (typeof expire !== 'undefined') delete patch.expire
+          this.setExpire(index, expire)
+          this.data.set(index, assign(val, patch))
+          resolve(clone(this.data.get(index)))
+        })
       })
-    })
+      .then(r => {
+        createNewsignal(index, 'set', r)
+        return r
+      })
+    }
+    return createNewsignal(index, 'update', patch)
+      .concatMap(x => Rx.Observable.fromPromise(action()))
   }
 
   /**
@@ -197,35 +210,60 @@ export default class DataBase {
    * @param  {T[]} patch  新的列表内容
    * @return void
    */
-  private updateCollection<T>(index: string, patch: T[]): Promise<void> {
-    return new Promise<void>(resolve => {
-      const cache: T[] = this.data.get(index)
-      const unionFlag = this.unionFlag
-      if (!(cache && patch instanceof Array)) return resolve()
-      setTimeout(() => {
-        const indexs = this.collectionIndex.get(index)
-        forEach(patch, (val, key) => {
-          const oldEle = cache[key]
-          if (oldEle && oldEle[unionFlag] === val[unionFlag]) {
-            assign(oldEle, val)
-          }else {
-            const targetId = val[unionFlag]
-            if (indexs.indexOf(targetId) === -1) {
-              cache.splice(key, 0, val)
-              indexs.splice(key, 0, targetId)
-              this.storeOne(val[unionFlag], val)
+  private updateCollection<T extends Array<any>>(index: string, patch: T): Rx.Observable<T> {
+    const cache: T = this.data.get(index)
+    const action = () => {
+      return new Promise<T>((resolve, reject) => {
+        const unionFlag = this.unionFlag
+        if (!(cache && patch instanceof Array)) return reject('Patch should be array')
+        setTimeout(() => {
+          const indexs = this.collectionIndex.get(index)
+          forEach(patch, (val, key) => {
+            const oldEle = cache[key]
+            if (oldEle && oldEle[unionFlag] === val[unionFlag]) {
+              assign(oldEle, val)
             }else {
-              const oldIndex = indexs.indexOf(targetId, key)
-              const oldOne = cache[oldIndex]
-              cache.splice(oldIndex, 1)
-              indexs.splice(oldIndex, 1)
-              cache.splice(key, 0, assign(oldOne, val))
-              indexs.splice(key, 0, targetId)
+              const targetId = val[unionFlag]
+              if (indexs.indexOf(targetId) === -1) {
+                cache.splice(key, 0, val)
+                indexs.splice(key, 0, targetId)
+                this.storeOne(val[unionFlag], val)
+              }else {
+                const oldIndex = indexs.indexOf(targetId, key)
+                const oldOne = cache[oldIndex]
+                cache.splice(oldIndex, 1)
+                indexs.splice(oldIndex, 1)
+                cache.splice(key, 0, assign(oldOne, val))
+                indexs.splice(key, 0, targetId)
+              }
             }
-          }
+          })
+          resolve(clone(cache))
         })
-        resolve()
       })
-    })
+      .then(r => {
+        createNewsignal(index, 'set', r)
+        return r
+      })
+    }
+    return createNewsignal(index, 'update', cache)
+      .concatMap(x => action())
+  }
+
+  private _deleteFromMaps (index: string) {
+    this.dataMaps.delete(index)
+    this.signalsMap.delete(index)
+    this.typeIndex.delete(index)
+    this.timeoutIndex.delete(index)
+    this.collectionIndex.delete(index)
+  }
+
+  private _mergeCollectionSignals <T extends Array<any>> (index: string, data: T): Rx.Observable<T> {
+    const skipLength = data.length
+    return Rx.Observable
+      .from(data.map(val => this.signalsMap.get(val[this.unionFlag])))
+      .mergeAll()
+      .skip(skipLength - 1)
+      .concatMap(x => Rx.Observable.of(clone(data)))
   }
 }
