@@ -188,6 +188,8 @@ export interface EntryCategoriesData {
   type: number
 }
 
+export type visibility = 'project' | 'organization' | 'all'
+
 export interface TaskData {
   _id: string
   _executorId: string
@@ -246,7 +248,7 @@ export interface FileData {
   _creatorId: string
   creator: MemberData
   tagIds: string[]
-  visiable: string
+  visiable: visibility
   downloadUrl: string
   thumbnail: string
   thumbnailUrl: string
@@ -534,4 +536,38 @@ export interface SubtaskData {
   dueDate: string
   order: number
   exector: MemberData
+}
+
+export interface HomeActivity {
+  _id: string
+  _creatorId: string
+  action: string
+  content: {
+    objects: any[],
+    objectType: 'post' | 'task' | 'event' | 'work',
+    creator: string
+  },
+  rootId: string,
+  created: string
+  _boundToObjectId: string,
+  boundToObjectType: 'post' | 'task' | 'event' | 'work'
+  rawAction: string
+  creator: Executor
+  title: string
+  likes: LikeData[]
+  isLike: boolean
+}
+
+export interface Executor {
+  name: string
+  avatarUrl: string
+  _id: string
+}
+
+export interface InviteLinkData {
+  inviteLink: string
+  mobileInviteLink: string
+  signCode: string
+  created: string
+  expiration: string
 }

@@ -16,7 +16,7 @@ export default describe('Organizations API test', () => {
     flushDatabase()
     httpBackend = new Backend()
     httpBackend
-    .whenGET(`${apihost}/organizations`)
+    .whenGET(`${apihost}organizations`)
     .respond(organizations)
   })
 
@@ -34,7 +34,7 @@ export default describe('Organizations API test', () => {
     const spy = sinon.spy()
 
     httpBackend
-    .whenGET(`${apihost}/organizations/${id}`)
+    .whenGET(`${apihost}organizations/${id}`)
     .respond(clone(organizations[0]))
 
     OrganizationAPI.getOrgs()

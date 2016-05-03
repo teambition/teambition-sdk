@@ -14,7 +14,7 @@ export default describe('member api test', () => {
     Member = new MemberAPI()
     httpBackend = new Backend()
     httpBackend
-    .whenGET(`${apihost}/projects/projectId/members`)
+    .whenGET(`${apihost}projects/projectId/members`)
     .respond(clone(members))
 
     flushDatabase()
@@ -24,7 +24,7 @@ export default describe('member api test', () => {
     const id = organizations[0]._id
 
     httpBackend
-    .whenGET(`${apihost}/V2/organizations/${id}/members`)
+    .whenGET(`${apihost}V2/organizations/${id}/members`)
     .respond(members)
 
     Member.getOrgMembers(id)
@@ -51,7 +51,7 @@ export default describe('member api test', () => {
     let memberId = members[0]._id
 
     httpBackend
-    .whenDELETE(`${apihost}/members/${memberId}`)
+    .whenDELETE(`${apihost}members/${memberId}`)
     .respond({})
 
     const get = Member.getProjectMembers('projectId')

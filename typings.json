@@ -18,9 +18,12 @@
     "micromatch": "registry:dt/micromatch#2.3.7+20160123140905",
     "mocha": "registry:dt/mocha#2.2.5+20160317120654",
     "node": "registry:dt/node#4.0.0+20160423143914",
+    "opn": "registry:dt/opn#3.0.2+20160316155526",
     "orchestrator": "registry:dt/orchestrator#0.0.0+20160316155526",
     "parse-glob": "registry:dt/parse-glob#3.0.4+20160110125512",
     "q": "registry:dt/q#0.0.0+20160417152954",
+    "sinon": "registry:dt/sinon#1.16.0+20160317120654",
+    "sinon-chai": "registry:dt/sinon-chai#2.7.0+20160317120654",
     "through2": "registry:dt/through2#2.0.0+20160317120654",
     "vinyl": "registry:dt/vinyl#1.1.0+20160316155526"
   }

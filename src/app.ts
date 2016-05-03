@@ -10,6 +10,7 @@ export * from './fetchs/MemberFetch'
 export * from './fetchs/OrganizationFetch'
 export * from './fetchs/ProjectFetch'
 export * from './fetchs/UserFetch'
+export * from './fetchs/TasklistFetch'
 
 // export apis
 

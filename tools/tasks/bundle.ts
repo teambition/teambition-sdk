@@ -5,8 +5,8 @@ import config from '../../webpack.config'
 const webpack = require('webpack')
 
 export const bundle = (entry: any, output: string, tsconfig?: string, outputDir?: string, watch?: boolean, minify?: boolean, callback?: any) => {
-  let webpackConfig = Object.assign<{[index: string]: any}, typeof config>({}, config)
-  let plugins = []
+  const webpackConfig = Object.assign<{[index: string]: any}, typeof config>({}, config)
+  const plugins = []
   if (minify) {
     plugins.push(new webpack.optimize.UglifyJsPlugin({
       mangle: {

@@ -94,7 +94,7 @@ gulp.task('test', ['pre-test'], (done: any) => {
 gulp.task('build.sdk', (done) => {
   const entry = [
     'es6-promise',
-    'whatwg-fetch',
+    'isomorphic-fetch',
     'es6-collections',
     path.join(process.cwd(), 'src/app.ts')
   ]
