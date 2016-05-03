@@ -188,6 +188,8 @@ export interface EntryCategoriesData {
   type: number
 }
 
+export type visibility = 'project' | 'organization' | 'all'
+
 export interface TaskData {
   _id: string
   _executorId: string
@@ -246,7 +248,7 @@ export interface FileData {
   _creatorId: string
   creator: MemberData
   tagIds: string[]
-  visiable: string
+  visiable: visibility
   downloadUrl: string
   thumbnail: string
   thumbnailUrl: string

@@ -4,9 +4,7 @@ import Project from '../schemas/Project'
 import Member from '../schemas/Member'
 import Event from '../schemas/Event'
 import Task from '../schemas/Task'
-import {HomeActivity, InviteLinkData} from '../teambition'
-
-export type visibility = 'project' | 'organization' | 'all'
+import {HomeActivity, InviteLinkData, visibility} from '../teambition'
 
 export interface ProjectCreateOptions {
   name: string
