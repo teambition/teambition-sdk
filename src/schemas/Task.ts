@@ -1,8 +1,7 @@
 'use strict'
-import {visibility} from '../fetchs/ProjectFetch'
 import {Schema} from './schema'
 import Subtask from './Subtask'
-import {Executor} from '../teambition'
+import {Executor, visibility} from '../teambition'
 
 export default class Task extends Schema {
   _id: string = undefined
