@@ -17,6 +17,6 @@ export default class BaseAPI {
     forEach(data, (val: any, key: string) => {
       result.push(`${key}=${val}`)
     })
-    return '?' + result.join('&')
+    return result.length ? '?' + result.join('&') : ''
   }
 }
