@@ -16,7 +16,7 @@ export default describe('UserAPI test', () => {
     User = new UserAPI()
     httpBackend = new Backend()
     flushDatabase()
-    httpBackend.whenGET(`${apihost}/users/me`).respond(userMe)
+    httpBackend.whenGET(`${apihost}users/me`).respond(userMe)
   })
 
   it('get user me should ok', done => {
@@ -35,7 +35,7 @@ export default describe('UserAPI test', () => {
     mockPut.name = 'test'
 
     httpBackend
-    .whenPUT(`${apihost}/users`, {
+    .whenPUT(`${apihost}users`, {
       name: 'test'
     }).respond(mockPut)
 
@@ -68,7 +68,7 @@ export default describe('UserAPI test', () => {
     }
 
     mockResponse.emails = mockResponse.emails.concat([updateData])
-    httpBackend.whenPOST(`${apihost}/users/email`, {
+    httpBackend.whenPOST(`${apihost}users/email`, {
       email: updateData.email
     }).respond(mockResponse.emails)
 
@@ -104,7 +104,7 @@ export default describe('UserAPI test', () => {
     }
     mockResponse.phone = updateData.phone
     httpBackend
-    .whenPUT(`${apihost}/users/phone`, updateData)
+    .whenPUT(`${apihost}users/phone`, updateData)
     .respond(mockResponse)
 
     const get = User.getUserMe()

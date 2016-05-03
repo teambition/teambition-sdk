@@ -49,7 +49,7 @@ export interface NavigationOptions {
 export class ProjectFetch extends BaseFetch {
 
   getAll(): Promise<Project[]> {
-    return this.fetch.get(`/projects`)
+    return this.fetch.get(`projects`)
   }
 
   create(projectInfo: ProjectCreateOptions): Promise<Project> {

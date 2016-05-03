@@ -13,7 +13,7 @@ export class Fetch {
     credentials: 'include'
   }
 
-  private static apiHost = 'https://www.teambition.com/api'
+  private static apiHost = 'https://www.teambition.com/api/'
 
   public static getAPIHost(): string {
     return Fetch.apiHost
@@ -26,7 +26,7 @@ export class Fetch {
   public static setToken(token: string) {
     delete Fetch.opts.credentials
     Fetch.opts.headers.Authorization = `OAuth2 ${token}`
-    Fetch.apiHost = 'https://api.teambition.com'
+    Fetch.apiHost = 'https://api.teambition.com/'
   }
 
   public get <T>(url: string) {

@@ -17,7 +17,7 @@ export default describe('Project API test', () => {
 
   it('get projects should ok', done => {
     httpBackend
-      .whenGET(`${apihost}/projects`)
+      .whenGET(`${apihost}projects`)
       .respond(projects)
 
     Project.getAll()
