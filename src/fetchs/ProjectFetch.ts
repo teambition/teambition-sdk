@@ -171,7 +171,7 @@ export class ProjectFetch extends BaseFetch {
     } : null)
   }
 
-  star(_id): Promise<{
+  star(_id: string): Promise<{
     _id: string
     isStar: boolean
     starCount: number

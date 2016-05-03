@@ -13,7 +13,7 @@ export default class BaseAPI {
 
   protected buildQuery (data: any) {
     if (typeof data !== 'object') return ''
-    let result = []
+    let result: string[] = []
     forEach(data, (val: any, key: string) => {
       result.push(`${key}=${val}`)
     })
