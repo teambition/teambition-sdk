@@ -47,7 +47,7 @@ context['fetch'] = (uri: string, options?: {
       throw new Error(result.data)
     }else {
       /* istanbul ignore if */
-      throw new Error('nothing expect return from server')
+      throw new Error(`nothing expect return from server, uri: ${uri}, method: ${options.method}, body: ${JSON.stringify(options.body)}`)
     }
   }
 }

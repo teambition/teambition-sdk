@@ -1,5 +1,5 @@
 'use strict'
-import {assign} from './index'
+import {assign, forEach} from './index'
 
 require('isomorphic-fetch')
 
@@ -29,8 +29,9 @@ export class Fetch {
     Fetch.apiHost = 'https://api.teambition.com/'
   }
 
-  public get <T>(url: string) {
-    return this.createMethod<T>('get')(url)
+  public get <T>(url: string, query?: any) {
+    const queryString = this.buildQuery(query)
+    return this.createMethod<T>('get')(url + queryString)
   }
 
   public post <T>(url: string, body?: any) {
@@ -45,6 +46,15 @@ export class Fetch {
     return this.createMethod<T>('delete')(url)
   }
 
+  private buildQuery (query: any) {
+    if (typeof query !== 'object') return ''
+    let result: string[] = []
+    forEach(query, (val: any, key: string) => {
+      result.push(`${key}=${val}`)
+    })
+    return result.length ? '?' + result.join('&') : ''
+  }
+
   private createMethod<T>(method: String) {
     return (url: string, body?: any): Promise<T> => {
       let options = assign({
@@ -54,7 +64,7 @@ export class Fetch {
         options.body = body
       }
       return fetch(Fetch.apiHost + url, options)
-        .then((response: Response) => {
+        .then(response => {
           if (response.status >= 200 && response.status < 300) {
             return response.json<T>()
           } else {

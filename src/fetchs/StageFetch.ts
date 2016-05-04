@@ -52,8 +52,7 @@ class StageFetch extends Fetch {
     limit?: number
     page?: number
   }): Promise<Task[]> {
-    const _query = this.buildQuery(query)
-    return this.fetch.get(`stages/${_stageId}/tasks${_query}`)
+    return this.fetch.get(`stages/${_stageId}/tasks`, query)
   }
 
   moveTasks(stageId: string, _newStageId: string, _taskIds?: string[]): Promise<{

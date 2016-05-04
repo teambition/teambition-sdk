@@ -54,7 +54,7 @@ export const projects = [
       name: '龙逸楠',
       _id: '56986d43542ce1a2798c8cfb'
     },
-    unreadCount: 0,
+    unreadCount: 3,
     pushStatus: false,
     canQuit: false,
     canDelete: true,

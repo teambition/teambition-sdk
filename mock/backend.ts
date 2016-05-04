@@ -21,7 +21,7 @@ export class Backend {
     return new HttpResponse(uri, 'put', data)
   }
 
-  whenPOST(uri: string, data: any) {
+  whenPOST(uri: string, data?: any) {
     return new HttpResponse(uri, 'post', data)
   }
 

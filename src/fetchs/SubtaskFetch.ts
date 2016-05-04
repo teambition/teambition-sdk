@@ -23,8 +23,7 @@ export interface SubtaskUpdateOptions {
 
 export class SubtaskFetch extends Fetch {
   getMySubtasks(options: GetMySubtasksOptions): Promise<MySubtask[]> {
-    const query = this.buildQuery(options)
-    return this.fetch.get(`v2/tasks/me/subtasks${query}`)
+    return this.fetch.get(`v2/tasks/me/subtasks`, options)
   }
 
   create(subtaskData: {
@@ -42,8 +41,7 @@ export class SubtaskFetch extends Fetch {
     } = {}
     queryData._taskId = _taskId
     queryData.withExecutor = withExecutor
-    const query = this.buildQuery(queryData)
-    return this.fetch.get(`subtasks/${_subTaskId}${query}`)
+    return this.fetch.get(`subtasks/${_subTaskId}`, queryData)
   }
 
   update<T extends SubtaskUpdateOptions>(_subTaskId: string, subtaskData: T): Promise<T> {
