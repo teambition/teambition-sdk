@@ -20,7 +20,11 @@ export class HttpResponse {
       status: 200,
       flushQueue: [],
       json: () => {
-        return data
+        if (typeof data === 'string') {
+          return JSON.parse(data)
+        }else if (typeof data === 'object') {
+          return data
+        }
       }
     }
   }

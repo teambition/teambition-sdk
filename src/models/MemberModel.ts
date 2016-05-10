@@ -4,10 +4,10 @@ import BaseModel from './model'
 import {datasToSchemas} from '../utils/index'
 import Member from '../schemas/Member'
 
-export class MemberModel extends BaseModel {
+export class MemberModel extends BaseModel<Member> {
   saveProjectMembers(projectId: string, members: Member[]): Observable<Member[]> {
     const result = datasToSchemas<Member, Member>(members, Member)
-    return this._save(`members:${projectId}`, result)
+    return this._saveCollection(`members:${projectId}`, result)
   }
 
   getProjectMembers(projectId: string): Observable<Member[]> {
@@ -20,7 +20,7 @@ export class MemberModel extends BaseModel {
 
   saveOrgMembers(organizationId: string, members: Member[]): Observable<Member[]> {
     const result = datasToSchemas<Member, Member>(members, Member)
-    return this._save(`members:${organizationId}`, result)
+    return this._saveCollection(`members:${organizationId}`, result)
   }
 
   getOrgMembers(organizationId: string): Observable<Member[]> {

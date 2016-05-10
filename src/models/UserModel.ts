@@ -3,7 +3,7 @@ import {Observable} from 'rxjs'
 import Model from './model'
 import {UserMe, UserEmail} from '../teambition'
 
-export class UserModel extends Model {
+export class UserModel extends Model<UserMe> {
 
   private namespace = 'user:me'
 

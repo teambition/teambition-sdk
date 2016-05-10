@@ -64,8 +64,7 @@ export interface MoveTaskOptions {
 
 export class TaskFetch extends Fetch {
   getTasksMe (option: TasksMeOptions): Promise<Task[]> {
-    const query = this.buildQuery(option)
-    return this.fetch.get(`v2/tasks/me${query}`)
+    return this.fetch.get(`v2/tasks/me`, option)
   }
 
   create(createTaskData: CreateTaskOptions): Promise<Task> {
@@ -139,8 +138,7 @@ export class TaskFetch extends Fetch {
     count: number
     page: number
   }): Promise<Task[]> {
-    const query = this.buildQuery(options)
-    return this.fetch.get(`stages/${_stageId}/tasks${query}`)
+    return this.fetch.get(`stages/${_stageId}/tasks`, options)
   }
 
   getByTasklists(_tasklistId: string, options: {
@@ -165,11 +163,10 @@ export class TaskFetch extends Fetch {
   getInvolves(page: number, count: number): Promise<Task>
 
   getInvolves(page?: number, count?: number) {
-    const query = this.buildQuery({
+    return this.fetch.get(`tasks/involves`, {
       page: page,
       count: count
     })
-    return this.fetch.get(`tasks/involves${query}`)
   }
 
   like(_taskId: string): Promise<{

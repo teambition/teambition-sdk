@@ -571,3 +571,32 @@ export interface InviteLinkData {
   created: string
   expiration: string
 }
+
+export interface CreatedInProject {
+  work: number
+  post: number
+  event: number
+  task: number
+}
+
+export interface RecommendMember {
+  _id: string
+  email: string
+  avatarUrl: string
+  name: string
+  latestActived: string
+  isActive: boolean
+  website: string
+  title: string
+  location: string
+}
+
+export interface ProjectStatistic {
+  task: {
+    total: number
+    done: number
+    today: number
+  }
+  recent: number[]
+  days: number[][]
+}

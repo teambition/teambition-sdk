@@ -20,4 +20,16 @@ export class MemberFetch extends BaseFetch {
       _roleId: roleId
     })
   }
+
+  addProjectMember(_id: string, emails: string | any[]): Promise<Member> {
+    return this.fetch.post(`v2/projects/${_id}/members`, {
+      email: emails
+    })
+  }
+
+  addProjectMemberByCode(_id: string, signCode: string, invitorId: string): Promise<void> {
+    return this.fetch.post<void>(`projects/${_id}/joinByCode${signCode}`, {
+      _invitorId: invitorId
+    })
+  }
 }

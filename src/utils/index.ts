@@ -35,6 +35,7 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
 }
 
 export const assign = <T, U>(target: T, origin: U): T & U => {
+  if (typeof origin !== 'object' || !origin) return
   forEach(origin, (val, key) => {
     target[key] = origin[key]
   })
@@ -55,8 +56,6 @@ export const clone = <T>(origin: T): T => {
       // null
       if (val) {
         target[key] = clone(val)
-      }else {
-        target[key] = val
       }
     }
     target[key] = val
@@ -80,6 +79,10 @@ export const uuid = () => {
   }
   uuidStack.push(UUID)
   return UUID
+}
+
+export const dataToSchema = <T, U extends Schema> (data: T, SchemaClass: any): U => {
+  return setSchema(new SchemaClass(), data)
 }
 
 export const datasToSchemas = <T, U extends Schema>(datas: T[], SchemaClass: any): U[] => {

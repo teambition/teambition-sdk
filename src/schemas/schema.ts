@@ -1,7 +1,7 @@
 'use strict'
 import {forEach} from '../utils/index'
 
-export const setSchema = <T extends Schema>(target: T, data: any) => {
+export const setSchema = <T extends Schema>(target: T, data: any): T => {
   target.$$keys.forEach((key) => {
     target[key] = data[key]
   })

@@ -3,7 +3,7 @@ import {Observable} from 'rxjs'
 import Model from './model'
 import {OrganizationData} from '../teambition'
 
-export class OrganizationModel extends Model {
+export class OrganizationModel extends Model<OrganizationData> {
   getAll(): Observable<Array<OrganizationData>> {
     return this._get<OrganizationData[]>('organization')
   }
@@ -13,7 +13,7 @@ export class OrganizationModel extends Model {
   }
 
   saveAll(organizations: OrganizationData[]): Observable<OrganizationData[]> {
-    return this._save<OrganizationData[]>('organization', organizations)
+    return this._saveCollection<OrganizationData>('organization', organizations)
   }
 
   set(data: OrganizationData): Observable<OrganizationData> {
