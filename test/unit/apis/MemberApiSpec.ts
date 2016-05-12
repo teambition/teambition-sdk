@@ -3,7 +3,6 @@ import * as chai from 'chai'
 import {MemberAPI, Backend, apihost, clone} from '../index'
 import {members} from '../mock/members'
 import {organizations} from '../mock/organizations'
-import {flushDatabase} from '../utils'
 
 const expect = chai.expect
 
@@ -16,8 +15,6 @@ export default describe('member api test', () => {
     httpBackend
     .whenGET(`${apihost}projects/projectId/members`)
     .respond(clone(members))
-
-    flushDatabase()
   })
 
   it('get organization members should ok', (done: Function) => {

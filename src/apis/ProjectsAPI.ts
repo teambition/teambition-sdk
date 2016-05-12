@@ -66,22 +66,25 @@ export class ProjectsAPI {
 
   update(_id: string, updateInfo: ProjectUpdateOptions): Observable<any> {
     return Observable.fromPromise(projectFetch.update(_id, updateInfo))
-      .concatMap(project => ProjectModel.updateProject(project))
+      .concatMap(project => ProjectModel.update(project))
   }
 
   delete(_id: string): Observable<void> {
     return Observable.fromPromise(projectFetch.delete(_id))
-      .concatMap(x => ProjectModel.deleteProject(_id))
+      .concatMap(x => ProjectModel.delete(_id))
   }
 
-  archive(_id: string): Observable<void> {
+  archive(_id: string): Observable<Project> {
     return Observable.fromPromise(projectFetch.archive(_id))
-      .concatMap(x => ProjectModel.deleteProject(_id))
+      .concatMap(x => ProjectModel.update(<any>{
+        _id: _id,
+        isArchived: x.isArchived
+      }))
   }
 
   clearUnreadCount(_id: string): Observable<any> {
     return Observable.fromPromise(projectFetch.clearUnreadCount(_id))
-      .concatMap(x => ProjectModel.updateProject(<any>{
+      .concatMap(x => ProjectModel.update(<any>{
         _id: _id,
         unreadCount: 0
       }))
@@ -143,7 +146,7 @@ export class ProjectsAPI {
 
   quit(_id: string, _ownerId?: string): Observable<void> {
     return Observable.fromPromise(projectFetch.quit(_id, _ownerId))
-      .concatMap(x => ProjectModel.deleteProject(_id))
+      .concatMap(x => ProjectModel.delete(_id))
   }
 
   getRecommendMembers(_id: string, querys?: JSONObj): Observable<RecommendMember> {
@@ -160,12 +163,12 @@ export class ProjectsAPI {
 
   setDefaultRole (_id: string, _roleId?: number): Observable<Project> {
     return Observable.fromPromise(projectFetch.setDefaultRole(_id, _roleId))
-      .concatMap(x => ProjectModel.updateProject(<any>x))
+      .concatMap(x => ProjectModel.update(<any>x))
   }
 
   star(_id: string): Observable<Project> {
     return Observable.fromPromise(projectFetch.star(_id))
-      .concatMap(x => ProjectModel.updateProject(<any>x))
+      .concatMap(x => ProjectModel.update(<any>x))
   }
 
   getStatistic (_id: string, query?: {
@@ -180,7 +183,7 @@ export class ProjectsAPI {
     updated: string
   }> {
     return Observable.fromPromise(projectFetch.transfer(_id, organizationId))
-      .concatMap(x => ProjectModel.updateProject(<any>{
+      .concatMap(x => ProjectModel.update(<any>{
         _organizationId: x._organizationId,
         _id: _id
       }))

@@ -10,28 +10,21 @@ export default class Model<T> {
     return Model.DataBase.exist(namespace)
   }
 
-  protected _save<T>(namespace: string, data: T): Rx.Observable<T> {
-    return Model.DataBase.storeOne<T>(namespace, data)
+  protected _save<T>(data: T): Rx.Observable<T> {
+    return Model.DataBase.storeOne<T>(data)
   }
 
   protected _saveCollection<T>(
     namespace: string,
     data: T[],
+    schemaName?: string,
     condition?: (data: T) => boolean
   ): Rx.Observable<T[]> {
-    return Model.DataBase.storeCollection(namespace, data, condition)
+    return Model.DataBase.storeCollection(namespace, data, schemaName, condition)
   }
 
-  protected _saveToCollection<T>(index: string, collectionName: string, data?: T): Rx.Observable<T> {
-    return Model.DataBase.addToCollection(index, collectionName, data)
-  }
-
-  protected _removeFromCollection(index: string, collectionName: string): Rx.Observable<void> {
-    return Model.DataBase.removeFromCollection(index, collectionName)
-  }
-
-  protected _get<T>(namespace: string): Rx.Observable<T> {
-    return Model.DataBase.get<T>(namespace)
+  protected _get<T>(index: string): Rx.Observable<T> {
+    return Model.DataBase.get<T>(index)
   }
 
   protected _update<T>(namespace: string, patch: any): Rx.Observable<T> {

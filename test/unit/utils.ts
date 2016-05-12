@@ -20,10 +20,6 @@ export function timeout <T> (signal: Rx.Observable<T>, delay: number): Rx.Observ
   })
 }
 
-export function flushDatabase () {
-  Model.DataBase.clearAll()
-}
-
 export function expectDeepEqual(a: any, b: any) {
   forEach(a, (val, key) => {
     expect(val).to.deep.equal(b[key])

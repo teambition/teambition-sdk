@@ -8,6 +8,5 @@ Fetch.setToken(mockToken)
 
 export {Backend} from '../../mock'
 export * from '../../src/app'
-export * from '../../src/storage/signals'
 export * from '../../src/utils'
 export * from './app'

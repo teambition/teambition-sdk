@@ -1,402 +1,278 @@
 'use strict'
-import * as Rx from 'rxjs'
+import {Observable, Observer} from 'rxjs'
 import {assign, forEach, clone} from '../utils/index'
-import {createNewsignal, flushsignals} from './signals'
+import Data from './Map'
+import Model from './Model'
+import Collection from './Collection'
 
 export default class DataBase {
   /**
    * 存储所有的数据，以唯一的 key 为索引
    */
-  private data = new Map<string, any>()
+  public static data = Data
 
   /**
-   * 时间缓存，控制缓存失效
+   * 用来索引 schemaName -> collection names 映射
    */
-  private timeoutIndex = new Map<string, {
-    timer: any
-    begin: number
-    expire: number
-  }>()
+  private schemaMap = new Map<string, string[]>()
 
-  /**
-   * 用来存储一个数据类型
-   * 比如可以通过 taskid 获取它索引的是 object 类型的数据
-   * 通过 tasklist:${tasklistid}:tasks 获取它是 collection 类型的数据
-   */
-  private typeIndex = new Map<string, string>()
-
-  /**
-   * 用来存储列表索引
-   * tasklists:${tasklistid}:tasks 这种
-   */
-  private collectionIndex = new Map<string, string[]>()
-
-  /**
-   * 用来存储数据 -> 列表映射
-   * 比如通过一个 taskid 可以知道它分别存储在
-   * tasklists, my:recent:tasks, my:today:tasks 等几个列表中
-   */
-  private dataMaps = new Map<string, string[]>()
-
-  private signalsMap = new Map<string, Rx.Observable<any>>()
-
-  /**
-   * 列表数据的条件映射
-   */
-  private conditionsMap = new Map<string, (data: any) => boolean>()
-
-  /**
-   * 用来存储 _id -> 父对象 _id 映射
-   * 例如 member id 存储着它为 executor 的 task 的 ids
-   */
-  private parentsMap = new Map<string, string[]>()
-
-  private unionFlag = '_id'
-
-  constructor(unionFlag?: string) {
-    if (unionFlag) {
-      this.unionFlag = unionFlag
-    }
-    flushsignals()
+  constructor() {
+    Data.clear()
   }
 
-  storeOne <T>(index: string, data: T, expire?: number): Rx.Observable<T> {
-    if (typeof expire !== 'number') expire = 0
-    const result = data
-    forEach(data, (value, key) => {
-      if (
-        typeof value === 'object' &&
-        value &&
-        value[this.unionFlag]
-      ) {
-        const thisFlag = value[this.unionFlag]
-        const parents = this.parentsMap.get(thisFlag)
-        if (parents) {
-          if (parents.indexOf(index) === -1) {
-            parents.push(index)
-          }
-        }else {
-          this.parentsMap.set(thisFlag, [index])
+  storeOne <T>(data: T, unionFlag = '_id'): Observable<T> {
+    return Observable.create((observer: Observer<Observable<T>>) => {
+      setTimeout(() => {
+        const index = data[unionFlag]
+        const cache = DataBase.data.get(index)
+        if (cache) {
+          return observer.error(new Error(`can not store a existed data: ${cache.getSchemaName()}, ${index}`))
         }
-        this.storeOne(value[this.unionFlag], value, expire)
-      }
-    })
-    this.data.set(index, result)
-    this.setExpire(index, expire)
-    this.typeIndex.set(index, 'object')
-    const destSignal = createNewsignal(index, 'set', result)
-      .flatMap(x => [clone(this.data.get(index))])
-    this.signalsMap.set(index, destSignal)
-    return destSignal
+        const result = new Model(data, unionFlag).signal
+        observer.next(result)
+      })
+    }).concatMap((x: Observable<T>) => x)
   }
 
   storeCollection <T> (
     index: string,
-    collection: T[],
+    data: T[],
+    schemaName?: string,
     condition?: (data: T) => boolean,
-    expire?: number
-  ): Rx.Observable<T[]> {
-    return Rx.Observable.create((observer: Rx.Observer<any>) => {
-      setTimeout(() => {
-        if (typeof expire !== 'number') expire = 0
-        if (this.data.has(index)) return observer.error(new Error('Can not store an existed collection'))
-        if (condition) {
-          this.conditionsMap.set(index, condition)
-        }
-        const result = this._storeCollection(index, collection, expire)
-        const destSignal = this._mergeCollectionSignals<T>(index, result)
-        this.signalsMap.set(index, destSignal)
-        observer.next(destSignal)
-      })
-    }).concatMap((x: Rx.Observable<T>) => x)
-  }
-
-  addToCollection<T>(index: string, collectionName: string, data?: T): Rx.Observable<T> {
-    const result: T = data ? data : this.data.get(index)
-    const action: Rx.Observable<void> = Rx.Observable.create((observer: Rx.Observer<void>) => {
-      setTimeout(() => {
-        const datamaps = this.dataMaps.get(index)
-        if (datamaps) {
-          if (datamaps.indexOf(collectionName) === -1) {
-            datamaps.push(collectionName)
-          }
-        }else {
-          this.dataMaps.set(index, [collectionName])
-        }
-        if (this.collectionIndex.has(collectionName)) {
-          const collection = this.data.get(collectionName)
-          collection.push(result)
-          createNewsignal(collectionName, 'set', clone(collection))
-          this.collectionIndex.get(collectionName).push(index)
-        }else {
-          this.collectionIndex.set(collectionName, [index])
-        }
-      })
-      observer.next(null)
-    })
-    if (data) {
-      return action.concatMap(x => {
-        return this.storeOne(index, data)
-      })
-    }else {
-      return action.concatMap(x => {
-        return Rx.Observable.of(clone(result))
-      })
+    unionFlag?: string
+  ): Observable<T[]> {
+    const cache = DataBase.data.get(index)
+    if (cache) {
+      return Observable.throw(new Error(`can not store a existed data: ${cache.getSchemaName()}, ${index}`))
     }
+    return Observable.create((observer: Observer<Observable<T[]>>) => {
+      setTimeout(() => {
+        const signal = new Collection(index, data, schemaName, condition, unionFlag).signal
+        observer.next(signal)
+      })
+    }).concatMap((x: Observable<T[]>) => x)
   }
 
-  removeFromCollection(index: string, collectionName: string): Rx.Observable<void> {
-    return Rx.Observable.create((observer: Rx.Observer<void>) => {
-      setTimeout(() => {
-        const datamaps = this.dataMaps.get(index)
-        if (datamaps) {
-          const pos = datamaps.indexOf(collectionName)
-          if (pos !== -1) {
-            datamaps.splice(pos, 1)
-          }
-        }
-        if (this.collectionIndex.has(collectionName)) {
-          const collectionIndex = this.collectionIndex.get(collectionName)
-          const pos = collectionIndex.indexOf(index)
-          const collection = this.data.get(collectionName)
-          if (pos !== -1) {
-            collection.splice(pos, 1)
-            createNewsignal(collectionName, 'set', clone(collection))
-          }
-          if (pos !== -1) {
-            collectionIndex.splice(pos, 1)
-          }
-        }
+  get<T>(index: string): Observable<T> {
+    return Observable.create((observer: Observer<T>) => {
+      const cache: any = DataBase.data.get(index)
+      if (cache) {
+        cache.observer = observer
+        cache.get().forEach(result => {
+          observer.next(result)
+        })
+      }else {
         observer.next(null)
-      })
+      }
     })
   }
 
-  get<T>(index: string): Rx.Observable<T> {
-    return this.signalsMap.get(index)
+  delete(index: string): Observable<void> {
+    return Observable.create((observer: Observer<Observable<void>>) => {
+      setTimeout(() => {
+        const cache: Model<any> | Collection<any> = DataBase.data.get(index)
+        let signal: Observable<any> = Observable.of(null)
+        if (cache) {
+          if (cache instanceof Model) {
+            this._deleteParents(cache)
+
+            signal = Observable.from([
+              this._deleteChild(cache),
+              this._deleteFromCollections(cache)
+            ])
+              .mergeAll()
+              .skip(1)
+          }else if (cache instanceof Collection) {
+            const schemaName = cache.schemaName
+            if (schemaName) {
+              const collectionName = cache.index
+              const collections = this.schemaMap.get(schemaName)
+              const pos = collections.indexOf(collectionName)
+              collections.splice(pos, 1)
+            }
+            const models = cache.elements
+            forEach(models, modelName => {
+              const model: Model<any> = DataBase.data.get(index)
+              model.removeFromCollection(index)
+            })
+          }
+          DataBase.data.delete(index)
+        }
+        const notify = cache.destroy().notify()
+        const dest = signal.concatMap(x => {
+          return notify
+        })
+        observer.next(dest)
+      })
+    }).concatMap((x: Observable<void>) => x)
   }
 
-  delete(index: string): Rx.Observable<any> {
-    const action = () => {
-      return new Promise<void>(resolve => {
-        setTimeout(() => {
-          this.data.delete(index)
-          const maps = this.dataMaps.get(index)
-          if (!(maps && maps.length)) return resolve(null)
-          forEach(maps, (collectionIndex: string) => {
-            const indexes = this.collectionIndex.get(collectionIndex)
-            const collection = this.data.get(collectionIndex)
-            const position = indexes.indexOf(index)
-            indexes.splice(position, 1)
-            collection.splice(position, 1)
-          })
-          this._deleteFromMaps(index)
-          createNewsignal(index, 'set', null)
-          resolve(null)
-        })
-      })
-    }
+  updateOne <T>(index: string, patch: any): Observable<T> {
+    return Observable.create((observer: Observer<Observable<T>>) => {
+      setTimeout(() => {
+        const model: Model<T> = DataBase.data.get(index)
+        if (!model) {
+          return observer.error(new Error(`Patch target not exist: ${index}`))
+        }
+        const notifySignals = (x: T) => {
+          return Observable.from([
+            this._judgeModel(model),
+            this._notifyCollections(model),
+            this._notifyParents(model)
+          ])
+            .mergeAll()
+            .skip(2)
+            .concatMapTo(Observable.of(x))
+        }
 
-    return createNewsignal(index, 'delete')
-      .concatMap(x => action())
-      .flatMap(x => [null])
-  }
+        const result = model.update(patch)
+          .concatMap(x => notifySignals(x))
 
-  updateOne <T>(index: string, patch: any): Rx.Observable<T> {
-    const action = () => {
-      return new Promise<T>((resolve, reject) => {
-        if (typeof patch !== 'object') return reject(new Error('A patch should be Object'))
-        setTimeout(() => {
-          if (!this.typeIndex.get(index)) return reject(new Error(`Patch target not exist: ${index}`))
-          const val = this.data.get(index)
-          const expire = patch.expire
-          if (typeof expire !== 'undefined') delete patch.expire
-          this.setExpire(index, expire)
-          this.data.set(index, assign(val, patch))
-          this._notifyCollections(index)._notifyParents(index)
-          const result = clone(this.data.get(index))
-          createNewsignal(index, 'set', result)
-          resolve(result)
-        })
+        observer.next(result)
       })
-    }
-    return createNewsignal(index, 'update', patch)
-      .concatMap(x => Rx.Observable.fromPromise(action()))
+    }).concatMap((r: Observable<T>) => r)
   }
 
   /**
    * @param  {string} index 存储索引
    * @param  {T[]} patch  新的列表内容
-   * @return void
+   * @return Observable<T[]>
    */
-  updateCollection<T>(index: string, patch: T[]): Rx.Observable<T[]> {
-    const cache: T[] = this.data.get(index)
-    const action = () => {
-      return new Promise<T[]>((resolve, reject) => {
-        if (!(cache && patch instanceof Array)) return reject(new Error('Patch should be array'))
-        setTimeout(() => {
-          if (!this.typeIndex.get(index)) return reject(new Error(`Patch target not exist: ${index}`))
-          this._updateCollectionEle<T>(index, patch)
-          const result = clone(cache)
-          createNewsignal(index, 'set', result)
-          resolve(result)
-        })
+  updateCollection<T>(index: string, patch: T[]): Observable<T[]> {
+    if (!(patch instanceof Array)) {
+      return Observable.throw(new Error(`Patch must be Array: ${index}`))
+    }
+    const collection: Collection<T> = DataBase.data.get(index)
+    if (!collection) {
+      return Observable.throw(new Error(`Patch target Collection not exist: ${index}`))
+    }
+    return collection.update(patch)
+      .concatMap(x => collection.notify())
+  }
+
+  exist(index: string): Observable<boolean> {
+    return Observable.create((observer: Observer<boolean>) => {
+      setTimeout(() => {
+        observer.next(DataBase.data.has(index))
       })
-    }
-    return createNewsignal(index, 'update', cache)
-      .concatMap(x => action())
-  }
-
-  exist(index: string): Rx.Observable<boolean> {
-    return Rx.Observable.create((observer: Rx.Observer<boolean>) => {
-      observer.next(this.data.has(index))
     })
   }
 
-  clearAll() {
-    this.data.clear()
-    this.timeoutIndex.clear()
-    this.typeIndex.clear()
-    this.collectionIndex.clear()
-    this.dataMaps.clear()
-    this.signalsMap.clear()
-    flushsignals()
-  }
-
-  private setExpire(index: string, expire: number) {
-    if (!expire) return
-    const timer = this.timeoutIndex.has(index) ? this.timeoutIndex.get(index).timer : undefined
-    if (typeof timer !== 'undefined') {
-      clearTimeout(timer)
-    }
-    const timeoutIndex = setTimeout(() => {
-      this.delete(index).subscribe()
-    }, expire)
-    this.timeoutIndex.set(index, {
-      timer: timeoutIndex,
-      begin: Date.now(),
-      expire: expire
-    })
-  }
-
-  private _deleteFromMaps (index: string) {
-    this.dataMaps.delete(index)
-    this.signalsMap.delete(index)
-    this.typeIndex.delete(index)
-    this.timeoutIndex.delete(index)
-    this.collectionIndex.delete(index)
-    this.parentsMap.delete(index)
-    this.conditionsMap.delete(index)
-  }
-
-  private _storeCollection<T>(index: string, collection: T[], expire?: number) {
-    const unionFlag = this.unionFlag
-    const result: T[] = []
-    const indexes: string[] = []
-    forEach(collection, (val, key) => {
-      const cache = this.data.get(val[unionFlag])
-      if (cache) {
-        result.push(assign(cache, val))
-      }else {
-        result.push(val)
-        this.storeOne(val[unionFlag], val)
-      }
-      const maps = this.dataMaps.get(val[unionFlag])
-      if (maps) {
-        maps.push(index)
-      }else {
-        this.dataMaps.set(val[unionFlag], [index])
-      }
-      indexes.push(val[unionFlag])
-    })
-    this.data.set(index, result)
-    this.setExpire(index, expire)
-    this.typeIndex.set(index, 'collection')
-    this.collectionIndex.set(index, indexes)
-    return result
-  }
-
-  private _updateCollectionEle<T>(index: string, patch: any) {
-    const cache: T[] = this.data.get(index)
-    const indexs = this.collectionIndex.get(index)
-    const newSignals: Rx.Observable<T>[] = []
-    const unionFlag = this.unionFlag
-    forEach(patch, (val, key) => {
-      const oldEle = cache[key]
-      if (oldEle && oldEle[unionFlag] === val[unionFlag]) {
-        assign(oldEle, val)
-      }else {
-        const targetId = val[unionFlag]
-        if (indexs.indexOf(targetId) === -1) {
-          cache.splice(key, 0, val)
-          indexs.splice(key, 0, targetId)
-          newSignals.push(this.storeOne(val[unionFlag], val))
-        }else {
-          const oldIndex = indexs.indexOf(targetId, key)
-          const oldOne = cache[oldIndex]
-          cache.splice(oldIndex, 1)
-          indexs.splice(oldIndex, 1)
-          cache.splice(key, 0, assign(oldOne, val))
-          indexs.splice(key, 0, targetId)
-        }
-      }
-    })
-    if (newSignals.length) {
-      Rx.Observable.from(newSignals)
-        .mergeAll()
-        .skip(newSignals.length - 1)
-        .subscribe(r => {
-          createNewsignal(index, 'set', clone(this.data.get(index)))
-        })
-    }
-    return this
-  }
-
-  private _notifyCollections(index: string) {
-    const collections = this.dataMaps.get(index)
-    if (collections) {
-      forEach(collections, collectionName => {
-        const collection: any[] = this.data.get(collectionName)
-        if (collection) {
-          const condition = this.conditionsMap.get(collectionName)
-          const originLength = collection.length
-          if (condition) {
-            forEach(collection, (val, pos) => {
-              if (!condition(val)) {
-                collection.splice(pos, 1)
-              }
-            })
-          }
-          if (collection.length !== originLength) {
-            createNewsignal(collectionName, 'set', clone(collection))
-          }
-        }
-      })
-    }
-    return this
-  }
-
-  private _notifyParents(index: string) {
-    const parents = this.parentsMap.get(index)
-    if (parents) {
+  private _notifyParents<T>(model: Model<T>): Observable<T> {
+    const parents = model.parents
+    const signals: Observable<any>[] = []
+    const length = parents.length
+    if (length) {
       forEach(parents, parent => {
-        createNewsignal(parent, 'set', clone(this.data.get(parent)))
+        const parentModel: Model<any> = DataBase.data.get(parent)
+        const signal = parentModel.get()
+          .concatMap(result => this._notifyParentCollections(parentModel, result))
+        signals.push(signal)
       })
+      return Observable.from(signals)
+        .mergeAll()
+        .skip(length - 1)
     }
-    return this
+    return Observable.of(null)
   }
 
-  private _mergeCollectionSignals <T> (index: string, data: T[]): Rx.Observable<T[]> {
-    const skipLength = data.length
-    const unionFlag = this.unionFlag
-    const signals: Rx.Observable<any>[] = data.map(val => this.signalsMap.get(val[unionFlag]))
-    signals.push(
-      createNewsignal(index, 'set', clone(data))
-    )
-    return Rx.Observable
-      .from(signals)
-      .mergeAll()
-      .skip(skipLength)
-      .concatMap(x => Rx.Observable.of(clone(data)))
+  private _notifyCollections <T> (model: Model<T>): Observable<T[]> {
+    const collections = model.collections
+    const signals: Observable<T[]>[] = []
+    const length = collections.length
+    if (length) {
+      forEach(collections, collectionName => {
+        const collection: Collection<T> = DataBase.data.get(collectionName)
+        const signal = collection.judge(model)
+          .concatMap(judge => {
+            if (judge) {
+              return collection.get()
+            }else {
+              collection.remove(model)
+              return Observable.of(null)
+            }
+          })
+          .concatMap(result => collection.notify())
+        signals.push(signal)
+      })
+      return Observable.from(signals)
+        .mergeAll()
+        .skip(length - 1)
+    }
+    return Observable.of(null)
   }
+
+  private _judgeModel <T> (model: Model<T>): Observable<T[]> {
+    const schemaName = model.getSchemaName()
+    const collections = this.schemaMap.get(schemaName)
+    const length = collections ? collections.length : 0
+    const judgeSignals: Observable<T[]>[] = []
+    if (length) {
+      forEach(collections, collectionName => {
+        const collection: Collection<T> = DataBase.data.get(collectionName)
+        const judgeSignal = collection.judge(model)
+          .concatMap(judge => {
+            if (judge) {
+              if (model.collections.indexOf(collectionName) === -1) {
+                return collection.add(model)
+                  .concatMap(result => collection.notify())
+              }
+            }
+          })
+        judgeSignals.push(judgeSignal)
+      })
+      return Observable.from(judgeSignals)
+        .mergeAll()
+        .skip(length - 1)
+    }
+    return Observable.of(null)
+  }
+
+  private _notifyParentCollections<T>(parentModel: Model<T>, result: T): Observable<T> {
+    return this._notifyCollections(parentModel)
+      .concatMap(x => parentModel.notify())
+  }
+
+  private _deleteParents(model: Model<any>): void {
+    const children = model.children
+    if (children.length) {
+      forEach(children, child => {
+        const childModel: Model<any> = DataBase.data.get(child)
+        childModel.removeParent(model.index)
+      })
+    }
+  }
+
+  private _deleteChild(model: Model<any>): Observable<any> {
+    const parents = model.parents
+    if (parents.length) {
+      const signals: Observable<any>[] = []
+      forEach(parents, parent => {
+        const parentModel: Model<any> = DataBase.data.get(parent)
+        parentModel.removeChild(model.index)
+        signals.push(parentModel.notify())
+      })
+      return Observable.from(signals)
+        .mergeAll()
+        .skip(signals.length - 1)
+    }
+    return Observable.of(null)
+  }
+
+  private _deleteFromCollections(model: Model<any>): Observable<any> {
+    const collections = model.collections
+    if (collections.length) {
+      const signals: Observable<any>[] = []
+      forEach(collections, collectionName => {
+        const collection: Collection<any> = DataBase.data.get(collectionName)
+        collection.remove(model)
+        signals.push(collection.notify())
+      })
+      return Observable.from(signals)
+        .mergeAll()
+        .skip(signals.length - 1)
+    }
+    return Observable.of(null)
+  }
+
 }

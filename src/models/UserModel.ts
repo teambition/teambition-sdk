@@ -5,10 +5,11 @@ import {UserMe, UserEmail} from '../teambition'
 
 export class UserModel extends Model<UserMe> {
 
-  private namespace = 'user:me'
+  private namespace: string
 
   set(data: UserMe): Observable<UserMe> {
-    return this._save(this.namespace, data)
+    this.namespace = data._id
+    return this._save(data)
   }
 
   get(): Observable<UserMe> {

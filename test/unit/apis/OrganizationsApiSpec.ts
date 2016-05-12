@@ -4,7 +4,6 @@ import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
 import {Backend, OrganizationsAPI, clone, apihost} from '../index'
 import {organizations} from '../mock/organizations'
-import {flushDatabase} from '../utils'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -13,7 +12,6 @@ export default describe('Organizations API test', () => {
   let httpBackend: Backend
   const OrganizationAPI = new OrganizationsAPI()
   beforeEach(() => {
-    flushDatabase()
     httpBackend = new Backend()
     httpBackend
     .whenGET(`${apihost}organizations`)

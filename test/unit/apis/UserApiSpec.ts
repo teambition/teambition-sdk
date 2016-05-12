@@ -1,7 +1,6 @@
 'use strict'
 import * as chai from 'chai'
 import {Backend, UserAPI, forEach, clone} from '../index'
-import {flushDatabase} from '../utils'
 import {apihost} from '../index'
 import {userMe} from '../mock/userme'
 
@@ -15,7 +14,6 @@ export default describe('UserAPI test', () => {
   beforeEach(() => {
     User = new UserAPI()
     httpBackend = new Backend()
-    flushDatabase()
     httpBackend.whenGET(`${apihost}users/me`).respond(userMe)
   })
 

@@ -1,6 +1,7 @@
 'use strict'
-import {Schema} from './schema'
+import {Schema, schemaName} from './schema'
 
+@schemaName('Member')
 export default class Member extends Schema {
   _id: string = undefined
   _boundToObjectId: string = undefined

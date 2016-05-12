@@ -1,7 +1,8 @@
 'use strict'
-import {Schema} from './schema'
+import {Schema, schemaName} from './schema'
 import {StageData} from '../teambition'
 
+@schemaName('Tasklist')
 export default class Tasklist extends Schema {
   _id: string = undefined
   title: string = undefined

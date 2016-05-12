@@ -10,7 +10,7 @@ export class MemberAPI {
 
   deleteMember(memberId: string): Rx.Observable<void> {
     return Rx.Observable.fromPromise(memberFetch.deleteMember(memberId))
-      .concatMap(x => MemberModel.removeMember(memberId))
+      .concatMap(x => MemberModel.delete(memberId))
   }
 
   getOrgMembers (organizationId: string): Rx.Observable<Member[]> {

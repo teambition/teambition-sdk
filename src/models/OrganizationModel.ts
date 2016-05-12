@@ -17,7 +17,7 @@ export class OrganizationModel extends Model<OrganizationData> {
   }
 
   set(data: OrganizationData): Observable<OrganizationData> {
-    return this._save<OrganizationData>(data._id, data)
+    return this._save<OrganizationData>(data)
   }
 }
 
