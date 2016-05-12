@@ -1,6 +1,7 @@
 'use strict'
-import {Schema} from './schema'
+import {Schema, schemaName} from './schema'
 
+@schemaName('Project')
 export default class Project extends Schema {
   _id: string = undefined
   name: string = undefined

@@ -1,17 +1,19 @@
 'use strict'
 import {Observable} from 'rxjs'
-import Model from './model'
+import Model from './BaseModel'
 import {UserMe, UserEmail} from '../teambition'
 
-export class UserModel extends Model<UserMe> {
+export default class UserModel extends Model<UserMe> {
 
-  private namespace = 'user:me'
+  private namespace: string
 
   set(data: UserMe): Observable<UserMe> {
-    return this._save(this.namespace, data)
+    this.namespace = data._id
+    return this._save(data)
   }
 
   get(): Observable<UserMe> {
+    if (!this.namespace) return
     return this._get<UserMe>(this.namespace)
   }
 
@@ -25,5 +27,3 @@ export class UserModel extends Model<UserMe> {
     })
   }
 }
-
-export default new UserModel()

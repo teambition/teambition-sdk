@@ -1,8 +1,9 @@
 'use strict'
-import {Schema} from './schema'
+import {Schema, schemaName} from './schema'
 import Subtask from './Subtask'
 import {Executor, visibility} from '../teambition'
 
+@schemaName('Task')
 export default class Task extends Schema {
   _id: string = undefined
   _creatorId: string = undefined

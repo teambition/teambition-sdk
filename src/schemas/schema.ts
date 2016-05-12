@@ -49,3 +49,11 @@ export class Schema {
   $$keys = new Set<string>()
   $$data: any
 }
+
+export function schemaName (name: string) {
+  return function(target: any) {
+    target.prototype.getSchemaName = function () {
+      return name
+    }
+  }
+}

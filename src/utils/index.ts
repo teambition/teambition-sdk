@@ -34,10 +34,10 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
   }
 }
 
-export const assign = <T, U>(target: T, origin: U): T & U => {
-  if (typeof origin !== 'object' || !origin) return
-  forEach(origin, (val, key) => {
-    target[key] = origin[key]
+export const assign = <T, U>(target: T, patch: U): T & U => {
+  if (typeof patch !== 'object' || !patch) return
+  forEach(patch, (val, key) => {
+    target[key] = patch[key]
   })
   return <T & U>target
 }

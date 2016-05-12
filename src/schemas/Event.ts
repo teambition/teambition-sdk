@@ -1,6 +1,7 @@
 'use strict'
-import {Schema} from './schema'
+import {Schema, schemaName} from './schema'
 
+@schemaName('Event')
 export default class Event extends Schema {
   _id: string = undefined
   endDate: string = undefined
