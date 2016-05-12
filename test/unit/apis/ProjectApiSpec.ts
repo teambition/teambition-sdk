@@ -7,11 +7,13 @@ import {expectDeepEqual, notInclude} from '../utils'
 
 const expect = chai.expect
 
-const Project = new ProjectsAPI()
 
 export default describe('Project API test', () => {
   let httpBackend: Backend
+  let Project: ProjectsAPI
+
   beforeEach(() => {
+    Project = new ProjectsAPI()
     httpBackend = new Backend()
     httpBackend
       .whenGET(`${apihost}projects`)
@@ -20,11 +22,13 @@ export default describe('Project API test', () => {
 
   it('get projects should ok', done => {
 
-    Project.getAll()
+    const sub = Project.getAll()
       .subscribe(projects => {
         expect(projects).to.be.instanceof(Array)
         done()
+        sub.unsubscribe()
       })
+
     httpBackend.flush()
   })
 
@@ -43,10 +47,11 @@ export default describe('Project API test', () => {
         }
       ]))
 
-    Project.getOrgs('test')
+    const sub = Project.getOrgs('test')
       .subscribe(r => {
         expect(r).to.be.instanceof(Array)
         done()
+        sub.unsubscribe()
       })
 
     httpBackend.flush()
@@ -55,20 +60,11 @@ export default describe('Project API test', () => {
   it('get one project should ok', done => {
     const project = projects[0]
     httpBackend.whenGET(`${apihost}projects/${project._id}`)
-      .respond(clone(projects[0]))
-
-    let result: any
-
-    const getAll = Project.getAll()
-      .subscribe(r => {
-        result = r
-        getAll.unsubscribe()
-      })
+      .respond(JSON.stringify(projects[0]))
 
     Project.getOne(project._id)
-      .subscribeOn(Rx.Scheduler.async, 200)
       .subscribe(r => {
-        expect(JSON.stringify(r)).to.equal(JSON.stringify(result[0]))
+        expectDeepEqual(r, projects[0])
         done()
       })
 
@@ -96,8 +92,8 @@ export default describe('Project API test', () => {
       Project.create({
         name: 'test project'
       })
-      .subscribeOn(Rx.Scheduler.async, 200)
-      .subscribe()
+        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribe()
 
     httpBackend.flush()
   })
@@ -124,7 +120,7 @@ export default describe('Project API test', () => {
     Project.update(project._id, {
       name: 'test project'
     })
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -146,7 +142,7 @@ export default describe('Project API test', () => {
       })
 
     Project.delete(project._id)
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -157,7 +153,11 @@ export default describe('Project API test', () => {
     const length = projects.length
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}/archive`)
-      .respond({})
+      .respond({
+        _id: project._id,
+        isArchived: true,
+        updated: new Date().toISOString()
+      })
 
     Project.getAll()
       .skip(1)
@@ -168,7 +168,7 @@ export default describe('Project API test', () => {
       })
 
     Project.archive(project._id)
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -192,7 +192,7 @@ export default describe('Project API test', () => {
       })
 
     Project.clearUnreadCount(project._id)
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -221,7 +221,7 @@ export default describe('Project API test', () => {
     Project.copy(project._id, {
       name: 'teambition project copy test'
     })
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -249,7 +249,7 @@ export default describe('Project API test', () => {
       })
 
     Project.join('03a9f4')
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -271,7 +271,7 @@ export default describe('Project API test', () => {
       })
 
     Project.quit(project._id)
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -299,7 +299,7 @@ export default describe('Project API test', () => {
       })
 
     Project.setDefaultRole(project._id, project._roleId + 1)
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -327,7 +327,7 @@ export default describe('Project API test', () => {
       })
 
     Project.star(project._id)
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
     httpBackend.flush()
@@ -354,7 +354,7 @@ export default describe('Project API test', () => {
       })
 
     Project.transfer(project._id, 'test')
-      .subscribeOn(Rx.Scheduler.async, 200)
+      .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
 
 

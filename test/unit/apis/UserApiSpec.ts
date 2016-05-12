@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
-import {Backend, UserAPI, forEach, clone} from '../index'
-import {apihost} from '../index'
+import * as Rx from 'rxjs'
+import {Backend, UserAPI, forEach, clone, apihost} from '../index'
 import {userMe} from '../mock/userme'
 
 const expect = chai.expect
@@ -14,17 +14,18 @@ export default describe('UserAPI test', () => {
   beforeEach(() => {
     User = new UserAPI()
     httpBackend = new Backend()
-    httpBackend.whenGET(`${apihost}users/me`).respond(userMe)
+    httpBackend.whenGET(`${apihost}users/me`).respond(JSON.stringify(userMe))
   })
 
   it('get user me should ok', done => {
     User.getUserMe()
-    .subscribe(data => {
-      forEach(userMe, (value: any, key: string) => {
-        expect(userMe[key]).deep.equal(data[key])
+      .subscribe(data => {
+        forEach(userMe, (value: any, key: string) => {
+          expect(userMe[key]).deep.equal(data[key])
+        })
+        done()
       })
-      done()
-    })
+
     httpBackend.flush()
   })
 
@@ -33,24 +34,22 @@ export default describe('UserAPI test', () => {
     mockPut.name = 'test'
 
     httpBackend
-    .whenPUT(`${apihost}users`, {
-      name: 'test'
-    }).respond(mockPut)
+      .whenPUT(`${apihost}users`, {
+        name: 'test'
+      }).respond(JSON.stringify(mockPut))
 
     const get = User.getUserMe()
-    const update = User.update({
-      name: 'test'
-    })
 
-    get.concatMap(x => {
-      expect(x.name).to.equal(userMe.name)
-      return update
-    })
-    .concatMap(x => get)
-    .subscribe(r => {
-      expect(r.name).to.equal('test')
-      done()
-    })
+    get.skip(1)
+      .subscribe(r => {
+        expect(r.name).to.equal('test')
+        done()
+      })
+
+    User.update({
+      name: 'test'
+    }).subscribeOn(Rx.Scheduler.async, 20)
+      .subscribe()
 
     httpBackend.flush()
 

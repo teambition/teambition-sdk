@@ -9,32 +9,34 @@ export default class Model<T> {
   public children: string[] = []
   public signal: Observable<T>
   public index: string
-  public observer: Observer<T>
+  public observers: Observer<T>[] = []
 
   private _childIndexes: string[] = []
 
-  constructor(private data: T, private _unionFlag = '_id') {
+  constructor(public data: T, private _unionFlag = '_id') {
     const index = this.index = this.data[this._unionFlag]
     forEach(data, (val: any, key: string) => {
-      const flag = val[_unionFlag]
-      if (val instanceof Array && val.length) {
-        forEach(val, (ele: any, pos: number) => {
-          const _flag = ele[_unionFlag]
-          if (_flag) {
-            const subModel = new Model(ele, _unionFlag)
-            const route = {
-              key: key,
-              pos: pos
+      if (val) {
+        const flag = val[_unionFlag]
+        if (val instanceof Array && val.length) {
+          forEach(val, (ele: any, pos: number) => {
+            const _flag = ele[_unionFlag]
+            if (_flag) {
+              const subModel = new Model(ele, _unionFlag)
+              const route = {
+                key: key,
+                pos: pos
+              }
+              subModel.addParent(index)
+              this.addChildren(_flag, route)
             }
-            subModel.addParent(index)
-            this.addChildren(_flag, route)
-          }
-        })
-      } else if (typeof flag !== 'undefined') {
-        const subModel = new Model(val, _unionFlag)
-        const route = key
-        subModel.addParent(index)
-        this.addChildren(flag, route)
+          })
+        } else if (typeof flag !== 'undefined') {
+          const subModel = new Model(val, _unionFlag)
+          const route = key
+          subModel.addParent(index)
+          this.addChildren(flag, route)
+        }
       }
     })
     this.signal = this.get()
@@ -52,10 +54,10 @@ export default class Model<T> {
 
   update(patch: any): Observable<T> {
     return Observable.create((observer: Observer<T>) => {
-      if (typeof patch !== 'object') {
-        return observer.error(new Error('A patch should be Object'))
-      }
       setTimeout(() => {
+        if (typeof patch !== 'object') {
+          return observer.error(new Error('A patch should be Object'))
+        }
         this.data = assign(this.data, patch)
         const result = clone(this.data)
         observer.next(result)
@@ -67,8 +69,10 @@ export default class Model<T> {
     return Observable.create((observer: Observer<T>) => {
       setTimeout(() => {
         const result = clone(this.data)
-        if (this.observer) {
-          this.observer.next(result)
+        if (this.observers.length) {
+          forEach(this.observers, observer => {
+            observer.next(result)
+          })
         }
         observer.next(result)
       })
@@ -76,7 +80,7 @@ export default class Model<T> {
   }
 
   getSchemaName(): string {
-    if (this.data && this.data['getSchemaName']) {
+    if (this.data && typeof this.data['getSchemaName'] === 'function') {
       return this.data['getSchemaName']()
     }else {
       return null

@@ -6,6 +6,10 @@ export default class Model<T> {
 
   public static DataBase = new DataBase()
 
+  constructor() {
+    Model.DataBase = new DataBase()
+  }
+
   public exist (namespace: string): Rx.Observable<boolean> {
     return Model.DataBase.exist(namespace)
   }
@@ -24,7 +28,7 @@ export default class Model<T> {
   }
 
   protected _get<T>(index: string): Rx.Observable<T> {
-    return Model.DataBase.get<T>(index)
+    return DataBase.data.get(index) ? Model.DataBase.get<T>(index) : null
   }
 
   protected _update<T>(namespace: string, patch: any): Rx.Observable<T> {

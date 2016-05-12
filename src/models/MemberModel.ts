@@ -1,10 +1,10 @@
 'use strict'
 import {Observable} from 'rxjs'
-import BaseModel from './model'
+import BaseModel from './BaseModel'
 import {datasToSchemas} from '../utils/index'
 import Member from '../schemas/Member'
 
-export class MemberModel extends BaseModel<Member> {
+export default class MemberModel extends BaseModel<Member> {
 
   private _schemaName = 'Member'
 
@@ -30,5 +30,3 @@ export class MemberModel extends BaseModel<Member> {
     return this._get<Array<Member>>(`organization:members/${organizationId}`)
   }
 }
-
-export default new MemberModel()

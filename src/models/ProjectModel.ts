@@ -1,10 +1,10 @@
 'use strict'
 import {Observable} from 'rxjs'
-import BaseModel from './Model'
+import BaseModel from './BaseModel'
 import {datasToSchemas, dataToSchema} from '../utils/index'
 import Project from '../schemas/Project'
 
-export class ProjectModel extends BaseModel<Project> {
+export default class ProjectModel extends BaseModel<Project> {
 
   private _schemaName = 'Project'
 
@@ -29,7 +29,8 @@ export class ProjectModel extends BaseModel<Project> {
   }
 
   addProject(project: Project): Observable<Project> {
-    return this._save(project)
+    const result = dataToSchema<Project, Project>(project, Project)
+    return this._save(result)
   }
 
   getProjects(): Observable<Project[]> {
@@ -57,5 +58,3 @@ export class ProjectModel extends BaseModel<Project> {
   }
 
 }
-
-export default new ProjectModel()

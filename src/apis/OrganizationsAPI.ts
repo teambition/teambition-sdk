@@ -8,17 +8,23 @@ const organizationFetch = new OrganizationFetch()
 
 export class OrganizationsAPI {
 
+  private OrganizationModel: OrganizationModel
+
+  constructor() {
+    this.OrganizationModel = new OrganizationModel()
+  }
+
   getOrgs (): Observable<OrganizationData[]> {
-    const get = OrganizationModel.getAll()
+    const get = this.OrganizationModel.getAll()
     if (get) return get
     return Observable.fromPromise(organizationFetch.getOrgs())
-      .concatMap(x => OrganizationModel.saveAll(x))
+      .concatMap(x => this.OrganizationModel.saveAll(x))
   }
 
   getOne (organizationId: string): Observable<OrganizationData> {
-    const get = OrganizationModel.get(organizationId)
+    const get = this.OrganizationModel.get(organizationId)
     if (get) return get
     return Observable.fromPromise(organizationFetch.getOne(organizationId))
-      .concatMap(x => OrganizationModel.set(x))
+      .concatMap(x => this.OrganizationModel.set(x))
   }
 }

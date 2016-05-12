@@ -1,5 +1,5 @@
 'use strict'
-import {Observable} from 'rxjs'
+import {Observable, Observer} from 'rxjs'
 import {UserFetch} from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
 import {UserMe} from '../teambition'
@@ -8,26 +8,37 @@ const userFetch = new UserFetch()
 
 export class UserAPI {
 
+  private UserModel: UserModel
+
+  constructor() {
+    this.UserModel = new UserModel()
+  }
+
   getUserMe(): Observable<UserMe> {
-    const get = UserModel.get()
+    const get = this.UserModel.get()
     if (get) return get
     return Observable.fromPromise(userFetch.getUserMe())
-      .concatMap(userMe => UserModel.set(userMe))
+      .concatMap(userMe => this.UserModel.set(userMe))
   }
 
   update(patch: any): Observable<any> {
-    if (!patch || !patch.name) return Observable.throw(new Error('User name is required'))
-    return Observable.fromPromise(userFetch.update(patch))
-      .concatMap(x => UserModel.update(x))
+    return Observable.create((observer: Observer<any>) => {
+      if (!patch || !patch.name) {
+        return observer.error(new Error('User name is required'))
+      }
+      Observable.fromPromise(userFetch.update(patch))
+        .concatMap(x => this.UserModel.update(x))
+        .forEach(result => observer.next(result))
+    })
   }
 
   addEmail(email: string): Observable<void> {
     return Observable.fromPromise(userFetch.addEmail(email))
-      .concatMap(x => UserModel.updateEmail(x))
+      .concatMap(x => this.UserModel.updateEmail(x))
   }
 
   bindPhone(phone: string, vcode: string): Observable<void> {
     return Observable.fromPromise(userFetch.bindPhone(phone, vcode))
-      .concatMap(x => UserModel.update(x))
+      .concatMap(x => this.UserModel.update(x))
   }
 }
