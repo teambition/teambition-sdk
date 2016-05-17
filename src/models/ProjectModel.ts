@@ -4,7 +4,7 @@ import BaseModel from './BaseModel'
 import {datasToSchemas, dataToSchema} from '../utils/index'
 import Project from '../schemas/Project'
 
-export default class ProjectModel extends BaseModel<Project> {
+export class ProjectModel extends BaseModel<Project> {
 
   private _schemaName = 'Project'
 
@@ -49,12 +49,10 @@ export default class ProjectModel extends BaseModel<Project> {
     return this._get<Project[]>('archives:projects')
   }
 
-  update(project: Project): Observable<Project> {
-    return this._update<Project>(project._id, project)
-  }
-
-  delete(_id: string): Observable<void> {
-    return this._delete(_id)
+  update(project: any): Observable<Project> {
+    return super.update<Project>(project._id, project)
   }
 
 }
+
+export default new ProjectModel()

@@ -6,12 +6,12 @@ export default class Model<T> {
 
   public static DataBase = new DataBase()
 
-  constructor() {
-    Model.DataBase = new DataBase()
+  delete(namespace: string): Rx.Observable<void> {
+    return Model.DataBase.delete(namespace)
   }
 
-  public exist (namespace: string): Rx.Observable<boolean> {
-    return Model.DataBase.exist(namespace)
+  update<T>(namespace: string, patch: any): Rx.Observable<T> {
+    return Model.DataBase.updateOne<T>(namespace, patch)
   }
 
   protected _save<T>(data: T): Rx.Observable<T> {
@@ -31,15 +31,8 @@ export default class Model<T> {
     return DataBase.data.get(index) ? Model.DataBase.get<T>(index) : null
   }
 
-  protected _update<T>(namespace: string, patch: any): Rx.Observable<T> {
-    return Model.DataBase.updateOne<T>(namespace, patch)
-  }
-
   protected _updateCollection<T>(namespace: string, patch: any): Rx.Observable<T[]> {
     return Model.DataBase.updateCollection<T>(namespace, patch)
   }
 
-  protected _delete(namespace: string): Rx.Observable<void> {
-    return Model.DataBase.delete(namespace)
-  }
 }

@@ -4,7 +4,7 @@ import BaseModel from './BaseModel'
 import {datasToSchemas} from '../utils/index'
 import Member from '../schemas/Member'
 
-export default class MemberModel extends BaseModel<Member> {
+export class MemberModel extends BaseModel<Member> {
 
   private _schemaName = 'Member'
 
@@ -17,10 +17,6 @@ export default class MemberModel extends BaseModel<Member> {
     return this._get<Array<Member>>(`project:members/${projectId}`)
   }
 
-  delete(memberId: string): Observable<void> {
-    return this._delete(memberId)
-  }
-
   saveOrgMembers(organizationId: string, members: Member[]): Observable<Member[]> {
     const result = datasToSchemas<Member, Member>(members, Member)
     return this._saveCollection(`organization:members/${organizationId}`, result, this._schemaName)
@@ -30,3 +26,5 @@ export default class MemberModel extends BaseModel<Member> {
     return this._get<Array<Member>>(`organization:members/${organizationId}`)
   }
 }
+
+export default new MemberModel()

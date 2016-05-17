@@ -3,7 +3,7 @@ import * as Rx from 'rxjs'
 import * as chai from 'chai'
 import {Backend, ProjectsAPI, apihost, clone, assign} from '../index'
 import {projects} from '../mock/projects'
-import {expectDeepEqual, notInclude} from '../utils'
+import {expectDeepEqual, notInclude, flush} from '../utils'
 
 const expect = chai.expect
 
@@ -13,6 +13,7 @@ export default describe('Project API test', () => {
   let Project: ProjectsAPI
 
   beforeEach(() => {
+    flush()
     Project = new ProjectsAPI()
     httpBackend = new Backend()
     httpBackend

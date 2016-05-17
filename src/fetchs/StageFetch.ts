@@ -3,12 +3,19 @@ import Fetch from './base'
 import Stage from '../schemas/Stage'
 import Task from '../schemas/Task'
 
+export interface StageCreateData {
+  name: string
+  _tasklistId: string
+  _prevId: string
+}
+
+export interface StageUpdateData {
+  name?: string
+  isLocked?: boolean
+}
+
 export class StageFetch extends Fetch {
-  create(stageData: {
-    name: string
-    _tasklistId: string
-    _prevId: string
-  }): Promise<Stage> {
+  create(stageData: StageCreateData): Promise<Stage> {
     return this.fetch.post(`stages`, stageData)
   }
 
@@ -17,13 +24,10 @@ export class StageFetch extends Fetch {
   get(_tasklistId: string, stageId: string): Promise<Stage>
 
   get(_tasklistId: string, stageId?: string) {
-    return this.fetch.get(`tasklists/${_tasklistId}/stages/${stageId}`)
+    return this.fetch.get(`tasklists/${_tasklistId}/stages${stageId ? '/' + stageId : ''}`)
   }
 
-  update(_id: string, updateData: {
-    name?: string
-    isLocked?: boolean
-  }): Promise<{
+  update(_id: string, updateData: StageUpdateData): Promise<{
     _id: string
     name?: string
     isLocked?: boolean
