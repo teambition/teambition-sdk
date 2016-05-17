@@ -3,7 +3,7 @@ import Fetch from './base'
 import Stage from '../schemas/Stage'
 import Task from '../schemas/Task'
 
-class StageFetch extends Fetch {
+export class StageFetch extends Fetch {
   create(stageData: {
     name: string
     _tasklistId: string

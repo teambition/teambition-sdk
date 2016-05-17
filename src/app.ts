@@ -4,6 +4,14 @@ export const Utils = {forEach, assign, clone, uuid}
 export * from './utils/Fetch'
 export * from './teambition'
 
+export { default as EventSchema } from './schemas/Event'
+export { default as MemberSchema } from './schemas/Member'
+export { default as MySubtaskSchema } from './schemas/MySubtask'
+export { default as StageSchema } from './schemas/Stage'
+export { default as ProjectSchema } from './schemas/Project'
+export { default as TaskSchema } from './schemas/Task'
+export { default as TasklistSchema } from './schemas/Tasklist'
+
 // export fetchs
 
 export * from './fetchs/MemberFetch'

@@ -156,8 +156,8 @@ export default class Collection <T> {
   destroy(): Collection<T> {
     forEach(this._data, (ele, pos) => {
       this._data.splice(pos, 1)
-      this.elements = []
     })
+    this.elements = []
     return this
   }
 
