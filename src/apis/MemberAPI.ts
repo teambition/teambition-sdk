@@ -8,30 +8,28 @@ const memberFetch = new MemberFetch()
 
 export class MemberAPI {
 
-  private MemberModel: MemberModel
-
-  constructor() {
-    this.MemberModel = new MemberModel()
-  }
-
   deleteMember(memberId: string): Rx.Observable<void> {
     return Rx.Observable.fromPromise(memberFetch.deleteMember(memberId))
-      .concatMap(x => this.MemberModel.delete(memberId))
+      .concatMap(x => MemberModel.delete(memberId))
   }
 
   getOrgMembers (organizationId: string): Rx.Observable<Member[]> {
-    const get = this.MemberModel.getOrgMembers(organizationId)
-    if (get) return get
+    const get = MemberModel.getOrgMembers(organizationId)
+    if (get) {
+      return get
+    }
     return Rx.Observable
       .fromPromise(memberFetch.getOrgMembers(organizationId))
-      .concatMap(x => this.MemberModel.saveOrgMembers(organizationId, x))
+      .concatMap(x => MemberModel.saveOrgMembers(organizationId, x))
   }
 
   getProjectMembers(projectId: string): Rx.Observable<Member[]> {
-    const get = this.MemberModel.getProjectMembers(projectId)
-    if (get) return get
+    const get = MemberModel.getProjectMembers(projectId)
+    if (get) {
+      return get
+    }
     return Rx.Observable
       .fromPromise(memberFetch.getProjectMembers(projectId))
-      .concatMap(x => this.MemberModel.saveProjectMembers(projectId, x))
+      .concatMap(x => MemberModel.saveProjectMembers(projectId, x))
   }
 }

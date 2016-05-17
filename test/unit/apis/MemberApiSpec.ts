@@ -4,7 +4,7 @@ import * as Rx from 'rxjs'
 import {MemberAPI, Backend, apihost, clone} from '../index'
 import {members} from '../mock/members'
 import {organizations} from '../mock/organizations'
-import {notInclude} from '../utils'
+import {notInclude, flush} from '../utils'
 
 const expect = chai.expect
 
@@ -12,6 +12,7 @@ export default describe('member api test', () => {
   let Member: MemberAPI
   let httpBackend: Backend
   beforeEach(() => {
+    flush()
     Member = new MemberAPI()
     httpBackend = new Backend()
     httpBackend

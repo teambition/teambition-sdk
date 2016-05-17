@@ -27,48 +27,43 @@ export type JSONObj = {
 
 export class ProjectsAPI {
 
-  private ProjectModel: ProjectModel
-
-  constructor() {
-    this.ProjectModel = new ProjectModel()
-  }
 
   getAll(querys?: JSONObj): Observable<Project[]> {
-    const get = this.ProjectModel.getProjects()
+    const get = ProjectModel.getProjects()
     if (get) return get
     return Observable.fromPromise(projectFetch.getAll(querys))
-      .concatMap(projects => this.ProjectModel.addProjects(projects))
+      .concatMap(projects => ProjectModel.addProjects(projects))
   }
 
   getOrgs(_organizationId: string): Observable<Project[]> {
-    const get = this.ProjectModel.getOrgProjects(_organizationId)
+    const get = ProjectModel.getOrgProjects(_organizationId)
     if (get) return get
     return Observable.fromPromise(projectFetch.getAll({
       _organizationId: _organizationId
     }))
-      .concatMap(projects => this.ProjectModel.addOrgsProjects(_organizationId, projects))
+      .concatMap(projects => ProjectModel.addOrgsProjects(_organizationId, projects))
   }
 
   getOne(_id: string, querys?: JSONObj): Observable<Project> {
-    const get = this.ProjectModel.getOne(_id)
+    const get = ProjectModel.getOne(_id)
     if (get) return get
     return Observable.fromPromise(projectFetch.getOne(_id, querys))
-      .concatMap(project => this.ProjectModel.addProject(project))
+      .concatMap(project => ProjectModel.addProject(project))
   }
 
   getArchives(): Observable<Project[]> {
-    const get = this.ProjectModel.getArchivesProjects()
+    const get = ProjectModel.getArchivesProjects()
     if (get) return get
     return Observable.fromPromise(projectFetch.getAll({
       isArchived: true
     }))
-      .concatMap(projects => this.ProjectModel.addArchivesProjects(projects))
+      .concatMap(projects => ProjectModel.addArchivesProjects(projects))
   }
 
   create(projectInfo: ProjectCreateOptions): Observable<Project> {
     return Observable.create((observer: Observer<Project>) => {
       Observable.fromPromise(projectFetch.create(projectInfo))
-        .concatMap(project => this.ProjectModel.addProject(project))
+        .concatMap(project => ProjectModel.addProject(project))
         .forEach(res => observer.next(res))
     })
   }
@@ -76,7 +71,7 @@ export class ProjectsAPI {
   update(_id: string, updateInfo: ProjectUpdateOptions): Observable<any> {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(projectFetch.update(_id, updateInfo))
-        .concatMap(project => this.ProjectModel.update(project))
+        .concatMap(project => ProjectModel.update(project))
         .forEach(x => observer.next(x))
     })
   }
@@ -84,7 +79,7 @@ export class ProjectsAPI {
   delete(_id: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
       Observable.fromPromise(projectFetch.delete(_id))
-        .concatMap(x => this.ProjectModel.delete(_id))
+        .concatMap(x => ProjectModel.delete(_id))
         .forEach(x => observer.next(null))
     })
   }
@@ -92,17 +87,17 @@ export class ProjectsAPI {
   archive(_id: string): Observable<Project> {
     return Observable.create((observer: Observer<Project>) => {
       Observable.fromPromise(projectFetch.archive(_id))
-        .concatMap(x => this.ProjectModel.update(<any>{
+        .concatMap(x => ProjectModel.update(<any>{
           _id: _id,
           isArchived: x.isArchived
         }))
-        .forEach(x => observer.next(x))
+        .forEach(x => observer.next(<Project>x))
     })
   }
 
   clearUnreadCount(_id: string): Observable<any> {
     return Observable.fromPromise(projectFetch.clearUnreadCount(_id))
-      .concatMap(x => this.ProjectModel.update(<any>{
+      .concatMap(x => ProjectModel.update(<any>{
         _id: _id,
         unreadCount: 0
       }))
@@ -110,7 +105,7 @@ export class ProjectsAPI {
 
   copy(_id: string, copyInfo: ProjectCopyOptions): Observable<Project> {
     return Observable.fromPromise(projectFetch.copy(_id, copyInfo))
-      .concatMap(project => this.ProjectModel.addProject(project))
+      .concatMap(project => ProjectModel.addProject(project))
   }
 
   createdInProject(_id: string, querys?: JSONObj): Observable<CreatedInProject> {
@@ -164,7 +159,7 @@ export class ProjectsAPI {
 
   quit(_id: string, _ownerId?: string): Observable<void> {
     return Observable.fromPromise(projectFetch.quit(_id, _ownerId))
-      .concatMap(x => this.ProjectModel.delete(_id))
+      .concatMap(x => ProjectModel.delete(_id))
   }
 
   getRecommendMembers(_id: string, querys?: JSONObj): Observable<RecommendMember> {
@@ -181,12 +176,12 @@ export class ProjectsAPI {
 
   setDefaultRole (_id: string, _roleId?: number): Observable<Project> {
     return Observable.fromPromise(projectFetch.setDefaultRole(_id, _roleId))
-      .concatMap(x => this.ProjectModel.update(<any>x))
+      .concatMap(x => ProjectModel.update(x))
   }
 
   star(_id: string): Observable<Project> {
     return Observable.fromPromise(projectFetch.star(_id))
-      .concatMap(x => this.ProjectModel.update(<any>x))
+      .concatMap(x => ProjectModel.update(<any>x))
   }
 
   getStatistic (_id: string, query?: {
@@ -201,7 +196,7 @@ export class ProjectsAPI {
     updated: string
   }> {
     return Observable.fromPromise(projectFetch.transfer(_id, organizationId))
-      .concatMap(x => this.ProjectModel.update(<any>{
+      .concatMap(x => ProjectModel.update(<any>{
         _organizationId: x._organizationId,
         _id: _id
       }))

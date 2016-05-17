@@ -28,15 +28,20 @@ export default class DataBase {
           return observer.error(new Error(`Can not store an none object data`))
         }
         const index = data[unionFlag]
-        const cache = DataBase.data.get(index)
+        const cache: Model<T> = DataBase.data.get(index)
         if (cache) {
-          return observer.error(new Error(`Can not store a existed data: ${cache.getSchemaName()}, ${index}`))
+          cache.observers.push(observer)
+          cache.update(data)
+            .concatMap(x => this._judgeModel(cache))
+            .concatMap(x => cache.get())
+            .forEach(result => observer.next(result))
+        }else {
+          const model = new Model(data, unionFlag)
+          model.observers.push(observer)
+          this._judgeModel(model)
+            .concatMap(x => model.get())
+            .forEach(result => observer.next(result))
         }
-        const model = new Model(data, unionFlag)
-        model.observers.push(observer)
-        this._judgeModel(model)
-          .concatMap(x => model.get())
-          .forEach(result => observer.next(result))
       })
     })
   }
@@ -78,9 +83,7 @@ export default class DataBase {
       const cache: any = DataBase.data.get(index)
       if (cache) {
         cache.observers.push(observer)
-        cache.get().forEach((result: T) => {
-          observer.next(result)
-        })
+        observer.next(cache.data)
       }else {
         observer.next(null)
       }
@@ -134,10 +137,12 @@ export default class DataBase {
       setTimeout(() => {
         const model: Model<T> = DataBase.data.get(index)
         if (!model) {
-          return observer.error(new Error(`Patch target not exist: ${index}`))
+          const err = new Error(`Patch target not exist: ${index}`)
+          return observer.error(err)
         }
         if (!(model instanceof Model)) {
-          return observer.error(new Error(`Patch target mush be instanceof Model: ${model.index}`))
+          const err = new Error(`Patch target mush be instanceof Model: ${model.index}`)
+          return observer.error(err)
         }
         model.update(patch)
           .concatMap(x => this._notifySignals(model, x))
@@ -156,16 +161,13 @@ export default class DataBase {
    * @return Observable<T[]>
    */
   updateCollection<T>(index: string, patch: T[]): Observable<T[]> {
-    return Observable.create((observer: Observer<Observable<T[]>>) => {
+    return Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
         if (!(patch instanceof Array)) {
           observer.error(new Error(`Patch must be Array: ${index}`))
         }
         const collection: Collection<T> = DataBase.data.get(index)
-        if (!collection) {
-          observer.error(new Error(`Patch target Collection not exist: ${index}`))
-        }
-        const dest = collection.update(patch)
+        collection.update(patch)
           .concatMap(x => {
             if (collection.observers.length) {
               return collection.notify()
@@ -173,17 +175,15 @@ export default class DataBase {
               return collection.get()
             }
           })
-        observer.next(dest)
-      })
-    }).concatMap((x: Observable<T[]>) => x)
-  }
-
-  exist(index: string): Observable<boolean> {
-    return Observable.create((observer: Observer<boolean>) => {
-      setTimeout(() => {
-        observer.next(DataBase.data.has(index))
+          .forEach(dest => observer.next(dest))
       })
     })
+  }
+
+  flush() {
+    DataBase.data.clear()
+    this._schemaMap.clear()
+    this._getSignalMap.clear()
   }
 
   private _notifyParents<T>(model: Model<T>): Observable<T> {
@@ -195,6 +195,7 @@ export default class DataBase {
         const parentModel: Model<any> = DataBase.data.get(parent)
         const signal = parentModel.get()
           .concatMap(result => this._notifyParentCollections(parentModel))
+          .concatMap(result => this._notifyParents(parentModel))
         signals.push(signal)
       })
       return Observable.from(signals)

@@ -3,7 +3,7 @@ import {Observable} from 'rxjs'
 import Model from './BaseModel'
 import {OrganizationData} from '../teambition'
 
-export default class OrganizationModel extends Model<OrganizationData> {
+export class OrganizationModel extends Model<OrganizationData> {
   getAll(): Observable<Array<OrganizationData>> {
     return this._get<OrganizationData[]>('organization')
   }
@@ -20,3 +20,5 @@ export default class OrganizationModel extends Model<OrganizationData> {
     return this._save<OrganizationData>(data)
   }
 }
+
+export default new OrganizationModel()

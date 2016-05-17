@@ -3,7 +3,7 @@ import {Observable} from 'rxjs'
 import Model from './BaseModel'
 import {UserMe, UserEmail} from '../teambition'
 
-export default class UserModel extends Model<UserMe> {
+export class UserModel extends Model<UserMe> {
 
   private namespace: string
 
@@ -17,13 +17,15 @@ export default class UserModel extends Model<UserMe> {
     return this._get<UserMe>(this.namespace)
   }
 
-  update(patch: any): Observable<any> {
-    return this._update<any>(this.namespace, patch)
+  update(patch: any) {
+    return super.update(this.namespace, patch)
   }
 
   updateEmail(emails: UserEmail[]): Observable<any> {
-    return this._update(this.namespace, {
+    return super.update<any>(this.namespace, {
       emails: emails
     })
   }
 }
+
+export default new UserModel()

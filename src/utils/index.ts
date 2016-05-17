@@ -44,7 +44,9 @@ export const assign = <T, U>(target: T, patch: U): T & U => {
 
 export const clone = <T>(origin: T): T => {
   /* istanbul ignore if */
-  if (!origin || typeof origin !== 'object') return
+  if (!origin || typeof origin !== 'object') {
+    return
+  }
   let target: any
   if (origin instanceof Array) {
     target = new Array()

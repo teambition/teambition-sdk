@@ -70,8 +70,8 @@ export default class Model<T> {
       setTimeout(() => {
         const result = clone(this.data)
         if (this.observers.length) {
-          forEach(this.observers, observer => {
-            observer.next(result)
+          forEach(this.observers, obs => {
+            obs.next(result)
           })
         }
         observer.next(result)

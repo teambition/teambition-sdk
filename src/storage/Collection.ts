@@ -8,8 +8,7 @@ export default class Collection <T> {
   public elements: string[] = []
   public signal: Observable<T[]>
   public observers: Observer<T[]>[] = []
-
-  private _data: T[]
+  public data: T[]
 
   constructor(
     public index: string,
@@ -35,7 +34,7 @@ export default class Collection <T> {
         this.elements.push(_index)
       })
     }
-    this._data = result
+    this.data = result
     this.signal = this.get()
     Data.set(index, this)
   }
@@ -43,7 +42,7 @@ export default class Collection <T> {
   get(): Observable<T[]> {
     return Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
-        const result = clone(this._data)
+        const result = clone(this.data)
         observer.next(result)
       })
     })
@@ -55,9 +54,9 @@ export default class Collection <T> {
         if (!this.observers.length) {
           observer.error(new Error(`Set Collection.observer before notify ${this.index}`))
         }
-        const result = clone(this._data)
-        forEach(this.observers, observer => {
-          observer.next(result)
+        const result = clone(this.data)
+        forEach(this.observers, obs => {
+          obs.next(result)
         })
         observer.next(result)
       })
@@ -71,14 +70,14 @@ export default class Collection <T> {
         if (this.elements.indexOf(flag) === -1) {
           this.elements.push(flag)
           model.collections.push(this.index)
-          this._data.push(model.data)
+          this.data.push(model.data)
         }
         return this.get()
       })
   }
 
   update(patch: T[]): Observable<T[]> {
-    return Observable.create((observer: Observer<Observable<T[]>>) => {
+    return Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
         const signals: Observable<T>[] = []
         if (patch.length) {
@@ -88,43 +87,43 @@ export default class Collection <T> {
             const pos = this.elements.indexOf(index)
             if (pos !== -1) {
               signals.push(cache.update(ele))
-              this._data.splice(pos, 1)
+              this.data.splice(pos, 1)
               this.elements.splice(pos, 1)
-              this._data.splice(position, 0, ele)
+              this.data.splice(position, 0, cache.data)
             }else {
               if (cache) {
                 signals.push(cache.update(ele))
-                this._data.splice(position, 0, cache.data)
+                this.data.splice(position, 0, cache.data)
               }else {
                 const model = new Model(ele, this._unionFlag)
                 model.collections.push(this.index)
                 signals.push(model.signal)
-                this._data.splice(position, 0, ele)
+                this.data.splice(position, 0, model.data)
               }
             }
             this.elements.splice(position, 0, index)
           })
-          const dist = this._data.length - patch.length
+          const dist = this.data.length - patch.length
           if (dist > 0) {
             for (let i = 0; i < dist; i ++) {
-              this._data.pop()
+              this.data.pop()
               this.elements.pop()
             }
           }
-          const dest = Observable.from(signals)
+          Observable.from(signals)
             .mergeAll()
             .skip(signals.length - 1)
             .concatMap(x => this.get())
-          observer.next(dest)
+            .forEach(result => observer.next(result))
         }else {
-          forEach(this._data, (ele, pos) => {
-            this._data.splice(pos, 1)
+          forEach(this.data, (ele, pos) => {
+            this.data.splice(pos, 1)
             this.elements.splice(pos, 1)
           })
-          observer.next(this.get())
+          observer.next([])
         }
       })
-    }).concatMap((x: Observable<T[]>) => x)
+    })
   }
 
   judge(model: Model<T>): Observable<boolean> {
@@ -143,7 +142,7 @@ export default class Collection <T> {
     const pos = this.elements.indexOf(flag)
     if (pos !== -1) {
       this.elements.splice(pos, 1)
-      this._data.splice(pos, 1)
+      this.data.splice(pos, 1)
       forEach(model.collections, (collectionName, pos) => {
         if (collectionName === this.index) {
           model.collections.splice(pos, 1)
@@ -154,8 +153,8 @@ export default class Collection <T> {
   }
 
   destroy(): Collection<T> {
-    forEach(this._data, (ele, pos) => {
-      this._data.splice(pos, 1)
+    forEach(this.data, (ele, pos) => {
+      this.data.splice(pos, 1)
     })
     this.elements = []
     return this
