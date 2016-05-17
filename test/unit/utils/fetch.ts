@@ -90,10 +90,10 @@ export default describe('utils/fetch', () => {
         const body = {body: 'body'}
         fetchMock.mock(url, httpMethod, responseData)
         return fetch[httpMethod](path, body)
-          .then((res) => {
+          .then((res: Response) => {
             expect(res).not.to.deep.equal(responseData.body)
           })
-          .catch((res) => {
+          .catch((res: Response) => {
             expect(fetchMock.lastOptions().method).to.equal(httpMethod)
             expect(res.status).to.deep.equal(responseData.status)
             fetchMock.restore()

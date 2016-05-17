@@ -142,6 +142,9 @@ export default class Model<T> {
 
   destroy(): Model<T> {
     this.data = null
+    this.parents = []
+    this.children = []
+    this._childIndexes = []
     return this
   }
 
