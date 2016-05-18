@@ -14,7 +14,7 @@ export default describe('utils/fetch', () => {
   })
 
   it('should configure api host', () => {
-    expect(Fetch.getAPIHost()).to.equal('https://www.teambition.com/api')
+    expect(Fetch.getAPIHost()).to.equal('https://www.teambition.com/api/')
     const url = 'https://www.example.com'
     Fetch.setAPIHost(url)
     expect(Fetch.getAPIHost()).to.equal(url)
@@ -43,8 +43,8 @@ export default describe('utils/fetch', () => {
 
   it('should set token', () => {
     const token = 'test_token'
-    const apiHost = 'https://api.teambition.com'
-    const path = '/test'
+    const apiHost = 'https://api.teambition.com/'
+    const path = 'test'
     const url = `${apiHost}${path}`
     Fetch.setToken(token)
     fetchMock.mock(url, {})
@@ -64,12 +64,12 @@ export default describe('utils/fetch', () => {
 
   ['get', 'post', 'put', 'delete'].forEach((httpMethod) => {
     it(`should define ${httpMethod}`, () => {
-      const path = '/test'
+      const path = 'test'
       const url = `${Fetch.getAPIHost()}${path}`
       const responseData = {test: 'test'}
       const body = {body: 'body'}
       fetchMock.mock(url, httpMethod, responseData)
-      return fetch[httpMethod](path, body)
+      return fetch[httpMethod](path, httpMethod === 'get' ? null : body)
         .then((res) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
@@ -81,20 +81,22 @@ export default describe('utils/fetch', () => {
     })
   });
 
-  ['get', 'post', 'put', 'delete'].forEach((httpMethod) => {
-    [100, 400, 401, 403, 404, 500].forEach((status) => {
+  ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
+    [100, 400, 401, 403, 404, 500].forEach(status => {
       it(`should handle ${status} status for ${httpMethod}`, () => {
-        const path = '/test'
+        const path = 'test'
         const url = `${Fetch.getAPIHost()}${path}`
         const responseData = {body: {test: 'test'}, status: status}
         const body = {body: 'body'}
         fetchMock.mock(url, httpMethod, responseData)
-        return fetch[httpMethod](path, body)
+        return fetch[httpMethod](path, httpMethod === 'get' ? null : body)
           .then((res: Response) => {
             expect(res).not.to.deep.equal(responseData.body)
           })
           .catch((res: Response) => {
-            expect(fetchMock.lastOptions().method).to.equal(httpMethod)
+            if (fetchMock.lastOptions()) {
+              expect(fetchMock.lastOptions().method).to.equal(httpMethod)
+            }
             expect(res.status).to.deep.equal(responseData.status)
             fetchMock.restore()
           })

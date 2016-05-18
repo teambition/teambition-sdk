@@ -1,6 +1,6 @@
 'use strict'
 import {HttpResponse} from './response'
-import {fetchStack} from './mock'
+import {fetchStack, restore, mockFetch} from './mock'
 import {forEach} from './utils'
 
 export const flushState = {
@@ -9,8 +9,11 @@ export const flushState = {
 
 export class Backend {
 
+  restore = restore
+
   constructor() {
     flushState.flushed = false
+    mockFetch()
   }
 
   whenGET(uri: string) {
@@ -37,4 +40,5 @@ export class Backend {
     })
     flushState.flushed = true
   }
+
 }
