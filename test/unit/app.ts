@@ -1,5 +1,7 @@
 'use strict'
 
+export * from './utils/fetch'
+
 export * from './utils/utils'
 
 export * from './storage/DatabaseSpec'

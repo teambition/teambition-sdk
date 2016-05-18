@@ -30,7 +30,7 @@ export class Fetch {
   }
 
   public get <T>(url: string, query?: any) {
-    const queryString = this.buildQuery(query)
+    const queryString = this._buildQuery(query)
     return this.createMethod<T>('get')(url + queryString)
   }
 
@@ -46,8 +46,8 @@ export class Fetch {
     return this.createMethod<T>('delete')(url)
   }
 
-  private buildQuery (query: any) {
-    if (typeof query !== 'object') return ''
+  private _buildQuery (query: any) {
+    if (typeof query !== 'object' || !query) return ''
     let result: string[] = []
     forEach(query, (val: any, key: string) => {
       result.push(`${key}=${val}`)
