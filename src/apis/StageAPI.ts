@@ -8,16 +8,24 @@ const stageFetch = new StageFetch()
 
 export class StageAPI {
 
+  constructor() {
+    StageModel.$destroy()
+  }
+
   getAll(_tasklistId: string): Observable<Stage[]> {
     const get = StageModel.getStages(_tasklistId)
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(stageFetch.get(_tasklistId))
       .concatMap(stages => StageModel.addStages(_tasklistId, stages))
   }
 
   getOne(_tasklistId: string, stageId: string): Observable<Stage> {
     const get = StageModel.getOne(stageId)
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(stageFetch.get(_tasklistId, stageId))
       .concatMap(stage => StageModel.add(stage))
   }

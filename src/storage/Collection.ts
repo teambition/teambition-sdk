@@ -80,6 +80,7 @@ export default class Collection <T> {
     return Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
         const signals: Observable<T>[] = []
+        const diff: T[] = []
         if (patch.length) {
           forEach(patch, (ele, position) => {
             const index = ele[this._unionFlag]
@@ -94,11 +95,13 @@ export default class Collection <T> {
               if (cache) {
                 signals.push(cache.update(ele))
                 this.data.splice(position, 0, cache.data)
+                diff.push(cache.data)
               }else {
                 const model = new Model(ele, this._unionFlag)
                 model.collections.push(this.index)
                 signals.push(model.signal)
                 this.data.splice(position, 0, model.data)
+                diff.push(model.data)
               }
             }
             this.elements.splice(position, 0, index)
@@ -114,7 +117,7 @@ export default class Collection <T> {
             .mergeAll()
             .skip(signals.length - 1)
             .concatMap(x => this.get())
-            .forEach(result => observer.next(result))
+            .forEach(result => observer.next(clone(diff)))
         }else {
           forEach(this.data, (ele, pos) => {
             this.data.splice(pos, 1)

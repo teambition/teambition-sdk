@@ -8,6 +8,10 @@ const memberFetch = new MemberFetch()
 
 export class MemberAPI {
 
+  constructor() {
+    MemberModel.$destroy()
+  }
+
   deleteMember(memberId: string): Rx.Observable<void> {
     return Rx.Observable.fromPromise(memberFetch.deleteMember(memberId))
       .concatMap(x => MemberModel.delete(memberId))

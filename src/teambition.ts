@@ -512,16 +512,16 @@ export interface OrganizationData {
   created: string
   background: string
   plan: {
-    lastPaidTime: string
-    firstPaidTime: string
-    updated: string
-    created: string
-    expired: boolean
-    free: boolean
+    lastPaidTime?: string
+    firstPaidTime?: string
+    updated?: string
+    created?: string
+    expired: string
+    free?: boolean
     membersCount: number
     days: number
   }
-  _defaultRoleId: number
+  _defaultRoleId: string
   _roleId: number
 }
 

@@ -51,6 +51,14 @@ export interface NavigationOptions {
   }
 }
 
+export interface ProjectTasksOptions {
+  isDone?: boolean
+  page?: number
+  count?: number
+  dueDate?: string
+  startDate?: string
+}
+
 export class ProjectFetch extends BaseFetch {
 
   getAll(querys?: any): Promise<Project[]> {

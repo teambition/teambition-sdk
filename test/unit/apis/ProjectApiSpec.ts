@@ -7,7 +7,6 @@ import {expectDeepEqual, notInclude, flush} from '../utils'
 
 const expect = chai.expect
 
-
 export default describe('Project API test', () => {
   let httpBackend: Backend
   let Project: ProjectsAPI
@@ -99,12 +98,10 @@ export default describe('Project API test', () => {
     httpBackend.flush()
   })
 
-
   it('update project should ok', done => {
     const project = projects[0]
     const updatedProject = clone(project)
     updatedProject.name = 'test project'
-
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}`, {
       name: 'test project'
@@ -357,7 +354,6 @@ export default describe('Project API test', () => {
     Project.transfer(project._id, 'test')
       .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
-
 
     httpBackend.flush()
   })

@@ -46,7 +46,6 @@ export default describe('database test: ', () => {
       })
   })
 
-
   describe('update should ok: ', () => {
     it('update object should ok', done => {
       const data = {
@@ -126,6 +125,7 @@ export default describe('database test: ', () => {
           data: 'tbsdk_test 9'
         }
       ]
+
       const patchData = [
         {
           _id: '9999',
@@ -145,7 +145,7 @@ export default describe('database test: ', () => {
         }
       ]
 
-	    const set = Storage.storeCollection('collection_test_2', data)
+      const set = Storage.storeCollection('collection_test_2', data)
       const update = Storage.updateCollection('collection_test_2', patchData)
       const get = Storage.get<typeof data>('collection_test_2')
 
@@ -262,7 +262,6 @@ export default describe('database test: ', () => {
               done()
             })
         })
-
 
       Storage.updateOne('31.31', {
         data: 'tbsdk_test 31.31'

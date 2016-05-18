@@ -4,11 +4,11 @@ import BaseModel from './BaseModel'
 import Stage from '../schemas/Stage'
 import {dataToSchema, datasToSchemas, forEach} from '../utils/index'
 
-export class StageModel extends BaseModel<Stage> {
+export class StageModel extends BaseModel {
   private _schemaName = 'Stage'
 
   addStages(_tasklistId: string, stages: Stage[]): Observable<Stage[]> {
-    const result = datasToSchemas<Stage, Stage>(stages, Stage)
+    const result = datasToSchemas<Stage>(stages, Stage)
     return this._saveCollection(`tasklist:stages/${_tasklistId}`, result, this._schemaName, (data: Stage) => {
       return data._tasklistId === _tasklistId && !data.isArchived
     })
@@ -19,7 +19,7 @@ export class StageModel extends BaseModel<Stage> {
   }
 
   add(stage: Stage): Observable<Stage> {
-    const result = dataToSchema<Stage, Stage>(stage, Stage)
+    const result = dataToSchema<Stage>(stage, Stage)
     return this._save(result)
   }
 

@@ -167,15 +167,19 @@ export default class DataBase {
           observer.error(new Error(`Patch must be Array: ${index}`))
         }
         const collection: Collection<T> = DataBase.data.get(index)
+        let result: T[]
         collection.update(patch)
           .concatMap(x => {
+            result = x
             if (collection.observers.length) {
               return collection.notify()
             }else {
               return collection.get()
             }
           })
-          .forEach(dest => observer.next(dest))
+          .forEach(dest => {
+            observer.next(result)
+          })
       })
     })
   }

@@ -47,7 +47,9 @@ export class Fetch {
   }
 
   private _buildQuery (query: any) {
-    if (typeof query !== 'object' || !query) return ''
+    if (typeof query !== 'object' || !query) {
+      return ''
+    }
     let result: string[] = []
     forEach(query, (val: any, key: string) => {
       result.push(`${key}=${val}`)

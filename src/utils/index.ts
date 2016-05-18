@@ -1,13 +1,16 @@
 'use strict'
 import {Schema, setSchema} from '../schemas/schema'
 
-export function forEach<T>(target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
+export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 
-export function forEach<T>(target: {
-  [index: string]: T
-}, eachFunc: (val: T, key: string) => void, inverse?: boolean): void
+export function forEach<T> (
+  target: {
+    [index: string]: T
+  },
+  eachFunc: (val: T, key: string) => void, inverse?: boolean
+): void
 
-export function forEach (target: any, eachFunc: (val: any, key: any) => void, inverse?: boolean) : void
+export function forEach (target: any, eachFunc: (val: any, key: any) => void, inverse?: boolean): void
 
 export function forEach (target: any, eachFunc: (val: any, key: any) => any, inverse?: boolean) {
   let length: number
@@ -35,7 +38,9 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
 }
 
 export const assign = <T, U>(target: T, patch: U): T & U => {
-  if (typeof patch !== 'object' || !patch) return
+  if (typeof patch !== 'object' || !patch) {
+    return
+  }
   forEach(patch, (val, key) => {
     target[key] = patch[key]
   })
@@ -83,13 +88,13 @@ export const uuid = () => {
   return UUID
 }
 
-export const dataToSchema = <T, U extends Schema> (data: T, SchemaClass: any): U => {
+export const dataToSchema = <U extends Schema> (data: any, SchemaClass: any): U => {
   return setSchema(new SchemaClass(), data)
 }
 
-export const datasToSchemas = <T, U extends Schema>(datas: T[], SchemaClass: any): U[] => {
+export const datasToSchemas = <U>(datas: any[], SchemaClass: any): U[] => {
   const result = new Array<U>()
-  forEach(datas, (data: T, index: number) => {
+  forEach(datas, data => {
     result.push(setSchema(new SchemaClass(), data))
   })
   return result

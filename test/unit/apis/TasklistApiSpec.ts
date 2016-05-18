@@ -84,7 +84,6 @@ export default describe('tasklist api test', () => {
     httpBackend.whenGET(`${apihost}tasklists/${tasklist._id}`)
       .respond(JSON.stringify(tasklist))
 
-
     Tasklist.getTasklists(projectId)
       .skip(1)
       .subscribe(data => {

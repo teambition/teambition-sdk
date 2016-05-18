@@ -2,7 +2,7 @@
 import * as Rx from 'rxjs'
 import DataBase from '../storage/Database'
 
-export default class Model<T> {
+export default class Model {
 
   public static DataBase = new DataBase()
 
@@ -12,6 +12,11 @@ export default class Model<T> {
 
   update<T>(namespace: string, patch: any): Rx.Observable<T> {
     return Model.DataBase.updateOne<T>(namespace, patch)
+  }
+
+  // 单例 Model， 这个方法由子类继承，清除子类的状态信息，方便测试
+  $destroy() {
+    return
   }
 
   protected _save<T>(data: T): Rx.Observable<T> {

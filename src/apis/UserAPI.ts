@@ -8,9 +8,15 @@ const userFetch = new UserFetch()
 
 export class UserAPI {
 
+  constructor() {
+    UserModel.$destroy()
+  }
+
   getUserMe(): Observable<UserMe> {
     const get = UserModel.get()
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(userFetch.getUserMe())
       .concatMap(userMe => UserModel.set(userMe))
   }

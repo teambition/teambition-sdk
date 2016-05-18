@@ -8,6 +8,10 @@ const organizationFetch = new OrganizationFetch()
 
 export class OrganizationsAPI {
 
+  constructor() {
+    OrganizationModel.$destroy()
+  }
+
   getOrgs (): Observable<OrganizationData[]> {
     const get = OrganizationModel.getAll()
     if (get) {
@@ -19,7 +23,9 @@ export class OrganizationsAPI {
 
   getOne (organizationId: string): Observable<OrganizationData> {
     const get = OrganizationModel.get(organizationId)
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(organizationFetch.getOne(organizationId))
       .concatMap(x => OrganizationModel.set(x))
   }

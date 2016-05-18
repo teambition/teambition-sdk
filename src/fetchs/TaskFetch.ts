@@ -14,6 +14,12 @@ export interface TasksMeOptions {
   isDone?: boolean
 }
 
+export interface OrgsTasksMeOptions {
+  hasDuedate: boolean
+  page: number
+  isDone: boolean
+}
+
 export interface CreateTaskOptions {
   content: string
   _tasklistId: string
@@ -67,6 +73,10 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`v2/tasks/me`, option)
   }
 
+  getOrgsTasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Task[]> {
+    return this.fetch.get(`organizations/${organizationId}/tasks/me`, option)
+  }
+
   create(createTaskData: CreateTaskOptions): Promise<Task> {
     return this.fetch.post(`tasks`, createTaskData)
   }
@@ -76,7 +86,9 @@ export class TaskFetch extends Fetch {
   get(_taskId: string, detailType: string): Promise<Task>
 
   get(_taskId: string, detailType?: string): Promise<Task> {
-    return this.fetch.get(`tasks/${_taskId}`)
+    return this.fetch.get(`tasks/${_taskId}`, detailType ? {
+      detailType: detailType
+    } : null)
   }
 
   update<T extends UpdateTaskOptions>(_taskId: string, updateData: T): Promise<T> {
@@ -141,7 +153,7 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`stages/${_stageId}/tasks`, options)
   }
 
-  getByTasklists(_tasklistId: string, options: {
+  getByTasklist(_tasklistId: string, options: {
     isDone?: boolean
     _executorId?: string
     dueDate?: string
@@ -150,8 +162,8 @@ export class TaskFetch extends Fetch {
     limit?: number
     page?: number
     dumpType?: 'json' | 'excel'
-  }): Promise<Task> {
-    return this.fetch.get(`tasklists/${_tasklistId}/tasks`)
+  }): Promise<Task[]> {
+    return this.fetch.get(`tasklists/${_tasklistId}/tasks`, options)
   }
 
   importTasks(_tasklistId: string, importData: ImportTaskOptions) {
