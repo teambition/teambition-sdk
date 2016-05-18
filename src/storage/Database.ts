@@ -184,6 +184,7 @@ export default class DataBase {
     })
   }
 
+  // for test
   flush() {
     DataBase.data.clear()
     this._schemaMap.clear()

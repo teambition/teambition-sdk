@@ -68,9 +68,9 @@ export default class Collection <T> {
       .concatMap(x => {
         const flag = x[this._unionFlag]
         if (this.elements.indexOf(flag) === -1) {
-          this.elements.push(flag)
-          model.collections.push(this.index)
-          this.data.push(model.data)
+          this.elements.unshift(flag)
+          model.collections.unshift(this.index)
+          this.data.unshift(model.data)
         }
         return this.get()
       })

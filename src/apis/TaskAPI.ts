@@ -7,6 +7,8 @@ import {OrganizationData} from '../teambition'
 
 const taskFetch = new TaskFetch()
 
+export type detailType = 'complete'
+
 export class TaskAPI {
 
   constructor() {
@@ -48,6 +50,28 @@ export class TaskAPI {
       hasDuedate: true
     }))
       .concatMap(tasks => TaskModel.addOrganizationMyDueTasks(organization, tasks, page))
+  }
+
+  getOrganizationMyTasks(organization: OrganizationData, page = 1): Observable<Task[]> {
+    const get = TaskModel.getOrganizationMyTasks(organization._id, page)
+    if (get) {
+      return get
+    }
+    return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
+      page: page,
+      isDone: false,
+      hasDuedate: false
+    }))
+      .concatMap(tasks => TaskModel.addOrganizationMyTasks(organization, tasks, page))
+  }
+
+  get(_id: string, detailType?: detailType): Observable<Task> {
+    const get = TaskModel.get(_id)
+    if (get) {
+      return get
+    }
+    return Observable.fromPromise(taskFetch.get(_id, detailType))
+      .concatMap(task => TaskModel.add(task))
   }
 }
 

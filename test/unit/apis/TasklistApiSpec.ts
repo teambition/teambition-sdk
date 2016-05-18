@@ -164,7 +164,7 @@ export default describe('tasklist api test', () => {
       .skip(1)
       .subscribe(data => {
         expect(data.length).to.equal(length + 1)
-        expect(data[data.length - 1]._id).to.equal('unarchivetasklisttest')
+        expect(data[0]._id).to.equal('unarchivetasklisttest')
       })
 
     Tasklist.getOne(tasklistId)
@@ -198,7 +198,7 @@ export default describe('tasklist api test', () => {
     Stage.getAll(tasklistId)
       .skip(1)
       .subscribe(data => {
-        const _stageIds = []
+        const _stageIds: string[] = []
         forEach(data, stage => {
           _stageIds.push(stage._id)
         })

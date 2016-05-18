@@ -85,7 +85,7 @@ export default describe('Project API test', () => {
       Project.getAll()
         .skip(1)
         .subscribe(r => {
-          expect(r.pop().name).to.equal('test project')
+          expect(r[0].name).to.equal('test project')
           done()
         })
 
@@ -212,7 +212,7 @@ export default describe('Project API test', () => {
       .skip(1)
       .subscribe(r => {
         expect(r.length).to.equal(length + 1)
-        expect(r.pop().name).to.equal('teambition project copy test')
+        expect(r[0].name).to.equal('teambition project copy test')
         done()
       })
 
@@ -242,7 +242,7 @@ export default describe('Project API test', () => {
       .skip(1)
       .subscribe(r => {
         expect(r.length).to.equal(length + 1)
-        expectDeepEqual(r.pop(), mockProject)
+        expectDeepEqual(r[0], mockProject)
         done()
       })
 

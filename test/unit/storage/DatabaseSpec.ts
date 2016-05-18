@@ -326,7 +326,7 @@ export default describe('database test: ', () => {
           .skip(1)
           .subscribe(r => {
             expect(r.length).to.equal(3)
-            expect(r.pop().name).to.equal('tbsdk_test 42')
+            expect(r[0].name).to.equal('tbsdk_test 42')
             done()
           })
 
@@ -349,7 +349,7 @@ export default describe('database test: ', () => {
           .skip(1)
           .subscribe(r => {
             expect(r.length).to.equal(3)
-            expect(r[r.length - 1].name).to.equal('tbsdk_test 36')
+            expect(r[0].name).to.equal('tbsdk_test 36')
             done()
           })
 
@@ -379,7 +379,7 @@ export default describe('database test: ', () => {
           .skip(2)
           .subscribe(r => {
             expect(r.length).to.equal(3)
-            expect(r[r.length - 1].name).to.equal('tbsdk_test 39.39')
+            expect(r[0].name).to.equal('tbsdk_test 39.39')
             done()
           })
 

@@ -2,7 +2,7 @@
 import {Observable} from 'rxjs'
 import BaseModel from './BaseModel'
 import Task from '../schemas/Task'
-import {datasToSchemas} from '../utils/index'
+import {datasToSchemas, dataToSchema} from '../utils/index'
 import {OrganizationData} from '../teambition'
 
 export class TaskModel extends BaseModel {
@@ -13,6 +13,9 @@ export class TaskModel extends BaseModel {
 
   private _organizationMyDueTasksPages: number[] = []
   private _organizationMyDueTasks: Task[] = []
+
+  private _organizationMyTasksPages: number[] = []
+  private _organizationMyTasks: Task[] = []
 
   addTasklistTasksUndone(_tasklistId: string, tasks: Task[]): Observable<Task[]> {
     const result = datasToSchemas<Task>(tasks, Task)
@@ -78,11 +81,49 @@ export class TaskModel extends BaseModel {
     return null
   }
 
+  addOrganizationMyTasks(organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
+    const result = datasToSchemas<Task>(tasks, Task)
+    const organizationId = organization._id
+    let destSignal: Observable<Task[]>
+    this._organizationMyTasks = this._organizationMyTasks.concat(result)
+    if (page === 1 || !this._organizationMyTasksPages.length) {
+      destSignal = this._saveCollection(`organization:tasks/${organizationId}`, this._organizationMyTasks, this._schemaName, (data: Task) => {
+        return organization.projectIds.indexOf(data._projectId) !== -1 && !data.dueDate
+      })
+    }else {
+      destSignal = this._updateCollection<Task>(`organization:tasks/${organizationId}`, this._organizationMyTasks)
+    }
+    if (this._organizationMyTasksPages.indexOf(page) === -1) {
+      this._organizationMyTasksPages.push(page)
+    }
+    return destSignal
+  }
+
+  getOrganizationMyTasks(organizationId: string, page: number): Observable<Task[]> {
+    if (this._organizationMyTasksPages.indexOf(page) !== -1) {
+      return this._get<Task[]>(`organization:tasks/${organizationId}`)
+        .skip((page - 1) * 30)
+        .take(30)
+    }
+    return null
+  }
+
+  add(task: Task): Observable<Task> {
+    const result = dataToSchema<Task>(task, Task)
+    return this._save(result)
+  }
+
+  get(_id: string): Observable<Task> {
+    return this._get<Task>(_id)
+  }
+
   $destroy() {
     this._tasklistTasksDonePages = []
     this._tasklistTasksDone = []
     this._organizationMyDueTasksPages = []
     this._organizationMyDueTasks = []
+    this._organizationMyTasksPages = []
+    this._organizationMyTasks = []
   }
 }
 
