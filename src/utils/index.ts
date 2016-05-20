@@ -17,22 +17,31 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
   if (target instanceof Array) {
     length = target.length
     if (!inverse) {
-      for (let i = 0; i < length; i++) {
-        eachFunc(target[i], i)
+      let i = -1
+      while (++i < length) {
+        if (eachFunc(target[i], i) === false) {
+          break
+        }
       }
-    }else {
-      for (let i = length - 1; i >= 0; i--) {
-        eachFunc(target[i], i)
+    } else {
+      let i = length
+      while (i --) {
+        if (eachFunc(target[i], i) === false) {
+          break
+        }
       }
     }
 
-  }else {
+  } else if (typeof target === 'object') {
     const keys = Object.keys(target)
     let key: string
     length = keys.length
-    for (let i = 0; i < length; i ++) {
+    let i = -1
+    while (++i < length) {
       key = keys[i]
-      eachFunc(target[key], key)
+      if (eachFunc(target[key], key) === false) {
+        break
+      }
     }
   }
 }
@@ -63,9 +72,22 @@ export const clone = <T>(origin: T): T => {
       // null
       if (val) {
         target[key] = clone(val)
+      }else {
+        target[key] = val
       }
+    }else {
+      target[key] = val
     }
-    target[key] = val
+  })
+  return target
+}
+
+export const concat = <T>(target: T[], patch: T[]): T[] => {
+  if (!(patch instanceof Array)) {
+    return target
+  }
+  forEach(patch, ele => {
+    target.push(ele)
   })
   return target
 }

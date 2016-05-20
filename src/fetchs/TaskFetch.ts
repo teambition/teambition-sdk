@@ -15,7 +15,7 @@ export interface TasksMeOptions {
 }
 
 export interface OrgsTasksMeOptions {
-  hasDuedate: boolean
+  hasDuedate?: boolean
   page: number
   isDone: boolean
 }
@@ -29,7 +29,7 @@ export interface CreateTaskOptions {
   dueDate?: string
   priority?: '0' | '1' | '2'
   recurrence?: string
-  tagIds: string[]
+  tagIds?: string[]
 }
 
 export interface UpdateTaskOptions {
@@ -175,10 +175,10 @@ export class TaskFetch extends Fetch {
   getInvolves(page: number, count: number): Promise<Task>
 
   getInvolves(page?: number, count?: number) {
-    return this.fetch.get(`tasks/involves`, {
+    return this.fetch.get(`tasks/involves`, page && count ? {
       page: page,
       count: count
-    })
+    } : null)
   }
 
   like(_taskId: string): Promise<{
