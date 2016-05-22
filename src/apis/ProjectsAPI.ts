@@ -1,5 +1,5 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
+import { Observable, Observer } from 'rxjs'
 import {
   ProjectFetch,
   ProjectCreateOptions,

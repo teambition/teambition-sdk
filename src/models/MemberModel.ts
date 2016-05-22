@@ -1,7 +1,7 @@
 'use strict'
-import {Observable} from 'rxjs'
+import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
-import {datasToSchemas} from '../utils/index'
+import { datasToSchemas } from '../utils/index'
 import Member from '../schemas/Member'
 
 export class MemberModel extends BaseModel {

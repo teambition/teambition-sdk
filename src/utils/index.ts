@@ -1,5 +1,5 @@
 'use strict'
-import {Schema, setSchema} from '../schemas/schema'
+import { Schema, setSchema } from '../schemas/schema'
 
 export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 
@@ -98,7 +98,7 @@ const s4 = () => {
     .substring(1)
 }
 
-let uuidStack: string[] = []
+const uuidStack: string[] = []
 
 export const uuid = () => {
   let UUID = s4() + s4()

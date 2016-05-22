@@ -1,7 +1,7 @@
 'use strict'
-import {Observable} from 'rxjs'
+import { Observable } from 'rxjs'
+import { OrganizationData } from '../teambition'
 import Model from './BaseModel'
-import {OrganizationData} from '../teambition'
 
 export class OrganizationModel extends Model {
   getAll(): Observable<Array<OrganizationData>> {

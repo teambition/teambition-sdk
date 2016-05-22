@@ -1,5 +1,5 @@
 'use strict'
-import {Scheduler} from 'rxjs'
+import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
@@ -12,13 +12,13 @@ import {
   OrganizationData,
   BaseAPI
 } from '../index'
-import {flush, expectDeepEqual, timeout, notInclude} from '../utils'
-import {tasksDone} from '../mock/tasksDone'
-import {tasksUndone} from '../mock/tasksUndone'
-import {organizations} from '../mock/organizations'
-import {organizationMyDueTasks} from '../mock/organizationMyDueTasks'
-import {organizationMyTasks} from '../mock/organizationMyTasks'
-import {organizationMyDoneTasks} from '../mock/organizationMyDoneTasks'
+import { flush, expectDeepEqual, timeout, notInclude } from '../utils'
+import { tasksDone } from '../mock/tasksDone'
+import { tasksUndone } from '../mock/tasksUndone'
+import { organizations } from '../mock/organizations'
+import { organizationMyDueTasks } from '../mock/organizationMyDueTasks'
+import { organizationMyTasks } from '../mock/organizationMyTasks'
+import { organizationMyDoneTasks } from '../mock/organizationMyDoneTasks'
 
 const expect = chai.expect
 chai.use(sinonChai)

@@ -1,9 +1,9 @@
 'use strict'
-import {Observable} from 'rxjs'
+import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
 import Task from '../schemas/Task'
-import {datasToSchemas, dataToSchema, forEach, concat} from '../utils/index'
-import {OrganizationData} from '../teambition'
+import { datasToSchemas, dataToSchema, forEach, concat } from '../utils/index'
+import { OrganizationData } from '../teambition'
 
 export class TaskModel extends BaseModel {
   private _schemaName = 'Task'

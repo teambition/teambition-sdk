@@ -1,8 +1,8 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
-import {UserFetch} from '../fetchs/UserFetch'
+import { Observable, Observer } from 'rxjs'
+import { UserFetch } from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
-import {UserMe} from '../teambition'
+import { UserMe } from '../teambition'
 
 const userFetch = new UserFetch()
 

@@ -1,8 +1,8 @@
 'use strict'
-import {Observable} from 'rxjs'
+import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
 import Stage from '../schemas/Stage'
-import {dataToSchema, datasToSchemas, forEach} from '../utils/index'
+import { dataToSchema, datasToSchemas, forEach } from '../utils/index'
 
 export class StageModel extends BaseModel {
   private _schemaName = 'Stage'

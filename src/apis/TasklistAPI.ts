@@ -1,6 +1,6 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
-import {TasklistFetch, UpdateTasklistOptions} from '../fetchs/TasklistFetch'
+import { Observable, Observer } from 'rxjs'
+import { TasklistFetch, UpdateTasklistOptions } from '../fetchs/TasklistFetch'
 import TasklistModel from '../models/TasklistModel'
 import StageModel from '../models/StageModel'
 import Tasklist from '../schemas/Tasklist'

@@ -1,7 +1,7 @@
 'use strict'
 import Fetch from './base'
 import Task from '../schemas/Task'
-import {TaskData, visibility} from '../teambition'
+import { TaskData, visibility } from '../teambition'
 
 export interface TasksMeOptions {
   count?: number

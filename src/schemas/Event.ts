@@ -1,5 +1,5 @@
 'use strict'
-import {Schema, schemaName} from './schema'
+import { Schema, schemaName } from './schema'
 
 @schemaName('Event')
 export default class Event extends Schema {

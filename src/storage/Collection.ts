@@ -1,14 +1,19 @@
 'use strict'
-import {Observer, Observable} from 'rxjs'
+import { Observer, Observable } from 'rxjs'
 import Data from './Map'
 import Model from './Model'
-import {forEach, clone, assign} from '../utils/index'
+import { forEach, clone, assign } from '../utils/index'
+import { removeObserver } from '../decorators/rx'
 
 export default class Collection <T> {
   public elements: string[] = []
-  public signal: Observable<T[]>
-  public observers: Observer<T[]>[] = []
   public data: T[]
+
+  /**
+   * @warn
+   * memory leak
+   */
+  private _observers: Observer<T[]>[]  = []
 
   constructor(
     public index: string,
@@ -35,29 +40,30 @@ export default class Collection <T> {
       })
     }
     this.data = result
-    this.signal = this.get()
     Data.set(index, this)
   }
 
   get(): Observable<T[]> {
-    return Observable.create((observer: Observer<T[]>) => {
+    const dest = Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
         const result = clone(this.data)
+        this._observers.push(observer)
         observer.next(result)
+        removeObserver(dest, observer, this._observers)
       })
     })
+    return dest
   }
 
   notify(): Observable<T[]> {
     return Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
-        if (!this.observers.length) {
-          observer.error(new Error(`Set Collection.observer before notify ${this.index}`))
-        }
         const result = clone(this.data)
-        forEach(this.observers, obs => {
-          obs.next(result)
-        })
+        if (this._observers.length) {
+          forEach(this._observers, obs => {
+            obs.next(result)
+          })
+        }
         observer.next(result)
       })
     })
@@ -72,7 +78,7 @@ export default class Collection <T> {
           model.collections.unshift(this.index)
           this.data.unshift(model.data)
         }
-        return this.get()
+        return this.notify()
       })
   }
 
@@ -99,7 +105,7 @@ export default class Collection <T> {
               }else {
                 const model = new Model(ele, this._unionFlag)
                 model.collections.push(this.index)
-                signals.push(model.signal)
+                signals.push(model.get())
                 this.data.splice(position, 0, model.data)
                 diff.push(model.data)
               }

@@ -1,9 +1,9 @@
 'use strict'
 import * as chai from 'chai'
 import * as Rx from 'rxjs'
-import {Backend, UserAPI, forEach, clone, apihost} from '../index'
-import {userMe} from '../mock/userme'
-import {flush} from '../utils'
+import { Backend, UserAPI, forEach, clone, apihost } from '../index'
+import { userMe } from '../mock/userme'
+import { flush } from '../utils'
 
 const expect = chai.expect
 

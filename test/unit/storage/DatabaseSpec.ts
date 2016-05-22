@@ -166,12 +166,8 @@ export default describe('database test: ', () => {
       })
 
       set.concatMap(r => Storage.updateOne('14.14', '5555'))
-        .catch(e => {
-          expect(e.message).to.equal('A patch should be Object')
-          return Rx.Observable.of(null)
-        })
-        .subscribe(val => {
-          expect(val).to.be.null
+        .subscribe(null, (err: Error) => {
+          expect(err.message).to.equal('A patch should be Object')
           done()
         })
 
@@ -204,13 +200,14 @@ export default describe('database test: ', () => {
       const get = Storage.get<typeof data>('20.20')
       const update = Storage.updateOne('21.21', patch)
 
-      set.concatMap(x => get)
-        .concatMap(x => update)
+      set.subscribe()
+
+      set.concatMap(x => update)
         .concatMap(x => get)
         .subscribe(r => {
           expect(r.data.data).to.equal(patch.data)
           done()
-        })
+        }, err => console.log(err))
     })
 
     it('child of obj updated, parent should be notified', done => {
@@ -313,7 +310,7 @@ export default describe('database test: ', () => {
         }
       }
 
-      it('store ele that satisfy condition, collection should be updated', done => {
+      it('collection should be updated', done => {
         Storage.storeCollection('collection_test_14', [
           new TestEle('40.40', 'tbsdk_test 40', 40),
           new TestEle('41.41', 'tbsdk_test 41', 41)
@@ -360,7 +357,7 @@ export default describe('database test: ', () => {
         Storage.updateOne('36.36', {
           age: 40
         })
-          .subscribeOn(Rx.Scheduler.async, 50)
+          .subscribeOn(Rx.Scheduler.async, 30)
           .subscribe()
       })
 

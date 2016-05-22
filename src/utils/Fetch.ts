@@ -1,5 +1,5 @@
 'use strict'
-import {assign, forEach} from './index'
+import { assign, forEach } from './index'
 
 require('isomorphic-fetch')
 

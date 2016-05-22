@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import {Fetch} from '../index'
+import { Fetch } from '../index'
 const fetchMock = require('fetch-mock')
 
 const expect = chai.expect

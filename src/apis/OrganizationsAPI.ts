@@ -1,8 +1,8 @@
 'use strict'
-import {Observable} from 'rxjs'
-import {OrganizationFetch} from '../fetchs/OrganizationFetch'
+import { Observable } from 'rxjs'
+import { OrganizationFetch } from '../fetchs/OrganizationFetch'
 import OrganizationModel from '../models/OrganizationModel'
-import {OrganizationData} from '../teambition'
+import { OrganizationData } from '../teambition'
 
 const organizationFetch = new OrganizationFetch()
 

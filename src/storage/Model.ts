@@ -1,16 +1,20 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
+import { Observable, Observer } from 'rxjs'
 import Data from './Map'
-import {forEach, assign, clone} from '../utils/index'
+import { forEach, assign, clone } from '../utils/index'
+import { removeObserver } from '../decorators/rx'
 
 export default class Model<T> {
   public collections: string[] = []
   public parents: string[] = []
   public children: string[] = []
-  public signal: Observable<T>
   public index: string
-  public observers: Observer<T>[] = []
 
+  /**
+   * @warn
+   * memory leak
+   */
+  private _observers: Observer<T>[] = []
   private _childIndexes: string[] = []
 
   constructor(public data: T, private _unionFlag = '_id') {
@@ -39,17 +43,19 @@ export default class Model<T> {
         }
       }
     })
-    this.signal = this.get()
     Data.set(index, this)
   }
 
   get(): Observable<T> {
-    return Observable.create((observer: Observer<T>) => {
+    const dest = Observable.create((observer: Observer<T>) => {
       setTimeout(() => {
         const result = clone(this.data)
+        this._observers.push(observer)
         observer.next(result)
+        removeObserver(dest, observer, this._observers)
       })
     })
+    return dest
   }
 
   update(patch: any): Observable<T> {
@@ -69,8 +75,8 @@ export default class Model<T> {
     return Observable.create((observer: Observer<T>) => {
       setTimeout(() => {
         const result = clone(this.data)
-        if (this.observers.length) {
-          forEach(this.observers, obs => {
+        if (this._observers.length) {
+          forEach(this._observers, obs => {
             obs.next(result)
           })
         }
@@ -80,8 +86,9 @@ export default class Model<T> {
   }
 
   getSchemaName(): string {
-    if (this.data && typeof this.data['getSchemaName'] === 'function') {
-      return this.data['getSchemaName']()
+    const getSchemaName = this.data['getSchemaName']
+    if (this.data && typeof getSchemaName  === 'function') {
+      return getSchemaName()
     }else {
       return null
     }

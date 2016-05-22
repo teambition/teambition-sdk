@@ -1,6 +1,6 @@
 'use strict'
 import * as Rx from 'rxjs'
-import {MemberFetch} from '../fetchs/MemberFetch'
+import { MemberFetch } from '../fetchs/MemberFetch'
 import MemberModel from '../models/MemberModel'
 import Member from '../schemas/Member'
 

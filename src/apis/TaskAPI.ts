@@ -1,13 +1,14 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
+import { Observable, Observer } from 'rxjs'
 import TaskModel from '../models/TaskModel'
 import Task from '../schemas/Task'
+import { errorHandler, makeColdSignal } from './utils'
 import {
   TaskFetch,
   CreateTaskOptions,
   MoveTaskOptions
 } from '../fetchs/TaskFetch'
-import {OrganizationData} from '../teambition'
+import { OrganizationData } from '../teambition'
 
 const taskFetch = new TaskFetch()
 
@@ -24,10 +25,13 @@ export class TaskAPI {
     if (get) {
       return get
     }
-    return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
-      isDone: false
-    }))
-      .concatMap(tasks => TaskModel.addTasklistTasksUndone(_tasklistId, tasks))
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
+        isDone: false
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addTasklistTasksUndone(_tasklistId, tasks))
+    })
   }
 
   getTasklistDone(_tasklistId: string, page = 1): Observable<Task[]> {
@@ -35,12 +39,15 @@ export class TaskAPI {
     if (get) {
       return get
     }
-    return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
-      isDone: true,
-      page: page,
-      limit: 30
-    }))
-      .concatMap(tasks => TaskModel.addTasklistTasksDone(_tasklistId, tasks, page))
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
+        isDone: true,
+        page: page,
+        limit: 30
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addTasklistTasksDone(_tasklistId, tasks, page))
+    })
   }
 
   getOrganizationMyDueTasks(organization: OrganizationData, page = 1): Observable<Task[]> {
@@ -48,12 +55,15 @@ export class TaskAPI {
     if (get) {
       return get
     }
-    return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
-      page: page,
-      isDone: false,
-      hasDuedate: true
-    }))
-      .concatMap(tasks => TaskModel.addOrganizationMyDueTasks(organization, tasks, page))
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
+        page: page,
+        isDone: false,
+        hasDuedate: true
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addOrganizationMyDueTasks(organization, tasks, page))
+    })
   }
 
   getOrganizationMyTasks(organization: OrganizationData, page = 1): Observable<Task[]> {
@@ -61,12 +71,15 @@ export class TaskAPI {
     if (get) {
       return get
     }
-    return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
-      page: page,
-      isDone: false,
-      hasDuedate: false
-    }))
-      .concatMap(tasks => TaskModel.addOrganizationMyTasks(organization, tasks, page))
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
+        page: page,
+        isDone: false,
+        hasDuedate: false
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addOrganizationMyTasks(organization, tasks, page))
+    })
   }
 
   getOrganizationMyDoneTasks(organization: OrganizationData, page = 1): Observable<Task[]> {
@@ -74,11 +87,14 @@ export class TaskAPI {
     if (get) {
       return get
     }
-    return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
-      page: page,
-      isDone: true
-    }))
-      .concatMap(tasks => TaskModel.addOrganizationMyDoneTasks(organization, tasks, page))
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
+        page: page,
+        isDone: true
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addOrganizationMyDoneTasks(organization, tasks, page))
+    })
   }
 
   get(_id: string, detailType?: detailType): Observable<Task> {
@@ -86,8 +102,11 @@ export class TaskAPI {
     if (get) {
       return get
     }
-    return Observable.fromPromise(taskFetch.get(_id, detailType))
-      .concatMap(task => TaskModel.add(task))
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(taskFetch.get(_id, detailType))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(task => TaskModel.add(task))
+    })
   }
 
   create(taskInfo: CreateTaskOptions): Observable<Task> {
