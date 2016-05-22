@@ -111,7 +111,7 @@ export default describe('utils test', () => {
       if (val === 4) {
         return false
       }
-      arr.push(val)
+      return arr.push(val)
     })
     expect(arr).to.deep.equal(dest)
   })

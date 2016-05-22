@@ -18,7 +18,7 @@ export default class Model<T> {
   private _childIndexes: string[] = []
 
   constructor(public data: T, private _unionFlag = '_id') {
-    const index = this.index = this.data[this._unionFlag]
+    const index = this.index = data[this._unionFlag]
     forEach(data, (val: any, key: string) => {
       if (val) {
         const flag = val[_unionFlag]
@@ -26,19 +26,31 @@ export default class Model<T> {
           forEach(val, (ele: any, pos: number) => {
             const _flag = ele[_unionFlag]
             if (_flag) {
-              const subModel = new Model(ele, _unionFlag)
+              const cache: Model<any> = Data.get(_flag)
               const route = {
                 key: key,
                 pos: pos
               }
-              subModel.addParent(index)
+              if (!cache) {
+                const subModel = new Model(ele, _unionFlag)
+                subModel.addParent(index)
+              }else {
+                cache.addParent(index)
+                val.splice(pos, 1, cache.data)
+              }
               this.addChildren(_flag, route)
             }
           })
         } else if (typeof flag !== 'undefined') {
-          const subModel = new Model(val, _unionFlag)
+          const cache: Model<any> = Data.get(flag)
           const route = key
-          subModel.addParent(index)
+          if (cache) {
+            cache.addParent(index)
+            data[key] = cache.data
+          }else {
+            const subModel = new Model(val, _unionFlag)
+            subModel.addParent(index)
+          }
           this.addChildren(flag, route)
         }
       }
@@ -64,6 +76,62 @@ export default class Model<T> {
         if (typeof patch !== 'object') {
           return observer.error(new Error('A patch should be Object'))
         }
+        const _unionFlag = this._unionFlag
+        const _finalPatch: any = {}
+        forEach(patch, (val, key) => {
+          if (val) {
+            const flag: string = val[_unionFlag]
+            if (val instanceof Array && val.length) {
+              const oldVal = this.data[key]
+              if (oldVal instanceof Array && oldVal.length) {
+                forEach(oldVal, ele => {
+                  const _flag = ele[_unionFlag]
+                  if (_flag) {
+                    this.removeChild(_flag)
+                  }
+                })
+              }
+              const newEle: any[] = _finalPatch[key] = []
+              forEach(val, (ele: any, pos: number) => {
+                const _flag = ele[_unionFlag]
+                if (_flag) {
+                  if (this.children.indexOf(_flag) === -1) {
+                    const cache: Model<any> = Data.get(_flag)
+                    const route = {
+                      key: key,
+                      pos: pos
+                    }
+                    if (!cache) {
+                      const subModel = new Model(ele, _unionFlag)
+                      subModel.addParent(this.index)
+                      newEle.push(subModel.data)
+                    }else {
+                      newEle.push(cache.data)
+                      cache.addParent(this.index)
+                    }
+                    this.addChildren(_flag, route)
+                  }
+                }else {
+                  newEle.push(ele)
+                }
+              })
+            } else if (typeof flag !== 'undefined') {
+              const cache: Model<any> = Data.get(flag)
+              const route = key
+              if (!cache) {
+                const subModel = new Model(val, _unionFlag)
+                subModel.addParent(this.index)
+                _finalPatch[key] = subModel.data
+              }else {
+                _finalPatch[key] = cache.data
+                cache.addParent(this.index)
+              }
+              this.addChildren(flag, route)
+            }else {
+              _finalPatch[key] = val
+            }
+          }
+        })
         this.data = assign(this.data, patch)
         const result = clone(this.data)
         observer.next(result)
@@ -96,7 +164,7 @@ export default class Model<T> {
 
   addToCollection(collectionName: string): Model<T> {
     if (this.collections.indexOf(collectionName) === -1) {
-      this.collections.push(collectionName)
+      this.collections.unshift(collectionName)
     }
     return this
   }

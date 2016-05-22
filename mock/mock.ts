@@ -2,7 +2,7 @@
 import {flushState} from './backend'
 import {forEach} from './utils'
 
-declare const global
+declare const global: any
 
 export const fetchStack = {}
 

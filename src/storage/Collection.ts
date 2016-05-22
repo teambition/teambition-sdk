@@ -34,7 +34,7 @@ export default class Collection <T> {
         }else {
           const model = new Model(ele, _unionFlag)
           model.addToCollection(index)
-          result.push(ele)
+          result.push(model.data)
         }
         this.elements.push(_index)
       })
@@ -75,7 +75,7 @@ export default class Collection <T> {
         const flag = x[this._unionFlag]
         if (this.elements.indexOf(flag) === -1) {
           this.elements.unshift(flag)
-          model.collections.unshift(this.index)
+          model.addToCollection(this.index)
           this.data.unshift(model.data)
         }
         return this.notify()

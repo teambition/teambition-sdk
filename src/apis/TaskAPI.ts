@@ -6,7 +6,8 @@ import { errorHandler, makeColdSignal } from './utils'
 import {
   TaskFetch,
   CreateTaskOptions,
-  MoveTaskOptions
+  MoveTaskOptions,
+  UpdateTaskOptions
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../teambition'
 
@@ -20,7 +21,7 @@ export class TaskAPI {
     TaskModel.$destroy()
   }
 
-  getTasklistsUndone(_tasklistId: string): Observable<Task[]> {
+  getTasklistUndone(_tasklistId: string): Observable<Task[]> {
     const get = TaskModel.getTasklistTasksUndone(_tasklistId)
     if (get) {
       return get
@@ -135,37 +136,67 @@ export class TaskAPI {
 
   move(_taskId: string, options: MoveTaskOptions): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      Observable.fromPromise(taskFetch.move(_taskId, options))
-        .catch(err => {
-          observer.error(err)
-          return TaskModel.get(_taskId)
-        })
-        .concatMap(task => TaskModel.update<Task>(_taskId, task))
-        .forEach(task => observer.next(task))
+      const promise = taskFetch.move(_taskId, options)
+      this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateContent(_taskId: string, content: string): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      Observable.fromPromise(taskFetch.updateContent(_taskId, content))
-        .catch(err => {
-          observer.error(err)
-          return TaskModel.get(_taskId)
-        })
-        .concatMap(task => TaskModel.update<Task>(_taskId, task))
-        .forEach(task => observer.next(task))
+      const promise = taskFetch.updateContent(_taskId, content)
+      this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateDueDate(_taskId: string, dueDate: string): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      Observable.fromPromise(taskFetch.updateDueDate(_taskId, dueDate))
-        .catch(err => {
-          observer.error(err)
-          return TaskModel.get(_taskId)
-        })
-        .concatMap(task => TaskModel.update<Task>(_taskId, task))
-        .forEach(task => observer.next(task))
+      const promise = taskFetch.updateDueDate(_taskId, dueDate)
+      this._updateFromPromise(_taskId, observer, promise)
     })
+  }
+
+  updateExecutor(_taskId: string, _executorId: string): Observable<Task> {
+    return Observable.create((observer: Observer<Task>) => {
+      const promise = taskFetch.updateExecutor(_taskId, _executorId)
+      this._updateFromPromise(_taskId, observer, promise)
+    })
+  }
+
+  updateInvolvemembers(_taskId: string, memberIds: string[], type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'): Observable<Task> {
+    return Observable.create((observer: Observer<Task>) => {
+      const promise = taskFetch.updateInvolvemembers(_taskId, memberIds, type)
+      this._updateFromPromise(_taskId, observer, promise)
+    })
+  }
+
+  updateNote(_taskId: string, note: string): Observable<Task> {
+    return Observable.create((observer: Observer<Task>) => {
+      const promise = taskFetch.updateNote(_taskId, note)
+      this._updateFromPromise(_taskId, observer, promise)
+    })
+  }
+
+  updateStatus(_taskId: string, status: boolean): Observable<Task> {
+    return Observable.create((observer: Observer<Task>) => {
+      const promise = taskFetch.updateStatus(_taskId, status)
+      this._updateFromPromise(_taskId, observer, promise)
+    })
+  }
+
+  update<T extends UpdateTaskOptions>(_taskId: string, patch: T): Observable<Task> {
+    return Observable.create((observer: Observer<Task>) => {
+      const promise = taskFetch.update(_taskId, patch)
+      this._updateFromPromise(_taskId, observer, promise)
+    })
+  }
+
+  private _updateFromPromise(_taskId: string, observer: Observer<Task>, promise: Promise<any>) {
+    Observable.fromPromise(promise)
+      .catch(err => {
+        observer.error(err)
+        return TaskModel.get(_taskId)
+      })
+      .concatMap(task => TaskModel.update<Task>(_taskId, task))
+      .forEach(task => observer.next(task))
   }
 }

@@ -28,7 +28,7 @@ const buildTest = (stream: NodeJS.ReadWriteStream) => {
     .pipe(typescript({
       module: 'commonjs',
       target: 'es5',
-      removeComments: true,
+      removeComments: false,
       isolatedModules: true
     }))
     .pipe(sourcemaps.write())

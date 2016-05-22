@@ -23,7 +23,7 @@ import { organizationMyDoneTasks } from '../mock/organizationMyDoneTasks'
 const expect = chai.expect
 chai.use(sinonChai)
 
-describe('Task API test', () => {
+export default describe('Task API test', () => {
   let Task: TaskAPI
   let httpBackend: Backend
 
@@ -60,9 +60,22 @@ describe('Task API test', () => {
     })
 
     it('get tasks undone should ok', done => {
-      Task.getTasklistsUndone(tasklistId)
+      Task.getTasklistUndone(tasklistId)
         .subscribe(data => {
           expect(data).to.be.instanceof(Array)
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('network error should be handed', done => {
+      httpBackend.whenGET(`${apihost}tasklists/error/tasks?isDone=false`)
+        .error('Unauthorize', 401)
+
+      Task.getTasklistUndone('error')
+        .subscribe(null, err => {
+          expect(err.message).to.equal('Unauthorize, statu code: 401')
           done()
         })
 
@@ -161,7 +174,7 @@ describe('Task API test', () => {
     it('add task to task undone should ok', done => {
       const length = tasksUndone.length
 
-      Task.getTasklistsUndone(tasklistId)
+      Task.getTasklistUndone(tasklistId)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(length + 1)
@@ -170,6 +183,45 @@ describe('Task API test', () => {
         })
 
       timeout(Task.get('mocktaskundone'), 20)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('undone task should ok', done => {
+      const mockDoneTask = clone(tasksDone[0])
+      const length = tasksUndone.length
+
+      httpBackend.whenGET(`${apihost}tasks/${mockDoneTask._id}`)
+        .respond(JSON.stringify(mockDoneTask))
+
+      httpBackend.whenPUT(`${apihost}tasks/${mockDoneTask._id}/isDone`, {
+        isDone: false
+      })
+        .respond({
+          isDone: false
+        })
+
+      Task.getTasklistUndone(tasklistId)
+        .skip(1)
+        .subscribe(tasks => {
+          expect(tasks.length).to.equal(length + 1)
+          forEach(tasks[0], (ele, key) => {
+            if (key !== 'isDone') {
+              expect(ele).to.deep.equal(mockDoneTask[key])
+            }else {
+              expect(ele).to.equal(!mockDoneTask[key])
+            }
+          })
+          done()
+        })
+
+      Task.get(mockDoneTask._id)
+        .subscribeOn(Scheduler.async, 5)
+        .subscribe()
+
+      Task.updateStatus(mockDoneTask._id, false)
+        .subscribeOn(Scheduler.async, 10)
         .subscribe()
 
       httpBackend.flush()
@@ -207,36 +259,42 @@ describe('Task API test', () => {
       if (index < 30) {
         return task
       }
+      return
     }).filter(x => !!x)
 
     const duepage2 = organizationMyDueTasks.map((task, index) => {
       if (index >= 30 && index < 60) {
         return task
       }
+      return
     }).filter(x => !!x)
 
     const taskspage1 = organizationMyTasks.map((task, index) => {
       if (index < 30) {
         return task
       }
+      return
     }).filter(x => !!x)
 
     const taskspage2 = organizationMyTasks.map((task, index) => {
       if (index >= 30 && index < 60) {
         return task
       }
+      return
     }).filter(x => !!x)
 
     const tasksdonepage1 = organizationMyDoneTasks.map((task, index) => {
       if (index < 30) {
         return task
       }
+      return
     }).filter(x => !!x)
 
     const tasksdonepage2 = organizationMyDoneTasks.map((task, index) => {
       if (index >= 30 && index < 60) {
         return task
       }
+      return
     }).filter(x => !!x)
 
     beforeEach(() => {
@@ -629,6 +687,171 @@ describe('Task API test', () => {
           expect(err.message).to.equal('dueDate must be ISOString, statu code: 400')
           done()
         })
+
+      httpBackend.flush()
+    })
+
+    it('update executor should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/_executorId`, {
+        _executorId: 'test executor'
+      })
+        .respond({
+          _executorId: 'test executor',
+          executor: {
+            _id: 'test executor',
+            name: 'teambition sdk executor test',
+            avatarUrl: 'xxxx'
+          }
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(task => {
+          expect(task.executor).deep.equal({
+            _id: 'test executor',
+            name: 'teambition sdk executor test',
+            avatarUrl: 'xxxx'
+          })
+          done()
+        })
+
+      Task.updateExecutor(mockTaskGet._id, 'test executor')
+        .subscribeOn(Scheduler.async, 5)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('update involove members should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
+        involveMembers: ['a', 'b']
+      })
+        .respond({
+          involveMembers: ['a', 'b']
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(task => {
+          expect(task.involveMembers).deep.equal(['a', 'b'])
+          done()
+        })
+
+      Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'involveMembers')
+        .subscribeOn(Scheduler.async, 10)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('add involove members should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
+        addInvolvers: ['a', 'b']
+      })
+        .respond({
+          involveMembers: mockTaskGet.involveMembers.concat(['a', 'b'])
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(task => {
+          expect(task.involveMembers).deep.equal(mockTaskGet.involveMembers.concat(['a', 'b']))
+          done()
+        })
+
+      Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'addInvolvers')
+        .subscribeOn(Scheduler.async, 10)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('del involove members should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
+        delInvolvers: ['56986d43542ce1a2798c8cfb']
+      })
+        .respond({
+          involveMembers: []
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(task => {
+          expect(task.involveMembers.length).to.equal(0)
+          done()
+        })
+
+      Task.updateInvolvemembers(mockTaskGet._id, ['56986d43542ce1a2798c8cfb'], 'delInvolvers')
+        .subscribeOn(Scheduler.async, 10)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('update note should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/note`, {
+        note: '123'
+      })
+        .respond({
+          note: '123'
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(task => {
+          expect(task.note).to.equal('123')
+          done()
+        })
+
+      Task.updateNote(mockTaskGet._id, '123')
+        .subscribeOn(Scheduler.async, 10)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('update status should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/isDone`, {
+        isDone: true
+      })
+        .respond({
+          isDone: true
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(task => {
+          expect(task.isDone).to.be.true
+          done()
+        })
+
+      Task.updateStatus(mockTaskGet._id, true)
+        .subscribeOn(Scheduler.async, 10)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('update task use update api should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}`, {
+        priority: 2
+      })
+        .respond({
+          priority: 2
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(task => {
+          expect(task.priority).to.equal(2)
+          done()
+        })
+
+      Task.update(mockTaskGet._id, {
+        priority: 2
+      })
+        .subscribeOn(Scheduler.async, 5)
+        .subscribe()
 
       httpBackend.flush()
     })
