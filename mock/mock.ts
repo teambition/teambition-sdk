@@ -2,7 +2,7 @@
 import {flushState} from './backend'
 import {forEach} from './utils'
 
-declare const global
+declare const global: any
 
 export const fetchStack = {}
 
@@ -33,7 +33,7 @@ export function mockFetch() {
   context['fetch'] = (uri: string, options?: {
     method?: any,
     body?: any
-  }) => {
+  }): any => {
     const method = options.method ? options.method.toLowerCase() : ''
     if (method !== 'options') {
       const dataPath = options.body ? parseObject(options.body) : ''
@@ -50,8 +50,7 @@ export function mockFetch() {
         return promise
       }else if (result && result.status) {
         /* istanbul ignore if */
-        console.error(result.data)
-        throw new Error(result.data)
+        return Promise.reject(new Error(`${result.data}, statu code: ${result.status}`))
       }else {
         /* istanbul ignore if */
         throw new Error(`nothing expect return from server, uri: ${uri}, method: ${options.method}, body: ${JSON.stringify(options.body)}`)

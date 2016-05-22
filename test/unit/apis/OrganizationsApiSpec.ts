@@ -1,9 +1,9 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
-import {Backend, OrganizationsAPI, apihost} from '../index'
-import {organizations} from '../mock/organizations'
-import {flush} from '../utils'
+import { Backend, OrganizationsAPI, apihost } from '../index'
+import { organizations } from '../mock/organizations'
+import { flush } from '../utils'
 
 const expect = chai.expect
 chai.use(sinonChai)

@@ -1,22 +1,22 @@
 'use strict'
-import {Observable} from 'rxjs'
+import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
-import {datasToSchemas, dataToSchema} from '../utils/index'
+import { datasToSchemas, dataToSchema } from '../utils/index'
 import Project from '../schemas/Project'
 
-export class ProjectModel extends BaseModel<Project> {
+export class ProjectModel extends BaseModel {
 
   private _schemaName = 'Project'
 
   addProjects(projects: Project[]): Observable<Project[]> {
-    const result = datasToSchemas<Project, Project>(projects, Project)
+    const result = datasToSchemas<Project>(projects, Project)
     return this._saveCollection(`projects`, result, this._schemaName, (data: Project) => {
       return !data.isArchived
     })
   }
 
   addArchivesProjects(projects: Project[]): Observable<Project[]> {
-    const result = datasToSchemas<Project, Project>(projects, Project)
+    const result = datasToSchemas<Project>(projects, Project)
     return this._saveCollection(`archives:projects`, result, this._schemaName, (data: Project) => {
       return data.isArchived
     })
@@ -29,7 +29,7 @@ export class ProjectModel extends BaseModel<Project> {
   }
 
   addProject(project: Project): Observable<Project> {
-    const result = dataToSchema<Project, Project>(project, Project)
+    const result = dataToSchema<Project>(project, Project)
     return this._save(result)
   }
 

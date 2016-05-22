@@ -1,9 +1,9 @@
 'use strict'
-import {Scheduler} from 'rxjs'
+import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
-import {Backend, apihost, StageAPI} from '../index'
-import {stages} from '../mock/stages'
-import {expectDeepEqual, notInclude, flush} from '../utils'
+import { Backend, apihost, StageAPI } from '../index'
+import { stages } from '../mock/stages'
+import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
 
@@ -70,7 +70,7 @@ export default describe('Stage API Test', () => {
       .skip(1)
       .subscribe(data => {
         expect(data.length).to.equal(length + 1)
-        expect(data[data.length - 1].name).to.equal('stage create test')
+        expect(data[0].name).to.equal('stage create test')
         done()
       })
 

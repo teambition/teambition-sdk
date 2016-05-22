@@ -1,82 +1,33 @@
 export const organizations = [
   {
-    _id: '55c812b689d19004317e265b',
-    name: '德拉诺委员会',
-    _creatorId: '55c045ffef279d4b53154d41',
-    logo: 'https://striker.teambition.net/thumbnail/11091fcd743bcb21a10f203a183e4763e1a9/w/200/h/200',
-    description: '专注解决外域/德拉诺的各种治安问题，二十年品质保障',
+    _id: '56988e7d05ead4ae7bb8dcf5',
+    name: '德拉诺治安委员会',
+    _creatorId: '56986d43542ce1a2798c8cfb',
+    logo: 'https://striker.teambition.net/thumbnail/110d26f70effde47214a4b52efaaedb513c8/w/200/h/200',
+    description: '专治外域各种不服',
     category: '',
-    pinyin: 'delanuoweiyuanhui',
-    py: 'dlnwyh',
+    pinyin: 'delanuozhianweiyuanhui',
+    py: 'dlnzawyh',
     isPublic: false,
-    dividers: [
-      {
-        name: 'a',
-        pos: 0
-      },
-      {
-        name: 'this is a very very long long title',
-        pos: 0
-      },
-      {
-        name: 'd',
-        pos: 3
-      },
-      {
-        name: 'c',
-        pos: 4
-      },
-      {
-        name: 'f',
-        pos: 8
-      },
-      {
-        name: 'e',
-        pos: 10
-      },
-      {
-        name: 'g3',
-        pos: 12
-      },
-      {
-        name: 'b',
-        pos: 17
-      }
-    ],
+    dividers: [],
     projectIds: [
-      '5671980a9b102e92693b2731',
-      '566937c2a383643f062ce441',
-      '5670c6b19b102e92693b24b1',
-      '566fc7e6e1611d385536e668',
-      '5670c54a9b102e92693b249e',
-      '564044010e1d1b9615ad4aac',
-      '567148d8640aba7619cedda8',
-      '5642b5866a83b842214f7fc6',
-      '564e819ca28b00b65f5be7c7',
-      '566fc52ebfde38535544af37',
-      '565c196b52c0e71025224195',
-      '567197f29d13969513e45365',
-      '566e34739693afa025c97312',
-      '567199849d13969513e45385',
-      '567224ea6158dbb11b632bf0',
-      '56722b9ff8cc88c81b8fdd32',
-      '56723023f8cc88c81b8fdd4c',
-      '567231696158dbb11b632c0f'
+      '56988fb705ead4ae7bb8dcfe',
+      '569df8b418bfe350733e2461',
+      '56b069d68c2f109f7aeb0cf7',
+      '56c3ce4b2b53be1664a26154'
     ],
-    created: '2015-08-10T02:55:50.593Z',
-    background: '',
+    created: '2016-01-15T06:15:25.806Z',
+    background: 'bg-01',
     plan: {
-      lastPaidTime: '2015-08-10T11:08:32.519Z',
-      firstPaidTime: '2015-08-10T11:08:32.519Z',
-      updated: null,
-      created: '2015-08-10T02:55:56.514Z',
-      expired: '2016-08-23T16:00:00.000Z',
-      free: false,
-      membersCount: -1,
-      days: 234
+      status: 'trial',
+      expired: '2018-01-30T00:00:00.000Z',
+      paidCount: 0,
+      membersCount: 10000,
+      days: 622,
+      objectType: 'organization'
     },
     _defaultRoleId: null,
-    _roleId: 1
+    _roleId: 2
   },
   {
     _id: '55e5447b31033d0275b7806d',
@@ -88,7 +39,7 @@ export const organizations = [
     pinyin: 'guoqidizuzhi',
     py: 'gqdzz',
     isPublic: false,
-    dividers: [ ],
+    dividers: [],
     projectIds: [
       '567220766158dbb11b632a33'
     ],
@@ -117,8 +68,8 @@ export const organizations = [
     pinyin: 'kuaiyaodaoqidiqiye',
     py: 'kydqdqy',
     isPublic: false,
-    dividers: [ ],
-    projectIds: [ ],
+    dividers: [],
+    projectIds: [],
     created: '2015-09-10T06:44:11.045Z',
     background: '',
     plan: {
@@ -144,8 +95,8 @@ export const organizations = [
     pinyin: 'asdasd',
     py: 'asdasd',
     isPublic: false,
-    dividers: [ ],
-    projectIds: [ ],
+    dividers: [],
+    projectIds: [],
     created: '2015-10-30T09:36:45.168Z',
     background: '',
     plan: {
@@ -171,7 +122,7 @@ export const organizations = [
     pinyin: 'shijiewubaiqiangqiye',
     py: 'sjwbqqy',
     isPublic: false,
-    dividers: [ ],
+    dividers: [],
     projectIds: [
       '56333d241aa92ac80a957844',
       '56544365616ba3d40a80e1e8'
@@ -201,7 +152,7 @@ export const organizations = [
     pinyin: 'ceshiceshi',
     py: 'cscs',
     isPublic: true,
-    dividers: [ ],
+    dividers: [],
     projectIds: [
       '562dcac2dd2f30cb28b3890d',
       '564c1b91cbc4fecb6c3eb98a',
@@ -233,7 +184,7 @@ export const organizations = [
     pinyin: 'tianwanggaidihu',
     py: 'twgdh',
     isPublic: false,
-    dividers: [ ],
+    dividers: [],
     projectIds: [
       '565551f650bc469679f20ccc'
     ],
@@ -262,8 +213,8 @@ export const organizations = [
     pinyin: 'hehehehe',
     py: 'hhhh',
     isPublic: false,
-    dividers: [ ],
-    projectIds: [ ],
+    dividers: [],
+    projectIds: [],
     created: '2015-11-25T08:01:10.311Z',
     background: '',
     plan: {

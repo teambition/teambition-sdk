@@ -1,12 +1,11 @@
 'use strict'
 import * as Rx from 'rxjs'
 import * as chai from 'chai'
-import {Backend, ProjectsAPI, apihost, clone, assign} from '../index'
-import {projects} from '../mock/projects'
-import {expectDeepEqual, notInclude, flush} from '../utils'
+import { Backend, ProjectsAPI, apihost, clone, assign } from '../index'
+import { projects } from '../mock/projects'
+import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
-
 
 export default describe('Project API test', () => {
   let httpBackend: Backend
@@ -86,7 +85,7 @@ export default describe('Project API test', () => {
       Project.getAll()
         .skip(1)
         .subscribe(r => {
-          expect(r.pop().name).to.equal('test project')
+          expect(r[0].name).to.equal('test project')
           done()
         })
 
@@ -99,12 +98,10 @@ export default describe('Project API test', () => {
     httpBackend.flush()
   })
 
-
   it('update project should ok', done => {
     const project = projects[0]
     const updatedProject = clone(project)
     updatedProject.name = 'test project'
-
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}`, {
       name: 'test project'
@@ -215,7 +212,7 @@ export default describe('Project API test', () => {
       .skip(1)
       .subscribe(r => {
         expect(r.length).to.equal(length + 1)
-        expect(r.pop().name).to.equal('teambition project copy test')
+        expect(r[0].name).to.equal('teambition project copy test')
         done()
       })
 
@@ -245,7 +242,7 @@ export default describe('Project API test', () => {
       .skip(1)
       .subscribe(r => {
         expect(r.length).to.equal(length + 1)
-        expectDeepEqual(r.pop(), mockProject)
+        expectDeepEqual(r[0], mockProject)
         done()
       })
 
@@ -357,7 +354,6 @@ export default describe('Project API test', () => {
     Project.transfer(project._id, 'test')
       .subscribeOn(Rx.Scheduler.async, 20)
       .subscribe()
-
 
     httpBackend.flush()
   })

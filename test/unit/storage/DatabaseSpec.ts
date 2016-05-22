@@ -46,7 +46,6 @@ export default describe('database test: ', () => {
       })
   })
 
-
   describe('update should ok: ', () => {
     it('update object should ok', done => {
       const data = {
@@ -126,6 +125,7 @@ export default describe('database test: ', () => {
           data: 'tbsdk_test 9'
         }
       ]
+
       const patchData = [
         {
           _id: '9999',
@@ -145,7 +145,7 @@ export default describe('database test: ', () => {
         }
       ]
 
-	    const set = Storage.storeCollection('collection_test_2', data)
+      const set = Storage.storeCollection('collection_test_2', data)
       const update = Storage.updateCollection('collection_test_2', patchData)
       const get = Storage.get<typeof data>('collection_test_2')
 
@@ -166,12 +166,8 @@ export default describe('database test: ', () => {
       })
 
       set.concatMap(r => Storage.updateOne('14.14', '5555'))
-        .catch(e => {
-          expect(e.message).to.equal('A patch should be Object')
-          return Rx.Observable.of(null)
-        })
-        .subscribe(val => {
-          expect(val).to.be.null
+        .subscribe(null, (err: Error) => {
+          expect(err.message).to.equal('A patch should be Object')
           done()
         })
 
@@ -204,16 +200,15 @@ export default describe('database test: ', () => {
       const get = Storage.get<typeof data>('20.20')
       const update = Storage.updateOne('21.21', patch)
 
-      set.concatMap(x => get)
-        .concatMap(x => update)
+      set.concatMap(x => update)
         .concatMap(x => get)
         .subscribe(r => {
           expect(r.data.data).to.equal(patch.data)
           done()
-        })
+        }, err => console.log(err))
     })
 
-    it('child of obj updated, parent should be notified', done => {
+    it('child of obj is updated, parent should be notified', done => {
       const obj = {
         _id: '28.28',
         data: 'tbsdk_test 28',
@@ -241,7 +236,78 @@ export default describe('database test: ', () => {
         .subscribe()
     })
 
-    it('ele obj updted, collection include it should be notified', done => {
+    it('child of obj is updated to new one and the child is updated again, parent should be notified', done => {
+      const obj = {
+        _id: '28.28',
+        data: 'tbsdk_test 28',
+        child: {
+          _id: '29.29',
+          data: 'tbsdk_test 29'
+        }
+      }
+
+      Storage.storeOne(obj)
+        .subscribe()
+
+      Storage.get<typeof obj>('28.28')
+        .skip(2)
+        .subscribeOn(Rx.Scheduler.async, 10)
+        .subscribe(r => {
+          expect(r.child.data).to.equal('new one')
+          done()
+        })
+
+      Storage.updateOne('28.28', {
+        child: {
+          _id: 'newOne',
+          data: 'tbsdk_test new one'
+        }
+      })
+        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribe()
+
+      Storage.updateOne('newOne', {
+        data: 'new one'
+      })
+        .subscribeOn(Rx.Scheduler.async, 30)
+        .subscribe()
+    })
+
+    it('stored child of obj updated, parent should be notified', done => {
+      const childObj = {
+        _id: '29.29',
+        data: 'tbsdk_test 29'
+      }
+
+      const obj = {
+        _id: '28.28',
+        data: 'tbsdk_test 28',
+        child: {
+          _id: '29.29',
+          data: 'tbsdk_test 29'
+        }
+      }
+
+      Storage.storeOne(childObj)
+        .concatMap(x => Storage.storeOne(obj))
+        .subscribe()
+
+      Storage.get<typeof obj>('28.28')
+        .skip(1)
+        .subscribeOn(Rx.Scheduler.async, 10)
+        .subscribe(r => {
+          expect(r.child.data).to.equal('tbsdk_test 29.29')
+          done()
+        })
+
+      Storage.updateOne('29.29', {
+        data: 'tbsdk_test 29.29'
+      })
+        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribe()
+    })
+
+    it('ele obj updated, collection include it should be notified', done => {
       const col = [
         {
           _id: '30.30',
@@ -263,11 +329,46 @@ export default describe('database test: ', () => {
             })
         })
 
-
       Storage.updateOne('31.31', {
         data: 'tbsdk_test 31.31'
       })
         .subscribeOn(Rx.Scheduler.async, 50)
+        .subscribe()
+    })
+
+    it('stored ele obj updated, collection include it should be notified', done => {
+      const obj = {
+        _id: '30.30',
+        data: 'tbsdk_test 30'
+      }
+
+      const col = [
+        {
+          _id: '30.30',
+          data: 'tbsdk_test 30'
+        },
+        {
+          _id: '31.31',
+          data: 'tbsdk_test 31'
+        }
+      ]
+
+      Storage.storeOne(obj)
+        .concatMap(x => Storage.storeCollection('collection_test_10', col))
+        .subscribe()
+
+      Storage.get<typeof col>('collection_test_10')
+        .subscribeOn(Rx.Scheduler.async, 10)
+        .skip(1)
+        .subscribe(r => {
+          expect(r[0].data).to.equal('tbsdk_test 30.30')
+          done()
+        })
+
+      Storage.updateOne('30.30', {
+        data: 'tbsdk_test 30.30'
+      })
+        .subscribeOn(Rx.Scheduler.async, 20)
         .subscribe()
     })
 
@@ -314,7 +415,7 @@ export default describe('database test: ', () => {
         }
       }
 
-      it('store ele that satisfy condition, collection should be updated', done => {
+      it('collection should be updated', done => {
         Storage.storeCollection('collection_test_14', [
           new TestEle('40.40', 'tbsdk_test 40', 40),
           new TestEle('41.41', 'tbsdk_test 41', 41)
@@ -327,7 +428,7 @@ export default describe('database test: ', () => {
           .skip(1)
           .subscribe(r => {
             expect(r.length).to.equal(3)
-            expect(r.pop().name).to.equal('tbsdk_test 42')
+            expect(r[0].name).to.equal('tbsdk_test 42')
             done()
           })
 
@@ -336,7 +437,7 @@ export default describe('database test: ', () => {
           .subscribe()
       })
 
-      it('collection should be updated', done => {
+      it('after ele updated, collection should be updated', done => {
 
         Storage.storeCollection('collection_test_12', [
           new TestEle('34.34', 'tbsdk_test 34', 34),
@@ -350,7 +451,7 @@ export default describe('database test: ', () => {
           .skip(1)
           .subscribe(r => {
             expect(r.length).to.equal(3)
-            expect(r[r.length - 1].name).to.equal('tbsdk_test 36')
+            expect(r[0].name).to.equal('tbsdk_test 36')
             done()
           })
 
@@ -361,7 +462,7 @@ export default describe('database test: ', () => {
         Storage.updateOne('36.36', {
           age: 40
         })
-          .subscribeOn(Rx.Scheduler.async, 50)
+          .subscribeOn(Rx.Scheduler.async, 30)
           .subscribe()
       })
 
@@ -380,7 +481,7 @@ export default describe('database test: ', () => {
           .skip(2)
           .subscribe(r => {
             expect(r.length).to.equal(3)
-            expect(r[r.length - 1].name).to.equal('tbsdk_test 39.39')
+            expect(r[0].name).to.equal('tbsdk_test 39.39')
             done()
           })
 

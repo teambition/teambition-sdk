@@ -2,7 +2,7 @@
 import * as Rx from 'rxjs'
 import * as chai from 'chai'
 import BaseModel from '../../src/models/BaseModel'
-import {forEach} from './index'
+import { forEach } from './index'
 
 const expect = chai.expect
 

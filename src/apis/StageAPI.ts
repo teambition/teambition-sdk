@@ -1,6 +1,7 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
-import {StageFetch, StageCreateData, StageUpdateData} from '../fetchs/StageFetch'
+import { Observable, Observer } from 'rxjs'
+import { errorHandler, makeColdSignal } from './utils'
+import { StageFetch, StageCreateData, StageUpdateData } from '../fetchs/StageFetch'
 import StageModel from '../models/StageModel'
 import Stage from '../schemas/Stage'
 
@@ -8,18 +9,32 @@ const stageFetch = new StageFetch()
 
 export class StageAPI {
 
+  constructor() {
+    StageModel.$destroy()
+  }
+
   getAll(_tasklistId: string): Observable<Stage[]> {
     const get = StageModel.getStages(_tasklistId)
-    if (get) return get
-    return Observable.fromPromise(stageFetch.get(_tasklistId))
-      .concatMap(stages => StageModel.addStages(_tasklistId, stages))
+    if (get) {
+      return get
+    }
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(stageFetch.get(_tasklistId))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(stages => StageModel.addStages(_tasklistId, stages))
+    })
   }
 
   getOne(_tasklistId: string, stageId: string): Observable<Stage> {
     const get = StageModel.getOne(stageId)
-    if (get) return get
-    return Observable.fromPromise(stageFetch.get(_tasklistId, stageId))
-      .concatMap(stage => StageModel.add(stage))
+    if (get) {
+      return get
+    }
+    return makeColdSignal(observer => {
+      return Observable.fromPromise(stageFetch.get(_tasklistId, stageId))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(stage => StageModel.add(stage))
+    })
   }
 
   create(data: StageCreateData): Observable<Stage> {

@@ -1,5 +1,5 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
+import { Observable, Observer } from 'rxjs'
 import {
   ProjectFetch,
   ProjectCreateOptions,
@@ -27,17 +27,24 @@ export type JSONObj = {
 
 export class ProjectsAPI {
 
+  constructor() {
+    ProjectModel.$destroy()
+  }
 
   getAll(querys?: JSONObj): Observable<Project[]> {
     const get = ProjectModel.getProjects()
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(projectFetch.getAll(querys))
       .concatMap(projects => ProjectModel.addProjects(projects))
   }
 
   getOrgs(_organizationId: string): Observable<Project[]> {
     const get = ProjectModel.getOrgProjects(_organizationId)
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(projectFetch.getAll({
       _organizationId: _organizationId
     }))
@@ -46,14 +53,18 @@ export class ProjectsAPI {
 
   getOne(_id: string, querys?: JSONObj): Observable<Project> {
     const get = ProjectModel.getOne(_id)
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(projectFetch.getOne(_id, querys))
       .concatMap(project => ProjectModel.addProject(project))
   }
 
   getArchives(): Observable<Project[]> {
     const get = ProjectModel.getArchivesProjects()
-    if (get) return get
+    if (get) {
+      return get
+    }
     return Observable.fromPromise(projectFetch.getAll({
       isArchived: true
     }))

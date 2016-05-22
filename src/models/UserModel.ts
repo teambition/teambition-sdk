@@ -1,28 +1,30 @@
 'use strict'
-import {Observable} from 'rxjs'
+import { Observable } from 'rxjs'
 import Model from './BaseModel'
-import {UserMe, UserEmail} from '../teambition'
+import { UserMe, UserEmail } from '../teambition'
 
-export class UserModel extends Model<UserMe> {
+export class UserModel extends Model {
 
-  private namespace: string
+  public userId: string
 
   set(data: UserMe): Observable<UserMe> {
-    this.namespace = data._id
+    this.userId = data._id
     return this._save(data)
   }
 
   get(): Observable<UserMe> {
-    if (!this.namespace) return
-    return this._get<UserMe>(this.namespace)
+    if (!this.userId) {
+      return
+    }
+    return this._get<UserMe>(this.userId)
   }
 
   update(patch: any) {
-    return super.update(this.namespace, patch)
+    return super.update(this.userId, patch)
   }
 
   updateEmail(emails: UserEmail[]): Observable<any> {
-    return super.update<any>(this.namespace, {
+    return super.update<any>(this.userId, {
       emails: emails
     })
   }

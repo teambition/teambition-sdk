@@ -1,5 +1,5 @@
 'use strict'
-import {schemaName} from './schema'
+import { schemaName } from './schema'
 import Subtask from './Subtask'
 
 @schemaName('MySubtask')

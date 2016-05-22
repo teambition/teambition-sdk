@@ -1,6 +1,6 @@
 'use strict'
-import {Observable, Observer} from 'rxjs'
-import {TasklistFetch, UpdateTasklistOptions} from '../fetchs/TasklistFetch'
+import { Observable, Observer } from 'rxjs'
+import { TasklistFetch, UpdateTasklistOptions } from '../fetchs/TasklistFetch'
 import TasklistModel from '../models/TasklistModel'
 import StageModel from '../models/StageModel'
 import Tasklist from '../schemas/Tasklist'
@@ -8,6 +8,10 @@ import Tasklist from '../schemas/Tasklist'
 const tasklistFetch = new TasklistFetch()
 
 export class TasklistAPI {
+
+  constructor() {
+    TasklistModel.$destroy()
+  }
 
   getTasklists(_projectId: string, query?: any): Observable<Tasklist[]> {
     const get = TasklistModel.getTasklists(_projectId)

@@ -1,6 +1,6 @@
 'use strict'
-import {forEach, assign, clone, uuid} from './utils/index'
-export const Utils = {forEach, assign, clone, uuid}
+import { forEach, assign, clone, uuid } from './utils/index'
+export const Utils = { forEach, assign, clone, uuid }
 export * from './utils/Fetch'
 export * from './teambition'
 
@@ -31,3 +31,4 @@ export * from './apis/ProjectsAPI'
 export * from './apis/UserAPI'
 export * from './apis/StageAPI'
 export * from './apis/TasklistAPI'
+export * from './apis/TaskAPI'

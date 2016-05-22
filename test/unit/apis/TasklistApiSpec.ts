@@ -1,10 +1,10 @@
 'use strict'
-import {Scheduler} from 'rxjs'
+import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
-import {apihost, StageAPI, TasklistAPI, Backend, clone, forEach} from '../index'
-import {tasklists} from '../mock/tasklists'
-import {stages} from '../mock/stages'
-import {notInclude, flush, expectDeepEqual} from '../utils'
+import { apihost, StageAPI, TasklistAPI, Backend, clone, forEach } from '../index'
+import { tasklists } from '../mock/tasklists'
+import { stages } from '../mock/stages'
+import { notInclude, flush, expectDeepEqual } from '../utils'
 
 const expect = chai.expect
 
@@ -83,7 +83,6 @@ export default describe('tasklist api test', () => {
 
     httpBackend.whenGET(`${apihost}tasklists/${tasklist._id}`)
       .respond(JSON.stringify(tasklist))
-
 
     Tasklist.getTasklists(projectId)
       .skip(1)
@@ -165,7 +164,7 @@ export default describe('tasklist api test', () => {
       .skip(1)
       .subscribe(data => {
         expect(data.length).to.equal(length + 1)
-        expect(data[data.length - 1]._id).to.equal('unarchivetasklisttest')
+        expect(data[0]._id).to.equal('unarchivetasklisttest')
       })
 
     Tasklist.getOne(tasklistId)
@@ -199,7 +198,7 @@ export default describe('tasklist api test', () => {
     Stage.getAll(tasklistId)
       .skip(1)
       .subscribe(data => {
-        const _stageIds = []
+        const _stageIds: string[] = []
         forEach(data, stage => {
           _stageIds.push(stage._id)
         })

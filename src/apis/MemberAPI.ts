@@ -1,12 +1,16 @@
 'use strict'
 import * as Rx from 'rxjs'
-import {MemberFetch} from '../fetchs/MemberFetch'
+import { MemberFetch } from '../fetchs/MemberFetch'
 import MemberModel from '../models/MemberModel'
 import Member from '../schemas/Member'
 
 const memberFetch = new MemberFetch()
 
 export class MemberAPI {
+
+  constructor() {
+    MemberModel.$destroy()
+  }
 
   deleteMember(memberId: string): Rx.Observable<void> {
     return Rx.Observable.fromPromise(memberFetch.deleteMember(memberId))

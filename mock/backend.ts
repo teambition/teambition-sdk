@@ -9,8 +9,6 @@ export const flushState = {
 
 export class Backend {
 
-  restore = restore
-
   constructor() {
     flushState.flushed = false
     mockFetch()
@@ -39,6 +37,10 @@ export class Backend {
       })
     })
     flushState.flushed = true
+  }
+
+  restore(): void {
+    restore()
   }
 
 }
