@@ -2,5 +2,10 @@ language: node_js
 node_js:
   - "4.3"
 
+install:
+  - npm install
+  - typings install
+  - npm run lint
+
 before_script:
   - "npm run build_all"

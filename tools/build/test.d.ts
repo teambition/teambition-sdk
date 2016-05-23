@@ -1,6 +1,4 @@
-/// <reference path="./bundle.d.ts" />
-/// <reference path="../../typings/main/ambient/chai/index.d.ts" />
-/// <reference path="../../typings/main/ambient/mocha/index.d.ts" />
-/// <reference path="../../typings/main/ambient/sinon/index.d.ts" />
-/// <reference path="../../typings/main/ambient/sinon-chai/index.d.ts" />
+/// <reference path="./es6-reflect-proxy.d.ts" />
+/// <reference path="./es6-set.d.ts" />
+/// <reference path="./es6-promise.d.ts" />
 

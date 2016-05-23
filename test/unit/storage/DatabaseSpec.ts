@@ -2,7 +2,7 @@
 import * as Rx from 'rxjs'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
-import Database from '../../../src/storage/database'
+import Database from '../../../src/storage/Database'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -263,13 +263,13 @@ export default describe('database test: ', () => {
           data: 'tbsdk_test new one'
         }
       })
-        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribeOn(Rx.Scheduler.async, 15)
         .subscribe()
 
       Storage.updateOne('newOne', {
         data: 'new one'
       })
-        .subscribeOn(Rx.Scheduler.async, 30)
+        .subscribeOn(Rx.Scheduler.async, 20)
         .subscribe()
     })
 

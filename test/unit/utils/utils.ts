@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { userMe } from '../mock/userme'
+import { userMe } from '../../mock/userme'
 import { forEach, clone, assign, uuid, concat } from '../index'
 
 const expect = chai.expect

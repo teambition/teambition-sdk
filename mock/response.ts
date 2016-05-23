@@ -1,5 +1,5 @@
 'use strict'
-import {fetchStack, parseObject} from './mock'
+import { fetchStack, parseObject } from './mock'
 
 export class HttpResponse {
   private namespace: string

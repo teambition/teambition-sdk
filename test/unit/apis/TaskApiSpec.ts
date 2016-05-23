@@ -13,12 +13,12 @@ import {
   BaseAPI
 } from '../index'
 import { flush, expectDeepEqual, timeout, notInclude } from '../utils'
-import { tasksDone } from '../mock/tasksDone'
-import { tasksUndone } from '../mock/tasksUndone'
-import { organizations } from '../mock/organizations'
-import { organizationMyDueTasks } from '../mock/organizationMyDueTasks'
-import { organizationMyTasks } from '../mock/organizationMyTasks'
-import { organizationMyDoneTasks } from '../mock/organizationMyDoneTasks'
+import { tasksDone } from '../../mock/tasksDone'
+import { tasksUndone } from '../../mock/tasksUndone'
+import { organizations } from '../../mock/organizations'
+import { organizationMyDueTasks } from '../../mock/organizationMyDueTasks'
+import { organizationMyTasks } from '../../mock/organizationMyTasks'
+import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -134,7 +134,8 @@ export default describe('Task API test', () => {
           })
         })
 
-      timeout(Task.getTasklistDone(tasklistId, 2), 20)
+      Task.getTasklistDone(tasklistId, 2)
+        .subscribeOn(Scheduler.async, 20)
         .subscribe(data => {
           expect(data.length).to.equal(length)
           done()
@@ -716,7 +717,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateExecutor(mockTaskGet._id, 'test executor')
-        .subscribeOn(Scheduler.async, 5)
+        .subscribeOn(Scheduler.async, 100)
         .subscribe()
 
       httpBackend.flush()

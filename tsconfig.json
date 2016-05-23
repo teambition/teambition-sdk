@@ -10,9 +10,7 @@
   "exclude": [
     "node_modules",
     "tools/build",
-    "dist",
-    "typings/browser",
-    "typings/browser.d.ts"
+    "dist"
   ],
   "compileOnSave": false
 }

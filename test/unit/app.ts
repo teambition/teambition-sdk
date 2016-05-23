@@ -1,6 +1,7 @@
+/// <reference path="../../typings/index.d.ts" />
 'use strict'
 
-export * from './utils/fetch'
+export * from './utils/Fetch'
 
 export * from './utils/utils'
 

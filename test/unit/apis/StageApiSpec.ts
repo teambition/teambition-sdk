@@ -2,7 +2,7 @@
 import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import { Backend, apihost, StageAPI } from '../index'
-import { stages } from '../mock/stages'
+import { stages } from '../../mock/stages'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect

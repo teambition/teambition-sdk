@@ -57,20 +57,20 @@ export class Fetch {
     return result.length ? '?' + result.join('&') : ''
   }
 
-  private createMethod<T>(method: String) {
+  private createMethod<T>(method: String): (url: string, body?: any) => Promise<T> {
     return (url: string, body?: any): Promise<T> => {
-      let options = assign({
+      const options = assign({
         method: method
       }, Fetch.opts)
       if (body) {
         options.body = body
       }
       return fetch(Fetch.apiHost + url, options)
-        .then(response => {
+        .then((response: Response): Promise<T> => {
           if (response.status >= 200 && response.status < 300) {
             return response.json<T>()
           } else {
-            return Promise.reject<T>(response)
+            return Promise.reject<T>(<any>response)
           }
         })
     }

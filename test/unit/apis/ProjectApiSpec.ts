@@ -2,7 +2,7 @@
 import * as Rx from 'rxjs'
 import * as chai from 'chai'
 import { Backend, ProjectsAPI, apihost, clone, assign } from '../index'
-import { projects } from '../mock/projects'
+import { projects } from '../../mock/projects'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
