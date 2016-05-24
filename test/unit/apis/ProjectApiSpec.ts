@@ -20,6 +20,10 @@ export default describe('Project API test', () => {
       .respond(JSON.stringify(projects))
   })
 
+  after(() => {
+    httpBackend.restore()
+  })
+
   it('get projects should ok', done => {
 
     const sub = Project.getAll()
@@ -92,7 +96,7 @@ export default describe('Project API test', () => {
       Project.create({
         name: 'test project'
       })
-        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribeOn(Rx.Scheduler.async, global.timeout1)
         .subscribe()
 
     httpBackend.flush()
@@ -118,7 +122,7 @@ export default describe('Project API test', () => {
     Project.update(project._id, {
       name: 'test project'
     })
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -140,7 +144,7 @@ export default describe('Project API test', () => {
       })
 
     Project.delete(project._id)
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -166,7 +170,7 @@ export default describe('Project API test', () => {
       })
 
     Project.archive(project._id)
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -190,7 +194,7 @@ export default describe('Project API test', () => {
       })
 
     Project.clearUnreadCount(project._id)
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -219,7 +223,7 @@ export default describe('Project API test', () => {
     Project.copy(project._id, {
       name: 'teambition project copy test'
     })
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -247,7 +251,7 @@ export default describe('Project API test', () => {
       })
 
     Project.join('03a9f4')
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -269,7 +273,7 @@ export default describe('Project API test', () => {
       })
 
     Project.quit(project._id)
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -297,7 +301,7 @@ export default describe('Project API test', () => {
       })
 
     Project.setDefaultRole(project._id, project._roleId + 1)
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -325,7 +329,7 @@ export default describe('Project API test', () => {
       })
 
     Project.star(project._id)
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -352,7 +356,7 @@ export default describe('Project API test', () => {
       })
 
     Project.transfer(project._id, 'test')
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

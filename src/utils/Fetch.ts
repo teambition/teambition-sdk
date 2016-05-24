@@ -3,6 +3,8 @@ import { assign, forEach } from './index'
 
 require('isomorphic-fetch')
 
+const apiHost = 'https://www.teambition.com/api/'
+
 export class Fetch {
 
   private static opts: any = {
@@ -13,7 +15,7 @@ export class Fetch {
     credentials: 'include'
   }
 
-  private static apiHost = 'https://www.teambition.com/api/'
+  private static apiHost = apiHost
 
   public static getAPIHost(): string {
     return Fetch.apiHost
@@ -27,6 +29,17 @@ export class Fetch {
     delete Fetch.opts.credentials
     Fetch.opts.headers.Authorization = `OAuth2 ${token}`
     Fetch.apiHost = 'https://api.teambition.com/'
+  }
+
+  public static restore() {
+    Fetch.apiHost = apiHost
+    Fetch.opts = {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    }
   }
 
   public get <T>(url: string, query?: any) {

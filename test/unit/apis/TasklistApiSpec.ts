@@ -24,6 +24,10 @@ export default describe('tasklist api test', () => {
       .respond(JSON.stringify(tasklists))
   })
 
+  after(() => {
+    httpBackend.restore()
+  })
+
   it('get tasklists by projectId should ok', done => {
     Tasklist.getTasklists(projectId)
       .subscribe(data => {
@@ -66,7 +70,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.update(tasklistId, patch)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -99,7 +103,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.delete(tasklistId)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -135,7 +139,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.archive(tasklistId)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -175,7 +179,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.unArchive('unarchivetasklisttest')
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -207,7 +211,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.updateStageIds(tasklistId, stageIds)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

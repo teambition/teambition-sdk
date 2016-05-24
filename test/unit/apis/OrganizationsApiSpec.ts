@@ -19,6 +19,10 @@ export default describe('Organizations API test', () => {
       .respond(JSON.stringify(organizations))
   })
 
+  after(() => {
+    httpBackend.restore()
+  })
+
   it('get organizations should ok', done => {
     OrganizationAPI.getOrgs()
       .subscribe(data => {

@@ -21,6 +21,10 @@ export default describe('Stage API Test', () => {
       .respond(JSON.stringify(stages))
   })
 
+  after(() => {
+    httpBackend.restore()
+  })
+
   it('get stages by tasklist id should ok', done => {
     const tasklistId = stages[0]._tasklistId
 
@@ -75,7 +79,7 @@ export default describe('Stage API Test', () => {
       })
 
     Stage.create(stageCrateInfo)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -98,7 +102,7 @@ export default describe('Stage API Test', () => {
       })
 
     Stage.delete(stageId)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -128,7 +132,7 @@ export default describe('Stage API Test', () => {
     Stage.update(stageId, {
       name: 'stage updated test'
     })
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

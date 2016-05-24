@@ -20,6 +20,10 @@ export default describe('member api test', () => {
       .respond(clone(members))
   })
 
+  after(() => {
+    httpBackend.restore()
+  })
+
   it('get organization members should ok', (done: Function) => {
     const id = organizations[0]._id
 
@@ -64,7 +68,7 @@ export default describe('member api test', () => {
         done()
       })
 
-    del.subscribeOn(Rx.Scheduler.async, 10)
+    del.subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
