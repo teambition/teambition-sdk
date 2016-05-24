@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import { Backend, OrganizationsAPI, apihost } from '../index'
-import { organizations } from '../mock/organizations'
+import { organizations } from '../../mock/organizations'
 import { flush } from '../utils'
 
 const expect = chai.expect
@@ -17,6 +17,10 @@ export default describe('Organizations API test', () => {
     httpBackend
       .whenGET(`${apihost}organizations`)
       .respond(JSON.stringify(organizations))
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   it('get organizations should ok', done => {

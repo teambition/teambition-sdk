@@ -2,8 +2,8 @@
 import * as chai from 'chai'
 import * as Rx from 'rxjs'
 import { MemberAPI, Backend, apihost, clone } from '../index'
-import { members } from '../mock/members'
-import { organizations } from '../mock/organizations'
+import { members } from '../../mock/members'
+import { organizations } from '../../mock/organizations'
 import { notInclude, flush } from '../utils'
 
 const expect = chai.expect
@@ -18,6 +18,10 @@ export default describe('member api test', () => {
     httpBackend
       .whenGET(`${apihost}projects/projectId/members`)
       .respond(clone(members))
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   it('get organization members should ok', (done: Function) => {
@@ -64,7 +68,7 @@ export default describe('member api test', () => {
         done()
       })
 
-    del.subscribeOn(Rx.Scheduler.async, 10)
+    del.subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

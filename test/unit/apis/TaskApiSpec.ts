@@ -13,12 +13,12 @@ import {
   BaseAPI
 } from '../index'
 import { flush, expectDeepEqual, timeout, notInclude } from '../utils'
-import { tasksDone } from '../mock/tasksDone'
-import { tasksUndone } from '../mock/tasksUndone'
-import { organizations } from '../mock/organizations'
-import { organizationMyDueTasks } from '../mock/organizationMyDueTasks'
-import { organizationMyTasks } from '../mock/organizationMyTasks'
-import { organizationMyDoneTasks } from '../mock/organizationMyDoneTasks'
+import { tasksDone } from '../../mock/tasksDone'
+import { tasksUndone } from '../../mock/tasksUndone'
+import { organizations } from '../../mock/organizations'
+import { organizationMyDueTasks } from '../../mock/organizationMyDueTasks'
+import { organizationMyTasks } from '../../mock/organizationMyTasks'
+import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -38,6 +38,10 @@ export default describe('Task API test', () => {
 
   afterEach(() => {
     BaseAPI.fetch.get['restore']()
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   describe('get tasks by tasklist id: ', () => {
@@ -134,7 +138,8 @@ export default describe('Task API test', () => {
           })
         })
 
-      timeout(Task.getTasklistDone(tasklistId, 2), 20)
+      Task.getTasklistDone(tasklistId, 2)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(data => {
           expect(data.length).to.equal(length)
           done()
@@ -217,11 +222,11 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockDoneTask._id)
-        .subscribeOn(Scheduler.async, 5)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       Task.updateStatus(mockDoneTask._id, false)
-        .subscribeOn(Scheduler.async, 10)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -399,7 +404,7 @@ export default describe('Task API test', () => {
         })
 
       Task.delete(task._id)
-        .subscribeOn(Scheduler.async, 20)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -479,7 +484,7 @@ export default describe('Task API test', () => {
         })
 
       Task.delete(task._id)
-        .subscribeOn(Scheduler.async, 20)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -561,7 +566,7 @@ export default describe('Task API test', () => {
         })
 
       Task.delete(task._id)
-        .subscribeOn(Scheduler.async, 20)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -623,7 +628,7 @@ export default describe('Task API test', () => {
       Task.move(mockTaskGet._id, {
         _stageId: 'taskmoveteststage'
       })
-        .subscribeOn(Scheduler.async, 20)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -645,7 +650,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateContent(mockTaskGet._id, 'taskcontenttest')
-        .subscribeOn(Scheduler.async, 20)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -667,7 +672,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateDueDate(mockTaskGet._id, dueDate)
-        .subscribeOn(Scheduler.async, 20)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -682,7 +687,7 @@ export default describe('Task API test', () => {
         .subscribe()
 
       Task.updateDueDate(mockTaskGet._id, '123')
-        .subscribeOn(Scheduler.async, 20)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(null, err => {
           expect(err.message).to.equal('dueDate must be ISOString, statu code: 400')
           done()
@@ -716,7 +721,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateExecutor(mockTaskGet._id, 'test executor')
-        .subscribeOn(Scheduler.async, 5)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -738,7 +743,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'involveMembers')
-        .subscribeOn(Scheduler.async, 10)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -760,7 +765,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'addInvolvers')
-        .subscribeOn(Scheduler.async, 10)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -782,7 +787,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateInvolvemembers(mockTaskGet._id, ['56986d43542ce1a2798c8cfb'], 'delInvolvers')
-        .subscribeOn(Scheduler.async, 10)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -804,7 +809,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateNote(mockTaskGet._id, '123')
-        .subscribeOn(Scheduler.async, 10)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -826,7 +831,7 @@ export default describe('Task API test', () => {
         })
 
       Task.updateStatus(mockTaskGet._id, true)
-        .subscribeOn(Scheduler.async, 10)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()
@@ -850,7 +855,7 @@ export default describe('Task API test', () => {
       Task.update(mockTaskGet._id, {
         priority: 2
       })
-        .subscribeOn(Scheduler.async, 5)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
       httpBackend.flush()

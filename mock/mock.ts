@@ -1,6 +1,6 @@
 'use strict'
-import {flushState} from './backend'
-import {forEach} from './utils'
+import { flushState } from './backend'
+import { forEach } from './utils'
 
 declare const global: any
 

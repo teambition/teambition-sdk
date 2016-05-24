@@ -2,7 +2,7 @@
 import * as Rx from 'rxjs'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
-import Database from '../../../src/storage/database'
+import Database from '../../../src/storage/Database'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -61,14 +61,14 @@ export default describe('database test: ', () => {
 
       set.subscribe()
 
-      get.subscribeOn(Rx.Scheduler.async, 10)
+      get.subscribeOn(Rx.Scheduler.async, global.timeout1)
         .skip(1)
         .subscribe(r => {
           expect(r.data).to.equal(patchData.data)
           done()
         })
 
-      update.subscribeOn(Rx.Scheduler.async, 20)
+      update.subscribeOn(Rx.Scheduler.async, global.timeout2)
         .subscribe()
 
     })
@@ -223,7 +223,7 @@ export default describe('database test: ', () => {
 
       Storage.get<typeof obj>('28.28')
         .skip(1)
-        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribeOn(Rx.Scheduler.async, global.timeout1)
         .subscribe(r => {
           expect(r.child.data).to.equal('tbsdk_test 29.29')
           done()
@@ -232,7 +232,7 @@ export default describe('database test: ', () => {
       Storage.updateOne('29.29', {
         data: 'tbsdk_test 29.29'
       })
-        .subscribeOn(Rx.Scheduler.async, 50)
+        .subscribeOn(Rx.Scheduler.async, global.timeout2)
         .subscribe()
     })
 
@@ -251,7 +251,7 @@ export default describe('database test: ', () => {
 
       Storage.get<typeof obj>('28.28')
         .skip(2)
-        .subscribeOn(Rx.Scheduler.async, 10)
+        .subscribeOn(Rx.Scheduler.async, global.timeout1)
         .subscribe(r => {
           expect(r.child.data).to.equal('new one')
           done()
@@ -263,13 +263,13 @@ export default describe('database test: ', () => {
           data: 'tbsdk_test new one'
         }
       })
-        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribeOn(Rx.Scheduler.async, global.timeout2)
         .subscribe()
 
       Storage.updateOne('newOne', {
         data: 'new one'
       })
-        .subscribeOn(Rx.Scheduler.async, 30)
+        .subscribeOn(Rx.Scheduler.async, global.timeout3)
         .subscribe()
     })
 
@@ -294,7 +294,7 @@ export default describe('database test: ', () => {
 
       Storage.get<typeof obj>('28.28')
         .skip(1)
-        .subscribeOn(Rx.Scheduler.async, 10)
+        .subscribeOn(Rx.Scheduler.async, global.timeout1)
         .subscribe(r => {
           expect(r.child.data).to.equal('tbsdk_test 29.29')
           done()
@@ -303,7 +303,7 @@ export default describe('database test: ', () => {
       Storage.updateOne('29.29', {
         data: 'tbsdk_test 29.29'
       })
-        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribeOn(Rx.Scheduler.async, global.timeout2)
         .subscribe()
     })
 
@@ -332,7 +332,7 @@ export default describe('database test: ', () => {
       Storage.updateOne('31.31', {
         data: 'tbsdk_test 31.31'
       })
-        .subscribeOn(Rx.Scheduler.async, 50)
+        .subscribeOn(Rx.Scheduler.async, global.timeout1)
         .subscribe()
     })
 
@@ -358,7 +358,7 @@ export default describe('database test: ', () => {
         .subscribe()
 
       Storage.get<typeof col>('collection_test_10')
-        .subscribeOn(Rx.Scheduler.async, 10)
+        .subscribeOn(Rx.Scheduler.async, global.timeout1)
         .skip(1)
         .subscribe(r => {
           expect(r[0].data).to.equal('tbsdk_test 30.30')
@@ -368,7 +368,7 @@ export default describe('database test: ', () => {
       Storage.updateOne('30.30', {
         data: 'tbsdk_test 30.30'
       })
-        .subscribeOn(Rx.Scheduler.async, 20)
+        .subscribeOn(Rx.Scheduler.async, global.timeout2)
         .subscribe()
     })
 
@@ -424,7 +424,7 @@ export default describe('database test: ', () => {
         }).subscribe()
 
         Storage.get<TestEle[]>('collection_test_14')
-          .subscribeOn(Rx.Scheduler.async, 20)
+          .subscribeOn(Rx.Scheduler.async, global.timeout1)
           .skip(1)
           .subscribe(r => {
             expect(r.length).to.equal(3)
@@ -433,7 +433,7 @@ export default describe('database test: ', () => {
           })
 
         Storage.storeOne(new TestEle('42.42', 'tbsdk_test 42', 42))
-          .subscribeOn(Rx.Scheduler.async, 40)
+          .subscribeOn(Rx.Scheduler.async, global.timeout2)
           .subscribe()
       })
 
@@ -447,7 +447,7 @@ export default describe('database test: ', () => {
         }).subscribe()
 
         Storage.get<TestEle[]>('collection_test_12')
-          .subscribeOn(Rx.Scheduler.async, 20)
+          .subscribeOn(Rx.Scheduler.async, global.timeout1)
           .skip(1)
           .subscribe(r => {
             expect(r.length).to.equal(3)
@@ -456,13 +456,13 @@ export default describe('database test: ', () => {
           })
 
         Storage.storeOne(new TestEle('36.36', 'tbsdk_test 36', 20))
-          .subscribeOn(Rx.Scheduler.async, 20)
+          .subscribeOn(Rx.Scheduler.async, global.timeout2)
           .subscribe()
 
         Storage.updateOne('36.36', {
           age: 40
         })
-          .subscribeOn(Rx.Scheduler.async, 30)
+          .subscribeOn(Rx.Scheduler.async, global.timeout3)
           .subscribe()
       })
 
@@ -477,7 +477,7 @@ export default describe('database test: ', () => {
           .subscribe()
 
         Storage.get<TestEle[]>('collection_test_13')
-          .subscribeOn(Rx.Scheduler.async, 10)
+          .subscribeOn(Rx.Scheduler.async, global.timeout1)
           .skip(2)
           .subscribe(r => {
             expect(r.length).to.equal(3)
@@ -486,19 +486,19 @@ export default describe('database test: ', () => {
           })
 
         Storage.storeOne(new TestEle('39.39', 'tbsdk_test 39', 20))
-          .subscribeOn(Rx.Scheduler.async, 20)
+          .subscribeOn(Rx.Scheduler.async, global.timeout2)
           .subscribe()
 
         Storage.updateOne('39.39', {
           age: 40
         })
-          .subscribeOn(Rx.Scheduler.async, 30)
+          .subscribeOn(Rx.Scheduler.async, global.timeout3)
           .subscribe()
 
         Storage.updateOne('39.39', {
           name: 'tbsdk_test 39.39'
         })
-          .subscribeOn(Rx.Scheduler.async, 40)
+          .subscribeOn(Rx.Scheduler.async, global.timeout4)
           .subscribe()
       })
     })
@@ -603,19 +603,19 @@ export default describe('database test: ', () => {
       .subscribe()
 
     Storage.updateCollection('collection_test_7', colEle)
-      .subscribeOn(Rx.Scheduler.async, 20)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     Storage.get<typeof objEle>('collection_test_7')
       .skip(1)
-      .subscribeOn(Rx.Scheduler.async, 40)
+      .subscribeOn(Rx.Scheduler.async, global.timeout3)
       .subscribe(x => {
         expect(x).deep.equal(result)
         done()
       })
 
     Storage.updateOne('23.23', patchData)
-      .subscribeOn(Rx.Scheduler.async, 50)
+      .subscribeOn(Rx.Scheduler.async, global.timeout4)
       .subscribe()
 
   })

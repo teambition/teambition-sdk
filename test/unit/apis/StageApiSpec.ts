@@ -2,7 +2,7 @@
 import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import { Backend, apihost, StageAPI } from '../index'
-import { stages } from '../mock/stages'
+import { stages } from '../../mock/stages'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
@@ -19,6 +19,10 @@ export default describe('Stage API Test', () => {
 
     httpBackend.whenGET(`${apihost}tasklists/${stages[0]._tasklistId}/stages`)
       .respond(JSON.stringify(stages))
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   it('get stages by tasklist id should ok', done => {
@@ -75,7 +79,7 @@ export default describe('Stage API Test', () => {
       })
 
     Stage.create(stageCrateInfo)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -98,7 +102,7 @@ export default describe('Stage API Test', () => {
       })
 
     Stage.delete(stageId)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -128,7 +132,7 @@ export default describe('Stage API Test', () => {
     Stage.update(stageId, {
       name: 'stage updated test'
     })
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

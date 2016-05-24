@@ -2,8 +2,8 @@
 import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import { apihost, StageAPI, TasklistAPI, Backend, clone, forEach } from '../index'
-import { tasklists } from '../mock/tasklists'
-import { stages } from '../mock/stages'
+import { tasklists } from '../../mock/tasklists'
+import { stages } from '../../mock/stages'
 import { notInclude, flush, expectDeepEqual } from '../utils'
 
 const expect = chai.expect
@@ -22,6 +22,10 @@ export default describe('tasklist api test', () => {
 
     httpBackend.whenGET(`${apihost}projects/${projectId}/tasklists`)
       .respond(JSON.stringify(tasklists))
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   it('get tasklists by projectId should ok', done => {
@@ -66,7 +70,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.update(tasklistId, patch)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -99,7 +103,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.delete(tasklistId)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -135,7 +139,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.archive(tasklistId)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -175,7 +179,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.unArchive('unarchivetasklisttest')
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -207,7 +211,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.updateStageIds(tasklistId, stageIds)
-      .subscribeOn(Scheduler.async, 20)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

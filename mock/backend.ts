@@ -1,7 +1,7 @@
 'use strict'
-import {HttpResponse} from './response'
-import {fetchStack, restore, mockFetch} from './mock'
-import {forEach} from './utils'
+import { HttpResponse } from './response'
+import { fetchStack, restore, mockFetch } from './mock'
+import { forEach } from './utils'
 
 export const flushState = {
   flushed: false

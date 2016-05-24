@@ -52,3 +52,4 @@ jsconfig.json
 coverage
 .vscode
 dist
+spec-js

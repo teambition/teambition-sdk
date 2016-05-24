@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as Rx from 'rxjs'
 import { Backend, UserAPI, forEach, clone, apihost } from '../index'
-import { userMe } from '../mock/userme'
+import { userMe } from '../../mock/userme'
 import { flush } from '../utils'
 
 const expect = chai.expect
@@ -16,7 +16,14 @@ export default describe('UserAPI test', () => {
     flush()
     User = new UserAPI()
     httpBackend = new Backend()
-    httpBackend.whenGET(`${apihost}users/me`).respond(JSON.stringify(userMe))
+
+    httpBackend
+      .whenGET(`${apihost}users/me`)
+      .respond(JSON.stringify(userMe))
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   it('get user me should ok', done => {
@@ -50,7 +57,7 @@ export default describe('UserAPI test', () => {
 
     User.update({
       name: 'test'
-    }).subscribeOn(Rx.Scheduler.async, 20)
+    }).subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

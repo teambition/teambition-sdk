@@ -1,3 +1,4 @@
+/// <reference path="./type.d.ts" />
 'use strict'
 
 export * from './utils/fetch'

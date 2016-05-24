@@ -59,6 +59,7 @@ export default describe('utils/fetch', () => {
           }
         })
         fetchMock.restore()
+        Fetch.restore()
       })
   });
 
