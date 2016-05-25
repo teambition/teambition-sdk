@@ -44,6 +44,7 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
       }
     }
   }
+  return target
 }
 
 export const assign = <T, U>(target: T, patch: U): T & U => {
@@ -124,4 +125,15 @@ export const datasToSchemas = <U>(datas: any[], SchemaClass: any): U[] => {
 
 export const isFunction = (target: any) => {
   return typeof target === 'function'
+}
+
+export function dropEle<T>(ele: T, arr: T[]): T[] {
+  forEach(arr, (_ele, pos) => {
+    const isEqual = ele === _ele
+    if (isEqual) {
+      arr.splice(pos, 1)
+    }
+    return !isEqual
+  })
+  return arr
 }

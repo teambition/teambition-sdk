@@ -179,7 +179,7 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.unArchive('unarchivetasklisttest')
-      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe()
 
     httpBackend.flush()

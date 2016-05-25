@@ -126,12 +126,10 @@ export default class DataBase {
               model.removeFromCollection(index)
             })
           }
-          DataBase.data.delete(index)
         }
         const notify = cache.destroy().notify()
-        const dest = signal.concatMap(x => {
-          return notify
-        })
+        const dest = signal.concatMap(x => notify)
+        DataBase.data.delete(index)
         observer.next(dest)
       })
     }).concatMap((x: Observable<void>) => x)

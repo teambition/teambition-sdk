@@ -3,6 +3,7 @@ import Fetch from './base'
 import Task from '../schemas/Task'
 import Subtask from '../schemas/Subtask'
 import MySubtask from '../schemas/MySubtask'
+import { OrgsTasksMeOptions } from './TaskFetch'
 
 export interface GetMySubtasksOptions {
   count?: number
@@ -26,6 +27,10 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.get(`v2/tasks/me/subtasks`, options)
   }
 
+  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Task[]> {
+    return this.fetch.get(`organizations/${organizationId}/subtasks/me`, option)
+  }
+
   create(subtaskData: {
     content: string
     _taskId: string
@@ -34,18 +39,27 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.post(`subtasks`, subtaskData)
   }
 
-  get(_subTaskId: string, _taskId?: string, withExecutor?: any): Promise<Subtask> {
-    const queryData: {
+  get(_subTaskId: string, _taskId?: string, withExecutor?: boolean): Promise<Subtask> {
+    let queryData: {
       _taskId?: string
-      withExecutor?: any
-    } = {}
-    queryData._taskId = _taskId
-    queryData.withExecutor = withExecutor
+      withExecutor?: boolean
+    }
+    if (_taskId && withExecutor) {
+      queryData = {}
+      if (_taskId) {
+        queryData._taskId = _taskId
+      }
+      queryData.withExecutor = !!withExecutor
+    }
     return this.fetch.get(`subtasks/${_subTaskId}`, queryData)
   }
 
+  getFromTask(_taskId: string): Promise<Subtask[]> {
+    return this.fetch.get(`tasks/${_taskId}/subtasks`)
+  }
+
   update<T extends SubtaskUpdateOptions>(_subTaskId: string, subtaskData: T): Promise<T> {
-    return this.fetch.put(`subtasks/${_subTaskId}`)
+    return this.fetch.put(`subtasks/${_subTaskId}`, subtaskData)
   }
 
   delete(_subTaskId: string): Promise<{}> {

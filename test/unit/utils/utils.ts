@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import { userMe } from '../../mock/userme'
-import { forEach, clone, assign, uuid, concat } from '../index'
+import { forEach, clone, assign, uuid, concat, dropEle } from '../index'
 
 const expect = chai.expect
 
@@ -181,9 +181,12 @@ export default describe('utils test', () => {
       c: 3,
       length: 3
     }
+    expect(concat(arr1, <any>arr2)).to.deep.equal([1, 2, 3])
+  })
 
-    concat(arr1, <any>arr2)
-    expect(arr1).to.deep.equal([1, 2, 3])
+  it('dropEle should ok', () => {
+    const arr1 = [1, 2, 3, 4, 5]
+    expect(dropEle(3, arr1)).to.deep.equal([1, 2, 4, 5])
   })
 
 })

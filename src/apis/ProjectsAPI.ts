@@ -28,7 +28,7 @@ export type JSONObj = {
 export class ProjectsAPI {
 
   constructor() {
-    ProjectModel.$destroy()
+    ProjectModel.destructor()
   }
 
   getAll(querys?: JSONObj): Observable<Project[]> {

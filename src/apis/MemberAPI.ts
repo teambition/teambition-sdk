@@ -9,7 +9,7 @@ const memberFetch = new MemberFetch()
 export class MemberAPI {
 
   constructor() {
-    MemberModel.$destroy()
+    MemberModel.destructor()
   }
 
   deleteMember(memberId: string): Rx.Observable<void> {

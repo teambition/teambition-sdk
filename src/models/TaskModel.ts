@@ -1,23 +1,22 @@
 'use strict'
 import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
+import Collection from './BaseCollection'
 import Task from '../schemas/Task'
-import { datasToSchemas, dataToSchema, forEach, concat } from '../utils/index'
+import { datasToSchemas, dataToSchema } from '../utils/index'
 import { OrganizationData } from '../teambition'
 
 export class TaskModel extends BaseModel {
   private _schemaName = 'Task'
-  private _cache = new Map<string, {
-    pages: number[]
-    data: Task[]
-  }>()
-  private _cacheNames = ['tasklistTasksDone', 'organizationMyTasks', 'organizationMyDueTasks', 'organizationMyDoneTasks']
+  private _collections = new Map<string, Collection<any>>()
 
-  constructor() {
-    super()
-    this._initCache()
+  destructor() {
+    this._collections.clear()
   }
 
+  /**
+   * 不分页不用 Collection
+   */
   addTasklistTasksUndone(_tasklistId: string, tasks: Task[]): Observable<Task[]> {
     const result = datasToSchemas<Task>(tasks, Task)
     return this._saveCollection(`tasklist:tasks:undone/${_tasklistId}`, result, this._schemaName, (data: Task) => {
@@ -29,125 +28,108 @@ export class TaskModel extends BaseModel {
     return this._get<Task[]>(`tasklist:tasks:undone/${_tasklistId}`)
   }
 
+  /**
+   * _collections 的索引是 0
+   */
   addTasklistTasksDone(_tasklistId: string, tasks: Task[], page: number): Observable<Task[]> {
     const result = datasToSchemas<Task>(tasks, Task)
-    const name = 'tasklistTasksDone'
-    const cacheData = this._cache.get(name).data
-    const pages = this._cache.get(name).pages
-    let destSignal: Observable<Task[]>
-    concat(cacheData, result)
-    if (page === 1 || !pages.length) {
-      destSignal = this._saveCollection(`tasklist:tasks:done/${_tasklistId}`, cacheData, this._schemaName, (data: Task) => {
+    const name = '0'
+    const dbIndex = `tasklist:tasks:done/${_tasklistId}`
+
+    let collection: Collection<Task> = this._collections.get('0')
+
+    if (!collection) {
+      collection = new Collection<Task>(this._schemaName, (data: Task) => {
         return data._tasklistId === _tasklistId && data.isDone
-      })
-    }else {
-      destSignal = this._updateCollection<Task>(`tasklist:tasks:done/${_tasklistId}`, cacheData)
+      }, dbIndex)
+      this._collections.set(name, collection)
     }
-    if (pages.indexOf(page) === -1) {
-      pages.push(page)
-    }
-    return destSignal
+
+    return collection.addPage(page, result)
   }
 
   getTasklistTasksDone(_tasklistId: string, page: number): Observable<Task[]> {
-    const pages = this._cache.get('tasklistTasksDone').pages
-    if (pages.indexOf(page) !== -1) {
-      return this._get<Task[]>(`tasklist:tasks:done/${_tasklistId}`)
-        .skip((page - 1) * 30)
-        .take(30)
+    const collection = this._collections.get('0')
+    if (collection) {
+      return collection.get(page)
     }
     return null
   }
 
-  addOrganizationMyDueTasks(organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
+  /**
+   * _collections 的索引是 1
+   */
+  addOrganizationMyDueTasks(userId: string, organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
+    const dbIndex = `organization:tasks:due/${organization._id}`
     const result = datasToSchemas<Task>(tasks, Task)
-    const organizationId = organization._id
-    const name = 'organizationMyDueTasks'
-    const cacheData = this._cache.get(name).data
-    const pages = this._cache.get(name).pages
-    let destSignal: Observable<Task[]>
-    concat(cacheData, result)
-    if (page === 1 || !pages.length) {
-      destSignal = this._saveCollection(`organization:tasks:due/${organizationId}`, cacheData, this._schemaName, (data: Task) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && !!data.dueDate
-      })
-    }else {
-      destSignal = this._updateCollection<Task>(`organization:tasks:due/${organizationId}`, cacheData)
+
+    let collection: Collection<Task> = this._collections.get('1')
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Task) => {
+        return organization.projectIds.indexOf(data._projectId) !== -1 && !!data.dueDate && data._executorId === userId
+      }, dbIndex)
+      this._collections.set('1', collection)
     }
-    if (pages.indexOf(page) === -1) {
-      pages.push(page)
-    }
-    return destSignal
+    return collection.addPage(page, result)
   }
 
-  getOrganizationMyDueTasks(organizationId: string, page: number): Observable<Task[]> {
-    const pages = this._cache.get('organizationMyDueTasks').pages
-    if (pages.indexOf(page) !== -1) {
-      return this._get<Task[]>(`organization:tasks:due/${organizationId}`)
-        .skip((page - 1) * 30)
-        .take(30)
+  getOrganizationMyDueTasks(page: number): Observable<Task[]> {
+    const collection = this._collections.get('1')
+    if (collection) {
+      return collection.get(page)
     }
     return null
   }
 
-  addOrganizationMyTasks(organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
+  /**
+   * _collections 的索引是 2
+   */
+  addOrganizationMyTasks(userId: string, organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
     const result = datasToSchemas<Task>(tasks, Task)
-    const organizationId = organization._id
-    const name = 'organizationMyTasks'
-    const cacheData = this._cache.get(name).data
-    const pages = this._cache.get(name).pages
-    let destSignal: Observable<Task[]>
-    concat(cacheData, result)
-    if (page === 1 || !pages.length) {
-      destSignal = this._saveCollection(`organization:tasks/${organizationId}`, cacheData, this._schemaName, (data: Task) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && !data.dueDate
-      })
-    }else {
-      destSignal = this._updateCollection<Task>(`organization:tasks/${organizationId}`, cacheData)
+    const dbIndex = `organization:tasks/${organization._id}`
+
+    let collection: Collection<Task> = this._collections.get('2')
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Task) => {
+        return organization.projectIds.indexOf(data._projectId) !== -1 && !data.dueDate && data._executorId === userId
+      }, dbIndex)
+      this._collections.set('2', collection)
     }
-    if (pages.indexOf(page) === -1) {
-      pages.push(page)
-    }
-    return destSignal
+    return collection.addPage(page, result)
   }
 
-  getOrganizationMyTasks(organizationId: string, page: number): Observable<Task[]> {
-    const pages = this._cache.get('organizationMyTasks').pages
-    if (pages.indexOf(page) !== -1) {
-      return this._get<Task[]>(`organization:tasks/${organizationId}`)
-        .skip((page - 1) * 30)
-        .take(30)
+  getOrganizationMyTasks(page: number): Observable<Task[]> {
+    const collection = this._collections.get('2')
+    if (collection) {
+      return collection.get(page)
     }
     return null
   }
 
-  addOrganizationMyDoneTasks(organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
+  /**
+   * _collections 的索引是 3
+   */
+  addOrganizationMyDoneTasks(userId: string, organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
     const result = datasToSchemas<Task>(tasks, Task)
-    const organizationId = organization._id
-    const name = 'organizationMyDoneTasks'
-    const cacheData = this._cache.get(name).data
-    const pages = this._cache.get(name).pages
-    let destSignal: Observable<Task[]>
-    concat(cacheData, result)
-    if (page === 1 || !pages.length) {
-      destSignal = this._saveCollection(`organization:tasks:done/${organizationId}`, cacheData, this._schemaName, (data: Task) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && data.isDone
-      })
-    }else {
-      destSignal = this._updateCollection<Task>(`organization:tasks:done/${organizationId}`, cacheData)
+    const dbIndex = `organization:tasks:done/${organization._id}`
+
+    let collection: Collection<Task> = this._collections.get('3')
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Task) => {
+        return organization.projectIds.indexOf(data._projectId) !== -1 && data.isDone && data._executorId === userId
+      }, dbIndex)
+      this._collections.set('3', collection)
     }
-    if (pages.indexOf(page) === -1) {
-      pages.push(page)
-    }
-    return destSignal
+    return collection.addPage(page, result)
   }
 
-  getOrganizationMyDoneTasks(organizationId: string, page: number): Observable<Task[]> {
-    const pages = this._cache.get('organizationMyDoneTasks').pages
-    if (pages.indexOf(page) !== -1) {
-      return this._get<Task[]>(`organization:tasks:done/${organizationId}`)
-        .skip((page - 1) * 30)
-        .take(30)
+  getOrganizationMyDoneTasks(page: number): Observable<Task[]> {
+    const collection = this._collections.get('3')
+    if (collection) {
+      return collection.get(page)
     }
     return null
   }
@@ -159,20 +141,6 @@ export class TaskModel extends BaseModel {
 
   get(_id: string): Observable<Task> {
     return this._get<Task>(_id)
-  }
-
-  $destroy() {
-    this._initCache()
-  }
-
-  private _initCache() {
-    this._cache.clear()
-    forEach(this._cacheNames, cacheName => {
-      this._cache.set(cacheName, {
-        pages: [],
-        data: []
-      })
-    })
   }
 }
 

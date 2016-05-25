@@ -10,7 +10,7 @@ const tasklistFetch = new TasklistFetch()
 export class TasklistAPI {
 
   constructor() {
-    TasklistModel.$destroy()
+    TasklistModel.destructor()
   }
 
   getTasklists(_projectId: string, query?: any): Observable<Tasklist[]> {

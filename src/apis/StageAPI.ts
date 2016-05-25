@@ -10,7 +10,7 @@ const stageFetch = new StageFetch()
 export class StageAPI {
 
   constructor() {
-    StageModel.$destroy()
+    StageModel.destructor()
   }
 
   getAll(_tasklistId: string): Observable<Stage[]> {

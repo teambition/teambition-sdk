@@ -9,7 +9,7 @@ const userFetch = new UserFetch()
 export class UserAPI {
 
   constructor() {
-    UserModel.$destroy()
+    UserModel.destructor()
   }
 
   getUserMe(): Observable<UserMe> {

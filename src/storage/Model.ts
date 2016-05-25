@@ -79,7 +79,7 @@ export default class Model<T> {
         const _unionFlag = this._unionFlag
         const _finalPatch: any = {}
         forEach(patch, (val, key) => {
-          if (val) {
+          if (val && typeof val === 'object') {
             const flag: string = val[_unionFlag]
             if (val instanceof Array && val.length) {
               const oldVal = this.data[key]
@@ -130,9 +130,11 @@ export default class Model<T> {
             }else {
               _finalPatch[key] = val
             }
+          }else {
+            _finalPatch[key] = val
           }
         })
-        this.data = assign(this.data, patch)
+        this.data = assign(this.data, _finalPatch)
         const result = clone(this.data)
         observer.next(result)
       })
