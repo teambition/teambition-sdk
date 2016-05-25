@@ -10,6 +10,7 @@ export interface UserMe {
   email: string
   name: string
   avatarUrl: string
+  created: string
   title: string
   birthday: string
   location: string
@@ -56,6 +57,11 @@ export interface UserMe {
       mobile: boolean
       email: boolean
     }
+  }
+  locationByIP: {
+    country: string
+    region: string
+    city: string
   }
   aliens: any[]
   strikerAuth: string
