@@ -18,7 +18,7 @@ export type detailType = 'complete'
 export class TaskAPI {
 
   constructor() {
-    TaskModel.$destroy()
+    TaskModel.destructor()
   }
 
   getTasklistUndone(_tasklistId: string): Observable<Task[]> {
@@ -51,8 +51,8 @@ export class TaskAPI {
     })
   }
 
-  getOrganizationMyDueTasks(organization: OrganizationData, page = 1): Observable<Task[]> {
-    const get = TaskModel.getOrganizationMyDueTasks(organization._id, page)
+  getOrganizationMyDueTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+    const get = TaskModel.getOrganizationMyDueTasks(page)
     if (get) {
       return get
     }
@@ -63,12 +63,12 @@ export class TaskAPI {
         hasDuedate: true
       }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(tasks => TaskModel.addOrganizationMyDueTasks(organization, tasks, page))
+        .concatMap(tasks => TaskModel.addOrganizationMyDueTasks(userId, organization, tasks, page))
     })
   }
 
-  getOrganizationMyTasks(organization: OrganizationData, page = 1): Observable<Task[]> {
-    const get = TaskModel.getOrganizationMyTasks(organization._id, page)
+  getOrganizationMyTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+    const get = TaskModel.getOrganizationMyTasks(page)
     if (get) {
       return get
     }
@@ -79,12 +79,12 @@ export class TaskAPI {
         hasDuedate: false
       }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(tasks => TaskModel.addOrganizationMyTasks(organization, tasks, page))
+        .concatMap(tasks => TaskModel.addOrganizationMyTasks(userId, organization, tasks, page))
     })
   }
 
-  getOrganizationMyDoneTasks(organization: OrganizationData, page = 1): Observable<Task[]> {
-    const get = TaskModel.getOrganizationMyDoneTasks(organization._id, page)
+  getOrganizationMyDoneTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+    const get = TaskModel.getOrganizationMyDoneTasks(page)
     if (get) {
       return get
     }
@@ -94,7 +94,7 @@ export class TaskAPI {
         isDone: true
       }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(tasks => TaskModel.addOrganizationMyDoneTasks(organization, tasks, page))
+        .concatMap(tasks => TaskModel.addOrganizationMyDoneTasks(userId, organization, tasks, page))
     })
   }
 

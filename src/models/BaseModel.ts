@@ -15,8 +15,8 @@ export default class Model {
   }
 
   // 单例 Model， 这个方法由子类继承，清除子类的状态信息，方便测试
-  $destroy() {
-    return
+  destructor(): void {
+    return void 0
   }
 
   protected _save<T>(data: T): Rx.Observable<T> {

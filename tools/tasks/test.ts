@@ -52,4 +52,8 @@ fs.watch(path.join(process.cwd(), 'spec-js'), <any>{
   excuteTest()
 })
 
+process.on('uncaughtException', err => {
+  console.log(`Caught exception: ${err}`);
+})
+
 console.log('\x1b[1m\x1b[34mwatch start\x1b[39m\x1b[22m')

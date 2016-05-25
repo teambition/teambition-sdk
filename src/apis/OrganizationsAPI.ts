@@ -9,7 +9,7 @@ const organizationFetch = new OrganizationFetch()
 export class OrganizationsAPI {
 
   constructor() {
-    OrganizationModel.$destroy()
+    OrganizationModel.destructor()
   }
 
   getOrgs (): Observable<OrganizationData[]> {

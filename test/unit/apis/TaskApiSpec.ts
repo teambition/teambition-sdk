@@ -29,6 +29,8 @@ export default describe('Task API test', () => {
 
   let spy: Sinon.SinonSpy
 
+  const userId = organizationMyTasks[0]._executorId
+
   beforeEach(() => {
     flush()
     spy = sinon.spy(BaseAPI.fetch, 'get')
@@ -61,6 +63,10 @@ export default describe('Task API test', () => {
 
       httpBackend.whenGET(`${apihost}tasks/${mockTaskDone._id}`)
         .respond(JSON.stringify(mockTaskDone))
+    })
+
+    after(() => {
+      httpBackend.restore()
     })
 
     it('get tasks undone should ok', done => {
@@ -171,7 +177,7 @@ export default describe('Task API test', () => {
             expect(spy).to.be.calledOnce
             done()
           })
-      }, 20)
+      }, global.timeout1)
 
       httpBackend.flush()
     })
@@ -333,7 +339,7 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks has dueDate should ok', done => {
-      Task.getOrganizationMyDueTasks(organization)
+      Task.getOrganizationMyDueTasks(userId, organization)
         .subscribe(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, duepage1[index])
@@ -345,38 +351,38 @@ export default describe('Task API test', () => {
     })
 
     it('get my dueDate tasks more page has should ok', done => {
-      Task.getOrganizationMyDueTasks(organization)
+      Task.getOrganizationMyDueTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(duepage2.length + 30)
           done()
         })
 
-      timeout(Task.getOrganizationMyDueTasks(organization, 2), 20)
+      timeout(Task.getOrganizationMyDueTasks(userId, organization, 2), 20)
         .subscribe()
 
       httpBackend.flush()
     })
 
     it('get my tasks has dueDate from cache should ok', done => {
-      Task.getOrganizationMyDueTasks(organization)
+      Task.getOrganizationMyDueTasks(userId, organization)
         .subscribe()
 
       setTimeout(() => {
-        Task.getOrganizationMyDueTasks(organization, 1)
+        Task.getOrganizationMyDueTasks(userId, organization, 1)
           .subscribe(data => {
             forEach(data, (task, index) => {
               expectDeepEqual(task, duepage1[index])
             })
             done()
           })
-      }, 10)
+      }, global.timeout1)
 
       httpBackend.flush()
     })
 
     it('add my tasks has dueDate should ok', done => {
-      Task.getOrganizationMyDueTasks(organization)
+      Task.getOrganizationMyDueTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data[0]._id).to.equal('mocktaskdue')
@@ -395,7 +401,7 @@ export default describe('Task API test', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
 
-      Task.getOrganizationMyDueTasks(organization)
+      Task.getOrganizationMyDueTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(29)
@@ -411,7 +417,7 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks has no dueDate should ok', done => {
-      Task.getOrganizationMyTasks(organization)
+      Task.getOrganizationMyTasks(userId, organization)
         .subscribe(data => {
           forEach(data, (task, pos) => {
             expectDeepEqual(task, taskspage1[pos])
@@ -423,14 +429,14 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks page 2 should ok', done => {
-      Task.getOrganizationMyTasks(organization)
+      Task.getOrganizationMyTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(taskspage2.length + 30)
           done()
         })
 
-      timeout(Task.getOrganizationMyTasks(organization, 2), 20)
+      timeout(Task.getOrganizationMyTasks(userId, organization, 2), 20)
         .subscribe()
 
       httpBackend.flush()
@@ -438,11 +444,11 @@ export default describe('Task API test', () => {
 
     it('get my tasks from cache should ok', done => {
 
-      Task.getOrganizationMyTasks(organization)
+      Task.getOrganizationMyTasks(userId, organization)
         .subscribe()
 
       setTimeout(() => {
-        Task.getOrganizationMyTasks(organization, 1)
+        Task.getOrganizationMyTasks(userId, organization, 1)
           .subscribe(data => {
             forEach(data, (task, index) => {
               expectDeepEqual(task, taskspage1[index])
@@ -450,13 +456,13 @@ export default describe('Task API test', () => {
             expect(spy).to.have.calledOnce
             done()
           })
-      }, 20)
+      }, global.timeout1)
 
       httpBackend.flush()
     })
 
     it('add my tasks no dueDate should ok', done => {
-      Task.getOrganizationMyTasks(organization)
+      Task.getOrganizationMyTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data[0]._id).to.equal('mocktasknodue')
@@ -475,7 +481,7 @@ export default describe('Task API test', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
 
-      Task.getOrganizationMyTasks(organization)
+      Task.getOrganizationMyTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(29)
@@ -491,7 +497,7 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks done should ok', done => {
-      Task.getOrganizationMyDoneTasks(organization)
+      Task.getOrganizationMyDoneTasks(userId, organization)
         .subscribe(data => {
           forEach(data, (task, pos) => {
             expectDeepEqual(task, tasksdonepage1[pos])
@@ -503,14 +509,14 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks done more page should ok', done => {
-      Task.getOrganizationMyDoneTasks(organization)
+      Task.getOrganizationMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(tasksdonepage2.length + 30)
           done()
         })
 
-      timeout(Task.getOrganizationMyDoneTasks(organization, 2), 20)
+      timeout(Task.getOrganizationMyDoneTasks(userId, organization, 2), 20)
         .subscribe()
 
       httpBackend.flush()
@@ -518,12 +524,12 @@ export default describe('Task API test', () => {
 
     it('get my tasks done from cache should ok', done => {
 
-      Task.getOrganizationMyDoneTasks(organization)
+      Task.getOrganizationMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe()
 
       setTimeout(() => {
-        Task.getOrganizationMyDoneTasks(organization, 1)
+        Task.getOrganizationMyDoneTasks(userId, organization, 1)
           .subscribe(data => {
             forEach(data, (task, pos) => {
               expectDeepEqual(task, tasksdonepage1[pos])
@@ -531,13 +537,13 @@ export default describe('Task API test', () => {
             expect(spy).to.have.calledOnce
             done()
           })
-      }, 20)
+      }, global.timeout1)
 
       httpBackend.flush()
     })
 
     it('add my tasks done should ok', done => {
-      Task.getOrganizationMyDoneTasks(organization)
+      Task.getOrganizationMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(31)
@@ -557,7 +563,7 @@ export default describe('Task API test', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
 
-      Task.getOrganizationMyDoneTasks(organization)
+      Task.getOrganizationMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(29)
