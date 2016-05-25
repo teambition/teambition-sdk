@@ -4,10 +4,10 @@ import { Fetch } from '../../src/app'
 export const apihost = Fetch.getAPIHost()
 
 if (process.env.running_under_istanbul) {
-  global.timeout1 = 400
-  global.timeout2 = 800
-  global.timeout3 = 1200
-  global.timeout4 = 1600
+  global.timeout1 = 1000
+  global.timeout2 = 2500
+  global.timeout3 = 5000
+  global.timeout4 = 7500
 }else {
   global.timeout1 = 15
   global.timeout2 = 30

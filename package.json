@@ -18,7 +18,7 @@
     "build_mock_cjs": "rm -rf dist/mock-cjs && ./node_modules/.bin/tsc mock/index.ts  tools/build/bundle.d.ts -m commonjs --outDir dist/mock-cjs --sourcemap --sourceRoot mock      --target ES5    -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_all": "npm run build_es6 && npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_mock_cjs && npm run build_test",
     "lint": "./node_modules/.bin/tslint ./src/**/*.ts && ./node_modules/.bin/tslint ./mock/**/*.ts && ./node_modules/.bin/tslint ./test/unit/**/*.ts",
-    "cover": "npm run build_test && ./node_modules/.bin/istanbul cover node_modules/.bin/_mocha spec-js/test/unit/app.js",
+    "cover": "npm run build_test && ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./spec-js/test/unit/app.js -- -t 10000",
     "prepublish": "./node_modules/.bin/typings install"
   },
   "repository": {
