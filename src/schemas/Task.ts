@@ -17,6 +17,7 @@ export default class Task extends Schema {
   involveMembers: string[] = undefined
   updated: string = undefined
   created: string = undefined
+  pos: number = undefined
   isArchived: boolean = undefined
   isDone: boolean = undefined
   priority: number = undefined

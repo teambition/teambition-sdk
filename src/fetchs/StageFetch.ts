@@ -1,5 +1,5 @@
 'use strict'
-import Fetch from './base'
+import Fetch from './BaseFetch'
 import Stage from '../schemas/Stage'
 import Task from '../schemas/Task'
 

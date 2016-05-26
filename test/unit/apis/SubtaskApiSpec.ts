@@ -9,14 +9,15 @@ import {
   Backend,
   forEach,
   clone,
-  BaseAPI
+  BaseFetch
 } from '../index'
 import { organizations } from '../../mock/organizations'
 import { subtasks } from '../../mock/subtasks'
 import { organizationMySubtasks } from '../../mock/organizationMySubtasks'
 import { organizationMyDueSubtasks } from '../../mock/organizationMyDueSubtasks'
 import { organizationMyDoneSubtasks } from '../../mock/organizationMyDoneSubtasks'
-import { flush, expectDeepEqual } from '../utils'
+import { organizationMyCreatedSubtasks } from '../../mock/organizationMyCreatedSubtasks'
+import { flush, expectDeepEqual, notInclude } from '../utils'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -37,7 +38,7 @@ export default describe('Subtask API test: ', () => {
 
   beforeEach(() => {
     flush()
-    spy = sinon.spy(BaseAPI.fetch, 'get')
+    spy = sinon.spy(BaseFetch.fetch, 'get')
     Subtask = new SubtaskAPI()
     httpBackend = new Backend()
 
@@ -46,7 +47,7 @@ export default describe('Subtask API test: ', () => {
   })
 
   afterEach(() => {
-    BaseAPI.fetch.get['restore']()
+    BaseFetch.fetch.get['restore']()
   })
 
   after(() => {
@@ -75,7 +76,7 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get should ok', done => {
-      Subtask.getOrganizationMySubtasks(userId, organization)
+      Subtask.getOrgMySubtasks(userId, organization)
         .subscribe(data => {
           expect(data).to.be.instanceof(Array)
           forEach(data, (task, index) => {
@@ -88,14 +89,14 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get page2 should ok', done => {
-      Subtask.getOrganizationMySubtasks(userId, organization)
+      Subtask.getOrgMySubtasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(page1.length + page2.length)
           done()
         })
 
-      Subtask.getOrganizationMySubtasks(userId, organization, 2)
+      Subtask.getOrgMySubtasks(userId, organization, 2)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
@@ -103,19 +104,61 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get from cache should ok', done => {
-      Subtask.getOrganizationMySubtasks(userId, organization)
+      Subtask.getOrgMySubtasks(userId, organization)
         .subscribe()
 
-      setTimeout(() => {
-        Subtask.getOrganizationMySubtasks(userId, organization, 1)
-          .subscribe(data => {
-            forEach(data, (task, index) => {
-              expectDeepEqual(task, page1[index])
-            })
-            expect(spy).to.be.calledOnce
-            done()
+      Subtask.getOrgMySubtasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, page1[index])
           })
-      }, global.timeout1)
+          expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add subtask should ok', done => {
+      const mockGet = clone(page1[0])
+      mockGet._id = 'mockmysubtasktest'
+
+      httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Subtask.getOrgMySubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Subtask.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete subtask should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
+        .respond({})
+
+      Subtask.getOrgMySubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Subtask.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -143,7 +186,7 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get should ok', done => {
-      Subtask.getOrganizationMyDueSubtasks(userId, organization)
+      Subtask.getOrgMyDueSubtasks(userId, organization)
         .subscribe(data => {
           expect(data).to.be.instanceof(Array)
           forEach(data, (task, pos) => {
@@ -156,14 +199,14 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get page2 should ok', done => {
-      Subtask.getOrganizationMyDueSubtasks(userId, organization)
+      Subtask.getOrgMyDueSubtasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(page1.length + page2.length)
           done()
         })
 
-      Subtask.getOrganizationMyDueSubtasks(userId, organization, 2)
+      Subtask.getOrgMyDueSubtasks(userId, organization, 2)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
@@ -171,19 +214,61 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get from cache should ok', done => {
-      Subtask.getOrganizationMyDueSubtasks(userId, organization)
+      Subtask.getOrgMyDueSubtasks(userId, organization)
         .subscribe()
 
-      setTimeout(() => {
-        Subtask.getOrganizationMyDueSubtasks(userId, organization, 1)
-          .subscribe(data => {
-            forEach(data, (task, index) => {
-              expectDeepEqual(task, page1[index])
-            })
-            expect(spy).to.be.calledOnce
-            done()
+      Subtask.getOrgMyDueSubtasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, page1[index])
           })
-      }, global.timeout1)
+          expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add subtask should ok', done => {
+      const mockGet = clone(page1[0])
+      mockGet._id = 'mockmysubtasktest'
+
+      httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Subtask.getOrgMyDueSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Subtask.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete subtask should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
+        .respond({})
+
+      Subtask.getOrgMyDueSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Subtask.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -211,7 +296,7 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get should ok', done => {
-      Subtask.getOrganizationMyDoneSubtasks(userId, organization)
+      Subtask.getOrgMyDoneSubtasks(userId, organization)
         .subscribe(data => {
           expect(data).to.be.instanceof(Array)
           forEach(data, (task, pos) => {
@@ -224,14 +309,14 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get page2 should ok', done => {
-      Subtask.getOrganizationMyDoneSubtasks(userId, organization)
+      Subtask.getOrgMyDoneSubtasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(page1.length + page2.length)
           done()
         })
 
-      Subtask.getOrganizationMyDoneSubtasks(userId, organization, 2)
+      Subtask.getOrgMyDoneSubtasks(userId, organization, 2)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
@@ -239,19 +324,173 @@ export default describe('Subtask API test: ', () => {
     })
 
     it('get from cache should ok', done => {
-      Subtask.getOrganizationMyDoneSubtasks(userId, organization)
+      Subtask.getOrgMyDoneSubtasks(userId, organization)
         .subscribe()
 
-      setTimeout(() => {
-        Subtask.getOrganizationMyDoneSubtasks(userId, organization, 1)
-          .subscribe(data => {
-            forEach(data, (task, index) => {
-              expectDeepEqual(task, page1[index])
-            })
-            expect(spy).to.be.calledOnce
-            done()
+      Subtask.getOrgMyDoneSubtasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, page1[index])
           })
-      }, global.timeout2)
+          expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add subtask should ok', done => {
+      const mockGet = clone(page1[0])
+      mockGet._id = 'mockmysubtasktest'
+
+      httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Subtask.getOrgMyDoneSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Subtask.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete subtask should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
+        .respond({})
+
+      Subtask.getOrgMyDoneSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Subtask.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+  })
+
+  describe('get organization my created subtasks:', () => {
+    const page1 = organizationMyCreatedSubtasks.map((task, pos) => {
+      if (pos < 30) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    const page2 = organizationMyCreatedSubtasks.map((task, pos) => {
+      if (pos >= 30 && pos < 60) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    const maxId = page1[page1.length - 1]._id
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me/created?page=1`)
+        .respond(JSON.stringify(page1))
+
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me/created?page=2&maxId=${maxId}`)
+        .respond(JSON.stringify(page2))
+    })
+
+    it('get should ok', done => {
+      Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .subscribe(data => {
+          expect(data).to.be.instanceof(Array)
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, page1[index])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get page2 should ok', done => {
+      Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + page2.length)
+          done()
+        })
+
+      Subtask.getOrgMyCreatedSubtasks(userId, organization, 2)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('get from cache should ok', done => {
+      Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .subscribe()
+
+      Subtask.getOrgMyCreatedSubtasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, page1[index])
+          })
+          expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add subtask should ok', done => {
+      const mockGet = clone(page1[0])
+      mockGet._id = 'mockmysubtasktest'
+
+      httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Subtask.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete subtask should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
+        .respond({})
+
+      Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Subtask.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })

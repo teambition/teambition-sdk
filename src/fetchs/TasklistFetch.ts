@@ -1,5 +1,5 @@
 'use strict'
-import BaseFetch from './base'
+import BaseFetch from './BaseFetch'
 import Tasklist from '../schemas/Tasklist'
 
 export interface CreateTasklistOptions {

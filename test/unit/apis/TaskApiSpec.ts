@@ -10,7 +10,7 @@ import {
   forEach,
   clone,
   OrganizationData,
-  BaseAPI
+  BaseFetch
 } from '../index'
 import { flush, expectDeepEqual, timeout, notInclude } from '../utils'
 import { tasksDone } from '../../mock/tasksDone'
@@ -19,6 +19,8 @@ import { organizations } from '../../mock/organizations'
 import { organizationMyDueTasks } from '../../mock/organizationMyDueTasks'
 import { organizationMyTasks } from '../../mock/organizationMyTasks'
 import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
+import { organizationMyCreatedTasks } from '../../mock/organizationMyCreatedTasks'
+import { organizationMyInvolvesTasks } from '../../mock/organizationMyInvolvesTasks'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -33,13 +35,13 @@ export default describe('Task API test', () => {
 
   beforeEach(() => {
     flush()
-    spy = sinon.spy(BaseAPI.fetch, 'get')
+    spy = sinon.spy(BaseFetch.fetch, 'get')
     Task = new TaskAPI()
     httpBackend = new Backend()
   })
 
   afterEach(() => {
-    BaseAPI.fetch.get['restore']()
+    BaseFetch.fetch.get['restore']()
   })
 
   after(() => {
@@ -167,17 +169,16 @@ export default describe('Task API test', () => {
       Task.getTasklistDone(tasklistId)
         .subscribe()
 
-      setTimeout(() => {
-        Task.getTasklistDone(tasklistId, 1)
-          .subscribe(data => {
-            expect(data.length).to.equal(30)
-            forEach(data, (task, index) => {
-              expectDeepEqual(task, tasksDone[index])
-            })
-            expect(spy).to.be.calledOnce
-            done()
+      Task.getTasklistDone(tasklistId, 1)
+        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribe(data => {
+          expect(data.length).to.equal(30)
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, tasksDone[index])
           })
-      }, global.timeout3)
+          expect(spy).to.be.calledOnce
+          done()
+        })
 
       httpBackend.flush()
     })
@@ -339,7 +340,7 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks has dueDate should ok', done => {
-      Task.getOrganizationMyDueTasks(userId, organization)
+      Task.getOrgMyDueTasks(userId, organization)
         .subscribe(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, duepage1[index])
@@ -351,38 +352,37 @@ export default describe('Task API test', () => {
     })
 
     it('get my dueDate tasks more page has should ok', done => {
-      Task.getOrganizationMyDueTasks(userId, organization)
+      Task.getOrgMyDueTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(duepage2.length + 30)
           done()
         })
 
-      timeout(Task.getOrganizationMyDueTasks(userId, organization, 2), 20)
+      timeout(Task.getOrgMyDueTasks(userId, organization, 2), 20)
         .subscribe()
 
       httpBackend.flush()
     })
 
     it('get my tasks has dueDate from cache should ok', done => {
-      Task.getOrganizationMyDueTasks(userId, organization)
+      Task.getOrgMyDueTasks(userId, organization)
         .subscribe()
 
-      setTimeout(() => {
-        Task.getOrganizationMyDueTasks(userId, organization, 1)
-          .subscribe(data => {
-            forEach(data, (task, index) => {
-              expectDeepEqual(task, duepage1[index])
-            })
-            done()
+      Task.getOrgMyDueTasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(data => {
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, duepage1[index])
           })
-      }, global.timeout3)
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('add my tasks has dueDate should ok', done => {
-      Task.getOrganizationMyDueTasks(userId, organization)
+      Task.getOrgMyDueTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data[0]._id).to.equal('mocktaskdue')
@@ -401,7 +401,7 @@ export default describe('Task API test', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
 
-      Task.getOrganizationMyDueTasks(userId, organization)
+      Task.getOrgMyDueTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(29)
@@ -417,7 +417,7 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks has no dueDate should ok', done => {
-      Task.getOrganizationMyTasks(userId, organization)
+      Task.getOrgMyTasks(userId, organization)
         .subscribe(data => {
           forEach(data, (task, pos) => {
             expectDeepEqual(task, taskspage1[pos])
@@ -429,14 +429,14 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks page 2 should ok', done => {
-      Task.getOrganizationMyTasks(userId, organization)
+      Task.getOrgMyTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(taskspage2.length + 30)
           done()
         })
 
-      timeout(Task.getOrganizationMyTasks(userId, organization, 2), 20)
+      timeout(Task.getOrgMyTasks(userId, organization, 2), 20)
         .subscribe()
 
       httpBackend.flush()
@@ -444,25 +444,24 @@ export default describe('Task API test', () => {
 
     it('get my tasks from cache should ok', done => {
 
-      Task.getOrganizationMyTasks(userId, organization)
+      Task.getOrgMyTasks(userId, organization)
         .subscribe()
 
-      setTimeout(() => {
-        Task.getOrganizationMyTasks(userId, organization, 1)
-          .subscribe(data => {
-            forEach(data, (task, index) => {
-              expectDeepEqual(task, taskspage1[index])
-            })
-            expect(spy).to.have.calledOnce
-            done()
+      Task.getOrgMyTasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(data => {
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, taskspage1[index])
           })
-      }, global.timeout1)
+          expect(spy).to.have.calledOnce
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('add my tasks no dueDate should ok', done => {
-      Task.getOrganizationMyTasks(userId, organization)
+      Task.getOrgMyTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data[0]._id).to.equal('mocktasknodue')
@@ -481,7 +480,7 @@ export default describe('Task API test', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
 
-      Task.getOrganizationMyTasks(userId, organization)
+      Task.getOrgMyTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(29)
@@ -497,7 +496,7 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks done should ok', done => {
-      Task.getOrganizationMyDoneTasks(userId, organization)
+      Task.getOrgMyDoneTasks(userId, organization)
         .subscribe(data => {
           forEach(data, (task, pos) => {
             expectDeepEqual(task, tasksdonepage1[pos])
@@ -509,14 +508,14 @@ export default describe('Task API test', () => {
     })
 
     it('get my tasks done more page should ok', done => {
-      Task.getOrganizationMyDoneTasks(userId, organization)
+      Task.getOrgMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(tasksdonepage2.length + 30)
           done()
         })
 
-      timeout(Task.getOrganizationMyDoneTasks(userId, organization, 2), 20)
+      timeout(Task.getOrgMyDoneTasks(userId, organization, 2), 20)
         .subscribe()
 
       httpBackend.flush()
@@ -524,26 +523,25 @@ export default describe('Task API test', () => {
 
     it('get my tasks done from cache should ok', done => {
 
-      Task.getOrganizationMyDoneTasks(userId, organization)
+      Task.getOrgMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe()
 
-      setTimeout(() => {
-        Task.getOrganizationMyDoneTasks(userId, organization, 1)
-          .subscribe(data => {
-            forEach(data, (task, pos) => {
-              expectDeepEqual(task, tasksdonepage1[pos])
-            })
-            expect(spy).to.have.calledOnce
-            done()
+      Task.getOrgMyDoneTasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, tasksdonepage1[pos])
           })
-      }, global.timeout1)
+          expect(spy).to.have.calledOnce
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('add my tasks done should ok', done => {
-      Task.getOrganizationMyDoneTasks(userId, organization)
+      Task.getOrgMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(31)
@@ -563,7 +561,7 @@ export default describe('Task API test', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
 
-      Task.getOrganizationMyDoneTasks(userId, organization)
+      Task.getOrgMyDoneTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(29)
@@ -572,6 +570,231 @@ export default describe('Task API test', () => {
         })
 
       Task.delete(task._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+  })
+
+  describe('get organization created tasks', () => {
+    const organization: OrganizationData = organizations[0]
+    const organizationId = organization._id
+
+    const page1 = organizationMyCreatedTasks.map((task, pos) => {
+      if (pos < 30) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    const page2 = organizationMyCreatedTasks.map((task, pos) => {
+      if (pos >= 30 && pos < 60) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/tasks/me/created?page=1`)
+        .respond(JSON.stringify(page1))
+
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/tasks/me/created?page=2&maxId=${page1[page1.length - 1]._id}`)
+        .respond(JSON.stringify(page2))
+    })
+
+    it('get should ok', done => {
+      Task.getOrgMyCreatedTasks(userId, organization)
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get page2 should ok', done => {
+      Task.getOrgMyCreatedTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + page2.length)
+          done()
+        })
+
+      Task.getOrgMyCreatedTasks(userId, organization, 2)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('get from cache should ok', done => {
+      Task.getOrgMyCreatedTasks(userId, organization)
+        .subscribe()
+
+      Task.getOrgMyCreatedTasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          expect(spy).to.be.calledOnce
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add task should ok', done => {
+      const mockGet = clone(page1[0])
+      mockGet._id = 'mockcreatedtasktest'
+
+      httpBackend.whenGET(`${apihost}tasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Task.getOrgMyCreatedTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Task.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenDELETE(`${apihost}tasks/${mockId}`)
+        .respond({})
+
+      Task.getOrgMyCreatedTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Task.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+  })
+
+  describe('get organization involves tasks: ', () => {
+    const organization: OrganizationData = organizations[0]
+    const organizationId = organization._id
+
+    const page1 = organizationMyInvolvesTasks.map((task, pos) => {
+      if (pos < 30) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    const page2 = organizationMyInvolvesTasks.map((task, pos) => {
+      if (pos >= 30 && pos < 60) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    const maxId = page1[page1.length - 1]._id
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/tasks/me/involves?page=1`)
+        .respond(JSON.stringify(page1))
+
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/tasks/me/involves?page=2&maxId=${maxId}`)
+        .respond(JSON.stringify(page2))
+    })
+
+    it('get should ok', done => {
+      Task.getOrgMyInvolvesTasks(userId, organization)
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get page2 should ok', done => {
+      Task.getOrgMyInvolvesTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + page2.length)
+          done()
+        })
+
+      Task.getOrgMyInvolvesTasks(userId, organization, 2)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('get from cache should ok', done => {
+      Task.getOrgMyInvolvesTasks(userId, organization)
+        .subscribe()
+
+      Task.getOrgMyInvolvesTasks(userId, organization, 1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add a task should ok', done => {
+      const mockGet = clone(page1[0])
+      mockGet._id = 'mockinvolvestasks'
+
+      httpBackend.whenGET(`${apihost}tasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Task.getOrgMyInvolvesTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Task.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete a task should ok', done => {
+      httpBackend.whenDELETE(`${apihost}tasks/${page1[0]._id}`)
+        .respond({})
+
+      Task.getOrgMyInvolvesTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Task.delete(page1[0]._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 

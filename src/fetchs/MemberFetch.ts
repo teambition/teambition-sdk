@@ -1,5 +1,5 @@
 'use strict'
-import BaseFetch from './base'
+import BaseFetch from './BaseFetch'
 import Member from '../schemas/Member'
 
 export class MemberFetch extends BaseFetch {

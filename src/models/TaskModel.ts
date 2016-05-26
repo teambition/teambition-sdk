@@ -2,6 +2,7 @@
 import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
 import Collection from './BaseCollection'
+import MaxIdCollection from './tasks/MaxIdCollection'
 import Task from '../schemas/Task'
 import { datasToSchemas, dataToSchema } from '../utils/index'
 import { OrganizationData } from '../teambition'
@@ -132,6 +133,74 @@ export class TaskModel extends BaseModel {
       return collection.get(page)
     }
     return null
+  }
+
+  /**
+   * _collections 的索引是 4
+   */
+  addOrganizationMyCreatedTasks(userId: string, organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
+    const result = datasToSchemas<Task>(tasks, Task)
+    const dbIndex = `organization:tasks:created/${organization._id}`
+
+    let collection: MaxIdCollection<Task> = <MaxIdCollection<Task>>this._collections.get('4')
+
+    if (!collection) {
+      collection = new MaxIdCollection(this._schemaName, (data: Task) => {
+        return data._creatorId === userId && !data.isArchived
+      }, dbIndex)
+      this._collections.set('4', collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getOrganizationMyCreatedTasks(page: number): Observable<Task[]> {
+    const collection = this._collections.get('4')
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  getOrgMyCreatedMaxId(): string {
+    const collection = <MaxIdCollection<Task>>this._collections.get('4')
+    if (collection) {
+      return collection.maxId
+    }
+    return void 0
+  }
+
+  /**
+   * _collections 的索引是 5
+   */
+  addOrgMyInvolvesTasks(userId: string, organization: OrganizationData, tasks: Task[], page: number): Observable<Task[]> {
+    const result = datasToSchemas<Task>(tasks, Task)
+    const dbIndex = `organization:tasks:involves/${organization._id}`
+
+    let collection: MaxIdCollection<Task> = <MaxIdCollection<Task>>this._collections.get('5')
+
+    if (!collection) {
+      collection = new MaxIdCollection(this._schemaName, (data: Task) => {
+        return data.involveMembers.indexOf(userId) !== -1 && !data.isArchived
+      }, dbIndex)
+      this._collections.set('5', collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getOrgInvolvesTasks(page: number): Observable<Task[]> {
+    const collection = this._collections.get('5')
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  getOrgMyInvolvesMaxId(): string {
+    const collection = <MaxIdCollection<Task>>this._collections.get('5')
+    if (collection) {
+      return collection.maxId
+    }
+    return void 0
   }
 
   add(task: Task): Observable<Task> {

@@ -51,7 +51,7 @@ export class TaskAPI {
     })
   }
 
-  getOrganizationMyDueTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+  getOrgMyDueTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
     return makeColdSignal(observer => {
       const get = TaskModel.getOrganizationMyDueTasks(page)
       if (get) {
@@ -67,7 +67,7 @@ export class TaskAPI {
     })
   }
 
-  getOrganizationMyTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+  getOrgMyTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
     return makeColdSignal(observer => {
       const get = TaskModel.getOrganizationMyTasks(page)
       if (get) {
@@ -83,7 +83,7 @@ export class TaskAPI {
     })
   }
 
-  getOrganizationMyDoneTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+  getOrgMyDoneTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
     return makeColdSignal(observer => {
       const get = TaskModel.getOrganizationMyDoneTasks(page)
       if (get) {
@@ -98,7 +98,7 @@ export class TaskAPI {
     })
   }
 
-  getOrganizationMyCreatedTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+  getOrgMyCreatedTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
     return makeColdSignal(observer => {
       const get = TaskModel.getOrganizationMyCreatedTasks(page)
       if (get) {
@@ -108,6 +108,19 @@ export class TaskAPI {
       return Observable.fromPromise(taskFetch.getOrgsTasksCreated(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasks => TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page))
+    })
+  }
+
+  getOrgMyInvolvesTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
+    return makeColdSignal(observer => {
+      const get = TaskModel.getOrgInvolvesTasks(page)
+      if (get) {
+        return get
+      }
+      const maxId = TaskModel.getOrgMyInvolvesMaxId()
+      return Observable.fromPromise(taskFetch.getOrgsTasksInvolves(organization._id, page, maxId))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addOrgMyInvolvesTasks(userId, organization, tasks, page))
     })
   }
 
