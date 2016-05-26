@@ -14,11 +14,11 @@ export class StageAPI {
   }
 
   getAll(_tasklistId: string): Observable<Stage[]> {
-    const get = StageModel.getStages(_tasklistId)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = StageModel.getStages(_tasklistId)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(stageFetch.get(_tasklistId))
         .catch(err => errorHandler(observer, err))
         .concatMap(stages => StageModel.addStages(_tasklistId, stages))
@@ -26,11 +26,11 @@ export class StageAPI {
   }
 
   getOne(_tasklistId: string, stageId: string): Observable<Stage> {
-    const get = StageModel.getOne(stageId)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = StageModel.getOne(stageId)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(stageFetch.get(_tasklistId, stageId))
         .catch(err => errorHandler(observer, err))
         .concatMap(stage => StageModel.add(stage))

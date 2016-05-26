@@ -1,5 +1,5 @@
 'use strict'
-import Fetch from './base'
+import Fetch from './BaseFetch'
 import Task from '../schemas/Task'
 import Subtask from '../schemas/Subtask'
 import MySubtask from '../schemas/MySubtask'
@@ -29,6 +29,14 @@ export class SubtaskFetch extends Fetch {
 
   getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Task[]> {
     return this.fetch.get(`organizations/${organizationId}/subtasks/me`, option)
+  }
+
+  getOrgsSubtasksCreated(organizationId: string, page = 1, maxId?: string) {
+    const query = this.checkQuery({
+      page: page,
+      maxId: maxId
+    })
+    return this.fetch.get(`organizations/${organizationId}/subtasks/me/created`, query)
   }
 
   create(subtaskData: {

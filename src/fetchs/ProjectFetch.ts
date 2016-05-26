@@ -1,5 +1,5 @@
 'use strict'
-import BaseFetch from './base'
+import BaseFetch from './BaseFetch'
 import Project from '../schemas/Project'
 import Member from '../schemas/Member'
 import Event from '../schemas/Event'

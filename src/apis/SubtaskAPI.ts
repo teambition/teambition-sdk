@@ -18,11 +18,11 @@ export class SubtaskAPI {
   }
 
   getFromTask(_taskId: string): Observable<Subtask[]> {
-    const get = SubtaskModel.getFromTask(_taskId)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getFromTask(_taskId)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getFromTask(_taskId))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtasks => SubtaskModel.addToTask(_taskId, subtasks))
@@ -30,11 +30,11 @@ export class SubtaskAPI {
   }
 
   get(_subtaskid: string, _taskId?: string, withExecutor?: boolean): Observable<Subtask> {
-    const get = SubtaskModel.get(_subtaskid)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = SubtaskModel.get(_subtaskid)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.get(_subtaskid, _taskId, withExecutor))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtask => SubtaskModel.add(subtask))
@@ -122,50 +122,63 @@ export class SubtaskAPI {
     })
   }
 
-  getOrganizationMySubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    const get = SubtaskModel.getOrganizationMySubtasks(page)
-    if (get) {
-      return get
-    }
+  getOrgMySubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getOrgMySubtasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: false,
         hasDuedate: false
       }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(subtasks => SubtaskModel.addOrganizationMySubtasks(userId, organization, subtasks, page))
+        .concatMap(subtasks => SubtaskModel.addOrgMySubtasks(userId, organization, subtasks, page))
     })
   }
 
-  getOrganizationMyDueSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    const get = SubtaskModel.getOrganizationMyDueSubtasks(page)
-    if (get) {
-      return get
-    }
+  getOrgMyDueSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getOrgMyDueSubtasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: false,
         hasDuedate: true
       }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(subtasks => SubtaskModel.addOrganizationMyDueSubtasks(userId, organization, subtasks, page))
+        .concatMap(subtasks => SubtaskModel.addOrgMyDueSubtasks(userId, organization, subtasks, page))
     })
   }
 
-  getOrganizationMyDoneSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    const get = SubtaskModel.getOrganizationMyDoneSubtasks(page)
-    if (get) {
-      return get
-    }
+  getOrgMyDoneSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getOrgMyDoneSubtasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: true
       }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(subtasks => SubtaskModel.addOrganizationMyDoneSubtasks(userId, organization, subtasks, page))
+        .concatMap(subtasks => SubtaskModel.addOrgMyDoneSubtasks(userId, organization, subtasks, page))
+    })
+  }
+
+  getOrgMyCreatedSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
+    return makeColdSignal(observer => {
+      const get = SubtaskModel.getOrgMyCreatedSubtasks(page)
+      if (get) {
+        return get
+      }
+      const maxId = SubtaskModel.getOrgMyCreatedMaxId()
+      return Observable.fromPromise(subtaskFetch.getOrgsSubtasksCreated(organization._id, page, maxId))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(subtasks => SubtaskModel.addOrgMyCreatedSubtasks(userId, organization, subtasks, page))
     })
   }
 

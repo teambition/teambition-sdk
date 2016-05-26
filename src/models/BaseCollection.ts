@@ -4,8 +4,8 @@ import Model from './BaseModel'
 import { forEach, dropEle, concat } from '../utils/index'
 
 export default class BaseCollection<T> extends Model {
-  private _data: Map<number, T[]>
-  private _pages: number[]
+  protected _data: Map<number, T[]>
+  protected _pages: number[]
 
   constructor(
     private _schemaName: string,
@@ -27,7 +27,25 @@ export default class BaseCollection<T> extends Model {
       throw(new Error(`Page exist in ${this}`))
     }
     this._data.set(page, data)
-    this._pages.push(page)
+    if (!this._pages.length) {
+      this._pages.push(page)
+    }else {
+      forEach(this._pages, (_page, pos) => {
+        const nextPage = this._pages[pos + 1]
+        if (!nextPage) {
+          if (_page < page) {
+            this._pages.push(page)
+          }else {
+            this._pages.unshift(page)
+          }
+          return false
+        }else if (page > _page && page < nextPage) {
+          this._pages.splice(pos, 0, page)
+          return false
+        }
+        return true
+      })
+    }
     const result = this._getAll()
     if (page === 1) {
       return this._saveCollection(this._dbIndex, result, this._schemaName, this._condition)

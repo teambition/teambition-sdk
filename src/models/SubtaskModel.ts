@@ -2,6 +2,7 @@
 import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
 import Collection from './BaseCollection'
+import MaxIdCollection from './tasks/MaxIdCollection'
 import Subtask from '../schemas/Subtask'
 import { datasToSchemas, dataToSchema } from '../utils/index'
 import { OrganizationData } from '../teambition'
@@ -41,7 +42,7 @@ export class SubtaskModel extends BaseModel {
   /**
    * _collections 索引是0
    */
-  addOrganizationMySubtasks(userId: string, organization: OrganizationData, tasks: Subtask[], page: number): Observable<Subtask[]> {
+  addOrgMySubtasks(userId: string, organization: OrganizationData, tasks: Subtask[], page: number): Observable<Subtask[]> {
     const result = datasToSchemas<Subtask>(tasks, Subtask)
     const dbIndex = `organization:subtasks/${organization._id}`
 
@@ -56,7 +57,7 @@ export class SubtaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrganizationMySubtasks(page: number): Observable<Subtask[]> {
+  getOrgMySubtasks(page: number): Observable<Subtask[]> {
     const collection = this._collections.get('0')
     if (collection) {
       return collection.get(page)
@@ -67,7 +68,7 @@ export class SubtaskModel extends BaseModel {
   /**
    * _collections 的索引是 1
    */
-  addOrganizationMyDueSubtasks(userId: string, organization: OrganizationData, subtasks: Subtask[], page: number): Observable<Subtask[]> {
+  addOrgMyDueSubtasks(userId: string, organization: OrganizationData, subtasks: Subtask[], page: number): Observable<Subtask[]> {
     const dbIndex = `organization:subtasks:due/${organization._id}`
     const result = datasToSchemas<Subtask>(subtasks, Subtask)
 
@@ -82,7 +83,7 @@ export class SubtaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrganizationMyDueSubtasks(page: number): Observable<Subtask[]> {
+  getOrgMyDueSubtasks(page: number): Observable<Subtask[]> {
     const collection = this._collections.get('1')
     if (collection) {
       return collection.get(page)
@@ -93,7 +94,7 @@ export class SubtaskModel extends BaseModel {
   /**
    * _collections 的索引是 2
    */
-  addOrganizationMyDoneSubtasks(userId: string, organization: OrganizationData, tasks: Subtask[], page: number): Observable<Subtask[]> {
+  addOrgMyDoneSubtasks(userId: string, organization: OrganizationData, tasks: Subtask[], page: number): Observable<Subtask[]> {
     const result = datasToSchemas<Subtask>(tasks, Subtask)
     const dbIndex = `organization:subtasks:done/${organization._id}`
 
@@ -108,12 +109,46 @@ export class SubtaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrganizationMyDoneSubtasks(page: number): Observable<Subtask[]> {
+  getOrgMyDoneSubtasks(page: number): Observable<Subtask[]> {
     const collection = this._collections.get('2')
     if (collection) {
       return collection.get(page)
     }
     return null
+  }
+
+  /**
+   * _collections 的索引是 3
+   */
+  addOrgMyCreatedSubtasks(userId: string, organization: OrganizationData, tasks: Subtask[], page: number): Observable<Subtask[]> {
+    const result = datasToSchemas<Subtask>(tasks, Subtask)
+    const dbIndex = `organization:subtasks:created/${organization._id}`
+
+    let collection: MaxIdCollection<Subtask> = <MaxIdCollection<Subtask>>this._collections.get('3')
+
+    if (!collection) {
+      collection = new MaxIdCollection(this._schemaName, (data: Subtask) => {
+        return organization.projectIds.indexOf(data._projectId) !== -1 && data.isDone && data._executorId === userId
+      }, dbIndex)
+      this._collections.set('3', collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getOrgMyCreatedSubtasks(page: number): Observable<Subtask[]> {
+    const collection = this._collections.get('3')
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  getOrgMyCreatedMaxId(): string {
+    const collection: MaxIdCollection<Subtask> = <MaxIdCollection<Subtask>>this._collections.get('3')
+    if (collection) {
+      return collection.maxId
+    }
+    return void 0
   }
 }
 

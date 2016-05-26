@@ -1,5 +1,5 @@
 'use strict'
-import BaseFetch from './base'
+import BaseFetch from './BaseFetch'
 import { OrganizationData } from '../teambition'
 
 export class OrganizationFetch extends BaseFetch {

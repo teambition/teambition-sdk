@@ -11,6 +11,7 @@ import Project from '../schemas/Project'
 import Event from '../schemas/Event'
 import Member from '../schemas/Member'
 import Task from '../schemas/Task'
+import { makeColdSignal, errorHandler } from './utils'
 import {
   CreatedInProject,
   InviteLinkData,
@@ -32,43 +33,55 @@ export class ProjectsAPI {
   }
 
   getAll(querys?: JSONObj): Observable<Project[]> {
-    const get = ProjectModel.getProjects()
-    if (get) {
-      return get
-    }
-    return Observable.fromPromise(projectFetch.getAll(querys))
-      .concatMap(projects => ProjectModel.addProjects(projects))
+    return makeColdSignal(observer => {
+      const get = ProjectModel.getProjects()
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(projectFetch.getAll(querys))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(projects => ProjectModel.addProjects(projects))
+    })
   }
 
   getOrgs(_organizationId: string): Observable<Project[]> {
-    const get = ProjectModel.getOrgProjects(_organizationId)
-    if (get) {
-      return get
-    }
-    return Observable.fromPromise(projectFetch.getAll({
-      _organizationId: _organizationId
-    }))
-      .concatMap(projects => ProjectModel.addOrgsProjects(_organizationId, projects))
+    return makeColdSignal(observer => {
+      const get = ProjectModel.getOrgProjects(_organizationId)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(projectFetch.getAll({
+        _organizationId: _organizationId
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(projects => ProjectModel.addOrgsProjects(_organizationId, projects))
+    })
   }
 
   getOne(_id: string, querys?: JSONObj): Observable<Project> {
-    const get = ProjectModel.getOne(_id)
-    if (get) {
-      return get
-    }
-    return Observable.fromPromise(projectFetch.getOne(_id, querys))
-      .concatMap(project => ProjectModel.addProject(project))
+    return makeColdSignal(observer => {
+      const get = ProjectModel.getOne(_id)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(projectFetch.getOne(_id, querys))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(project => ProjectModel.addProject(project))
+    })
   }
 
   getArchives(): Observable<Project[]> {
-    const get = ProjectModel.getArchivesProjects()
-    if (get) {
-      return get
-    }
-    return Observable.fromPromise(projectFetch.getAll({
-      isArchived: true
-    }))
-      .concatMap(projects => ProjectModel.addArchivesProjects(projects))
+    return makeColdSignal(observer => {
+      const get = ProjectModel.getArchivesProjects()
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(projectFetch.getAll({
+        isArchived: true
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(projects => ProjectModel.addArchivesProjects(projects))
+    })
   }
 
   create(projectInfo: ProjectCreateOptions): Observable<Project> {

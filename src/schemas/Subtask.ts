@@ -7,6 +7,7 @@ export default class Subtask extends Schema {
   _id: string = undefined
   _projectId: string = undefined
   _creatorId: string = undefined
+  created: string = undefined
   content: string = undefined
   isDone: boolean = undefined
   _executorId: string = undefined

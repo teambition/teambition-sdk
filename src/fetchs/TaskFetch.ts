@@ -1,5 +1,5 @@
 'use strict'
-import Fetch from './base'
+import Fetch from './BaseFetch'
 import Task from '../schemas/Task'
 import { TaskData, visibility } from '../teambition'
 
@@ -75,6 +75,22 @@ export class TaskFetch extends Fetch {
 
   getOrgsTasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Task[]> {
     return this.fetch.get(`organizations/${organizationId}/tasks/me`, option)
+  }
+
+  getOrgsTasksCreated(organizationId: string, page?: number, maxId?: string): Promise<Task[]> {
+    const query = this.checkQuery({
+      page: page,
+      maxId: maxId
+    })
+    return this.fetch.get(`organizations/${organizationId}/tasks/me/created`, query)
+  }
+
+  getOrgsTasksInvolves(organizationId: string, page?: number, maxId?: string): Promise<Task[]> {
+    const query = this.checkQuery({
+      page: page,
+      maxId: maxId
+    })
+    return this.fetch.get(`organizations/${organizationId}/tasks/me/involves`, query)
   }
 
   create(createTaskData: CreateTaskOptions): Promise<Task> {
