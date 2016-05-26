@@ -22,11 +22,11 @@ export class TaskAPI {
   }
 
   getTasklistUndone(_tasklistId: string): Observable<Task[]> {
-    const get = TaskModel.getTasklistTasksUndone(_tasklistId)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = TaskModel.getTasklistTasksUndone(_tasklistId)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
         isDone: false
       }))
@@ -36,11 +36,11 @@ export class TaskAPI {
   }
 
   getTasklistDone(_tasklistId: string, page = 1): Observable<Task[]> {
-    const get = TaskModel.getTasklistTasksDone(_tasklistId, page)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = TaskModel.getTasklistTasksDone(_tasklistId, page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
         isDone: true,
         page: page,
@@ -52,11 +52,11 @@ export class TaskAPI {
   }
 
   getOrganizationMyDueTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    const get = TaskModel.getOrganizationMyDueTasks(page)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = TaskModel.getOrganizationMyDueTasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
         page: page,
         isDone: false,
@@ -68,11 +68,11 @@ export class TaskAPI {
   }
 
   getOrganizationMyTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    const get = TaskModel.getOrganizationMyTasks(page)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = TaskModel.getOrganizationMyTasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
         page: page,
         isDone: false,
@@ -84,11 +84,11 @@ export class TaskAPI {
   }
 
   getOrganizationMyDoneTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    const get = TaskModel.getOrganizationMyDoneTasks(page)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = TaskModel.getOrganizationMyDoneTasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
         page: page,
         isDone: true
@@ -98,12 +98,25 @@ export class TaskAPI {
     })
   }
 
-  get(_id: string, detailType?: detailType): Observable<Task> {
-    const get = TaskModel.get(_id)
-    if (get) {
-      return get
-    }
+  getOrganizationMyCreatedTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
     return makeColdSignal(observer => {
+      const get = TaskModel.getOrganizationMyCreatedTasks(page)
+      if (get) {
+        return get
+      }
+      const maxId = TaskModel.getOrgMyCreatedMaxId()
+      return Observable.fromPromise(taskFetch.getOrgsTasksCreated(organization._id, page, maxId))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page))
+    })
+  }
+
+  get(_id: string, detailType?: detailType): Observable<Task> {
+    return makeColdSignal(observer => {
+      const get = TaskModel.get(_id)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(taskFetch.get(_id, detailType))
         .catch(err => errorHandler(observer, err))
         .concatMap(task => TaskModel.add(task))

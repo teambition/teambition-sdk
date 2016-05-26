@@ -3,6 +3,7 @@ import { Observable, Observer } from 'rxjs'
 import { UserFetch } from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
 import { UserMe } from '../teambition'
+import { errorHandler, makeColdSignal } from './utils'
 
 const userFetch = new UserFetch()
 
@@ -13,12 +14,15 @@ export class UserAPI {
   }
 
   getUserMe(): Observable<UserMe> {
-    const get = UserModel.get()
-    if (get) {
-      return get
-    }
-    return Observable.fromPromise(userFetch.getUserMe())
-      .concatMap(userMe => UserModel.set(userMe))
+    return makeColdSignal(observer => {
+      const get = UserModel.get()
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(userFetch.getUserMe())
+        .catch(err => errorHandler(observer, err))
+        .concatMap(userMe => UserModel.set(userMe))
+    })
   }
 
   update(patch: any): Observable<any> {

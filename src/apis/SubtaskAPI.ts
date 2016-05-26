@@ -18,11 +18,11 @@ export class SubtaskAPI {
   }
 
   getFromTask(_taskId: string): Observable<Subtask[]> {
-    const get = SubtaskModel.getFromTask(_taskId)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getFromTask(_taskId)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getFromTask(_taskId))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtasks => SubtaskModel.addToTask(_taskId, subtasks))
@@ -30,11 +30,11 @@ export class SubtaskAPI {
   }
 
   get(_subtaskid: string, _taskId?: string, withExecutor?: boolean): Observable<Subtask> {
-    const get = SubtaskModel.get(_subtaskid)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = SubtaskModel.get(_subtaskid)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.get(_subtaskid, _taskId, withExecutor))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtask => SubtaskModel.add(subtask))
@@ -123,11 +123,11 @@ export class SubtaskAPI {
   }
 
   getOrganizationMySubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    const get = SubtaskModel.getOrganizationMySubtasks(page)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getOrganizationMySubtasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: false,
@@ -139,11 +139,11 @@ export class SubtaskAPI {
   }
 
   getOrganizationMyDueSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    const get = SubtaskModel.getOrganizationMyDueSubtasks(page)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getOrganizationMyDueSubtasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: false,
@@ -155,11 +155,11 @@ export class SubtaskAPI {
   }
 
   getOrganizationMyDoneSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    const get = SubtaskModel.getOrganizationMyDoneSubtasks(page)
-    if (get) {
-      return get
-    }
     return makeColdSignal(observer => {
+      const get = SubtaskModel.getOrganizationMyDoneSubtasks(page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: true

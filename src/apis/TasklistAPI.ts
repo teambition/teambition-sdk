@@ -4,6 +4,7 @@ import { TasklistFetch, UpdateTasklistOptions } from '../fetchs/TasklistFetch'
 import TasklistModel from '../models/TasklistModel'
 import StageModel from '../models/StageModel'
 import Tasklist from '../schemas/Tasklist'
+import { errorHandler, makeColdSignal } from './utils'
 
 const tasklistFetch = new TasklistFetch()
 
@@ -14,21 +15,27 @@ export class TasklistAPI {
   }
 
   getTasklists(_projectId: string, query?: any): Observable<Tasklist[]> {
-    const get = TasklistModel.getTasklists(_projectId)
-    if (get) {
-      return get
-    }
-    return Observable.fromPromise(tasklistFetch.getTasklists(_projectId, query))
-      .concatMap(tasklists => TasklistModel.addTasklists(_projectId, tasklists))
+    return makeColdSignal(observer => {
+      const get = TasklistModel.getTasklists(_projectId)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(tasklistFetch.getTasklists(_projectId, query))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasklists => TasklistModel.addTasklists(_projectId, tasklists))
+    })
   }
 
   getOne(_tasklistId: string, query?: any): Observable<Tasklist> {
-    const get = TasklistModel.get(_tasklistId)
-    if (get) {
-      return get
-    }
-    return Observable.fromPromise(tasklistFetch.get(_tasklistId, query))
-      .concatMap(tasklist => TasklistModel.add(tasklist))
+    return makeColdSignal(observer => {
+      const get = TasklistModel.get(_tasklistId)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(tasklistFetch.get(_tasklistId, query))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasklist => TasklistModel.add(tasklist))
+    })
   }
 
   update(_tasklistId: string, patch: UpdateTasklistOptions): Observable<Tasklist> {
