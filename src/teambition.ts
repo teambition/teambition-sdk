@@ -428,46 +428,6 @@ export interface ProjectInviteData {
   signCode: string
 }
 
-export interface ActivityData {
-  _id: string
-  action: string
-  rawAction: string
-  created: number
-  boundToObjectType: string
-  creator: MemberData
-  title: string
-  content?: {
-    comment?: string
-    attachments: FileData[]
-    mentionsArray: string[]
-    mentions: MemberData
-    attachmentsName: string
-    creator: string
-      linked?: {
-      _id: string
-      _projectId: string
-      _objectId: string
-      objectType: string
-      title: string
-    }
-  }
-  isComment?: boolean
-  icon?: string
-  creatorName?: string
-  creatorAvatar?: string
-  comment?: string
-  linked?: {
-    _id?: string
-  }
-}
-
-export interface ActivitySaveData {
-  _boundToObjectId: string
-  attachments: string[]
-  boundToObjectType: string
-  content: string
-}
-
 export interface ProjectActivitiesData {
   _id: string
   action: string

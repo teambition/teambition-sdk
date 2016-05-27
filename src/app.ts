@@ -1,6 +1,6 @@
 'use strict'
-import { forEach, assign, clone, uuid } from './utils/index'
-export const Utils = { forEach, assign, clone, uuid }
+import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
+export const Utils = { forEach, assign, clone, uuid, concat, dropEle }
 export * from './utils/Fetch'
 export * from './teambition'
 
@@ -11,6 +11,7 @@ export { default as StageSchema } from './schemas/Stage'
 export { default as ProjectSchema } from './schemas/Project'
 export { default as TaskSchema } from './schemas/Task'
 export { default as TasklistSchema } from './schemas/Tasklist'
+export { default as ActivitySchema } from './schemas/Activity'
 
 // export fetchs
 
@@ -22,6 +23,7 @@ export * from './fetchs/TasklistFetch'
 export * from './fetchs/StageFetch'
 export * from './fetchs/TaskFetch'
 export * from './fetchs/SubtaskFetch'
+export * from './fetchs/ActivityFetch'
 
 // export apis
 
@@ -33,3 +35,4 @@ export * from './apis/StageAPI'
 export * from './apis/TasklistAPI'
 export * from './apis/TaskAPI'
 export * from './apis/SubtaskAPI'
+export * from './apis/ActivityAPI'
