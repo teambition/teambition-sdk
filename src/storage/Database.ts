@@ -68,12 +68,14 @@ export default class DataBase {
         }
         const collection = new Collection(index, data, schemaName, condition, unionFlag)
         const collections = this._schemaMap.get(schemaName)
-        if (collections) {
-          if (collections.indexOf(index) === -1) {
-            collections.push(index)
+        if (schemaName) {
+          if (collections) {
+            if (collections.indexOf(index) === -1) {
+              collections.push(index)
+            }
+          }else {
+            this._schemaMap.set(schemaName, [index])
           }
-        }else {
-          this._schemaMap.set(schemaName, [index])
         }
         observer.next(collection.get())
       })

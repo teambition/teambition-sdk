@@ -108,7 +108,7 @@ export default describe('Subtask API test: ', () => {
         .subscribe()
 
       Subtask.getOrgMySubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])
@@ -218,7 +218,7 @@ export default describe('Subtask API test: ', () => {
         .subscribe()
 
       Subtask.getOrgMyDueSubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])
@@ -328,7 +328,7 @@ export default describe('Subtask API test: ', () => {
         .subscribe()
 
       Subtask.getOrgMyDoneSubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])
@@ -440,7 +440,7 @@ export default describe('Subtask API test: ', () => {
         .subscribe()
 
       Subtask.getOrgMyCreatedSubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])

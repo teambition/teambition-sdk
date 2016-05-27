@@ -82,6 +82,13 @@ export default class Collection <T> {
       })
   }
 
+  /**
+   * diff 算法
+   * 计算 patch 中每一个元素是否已经存在
+   * 如果存在则 使用 model.update 更新原有的元素，如果不存在则 new Model
+   * 重新按照 patch 的顺序调整原有元素的顺序
+   * 检查数据整体长度，如果 patch 长度小于原有数据长度则剪裁掉数据
+   */
   update(patch: T[]): Observable<T[]> {
     return Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
