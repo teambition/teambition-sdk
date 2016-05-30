@@ -452,14 +452,6 @@ export interface ProjectActivitiesData {
   objectContent?: string
 }
 
-export interface StrikerRes {
-  fileName: string
-  fileSize: string
-  fileType: string
-  fileCategory: string
-  fileKey: string
-}
-
 export interface OrganizationData {
   _id: string
   name: string

@@ -1,3 +1,4 @@
+'use strict'
 export function forEach (target: any, eachFunc: (val: any, key: any) => any, inverse?: boolean) {
   let length: number
   if (target instanceof Array) {
@@ -17,7 +18,8 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
         }
       }
     }
-
+  } else if (typeof FormData !== 'undefined' && target instanceof FormData) {
+    return target.forEach((val: any, key: string) => eachFunc(val, key))
   } else if (typeof target === 'object') {
     const keys = Object.keys(target)
     let key: string

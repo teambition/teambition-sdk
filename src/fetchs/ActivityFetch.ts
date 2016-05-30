@@ -28,3 +28,5 @@ export class ActivityFetch extends BaseFetch {
     return this.fetch.post(`${data.objectType}/${data._id}/activities`, query)
   }
 }
+
+export default new ActivityFetch()

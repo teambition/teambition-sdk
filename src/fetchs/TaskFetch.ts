@@ -292,3 +292,5 @@ export class TaskFetch extends Fetch {
   }
 
 }
+
+export default new TaskFetch()

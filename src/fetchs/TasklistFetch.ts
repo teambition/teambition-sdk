@@ -68,3 +68,5 @@ export class TasklistFetch extends BaseFetch {
     })
   }
 }
+
+export default new TasklistFetch()

@@ -118,3 +118,5 @@ export class SubtaskFetch extends Fetch {
   }
 
 }
+
+export default new SubtaskFetch()

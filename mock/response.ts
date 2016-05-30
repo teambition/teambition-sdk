@@ -24,6 +24,8 @@ export class HttpResponse {
           return JSON.parse(data)
         }else if (typeof data === 'object') {
           return data
+        }else {
+          throw(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
         }
       }
     }
