@@ -1,12 +1,10 @@
 'use strict'
 import { Observable, Observer } from 'rxjs'
-import { TasklistFetch, UpdateTasklistOptions } from '../fetchs/TasklistFetch'
+import { default as TasklistFetch, UpdateTasklistOptions } from '../fetchs/TasklistFetch'
 import TasklistModel from '../models/TasklistModel'
 import StageModel from '../models/StageModel'
 import Tasklist from '../schemas/Tasklist'
 import { errorHandler, makeColdSignal } from './utils'
-
-const tasklistFetch = new TasklistFetch()
 
 export class TasklistAPI {
 
@@ -20,7 +18,7 @@ export class TasklistAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(tasklistFetch.getTasklists(_projectId, query))
+      return Observable.fromPromise(TasklistFetch.getTasklists(_projectId, query))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasklists => TasklistModel.addTasklists(_projectId, tasklists))
     })
@@ -32,7 +30,7 @@ export class TasklistAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(tasklistFetch.get(_tasklistId, query))
+      return Observable.fromPromise(TasklistFetch.get(_tasklistId, query))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasklist => TasklistModel.add(tasklist))
     })
@@ -40,7 +38,7 @@ export class TasklistAPI {
 
   update(_tasklistId: string, patch: UpdateTasklistOptions): Observable<Tasklist> {
     return Observable.create((observer: Observer<Tasklist>) => {
-      Observable.fromPromise(tasklistFetch.update(_tasklistId, patch))
+      Observable.fromPromise(TasklistFetch.update(_tasklistId, patch))
         .concatMap(tasklist => TasklistModel.update<Tasklist>(_tasklistId, tasklist))
         .forEach(tasklist => observer.next(tasklist))
     })
@@ -48,7 +46,7 @@ export class TasklistAPI {
 
   delete(_tasklistId: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(tasklistFetch.delete(_tasklistId))
+      Observable.fromPromise(TasklistFetch.delete(_tasklistId))
         .concatMap(x => TasklistModel.delete(_tasklistId))
         .forEach(x => observer.next(null))
     })
@@ -56,7 +54,7 @@ export class TasklistAPI {
 
   archive(_tasklistId: string): Observable<Tasklist> {
     return Observable.create((observer: Observer<Tasklist>) => {
-      Observable.fromPromise(tasklistFetch.archive(_tasklistId))
+      Observable.fromPromise(TasklistFetch.archive(_tasklistId))
         .concatMap(tasklist => TasklistModel.update<Tasklist>(_tasklistId, tasklist))
         .forEach(tasklist => observer.next(tasklist))
     })
@@ -64,7 +62,7 @@ export class TasklistAPI {
 
   unArchive(_tasklistId: string): Observable<Tasklist> {
     return Observable.create((observer: Observer<Tasklist>) => {
-      return Observable.fromPromise(tasklistFetch.unarchive(_tasklistId))
+      return Observable.fromPromise(TasklistFetch.unarchive(_tasklistId))
         .concatMap(tasklist => TasklistModel.update<Tasklist>(_tasklistId, tasklist))
         .forEach(x => observer.next(x))
     })
@@ -73,7 +71,7 @@ export class TasklistAPI {
   updateStageIds(_tasklistId: string, stagesIds: string[]): Observable<string[]> {
     return Observable.create((observer: Observer<string[]>) => {
       let _ids: string[]
-      Observable.fromPromise(tasklistFetch.updateStageIds(_tasklistId, stagesIds))
+      Observable.fromPromise(TasklistFetch.updateStageIds(_tasklistId, stagesIds))
         .concatMap(ids => {
           _ids = ids
           return StageModel.updateOrders(_tasklistId, ids)

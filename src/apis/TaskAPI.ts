@@ -4,14 +4,12 @@ import TaskModel from '../models/TaskModel'
 import Task from '../schemas/Task'
 import { errorHandler, makeColdSignal } from './utils'
 import {
-  TaskFetch,
+  default as TaskFetch,
   CreateTaskOptions,
   MoveTaskOptions,
   UpdateTaskOptions
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../teambition'
-
-const taskFetch = new TaskFetch()
 
 export type detailType = 'complete'
 
@@ -27,7 +25,7 @@ export class TaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
+      return Observable.fromPromise(TaskFetch.getByTasklist(_tasklistId, {
         isDone: false
       }))
         .catch(err => errorHandler(observer, err))
@@ -41,7 +39,7 @@ export class TaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(taskFetch.getByTasklist(_tasklistId, {
+      return Observable.fromPromise(TaskFetch.getByTasklist(_tasklistId, {
         isDone: true,
         page: page,
         limit: 30
@@ -57,7 +55,7 @@ export class TaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
+      return Observable.fromPromise(TaskFetch.getOrgsTasksMe(organization._id, {
         page: page,
         isDone: false,
         hasDuedate: true
@@ -73,7 +71,7 @@ export class TaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
+      return Observable.fromPromise(TaskFetch.getOrgsTasksMe(organization._id, {
         page: page,
         isDone: false,
         hasDuedate: false
@@ -89,7 +87,7 @@ export class TaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(taskFetch.getOrgsTasksMe(organization._id, {
+      return Observable.fromPromise(TaskFetch.getOrgsTasksMe(organization._id, {
         page: page,
         isDone: true
       }))
@@ -105,7 +103,7 @@ export class TaskAPI {
         return get
       }
       const maxId = TaskModel.getOrgMyCreatedMaxId()
-      return Observable.fromPromise(taskFetch.getOrgsTasksCreated(organization._id, page, maxId))
+      return Observable.fromPromise(TaskFetch.getOrgsTasksCreated(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasks => TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page))
     })
@@ -118,7 +116,7 @@ export class TaskAPI {
         return get
       }
       const maxId = TaskModel.getOrgMyInvolvesMaxId()
-      return Observable.fromPromise(taskFetch.getOrgsTasksInvolves(organization._id, page, maxId))
+      return Observable.fromPromise(TaskFetch.getOrgsTasksInvolves(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasks => TaskModel.addOrgMyInvolvesTasks(userId, organization, tasks, page))
     })
@@ -130,7 +128,7 @@ export class TaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(taskFetch.get(_id, detailType))
+      return Observable.fromPromise(TaskFetch.get(_id, detailType))
         .catch(err => errorHandler(observer, err))
         .concatMap(task => TaskModel.add(task))
     })
@@ -138,7 +136,7 @@ export class TaskAPI {
 
   create(taskInfo: CreateTaskOptions): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      Observable.fromPromise(taskFetch.create(taskInfo))
+      Observable.fromPromise(TaskFetch.create(taskInfo))
         .catch(err => {
           observer.error(err)
           return Observable.of(null)
@@ -150,7 +148,7 @@ export class TaskAPI {
 
   delete(_taskId: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(taskFetch.delete(_taskId))
+      Observable.fromPromise(TaskFetch.delete(_taskId))
         .catch(err => {
           observer.error(err)
           return TaskModel.get(_taskId)
@@ -162,56 +160,56 @@ export class TaskAPI {
 
   move(_taskId: string, options: MoveTaskOptions): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.move(_taskId, options)
+      const promise = TaskFetch.move(_taskId, options)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateContent(_taskId: string, content: string): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.updateContent(_taskId, content)
+      const promise = TaskFetch.updateContent(_taskId, content)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateDueDate(_taskId: string, dueDate: string): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.updateDueDate(_taskId, dueDate)
+      const promise = TaskFetch.updateDueDate(_taskId, dueDate)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateExecutor(_taskId: string, _executorId: string): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.updateExecutor(_taskId, _executorId)
+      const promise = TaskFetch.updateExecutor(_taskId, _executorId)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateInvolvemembers(_taskId: string, memberIds: string[], type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.updateInvolvemembers(_taskId, memberIds, type)
+      const promise = TaskFetch.updateInvolvemembers(_taskId, memberIds, type)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateNote(_taskId: string, note: string): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.updateNote(_taskId, note)
+      const promise = TaskFetch.updateNote(_taskId, note)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   updateStatus(_taskId: string, status: boolean): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.updateStatus(_taskId, status)
+      const promise = TaskFetch.updateStatus(_taskId, status)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
   update<T extends UpdateTaskOptions>(_taskId: string, patch: T): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      const promise = taskFetch.update(_taskId, patch)
+      const promise = TaskFetch.update(_taskId, patch)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }

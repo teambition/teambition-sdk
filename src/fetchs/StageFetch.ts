@@ -67,5 +67,6 @@ export class StageFetch extends Fetch {
       _newStageId: _newStageId
     })
   }
-
 }
+
+export default new StageFetch()

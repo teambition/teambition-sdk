@@ -1,11 +1,9 @@
 'use strict'
 import { Observable } from 'rxjs'
-import { OrganizationFetch } from '../fetchs/OrganizationFetch'
+import OrganizationFetch from '../fetchs/OrganizationFetch'
 import OrganizationModel from '../models/OrganizationModel'
 import { OrganizationData } from '../teambition'
 import { errorHandler, makeColdSignal } from './utils'
-
-const organizationFetch = new OrganizationFetch()
 
 export class OrganizationsAPI {
 
@@ -19,7 +17,7 @@ export class OrganizationsAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(organizationFetch.getOrgs())
+      return Observable.fromPromise(OrganizationFetch.getOrgs())
         .catch(err => errorHandler(observer, err))
         .concatMap(x => OrganizationModel.saveAll(x))
     })
@@ -31,7 +29,7 @@ export class OrganizationsAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(organizationFetch.getOne(organizationId))
+      return Observable.fromPromise(OrganizationFetch.getOne(organizationId))
         .catch(err => errorHandler(observer, err))
         .concatMap(x => OrganizationModel.set(x))
     })

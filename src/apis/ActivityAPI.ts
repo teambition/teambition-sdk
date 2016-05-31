@@ -2,10 +2,8 @@
 import { Observable, Observer } from 'rxjs'
 import ActivityModel from '../models/ActivityModel'
 import Activity from '../schemas/Activity'
-import { ActivityFetch, ActivitySaveData } from '../fetchs/ActivityFetch'
+import { ActivitySaveData, default as ActivityFetch } from '../fetchs/ActivityFetch'
 import { makeColdSignal, errorHandler } from './utils'
-
-const activityFetch = new ActivityFetch()
 
 export interface GetActivitiesOptions {
   language: string
@@ -18,7 +16,7 @@ export class ActivityAPI {
 
   getActivities(_boundToObjectId: string, query?: GetActivitiesOptions): Observable<Activity[]> {
     return makeColdSignal(observer => {
-      return Observable.fromPromise(activityFetch.fetchAll(_boundToObjectId, query))
+      return Observable.fromPromise(ActivityFetch.fetchAll(_boundToObjectId, query))
         .catch(err => errorHandler(observer, err))
         .concatMap(activities => ActivityModel.addToObject(_boundToObjectId, activities))
     })
@@ -26,7 +24,7 @@ export class ActivityAPI {
 
   addActivity(data: ActivitySaveData): Observable<Activity> {
     return Observable.create((observer: Observer<Activity>) => {
-      Observable.fromPromise(activityFetch.add(data))
+      Observable.fromPromise(ActivityFetch.add(data))
         .catch(err => errorHandler(observer, err))
         .concatMap(a => ActivityModel.add(a))
         .forEach(r => observer.next(r))

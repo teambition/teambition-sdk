@@ -1,11 +1,9 @@
 'use strict'
 import { Observable, Observer } from 'rxjs'
 import { errorHandler, makeColdSignal } from './utils'
-import { StageFetch, StageCreateData, StageUpdateData } from '../fetchs/StageFetch'
+import { default as StageFetch, StageCreateData, StageUpdateData } from '../fetchs/StageFetch'
 import StageModel from '../models/StageModel'
 import Stage from '../schemas/Stage'
-
-const stageFetch = new StageFetch()
 
 export class StageAPI {
 
@@ -19,7 +17,7 @@ export class StageAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(stageFetch.get(_tasklistId))
+      return Observable.fromPromise(StageFetch.get(_tasklistId))
         .catch(err => errorHandler(observer, err))
         .concatMap(stages => StageModel.addStages(_tasklistId, stages))
     })
@@ -31,7 +29,7 @@ export class StageAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(stageFetch.get(_tasklistId, stageId))
+      return Observable.fromPromise(StageFetch.get(_tasklistId, stageId))
         .catch(err => errorHandler(observer, err))
         .concatMap(stage => StageModel.add(stage))
     })
@@ -39,7 +37,7 @@ export class StageAPI {
 
   create(data: StageCreateData): Observable<Stage> {
     return Observable.create((observer: Observer<Stage>) => {
-      Observable.fromPromise(stageFetch.create(data))
+      Observable.fromPromise(StageFetch.create(data))
         .concatMap(stage => StageModel.add(stage))
         .forEach(stage => observer.next(stage))
     })
@@ -47,7 +45,7 @@ export class StageAPI {
 
   update(_stageId: string, data: StageUpdateData): Observable<Stage> {
     return Observable.create((observer: Observer<Stage>) => {
-      return Observable.fromPromise(stageFetch.update(_stageId, data))
+      return Observable.fromPromise(StageFetch.update(_stageId, data))
         .concatMap(stage => StageModel.update<Stage>(_stageId, stage))
         .forEach(stage => observer.next(stage))
     })
@@ -55,7 +53,7 @@ export class StageAPI {
 
   delete(_stageId: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(stageFetch.delete(_stageId))
+      Observable.fromPromise(StageFetch.delete(_stageId))
         .concatMap(x => StageModel.delete(_stageId))
         .forEach(x => observer.next(null))
     })

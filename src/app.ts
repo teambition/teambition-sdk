@@ -15,15 +15,16 @@ export { default as ActivitySchema } from './schemas/Activity'
 
 // export fetchs
 
-export * from './fetchs/MemberFetch'
-export * from './fetchs/OrganizationFetch'
-export * from './fetchs/ProjectFetch'
-export * from './fetchs/UserFetch'
-export * from './fetchs/TasklistFetch'
-export * from './fetchs/StageFetch'
-export * from './fetchs/TaskFetch'
-export * from './fetchs/SubtaskFetch'
-export * from './fetchs/ActivityFetch'
+export { default as MemberFetch } from './fetchs/MemberFetch'
+export { default as OrganizationFetch } from './fetchs/OrganizationFetch'
+export { default as ProjectFetch } from './fetchs/ProjectFetch'
+export { default as UserFetch } from './fetchs/UserFetch'
+export { default as TasklistFetch } from './fetchs/TasklistFetch'
+export { default as StageFetch } from './fetchs/StageFetch'
+export { default as TaskFetch } from './fetchs/TaskFetch'
+export { default as SubtaskFetch } from './fetchs/SubtaskFetch'
+export { default as ActivityFetch } from './fetchs/ActivityFetch'
+export { default as StrikerFetch } from './fetchs/StrikerFetch'
 
 // export apis
 
@@ -36,3 +37,4 @@ export * from './apis/TasklistAPI'
 export * from './apis/TaskAPI'
 export * from './apis/SubtaskAPI'
 export * from './apis/ActivityAPI'
+export * from './apis/FileAPI'

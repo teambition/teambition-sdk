@@ -33,3 +33,5 @@ export class MemberFetch extends BaseFetch {
     })
   }
 }
+
+export default new MemberFetch()

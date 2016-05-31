@@ -2,19 +2,16 @@
 import { Observable, Observer } from 'rxjs'
 import SubtaskModel from '../models/SubtaskModel'
 import TaskModel from '../models/TaskModel'
-import { SubtaskFetch, SubtaskUpdateOptions } from '../fetchs/SubtaskFetch'
+import { default as SubtaskFetch, SubtaskUpdateOptions } from '../fetchs/SubtaskFetch'
 import Subtask from '../schemas/Subtask'
 import Task from '../schemas/Task'
 import { makeColdSignal, errorHandler } from './utils'
 import { OrganizationData } from '../teambition'
 
-const subtaskFetch = new SubtaskFetch()
-
 export class SubtaskAPI {
 
   constructor() {
     SubtaskModel.destructor()
-    TaskModel.destructor()
   }
 
   getFromTask(_taskId: string): Observable<Subtask[]> {
@@ -23,7 +20,7 @@ export class SubtaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(subtaskFetch.getFromTask(_taskId))
+      return Observable.fromPromise(SubtaskFetch.getFromTask(_taskId))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtasks => SubtaskModel.addToTask(_taskId, subtasks))
     })
@@ -35,7 +32,7 @@ export class SubtaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(subtaskFetch.get(_subtaskid, _taskId, withExecutor))
+      return Observable.fromPromise(SubtaskFetch.get(_subtaskid, _taskId, withExecutor))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtask => SubtaskModel.add(subtask))
     })
@@ -47,7 +44,7 @@ export class SubtaskAPI {
     _executorId?: string
   }): Observable<Subtask> {
     return Observable.create((observer: Observer<Subtask>) => {
-      Observable.fromPromise(subtaskFetch.create(subtaskData))
+      Observable.fromPromise(SubtaskFetch.create(subtaskData))
         .catch(err => {
           observer.error(err)
           return Observable.of(null)
@@ -59,7 +56,7 @@ export class SubtaskAPI {
 
   update(_subtaskId: string, options: SubtaskUpdateOptions): Observable<Subtask> {
     return Observable.create((observer: Observer<Subtask>) => {
-      Observable.fromPromise(subtaskFetch.update(_subtaskId, options))
+      Observable.fromPromise(SubtaskFetch.update(_subtaskId, options))
         .catch(err => {
           observer.error(err)
           return Observable.of(null)
@@ -71,7 +68,7 @@ export class SubtaskAPI {
 
   delete(_subtaskid: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(subtaskFetch.delete(_subtaskid))
+      Observable.fromPromise(SubtaskFetch.delete(_subtaskid))
         .catch(err => {
           observer.error(err)
           return Observable.of(null)
@@ -84,7 +81,7 @@ export class SubtaskAPI {
   transform(_subtaskId: string, doLink = false, doLinked = false): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
       let task: Task
-      Observable.fromPromise(subtaskFetch.transform(_subtaskId, doLink, doLinked))
+      Observable.fromPromise(SubtaskFetch.transform(_subtaskId, doLink, doLinked))
         .catch(err => {
           observer.next(err)
           return Observable.of(null)
@@ -100,25 +97,25 @@ export class SubtaskAPI {
 
   updateContent(_subtaskId: string, content: string): Observable<Subtask> {
     return Observable.create((observer: Observer<Subtask>) => {
-      this._updateFromPromise(_subtaskId, observer, subtaskFetch.updateContent(_subtaskId, content))
+      this._updateFromPromise(_subtaskId, observer, SubtaskFetch.updateContent(_subtaskId, content))
     })
   }
 
   updateDuedate(_subTaskId: string, dueDate: string): Observable<Subtask> {
     return Observable.create((observer: Observer<Subtask>) => {
-      this._updateFromPromise(_subTaskId, observer, subtaskFetch.updateDuedate(_subTaskId, dueDate))
+      this._updateFromPromise(_subTaskId, observer, SubtaskFetch.updateDuedate(_subTaskId, dueDate))
     })
   }
 
   updateExecutor(_subTaskId: string, _executorId: string): Observable<Subtask> {
     return Observable.create((observer: Observer<Subtask>) => {
-      this._updateFromPromise(_subTaskId, observer, subtaskFetch.updateExecutor(_subTaskId, _executorId))
+      this._updateFromPromise(_subTaskId, observer, SubtaskFetch.updateExecutor(_subTaskId, _executorId))
     })
   }
 
   updateStatus(_subTaskId: string, isDone: boolean): Observable<Subtask> {
     return Observable.create((observer: Observer<Subtask>) => {
-      this._updateFromPromise(_subTaskId, observer, subtaskFetch.updateStatus(_subTaskId, isDone))
+      this._updateFromPromise(_subTaskId, observer, SubtaskFetch.updateStatus(_subTaskId, isDone))
     })
   }
 
@@ -128,7 +125,7 @@ export class SubtaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
+      return Observable.fromPromise(SubtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: false,
         hasDuedate: false
@@ -144,7 +141,7 @@ export class SubtaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
+      return Observable.fromPromise(SubtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: false,
         hasDuedate: true
@@ -160,7 +157,7 @@ export class SubtaskAPI {
       if (get) {
         return get
       }
-      return Observable.fromPromise(subtaskFetch.getOrgsSubtasksMe(organization._id, {
+      return Observable.fromPromise(SubtaskFetch.getOrgsSubtasksMe(organization._id, {
         page: page,
         isDone: true
       }))
@@ -176,7 +173,7 @@ export class SubtaskAPI {
         return get
       }
       const maxId = SubtaskModel.getOrgMyCreatedMaxId()
-      return Observable.fromPromise(subtaskFetch.getOrgsSubtasksCreated(organization._id, page, maxId))
+      return Observable.fromPromise(SubtaskFetch.getOrgsSubtasksCreated(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtasks => SubtaskModel.addOrgMyCreatedSubtasks(userId, organization, subtasks, page))
     })

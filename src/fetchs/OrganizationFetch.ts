@@ -12,3 +12,5 @@ export class OrganizationFetch extends BaseFetch {
     return this.fetch.get(`organizations/${organizationId}`)
   }
 }
+
+export default new OrganizationFetch()

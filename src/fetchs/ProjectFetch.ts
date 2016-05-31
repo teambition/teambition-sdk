@@ -206,5 +206,6 @@ export class ProjectFetch extends BaseFetch {
       tasklistIds: tasklistIds
     })
   }
-
 }
+
+export default new ProjectFetch()
