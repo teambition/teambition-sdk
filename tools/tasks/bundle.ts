@@ -3,22 +3,41 @@ import * as path from 'path'
 import * as fs from 'fs'
 const rollup = require('rollup')
 const babel = require('rollup-plugin-babel')
+const nodeResolve = require('rollup-plugin-node-resolve')
+const alias = require('rollup-plugin-alias')
 
-export function bundle (entry: string, output: string) {
-  rollup.rollup({
-    entry: entry,
-    plugins: [
-      babel({
-        presets: [ 'es2015-rollup' ]
+export function bundle (entry: string, output: string, name: string, ise2e?: boolean) {
+  const babelConf = babel({
+    presets: [ 'es2015-rollup' ],
+    compact: true,
+    runtimeHelpers: true
+  })
+  let plugins: any[]
+  if (!ise2e) {
+    plugins = [
+      alias({
+        rxjs: path.join(process.cwd(), 'dist/bundle/Rx.js'),
+        'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js')
+      }),
+      babelConf,
+      nodeResolve({
+        jsnext: false,
+        main: true
       })
     ]
+  }else {
+    plugins = [ babelConf ]
+  }
+  rollup.rollup({
+    entry: entry,
+    plugins: plugins
   })
     .then(bundle => {
       const code = bundle.generate({
         format: 'umd',
-        moduleName: 'tbsdk',
+        moduleName: name,
         globals: {
-          rxjs: 'rxjs'
+          'teambition-sdk': 'tbsdk'
         }
       }).code
 
@@ -30,7 +49,7 @@ export function bundle (entry: string, output: string) {
     .catch(e => console.error(e.stack))
 }
 
-function write (dest: string, code: string) {
+export function write (dest: string, code: string) {
   return new Promise(function (resolve, reject) {
     fs.writeFile(dest, code, function (err) {
       if (err) return reject(err)

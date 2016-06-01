@@ -3,9 +3,11 @@ node_js:
   - "4.3"
 
 install:
+  - npm link
   - npm install
   - typings install
   - npm run lint
+  - npm link teambition-sdk
 
 before_script:
   - "npm run build_all"

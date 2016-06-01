@@ -1,8 +1,6 @@
 'use strict'
 import { assign, forEach } from './index'
 
-require('isomorphic-fetch')
-
 const apiHost = 'https://www.teambition.com/api/'
 
 export class Fetch {
