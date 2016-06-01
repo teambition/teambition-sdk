@@ -1,5 +1,10 @@
 'use strict'
+import 'es6-promise'
+import 'isomorphic-fetch'
+import 'es6-collections'
+
 import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
+
 export const Utils = { forEach, assign, clone, uuid, concat, dropEle }
 export * from './utils/Fetch'
 export * from './teambition'

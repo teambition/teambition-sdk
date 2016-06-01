@@ -1,0 +1,24 @@
+{
+  "observable": [
+    "concat",
+    "empty",
+    "from",
+    "fromPromise",
+    "merge",
+    "of",
+    "throw"
+  ],
+  "operator": [
+    "catch",
+    "concat",
+    "concatMap",
+    "map",
+    "merge",
+    "mergeAll",
+    "retry",
+    "retryWhen",
+    "skip",
+    "take",
+    "withLatestFrom"
+  ]
+}
