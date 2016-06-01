@@ -4,33 +4,41 @@ import * as fs from 'fs'
 const rollup = require('rollup')
 const babel = require('rollup-plugin-babel')
 const nodeResolve = require('rollup-plugin-node-resolve')
-const commonjs = require('rollup-plugin-commonjs')
 const alias = require('rollup-plugin-alias')
 
-export function bundle (entry: string, output: string) {
-  rollup.rollup({
-    entry: entry,
-    plugins: [
+export function bundle (entry: string, output: string, name: string, ise2e?: boolean) {
+  const babelConf = babel({
+    presets: [ 'es2015-rollup' ],
+    compact: true,
+    runtimeHelpers: true
+  })
+  let plugins: any[]
+  if (!ise2e) {
+    plugins = [
       alias({
-        rxjs: path.join(process.cwd(), 'node_modules/rxjs-es/Rx.js'),
+        rxjs: path.join(process.cwd(), 'dist/bundle/Rx.js'),
         'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js')
       }),
-      babel({
-        presets: [ 'es2015-rollup' ],
-        runtimeHelpers: true
-      }),
+      babelConf,
       nodeResolve({
-        jsnext: true,
-        main: true,
-        browser: true
+        jsnext: false,
+        main: true
       })
-      // commonjs()
     ]
+  }else {
+    plugins = [ babelConf ]
+  }
+  rollup.rollup({
+    entry: entry,
+    plugins: plugins
   })
     .then(bundle => {
       const code = bundle.generate({
         format: 'umd',
-        moduleName: 'tbsdk'
+        moduleName: name,
+        globals: {
+          'teambition-sdk': 'tbsdk'
+        }
       }).code
 
       return code
@@ -41,7 +49,7 @@ export function bundle (entry: string, output: string) {
     .catch(e => console.error(e.stack))
 }
 
-function write (dest: string, code: string) {
+export function write (dest: string, code: string) {
   return new Promise(function (resolve, reject) {
     fs.writeFile(dest, code, function (err) {
       if (err) return reject(err)

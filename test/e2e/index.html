@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../node_modules/mocha/mocha.css" />
+  </head>
+  <body>
+    <div id="mocha">
+      <div ng-controller="TestView as TestCtrl"></div>
+    </div>
+    <script src="../../node_modules/mocha/mocha.js"></script>
+    <script src="../../node_modules/chai/chai.js"></script>
+    <script>
+      mocha.ui('bdd')
+      expect = chai.expect
+    </script>
+    <script src="../../dist/bundle/tbsdk.umd.js"></script>
+    <script src="../../.tmp/e2e/app.js"></script>
+  </body>
+</html>
