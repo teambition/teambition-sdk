@@ -64,7 +64,7 @@ export class ProjectsAPI {
       }
       return Observable.fromPromise(ProjectFetch.getOne(_id, querys))
         .catch(err => errorHandler(observer, err))
-        .concatMap(project => ProjectModel.addProject(project))
+        .concatMap(project => ProjectModel.addOne(project))
     })
   }
 
@@ -85,7 +85,7 @@ export class ProjectsAPI {
   create(projectInfo: ProjectCreateOptions): Observable<Project> {
     return Observable.create((observer: Observer<Project>) => {
       Observable.fromPromise(ProjectFetch.create(projectInfo))
-        .concatMap(project => ProjectModel.addProject(project))
+        .concatMap(project => ProjectModel.addOne(project))
         .forEach(res => observer.next(res))
     })
   }
@@ -127,7 +127,7 @@ export class ProjectsAPI {
 
   copy(_id: string, copyInfo: ProjectCopyOptions): Observable<Project> {
     return Observable.fromPromise(ProjectFetch.copy(_id, copyInfo))
-      .concatMap(project => ProjectModel.addProject(project))
+      .concatMap(project => ProjectModel.addOne(project))
   }
 
   createdInProject(_id: string, querys?: JSONObj): Observable<CreatedInProject> {

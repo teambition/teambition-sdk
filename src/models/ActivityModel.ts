@@ -8,7 +8,7 @@ export class ActivityModel extends BaseModel {
 
   private _schemaName = 'Activity'
 
-  add(activity: Activity): Observable<Activity> {
+  addOne(activity: Activity): Observable<Activity> {
     const result = dataToSchema<Activity>(activity, Activity)
     return this._save(result)
   }

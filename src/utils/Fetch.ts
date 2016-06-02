@@ -1,11 +1,9 @@
 'use strict'
 import { assign, forEach } from './index'
 
-const apiHost = 'https://www.teambition.com/api/'
-
 export class Fetch {
 
-  private static opts: any = {
+  private _opts: any = {
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -13,25 +11,23 @@ export class Fetch {
     credentials: 'include'
   }
 
-  private static apiHost = apiHost
+  private _apiHost = 'https://www.teambition.com/api/'
 
-  public static getAPIHost(): string {
-    return Fetch.apiHost
+  public getAPIHost(): string {
+    return this._apiHost
   }
 
-  public static setAPIHost(host: string) {
-    Fetch.apiHost = host
+  public setAPIHost(host: string) {
+    this._apiHost = host
   }
 
-  public static setToken(token: string) {
-    delete Fetch.opts.credentials
-    Fetch.opts.headers.Authorization = `OAuth2 ${token}`
-    Fetch.apiHost = 'https://api.teambition.com/'
+  public setToken(token: string) {
+    delete this._opts.credentials
+    this._opts.headers.Authorization = `OAuth2 ${token}`
   }
 
-  public static restore() {
-    Fetch.apiHost = apiHost
-    Fetch.opts = {
+  public restore() {
+    this._opts = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -72,11 +68,12 @@ export class Fetch {
     return (url: string, body?: any): Promise<T> => {
       const options = assign({
         method: method
-      }, Fetch.opts)
+      }, this._opts)
       if (body) {
         options.body = body
       }
-      return fetch(Fetch.apiHost + url, options)
+
+      return fetch(this._apiHost + url, options)
         .then((response: Response): Promise<T> => {
           if (response.status >= 200 && response.status < 300) {
             return response.json<T>()

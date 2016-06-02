@@ -206,6 +206,12 @@ export class ProjectFetch extends BaseFetch {
       tasklistIds: tasklistIds
     })
   }
+
+  subscribeSocket(consumerId: string): Promise<any> {
+    return this.fetch.post(`projects/subscribe`, {
+      consumerId: consumerId
+    })
+  }
 }
 
 export default new ProjectFetch()

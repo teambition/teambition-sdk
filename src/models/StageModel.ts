@@ -18,7 +18,7 @@ export class StageModel extends BaseModel {
     return this._get<Stage[]>(`tasklist:stages/${_tasklistId}`)
   }
 
-  add(stage: Stage): Observable<Stage> {
+  addOne(stage: Stage): Observable<Stage> {
     const result = dataToSchema<Stage>(stage, Stage)
     return this._save(result)
   }

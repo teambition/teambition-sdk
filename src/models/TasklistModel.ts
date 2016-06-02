@@ -18,12 +18,12 @@ export class TasklistModel extends BaseModel {
     return this._get<Tasklist[]>(`project:tasklists/${_projectId}`)
   }
 
-  add(tasklist: Tasklist): Observable<Tasklist> {
+  addOne(tasklist: Tasklist): Observable<Tasklist> {
     const result = dataToSchema<Tasklist>(tasklist, Tasklist)
     return this._save<Tasklist>(result)
   }
 
-  get(tasklistId: string): Observable<Tasklist> {
+  getOne(tasklistId: string): Observable<Tasklist> {
     return this._get<Tasklist>(tasklistId)
   }
 }

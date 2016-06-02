@@ -8,7 +8,7 @@ export class OrganizationModel extends Model {
     return this._get<OrganizationData[]>('organization')
   }
 
-  get(id: string): Observable<OrganizationData> {
+  getOne(id: string): Observable<OrganizationData> {
     return this._get<OrganizationData>(id)
   }
 
@@ -16,7 +16,7 @@ export class OrganizationModel extends Model {
     return this._saveCollection<OrganizationData>('organization', organizations)
   }
 
-  set(data: OrganizationData): Observable<OrganizationData> {
+  addOne(data: OrganizationData): Observable<OrganizationData> {
     return this._save<OrganizationData>(data)
   }
 }

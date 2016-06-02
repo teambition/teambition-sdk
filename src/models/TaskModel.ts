@@ -203,13 +203,25 @@ export class TaskModel extends BaseModel {
     return void 0
   }
 
-  add(task: Task): Observable<Task> {
+  addOne(task: Task): Observable<Task> {
     const result = dataToSchema<Task>(task, Task)
     return this._save(result)
   }
 
-  get(_id: string): Observable<Task> {
+  getOne(_id: string): Observable<Task> {
     return this._get<Task>(_id)
+  }
+
+  /**
+   * 这里是为了 hack socket 推送的bug
+   * 当变更一个 task 的非 executor 属性时，socket 推送的内容中 executor 永远为 null
+   * 比如更改一个截止日期，socket 不仅推送新的截止日期，还附带了 executor: null
+   */
+  update(_taskId: string, patch: any): Observable<Task> {
+    if (!patch._executorId && typeof patch.executor !== 'undefined') {
+      delete patch.executor
+    }
+    return super.update<Task>(_taskId, patch)
   }
 }
 
