@@ -12,7 +12,7 @@ import {
   OrganizationData,
   BaseFetch
 } from '../index'
-import { flush, expectDeepEqual, timeout, notInclude } from '../utils'
+import { flush, expectDeepEqual, notInclude } from '../utils'
 import { tasksDone } from '../../mock/tasksDone'
 import { tasksUndone } from '../../mock/tasksUndone'
 import { organizations } from '../../mock/organizations'
@@ -194,7 +194,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.get('mocktaskundone'), 20)
+      Task.get('mocktaskundone')
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -249,7 +250,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.get('mocktaskdone'), 20)
+      Task.get('mocktaskdone')
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -359,7 +361,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.getOrgMyDueTasks(userId, organization, 2), 20)
+      Task.getOrgMyDueTasks(userId, organization, 2)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -389,7 +392,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.get(mockTaskDue._id), 10)
+      Task.get(mockTaskDue._id)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -436,7 +440,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.getOrgMyTasks(userId, organization, 2), 20)
+      Task.getOrgMyTasks(userId, organization, 2)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -468,7 +473,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.get(mockTaskNodue._id), 10)
+      Task.get(mockTaskNodue._id)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -515,7 +521,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.getOrgMyDoneTasks(userId, organization, 2), 20)
+      Task.getOrgMyDoneTasks(userId, organization, 2)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -549,7 +556,8 @@ export default describe('Task API test', () => {
           done()
         })
 
-      timeout(Task.get(mockTaskDone._id), 20)
+      Task.get(mockTaskDone._id)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
