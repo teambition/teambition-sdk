@@ -76,27 +76,21 @@ export default describe('UserAPI test', () => {
     mockResponse.emails = mockResponse.emails.concat([updateData])
     httpBackend.whenPOST(`${apihost}users/email`, {
       email: updateData.email
-    }).respond(mockResponse.emails)
+    })
+      .respond(JSON.stringify(mockResponse.emails))
 
     const get = User.getUserMe()
     const add = User.addEmail(updateData.email)
 
-    let times = 0
+    get.skip(1)
+      .subscribe(data => {
+        expect(data.emails.length).to.equal(2)
+        expect(data.emails[1]).to.deep.equal(updateData)
+        done()
+      }, err => console.error(err))
 
-    get.subscribe(data => {
-      switch (++times) {
-        case 1:
-          expect(data.emails.length).to.equal(1)
-          break
-        case 2:
-          expect(data.emails.length).to.equal(2)
-          expect(data.emails[1]).to.deep.equal(updateData)
-          done()
-          break
-      }
-    })
-
-    add.subscribe()
+    add.subscribeOn(Rx.Scheduler.async, global.timeout2)
+      .subscribe()
 
     httpBackend.flush()
 
@@ -109,9 +103,10 @@ export default describe('UserAPI test', () => {
       vcode: '4843'
     }
     mockResponse.phone = updateData.phone
+
     httpBackend
-    .whenPUT(`${apihost}users/phone`, updateData)
-    .respond(mockResponse)
+      .whenPUT(`${apihost}users/phone`, updateData)
+      .respond(JSON.stringify(mockResponse))
 
     const get = User.getUserMe()
     const bind = User.bindPhone(updateData.phone, updateData.vcode)
@@ -130,7 +125,8 @@ export default describe('UserAPI test', () => {
       }
     })
 
-    bind.subscribe()
+    bind.subscribeOn(Rx.Scheduler.async, global.timeout2)
+      .subscribe()
 
     httpBackend.flush()
 

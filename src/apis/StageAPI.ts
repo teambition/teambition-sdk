@@ -31,14 +31,14 @@ export class StageAPI {
       }
       return Observable.fromPromise(StageFetch.get(_tasklistId, stageId))
         .catch(err => errorHandler(observer, err))
-        .concatMap(stage => StageModel.add(stage))
+        .concatMap(stage => StageModel.addOne(stage))
     })
   }
 
   create(data: StageCreateData): Observable<Stage> {
     return Observable.create((observer: Observer<Stage>) => {
       Observable.fromPromise(StageFetch.create(data))
-        .concatMap(stage => StageModel.add(stage))
+        .concatMap(stage => StageModel.addOne(stage))
         .forEach(stage => observer.next(stage))
     })
   }

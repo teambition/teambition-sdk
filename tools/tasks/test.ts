@@ -11,7 +11,7 @@ for (let key in require.cache) {
 }
 
 function clearCache() {
-  for (var key in require.cache) {
+  for (let key in require.cache) {
     if (!cache[key] && !/\.node$/.test(key)) {
       delete require.cache[key]
     }

@@ -2,11 +2,14 @@
 import 'es6-promise'
 import 'isomorphic-fetch'
 import 'es6-collections'
+import BaseFetch from './fetchs/BaseFetch'
 
 import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
 
 export const Utils = { forEach, assign, clone, uuid, concat, dropEle }
 export * from './utils/Fetch'
+
+// typings
 export * from './teambition'
 
 export { default as EventSchema } from './schemas/Event'
@@ -31,6 +34,14 @@ export { default as SubtaskFetch } from './fetchs/SubtaskFetch'
 export { default as ActivityFetch } from './fetchs/ActivityFetch'
 export { default as StrikerFetch } from './fetchs/StrikerFetch'
 
+export function setToken(token: string): void {
+  BaseFetch.fetch.setToken(token)
+}
+
+export function setAPIHost(host: string) {
+  BaseFetch.fetch.setAPIHost(host)
+}
+
 // export apis
 
 export * from './apis/MemberAPI'
@@ -43,3 +54,21 @@ export * from './apis/TaskAPI'
 export * from './apis/SubtaskAPI'
 export * from './apis/ActivityAPI'
 export * from './apis/FileAPI'
+
+// for socket
+
+import { SocketClient } from './sockets/SocketClient'
+
+declare const global: any
+
+const ctx = typeof global === 'undefined' ? window : global
+
+ctx['teambition'] = Object.create(null)
+
+const teambition = ctx['teambition']
+
+const sdk = teambition.sdk = Object.create(null)
+
+sdk.version = '0.2.0'
+
+sdk.socket = new SocketClient()

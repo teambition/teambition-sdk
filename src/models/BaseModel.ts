@@ -11,7 +11,11 @@ export default class Model {
   }
 
   update<T>(namespace: string, patch: any): Rx.Observable<T> {
-    return Model.DataBase.updateOne<T>(namespace, patch)
+    if (DataBase.data.get(namespace)) {
+      return Model.DataBase.updateOne<T>(namespace, patch)
+    }else {
+      return Rx.Observable.of(null)
+    }
   }
 
   // 单例 Model， 这个方法由子类继承，清除子类的状态信息，方便测试
@@ -37,7 +41,11 @@ export default class Model {
   }
 
   protected _updateCollection<T>(namespace: string, patch: any): Rx.Observable<T[]> {
-    return Model.DataBase.updateCollection<T>(namespace, patch)
+    if (DataBase.data.get(namespace)) {
+      return Model.DataBase.updateCollection<T>(namespace, patch)
+    }else {
+      return Rx.Observable.of(null)
+    }
   }
 
 }

@@ -28,7 +28,7 @@ export class ProjectModel extends BaseModel {
     })
   }
 
-  addProject(project: Project): Observable<Project> {
+  addOne(project: Project): Observable<Project> {
     const result = dataToSchema<Project>(project, Project)
     return this._save(result)
   }

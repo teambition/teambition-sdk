@@ -28,13 +28,13 @@ export class SubtaskAPI {
 
   get(_subtaskid: string, _taskId?: string, withExecutor?: boolean): Observable<Subtask> {
     return makeColdSignal(observer => {
-      const get = SubtaskModel.get(_subtaskid)
+      const get = SubtaskModel.getOne(_subtaskid)
       if (get) {
         return get
       }
-      return Observable.fromPromise(SubtaskFetch.get(_subtaskid, _taskId, withExecutor))
+      return Observable.fromPromise(SubtaskFetch.getOne(_subtaskid, _taskId, withExecutor))
         .catch(err => errorHandler(observer, err))
-        .concatMap(subtask => SubtaskModel.add(subtask))
+        .concatMap(subtask => SubtaskModel.addOne(subtask))
     })
   }
 
@@ -49,7 +49,7 @@ export class SubtaskAPI {
           observer.error(err)
           return Observable.of(null)
         })
-        .concatMap(subtask => SubtaskModel.add(subtask))
+        .concatMap(subtask => SubtaskModel.addOne(subtask))
         .forEach(subtask => observer.next(subtask))
     })
   }
@@ -88,7 +88,7 @@ export class SubtaskAPI {
         })
         .concatMap(task => {
           task = task
-          return TaskModel.add(task)
+          return TaskModel.addOne(task)
         })
         .concatMap(x => SubtaskModel.delete(_subtaskId))
         .forEach(x => observer.next(task))
@@ -183,7 +183,7 @@ export class SubtaskAPI {
     Observable.fromPromise(promise)
       .catch(err => {
         observer.error(err)
-        return SubtaskModel.get(_subtaskId)
+        return SubtaskModel.getOne(_subtaskId)
       })
       .concatMap(subtask => SubtaskModel.update<Subtask>(_subtaskId, subtask))
       .forEach(subtask => observer.next(subtask))

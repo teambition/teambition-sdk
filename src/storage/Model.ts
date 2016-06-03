@@ -77,7 +77,7 @@ export default class Model<T> {
           return observer.error(new Error('A patch should be Object'))
         }
         const _unionFlag = this._unionFlag
-        const _finalPatch: any = {}
+        const _finalPatch: any = Object.create(null)
         forEach(patch, (val, key) => {
           if (val && typeof val === 'object') {
             const flag: string = val[_unionFlag]

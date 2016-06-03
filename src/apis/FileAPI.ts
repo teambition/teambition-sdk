@@ -17,7 +17,7 @@ export class FileAPI {
         .catch(err => errorHandler(observer, err))
         .concatMap(res => Observable.fromPromise(FileFetch.create(parentId, res)))
         .catch(err => errorHandler(observer, err))
-        .concatMap(file => WorkModel.add(file))
+        .concatMap(file => WorkModel.addOne(file))
     })
   }
 }

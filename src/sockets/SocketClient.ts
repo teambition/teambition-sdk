@@ -1,0 +1,69 @@
+'use strict'
+import UserFetch from '../fetchs/UserFetch'
+import ProjectFetch from '../fetchs/ProjectFetch'
+import { socketHandler } from './EventMaps'
+import { default as Consumer , RequestEvent } from 'snapper-consumer'
+
+declare const global: any
+
+const ctx = typeof global === 'undefined' ? window : global
+
+export class SocketClient {
+
+  private static _isDebug = false
+
+  private _client: Consumer
+
+  private _isSubscribe = false
+
+  private _socketUrl = 'wss://push.teambition.com'
+
+  /**
+   * 由于新的 API 可以一次性订阅所有项目的 socket，参数中 _projectId 其实已经没用了
+   * 但是由于 snapper-consumer 的内部设计只能先保留这个参数
+   */
+  private static _join (_projectId: string, consumerId: string): Promise<any> {
+    return ProjectFetch.subscribeSocket(consumerId)
+  }
+
+  debug(): void {
+    SocketClient._isDebug = true
+    ctx['console']['log']('socket debug start')
+  }
+
+  setSocketUrl(url: string): void {
+    this._socketUrl = url
+  }
+
+  connect(client: Consumer): Promise<any> {
+    this._client = this._client ? this._client : client
+    this._client._join = SocketClient._join
+    this._client.onmessage = this._onmessage
+    return UserFetch.getUserMe()
+      .then(userMe => {
+        return this._client
+          .connect(this._socketUrl, {
+            path: '/websocket',
+            token: userMe.snapperToken
+          })
+      }).then(() => {
+        return this.join()
+      })
+  }
+
+  join(): Consumer {
+    if (this._isSubscribe) {
+      return this._client
+    }
+    this._isSubscribe = true
+    return this._client.join.call(this._client)
+  }
+
+  private _onmessage(event: RequestEvent) {
+    if (SocketClient._isDebug) {
+      // 避免被插件清除掉
+      ctx['console']['log'](event)
+    }
+    return socketHandler(event).subscribe(null, err => ctx['console']['error'](err))
+  }
+}

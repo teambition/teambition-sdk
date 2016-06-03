@@ -7,6 +7,10 @@ export class UserModel extends Model {
 
   public userId: string
 
+  destructor() {
+    this.userId = null
+  }
+
   set(data: UserMe): Observable<UserMe> {
     this.userId = data._id
     return this._save(data)

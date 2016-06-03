@@ -16,12 +16,12 @@ export class SubtaskModel extends BaseModel {
     this._collections.clear()
   }
 
-  add(subtask: Subtask): Observable<Subtask> {
+  addOne(subtask: Subtask): Observable<Subtask> {
     const result = dataToSchema<Subtask>(subtask, Subtask)
     return this._save(result)
   }
 
-  get(_subtaskId: string): Observable<Subtask> {
+  getOne(_subtaskId: string): Observable<Subtask> {
     return this._get<Subtask>(_subtaskId)
   }
 

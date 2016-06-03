@@ -1,7 +1,7 @@
 'use strict'
-import { Fetch } from '../../src/app'
+import BaseFetch from '../../src/fetchs/BaseFetch'
 
-export const apihost = Fetch.getAPIHost()
+export const apihost = BaseFetch.fetch.getAPIHost()
 
 if (process.env.running_under_istanbul) {
   global.timeout1 = 1000

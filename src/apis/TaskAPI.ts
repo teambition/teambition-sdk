@@ -124,13 +124,13 @@ export class TaskAPI {
 
   get(_id: string, detailType?: detailType): Observable<Task> {
     return makeColdSignal(observer => {
-      const get = TaskModel.get(_id)
+      const get = TaskModel.getOne(_id)
       if (get) {
         return get
       }
       return Observable.fromPromise(TaskFetch.get(_id, detailType))
         .catch(err => errorHandler(observer, err))
-        .concatMap(task => TaskModel.add(task))
+        .concatMap(task => TaskModel.addOne(task))
     })
   }
 
@@ -141,7 +141,7 @@ export class TaskAPI {
           observer.error(err)
           return Observable.of(null)
         })
-        .concatMap(task => TaskModel.add(task))
+        .concatMap(task => TaskModel.addOne(task))
         .forEach(task => observer.next(task))
     })
   }
@@ -151,7 +151,7 @@ export class TaskAPI {
       Observable.fromPromise(TaskFetch.delete(_taskId))
         .catch(err => {
           observer.error(err)
-          return TaskModel.get(_taskId)
+          return TaskModel.getOne(_taskId)
         })
         .concatMap(x => TaskModel.delete(_taskId))
         .forEach(x => observer.next(null))
@@ -218,9 +218,9 @@ export class TaskAPI {
     Observable.fromPromise(promise)
       .catch(err => {
         observer.error(err)
-        return TaskModel.get(_taskId)
+        return TaskModel.getOne(_taskId)
       })
-      .concatMap(task => TaskModel.update<Task>(_taskId, task))
+      .concatMap(task => TaskModel.update(_taskId, task))
       .forEach(task => observer.next(task))
   }
 }

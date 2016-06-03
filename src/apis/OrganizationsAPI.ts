@@ -25,13 +25,13 @@ export class OrganizationsAPI {
 
   getOne (organizationId: string): Observable<OrganizationData> {
     return makeColdSignal(observer => {
-      const get = OrganizationModel.get(organizationId)
+      const get = OrganizationModel.getOne(organizationId)
       if (get) {
         return get
       }
       return Observable.fromPromise(OrganizationFetch.getOne(organizationId))
         .catch(err => errorHandler(observer, err))
-        .concatMap(x => OrganizationModel.set(x))
+        .concatMap(x => OrganizationModel.addOne(x))
     })
   }
 }

@@ -104,6 +104,7 @@ export default class DataBase {
       setTimeout(() => {
         const cache: Model<any> | Collection<any> = DataBase.data.get(index)
         let signal: Observable<any> = Observable.of(null)
+        let notify: Observable<any> = Observable.of(null)
         if (cache) {
           if (cache instanceof Model) {
             this._deleteParents(cache)
@@ -128,8 +129,8 @@ export default class DataBase {
               model.removeFromCollection(index)
             })
           }
+          notify = cache.destroy().notify()
         }
-        const notify = cache.destroy().notify()
         const dest = signal.concatMap(x => notify)
         DataBase.data.delete(index)
         observer.next(dest)
@@ -177,6 +178,10 @@ export default class DataBase {
           .concatMap(x => {
             result = x
             return collection.notify()
+          })
+          .catch(err => {
+            observer.error(err)
+            return Observable.of(result)
           })
           .forEach(dest => {
             observer.next(result)
@@ -273,7 +278,6 @@ export default class DataBase {
     ])
       .mergeAll()
       .skip(3)
-      .flatMap((r: T) => Observable.of<T>(x))
   }
 
   private _deleteParents(model: Model<any>): void {

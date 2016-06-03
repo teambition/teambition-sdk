@@ -47,7 +47,7 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.post(`subtasks`, subtaskData)
   }
 
-  get(_subTaskId: string, _taskId?: string, withExecutor?: boolean): Promise<Subtask> {
+  getOne(_subTaskId: string, _taskId?: string, withExecutor?: boolean): Promise<Subtask> {
     let queryData: {
       _taskId?: string
       withExecutor?: boolean

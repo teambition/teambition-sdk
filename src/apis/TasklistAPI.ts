@@ -26,13 +26,13 @@ export class TasklistAPI {
 
   getOne(_tasklistId: string, query?: any): Observable<Tasklist> {
     return makeColdSignal(observer => {
-      const get = TasklistModel.get(_tasklistId)
+      const get = TasklistModel.getOne(_tasklistId)
       if (get) {
         return get
       }
       return Observable.fromPromise(TasklistFetch.get(_tasklistId, query))
         .catch(err => errorHandler(observer, err))
-        .concatMap(tasklist => TasklistModel.add(tasklist))
+        .concatMap(tasklist => TasklistModel.addOne(tasklist))
     })
   }
 

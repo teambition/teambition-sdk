@@ -29,18 +29,27 @@ export class UserAPI {
         return observer.error(new Error('User name is required'))
       }
       Observable.fromPromise(UserFetch.update(patch))
+        .catch(err => errorHandler(observer, err))
         .concatMap(x => UserModel.update(x))
         .forEach(result => observer.next(result))
     })
   }
 
   addEmail(email: string): Observable<void> {
-    return Observable.fromPromise(UserFetch.addEmail(email))
-      .concatMap(x => UserModel.updateEmail(x))
+    return Observable.create((observer: Observer<UserMe>) => {
+      Observable.fromPromise(UserFetch.addEmail(email))
+        .catch(e => errorHandler(observer, e))
+        .concatMap(x => UserModel.updateEmail(x))
+        .forEach(r => observer.next(r))
+    })
   }
 
   bindPhone(phone: string, vcode: string): Observable<any> {
-    return Observable.fromPromise(UserFetch.bindPhone(phone, vcode))
-      .concatMap(x => UserModel.update(x))
+    return Observable.create((observer: Observer<any>) => {
+      Observable.fromPromise(UserFetch.bindPhone(phone, vcode))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(x => UserModel.update(x))
+        .forEach(r => observer.next(r))
+    })
   }
 }
