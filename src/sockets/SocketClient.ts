@@ -6,28 +6,43 @@ import { default as Consumer , RequestEvent } from 'snapper-consumer'
 
 declare const global: any
 
-const socketUrl = 'wss://push.teambition.com'
+const ctx = typeof global === 'undefined' ? window : global
 
 export class SocketClient {
 
-  private _client: Consumer
+  private static _isDebug = false
 
-  private _isDebug = false
+  private _client: Consumer
 
   private _isSubscribe = false
 
-  public debug() {
-    this._isDebug = true
+  private _socketUrl = 'wss://push.teambition.com'
+
+  /**
+   * 由于新的 API 可以一次性订阅所有项目的 socket，参数中 _projectId 其实已经没用了
+   * 但是由于 snapper-consumer 的内部设计只能先保留这个参数
+   */
+  private static _join (_projectId: string, consumerId: string): Promise<any> {
+    return ProjectFetch.subscribeSocket(consumerId)
+  }
+
+  debug(): void {
+    SocketClient._isDebug = true
+    ctx['console']['log']('socket debug start')
+  }
+
+  setSocketUrl(url: string): void {
+    this._socketUrl = url
   }
 
   connect(client: Consumer): Promise<any> {
     this._client = this._client ? this._client : client
-    this._client._join = this._join
+    this._client._join = SocketClient._join
     this._client.onmessage = this._onmessage
     return UserFetch.getUserMe()
       .then(userMe => {
         return this._client
-          .connect(socketUrl, {
+          .connect(this._socketUrl, {
             path: '/websocket',
             token: userMe.snapperToken
           })
@@ -45,26 +60,10 @@ export class SocketClient {
   }
 
   private _onmessage(event: RequestEvent) {
-    return socketHandler(event).subscribe(r => {
-      if (this._isDebug) {
-        const ctx = typeof global === 'undefined' ? window : global
-        // 避免被插件清除掉
-        ctx['console']['log']({
-          originEvent: event,
-          result: r
-        })
-      }
-    })
-  }
-
-  /**
-   * 由于新的 API 可以一次性订阅所有项目的 socket，参数中 _projectId 其实已经没用了
-   * 但是由于 snapper-consumer 的内部设计只能先保留这个参数
-   */
-  private _join (_projectId: string, consumerId: string): Promise<any> {
-    if (!_projectId) {
-      return ProjectFetch.subscribeSocket(consumerId)
+    if (SocketClient._isDebug) {
+      // 避免被插件清除掉
+      ctx['console']['log'](event)
     }
-    return
+    return socketHandler(event).subscribe(null, err => ctx['console']['error'](err))
   }
 }

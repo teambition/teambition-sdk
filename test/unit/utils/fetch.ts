@@ -75,7 +75,7 @@ export default describe('utils/fetch', () => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
           if (httpMethod === 'put' || httpMethod === 'post') {
-            expect(fetchMock.lastOptions().body).to.equal(body)
+            expect(JSON.parse(fetchMock.lastOptions().body)).to.deep.equal(body)
           }
           fetchMock.restore()
         })

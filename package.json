@@ -13,13 +13,14 @@
     "build_cjs": "rm -rf dist/cjs   && ./node_modules/.bin/tsc tools/build/bundle.d.ts src/app.ts     -m commonjs --outDir dist/cjs      --sourcemap --sourceRoot src       --target ES5    -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_es6": "rm -rf dist/es6   && ./node_modules/.bin/tsc tools/build/target-es6.d.ts src/app.ts -m es2015   --outDir dist/es6      --sourcemap --sourceRoot src       --target ES2015 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_test": "rm -rf spec-js   && ./node_modules/.bin/tsc tools/build/test.d.ts test/unit/app.ts -m commonjs --outDir spec-js       --sourcemap --sourceRoot test/unit --target ES5       --diagnostics --pretty                                     --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
-    "build_e2e": "rm -rf .tmp && ./node_modules/.bin/tsc test/e2e/main.ts -m es2015 --outDir .tmp/e2e       --sourcemap --sourceRoot test/unit --target ES2015       --diagnostics --pretty                                     --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ./node_modules/.bin/ts-node ./tools/tasks/bundle.e2e.ts",
+    "build_e2e": "rm -rf .tmp && ./node_modules/.bin/tsc ./test/e2e/main.ts -m es2015 --outDir .tmp/e2e                                  --sourcemap --sourceRoot test/e2e  --target ES2015    --diagnostics --pretty                                                               --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ./node_modules/.bin/ts-node ./tools/tasks/bundle.e2e.ts",
+    "build_async": "rm -rf dist/bundle/tbsdk.async.js && ./node_modules/.bin/tsc ./src/AsyncApp.ts    -m commonjs --outDir dist/async    --sourcemap --sourceRoot src       --target ES5    --diagnostics --pretty                                                               --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ./node_modules/.bin/ts-node ./tools/tasks/bundle.async.ts",
     "watch": "npm run watch_test & ./node_modules/.bin/ts-node ./tools/tasks/test.ts",
-    "watch_test": "./node_modules/.bin/tsc tools/build/test.d.ts test/unit/app.ts -m commonjs --outDir spec-js                                  --sourcemap --sourceRoot test      --target ES5       --diagnostics --pretty                                     --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node -w",
-    "build_bundle": "rm -rf dist/bundle && mkdir dist/bundle && ./node_modules/.bin/ts-node ./tools/tasks/rx.ts && ./node_modules/.bin/ts-node ./tools/tasks/bundle.sdk.ts",
+    "watch_test": "./node_modules/.bin/tsc tools/build/test.d.ts test/unit/app.ts -m commonjs --outDir spec-js                           --sourcemap --sourceRoot test       --target ES5      --diagnostics --pretty                                     --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node -w",
+    "build_bundle": "rm -rf dist/bundle/tbsdk.umd.js && ./node_modules/.bin/ts-node ./tools/tasks/rx.ts && ./node_modules/.bin/ts-node ./tools/tasks/bundle.sdk.ts",
     "build_mock": "rm -rf dist/mock-es6 && ./node_modules/.bin/tsc mock/index.ts                      -m es2015   --outDir dist/mock-es6 --sourcemap --sourceRoot mock      --target ES2015 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ./node_modules/.bin/ts-node ./tools/tasks/bundle.mock.ts",
     "build_mock_cjs": "rm -rf dist/mock-cjs && ./node_modules/.bin/tsc mock/index.ts  tools/build/bundle.d.ts -m commonjs --outDir dist/mock-cjs --sourcemap --sourceRoot mock      --target ES5    -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
-    "build_all": "npm run build_es6 && npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_mock_cjs && npm run build_test && npm run build_e2e",
+    "build_all": "rm -rf dist && mkdir dist && mkdir dist/bundle npm run build_es6 && npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_mock_cjs && npm run build_test && npm run build_e2e && npm run build_async",
     "lint": "./node_modules/.bin/tslint ./src/**/*.ts && ./node_modules/.bin/tslint ./mock/**/*.ts && ./node_modules/.bin/tslint ./test/unit/**/*.ts",
     "cover": "npm run build_test && ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./spec-js/test/unit/app.js -- -t 10000",
     "prepublish": "./node_modules/.bin/typings install"
@@ -50,7 +51,7 @@
     "jsonrpc-lite": "^1.2.1",
     "rxjs": "^5.0.0-beta.8",
     "rxjs-es": "^5.0.0-beta.8",
-    "snapper-consumer": "^1.1.2",
+    "snapper-consumer": "teambition/snapper-consumer",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {

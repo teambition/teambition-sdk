@@ -5,24 +5,29 @@ const rollup = require('rollup')
 const babel = require('rollup-plugin-babel')
 const nodeResolve = require('rollup-plugin-node-resolve')
 const alias = require('rollup-plugin-alias')
+const commonjs = require('rollup-plugin-commonjs')
 
 export function bundle (entry: string, output: string, name: string, ise2e?: boolean) {
   const babelConf = babel({
     presets: [ 'es2015-rollup' ],
-    compact: true,
-    runtimeHelpers: true
+    runtimeHelpers: true,
+    exclude: 'dist/bundle/**'
   })
   let plugins: any[]
   if (!ise2e) {
     plugins = [
       alias({
         rxjs: path.join(process.cwd(), 'dist/bundle/Rx.js'),
-        'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js')
+        'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js'),
+        'engine.io-client': path.join(process.cwd(), 'node_modules/engine.io-client/engine.io.js')
       }),
       babelConf,
       nodeResolve({
         jsnext: false,
         main: true
+      }),
+      commonjs({
+        exclude: [ 'dist/es6/**', 'dist/mock-es6/**' ]
       })
     ]
   }else {

@@ -76,9 +76,14 @@ export { Scheduler, Symbol };
   const tmpEntryName = 'Rx.min.js'
 
   function bundle(entry: string): Promise<string> {
+    const babelConf = babel({
+      presets: [ 'es2015-rollup' ],
+      runtimeHelpers: true
+    })
     return rollup.rollup({
       entry: entry,
       plugins: [
+        babelConf,
         nodeResolve({
           jsnext: false,
           main: true
@@ -91,7 +96,7 @@ export { Scheduler, Symbol };
     })
     .then(b => {
       const code = b.generate({
-        format: 'es6'
+        format: 'cjs'
       }).code
 
       return code

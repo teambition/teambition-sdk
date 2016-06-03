@@ -42,20 +42,24 @@ function handler(socketMessage: MessageResult) {
   const data = socketMessage.data
   const _method = methodMap[method]
   const model = typeMap[type]
-  switch (method) {
-    case 'add':
-      return model[_method](data)
-    case 'change':
-      return model[_method](id, data)
-    case 'destroy':
-      return model[_method](id)
-  }
-  if (method === 'refresh') {
-    switch (type) {
-      case 'projects':
-        let projectid = data
-        return Observable.fromPromise(ProjectFetch.getOne(projectid))
-          .concatMap(project => ProjectModel.addOne(project))
+  if (model) {
+    switch (method) {
+      case 'new':
+        return model[_method](data)
+      case 'change':
+        return model[_method](id, data)
+      case 'destroy':
+        return model[_method](id)
+    }
+    if (method === 'refresh') {
+      switch (type) {
+        case 'projects':
+          let projectid = data
+          return Observable.fromPromise(ProjectFetch.getOne(projectid))
+            .concatMap(project => ProjectModel.addOne(project))
+      }
+      return Observable.of(null)
     }
   }
+  return Observable.of(null)
 }

@@ -1,7 +1,10 @@
 'use strict'
 import 'engine.io-client'
 import 'jsonrpc-lite'
-import Consumer from 'snapper-consumer'
+
+declare const require: any
+
+const Consumer = require('snapper-consumer')
 
 const client = new Consumer()
 

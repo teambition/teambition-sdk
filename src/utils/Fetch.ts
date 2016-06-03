@@ -70,7 +70,7 @@ export class Fetch {
         method: method
       }, this._opts)
       if (body) {
-        options.body = body
+        options.body = typeof body === 'object' ? JSON.stringify(body) : body
       }
 
       return fetch(this._apiHost + url, options)
