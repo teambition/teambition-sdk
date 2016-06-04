@@ -167,7 +167,7 @@ export default describe('database test: ', () => {
 
       set.concatMap(r => Storage.updateOne('14.14', '5555'))
         .subscribe(null, (err: Error) => {
-          expect(err.message).to.equal('A patch should be Object')
+          expect(err.message).to.equal(`A patch should be Object, patch: 5555, type: ${typeof '5555'}`)
           done()
         })
 

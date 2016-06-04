@@ -8,6 +8,7 @@ import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
 
 export const Utils = { forEach, assign, clone, uuid, concat, dropEle }
 export * from './utils/Fetch'
+export { eventParser } from './sockets/EventParser'
 
 // typings
 export * from './teambition'
@@ -72,3 +73,5 @@ const sdk = teambition.sdk = Object.create(null)
 sdk.version = '0.2.1'
 
 sdk.socket = new SocketClient()
+
+export const client: SocketClient = sdk.socket
