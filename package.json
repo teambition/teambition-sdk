@@ -2,7 +2,7 @@
   "name": "teambition-sdk",
   "version": "0.2.1",
   "description": "Front-End SDK for Teambition",
-  "main": "dist/cjs/app.js",
+  "main": "dist/bundle/tbsdk.umd.js",
   "jsnext:main": "dist/es6/app.js",
   "browser": "dist/bundle/tbsdk.umd.js",
   "typings": "dist/cjs/app.d.ts",

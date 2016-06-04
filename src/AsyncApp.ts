@@ -13,12 +13,13 @@ declare const global: any
 const ctx = typeof global === 'undefined' ? window : global
 
 const teambition = ctx['teambition']
+
 if (teambition) {
   const sdk = teambition.sdk
   if (sdk) {
     const socket = sdk.socket
     if (socket) {
-      socket.connect(client)
+      socket.initClient(client)
     }
   }
 }

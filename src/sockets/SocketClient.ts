@@ -12,9 +12,9 @@ export class SocketClient {
 
   private static _isDebug = false
 
-  private _client: Consumer
+  private static _isSubscribe = false
 
-  private _isSubscribe = false
+  private _client: Consumer
 
   private _socketUrl = 'wss://push.teambition.com'
 
@@ -23,7 +23,9 @@ export class SocketClient {
    * 但是由于 snapper-consumer 的内部设计只能先保留这个参数
    */
   private static _join (_projectId: string, consumerId: string): Promise<any> {
-    return ProjectFetch.subscribeSocket(consumerId)
+    return ProjectFetch.subscribeSocket(consumerId).catch(e => {
+      SocketClient._isSubscribe = false
+    })
   }
 
   debug(): void {
@@ -35,10 +37,13 @@ export class SocketClient {
     this._socketUrl = url
   }
 
-  connect(client: Consumer): Promise<any> {
+  initClient(client: Consumer): void {
     this._client = this._client ? this._client : client
     this._client._join = SocketClient._join
     this._client.onmessage = this._onmessage
+  }
+
+  connect(): Promise<any> {
     return UserFetch.getUserMe()
       .then(userMe => {
         return this._client
@@ -52,11 +57,15 @@ export class SocketClient {
   }
 
   join(): Consumer {
-    if (this._isSubscribe) {
+    if (SocketClient._isSubscribe) {
       return this._client
     }
-    this._isSubscribe = true
+    SocketClient._isSubscribe = true
     return this._client.join.call(this._client)
+  }
+
+  isSubscribed() {
+    return SocketClient._isSubscribe
   }
 
   private _onmessage(event: RequestEvent) {

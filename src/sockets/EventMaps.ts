@@ -42,7 +42,7 @@ function handler(socketMessage: MessageResult) {
   const data = socketMessage.data
   const _method = methodMap[method]
   const model = typeMap[type]
-  if (model) {
+  if (model && typeof data === 'object' && data._id) {
     switch (method) {
       case 'new':
         return model[_method](data)
