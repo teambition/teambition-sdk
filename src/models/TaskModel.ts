@@ -68,7 +68,10 @@ export class TaskModel extends BaseModel {
 
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Task) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && !!data.dueDate && data._executorId === userId
+        return organization.projectIds instanceof Array &&
+               organization.projectIds.indexOf(data._projectId) !== -1 &&
+               !!data.dueDate &&
+               data._executorId === userId
       }, dbIndex)
       this._collections.set('1', collection)
     }
@@ -94,7 +97,10 @@ export class TaskModel extends BaseModel {
 
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Task) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && !data.dueDate && data._executorId === userId
+        return organization.projectIds instanceof Array &&
+               organization.projectIds.indexOf(data._projectId) !== -1 &&
+               !data.dueDate &&
+               data._executorId === userId
       }, dbIndex)
       this._collections.set('2', collection)
     }
@@ -120,7 +126,9 @@ export class TaskModel extends BaseModel {
 
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Task) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && data.isDone && data._executorId === userId
+        return organization.projectIds instanceof Array &&
+               organization.projectIds.indexOf(data._projectId) !== -1 &&
+               data.isDone && data._executorId === userId
       }, dbIndex)
       this._collections.set('3', collection)
     }
@@ -180,7 +188,7 @@ export class TaskModel extends BaseModel {
 
     if (!collection) {
       collection = new MaxIdCollection(this._schemaName, (data: Task) => {
-        return data.involveMembers.indexOf(userId) !== -1 && !data.isArchived
+        return data.involveMembers && data.involveMembers.indexOf(userId) !== -1 && !data.isArchived
       }, dbIndex)
       this._collections.set('5', collection)
     }

@@ -217,6 +217,14 @@ export default class Model<T> {
     return this
   }
 
+  checkSchema(): boolean {
+    if (this.data && typeof this.data['checkSchema'] === 'function') {
+      return this.data['checkSchema']()
+    }else {
+      return true
+    }
+  }
+
   destroy(): Model<T> {
     this.data = null
     this.parents = []

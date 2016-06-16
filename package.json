@@ -9,7 +9,7 @@
   "scripts": {
     "test": "npm run lint && npm run cover",
     "e2e": "./node_modules/.bin/mocha-phantomjs test/e2e/index.html",
-    "commit": "npm run lint && npm run build_all && git-cz",
+    "commit": "npm run lint && git-cz",
     "build_cjs": "rm -rf dist/cjs   && ./node_modules/.bin/tsc tools/build/bundle.d.ts src/app.ts     -m commonjs --outDir dist/cjs      --sourcemap --sourceRoot src       --target ES5    -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_es6": "rm -rf dist/es6   && ./node_modules/.bin/tsc tools/build/target-es6.d.ts src/app.ts -m es2015   --outDir dist/es6      --sourcemap --sourceRoot src       --target ES2015 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_test": "rm -rf spec-js   && ./node_modules/.bin/tsc tools/build/test.d.ts test/unit/app.ts -m commonjs --outDir spec-js       --sourcemap --sourceRoot test/unit --target ES5       --diagnostics --pretty                                     --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
