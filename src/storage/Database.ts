@@ -191,10 +191,19 @@ export default class DataBase {
   }
 
   // for test
-  flush() {
+  flush(): void {
     DataBase.data.clear()
     this._schemaMap.clear()
     this._getSignalMap.clear()
+  }
+
+  checkSchema<T>(index: string): boolean {
+    const cache: Collection<T> | Model<T> = DataBase.data.get(index)
+    if (cache instanceof Model) {
+      return cache.checkSchema()
+    }else {
+      return false
+    }
   }
 
   private _notifyParents<T>(model: Model<T>): Observable<T> {

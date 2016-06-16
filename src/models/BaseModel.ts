@@ -23,6 +23,10 @@ export default class Model {
     return void 0
   }
 
+  checkSchema(index: string): boolean {
+    return Model.DataBase.checkSchema(index)
+  }
+
   protected _save<T>(data: T): Rx.Observable<T> {
     return Model.DataBase.storeOne<T>(data)
   }

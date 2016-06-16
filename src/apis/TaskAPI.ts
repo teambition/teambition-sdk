@@ -125,7 +125,7 @@ export class TaskAPI {
   get(_id: string, detailType?: detailType): Observable<Task> {
     return makeColdSignal(observer => {
       const get = TaskModel.getOne(_id)
-      if (get) {
+      if (get && TaskModel.checkSchema(_id)) {
         return get
       }
       return Observable.fromPromise(TaskFetch.get(_id, detailType))
