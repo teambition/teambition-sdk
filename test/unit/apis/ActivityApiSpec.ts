@@ -12,6 +12,7 @@ export default describe('ActivityAPI test: ', () => {
   let Activity: ActivityAPI
 
   const _boundToObjectId = activities[0]._boundToObjectId
+  const _boundToObjectType = 'tasks'
 
   beforeEach(() => {
     flush()
@@ -22,12 +23,12 @@ export default describe('ActivityAPI test: ', () => {
 
   describe ('get activities test: ', () => {
     beforeEach(() => {
-      httpBackend.whenGET(`${apihost}activities?_boundToObjectId=${_boundToObjectId}`)
+      httpBackend.whenGET(`${apihost}${_boundToObjectType}/${_boundToObjectId}/activities`)
         .respond(JSON.stringify(activities))
     })
 
     it('get should ok', done => {
-      Activity.getActivities(_boundToObjectId)
+      Activity.getActivities(_boundToObjectType, _boundToObjectId)
         .subscribe(data => {
           forEach(data, (activity, pos) => {
             expectDeepEqual(activity, activities[pos])
@@ -53,7 +54,7 @@ export default describe('ActivityAPI test: ', () => {
       })
         .respond(JSON.stringify(mockActivity))
 
-      Activity.getActivities(_boundToObjectId)
+      Activity.getActivities(_boundToObjectType, _boundToObjectId)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(activities.length + 1)
