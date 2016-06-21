@@ -17,16 +17,20 @@ export class Fetch {
     return this._apiHost
   }
 
-  public setAPIHost(host: string) {
+  public setAPIHost(host: string): void {
     this._apiHost = host
   }
 
-  public setToken(token: string) {
+  public setToken(token: string): void {
     delete this._opts.credentials
     this._opts.headers.Authorization = `OAuth2 ${token}`
   }
 
-  public restore() {
+  public setOpts(opts: any): void {
+    assign(this._opts, opts)
+  }
+
+  public restore(): void {
     this._opts = {
       headers: {
         'Accept': 'application/json',

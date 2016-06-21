@@ -12,10 +12,8 @@ export interface ActivitySaveData {
 }
 
 export class ActivityFetch extends BaseFetch {
-  fetchAll(_boundToObjectId: string, query?: any): Promise<Activity[]> {
-    query = query ? query : Object.create(null)
-    query._boundToObjectId = _boundToObjectId
-    return this.fetch.get(`activities`, query)
+  fetchAll(_boundToObjectType: string, _boundToObjectId: string, query?: any): Promise<Activity[]> {
+    return this.fetch.get(`${_boundToObjectType}/${_boundToObjectId}/activities`, query)
   }
 
   add(data: ActivitySaveData): Promise<Activity> {

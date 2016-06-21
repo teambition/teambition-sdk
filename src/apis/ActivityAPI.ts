@@ -14,9 +14,9 @@ export class ActivityAPI {
     ActivityModel.destructor()
   }
 
-  getActivities(_boundToObjectId: string, query?: GetActivitiesOptions): Observable<Activity[]> {
+  getActivities(_boundToObjectType: string, _boundToObjectId: string, query?: GetActivitiesOptions): Observable<Activity[]> {
     return makeColdSignal(observer => {
-      return Observable.fromPromise(ActivityFetch.fetchAll(_boundToObjectId, query))
+      return Observable.fromPromise(ActivityFetch.fetchAll(_boundToObjectType, _boundToObjectId, query))
         .catch(err => errorHandler(observer, err))
         .concatMap(activities => ActivityModel.addToObject(_boundToObjectId, activities))
     })
