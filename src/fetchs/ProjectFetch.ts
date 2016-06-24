@@ -65,6 +65,10 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get(`projects`, querys)
   }
 
+  getOrgs(_organizationId: string, querys?: any): Promise<Project[]> {
+    return this.fetch.get(`organizations/${_organizationId}/projects`, querys)
+  }
+
   getOne(_id: string, querys?: any): Promise<Project> {
     return this.fetch.get(`projects/${_id}`, querys)
   }
