@@ -42,15 +42,13 @@ export class ProjectsAPI {
     })
   }
 
-  getOrgs(_organizationId: string): Observable<Project[]> {
+  getOrgs(_organizationId: string, querys?: any): Observable<Project[]> {
     return makeColdSignal(observer => {
       const get = ProjectModel.getOrgProjects(_organizationId)
       if (get) {
         return get
       }
-      return Observable.fromPromise(ProjectFetch.getAll({
-        _organizationId: _organizationId
-      }))
+      return Observable.fromPromise(ProjectFetch.getOrgs(_organizationId, querys))
         .catch(err => errorHandler(observer, err))
         .concatMap(projects => ProjectModel.addOrgsProjects(_organizationId, projects))
     })

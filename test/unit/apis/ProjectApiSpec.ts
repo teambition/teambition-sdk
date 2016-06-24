@@ -37,7 +37,7 @@ export default describe('Project API test', () => {
   })
 
   it('get orgs projects should ok', done => {
-    httpBackend.whenGET(`${apihost}projects?_organizationId=test`)
+    httpBackend.whenGET(`${apihost}organizations/test/projects`)
       .respond(JSON.stringify([
         {
           _id: 'test1',
