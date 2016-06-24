@@ -6,7 +6,8 @@ import { ActivitySaveData, default as ActivityFetch } from '../fetchs/ActivityFe
 import { makeColdSignal, errorHandler } from './utils'
 
 export interface GetActivitiesOptions {
-  language: string
+  lang?: string
+  fields?: string
 }
 
 export class ActivityAPI {
