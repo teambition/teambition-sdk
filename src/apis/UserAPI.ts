@@ -3,7 +3,7 @@ import { Observable, Observer } from 'rxjs'
 import UserFetch from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
 import { UserMe } from '../teambition'
-import { errorHandler, makeColdSignal } from './utils'
+import { errorHandler, makeColdSignal, observableError } from './utils'
 
 export class UserAPI {
 
@@ -12,7 +12,7 @@ export class UserAPI {
   }
 
   getUserMe(): Observable<UserMe> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<UserMe>(observer => {
       const get = UserModel.get()
       if (get) {
         return get
@@ -38,8 +38,10 @@ export class UserAPI {
   addEmail(email: string): Observable<void> {
     return Observable.create((observer: Observer<UserMe>) => {
       Observable.fromPromise(UserFetch.addEmail(email))
-        .catch(e => errorHandler(observer, e))
-        .concatMap(x => UserModel.updateEmail(x))
+        .catch(e => observableError(observer, e))
+        .concatMap(x => <Observable<UserMe>>UserModel.update({
+          emails: x
+        }))
         .forEach(r => observer.next(r))
     })
   }

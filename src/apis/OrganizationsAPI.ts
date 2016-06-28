@@ -11,8 +11,8 @@ export class OrganizationsAPI {
     OrganizationModel.destructor()
   }
 
-  getOrgs (): Observable<OrganizationData[]> {
-    return makeColdSignal(observer => {
+  getOrgs(): Observable<OrganizationData[]> {
+    return makeColdSignal<OrganizationData[]>(observer => {
       const get = OrganizationModel.getAll()
       if (get) {
         return get
@@ -24,7 +24,7 @@ export class OrganizationsAPI {
   }
 
   getOne (organizationId: string): Observable<OrganizationData> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<OrganizationData>(observer => {
       const get = OrganizationModel.getOne(organizationId)
       if (get) {
         return get

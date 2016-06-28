@@ -12,7 +12,7 @@ export class StageAPI {
   }
 
   getAll(_tasklistId: string): Observable<Stage[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Stage[]>(observer => {
       const get = StageModel.getStages(_tasklistId)
       if (get) {
         return get
@@ -24,7 +24,7 @@ export class StageAPI {
   }
 
   getOne(_tasklistId: string, stageId: string): Observable<Stage> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Stage>(observer => {
       const get = StageModel.getOne(stageId)
       if (get) {
         return get

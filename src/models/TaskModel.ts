@@ -37,7 +37,7 @@ export class TaskModel extends BaseModel {
     const name = '0'
     const dbIndex = `tasklist:tasks:done/${_tasklistId}`
 
-    let collection: Collection<Task> = this._collections.get('0')
+    let collection: Collection<Task> = this._collections.get(name)
 
     if (!collection) {
       collection = new Collection<Task>(this._schemaName, (data: Task) => {

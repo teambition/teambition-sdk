@@ -17,7 +17,7 @@ export class MemberAPI {
   }
 
   getOrgMembers (organizationId: string): Rx.Observable<Member[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Member[]>(observer => {
       const get = MemberModel.getOrgMembers(organizationId)
       if (get) {
         return get
@@ -30,7 +30,7 @@ export class MemberAPI {
   }
 
   getProjectMembers(projectId: string): Rx.Observable<Member[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Member[]>(observer => {
       const get = MemberModel.getProjectMembers(projectId)
       if (get) {
         return get

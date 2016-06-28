@@ -15,7 +15,7 @@ export class SubtaskAPI {
   }
 
   getFromTask(_taskId: string): Observable<Subtask[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Subtask[]>(observer => {
       const get = SubtaskModel.getFromTask(_taskId)
       if (get) {
         return get
@@ -27,7 +27,7 @@ export class SubtaskAPI {
   }
 
   get(_subtaskid: string, _taskId?: string, withExecutor?: boolean): Observable<Subtask> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Subtask>(observer => {
       const get = SubtaskModel.getOne(_subtaskid)
       if (get) {
         return get
@@ -120,7 +120,7 @@ export class SubtaskAPI {
   }
 
   getOrgMySubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Subtask[]>(observer => {
       const get = SubtaskModel.getOrgMySubtasks(page)
       if (get) {
         return get
@@ -136,7 +136,7 @@ export class SubtaskAPI {
   }
 
   getOrgMyDueSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Subtask[]>(observer => {
       const get = SubtaskModel.getOrgMyDueSubtasks(page)
       if (get) {
         return get
@@ -152,7 +152,7 @@ export class SubtaskAPI {
   }
 
   getOrgMyDoneSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Subtask[]>(observer => {
       const get = SubtaskModel.getOrgMyDoneSubtasks(page)
       if (get) {
         return get
@@ -167,7 +167,7 @@ export class SubtaskAPI {
   }
 
   getOrgMyCreatedSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Subtask[]>(observer => {
       const get = SubtaskModel.getOrgMyCreatedSubtasks(page)
       if (get) {
         return get

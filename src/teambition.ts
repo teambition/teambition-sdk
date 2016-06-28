@@ -180,7 +180,7 @@ export interface EntryData {
   date: string
   involveMembers: string[]
   tagIds: string[]
-  visiable: string
+  visiable: visibility
   created: string
   isArchived: boolean
   isFavorite: boolean

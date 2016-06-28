@@ -9,7 +9,6 @@ import {
 import ProjectModel from '../models/ProjectModel'
 import Project from '../schemas/Project'
 import Event from '../schemas/Event'
-import Member from '../schemas/Member'
 import { makeColdSignal, errorHandler } from './utils'
 import {
   CreatedInProject,
@@ -30,7 +29,7 @@ export class ProjectsAPI {
   }
 
   getAll(querys?: JSONObj): Observable<Project[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Project[]>(observer => {
       const get = ProjectModel.getProjects()
       if (get) {
         return get
@@ -42,7 +41,7 @@ export class ProjectsAPI {
   }
 
   getOrgs(_organizationId: string, querys?: any): Observable<Project[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Project[]>(observer => {
       const get = ProjectModel.getOrgProjects(_organizationId)
       if (get) {
         return get
@@ -54,7 +53,7 @@ export class ProjectsAPI {
   }
 
   getOne(_id: string, querys?: JSONObj): Observable<Project> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Project>(observer => {
       const get = ProjectModel.getOne(_id)
       if (get) {
         return get
@@ -66,7 +65,7 @@ export class ProjectsAPI {
   }
 
   getArchives(): Observable<Project[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Project[]>(observer => {
       const get = ProjectModel.getArchivesProjects()
       if (get) {
         return get
@@ -145,14 +144,6 @@ export class ProjectsAPI {
 
   getInviteLink(_id: string, querys?: JSONObj): Observable<InviteLinkData> {
     return Observable.fromPromise(ProjectFetch.getInviteLink(_id, querys))
-  }
-
-  /**
-   * TODO
-   * ADD MEMBER MODEL
-   */
-  getProjectMembers(_id: string): Observable<Member[]> {
-    return Observable.fromPromise(ProjectFetch.getProjectMembers(_id))
   }
 
   /**

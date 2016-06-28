@@ -13,7 +13,7 @@ export class TasklistAPI {
   }
 
   getTasklists(_projectId: string, query?: any): Observable<Tasklist[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Tasklist[]>(observer => {
       const get = TasklistModel.getTasklists(_projectId)
       if (get) {
         return get
@@ -25,7 +25,7 @@ export class TasklistAPI {
   }
 
   getOne(_tasklistId: string, query?: any): Observable<Tasklist> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Tasklist>(observer => {
       const get = TasklistModel.getOne(_tasklistId)
       if (get) {
         return get
