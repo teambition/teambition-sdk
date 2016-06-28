@@ -47,6 +47,9 @@ export default class BaseCollection<T> extends Model {
       })
     }
     const result = this._getAll()
+    /**
+     * page 默认从1开始
+     */
     if (page === 1) {
       return this._saveCollection(this._dbIndex, result, this._schemaName, this._condition)
     }else {

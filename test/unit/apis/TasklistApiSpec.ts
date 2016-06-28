@@ -217,4 +217,3 @@ export default describe('tasklist api test', () => {
     httpBackend.flush()
   })
 })
-

@@ -40,8 +40,43 @@ export default describe('member api test', () => {
     httpBackend.flush()
   })
 
+  it('get organization members from cache should ok', done => {
+    const id = organizations[0]._id
+
+    httpBackend
+      .whenGET(`${apihost}V2/organizations/${id}/members`)
+      .respond(members)
+
+    Member.getOrgMembers(id)
+      .subscribe()
+
+    Member.getOrgMembers(id)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribe(members => {
+        expect(members).to.instanceof(Array)
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
   it ('getMembers from project should ok', done => {
     Member.getProjectMembers('projectId')
+      .subscribe(data => {
+        expect(data).to.be.instanceof(Array)
+        expect(data.length).to.equal(members.length)
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get members from project cache should ok', done => {
+    Member.getProjectMembers('projectId')
+      .subscribe()
+
+    Member.getProjectMembers('projectId')
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe(data => {
         expect(data).to.be.instanceof(Array)
         expect(data.length).to.equal(members.length)
