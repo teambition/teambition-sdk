@@ -211,6 +211,33 @@ export class TaskModel extends BaseModel {
     return void 0
   }
 
+  /**
+   * _collections 索引为 6
+   */
+  addProjectTasks(_projectId: string, tasks: Task[], page: number): Observable<Task[]> {
+    const dbIndex = `project:tasks/${_projectId}`
+    const result = datasToSchemas<Task>(tasks, Task)
+
+    let collection: Collection<Task> = this._collections.get('6')
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Task) => {
+        return data._projectId === _projectId && !data.isArchived
+      }, dbIndex)
+      this._collections.set('6', collection)
+    }
+
+    return collection.addPage(page, result)
+  }
+
+  getProjectTasks(_projectId: string, page: number): Observable<Task[]> {
+    const collection = this._collections.get('6')
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
   addOne(task: Task): Observable<Task> {
     const result = dataToSchema<Task>(task, Task)
     return this._save(result)

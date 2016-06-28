@@ -10,7 +10,6 @@ import ProjectModel from '../models/ProjectModel'
 import Project from '../schemas/Project'
 import Event from '../schemas/Event'
 import Member from '../schemas/Member'
-import Task from '../schemas/Task'
 import { makeColdSignal, errorHandler } from './utils'
 import {
   CreatedInProject,
@@ -154,14 +153,6 @@ export class ProjectsAPI {
    */
   getProjectMembers(_id: string): Observable<Member[]> {
     return Observable.fromPromise(ProjectFetch.getProjectMembers(_id))
-  }
-
-  /**
-   * TODO
-   * ADD TASK MODEL
-   */
-  getTasks(_id: string, querys?: JSONObj): Observable<Task[]> {
-    return Observable.fromPromise(ProjectFetch.getTasks(_id, querys))
   }
 
   /**
