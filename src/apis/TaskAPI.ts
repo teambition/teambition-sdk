@@ -122,6 +122,23 @@ export class TaskAPI {
     })
   }
 
+  getProjectTasks(_projectId: string, query?: {
+    page?: number
+    count?: number
+    fileds?: string
+  }): Observable<Task[]> {
+    return makeColdSignal(observer => {
+      const page = query && query.page ? query.page : 1
+      const get = TaskModel.getProjectTasks(_projectId, page)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(TaskFetch.getProjectTasks(_projectId, query))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addProjectTasks(_projectId, tasks, page))
+    })
+  }
+
   get(_id: string, detailType?: detailType): Observable<Task> {
     return makeColdSignal(observer => {
       const get = TaskModel.getOne(_id)

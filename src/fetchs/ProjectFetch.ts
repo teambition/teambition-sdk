@@ -3,7 +3,6 @@ import BaseFetch from './BaseFetch'
 import Project from '../schemas/Project'
 import Member from '../schemas/Member'
 import Event from '../schemas/Event'
-import Task from '../schemas/Task'
 import {
   HomeActivity,
   InviteLinkData,
@@ -122,10 +121,6 @@ export class ProjectFetch extends BaseFetch {
 
   getProjectMembers(_id: string, querys?: any): Promise<Member[]> {
     return this.fetch.get<Member[]>(`projects/${_id}/members`, querys)
-  }
-
-  getTasks(_id: string, query?: any): Promise<Task[]> {
-    return this.fetch.get(`projects/${_id}/tasks`, query)
   }
 
   getHomeActivities(_id: string, query?: any): Promise<HomeActivity[]> {

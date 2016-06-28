@@ -16,6 +16,8 @@ import { flush, expectDeepEqual, notInclude } from '../utils'
 import { tasksDone } from '../../mock/tasksDone'
 import { tasksUndone } from '../../mock/tasksUndone'
 import { organizations } from '../../mock/organizations'
+import { projects } from '../../mock/projects'
+import { projectTasks } from '../../mock/projectTasks'
 import { organizationMyDueTasks } from '../../mock/organizationMyDueTasks'
 import { organizationMyTasks } from '../../mock/organizationMyTasks'
 import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
@@ -586,7 +588,7 @@ export default describe('Task API test', () => {
 
   })
 
-  describe('get organization created tasks', () => {
+  describe('get organization created tasks: ', () => {
     const organization: OrganizationData = organizations[0]
     const organizationId = organization._id
 
@@ -683,6 +685,133 @@ export default describe('Task API test', () => {
         .respond({})
 
       Task.getOrgMyCreatedTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Task.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+  })
+
+  describe('get project tasks: ', () => {
+    const project = projects[0]
+    const projectId = project._id
+
+    const page1 = projectTasks.map((task, pos) => {
+      if (pos < 30) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    const page2 = projectTasks.map((task, pos) => {
+      if (pos >= 30 && pos < 60) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}projects/${projectId}/tasks?page=1`)
+        .respond(JSON.stringify(page1))
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/tasks?page=2`)
+        .respond(JSON.stringify(page2))
+    })
+
+    it('get should ok', done => {
+      Task.getProjectTasks(projectId, {
+        page: 1
+      })
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get page2 should ok', done => {
+      Task.getProjectTasks(projectId, {
+        page: 1
+      })
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + page2.length)
+          done()
+        })
+
+      Task.getProjectTasks(projectId, {
+        page: 2
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('get from cache should ok', done => {
+      Task.getProjectTasks(projectId, {
+        page: 1
+      })
+        .subscribe()
+
+      Task.getProjectTasks(projectId, {
+        page: 1
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          expect(spy).to.be.calledOnce
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add task should ok', done => {
+      const mockGet = clone(page1[0])
+      mockGet._id = 'mockcreatedtasktest'
+      mockGet._projectId = projectId
+
+      httpBackend.whenGET(`${apihost}tasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Task.getProjectTasks(projectId, {
+        page: 1
+      })
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Task.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenDELETE(`${apihost}tasks/${mockId}`)
+        .respond({})
+
+      Task.getProjectTasks(projectId, {
+        page: 1
+      })
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(page1.length - 1)
