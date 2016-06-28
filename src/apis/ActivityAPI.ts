@@ -8,6 +8,8 @@ import { makeColdSignal, errorHandler } from './utils'
 export interface GetActivitiesOptions {
   lang?: string
   fields?: string
+  count: number
+  page: number
 }
 
 export class ActivityAPI {
@@ -17,9 +19,14 @@ export class ActivityAPI {
 
   getActivities(_boundToObjectType: string, _boundToObjectId: string, query?: GetActivitiesOptions): Observable<Activity[]> {
     return makeColdSignal(observer => {
+      const page = (query && query.page) ? query.page : 1
+      const get = ActivityModel.getActivities(_boundToObjectId, page)
+      if (get) {
+        return get
+      }
       return Observable.fromPromise(ActivityFetch.fetchAll(_boundToObjectType, _boundToObjectId, query))
         .catch(err => errorHandler(observer, err))
-        .concatMap(activities => ActivityModel.addToObject(_boundToObjectId, activities))
+        .concatMap(activities => ActivityModel.addToObject(_boundToObjectId, activities, page))
     })
   }
 

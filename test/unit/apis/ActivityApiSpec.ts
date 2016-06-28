@@ -68,6 +68,22 @@ export default describe('ActivityAPI test: ', () => {
 
       httpBackend.flush()
     })
+
+    it('get activities from cache should ok', done => {
+      Activity.getActivities(_boundToObjectType, _boundToObjectId)
+        .subscribe()
+
+      Activity.getActivities(_boundToObjectType, _boundToObjectId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          forEach(data, (activity, pos) => {
+            expectDeepEqual(activity, activities[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
   })
 
   it('add activity should ok', done => {

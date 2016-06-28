@@ -1,6 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs'
 import BaseModel from './BaseModel'
+import Collection from './BaseCollection'
 import Activity from '../schemas/Activity'
 import { datasToSchemas, dataToSchema } from '../utils/index'
 
@@ -8,21 +9,40 @@ export class ActivityModel extends BaseModel {
 
   private _schemaName = 'Activity'
 
+  private _collections = new Map<string, Collection<Activity>>()
+
+  destructor() {
+    this._collections.clear()
+  }
+
   addOne(activity: Activity): Observable<Activity> {
     const result = dataToSchema<Activity>(activity, Activity)
     return this._save(result)
   }
 
-  addToObject(_boundToObjectId: string, activities: Activity[]): Observable<Activity[]> {
-    const name = `activities/${_boundToObjectId}`
+  /**
+   * 索引为 0
+   */
+  addToObject(_boundToObjectId: string, activities: Activity[], page: number): Observable<Activity[]> {
+    const dbIndex = `activities/${_boundToObjectId}`
+    const name = '0'
     const result = datasToSchemas<Activity>(activities, Activity)
-    return this._saveCollection(name, result, this._schemaName, (data: Activity) => {
-      return data._boundToObjectId === _boundToObjectId
-    })
+    let collection = this._collections.get(name)
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Activity) => {
+        return data._boundToObjectId === _boundToObjectId
+      }, dbIndex)
+      this._collections.set(name, collection)
+    }
+    return collection.addPage(page, result)
   }
 
-  getActivities(_boundToObjectId: string): Observable<Activity[]> {
-    return this._get<Activity[]>(`activities/${_boundToObjectId}`)
+  getActivities(_boundToObjectId: string, page: number): Observable<Activity[]> {
+    const collection = this._collections.get('0')
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
   }
 }
 
