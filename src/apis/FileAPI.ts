@@ -12,10 +12,10 @@ export class FileAPI {
   }
 
   create(file: File, parentId: string): Observable<FileSchema> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<FileSchema>(observer => {
       return Observable.fromPromise(StrikerFetch.upload(file))
         .catch(err => errorHandler(observer, err))
-        .concatMap(res => Observable.fromPromise(FileFetch.create(parentId, res)))
+        .concatMap(res => Observable.fromPromise<FileSchema>(FileFetch.create(parentId, <any>res)))
         .catch(err => errorHandler(observer, err))
         .concatMap(file => WorkModel.addOne(file))
     })

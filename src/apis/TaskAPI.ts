@@ -20,7 +20,7 @@ export class TaskAPI {
   }
 
   getTasklistUndone(_tasklistId: string): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const get = TaskModel.getTasklistTasksUndone(_tasklistId)
       if (get) {
         return get
@@ -34,7 +34,7 @@ export class TaskAPI {
   }
 
   getTasklistDone(_tasklistId: string, page = 1): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const get = TaskModel.getTasklistTasksDone(_tasklistId, page)
       if (get) {
         return get
@@ -50,7 +50,7 @@ export class TaskAPI {
   }
 
   getOrgMyDueTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const get = TaskModel.getOrganizationMyDueTasks(page)
       if (get) {
         return get
@@ -66,7 +66,7 @@ export class TaskAPI {
   }
 
   getOrgMyTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const get = TaskModel.getOrganizationMyTasks(page)
       if (get) {
         return get
@@ -82,7 +82,7 @@ export class TaskAPI {
   }
 
   getOrgMyDoneTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const get = TaskModel.getOrganizationMyDoneTasks(page)
       if (get) {
         return get
@@ -97,7 +97,7 @@ export class TaskAPI {
   }
 
   getOrgMyCreatedTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const get = TaskModel.getOrganizationMyCreatedTasks(page)
       if (get) {
         return get
@@ -110,7 +110,7 @@ export class TaskAPI {
   }
 
   getOrgMyInvolvesTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const get = TaskModel.getOrgInvolvesTasks(page)
       if (get) {
         return get
@@ -127,7 +127,7 @@ export class TaskAPI {
     count?: number
     fileds?: string
   }): Observable<Task[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task[]>(observer => {
       const page = query && query.page ? query.page : 1
       const get = TaskModel.getProjectTasks(_projectId, page)
       if (get) {
@@ -140,7 +140,7 @@ export class TaskAPI {
   }
 
   get(_id: string, detailType?: detailType): Observable<Task> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Task>(observer => {
       const get = TaskModel.getOne(_id)
       if (get && TaskModel.checkSchema(_id)) {
         return get

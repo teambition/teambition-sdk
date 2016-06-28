@@ -37,7 +37,7 @@ export class ProjectModel extends BaseModel {
     return this._get<Project[]>('projects')
   }
 
-  getOrgProjects(_organizationId: string) {
+  getOrgProjects(_organizationId: string): Observable<Project[]> {
     return this._get<Project[]>(`orgs:projects/${_organizationId}`)
   }
 

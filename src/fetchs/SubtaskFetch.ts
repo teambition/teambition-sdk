@@ -27,11 +27,11 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.get(`v2/tasks/me/subtasks`, options)
   }
 
-  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Task[]> {
+  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Subtask[]> {
     return this.fetch.get(`organizations/${organizationId}/subtasks/me`, option)
   }
 
-  getOrgsSubtasksCreated(organizationId: string, page = 1, maxId?: string) {
+  getOrgsSubtasksCreated(organizationId: string, page = 1, maxId?: string): Promise<Subtask[]> {
     const query = this.checkQuery({
       page: page,
       maxId: maxId

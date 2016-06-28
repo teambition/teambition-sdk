@@ -3,7 +3,7 @@ import { Observable, Observer } from 'rxjs'
 import ActivityModel from '../models/ActivityModel'
 import Activity from '../schemas/Activity'
 import { ActivitySaveData, default as ActivityFetch } from '../fetchs/ActivityFetch'
-import { makeColdSignal, errorHandler } from './utils'
+import { makeColdSignal, errorHandler, observableError } from './utils'
 
 export interface GetActivitiesOptions {
   lang?: string
@@ -18,7 +18,7 @@ export class ActivityAPI {
   }
 
   getActivities(_boundToObjectType: string, _boundToObjectId: string, query?: GetActivitiesOptions): Observable<Activity[]> {
-    return makeColdSignal(observer => {
+    return makeColdSignal<Activity[]>(observer => {
       const page = (query && query.page) ? query.page : 1
       const get = ActivityModel.getActivities(_boundToObjectId, page)
       if (get) {
@@ -33,7 +33,7 @@ export class ActivityAPI {
   addActivity(data: ActivitySaveData): Observable<Activity> {
     return Observable.create((observer: Observer<Activity>) => {
       Observable.fromPromise(ActivityFetch.add(data))
-        .catch(err => errorHandler(observer, err))
+        .catch(err => observableError(observer, err))
         .concatMap(a => ActivityModel.addOne(a))
         .forEach(r => observer.next(r))
     })
