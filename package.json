@@ -73,7 +73,7 @@
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
     "ts-node": "^0.7.3",
-    "tslint": "^3.10.2",
+    "tslint": "^3.12.1",
     "typescript": "^1.8.10",
     "typings": "^1.0.4"
   },
