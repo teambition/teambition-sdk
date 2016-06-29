@@ -2,9 +2,10 @@
 import { Observable, Observer } from 'rxjs'
 import Data from './Map'
 import { forEach, assign, clone } from '../utils/index'
+import { Schema, ISchema } from '../schemas/schema'
 import { removeObserver } from '../decorators/rx'
 
-export default class Model<T> {
+export default class Model<T extends ISchema<T>> {
   public collections: string[] = []
   public parents: string[] = []
   public children: string[] = []
@@ -218,8 +219,8 @@ export default class Model<T> {
   }
 
   checkSchema(): boolean {
-    if (this.data && typeof this.data['checkSchema'] === 'function') {
-      return this.data['checkSchema']()
+    if (this.data && this.data instanceof Schema) {
+      return this.data.checkSchema()
     }else {
       return true
     }

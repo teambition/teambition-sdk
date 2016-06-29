@@ -13,15 +13,17 @@ export { eventParser } from './sockets/EventParser'
 // typings
 export * from './teambition'
 
-export { default as EventSchema } from './schemas/Event'
-export { default as MemberSchema } from './schemas/Member'
+export { EventData as EventSchema } from './schemas/Event'
+export { MemberData as MemberSchema } from './schemas/Member'
 export { default as MySubtaskSchema } from './schemas/MySubtask'
 export { default as PostSchema } from './schemas/Post'
 export { default as ProjectSchema } from './schemas/Project'
 export { default as StageSchema } from './schemas/Stage'
-export { default as TaskSchema } from './schemas/Task'
+export { TaskData as TaskSchema } from './schemas/Task'
 export { default as TasklistSchema } from './schemas/Tasklist'
 export { default as ActivitySchema } from './schemas/Activity'
+export { OrganizationData as OrganizationSchema } from './schemas/Organization'
+export { FileData as FileSchema } from './schemas/File'
 
 // export fetchs
 

@@ -1,6 +1,7 @@
 'use strict'
 import * as Rx from 'rxjs'
 import DataBase from '../storage/Database'
+import { ISchema } from '../schemas/schema'
 
 export default class Model {
 
@@ -10,7 +11,7 @@ export default class Model {
     return Model.DataBase.delete(namespace)
   }
 
-  update<T>(namespace: string, patch: any): Rx.Observable<T> {
+  update<T extends ISchema<T>>(namespace: string, patch: any): Rx.Observable<T> {
     if (DataBase.data.get(namespace)) {
       return Model.DataBase.updateOne<T>(namespace, patch)
     }else {
@@ -27,11 +28,11 @@ export default class Model {
     return Model.DataBase.checkSchema(index)
   }
 
-  protected _save<T>(data: T): Rx.Observable<T> {
+  protected _save<T extends ISchema<T>>(data: T): Rx.Observable<T> {
     return Model.DataBase.storeOne<T>(data)
   }
 
-  protected _saveCollection<T>(
+  protected _saveCollection<T extends ISchema<T>>(
     namespace: string,
     data: T[],
     schemaName?: string,
@@ -44,7 +45,7 @@ export default class Model {
     return DataBase.data.get(index) ? Model.DataBase.get<T>(index) : null
   }
 
-  protected _updateCollection<T>(namespace: string, patch: any): Rx.Observable<T[]> {
+  protected _updateCollection<T extends ISchema<T>>(namespace: string, patch: any): Rx.Observable<T[]> {
     if (DataBase.data.get(namespace)) {
       return Model.DataBase.updateCollection<T>(namespace, patch)
     }else {

@@ -2,7 +2,7 @@
 import { Observable } from 'rxjs'
 import OrganizationFetch from '../fetchs/OrganizationFetch'
 import OrganizationModel from '../models/OrganizationModel'
-import { OrganizationData } from '../teambition'
+import Organization from '../schemas/Organization'
 import { errorHandler, makeColdSignal } from './utils'
 
 export class OrganizationsAPI {
@@ -11,8 +11,8 @@ export class OrganizationsAPI {
     OrganizationModel.destructor()
   }
 
-  getOrgs(): Observable<OrganizationData[]> {
-    return makeColdSignal<OrganizationData[]>(observer => {
+  getOrgs(): Observable<Organization[]> {
+    return makeColdSignal<Organization[]>(observer => {
       const get = OrganizationModel.getAll()
       if (get) {
         return get
@@ -23,8 +23,8 @@ export class OrganizationsAPI {
     })
   }
 
-  getOne (organizationId: string): Observable<OrganizationData> {
-    return makeColdSignal<OrganizationData>(observer => {
+  getOne (organizationId: string): Observable<Organization> {
+    return makeColdSignal<Organization>(observer => {
       const get = OrganizationModel.getOne(organizationId)
       if (get) {
         return get

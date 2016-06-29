@@ -1,8 +1,27 @@
 'use strict'
-import { schemaName, Schema } from './schema'
+import { schemaName, Schema, ISchema } from './schema'
+
+export interface PostData extends ISchema<PostData> {
+  _id: string
+  _projectId: string
+  _creatorId: string
+  title: string
+  content: string
+  attachments: string[]
+  involveMembers: string[]
+  postMode: 'txt' | 'html'
+  isArchived: boolean
+  visiable: string
+  pin: boolean
+  created: string
+  updated: string
+  tagIds: string[]
+  isFavorite: boolean
+  isLike: boolean
+}
 
 @schemaName('Post')
-export default class Post extends Schema {
+export default class Post extends Schema implements PostData {
   _id: string = undefined
   _projectId: string = undefined
   _creatorId: string = undefined

@@ -1,9 +1,45 @@
 'use strict'
-import { Schema, schemaName } from './schema'
+import { Schema, schemaName, ISchema } from './schema'
 import { MemberData, visibility, LinkedData } from '../teambition'
 
+export interface FileData extends ISchema<FileData> {
+  _id: string
+  fileName: string
+  fileType: string
+  fileSize: number
+  fileKey: string
+  fileCategory: string
+  imageWidth: number
+  imageHeight: number
+  _parentId: string
+  _projectId: string
+  _creatorId: string
+  creator: MemberData
+  tagIds: string[]
+  visiable: visibility
+  downloadUrl: string
+  thumbnail: string
+  thumbnailUrl: string
+  description: string
+  source: string
+  folder: string
+  involveMembers: string[]
+  created: string
+  updated: string
+  lastVersionTime: string
+  isArchived: boolean
+  previewUrl: string
+  class: string
+  creatorName: string
+  creatorAvatar: string
+  linked: LinkedData[]
+  isLike: boolean
+  likedPeople: string
+  likesCount: number
+}
+
 @schemaName('File')
-export default class File extends Schema {
+export default class File extends Schema implements FileData {
   _id: string = undefined
   fileName: string = undefined
   fileType: string = undefined

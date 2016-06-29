@@ -4,8 +4,9 @@ import Data from './Map'
 import Model from './Model'
 import { forEach, clone, assign } from '../utils/index'
 import { removeObserver } from '../decorators/rx'
+import { ISchema } from '../schemas/schema'
 
-export default class Collection <T> {
+export default class Collection <T extends ISchema<T>> {
   public elements: string[] = []
   public data: T[]
 

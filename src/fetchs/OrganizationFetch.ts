@@ -1,14 +1,14 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import { OrganizationData } from '../teambition'
+import Organization from '../schemas/Organization'
 
 export class OrganizationFetch extends BaseFetch {
 
-  getOrgs (): Promise<OrganizationData[]> {
+  getOrgs (): Promise<Organization[]> {
     return this.fetch.get('organizations')
   }
 
-  getOne (organizationId: string): Promise<OrganizationData> {
+  getOne (organizationId: string): Promise<Organization> {
     return this.fetch.get(`organizations/${organizationId}`)
   }
 }

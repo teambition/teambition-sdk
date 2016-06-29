@@ -23,24 +23,24 @@ export class PostModel extends BaseModel {
   }
 
   /**
-   * _collections 索引为 0
+   * _collections 索引为 `project:posts/${projectId}`
    */
   addPosts(projectId: string, posts: Post[], page: number): Observable<Post[]> {
     const dbIndex = `project:posts/${projectId}`
     const result = datasToSchemas<Post>(posts, Post)
 
-    let collection = this._collections.get('0')
+    let collection = this._collections.get(dbIndex)
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Post) => {
         return data._projectId === projectId && !data.isArchived
       }, dbIndex)
-      this._collections.set('0', collection)
+      this._collections.set(dbIndex, collection)
     }
     return collection.addPage(page, result)
   }
 
   getPosts(projectId: string, page: number): Observable<Post[]> {
-    const collection = this._collections.get('0')
+    const collection = this._collections.get(`project:posts/${projectId}`)
     if (collection) {
       return collection.get(page)
     }

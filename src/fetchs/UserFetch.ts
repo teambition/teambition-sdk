@@ -1,6 +1,7 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import { UserMe, UserEmail } from '../teambition'
+import { UserEmail } from '../teambition'
+import UserMe from '../schemas/UserMe'
 
 export class UserFetch extends BaseFetch {
 

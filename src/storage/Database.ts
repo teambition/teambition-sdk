@@ -4,6 +4,7 @@ import { forEach } from '../utils/index'
 import Data from './Map'
 import Model from './Model'
 import Collection from './Collection'
+import { ISchema } from '../schemas/schema'
 
 export default class DataBase {
   /**
@@ -21,7 +22,7 @@ export default class DataBase {
     DataBase.data.clear()
   }
 
-  storeOne <T>(data: T, unionFlag = '_id'): Observable<T> {
+  storeOne <T extends ISchema<T>>(data: T, unionFlag = '_id'): Observable<T> {
     const index = data[unionFlag]
     /* istanbul ignore if */
     if (typeof index === 'undefined') {
@@ -49,7 +50,7 @@ export default class DataBase {
     return dest
   }
 
-  storeCollection <T> (
+  storeCollection <T extends ISchema<T>> (
     index: string,
     data: T[],
     schemaName?: string,
@@ -138,7 +139,7 @@ export default class DataBase {
     }).concatMap((x: Observable<void>) => x)
   }
 
-  updateOne <T>(index: string, patch: any): Observable<T> {
+  updateOne <T extends ISchema<T>>(index: string, patch: any): Observable<T> {
     return Observable.create((observer: Observer<T>) => {
       setTimeout(() => {
         const model: Model<T> = DataBase.data.get(index)
@@ -166,7 +167,7 @@ export default class DataBase {
    * @param  {T[]} patch  新的列表内容
    * @return Observable<T[]>
    */
-  updateCollection<T>(index: string, patch: T[]): Observable<T[]> {
+  updateCollection<T extends ISchema<T>>(index: string, patch: T[]): Observable<T[]> {
     return Observable.create((observer: Observer<T[]>) => {
       setTimeout(() => {
         if (!(patch instanceof Array)) {
@@ -197,7 +198,7 @@ export default class DataBase {
     this._getSignalMap.clear()
   }
 
-  checkSchema<T>(index: string): boolean {
+  checkSchema<T extends ISchema<T>>(index: string): boolean {
     const cache: Collection<T> | Model<T> = DataBase.data.get(index)
     if (cache instanceof Model) {
       return cache.checkSchema()
@@ -206,7 +207,7 @@ export default class DataBase {
     }
   }
 
-  private _notifyParents<T>(model: Model<T>): Observable<T> {
+  private _notifyParents<T extends ISchema<T>>(model: Model<T>): Observable<T> {
     const parents = model.parents
     const signals: Observable<any>[] = []
     const length = parents.length
@@ -225,7 +226,7 @@ export default class DataBase {
     return Observable.of(null)
   }
 
-  private _notifyCollections <T> (model: Model<T>): Observable<T[]> {
+  private _notifyCollections <T extends ISchema<T>> (model: Model<T>): Observable<T[]> {
     const collections = model.collections
     const signals: Observable<T[]>[] = []
     const length = collections.length
@@ -248,7 +249,7 @@ export default class DataBase {
     return Observable.of(null)
   }
 
-  private _judgeModel <T> (model: Model<T>): Observable<T[]> {
+  private _judgeModel <T extends ISchema<T>> (model: Model<T>): Observable<T[]> {
     const schemaName = model.getSchemaName()
     const collections = this._schemaMap.get(schemaName)
     const modelCollections = model.collections
@@ -278,7 +279,7 @@ export default class DataBase {
     return Observable.of(null)
   }
 
-  private _notifySignals <T> (model: Model<T>, x: T): Observable<T> {
+  private _notifySignals <T extends ISchema<T>> (model: Model<T>, x: T): Observable<T> {
     return Observable.from(<any[]>[
       model.notify(),
       this._judgeModel(model),

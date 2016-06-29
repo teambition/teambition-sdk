@@ -9,7 +9,7 @@ import {
   Backend,
   forEach,
   clone,
-  OrganizationData,
+  OrganizationSchema,
   BaseFetch
 } from '../index'
 import { flush, expectDeepEqual, notInclude } from '../utils'
@@ -261,7 +261,7 @@ export default describe('Task API test', () => {
   })
 
   describe('get organization tasks: ', () => {
-    const organization: OrganizationData = organizations[0]
+    const organization: OrganizationSchema = organizations[0]
     const organizationId = organization._id
 
     const mockTaskDue = clone(organizationMyDueTasks[0])
@@ -443,7 +443,7 @@ export default describe('Task API test', () => {
         })
 
       Task.getOrgMyTasks(userId, organization, 2)
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout4)
         .subscribe()
 
       httpBackend.flush()
@@ -589,7 +589,7 @@ export default describe('Task API test', () => {
   })
 
   describe('get organization created tasks: ', () => {
-    const organization: OrganizationData = organizations[0]
+    const organization: OrganizationSchema = organizations[0]
     const organizationId = organization._id
 
     const page1 = organizationMyCreatedTasks.map((task, pos) => {
@@ -633,7 +633,7 @@ export default describe('Task API test', () => {
         })
 
       Task.getOrgMyCreatedTasks(userId, organization, 2)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()
@@ -644,7 +644,7 @@ export default describe('Task API test', () => {
         .subscribe()
 
       Task.getOrgMyCreatedTasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe(data => {
           expect(spy).to.be.calledOnce
           forEach(data, (task, pos) => {
@@ -828,7 +828,7 @@ export default describe('Task API test', () => {
   })
 
   describe('get organization involves tasks: ', () => {
-    const organization: OrganizationData = organizations[0]
+    const organization: OrganizationSchema = organizations[0]
     const organizationId = organization._id
 
     const page1 = organizationMyInvolvesTasks.map((task, pos) => {
@@ -985,14 +985,17 @@ export default describe('Task API test', () => {
       })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.move(mockTaskGet._id, {
-          _stageId: 'taskmoveteststage'
-        }))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(data => {
           expect(data._stageId).to.equal('taskmoveteststage')
           done()
         })
+
+      Task.move(mockTaskGet._id, {
+        _stageId: 'taskmoveteststage'
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1006,12 +1009,15 @@ export default describe('Task API test', () => {
       })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateContent(mockTaskGet._id, 'taskcontenttest'))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(data => {
           expect(data.content).to.equal('taskcontenttest')
           done()
         })
+
+      Task.updateContent(mockTaskGet._id, 'taskcontenttest')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1025,12 +1031,15 @@ export default describe('Task API test', () => {
       })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateDueDate(mockTaskGet._id, dueDate))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(data => {
           expect(data.dueDate).to.equal(dueDate)
           done()
         })
+
+      Task.updateDueDate(mockTaskGet._id, dueDate)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1041,8 +1050,10 @@ export default describe('Task API test', () => {
       }).error('dueDate must be ISOString', 400)
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateDueDate(mockTaskGet._id, '123'))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .subscribe()
+
+      Task.updateDueDate(mockTaskGet._id, '123')
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(null, err => {
           expect(err.message).to.equal('dueDate must be ISOString, statu code: 400')
           done()
@@ -1065,8 +1076,7 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateExecutor(mockTaskGet._id, 'test executor'))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(task => {
           expect(task.executor).deep.equal({
             _id: 'test executor',
@@ -1075,6 +1085,10 @@ export default describe('Task API test', () => {
           })
           done()
         })
+
+      Task.updateExecutor(mockTaskGet._id, 'test executor')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1088,12 +1102,15 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'involveMembers'))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(task => {
           expect(task.involveMembers).deep.equal(['a', 'b'])
           done()
         })
+
+      Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'involveMembers')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1107,12 +1124,15 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'addInvolvers'))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(task => {
           expect(task.involveMembers).deep.equal(mockTaskGet.involveMembers.concat(['a', 'b']))
           done()
         })
+
+      Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'addInvolvers')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1126,15 +1146,15 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockTaskGet._id)
-        .subscribe()
-
-      Task.updateInvolvemembers(mockTaskGet._id, ['56986d43542ce1a2798c8cfb'], 'delInvolvers')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(task => {
           expect(task.involveMembers.length).to.equal(0)
           done()
         })
+
+      Task.updateInvolvemembers(mockTaskGet._id, ['56986d43542ce1a2798c8cfb'], 'delInvolvers')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1148,12 +1168,15 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateNote(mockTaskGet._id, '123'))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(task => {
           expect(task.note).to.equal('123')
           done()
         })
+
+      Task.updateNote(mockTaskGet._id, '123')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1167,12 +1190,15 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.updateStatus(mockTaskGet._id, true))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(task => {
           expect(task.isDone).to.be.true
           done()
         })
+
+      Task.updateStatus(mockTaskGet._id, true)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })
@@ -1186,14 +1212,17 @@ export default describe('Task API test', () => {
         })
 
       Task.get(mockTaskGet._id)
-        .concatMap(x => Task.update(mockTaskGet._id, {
-          priority: 2
-        }))
-        .concatMap(x => Task.get(mockTaskGet._id))
+        .skip(1)
         .subscribe(task => {
           expect(task.priority).to.equal(2)
           done()
         })
+
+      Task.update(mockTaskGet._id, {
+        priority: 2
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })

@@ -2,7 +2,7 @@
 import { Observable, Observer } from 'rxjs'
 import UserFetch from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
-import { UserMe } from '../teambition'
+import UserMe from '../schemas/UserMe'
 import { errorHandler, makeColdSignal, observableError } from './utils'
 
 export class UserAPI {
@@ -35,11 +35,11 @@ export class UserAPI {
     })
   }
 
-  addEmail(email: string): Observable<void> {
-    return Observable.create((observer: Observer<UserMe>) => {
+  addEmail(email: string): Observable<any> {
+    return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(UserFetch.addEmail(email))
         .catch(e => observableError(observer, e))
-        .concatMap(x => <Observable<UserMe>>UserModel.update({
+        .concatMap(x => UserModel.update({
           emails: x
         }))
         .forEach(r => observer.next(r))

@@ -1,49 +1,70 @@
 'use strict'
-import { Schema, schemaName } from './schema'
+import { Schema, ISchema, schemaName } from './schema'
 import Subtask from './Subtask'
 import { Executor, visibility } from '../teambition'
 
-@schemaName('Task')
-export default class Task extends Schema {
-  _id: string = undefined
-  _creatorId: string = undefined
-  _executorId: string = undefined
-  _projectId: string = undefined
-  _tasklistId: string = undefined
-  tagIds: string [] = undefined
-  _stageId: string = undefined
-  visiable: visibility = undefined
-  visible: visibility = undefined
-  involveMembers: string[] = undefined
-  updated: string = undefined
-  created: string = undefined
-  pos: number = undefined
-  isArchived: boolean = undefined
-  isDone: boolean = undefined
-  priority: number = undefined
-  dueDate: string = undefined
-  accomplished: string = undefined
-  note: string = undefined
-  content: string = undefined
-  _sourceId: string = undefined
-  sourceDate: string = undefined
-  subtasks: Subtask[] = undefined
-  commentsCount: number = undefined
-  attachmentsCount: number = undefined
-  likesCount: number = undefined
-  objectlinksCount: number = undefined
-  subtaskCount: {
+export interface TaskData extends ISchema<TaskData> {
+  _id: string
+  content: string
+  note: string
+  accomplished: string
+  startDate: string
+  dueDate: string
+  priority: number
+  isDone: boolean
+  isArchived: boolean
+  created: string
+  updated: string
+  visible: visibility
+  _stageId: string
+  _creatorId: string
+  _tasklistId: string
+  _projectId: string
+  _executorId: string
+  involveMembers: string[]
+  tagIds?: string []
+  pos?: number
+  _sourceId?: string
+  sourceDate?: string
+  subtasks?: Subtask[]
+  commentsCount?: number
+  attachmentsCount?: number
+  likesCount?: number
+  objectlinksCount?: number
+  subtaskCount?: {
     total: number
     done: number
-  } = undefined
-  executor: Executor = undefined
-  stage: {
+  }
+  executor?: Executor
+  stage?: {
     name: string
     _id: string
-  } = undefined
-  tasklist: {
+  }
+  tasklist?: {
     title: string
     _id: string
-  } = undefined
-  isFavorite: boolean = undefined
+  }
+  isFavorite?: boolean
+}
+
+@schemaName('Task')
+export default class Task extends Schema implements TaskData {
+  _id: string = undefined
+  content: string = undefined
+  note: string = undefined
+  accomplished: string = undefined
+  startDate: string = undefined
+  dueDate: string = undefined
+  priority: number = undefined
+  isDone: boolean = undefined
+  isArchived: boolean = undefined
+  created: string = undefined
+  updated: string = undefined
+  visible: visibility = undefined
+  _stageId: string = undefined
+  _creatorId: string = undefined
+  _tasklistId: string = undefined
+  _projectId: string = undefined
+  _executorId: string = undefined
+  involveMembers: string[] = undefined
 }

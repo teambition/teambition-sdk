@@ -1,23 +1,23 @@
 'use strict'
 import { Observable } from 'rxjs'
-import { OrganizationData } from '../teambition'
+import Organization from '../schemas/Organization'
 import Model from './BaseModel'
 
 export class OrganizationModel extends Model {
-  getAll(): Observable<Array<OrganizationData>> {
-    return this._get<OrganizationData[]>('organization')
+  getAll(): Observable<Array<Organization>> {
+    return this._get<Organization[]>('organization')
   }
 
-  getOne(id: string): Observable<OrganizationData> {
-    return this._get<OrganizationData>(id)
+  getOne(id: string): Observable<Organization> {
+    return this._get<Organization>(id)
   }
 
-  saveAll(organizations: OrganizationData[]): Observable<OrganizationData[]> {
-    return this._saveCollection<OrganizationData>('organization', organizations)
+  saveAll(organizations: Organization[]): Observable<Organization[]> {
+    return this._saveCollection<Organization>('organization', organizations)
   }
 
-  addOne(data: OrganizationData): Observable<OrganizationData> {
-    return this._save<OrganizationData>(data)
+  addOne(data: Organization): Observable<Organization> {
+    return this._save<Organization>(data)
   }
 }
 

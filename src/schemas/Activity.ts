@@ -1,10 +1,44 @@
 'use strict'
-import { Schema, schemaName } from './schema'
+import { Schema, schemaName, ISchema } from './schema'
 import { MemberData } from '../teambition'
 import File from './File'
 
+export interface ActivityData extends ISchema<ActivityData> {
+  _id: string
+  action: string
+  rawAction: string
+  created: number
+  boundToObjectType: string
+  _boundToObjectId: string
+  creator: MemberData
+  title: string
+  content: {
+    comment?: string
+    attachments: File[]
+    mentionsArray: string[]
+    mentions: MemberData
+    attachmentsName: string
+    creator: string
+      linked?: {
+      _id: string
+      _projectId: string
+      _objectId: string
+      objectType: string
+      title: string
+    }
+  }
+  isComment: boolean
+  icon: string
+  creatorName: string
+  creatorAvatar: string
+  comment: string
+  linked: {
+    _id?: string
+  }
+}
+
 @schemaName('Activity')
-export default class Activity extends Schema {
+export default class Activity extends Schema implements ActivityData {
   _id: string = undefined
   action: string = undefined
   rawAction: string = undefined
