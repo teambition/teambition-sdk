@@ -1,7 +1,7 @@
 'use strict'
 import { Observable, Observer } from 'rxjs'
 import TaskModel from '../models/TaskModel'
-import Task from '../schemas/Task'
+import { TaskData } from '../schemas/Task'
 import { errorHandler, makeColdSignal } from './utils'
 import {
   default as TaskFetch,
@@ -9,7 +9,7 @@ import {
   MoveTaskOptions,
   UpdateTaskOptions
 } from '../fetchs/TaskFetch'
-import { OrganizationData } from '../teambition'
+import { OrganizationData } from '../schemas/Organization'
 
 export type detailType = 'complete'
 
@@ -19,8 +19,8 @@ export class TaskAPI {
     TaskModel.destructor()
   }
 
-  getTasklistUndone(_tasklistId: string): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
+  getTasklistUndone(_tasklistId: string): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
       const get = TaskModel.getTasklistTasksUndone(_tasklistId)
       if (get) {
         return get
@@ -33,8 +33,8 @@ export class TaskAPI {
     })
   }
 
-  getTasklistDone(_tasklistId: string, page = 1): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
+  getTasklistDone(_tasklistId: string, page = 1): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
       const get = TaskModel.getTasklistTasksDone(_tasklistId, page)
       if (get) {
         return get
@@ -49,9 +49,9 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyDueTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
-      const get = TaskModel.getOrganizationMyDueTasks(page)
+  getOrgMyDueTasks(userId: string, organization: OrganizationData, page = 1): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getOrganizationMyDueTasks(organization._id, page)
       if (get) {
         return get
       }
@@ -65,9 +65,9 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
-      const get = TaskModel.getOrganizationMyTasks(page)
+  getOrgMyTasks(userId: string, organization: OrganizationData, page = 1): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getOrganizationMyTasks(organization._id, page)
       if (get) {
         return get
       }
@@ -81,9 +81,9 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyDoneTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
-      const get = TaskModel.getOrganizationMyDoneTasks(page)
+  getOrgMyDoneTasks(userId: string, organization: OrganizationData, page = 1): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getOrganizationMyDoneTasks(organization._id, page)
       if (get) {
         return get
       }
@@ -96,26 +96,26 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyCreatedTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
-      const get = TaskModel.getOrganizationMyCreatedTasks(page)
+  getOrgMyCreatedTasks(userId: string, organization: OrganizationData, page = 1): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getOrganizationMyCreatedTasks(organization._id, page)
       if (get) {
         return get
       }
-      const maxId = TaskModel.getOrgMyCreatedMaxId()
+      const maxId = TaskModel.getOrgMyCreatedMaxId(organization._id)
       return Observable.fromPromise(TaskFetch.getOrgsTasksCreated(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasks => TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page))
     })
   }
 
-  getOrgMyInvolvesTasks(userId: string, organization: OrganizationData, page = 1): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
-      const get = TaskModel.getOrgInvolvesTasks(page)
+  getOrgMyInvolvesTasks(userId: string, organization: OrganizationData, page = 1): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getOrgInvolvesTasks(organization._id, page)
       if (get) {
         return get
       }
-      const maxId = TaskModel.getOrgMyInvolvesMaxId()
+      const maxId = TaskModel.getOrgMyInvolvesMaxId(organization._id)
       return Observable.fromPromise(TaskFetch.getOrgsTasksInvolves(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasks => TaskModel.addOrgMyInvolvesTasks(userId, organization, tasks, page))
@@ -126,8 +126,8 @@ export class TaskAPI {
     page?: number
     count?: number
     fileds?: string
-  }): Observable<Task[]> {
-    return makeColdSignal<Task[]>(observer => {
+  }): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
       const page = query && query.page ? query.page : 1
       const get = TaskModel.getProjectTasks(_projectId, page)
       if (get) {
@@ -139,8 +139,8 @@ export class TaskAPI {
     })
   }
 
-  get(_id: string, detailType?: detailType): Observable<Task> {
-    return makeColdSignal<Task>(observer => {
+  get(_id: string, detailType?: detailType): Observable<TaskData> {
+    return makeColdSignal<TaskData>(observer => {
       const get = TaskModel.getOne(_id)
       if (get && TaskModel.checkSchema(_id)) {
         return get
@@ -151,8 +151,8 @@ export class TaskAPI {
     })
   }
 
-  create(taskInfo: CreateTaskOptions): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  create(taskInfo: CreateTaskOptions): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       Observable.fromPromise(TaskFetch.create(taskInfo))
         .catch(err => {
           observer.error(err)
@@ -175,63 +175,63 @@ export class TaskAPI {
     })
   }
 
-  move(_taskId: string, options: MoveTaskOptions): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  move(_taskId: string, options: MoveTaskOptions): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.move(_taskId, options)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateContent(_taskId: string, content: string): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  updateContent(_taskId: string, content: string): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.updateContent(_taskId, content)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateDueDate(_taskId: string, dueDate: string): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  updateDueDate(_taskId: string, dueDate: string): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.updateDueDate(_taskId, dueDate)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateExecutor(_taskId: string, _executorId: string): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  updateExecutor(_taskId: string, _executorId: string): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.updateExecutor(_taskId, _executorId)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateInvolvemembers(_taskId: string, memberIds: string[], type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  updateInvolvemembers(_taskId: string, memberIds: string[], type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.updateInvolvemembers(_taskId, memberIds, type)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateNote(_taskId: string, note: string): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  updateNote(_taskId: string, note: string): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.updateNote(_taskId, note)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateStatus(_taskId: string, status: boolean): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  updateStatus(_taskId: string, status: boolean): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.updateStatus(_taskId, status)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  update<T extends UpdateTaskOptions>(_taskId: string, patch: T): Observable<Task> {
-    return Observable.create((observer: Observer<Task>) => {
+  update<T extends UpdateTaskOptions>(_taskId: string, patch: T): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
       const promise = TaskFetch.update(_taskId, patch)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  private _updateFromPromise(_taskId: string, observer: Observer<Task>, promise: Promise<any>) {
+  private _updateFromPromise(_taskId: string, observer: Observer<TaskData>, promise: Promise<any>) {
     Observable.fromPromise(promise)
       .catch(err => {
         observer.error(err)

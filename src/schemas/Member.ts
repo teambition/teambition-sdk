@@ -1,5 +1,31 @@
 'use strict'
-import { Schema, schemaName } from './schema'
+import { Schema, schemaName, ISchema } from './schema'
+
+export interface MemberData extends ISchema<MemberData> {
+  _id: string
+  _boundToObjectId: string
+  boundToObjectType: string
+  _roleId: number
+  visited: string
+  joined: string
+  pushStatus: boolean
+  nickname: string
+  nicknamePy: string
+  nicknamePinyin: string
+  hasVisited: boolean
+  _memberId: string
+  phone: string
+  location: string
+  website: string
+  latestActived: string
+  isActive: boolean
+  email: string
+  name: string
+  avatarUrl: string
+  title: string
+  pinyin: string
+  py: string
+}
 
 @schemaName('Member')
 export default class Member extends Schema {

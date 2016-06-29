@@ -21,11 +21,11 @@ export class ActivityModel extends BaseModel {
   }
 
   /**
-   * 索引为 0
+   * 索引为 `activities/${_boundToObjectId}`
    */
   addToObject(_boundToObjectId: string, activities: Activity[], page: number): Observable<Activity[]> {
     const dbIndex = `activities/${_boundToObjectId}`
-    const name = '0'
+    const name = dbIndex
     const result = datasToSchemas<Activity>(activities, Activity)
     let collection = this._collections.get(name)
     if (!collection) {
@@ -38,7 +38,7 @@ export class ActivityModel extends BaseModel {
   }
 
   getActivities(_boundToObjectId: string, page: number): Observable<Activity[]> {
-    const collection = this._collections.get('0')
+    const collection = this._collections.get(`activities/${_boundToObjectId}`)
     if (collection) {
       return collection.get(page)
     }

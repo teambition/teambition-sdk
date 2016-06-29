@@ -92,7 +92,7 @@ export default describe('ActivityAPI test: ', () => {
         .subscribe()
 
       Activity.getActivities(_boundToObjectType, _boundToObjectId)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe(data => {
           forEach(data, (activity, pos) => {
             expectDeepEqual(activity, activities[pos])

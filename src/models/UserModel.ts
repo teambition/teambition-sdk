@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs'
 import Model from './BaseModel'
-import { UserMe } from '../teambition'
+import UserMe from '../schemas/UserMe'
 
 export class UserModel extends Model {
 
@@ -23,7 +23,7 @@ export class UserModel extends Model {
     return this._get<UserMe>(this.userId)
   }
 
-  update(patch: any) {
+  update(patch: any): Observable<any> {
     return super.update(this.userId, patch)
   }
 

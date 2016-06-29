@@ -2,8 +2,9 @@
 import { Observable } from 'rxjs'
 import Model from './BaseModel'
 import { forEach, dropEle, concat } from '../utils/index'
+import { ISchema } from '../schemas/schema'
 
-export default class BaseCollection<T> extends Model {
+export default class BaseCollection<T extends ISchema<T>> extends Model {
   protected _data: Map<number, T[]>
   protected _pages: number[]
 
@@ -60,9 +61,14 @@ export default class BaseCollection<T> extends Model {
   get(page?: number) {
     if (page) {
       if (this.hasPage(page)) {
-        return this._get<T[]>(this._dbIndex)
-          .skip((page - 1) * 30)
-          .take(30)
+        const getSignal = this._get<T[]>(this._dbIndex)
+        if (getSignal) {
+          return getSignal
+            .skip((page - 1) * 30)
+            .take(30)
+        }else {
+          return null
+        }
       }
     }else {
       return this._get<T[]>(this._dbIndex)

@@ -6,7 +6,7 @@ import { default as SubtaskFetch, SubtaskUpdateOptions } from '../fetchs/Subtask
 import Subtask from '../schemas/Subtask'
 import Task from '../schemas/Task'
 import { makeColdSignal, errorHandler } from './utils'
-import { OrganizationData } from '../teambition'
+import { OrganizationData } from '../schemas/Organization'
 
 export class SubtaskAPI {
 
@@ -121,7 +121,7 @@ export class SubtaskAPI {
 
   getOrgMySubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
     return makeColdSignal<Subtask[]>(observer => {
-      const get = SubtaskModel.getOrgMySubtasks(page)
+      const get = SubtaskModel.getOrgMySubtasks(organization._id, page)
       if (get) {
         return get
       }
@@ -137,7 +137,7 @@ export class SubtaskAPI {
 
   getOrgMyDueSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
     return makeColdSignal<Subtask[]>(observer => {
-      const get = SubtaskModel.getOrgMyDueSubtasks(page)
+      const get = SubtaskModel.getOrgMyDueSubtasks(organization._id, page)
       if (get) {
         return get
       }
@@ -153,7 +153,7 @@ export class SubtaskAPI {
 
   getOrgMyDoneSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
     return makeColdSignal<Subtask[]>(observer => {
-      const get = SubtaskModel.getOrgMyDoneSubtasks(page)
+      const get = SubtaskModel.getOrgMyDoneSubtasks(organization._id, page)
       if (get) {
         return get
       }
@@ -168,11 +168,11 @@ export class SubtaskAPI {
 
   getOrgMyCreatedSubtasks(userId: string, organization: OrganizationData, page = 1): Observable<Subtask[]> {
     return makeColdSignal<Subtask[]>(observer => {
-      const get = SubtaskModel.getOrgMyCreatedSubtasks(page)
+      const get = SubtaskModel.getOrgMyCreatedSubtasks(organization._id, page)
       if (get) {
         return get
       }
-      const maxId = SubtaskModel.getOrgMyCreatedMaxId()
+      const maxId = SubtaskModel.getOrgMyCreatedMaxId(organization._id)
       return Observable.fromPromise(SubtaskFetch.getOrgsSubtasksCreated(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
         .concatMap(subtasks => SubtaskModel.addOrgMyCreatedSubtasks(userId, organization, subtasks, page))
