@@ -24,6 +24,7 @@ export { default as TasklistSchema } from './schemas/Tasklist'
 export { default as ActivitySchema } from './schemas/Activity'
 export { OrganizationData as OrganizationSchema } from './schemas/Organization'
 export { FileData as FileSchema } from './schemas/File'
+export { UserMe } from './schemas/UserMe'
 
 // export fetchs
 
