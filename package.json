@@ -64,7 +64,6 @@
     "fetch-mock": "^4.5.0",
     "istanbul": "^0.4.3",
     "mocha": "^2.3.4",
-    "mocha-phantomjs": "^4.0.2",
     "remap-istanbul": "^0.6.4",
     "rollup": "^0.26.3",
     "rollup-plugin-alias": "^1.2.0",
