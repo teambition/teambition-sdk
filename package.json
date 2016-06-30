@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Front-End SDK for Teambition",
   "main": "dist/bundle/tbsdk.umd.js",
   "jsnext:main": "dist/es6/app.js",
