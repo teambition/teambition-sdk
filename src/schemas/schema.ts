@@ -2,9 +2,6 @@
 import { forEach } from '../utils/index'
 
 export const setSchema = <T extends Schema>(target: T, data: any): T => {
-  target.$$keys.forEach((key) => {
-    target[key] = data[key]
-  })
   target.$$data = data
   forEach(target, (value, key) => {
     if (key === '$$data') {
@@ -41,6 +38,10 @@ export const setSchema = <T extends Schema>(target: T, data: any): T => {
         configurable: true
       })
     }
+  })
+  const $$keys = Object.keys(data)
+  $$keys.forEach((key) => {
+    target[key] = data[key]
   })
   return target
 }

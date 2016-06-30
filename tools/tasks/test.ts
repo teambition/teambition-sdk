@@ -30,18 +30,13 @@ function runMocha() {
 }
 
 let timer: NodeJS.Timer
-let first = true
 
 function excuteTest() {
   if (timer) {
     clearTimeout(timer)
   }
   timer = setTimeout(() => {
-    if (first) {
-      first = false
-    }else {
-      runMocha()
-    }
+    runMocha()
     timer = null
   }, 200)
 }
