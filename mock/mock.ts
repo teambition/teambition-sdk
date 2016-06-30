@@ -53,7 +53,12 @@ export function mockFetch() {
         return Promise.reject(new Error(`${result.data}, statu code: ${result.status}`))
       }else {
         /* istanbul ignore if */
-        throw new Error(`nothing expect return from server, uri: ${uri}, method: ${options.method}, body: ${JSON.stringify(options.body)}`)
+        throw new Error(
+            `nothing expect return from server,
+            uri: ${uri}, method: ${options.method},
+            body: ${JSON.stringify(options.body)},
+            defined uri: ${JSON.stringify(Object.keys(fetchStack), null, 2)}`
+        )
       }
     }
   }

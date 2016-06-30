@@ -8,7 +8,7 @@ export interface TaskData extends ISchema<TaskData> {
   content: string
   note: string
   accomplished: string
-  startDate: string
+  startDate?: string
   dueDate: string
   priority: number
   isDone: boolean
@@ -53,7 +53,6 @@ export default class Task extends Schema implements TaskData {
   content: string = undefined
   note: string = undefined
   accomplished: string = undefined
-  startDate: string = undefined
   dueDate: string = undefined
   priority: number = undefined
   isDone: boolean = undefined

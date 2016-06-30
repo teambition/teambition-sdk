@@ -36,7 +36,7 @@ export class PostAPI {
     return Observable.create((observer: Observer<Post>) => {
       return Observable.fromPromise(PostFetch.create(post))
         .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.add(post))
+        .concatMap(post => PostModel.addOne(post))
     })
   }
 
@@ -48,7 +48,7 @@ export class PostAPI {
       }
       return Observable.fromPromise(PostFetch.get(postId, query))
         .catch(err => errorHandler(observer, err))
-        .concatMap(post => PostModel.add(post))
+        .concatMap(post => PostModel.addOne(post))
     })
   }
 

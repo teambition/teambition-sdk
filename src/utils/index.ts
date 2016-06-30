@@ -48,8 +48,11 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
 }
 
 export const assign = <T, U>(target: T, patch: U): T & U => {
-  if (typeof patch !== 'object' || !patch) {
+  if (typeof target !== 'object' || !target) {
     return
+  }
+  if (typeof patch !== 'object' || !patch) {
+    return <any>target
   }
   forEach(patch, (val, key) => {
     target[key] = patch[key]
