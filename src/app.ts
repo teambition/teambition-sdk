@@ -24,6 +24,7 @@ export { default as TasklistSchema } from './schemas/Tasklist'
 export { default as ActivitySchema } from './schemas/Activity'
 export { OrganizationData as OrganizationSchema } from './schemas/Organization'
 export { FileData as FileSchema } from './schemas/File'
+export { TBCollectionData as TBCollectionSchema } from './schemas/Collection'
 export { UserMe } from './schemas/UserMe'
 
 // export fetchs
@@ -60,6 +61,7 @@ export * from './apis/TaskAPI'
 export * from './apis/SubtaskAPI'
 export * from './apis/ActivityAPI'
 export * from './apis/FileAPI'
+export * from './apis/CollectionAPI'
 
 // for socket
 

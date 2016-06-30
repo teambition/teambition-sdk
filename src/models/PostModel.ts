@@ -13,7 +13,7 @@ export class PostModel extends BaseModel {
     this._collections.clear()
   }
 
-  add(post: Post): Observable<Post> {
+  addOne(post: Post): Observable<Post> {
     const result = dataToSchema<Post>(post, Post)
     return this._save(result)
   }
