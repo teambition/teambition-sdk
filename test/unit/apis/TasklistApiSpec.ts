@@ -98,7 +98,7 @@ export default describe('tasklist api test', () => {
     Tasklist.getOne(tasklistId)
       .skip(1)
       .subscribe(data => {
-        expect(data).to.be.undefined
+        expect(data).to.be.null
         done()
       })
 

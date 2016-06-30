@@ -29,7 +29,7 @@ export class SubtaskAPI {
   get(_subtaskid: string, _taskId?: string, withExecutor?: boolean): Observable<Subtask> {
     return makeColdSignal<Subtask>(observer => {
       const get = SubtaskModel.getOne(_subtaskid)
-      if (get) {
+      if (get && SubtaskModel.checkSchema(_subtaskid)) {
         return get
       }
       return Observable.fromPromise(SubtaskFetch.getOne(_subtaskid, _taskId, withExecutor))

@@ -574,7 +574,7 @@ export default describe('Subtask API test: ', () => {
     Subtask.get(subtaskId)
       .skip(1)
       .subscribe(data => {
-        expect(data).to.be.undefined
+        expect(data).to.be.null
         done()
       })
 
@@ -629,7 +629,7 @@ export default describe('Subtask API test: ', () => {
     Subtask.get(subtaskId)
       .skip(1)
       .subscribe(data => {
-        expect(data).to.be.undefined
+        expect(data).to.be.null
         done()
       })
 

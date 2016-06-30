@@ -62,6 +62,10 @@ export const assign = <T, U>(target: T, patch: U): T & U => {
 
 export const clone = <T>(origin: T): T => {
   /* istanbul ignore if */
+  if (origin === null) {
+    return null
+  }
+  /* istanbul ignore if */
   if (!origin || typeof origin !== 'object') {
     return
   }
