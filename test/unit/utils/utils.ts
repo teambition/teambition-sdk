@@ -143,6 +143,11 @@ export default describe('utils test', () => {
     expect(obj2.b.e.j).not.equal(obj.b.e.j)
   })
 
+  it('clone null should ok', () => {
+    const result = clone(null)
+    expect(result).to.be.null
+  })
+
   it('assign should ok', () => {
     const testObject = {
       a: 0,

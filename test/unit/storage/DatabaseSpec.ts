@@ -41,7 +41,7 @@ export default describe('database test: ', () => {
     set.concatMap(x => get)
       .concatMap(x => del)
       .subscribe(x => {
-        expect(x).to.be.undefined
+        expect(x).to.be.null
         done()
       })
   })
