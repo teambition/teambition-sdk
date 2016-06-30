@@ -5,7 +5,7 @@ import OrganizationModel from '../models/OrganizationModel'
 import Organization from '../schemas/Organization'
 import { errorHandler, makeColdSignal } from './utils'
 
-export class OrganizationsAPI {
+export class OrganizationAPI {
 
   constructor() {
     OrganizationModel.destructor()

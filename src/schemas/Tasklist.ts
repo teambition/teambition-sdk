@@ -1,6 +1,6 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
-import { StageData } from '../teambition'
+import { StageData } from '../schemas/Stage'
 
 export interface TasklistData extends ISchema<TasklistData> {
   _id: string

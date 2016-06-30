@@ -1,7 +1,7 @@
 'use strict'
 import * as Rx from 'rxjs'
 import * as chai from 'chai'
-import { Backend, ProjectsAPI, apihost, clone, assign } from '../index'
+import { Backend, ProjectAPI, apihost, clone, assign } from '../index'
 import { projects } from '../../mock/projects'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
@@ -9,11 +9,11 @@ const expect = chai.expect
 
 export default describe('Project API test', () => {
   let httpBackend: Backend
-  let Project: ProjectsAPI
+  let Project: ProjectAPI
 
   beforeEach(() => {
     flush()
-    Project = new ProjectsAPI()
+    Project = new ProjectAPI()
     httpBackend = new Backend()
     httpBackend
       .whenGET(`${apihost}projects`)

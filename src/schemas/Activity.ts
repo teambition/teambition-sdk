@@ -1,6 +1,6 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
-import { MemberData } from '../teambition'
+import { MemberData } from '../schemas/Member'
 import File from './File'
 
 export interface ActivityData extends ISchema<ActivityData> {

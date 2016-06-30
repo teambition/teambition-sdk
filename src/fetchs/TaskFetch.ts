@@ -1,7 +1,7 @@
 'use strict'
 import Fetch from './BaseFetch'
 import Task from '../schemas/Task'
-import { TaskData, visibility } from '../teambition'
+import { visibility } from '../teambition'
 
 export interface TasksMeOptions {
   count?: number
@@ -56,7 +56,7 @@ export interface ForkTaskOptions {
 
 export interface ImportTaskOptions {
   _stageId?: string
-  tasks: TaskData[]
+  tasks: Task[]
   involveMembers?: string[]
   _executorId?: string
   dueDate?: string
