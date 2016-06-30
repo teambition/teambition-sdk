@@ -1,6 +1,5 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import { UserEmail } from '../teambition'
 import UserMe from '../schemas/UserMe'
 
 export class UserFetch extends BaseFetch {
@@ -13,7 +12,7 @@ export class UserFetch extends BaseFetch {
     return this.fetch.put('users', patch)
   }
 
-  addEmail(email: string): Promise<UserEmail[]> {
+  addEmail(email: string): Promise<any[]> {
     return this.fetch.post('users/email', {
       email: email
     })

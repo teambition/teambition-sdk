@@ -4,12 +4,12 @@ import Project from '../schemas/Project'
 import Member from '../schemas/Member'
 import Event from '../schemas/Event'
 import {
-  HomeActivity,
-  InviteLinkData,
+  HomeActivitySchema,
+  InviteLinkSchema,
   visibility,
-  CreatedInProject,
-  RecommendMember,
-  ProjectStatistic
+  CreatedInProjectSchema,
+  RecommendMemberSchema,
+  ProjectStatisticSchema
 } from '../teambition'
 
 export interface ProjectCreateOptions {
@@ -100,7 +100,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.post(`projects/${_id}/copy`, copyInfo)
   }
 
-  createdInProject(_id: string, querys?: any): Promise<CreatedInProject> {
+  createdInProject(_id: string, querys?: any): Promise<CreatedInProjectSchema> {
     return this.fetch.get(`projects/${_id}/statistic/created`, querys)
   }
 
@@ -115,7 +115,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get(`projects/${_id}/events_count`, querys)
   }
 
-  getInviteLink(_id: string, querys?: any): Promise<InviteLinkData> {
+  getInviteLink(_id: string, querys?: any): Promise<InviteLinkSchema> {
     return this.fetch.get(`projects/${_id}/invitelink`, querys)
   }
 
@@ -123,7 +123,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get<Member[]>(`projects/${_id}/members`, querys)
   }
 
-  getHomeActivities(_id: string, query?: any): Promise<HomeActivity[]> {
+  getHomeActivities(_id: string, query?: any): Promise<HomeActivitySchema[]> {
     return this.fetch.get(`projects/${_id}/activities`, query)
   }
 
@@ -137,15 +137,15 @@ export class ProjectFetch extends BaseFetch {
     } : undefined)
   }
 
-  getRecommendMembers(_id: string, querys?: any): Promise<RecommendMember> {
-    return this.fetch.get(`projects/${_id}/recommendMembers`, querys)
+  getRecommendMembers(_id: string, querys?: any): Promise<RecommendMemberSchema> {
+    return this.fetch.get(`projects/${_id}/RecommendMemberSchemas`, querys)
   }
 
   resendInvitation(_id: string, userId: string): Promise<{}> {
     return this.fetch.put(`projects/${_id}/members/${userId}/resend`)
   }
 
-  resetInviteLink(_id: string): Promise<InviteLinkData> {
+  resetInviteLink(_id: string): Promise<InviteLinkSchema> {
     return this.fetch.put(`projects/${_id}/invitelink`)
   }
 
@@ -169,7 +169,7 @@ export class ProjectFetch extends BaseFetch {
   getStatistic (_id: string, query?: {
     today: string,
     [index: string]: any
-  }): Promise<ProjectStatistic> {
+  }): Promise<ProjectStatisticSchema> {
     return this.fetch.get(`projects/${_id}/statistic`, query)
   }
 

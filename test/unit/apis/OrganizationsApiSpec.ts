@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
-import { Backend, OrganizationsAPI, apihost } from '../index'
+import { Backend, OrganizationAPI, apihost } from '../index'
 import { organizations } from '../../mock/organizations'
 import { flush } from '../utils'
 
@@ -10,7 +10,7 @@ chai.use(sinonChai)
 
 export default describe('Organizations API test', () => {
   let httpBackend: Backend
-  const OrganizationAPI = new OrganizationsAPI()
+  const OrganizationApi = new OrganizationAPI()
   beforeEach(() => {
     flush()
     httpBackend = new Backend()
@@ -24,7 +24,7 @@ export default describe('Organizations API test', () => {
   })
 
   it('get organizations should ok', done => {
-    OrganizationAPI.getOrgs()
+    OrganizationApi.getOrgs()
       .subscribe(data => {
         expect(data).to.instanceof(Array)
         done()
@@ -40,9 +40,9 @@ export default describe('Organizations API test', () => {
       .whenGET(`${apihost}organizations/${id}`)
       .respond(JSON.stringify(organizations[0]))
 
-    OrganizationAPI.getOrgs()
+    OrganizationApi.getOrgs()
       .concatMap(x => {
-        return OrganizationAPI.getOne(id)
+        return OrganizationApi.getOne(id)
       })
       .subscribe(data => {
         expect(data).to.deep.equal(organizations[0])

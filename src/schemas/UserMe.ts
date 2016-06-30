@@ -1,6 +1,12 @@
 'use strict'
-import { UserEmail } from '../teambition'
 import { ISchema, Schema, schemaName } from './schema'
+
+export interface UserEmail {
+  email: string
+  state: number
+  _id: string
+  id: string
+}
 
 export interface UserMe extends ISchema<UserMe> {
   _id: string

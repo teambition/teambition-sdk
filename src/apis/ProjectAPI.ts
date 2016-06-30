@@ -11,18 +11,18 @@ import Project from '../schemas/Project'
 import Event from '../schemas/Event'
 import { makeColdSignal, errorHandler } from './utils'
 import {
-  CreatedInProject,
-  InviteLinkData,
-  HomeActivity,
-  RecommendMember,
-  ProjectStatistic
+  CreatedInProjectSchema,
+  InviteLinkSchema,
+  HomeActivitySchema,
+  RecommendMemberSchema,
+  ProjectStatisticSchema
 } from '../teambition'
 
 export type JSONObj = {
   [index: string]: any
 }
 
-export class ProjectsAPI {
+export class ProjectAPI {
 
   constructor() {
     ProjectModel.destructor()
@@ -126,7 +126,7 @@ export class ProjectsAPI {
       .concatMap(project => ProjectModel.addOne(project))
   }
 
-  createdInProject(_id: string, querys?: JSONObj): Observable<CreatedInProject> {
+  createdInProject(_id: string, querys?: JSONObj): Observable<CreatedInProjectSchema> {
     return Observable.fromPromise(ProjectFetch.createdInProject(_id, querys))
   }
 
@@ -142,7 +142,7 @@ export class ProjectsAPI {
     return Observable.fromPromise(ProjectFetch.getEventsCountByMonth(_id, querys))
   }
 
-  getInviteLink(_id: string, querys?: JSONObj): Observable<InviteLinkData> {
+  getInviteLink(_id: string, querys?: JSONObj): Observable<InviteLinkSchema> {
     return Observable.fromPromise(ProjectFetch.getInviteLink(_id, querys))
   }
 
@@ -150,7 +150,7 @@ export class ProjectsAPI {
    * TODO
    * ADD HOME ACTIVITY MODEL
    */
-  getHomeActivities(_id: string, querys?: JSONObj): Observable<HomeActivity[]> {
+  getHomeActivities(_id: string, querys?: JSONObj): Observable<HomeActivitySchema[]> {
     return Observable.fromPromise(ProjectFetch.getHomeActivities(_id, querys))
   }
 
@@ -164,7 +164,7 @@ export class ProjectsAPI {
       .concatMap(x => ProjectModel.delete(_id))
   }
 
-  getRecommendMembers(_id: string, querys?: JSONObj): Observable<RecommendMember> {
+  getRecommendMembers(_id: string, querys?: JSONObj): Observable<RecommendMemberSchema> {
     return Observable.fromPromise(ProjectFetch.getRecommendMembers(_id, querys))
   }
 
@@ -172,7 +172,7 @@ export class ProjectsAPI {
     return Observable.fromPromise(ProjectFetch.resendInvitation(_id, userId))
   }
 
-  resetInviteLink(_id: string): Observable<InviteLinkData> {
+  resetInviteLink(_id: string): Observable<InviteLinkSchema> {
     return Observable.fromPromise(ProjectFetch.resetInviteLink(_id))
   }
 
@@ -189,7 +189,7 @@ export class ProjectsAPI {
   getStatistic (_id: string, query?: {
     today: string,
     [index: string]: any
-  }): Observable<ProjectStatistic> {
+  }): Observable<ProjectStatisticSchema> {
     return Observable.fromPromise(ProjectFetch.getStatistic(_id, query))
   }
 
