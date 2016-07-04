@@ -3,7 +3,7 @@ import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import { Backend, OrganizationAPI, apihost } from '../index'
 import { organizations } from '../../mock/organizations'
-import { flush } from '../utils'
+import { flush, expectDeepEqual } from '../utils'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -45,7 +45,7 @@ export default describe('Organizations API test', () => {
         return OrganizationApi.getOne(id)
       })
       .subscribe(data => {
-        expect(data).to.deep.equal(organizations[0])
+        expectDeepEqual(data, organizations[0])
         done()
       })
 

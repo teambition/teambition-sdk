@@ -2,13 +2,13 @@
   "name": "teambition-sdk",
   "dependencies": {},
   "globalDependencies": {
-    "node": "registry:dt/node#6.0.0+20160523035754"
+    "chai": "registry:dt/chai#3.4.0+20160601211834",
+    "mocha": "registry:dt/mocha#2.2.5+20160619032855",
+    "node": "registry:dt/node#6.0.0+20160621231320",
+    "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160524142046"
   },
   "globalDevDependencies": {
-    "chai": "registry:dt/chai#3.4.0+20160317120654",
-    "mocha": "registry:dt/mocha#2.2.5+20160317120654",
     "sinon": "registry:dt/sinon#1.16.0+20160517064723",
-    "sinon-chai": "registry:dt/sinon-chai#2.7.0+20160317120654",
-    "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160523035005"
+    "sinon-chai": "registry:dt/sinon-chai#2.7.0+20160317120654"
   }
 }

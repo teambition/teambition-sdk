@@ -242,7 +242,7 @@ export default describe('Collection API test', () => {
       .subscribe(r => {
         expect(r.length).to.equal(collections.length + 1)
         forEach(r[0], (val: any, key: string) => {
-          if (key !== '_id') {
+          if (key !== '_id' && key !== '_requested') {
             expect(val).to.deep.equal(r[1][key])
           }
         })

@@ -113,13 +113,14 @@ export default describe('utils/fetch', () => {
   ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
     it(`decoartor ${httpMethod} should ok`, done => {
       const now = Date.now()
-      fetch.middleware(<any>httpMethod, (method, arg) => {
+      fetch.middleware(<any>httpMethod, arg => {
         const url = arg.url
         if (url.indexOf('?') !== -1) {
           arg.url = `${url}&_=${now}`
         }else {
           arg.url = `${url}?_=${now}`
         }
+        return arg.originFn(arg.url, arg.queryOrBody)
       })
 
       const url = `${fetch.getAPIHost()}mock${httpMethod}?_=${now}`

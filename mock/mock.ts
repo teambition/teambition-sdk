@@ -37,6 +37,12 @@ export function mockFetch() {
     const method = options.method ? options.method.toLowerCase() : ''
     if (method !== 'options') {
       const dataPath = options.body ? parseObject(options.body) : ''
+      if (method === 'get') {
+        const pos = uri.indexOf('_=')
+        if (pos !== -1) {
+          uri = uri.substr(0, pos - 1)
+        }
+      }
       const result = fetchStack[uri + method + dataPath]
       // console.log(uri + method + dataPath, fetchStack)
       if (result && result.status === 200) {

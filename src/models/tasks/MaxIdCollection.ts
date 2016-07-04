@@ -11,9 +11,9 @@ export default class MaxIdCollection<T extends ISchema<SubtaskData | TaskData>> 
  maxAddPage(page: number, data: T[]): Observable<any[]> {
     const result = super.addPage(page, <any[]>data)
     const maxPage = this._pages[this._pages.length - 1]
-    const maxPageData = this._data.get(maxPage)
-      .sort((a, b) => new Date(b.created).valueOf() - new Date(a.created).valueOf())
-    this.maxId = maxPageData[maxPageData.length - 1]._id
+    const maxPageData = data
+      .sort((a: any, b: any) => new Date(b.created).valueOf() - new Date(a.created).valueOf())
+    this.maxId = maxPageData[maxPageData.length - 1]['_id']
     return result
   }
 }
