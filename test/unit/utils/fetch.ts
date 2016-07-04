@@ -20,7 +20,7 @@ export default describe('utils/fetch', () => {
     expect(fetch.getAPIHost()).to.equal(url)
   })
 
-  it('should call isomophic fetch with the correct arguments', () => {
+  it('should call isomophic fetch with the correct arguments', done => {
     const path = '/test'
     const url = `${fetch.getAPIHost()}${path}`
     const data = {test: 'test'}
@@ -38,10 +38,11 @@ export default describe('utils/fetch', () => {
           credentials: 'include'
         })
         fetchMock.restore()
+        done()
       })
   })
 
-  it('should set token', () => {
+  it('should set token', done => {
     const token = 'test_token'
     const apiHost = 'https://www.teambition.com/api/'
     const path = 'test'
@@ -60,11 +61,12 @@ export default describe('utils/fetch', () => {
         })
         fetchMock.restore()
         fetch.restore()
+        done()
       })
   });
 
   ['get', 'post', 'put', 'delete'].forEach((httpMethod) => {
-    it(`should define ${httpMethod}`, () => {
+    it(`should define ${httpMethod}`, done => {
       const path = 'test'
       const url = `${fetch.getAPIHost()}${path}`
       const responseData = {test: 'test'}
@@ -78,13 +80,14 @@ export default describe('utils/fetch', () => {
             expect(JSON.parse(fetchMock.lastOptions().body)).to.deep.equal(body)
           }
           fetchMock.restore()
+          done()
         })
     })
   });
 
   ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
     [100, 400, 401, 403, 404, 500].forEach(status => {
-      it(`should handle ${status} status for ${httpMethod}`, () => {
+      it(`should handle ${status} status for ${httpMethod}`, done => {
         const path = 'test'
         const url = `${fetch.getAPIHost()}${path}`
         const responseData = {body: {test: 'test'}, status: status}
@@ -93,6 +96,7 @@ export default describe('utils/fetch', () => {
         return fetch[httpMethod](path, httpMethod === 'get' ? null : body)
           .then((res: Response) => {
             expect(res).not.to.deep.equal(responseData.body)
+            done()
           })
           .catch((res: Response) => {
             if (fetchMock.lastOptions()) {
@@ -100,8 +104,35 @@ export default describe('utils/fetch', () => {
             }
             expect(res.status).to.deep.equal(responseData.status)
             fetchMock.restore()
+            done()
           })
       })
+    })
+  });
+
+  ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
+    it(`decoartor ${httpMethod} should ok`, done => {
+      const now = Date.now()
+      fetch.middleware(<any>httpMethod, (method, arg) => {
+        const url = arg.url
+        if (url.indexOf('?') !== -1) {
+          arg.url = `${url}&_=${now}`
+        }else {
+          arg.url = `${url}?_=${now}`
+        }
+      })
+
+      const url = `${fetch.getAPIHost()}mock${httpMethod}?_=${now}`
+
+      fetchMock.mock(url, httpMethod, {
+        requestTime: now
+      })
+
+      fetch[httpMethod](`mock${httpMethod}`)
+        .then(r => {
+          expect(r.requestTime).to.equal(now)
+          done()
+        })
     })
   })
 })

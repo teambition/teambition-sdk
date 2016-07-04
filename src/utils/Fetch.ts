@@ -1,6 +1,10 @@
 'use strict'
 import { assign, forEach } from './index'
 
+export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
+
+const allowedHttpMethod = ['get', 'post', 'put', 'delete']
+
 export class Fetch {
 
   private _opts: any = {
@@ -37,6 +41,24 @@ export class Fetch {
         'Content-Type': 'application/json'
       },
       credentials: 'include'
+    }
+  }
+
+  public middleware(method: AllowedHttpMethod, decorator: (method?: string, args?: {
+    url: string
+    queryOrBody?: any
+  }) => any): void {
+    if (allowedHttpMethod.indexOf(method) === -1) {
+      throw new Error(`method to decorator is not defined or not allowed: ${method}`)
+    }
+    const originMethod = this[method]
+    this[method] = function(url: string, queryOrBody: any) {
+      const calledArgs = {
+        url: url,
+        queryOrBody: queryOrBody
+      }
+      decorator(method, calledArgs)
+      return originMethod.call(this, calledArgs.url, calledArgs.queryOrBody)
     }
   }
 

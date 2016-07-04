@@ -5,7 +5,7 @@ import TaskModel from '../models/TaskModel'
 import { default as SubtaskFetch, SubtaskUpdateOptions } from '../fetchs/SubtaskFetch'
 import Subtask from '../schemas/Subtask'
 import Task from '../schemas/Task'
-import { makeColdSignal, errorHandler } from './utils'
+import { makeColdSignal, errorHandler, observableError } from './utils'
 import { OrganizationData } from '../schemas/Organization'
 
 export class SubtaskAPI {
@@ -51,6 +51,7 @@ export class SubtaskAPI {
         })
         .concatMap(subtask => SubtaskModel.addOne(subtask))
         .forEach(subtask => observer.next(subtask))
+        .then(x => observer.complete())
     })
   }
 
@@ -63,6 +64,7 @@ export class SubtaskAPI {
         })
         .concatMap(subtask => SubtaskModel.update<Subtask>(_subtaskId, subtask))
         .forEach(x => observer.next(x))
+        .then(x => observer.complete())
     })
   }
 
@@ -75,6 +77,7 @@ export class SubtaskAPI {
         })
         .concatMap(x => SubtaskModel.delete(_subtaskid))
         .forEach(x => observer.next(null))
+        .then(x => observer.complete())
     })
   }
 
@@ -92,6 +95,7 @@ export class SubtaskAPI {
         })
         .concatMap(x => SubtaskModel.delete(_subtaskId))
         .forEach(x => observer.next(task))
+        .then(x => observer.complete())
     })
   }
 
@@ -181,11 +185,9 @@ export class SubtaskAPI {
 
   private _updateFromPromise(_subtaskId: string, observer: Observer<Subtask>, promise: Promise<any>) {
     Observable.fromPromise(promise)
-      .catch(err => {
-        observer.error(err)
-        return SubtaskModel.getOne(_subtaskId)
-      })
+      .catch(err => observableError(observer, err))
       .concatMap(subtask => SubtaskModel.update<Subtask>(_subtaskId, subtask))
       .forEach(subtask => observer.next(subtask))
+      .then(x => observer.complete())
   }
 }

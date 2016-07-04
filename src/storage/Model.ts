@@ -74,7 +74,7 @@ export default class Model<T extends ISchema<T>> {
   update(patch: any): Observable<T> {
     return Observable.create((observer: Observer<T>) => {
       setTimeout(() => {
-        if (typeof patch !== 'object') {
+        if (!patch || typeof patch !== 'object') {
           return observer.error(new Error(`A patch should be Object, patch: ${patch}, type: ${typeof patch}`))
         }
         const _unionFlag = this._unionFlag

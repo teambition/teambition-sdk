@@ -1,10 +1,10 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable, Observer } from 'rxjs'
 import FileSchema from '../schemas/File'
 import WorkModel from '../models/WorkModel'
 import StrikerFetch from '../fetchs/StrikerFetch'
 import FileFetch from '../fetchs/FileFetch'
-import { makeColdSignal, errorHandler } from './utils'
+import { observableError } from './utils'
 
 export class FileAPI {
   constructor () {
@@ -12,12 +12,14 @@ export class FileAPI {
   }
 
   create(file: File, parentId: string): Observable<FileSchema> {
-    return makeColdSignal<FileSchema>(observer => {
-      return Observable.fromPromise(StrikerFetch.upload(file))
-        .catch(err => errorHandler(observer, err))
+    return Observable.create((observer: Observer<FileSchema>) => {
+      Observable.fromPromise(StrikerFetch.upload(file))
+        .catch(err => observableError(observer, err))
         .concatMap(res => Observable.fromPromise<FileSchema>(FileFetch.create(parentId, <any>res)))
-        .catch(err => errorHandler(observer, err))
+        .catch(err => observableError(observer, err))
         .concatMap(file => WorkModel.addOne(file))
+        .forEach(r => observer.next(r))
+        .then(x => observer.complete())
     })
   }
 }

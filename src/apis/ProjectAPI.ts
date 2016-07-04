@@ -9,7 +9,7 @@ import {
 import ProjectModel from '../models/ProjectModel'
 import Project from '../schemas/Project'
 import Event from '../schemas/Event'
-import { makeColdSignal, errorHandler } from './utils'
+import { makeColdSignal, errorHandler, observableError } from './utils'
 import {
   CreatedInProjectSchema,
   InviteLinkSchema,
@@ -83,6 +83,7 @@ export class ProjectAPI {
       Observable.fromPromise(ProjectFetch.create(projectInfo))
         .concatMap(project => ProjectModel.addOne(project))
         .forEach(res => observer.next(res))
+        .then(x => observer.complete())
     })
   }
 
@@ -91,6 +92,7 @@ export class ProjectAPI {
       Observable.fromPromise(ProjectFetch.update(_id, updateInfo))
         .concatMap(project => ProjectModel.update(project))
         .forEach(x => observer.next(x))
+        .then(x => observer.complete())
     })
   }
 
@@ -99,6 +101,7 @@ export class ProjectAPI {
       Observable.fromPromise(ProjectFetch.delete(_id))
         .concatMap(x => ProjectModel.delete(_id))
         .forEach(x => observer.next(null))
+        .then(x => observer.complete())
     })
   }
 
@@ -110,20 +113,31 @@ export class ProjectAPI {
           isArchived: x.isArchived
         }))
         .forEach(x => observer.next(<Project>x))
+        .then(x => observer.complete())
     })
   }
 
   clearUnreadCount(_id: string): Observable<any> {
-    return Observable.fromPromise(ProjectFetch.clearUnreadCount(_id))
-      .concatMap(x => ProjectModel.update(<any>{
-        _id: _id,
-        unreadCount: 0
-      }))
+    return Observable.create((observer: Observer<any>) => {
+      Observable.fromPromise(ProjectFetch.clearUnreadCount(_id))
+        .catch(err => observableError(observer, err))
+        .concatMap(x => ProjectModel.update(<any>{
+          _id: _id,
+          unreadCount: 0
+        }))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
   copy(_id: string, copyInfo: ProjectCopyOptions): Observable<Project> {
-    return Observable.fromPromise(ProjectFetch.copy(_id, copyInfo))
-      .concatMap(project => ProjectModel.addOne(project))
+    return Observable.create((observer: Observer<Project>) => {
+      Observable.fromPromise(ProjectFetch.copy(_id, copyInfo))
+        .catch(err => observableError(observer, err))
+        .concatMap(project => ProjectModel.addOne(project))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
   createdInProject(_id: string, querys?: JSONObj): Observable<CreatedInProjectSchema> {
@@ -151,7 +165,12 @@ export class ProjectAPI {
    * ADD HOME ACTIVITY MODEL
    */
   getHomeActivities(_id: string, querys?: JSONObj): Observable<HomeActivitySchema[]> {
-    return Observable.fromPromise(ProjectFetch.getHomeActivities(_id, querys))
+    return Observable.create((observer: Observer<HomeActivitySchema[]>) => {
+      Observable.fromPromise(ProjectFetch.getHomeActivities(_id, querys))
+        .catch(err => observableError(observer, err))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
   join(_id: string): Observable<Project> {
@@ -160,8 +179,13 @@ export class ProjectAPI {
   }
 
   quit(_id: string, _ownerId?: string): Observable<void> {
-    return Observable.fromPromise(ProjectFetch.quit(_id, _ownerId))
-      .concatMap(x => ProjectModel.delete(_id))
+    return Observable.create((observer: Observer<void>) => {
+      Observable.fromPromise(ProjectFetch.quit(_id, _ownerId))
+        .catch(err => observableError(observer, err))
+        .concatMap(x => ProjectModel.delete(_id))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
   getRecommendMembers(_id: string, querys?: JSONObj): Observable<RecommendMemberSchema> {
@@ -177,31 +201,54 @@ export class ProjectAPI {
   }
 
   setDefaultRole (_id: string, _roleId?: number): Observable<Project> {
-    return Observable.fromPromise(ProjectFetch.setDefaultRole(_id, _roleId))
-      .concatMap(x => ProjectModel.update(x))
+    return Observable.create((observer: Observer<any>) => {
+      Observable.fromPromise(ProjectFetch.setDefaultRole(_id, _roleId))
+        .catch(err => observableError(observer, err))
+        .concatMap(x => ProjectModel.update(x))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
   star(_id: string): Observable<Project> {
-    return Observable.fromPromise(ProjectFetch.star(_id))
-      .concatMap(x => ProjectModel.update(<any>x))
+    return Observable.create((observer: Observer<any>) => {
+      Observable.fromPromise(ProjectFetch.star(_id))
+        .catch(err => observableError(observer, err))
+        .concatMap(x => ProjectModel.update(<any>x))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
   getStatistic (_id: string, query?: {
     today: string,
     [index: string]: any
   }): Observable<ProjectStatisticSchema> {
-    return Observable.fromPromise(ProjectFetch.getStatistic(_id, query))
+    return Observable.create((observer: Observer<any>) => {
+      Observable.fromPromise(ProjectFetch.getStatistic(_id, query))
+        .catch(err => observableError(observer, err))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
   transfer(_id: string, organizationId?: string): Observable<{
     _organizationId: string
     updated: string
   }> {
-    return Observable.fromPromise(ProjectFetch.transfer(_id, organizationId))
-      .concatMap(x => ProjectModel.update(<any>{
-        _organizationId: x._organizationId,
-        _id: _id
-      }))
+    return Observable.create((observer: Observer<{
+      _organizationId: string
+      updated: string
+    }>) => {
+      Observable.fromPromise(ProjectFetch.transfer(_id, organizationId))
+        .catch(err => observableError(observer, err))
+        .concatMap(x => ProjectModel.update(<any>{
+          _organizationId: x._organizationId,
+          _id: _id
+        }))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
   }
 
 }

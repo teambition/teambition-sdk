@@ -2,7 +2,7 @@
 import { Observable, Observer } from 'rxjs'
 import TaskModel from '../models/TaskModel'
 import { TaskData } from '../schemas/Task'
-import { errorHandler, makeColdSignal } from './utils'
+import { errorHandler, makeColdSignal, observableError } from './utils'
 import {
   default as TaskFetch,
   CreateTaskOptions,
@@ -160,6 +160,7 @@ export class TaskAPI {
         })
         .concatMap(task => TaskModel.addOne(task))
         .forEach(task => observer.next(task))
+        .then(x => observer.complete())
     })
   }
 
@@ -172,6 +173,7 @@ export class TaskAPI {
         })
         .concatMap(x => TaskModel.delete(_taskId))
         .forEach(x => observer.next(null))
+        .then(x => observer.complete())
     })
   }
 
@@ -232,12 +234,10 @@ export class TaskAPI {
   }
 
   private _updateFromPromise(_taskId: string, observer: Observer<TaskData>, promise: Promise<any>) {
-    Observable.fromPromise(promise)
-      .catch(err => {
-        observer.error(err)
-        return TaskModel.getOne(_taskId)
-      })
+    return Observable.fromPromise(promise)
+      .catch(err => observableError(observer, err))
       .concatMap(task => TaskModel.update(_taskId, task))
       .forEach(task => observer.next(task))
+      .then(x => observer.complete())
   }
 }
