@@ -48,6 +48,7 @@ export class StageAPI {
       return Observable.fromPromise(StageFetch.update(_stageId, data))
         .concatMap(stage => StageModel.update<Stage>(_stageId, stage))
         .forEach(stage => observer.next(stage))
+        .then(x => observer.complete())
     })
   }
 
@@ -56,6 +57,7 @@ export class StageAPI {
       Observable.fromPromise(StageFetch.delete(_stageId))
         .concatMap(x => StageModel.delete(_stageId))
         .forEach(x => observer.next(null))
+        .then(x => observer.complete())
     })
   }
 

@@ -19,6 +19,7 @@
     "retryWhen",
     "skip",
     "take",
-    "withLatestFrom"
+    "withLatestFrom",
+    "toPromise"
   ]
 }
