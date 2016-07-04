@@ -9,7 +9,7 @@ import { ISchema } from '../schemas/schema'
 export default class Collection <T extends ISchema<T>> {
   public elements: string[] = []
   public data: T[]
-
+  public requested: number
   /**
    * @warn
    * memory leak
@@ -26,6 +26,7 @@ export default class Collection <T extends ISchema<T>> {
   ) {
     const result: T[] = []
     if (_data.length) {
+      this.requested = _data[0]._requested
       forEach(_data, (ele, pos) => {
         const _index = ele[_unionFlag]
         const cache: Model<T> = Data.get(_index)
@@ -75,6 +76,7 @@ export default class Collection <T extends ISchema<T>> {
       .concatMap(x => {
         const flag = x[this._unionFlag]
         if (this.elements.indexOf(flag) === -1) {
+          this.requested = x._requested
           this.elements.unshift(flag)
           model.addToCollection(this.index)
           this.data.unshift(model.data)
@@ -96,6 +98,7 @@ export default class Collection <T extends ISchema<T>> {
         const signals: Observable<T>[] = []
         const diff: T[] = []
         if (patch.length) {
+          this.requested = patch[patch.length - 1]._requested
           forEach(patch, (ele, position) => {
             const index = ele[this._unionFlag]
             const cache: Model<T> = Data.get(index)
@@ -158,6 +161,7 @@ export default class Collection <T extends ISchema<T>> {
     const flag = model.index
     const pos = this.elements.indexOf(flag)
     if (pos !== -1) {
+      this.requested = Date.now()
       this.elements.splice(pos, 1)
       this.data.splice(pos, 1)
       forEach(model.collections, (collectionName, pos) => {
@@ -173,6 +177,7 @@ export default class Collection <T extends ISchema<T>> {
     forEach(this.data, (ele, pos) => {
       this.data.splice(pos, 1)
     })
+    this.requested = 0
     this.elements = []
     return this
   }

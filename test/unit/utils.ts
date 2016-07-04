@@ -22,7 +22,9 @@ export function timeout <T> (signal: Rx.Observable<T>, delay: number): Rx.Observ
 
 export function expectDeepEqual(a: any, b: any) {
   forEach(a, (val, key) => {
-    expect(val).to.deep.equal(b[key])
+    if (key !== '_requested') {
+      expect(val).to.deep.equal(b[key])
+    }
   })
 }
 

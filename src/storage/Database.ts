@@ -63,9 +63,15 @@ export default class DataBase {
     }
     return Observable.create((observer: Observer<Observable<T[]>>) => {
       setTimeout(() => {
-        const cache = DataBase.data.get(index)
+        const cache: Collection<T> = DataBase.data.get(index)
         if (cache) {
-          return observer.error(new Error(`Can not store a existed data: ${index}${schemaName ? ' ,schemaName: ' + schemaName : ''}`))
+          const requested = data.length ? data[0]._requested : 0
+          if (requested && requested === cache.requested) {
+            observer.next(cache.get())
+          /* istanbul ignore if */
+          }else {
+            return observer.error(new Error(`Can not store a existed data: ${index}${schemaName ? ' ,schemaName: ' + schemaName : ''}`))
+          }
         }
         const collection = new Collection(index, data, schemaName, condition, unionFlag)
         const collections = this._schemaMap.get(schemaName)

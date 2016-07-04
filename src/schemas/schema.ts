@@ -49,7 +49,7 @@ export const setSchema = <T extends Schema>(target: T, data: any): T => {
 export interface ISchema<T> {
   $$keys?: Set<string>
   $$data?: T
-
+  _requested?: number
   checkSchema?: () => boolean
 }
 

@@ -44,8 +44,9 @@ export class Fetch {
     }
   }
 
-  public middleware(method: AllowedHttpMethod, decorator: (method?: string, args?: {
+  public middleware(method: AllowedHttpMethod, decorator: (args?: {
     url: string
+    originFn: (url: string, queryOrBody?: any) => Promise<any>
     queryOrBody?: any
   }) => any): void {
     if (allowedHttpMethod.indexOf(method) === -1) {
@@ -55,10 +56,10 @@ export class Fetch {
     this[method] = function(url: string, queryOrBody: any) {
       const calledArgs = {
         url: url,
-        queryOrBody: queryOrBody
+        queryOrBody: queryOrBody,
+        originFn: originMethod.bind(this)
       }
-      decorator(method, calledArgs)
-      return originMethod.call(this, calledArgs.url, calledArgs.queryOrBody)
+      return decorator(calledArgs)
     }
   }
 
