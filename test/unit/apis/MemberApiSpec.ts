@@ -1,8 +1,9 @@
 'use strict'
 import * as chai from 'chai'
 import * as Rx from 'rxjs'
-import { MemberAPI, Backend, apihost, clone } from '../index'
+import { MemberAPI, Backend, apihost } from '../index'
 import { members } from '../../mock/members'
+import { projectMembers } from '../../mock/projectMembers'
 import { organizations } from '../../mock/organizations'
 import { notInclude, flush } from '../utils'
 
@@ -17,7 +18,7 @@ export default describe('member api test', () => {
     httpBackend = new Backend()
     httpBackend
       .whenGET(`${apihost}projects/projectId/members`)
-      .respond(clone(members))
+      .respond(JSON.stringify(members))
   })
 
   after(() => {
@@ -90,20 +91,45 @@ export default describe('member api test', () => {
     let member = members[0]
 
     httpBackend
-      .whenDELETE(`${apihost}members/${member._id}`)
+      .whenDELETE(`${apihost}members/${member._memberId}`)
       .respond({})
 
-    const get = Member.getProjectMembers('projectId')
-    const del = Member.deleteMember(member._id)
-
-    get.skip(1)
+    Member.getProjectMembers('projectId')
+      .skip(1)
       .subscribe(data => {
         expect(data.length).to.equal(members.length - 1)
         expect(notInclude(data, member)).to.be.true
         done()
       })
 
-    del.subscribeOn(Rx.Scheduler.async, global.timeout1)
+    Member.deleteMember(member._memberId)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribe()
+
+    httpBackend.flush()
+  })
+
+  it('add members to project should ok', done => {
+    const projectId = projectMembers[0]._boundToObjectId
+    const mockEmails = projectMembers.map(member => member.email)
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/members`)
+      .respond(JSON.stringify(members))
+
+    httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
+      email: mockEmails
+    })
+      .respond(JSON.stringify(projectMembers))
+
+    Member.getProjectMembers(projectId)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.length).to.equal(members.length + projectMembers.length)
+        done()
+      })
+
+    Member.addMembers(projectId, mockEmails)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()

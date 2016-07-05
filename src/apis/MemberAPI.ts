@@ -3,7 +3,7 @@ import * as Rx from 'rxjs'
 import MemberFetch from '../fetchs/MemberFetch'
 import MemberModel from '../models/MemberModel'
 import Member from '../schemas/Member'
-import { makeColdSignal, errorHandler } from './utils'
+import { makeColdSignal, errorHandler, observableError } from './utils'
 
 export class MemberAPI {
 
@@ -39,6 +39,20 @@ export class MemberAPI {
         .fromPromise(MemberFetch.getProjectMembers(projectId))
         .catch(err => errorHandler(observer, err))
         .concatMap(x => MemberModel.saveProjectMembers(projectId, x))
+    })
+  }
+
+  /**
+   * 设计时是考虑到可以增加任意类型的 member
+   * 比如项目加人时可调用，组织加人时也可以调用
+   */
+  addMembers(_projectId: string, emails: string[]): Rx.Observable<Member | Member[]> {
+    return Rx.Observable.create((observer: Rx.Observer<Member | Member[]>) => {
+      Rx.Observable.fromPromise(MemberFetch.addProjectMembers(_projectId, emails))
+        .catch(err => observableError(observer, err))
+        .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
     })
   }
 }
