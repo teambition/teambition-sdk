@@ -62,6 +62,7 @@ export function mockFetch() {
         throw new Error(
             `nothing expect return from server,
             uri: ${uri}, method: ${options.method},
+            parsedUri: ${uri + method + dataPath}
             body: ${JSON.stringify(options.body)},
             defined uri: ${JSON.stringify(Object.keys(fetchStack), null, 2)}`
         )

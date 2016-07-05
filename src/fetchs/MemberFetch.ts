@@ -21,7 +21,7 @@ export class MemberFetch extends BaseFetch {
     })
   }
 
-  addProjectMember(_id: string, emails: string | any[]): Promise<Member> {
+  addProjectMembers(_id: string, emails: string | string[]): Promise<Member> {
     return this.fetch.post(`v2/projects/${_id}/members`, {
       email: emails
     })

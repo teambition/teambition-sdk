@@ -28,17 +28,18 @@ export default class Model {
     return Model.DataBase.checkSchema(index)
   }
 
-  protected _save<T extends ISchema<T>>(data: T): Rx.Observable<T> {
-    return Model.DataBase.storeOne<T>(data)
+  protected _save<T extends ISchema<T>>(data: T, unionFlag?: string): Rx.Observable<T> {
+    return Model.DataBase.storeOne<T>(data, unionFlag)
   }
 
   protected _saveCollection<T extends ISchema<T>>(
     namespace: string,
     data: T[],
     schemaName?: string,
-    condition?: (data: T) => boolean
+    condition?: (data: T) => boolean,
+    unionFlag?: string
   ): Rx.Observable<T[]> {
-    return Model.DataBase.storeCollection(namespace, data, schemaName, condition)
+    return Model.DataBase.storeCollection(namespace, data, schemaName, condition, unionFlag)
   }
 
   protected _get<T>(index: string): Rx.Observable<T> {
