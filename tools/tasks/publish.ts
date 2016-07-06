@@ -15,7 +15,7 @@ paths.forEach(_path => {
     encoding: 'utf8'
   })
   const distFile = fs.readFileSync(path.join(process.cwd(), `dist/bundle/tbsdk.${_path}.js`), 'utf8')
-  fs.writeFileSync(`.tmp/${_path}/index.js`, distFile, {
+  fs.writeFileSync(`.tmp/${_path}/${_path}.bundle.js`, distFile, {
     encoding: 'utf8'
   })
 })

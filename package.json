@@ -24,7 +24,7 @@
     "lint": "./node_modules/.bin/tslint ./src/**/*.ts && ./node_modules/.bin/tslint ./mock/**/*.ts && ./node_modules/.bin/tslint ./test/unit/**/*.ts",
     "cover": "npm run build_test && ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha ./spec-js/test/unit/app.js -- -t 10000",
     "prepublish": "./node_modules/.bin/typings install",
-    "publish_all": "npm run build_all && npm publish && ./node_modules/.bin/ts-node ./tools/tasks/publish.ts && npm publish .tmp/mock/ && npm publish .tmp/socket/"
+    "publish_all": "npm run build_all && npm publish && cp ./dist/mock-cjs/** ./.tmp/mock && ./node_modules/.bin/ts-node ./tools/tasks/publish.ts && npm publish .tmp/mock/ && npm publish .tmp/socket/"
   },
   "repository": {
     "type": "git",

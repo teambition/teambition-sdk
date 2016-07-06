@@ -15,9 +15,9 @@ export class FileAPI {
     return Observable.create((observer: Observer<FileSchema>) => {
       Observable.fromPromise(StrikerFetch.upload(file))
         .catch(err => observableError(observer, err))
-        .concatMap(res => Observable.fromPromise<FileSchema>(FileFetch.create(parentId, <any>res)))
+        .concatMap(res => Observable.fromPromise<FileSchema[]>(FileFetch.create(parentId, <any>res)))
         .catch(err => observableError(observer, err))
-        .concatMap(file => WorkModel.addOne(file))
+        .concatMap(file => WorkModel.addOne(file[0]))
         .forEach(r => observer.next(r))
         .then(x => observer.complete())
     })

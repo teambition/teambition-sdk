@@ -10,14 +10,18 @@ export interface FileRes {
   fileKey: string
 }
 
-export interface FileCreateOptions extends FileRes {
+export interface FileCreateOptions {
   _parentId?: string
+  works: FileRes[]
 }
 
 export class FileFetch extends BaseFetch {
-  create(_parentId: string, fileRes: FileCreateOptions): Promise<FileSchema> {
-    fileRes._parentId = _parentId
-    return this.fetch.post(`works`, fileRes)
+  create(_parentId: string, fileRes: FileRes | FileRes []): Promise<FileSchema[]> {
+    const postBody = {
+      _parentId: _parentId,
+      works: fileRes instanceof Array ? fileRes : [ fileRes ]
+    }
+    return this.fetch.post(`works`, postBody)
   }
 }
 
