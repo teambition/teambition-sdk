@@ -4,7 +4,6 @@
   "description": "Front-End SDK for Teambition",
   "main": "dist/cjs/app.js",
   "jsnext:main": "dist/es6/app.js",
-  "browser": "dist/bundle/tbsdk.umd.js",
   "typings": "dist/cjs/app.d.ts",
   "scripts": {
     "test": "npm run lint && npm run cover",
