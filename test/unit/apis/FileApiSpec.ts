@@ -32,16 +32,20 @@ export default describe('FileAPI test: ', () => {
 
   it('create file should ok', done => {
     httpBackend.whenPOST(`${apihost}works`, {
-      fileCategory: 'image',
-      fileKey: '110hcfa32d32265b1bacb3d5e5284492ac27',
-      fileName: 'e0822cc019.jpeg',
-      fileSize: 1305757,
-      fileType: 'jpeg',
-      _parentId: '111'
-    }).respond({
+      _parentId: '111',
+      works: [
+        {
+          fileCategory: 'image',
+          fileKey: '110hcfa32d32265b1bacb3d5e5284492ac27',
+          fileName: 'e0822cc019.jpeg',
+          fileSize: 1305757,
+          fileType: 'jpeg'
+        }
+      ]
+    }).respond([{
       _id: 'filemocktest',
       _parentId: '111'
-    })
+    }])
 
     Files.create(<any>{}, '111')
       .subscribe(data => {

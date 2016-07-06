@@ -3,6 +3,8 @@
   "version": "{{version}}",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
+  "browser": "./mock.bundle.js",
+  "typings": "./index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/teambition/teambition-sdk.git"
