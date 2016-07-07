@@ -224,7 +224,30 @@ export class TaskModel extends BaseModel {
 
     if (!collection) {
       collection = new Collection(this._schemaName, (data: TaskData) => {
-        return data._projectId === _projectId && !data.isArchived
+        return data._projectId === _projectId &&
+            !data.isArchived &&
+            !data.isDone
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+
+    return collection.addPage(page, result)
+  }
+
+  /**
+   * _collections 索引为 `project:tasks:done/${_projectId}`
+   */
+  addProjectDoneTasks(_projectId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
+    const dbIndex = `project:tasks:done/${_projectId}`
+    const result = datasToSchemas<TaskData>(tasks, Task)
+
+    let collection: Collection<TaskData> = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: TaskData) => {
+        return data._projectId === _projectId &&
+            !data.isArchived &&
+            data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -234,6 +257,14 @@ export class TaskModel extends BaseModel {
 
   getProjectTasks(_projectId: string, page: number): Observable<TaskData[]> {
     const collection = this._collections.get(`project:tasks/${_projectId}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  getProjectDoneTasks(_projectId: string, page: number): Observable<TaskData[]> {
+    const collection = this._collections.get(`project:tasks:done/${_projectId}`)
     if (collection) {
       return collection.get(page)
     }
