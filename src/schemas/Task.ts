@@ -23,6 +23,7 @@ export interface TaskData extends ISchema<TaskData> {
   _executorId: string
   involveMembers: string[]
   tagIds?: string []
+  recurrence?: string
   pos?: number
   _sourceId?: string
   sourceDate?: string
