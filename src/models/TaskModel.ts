@@ -71,7 +71,8 @@ export class TaskModel extends BaseModel {
         return organization.projectIds instanceof Array &&
                organization.projectIds.indexOf(data._projectId) !== -1 &&
                !!data.dueDate &&
-               data._executorId === userId
+               data._executorId === userId &&
+               !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -100,7 +101,8 @@ export class TaskModel extends BaseModel {
         return organization.projectIds instanceof Array &&
                organization.projectIds.indexOf(data._projectId) !== -1 &&
                !data.dueDate &&
-               data._executorId === userId
+               data._executorId === userId &&
+               !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }

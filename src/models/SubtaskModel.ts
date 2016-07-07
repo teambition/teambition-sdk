@@ -50,7 +50,10 @@ export class SubtaskModel extends BaseModel {
 
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Subtask) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && !data.dueDate && data._executorId === userId
+        return organization.projectIds.indexOf(data._projectId) !== -1 &&
+          !data.dueDate &&
+          data._executorId === userId &&
+          !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -76,7 +79,10 @@ export class SubtaskModel extends BaseModel {
 
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Subtask) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && !!data.dueDate && data._executorId === userId
+        return organization.projectIds.indexOf(data._projectId) !== -1 &&
+          !!data.dueDate &&
+          data._executorId === userId &&
+          !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }

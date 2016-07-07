@@ -422,6 +422,33 @@ export default describe('Task API test', () => {
       httpBackend.flush()
     })
 
+    it('done task from my tasks has dueDate should ok', done => {
+      const task = organizationMyDueTasks[0]
+
+      httpBackend.whenPUT(`${apihost}tasks/${task._id}/isDone`, {
+        isDone: true
+      })
+        .respond({
+          _id: task._id,
+          isDone: true,
+          updated: Date.now()
+        })
+
+      Task.getOrgMyDueTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(29)
+          expect(notInclude(data, task))
+          done()
+        })
+
+      Task.updateStatus(task._id, true)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
     it('get my tasks has no dueDate should ok', done => {
       Task.getOrgMyTasks(userId, organization)
         .subscribe(data => {
@@ -497,6 +524,33 @@ export default describe('Task API test', () => {
         })
 
       Task.delete(task._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('done task from my tasks no dueDate should ok', done => {
+      const task = organizationMyTasks[0]
+
+      httpBackend.whenPUT(`${apihost}tasks/${task._id}/isDone`, {
+        isDone: true
+      })
+        .respond({
+          _id: task._id,
+          isDone: true,
+          updated: Date.now()
+        })
+
+      Task.getOrgMyTasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(29)
+          expect(notInclude(data, task))
+          done()
+        })
+
+      Task.updateStatus(task._id, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
