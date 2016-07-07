@@ -235,10 +235,16 @@ export class TaskAPI {
   }
 
   private _updateFromPromise(_taskId: string, observer: Observer<TaskData>, promise: Promise<any>) {
+    let result: TaskData
     return Observable.fromPromise(promise)
       .catch(err => observableError(observer, err))
-      .concatMap(task => TaskModel.update(_taskId, task))
-      .forEach(task => observer.next(task))
-      .then(x => observer.complete())
+      .concatMap(task => {
+        result = task
+        return TaskModel.update(_taskId, task)
+      })
+      .forEach(task => {
+        observer.next(result)
+        observer.complete()
+      })
   }
 }
