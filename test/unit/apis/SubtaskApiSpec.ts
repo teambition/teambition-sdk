@@ -162,6 +162,33 @@ export default describe('Subtask API test: ', () => {
 
       httpBackend.flush()
     })
+
+    it('done subtask should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenPUT(`${apihost}subtasks/${mockId}/isDone`, {
+        isDone: true
+      })
+        .respond({
+          _id: mockId,
+          isDone: true,
+          updated: Date.now()
+        })
+
+      Subtask.getOrgMySubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Subtask.updateStatus(mockId, true)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
   })
 
   describe('get organization my subtasks have dueDate: ', () => {
@@ -267,6 +294,33 @@ export default describe('Subtask API test: ', () => {
         })
 
       Subtask.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('done subtask should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenPUT(`${apihost}subtasks/${mockId}/isDone`, {
+        isDone: true
+      })
+        .respond({
+          _id: mockId,
+          isDone: true,
+          updated: Date.now()
+        })
+
+      Subtask.getOrgMyDueSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Subtask.updateStatus(mockId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
