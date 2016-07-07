@@ -111,6 +111,11 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`projects/${_id}/tasks`, query)
   }
 
+  getProjectDoneTasks(_id: string, query: any = {}): Promise<Task[]> {
+    query.isDone = true
+    return this.fetch.get(`projects/${_id}/tasks`, query)
+  }
+
   update<T extends UpdateTaskOptions>(_taskId: string, updateData: T): Promise<T> {
     return this.fetch.put(`tasks/${_taskId}`, updateData)
   }

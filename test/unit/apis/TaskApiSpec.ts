@@ -18,6 +18,7 @@ import { tasksUndone } from '../../mock/tasksUndone'
 import { organizations } from '../../mock/organizations'
 import { projects } from '../../mock/projects'
 import { projectTasks } from '../../mock/projectTasks'
+import { projectDoneTasks } from '../../mock/projectDoneTasks'
 import { organizationMyDueTasks } from '../../mock/organizationMyDueTasks'
 import { organizationMyTasks } from '../../mock/organizationMyTasks'
 import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
@@ -770,12 +771,30 @@ export default describe('Task API test', () => {
       }
     }).filter(x => !!x)
 
+    const donePage1 = projectDoneTasks.map((task, pos) => {
+      if (pos < 20) {
+        return task
+      }
+    }).filter(x => !!x)
+
+    const donePage2 = projectDoneTasks.map((task, pos) => {
+      if (pos >= 20 && pos < 50) {
+        return task
+      }
+    }).filter(x => !!x)
+
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}projects/${projectId}/tasks?page=1`)
         .respond(JSON.stringify(page1))
 
       httpBackend.whenGET(`${apihost}projects/${projectId}/tasks?page=2`)
         .respond(JSON.stringify(page2))
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/tasks?page=1&isDone=true`)
+        .respond(JSON.stringify(donePage1))
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/tasks?page=2&isDone=true`)
+        .respond(JSON.stringify(donePage2))
     })
 
     it('get should ok', done => {
@@ -785,6 +804,22 @@ export default describe('Task API test', () => {
         .subscribe(data => {
           forEach(data, (task, pos) => {
             expectDeepEqual(task, page1[pos])
+            expect(task.isDone).to.equal(false)
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get done tasks should ok', done => {
+      Task.getProjectDoneTasks(projectId, {
+        page: 1
+      })
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, donePage1[pos])
+            expect(task.isDone).to.equal(true)
           })
           done()
         })
@@ -799,10 +834,35 @@ export default describe('Task API test', () => {
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(page1.length + page2.length)
+          forEach(data, (task, pos) => {
+            expect(task.isDone).to.equal(false)
+          })
           done()
         })
 
       Task.getProjectTasks(projectId, {
+        page: 2
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('get done page2 should ok', done => {
+      Task.getProjectDoneTasks(projectId, {
+        page: 1
+      })
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(donePage1.length + donePage2.length)
+          forEach(data, (task, pos) => {
+            expect(task.isDone).to.equal(true)
+          })
+          done()
+        })
+
+      Task.getProjectDoneTasks(projectId, {
         page: 2
       })
         .subscribeOn(Scheduler.async, global.timeout1)
@@ -825,6 +885,27 @@ export default describe('Task API test', () => {
           expect(spy).to.be.calledOnce
           forEach(data, (task, pos) => {
             expectDeepEqual(task, page1[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get done tasks from cache should ok', done => {
+      Task.getProjectDoneTasks(projectId, {
+        page: 1
+      })
+        .subscribe()
+
+      Task.getProjectDoneTasks(projectId, {
+        page: 1
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          expect(spy).to.be.calledOnce
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, donePage1[pos])
           })
           done()
         })
@@ -857,6 +938,31 @@ export default describe('Task API test', () => {
       httpBackend.flush()
     })
 
+    it('add done task should ok', done => {
+      const mockGet = clone(donePage1[0])
+      mockGet._id = 'mockcreateddonetasktest'
+      mockGet._projectId = projectId
+
+      httpBackend.whenGET(`${apihost}tasks/${mockGet._id}`)
+        .respond(JSON.stringify(mockGet))
+
+      Task.getProjectDoneTasks(projectId, {
+        page: 1
+      })
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(donePage1.length + 1)
+          expectDeepEqual(data[0], mockGet)
+          done()
+        })
+
+      Task.get(mockGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
     it('delete should ok', done => {
       const mockId = page1[0]._id
 
@@ -870,6 +976,29 @@ export default describe('Task API test', () => {
         .subscribe(data => {
           expect(data.length).to.equal(page1.length - 1)
           expect(notInclude(data, page1[0])).to.be.true
+          done()
+        })
+
+      Task.delete(mockId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete done task should ok', done => {
+      const mockId = donePage1[0]._id
+
+      httpBackend.whenDELETE(`${apihost}tasks/${mockId}`)
+        .respond({})
+
+      Task.getProjectDoneTasks(projectId, {
+        page: 1
+      })
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(donePage1.length - 1)
+          expect(notInclude(data, donePage1[0])).to.be.true
           done()
         })
 
