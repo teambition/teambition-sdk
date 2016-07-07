@@ -1,5 +1,6 @@
 'use strict'
-import { Observer, Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import Data from './Map'
 import Model from './Model'
 import { forEach, clone, assign } from '../utils/index'

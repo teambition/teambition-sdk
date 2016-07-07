@@ -1,5 +1,5 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import FileSchema from '../schemas/File'
 import { dataToSchema } from '../utils/index'

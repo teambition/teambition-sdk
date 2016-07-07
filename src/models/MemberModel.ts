@@ -1,5 +1,5 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import { datasToSchemas, forEach, dataToSchema } from '../utils/index'
 import Member from '../schemas/Member'
@@ -38,7 +38,10 @@ export class MemberModel extends BaseModel {
     if (members instanceof Array) {
       const result = datasToSchemas<Member>(members, Member)
       forEach(result, val => {
-        this._projectMembers.get(dbIndex).push(val)
+        const cache = this._projectMembers.get(dbIndex)
+        if (cache) {
+          cache.push(val)
+        }
       })
       return this._updateCollection<Member>(dbIndex, this._projectMembers.get(dbIndex))
     }else {

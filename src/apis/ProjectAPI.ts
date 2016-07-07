@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import {
   default as ProjectFetch,
   ProjectCreateOptions,
@@ -82,8 +83,10 @@ export class ProjectAPI {
     return Observable.create((observer: Observer<Project>) => {
       Observable.fromPromise(ProjectFetch.create(projectInfo))
         .concatMap(project => ProjectModel.addOne(project))
-        .forEach(res => observer.next(res))
-        .then(x => observer.complete())
+        .forEach(res => {
+          observer.next(res)
+          observer.complete()
+        })
     })
   }
 

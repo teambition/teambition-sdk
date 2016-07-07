@@ -1,5 +1,5 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import Collection from './BaseCollection'
 import MaxIdCollection from './tasks/MaxIdCollection'

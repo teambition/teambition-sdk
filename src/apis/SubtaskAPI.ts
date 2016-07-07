@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import SubtaskModel from '../models/SubtaskModel'
 import TaskModel from '../models/TaskModel'
 import { default as SubtaskFetch, SubtaskUpdateOptions } from '../fetchs/SubtaskFetch'
