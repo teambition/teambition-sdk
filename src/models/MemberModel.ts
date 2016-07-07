@@ -38,7 +38,10 @@ export class MemberModel extends BaseModel {
     if (members instanceof Array) {
       const result = datasToSchemas<Member>(members, Member)
       forEach(result, val => {
-        this._projectMembers.get(dbIndex).push(val)
+        const cache = this._projectMembers.get(dbIndex)
+        if (cache) {
+          cache.push(val)
+        }
       })
       return this._updateCollection<Member>(dbIndex, this._projectMembers.get(dbIndex))
     }else {
