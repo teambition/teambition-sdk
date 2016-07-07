@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import { errorHandler, makeColdSignal } from './utils'
 import { default as StageFetch, StageCreateData, StageUpdateData } from '../fetchs/StageFetch'
 import StageModel from '../models/StageModel'

@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import FileSchema from '../schemas/File'
 import WorkModel from '../models/WorkModel'
 import StrikerFetch from '../fetchs/StrikerFetch'

@@ -1,5 +1,5 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import OrganizationFetch from '../fetchs/OrganizationFetch'
 import OrganizationModel from '../models/OrganizationModel'
 import Organization from '../schemas/Organization'

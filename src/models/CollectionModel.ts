@@ -1,5 +1,5 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import { TBCollectionData, default as TBCollection } from '../schemas/Collection'
 import { dataToSchema, datasToSchemas } from '../utils/index'

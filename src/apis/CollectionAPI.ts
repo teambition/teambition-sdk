@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import CollectionModel from '../models/CollectionModel'
 import TBCollection from '../schemas/Collection'
 import { default as CollectionFetch, CreateCollectionOptions, UpdateCollectionOptions } from '../fetchs/CollectionFetch'

@@ -1,5 +1,5 @@
 'use strict'
-import * as Rx from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import DataBase from '../storage/Database'
 import { ISchema } from '../schemas/schema'
 
@@ -7,15 +7,15 @@ export default class Model {
 
   public static DataBase = new DataBase()
 
-  delete(namespace: string): Rx.Observable<void> {
+  delete(namespace: string): Observable<void> {
     return Model.DataBase.delete(namespace)
   }
 
-  update<T extends ISchema<T>>(namespace: string, patch: any): Rx.Observable<T> {
+  update<T extends ISchema<T>>(namespace: string, patch: any): Observable<T> {
     if (DataBase.data.get(namespace)) {
       return Model.DataBase.updateOne<T>(namespace, patch)
     }else {
-      return Rx.Observable.of(null)
+      return Observable.of(null)
     }
   }
 
@@ -28,7 +28,7 @@ export default class Model {
     return Model.DataBase.checkSchema(index)
   }
 
-  protected _save<T extends ISchema<T>>(data: T, unionFlag?: string): Rx.Observable<T> {
+  protected _save<T extends ISchema<T>>(data: T, unionFlag?: string): Observable<T> {
     return Model.DataBase.storeOne<T>(data, unionFlag)
   }
 
@@ -38,19 +38,19 @@ export default class Model {
     schemaName?: string,
     condition?: (data: T) => boolean,
     unionFlag?: string
-  ): Rx.Observable<T[]> {
+  ): Observable<T[]> {
     return Model.DataBase.storeCollection(namespace, data, schemaName, condition, unionFlag)
   }
 
-  protected _get<T>(index: string): Rx.Observable<T> {
+  protected _get<T>(index: string): Observable<T> {
     return DataBase.data.get(index) ? Model.DataBase.get<T>(index) : null
   }
 
-  protected _updateCollection<T extends ISchema<T>>(namespace: string, patch: any): Rx.Observable<T[]> {
+  protected _updateCollection<T extends ISchema<T>>(namespace: string, patch: any): Observable<T[]> {
     if (DataBase.data.get(namespace)) {
       return Model.DataBase.updateCollection<T>(namespace, patch)
     }else {
-      return Rx.Observable.of(null)
+      return Observable.of(null)
     }
   }
 

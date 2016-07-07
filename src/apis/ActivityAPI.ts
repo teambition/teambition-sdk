@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observer } from 'rxjs/Observer'
+import { Observable } from 'rxjs/Observable'
 import ActivityModel from '../models/ActivityModel'
 import Activity from '../schemas/Activity'
 import { ActivitySaveData, default as ActivityFetch } from '../fetchs/ActivityFetch'

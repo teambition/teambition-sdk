@@ -1,5 +1,5 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import { TaskData } from '../../schemas/Task'
 import { SubtaskData } from '../../schemas/Subtask'
 import Collection from '../BaseCollection'

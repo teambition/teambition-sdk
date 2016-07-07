@@ -1,5 +1,5 @@
 'use strict'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import { RequestEvent } from 'snapper-consumer'
 import UserModel from '../models/UserModel'
 import TaskModel from '../models/TaskModel'
