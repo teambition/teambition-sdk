@@ -4,7 +4,7 @@ import { Observer } from 'rxjs/Observer'
 import { errorHandler, makeColdSignal } from './utils'
 import { default as StageFetch, StageCreateData, StageUpdateData } from '../fetchs/StageFetch'
 import StageModel from '../models/StageModel'
-import Stage from '../schemas/Stage'
+import { StageData } from '../schemas/Stage'
 
 export class StageAPI {
 
@@ -12,8 +12,8 @@ export class StageAPI {
     StageModel.destructor()
   }
 
-  getAll(_tasklistId: string): Observable<Stage[]> {
-    return makeColdSignal<Stage[]>(observer => {
+  getAll(_tasklistId: string): Observable<StageData[]> {
+    return makeColdSignal<StageData[]>(observer => {
       const get = StageModel.getStages(_tasklistId)
       if (get) {
         return get
@@ -24,8 +24,8 @@ export class StageAPI {
     })
   }
 
-  getOne(_tasklistId: string, stageId: string): Observable<Stage> {
-    return makeColdSignal<Stage>(observer => {
+  getOne(_tasklistId: string, stageId: string): Observable<StageData> {
+    return makeColdSignal<StageData>(observer => {
       const get = StageModel.getOne(stageId)
       if (get) {
         return get
@@ -36,18 +36,18 @@ export class StageAPI {
     })
   }
 
-  create(data: StageCreateData): Observable<Stage> {
-    return Observable.create((observer: Observer<Stage>) => {
+  create(data: StageCreateData): Observable<StageData> {
+    return Observable.create((observer: Observer<StageData>) => {
       Observable.fromPromise(StageFetch.create(data))
         .concatMap(stage => StageModel.addOne(stage))
         .forEach(stage => observer.next(stage))
     })
   }
 
-  update(_stageId: string, data: StageUpdateData): Observable<Stage> {
-    return Observable.create((observer: Observer<Stage>) => {
+  update(_stageId: string, data: StageUpdateData): Observable<StageData> {
+    return Observable.create((observer: Observer<StageData>) => {
       return Observable.fromPromise(StageFetch.update(_stageId, data))
-        .concatMap(stage => StageModel.update<Stage>(_stageId, stage))
+        .concatMap(stage => StageModel.update<StageData>(_stageId, stage))
         .forEach(stage => observer.next(stage))
         .then(x => observer.complete())
     })

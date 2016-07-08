@@ -1,6 +1,6 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import Tasklist from '../schemas/Tasklist'
+import { TasklistData } from '../schemas/Tasklist'
 
 export interface CreateTasklistOptions {
   title: string
@@ -16,15 +16,15 @@ export interface UpdateTasklistOptions {
 }
 
 export class TasklistFetch extends BaseFetch {
-  create(createOptions: CreateTasklistOptions): Promise<Tasklist> {
+  create(createOptions: CreateTasklistOptions): Promise<TasklistData> {
     return this.fetch.post(`tasklists`, createOptions)
   }
 
-  getTasklists(_projectId: string, query?: any): Promise<Tasklist[]> {
+  getTasklists(_projectId: string, query?: any): Promise<TasklistData[]> {
     return this.fetch.get(`projects/${_projectId}/tasklists`, query)
   }
 
-  get(_id: string, query?: any): Promise<Tasklist> {
+  get(_id: string, query?: any): Promise<TasklistData> {
     return this.fetch.get(`tasklists/${_id}`, query)
   }
 

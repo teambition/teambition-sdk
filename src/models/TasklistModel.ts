@@ -1,30 +1,30 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
-import Tasklist from '../schemas/Tasklist'
+import { TasklistData, default as Tasklist } from '../schemas/Tasklist'
 import { datasToSchemas, dataToSchema } from '../utils/index'
 
 export class TasklistModel extends BaseModel {
   private _schemaName = 'Tasklist'
 
-  addTasklists(_projectId: string, tasklists: Tasklist[]): Observable<Tasklist[]> {
-    const result = datasToSchemas<Tasklist>(tasklists, Tasklist)
-    return this._saveCollection(`project:tasklists/${_projectId}`, result, this._schemaName, (data: Tasklist) => {
+  addTasklists(_projectId: string, tasklists: TasklistData[]): Observable<TasklistData[]> {
+    const result = datasToSchemas<TasklistData>(tasklists, Tasklist)
+    return this._saveCollection(`project:tasklists/${_projectId}`, result, this._schemaName, (data: TasklistData) => {
       return !data.isArchived && data._projectId === _projectId
     })
   }
 
-  getTasklists(_projectId: string): Observable<Tasklist[]> {
-    return this._get<Tasklist[]>(`project:tasklists/${_projectId}`)
+  getTasklists(_projectId: string): Observable<TasklistData[]> {
+    return this._get<TasklistData[]>(`project:tasklists/${_projectId}`)
   }
 
-  addOne(tasklist: Tasklist): Observable<Tasklist> {
-    const result = dataToSchema<Tasklist>(tasklist, Tasklist)
-    return this._save<Tasklist>(result)
+  addOne(tasklist: TasklistData): Observable<TasklistData> {
+    const result = dataToSchema<TasklistData>(tasklist, Tasklist)
+    return this._save<TasklistData>(result)
   }
 
-  getOne(tasklistId: string): Observable<Tasklist> {
-    return this._get<Tasklist>(tasklistId)
+  getOne(tasklistId: string): Observable<TasklistData> {
+    return this._get<TasklistData>(tasklistId)
   }
 }
 

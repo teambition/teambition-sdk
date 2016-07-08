@@ -1,6 +1,6 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import Activity from '../schemas/Activity'
+import { ActivityData } from '../schemas/Activity'
 
 export interface ActivitySaveData {
   content: string
@@ -12,11 +12,11 @@ export interface ActivitySaveData {
 }
 
 export class ActivityFetch extends BaseFetch {
-  fetchAll(_boundToObjectType: string, _boundToObjectId: string, query?: any): Promise<Activity[]> {
+  fetchAll(_boundToObjectType: string, _boundToObjectId: string, query?: any): Promise<ActivityData[]> {
     return this.fetch.get(`${_boundToObjectType}/${_boundToObjectId}/activities`, query)
   }
 
-  add(data: ActivitySaveData): Promise<Activity> {
+  add(data: ActivitySaveData): Promise<ActivityData> {
     const query = this.checkQuery({
       content: data.content,
       attachments: data.attachments,

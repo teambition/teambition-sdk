@@ -1,7 +1,7 @@
 'use strict'
 import Fetch from './BaseFetch'
 import Task from '../schemas/Task'
-import Subtask from '../schemas/Subtask'
+import { SubtaskData } from '../schemas/Subtask'
 import MySubtask from '../schemas/MySubtask'
 import { OrgsTasksMeOptions } from './TaskFetch'
 
@@ -27,11 +27,11 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.get(`v2/tasks/me/subtasks`, options)
   }
 
-  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Subtask[]> {
+  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<SubtaskData[]> {
     return this.fetch.get(`organizations/${organizationId}/subtasks/me`, option)
   }
 
-  getOrgsSubtasksCreated(organizationId: string, page = 1, maxId?: string): Promise<Subtask[]> {
+  getOrgsSubtasksCreated(organizationId: string, page = 1, maxId?: string): Promise<SubtaskData[]> {
     const query = this.checkQuery({
       page: page,
       maxId: maxId
@@ -43,11 +43,11 @@ export class SubtaskFetch extends Fetch {
     content: string
     _taskId: string
     _executorId?: string
-  }): Promise<Subtask> {
+  }): Promise<SubtaskData> {
     return this.fetch.post(`subtasks`, subtaskData)
   }
 
-  getOne(_subTaskId: string, _taskId?: string, withExecutor?: boolean): Promise<Subtask> {
+  getOne(_subTaskId: string, _taskId?: string, withExecutor?: boolean): Promise<SubtaskData> {
     let queryData: {
       _taskId?: string
       withExecutor?: boolean
@@ -62,7 +62,7 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.get(`subtasks/${_subTaskId}`, queryData)
   }
 
-  getFromTask(_taskId: string): Promise<Subtask[]> {
+  getFromTask(_taskId: string): Promise<SubtaskData[]> {
     return this.fetch.get(`tasks/${_taskId}/subtasks`)
   }
 

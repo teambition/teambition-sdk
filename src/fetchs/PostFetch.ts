@@ -1,6 +1,6 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import Post from '../schemas/Post'
+import { PostData } from '../schemas/Post'
 import { visibility } from '../teambition'
 
 export interface CreatePostOptions {
@@ -67,11 +67,11 @@ export interface LikedResponse {
 }
 
 export class PostFetch extends BaseFetch {
-  create(post: CreatePostOptions): Promise<Post> {
+  create(post: CreatePostOptions): Promise<PostData> {
     return this.fetch.post(`posts`, post)
   }
 
-  get(_postId: string, query?: any): Promise<Post> {
+  get(_postId: string, query?: any): Promise<PostData> {
     return this.fetch.get(`posts/${_postId}`, query)
   }
 
@@ -79,7 +79,7 @@ export class PostFetch extends BaseFetch {
     page: number
     count: number
     fields?: string
-  }): Promise<Post[]> {
+  }): Promise<PostData[]> {
     return this.fetch.get(`projects/${_projectId}/posts`, query)
   }
 

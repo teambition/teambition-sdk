@@ -9,7 +9,6 @@ import {
 } from '../fetchs/ProjectFetch'
 import ProjectModel from '../models/ProjectModel'
 import { ProjectData } from '../schemas/Project'
-import Event from '../schemas/Event'
 import { makeColdSignal, errorHandler, observableError } from './utils'
 import {
   CreatedInProjectSchema,
@@ -145,14 +144,6 @@ export class ProjectAPI {
 
   createdInProject(_id: string, querys?: JSONObj): Observable<CreatedInProjectSchema> {
     return Observable.fromPromise(ProjectFetch.createdInProject(_id, querys))
-  }
-
-  /**
-   * TODO
-   * ADD EVENT MODEL
-   */
-  getEvents(_id: string, querys?: any): Observable<Event[]> {
-    return Observable.fromPromise(ProjectFetch.getEvents(_id, querys))
   }
 
   getEventsCountByMonth(_id: string, querys?: JSONObj) {
