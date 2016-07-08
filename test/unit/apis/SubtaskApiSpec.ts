@@ -639,6 +639,33 @@ export default describe('Subtask API test: ', () => {
     httpBackend.flush()
   })
 
+  it('delete subtask and get subtasks from task should ok', done => {
+    const subtask = subtasks[0]
+    const taskId = subtask._taskId
+    const subtaskId = subtask._id
+    const nextSubtask = subtasks[1]
+
+    httpBackend.whenGET(`${apihost}tasks/${taskId}/subtasks`)
+      .respond(JSON.stringify(subtasks))
+
+    httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
+      .respond({})
+
+    Subtask.getFromTask(taskId)
+      .skip(1)
+      .subscribe(data => {
+        expect(data.length).to.equal(subtasks.length - 1)
+        expectDeepEqual(data[0], nextSubtask)
+        done()
+      })
+
+    Subtask.delete(subtaskId)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe()
+
+    httpBackend.flush()
+  })
+
   it('update subtask should ok', done => {
     const dueDate = new Date().toISOString()
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}`, {
