@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
-import Post from '../schemas/Post'
+import { PostData } from '../schemas/Post'
 import PostModel from '../models/PostModel'
 import {
   default as PostFetch,
@@ -20,8 +20,8 @@ export class PostAPI {
     page: number
     count: number
     fields?: string
-  }): Observable<Post[]> {
-    return makeColdSignal<Post[]>(observer => {
+  }): Observable<PostData[]> {
+    return makeColdSignal<PostData[]>(observer => {
       const page = query && query.page ? query.page : 1
       const get = PostModel.getPosts(projectId, page)
       if (get) {
@@ -33,16 +33,16 @@ export class PostAPI {
     })
   }
 
-  create(post: CreatePostOptions): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  create(post: CreatePostOptions): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       return Observable.fromPromise(PostFetch.create(post))
         .catch(err => observableError(observer, err))
         .concatMap(post => PostModel.addOne(post))
     })
   }
 
-  get(postId: string, query?: any): Observable<Post> {
-    return makeColdSignal<Post>(observer => {
+  get(postId: string, query?: any): Observable<PostData> {
+    return makeColdSignal<PostData>(observer => {
       const get = PostModel.getOne(postId)
       if (get) {
         return get
@@ -56,7 +56,7 @@ export class PostAPI {
   /**
    * cold signal
    */
-  delete(postId: string): Observable<Post> {
+  delete(postId: string): Observable<PostData> {
     return Observable.create((observer: Observer<void>) => {
       Observable.fromPromise(PostFetch.delete(postId))
         .catch(err => observableError(observer, err))
@@ -69,11 +69,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  archive(postId: string): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  archive(postId: string): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.archive(postId))
         .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.update<Post>(postId, post))
+        .concatMap(post => PostModel.update<PostData>(postId, post))
         .forEach(post => observer.next(post))
         .then(x => observer.complete())
     })
@@ -82,7 +82,7 @@ export class PostAPI {
   /**
    * cold signal
    */
-  favorite(postId: string): Observable<Post> {
+  favorite(postId: string): Observable<PostData> {
     return Observable.create((observer: Observer<PostFavoriteResponse>) => {
       Observable.fromPromise(PostFetch.favorite(postId))
         .catch(err => observableError(observer, err))
@@ -101,11 +101,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  like(postId: string): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  like(postId: string): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.like(postId))
         .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update<Post>(postId, result))
+        .concatMap(result => PostModel.update<PostData>(postId, result))
         .forEach(r => observer.next(r))
         .then(x => observer.complete())
     })
@@ -114,11 +114,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  dislike(postId: string): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  dislike(postId: string): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.dislike(postId))
         .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update<Post>(postId, result))
+        .concatMap(result => PostModel.update<PostData>(postId, result))
         .forEach(r => observer.next(r))
         .then(x => observer.complete())
     })
@@ -127,12 +127,12 @@ export class PostAPI {
   /**
    * cold signal
    */
-  unarchive(postId: string): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  unarchive(postId: string): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.unarchive(postId))
         .catch(err => observableError(observer, err))
         .concatMap(result => PostModel.update(postId, result))
-        .forEach(r => observer.next(<Post>r))
+        .forEach(r => observer.next(<PostData>r))
         .then(x => observer.complete())
     })
   }
@@ -140,11 +140,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  updatInvolves(postId: string, involves: UpdateInvolves): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  updatInvolves(postId: string, involves: UpdateInvolves): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.updateInvolves(postId, involves))
         .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update<Post>(postId, result))
+        .concatMap(result => PostModel.update<PostData>(postId, result))
         .forEach(x => observer.next(x))
         .then(x => observer.complete())
     })
@@ -153,11 +153,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  updatePin(postId: string, pin: boolean): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  updatePin(postId: string, pin: boolean): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.updatePin(postId, pin))
         .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.update<Post>(postId, post))
+        .concatMap(post => PostModel.update<PostData>(postId, post))
         .forEach(v => observer.next(v))
         .then(x => observer.complete())
     })
@@ -166,11 +166,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  updateTags(postId: string, tagIds: string[]): Observable<Post> {
-    return Observable.create((observer: Observer<Post>) => {
+  updateTags(postId: string, tagIds: string[]): Observable<PostData> {
+    return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.updateTags(postId, tagIds))
         .catch(err => observableError(observer, err))
-        .concatMap(r => PostModel.update<Post>(postId, r))
+        .concatMap(r => PostModel.update<PostData>(postId, r))
         .forEach(x => observer.next(x))
         .then(x => observer.complete())
     })

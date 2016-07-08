@@ -1,6 +1,6 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import FileSchema from '../schemas/File'
+import { FileData } from '../schemas/File'
 
 export interface FileRes {
   fileName: string
@@ -16,7 +16,7 @@ export interface FileCreateOptions {
 }
 
 export class FileFetch extends BaseFetch {
-  create(_parentId: string, fileRes: FileRes | FileRes []): Promise<FileSchema[]> {
+  create(_parentId: string, fileRes: FileRes | FileRes []): Promise<FileData[]> {
     const postBody = {
       _parentId: _parentId,
       works: fileRes instanceof Array ? fileRes : [ fileRes ]

@@ -1,23 +1,23 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import Organization from '../schemas/Organization'
+import { OrganizationData } from '../schemas/Organization'
 import Model from './BaseModel'
 
 export class OrganizationModel extends Model {
-  getAll(): Observable<Array<Organization>> {
-    return this._get<Organization[]>('organization')
+  getAll(): Observable<Array<OrganizationData>> {
+    return this._get<OrganizationData[]>('organization')
   }
 
-  getOne(id: string): Observable<Organization> {
-    return this._get<Organization>(id)
+  getOne(id: string): Observable<OrganizationData> {
+    return this._get<OrganizationData>(id)
   }
 
-  saveAll(organizations: Organization[]): Observable<Organization[]> {
-    return this._saveCollection<Organization>('organization', organizations)
+  saveAll(organizations: OrganizationData[]): Observable<OrganizationData[]> {
+    return this._saveCollection<OrganizationData>('organization', organizations)
   }
 
-  addOne(data: Organization): Observable<Organization> {
-    return this._save<Organization>(data)
+  addOne(data: OrganizationData): Observable<OrganizationData> {
+    return this._save<OrganizationData>(data)
   }
 }
 
