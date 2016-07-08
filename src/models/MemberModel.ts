@@ -63,6 +63,8 @@ export class MemberModel extends BaseModel {
             if (mem._memberId === _memberId) {
               cache.splice(index, 1)
               return false
+            }else {
+              return null
             }
           })
         }

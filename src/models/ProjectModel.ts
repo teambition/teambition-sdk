@@ -2,55 +2,55 @@
 import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import { datasToSchemas, dataToSchema } from '../utils/index'
-import Project from '../schemas/Project'
+import { ProjectData, default as Project } from '../schemas/Project'
 
 export class ProjectModel extends BaseModel {
 
   private _schemaName = 'Project'
 
-  addProjects(projects: Project[]): Observable<Project[]> {
-    const result = datasToSchemas<Project>(projects, Project)
-    return this._saveCollection(`projects`, result, this._schemaName, (data: Project) => {
+  addProjects(projects: ProjectData[]): Observable<ProjectData[]> {
+    const result = datasToSchemas<ProjectData>(projects, Project)
+    return this._saveCollection(`projects`, result, this._schemaName, (data: ProjectData) => {
       return !data.isArchived
     })
   }
 
-  addArchivesProjects(projects: Project[]): Observable<Project[]> {
-    const result = datasToSchemas<Project>(projects, Project)
-    return this._saveCollection(`archives:projects`, result, this._schemaName, (data: Project) => {
+  addArchivesProjects(projects: ProjectData[]): Observable<ProjectData[]> {
+    const result = datasToSchemas<ProjectData>(projects, Project)
+    return this._saveCollection(`archives:projects`, result, this._schemaName, (data: ProjectData) => {
       return data.isArchived
     })
   }
 
-  addOrgsProjects(_organizationId: string, projects: Project[]): Observable<Project[]> {
-    return this._saveCollection(`orgs:projects/${_organizationId}`, projects, this._schemaName, (data: Project) => {
+  addOrgsProjects(_organizationId: string, projects: ProjectData[]): Observable<ProjectData[]> {
+    return this._saveCollection(`orgs:projects/${_organizationId}`, projects, this._schemaName, (data: ProjectData) => {
       return data._organizationId === _organizationId
     })
   }
 
-  addOne(project: Project): Observable<Project> {
-    const result = dataToSchema<Project>(project, Project)
+  addOne(project: ProjectData): Observable<ProjectData> {
+    const result = dataToSchema<ProjectData>(project, Project)
     return this._save(result)
   }
 
-  getProjects(): Observable<Project[]> {
-    return this._get<Project[]>('projects')
+  getProjects(): Observable<ProjectData[]> {
+    return this._get<ProjectData[]>('projects')
   }
 
-  getOrgProjects(_organizationId: string): Observable<Project[]> {
-    return this._get<Project[]>(`orgs:projects/${_organizationId}`)
+  getOrgProjects(_organizationId: string): Observable<ProjectData[]> {
+    return this._get<ProjectData[]>(`orgs:projects/${_organizationId}`)
   }
 
-  getOne(_id: string): Observable<Project> {
-    return this._get<Project>(_id)
+  getOne(_id: string): Observable<ProjectData> {
+    return this._get<ProjectData>(_id)
   }
 
-  getArchivesProjects(): Observable<Project[]> {
-    return this._get<Project[]>('archives:projects')
+  getArchivesProjects(): Observable<ProjectData[]> {
+    return this._get<ProjectData[]>('archives:projects')
   }
 
-  update(project: any): Observable<Project> {
-    return super.update<Project>(project._id, project)
+  update(project: any): Observable<ProjectData> {
+    return super.update<ProjectData>(project._id, project)
   }
 
 }
