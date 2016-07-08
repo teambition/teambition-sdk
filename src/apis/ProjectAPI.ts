@@ -8,7 +8,7 @@ import {
   ProjectCopyOptions
 } from '../fetchs/ProjectFetch'
 import ProjectModel from '../models/ProjectModel'
-import Project from '../schemas/Project'
+import { ProjectData } from '../schemas/Project'
 import Event from '../schemas/Event'
 import { makeColdSignal, errorHandler, observableError } from './utils'
 import {
@@ -29,8 +29,8 @@ export class ProjectAPI {
     ProjectModel.destructor()
   }
 
-  getAll(querys?: JSONObj): Observable<Project[]> {
-    return makeColdSignal<Project[]>(observer => {
+  getAll(querys?: JSONObj): Observable<ProjectData[]> {
+    return makeColdSignal<ProjectData[]>(observer => {
       const get = ProjectModel.getProjects()
       if (get) {
         return get
@@ -41,8 +41,8 @@ export class ProjectAPI {
     })
   }
 
-  getOrgs(_organizationId: string, querys?: any): Observable<Project[]> {
-    return makeColdSignal<Project[]>(observer => {
+  getOrgs(_organizationId: string, querys?: any): Observable<ProjectData[]> {
+    return makeColdSignal<ProjectData[]>(observer => {
       const get = ProjectModel.getOrgProjects(_organizationId)
       if (get) {
         return get
@@ -53,8 +53,8 @@ export class ProjectAPI {
     })
   }
 
-  getOne(_id: string, querys?: JSONObj): Observable<Project> {
-    return makeColdSignal<Project>(observer => {
+  getOne(_id: string, querys?: JSONObj): Observable<ProjectData> {
+    return makeColdSignal<ProjectData>(observer => {
       const get = ProjectModel.getOne(_id)
       if (get) {
         return get
@@ -65,8 +65,8 @@ export class ProjectAPI {
     })
   }
 
-  getArchives(): Observable<Project[]> {
-    return makeColdSignal<Project[]>(observer => {
+  getArchives(): Observable<ProjectData[]> {
+    return makeColdSignal<ProjectData[]>(observer => {
       const get = ProjectModel.getArchivesProjects()
       if (get) {
         return get
@@ -79,8 +79,8 @@ export class ProjectAPI {
     })
   }
 
-  create(projectInfo: ProjectCreateOptions): Observable<Project> {
-    return Observable.create((observer: Observer<Project>) => {
+  create(projectInfo: ProjectCreateOptions): Observable<ProjectData> {
+    return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.create(projectInfo))
         .concatMap(project => ProjectModel.addOne(project))
         .forEach(res => {
@@ -108,14 +108,14 @@ export class ProjectAPI {
     })
   }
 
-  archive(_id: string): Observable<Project> {
-    return Observable.create((observer: Observer<Project>) => {
+  archive(_id: string): Observable<ProjectData> {
+    return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.archive(_id))
         .concatMap(x => ProjectModel.update(<any>{
           _id: _id,
           isArchived: x.isArchived
         }))
-        .forEach(x => observer.next(<Project>x))
+        .forEach(x => observer.next(<ProjectData>x))
         .then(x => observer.complete())
     })
   }
@@ -133,8 +133,8 @@ export class ProjectAPI {
     })
   }
 
-  copy(_id: string, copyInfo: ProjectCopyOptions): Observable<Project> {
-    return Observable.create((observer: Observer<Project>) => {
+  copy(_id: string, copyInfo: ProjectCopyOptions): Observable<ProjectData> {
+    return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.copy(_id, copyInfo))
         .catch(err => observableError(observer, err))
         .concatMap(project => ProjectModel.addOne(project))
@@ -176,7 +176,7 @@ export class ProjectAPI {
     })
   }
 
-  join(_id: string): Observable<Project> {
+  join(_id: string): Observable<ProjectData> {
     return Observable.fromPromise(ProjectFetch.join(_id))
       .concatMap(x => this.getOne(_id))
   }
@@ -203,7 +203,7 @@ export class ProjectAPI {
     return Observable.fromPromise(ProjectFetch.resetInviteLink(_id))
   }
 
-  setDefaultRole (_id: string, _roleId?: number): Observable<Project> {
+  setDefaultRole (_id: string, _roleId?: number): Observable<ProjectData> {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.setDefaultRole(_id, _roleId))
         .catch(err => observableError(observer, err))
@@ -213,7 +213,7 @@ export class ProjectAPI {
     })
   }
 
-  star(_id: string): Observable<Project> {
+  star(_id: string): Observable<ProjectData> {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.star(_id))
         .catch(err => observableError(observer, err))

@@ -142,6 +142,7 @@ export default class DataBase {
         const dest = signal.concatMap(x => notify)
         DataBase.data.delete(index)
         observer.next(dest)
+        observer.complete()
       })
     }).concatMap((x: Observable<void>) => x)
   }

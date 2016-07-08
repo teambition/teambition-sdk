@@ -153,6 +153,7 @@ export default class Model<T extends ISchema<T>> {
           })
         }
         observer.next(result)
+        observer.complete()
       })
     })
   }

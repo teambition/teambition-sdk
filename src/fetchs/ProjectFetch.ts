@@ -1,7 +1,6 @@
 'use strict'
 import BaseFetch from './BaseFetch'
-import Project from '../schemas/Project'
-import Member from '../schemas/Member'
+import { ProjectData } from '../schemas/Project'
 import Event from '../schemas/Event'
 import {
   HomeActivitySchema,
@@ -60,19 +59,19 @@ export interface ProjectTasksOptions {
 
 export class ProjectFetch extends BaseFetch {
 
-  getAll(querys?: any): Promise<Project[]> {
+  getAll(querys?: any): Promise<ProjectData[]> {
     return this.fetch.get(`projects`, querys)
   }
 
-  getOrgs(_organizationId: string, querys?: any): Promise<Project[]> {
+  getOrgs(_organizationId: string, querys?: any): Promise<ProjectData[]> {
     return this.fetch.get(`organizations/${_organizationId}/projects`, querys)
   }
 
-  getOne(_id: string, querys?: any): Promise<Project> {
+  getOne(_id: string, querys?: any): Promise<ProjectData> {
     return this.fetch.get(`projects/${_id}`, querys)
   }
 
-  create(projectInfo: ProjectCreateOptions): Promise<Project> {
+  create(projectInfo: ProjectCreateOptions): Promise<ProjectData> {
     return this.fetch.post('projects', projectInfo)
   }
 
@@ -96,7 +95,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.put(`projects/${_id}/unreadCount`)
   }
 
-  copy(_id: string, copyInfo: ProjectCopyOptions): Promise<Project> {
+  copy(_id: string, copyInfo: ProjectCopyOptions): Promise<ProjectData> {
     return this.fetch.post(`projects/${_id}/copy`, copyInfo)
   }
 
@@ -117,10 +116,6 @@ export class ProjectFetch extends BaseFetch {
 
   getInviteLink(_id: string, querys?: any): Promise<InviteLinkSchema> {
     return this.fetch.get(`projects/${_id}/invitelink`, querys)
-  }
-
-  getProjectMembers(_id: string, querys?: any): Promise<Member[]> {
-    return this.fetch.get<Member[]>(`projects/${_id}/members`, querys)
   }
 
   getHomeActivities(_id: string, query?: any): Promise<HomeActivitySchema[]> {

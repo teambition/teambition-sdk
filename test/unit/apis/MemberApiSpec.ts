@@ -12,12 +12,15 @@ const expect = chai.expect
 export default describe('member api test', () => {
   let Member: MemberAPI
   let httpBackend: Backend
+
+  const member = members[0]
+
   beforeEach(() => {
     flush()
     Member = new MemberAPI()
     httpBackend = new Backend()
     httpBackend
-      .whenGET(`${apihost}projects/projectId/members`)
+      .whenGET(`${apihost}projects/${member._boundToObjectId}/members`)
       .respond(JSON.stringify(members))
   })
 
@@ -62,7 +65,7 @@ export default describe('member api test', () => {
   })
 
   it ('getMembers from project should ok', done => {
-    Member.getProjectMembers('projectId')
+    Member.getProjectMembers(member._boundToObjectId)
       .subscribe(data => {
         expect(data).to.be.instanceof(Array)
         expect(data.length).to.equal(members.length)
@@ -73,10 +76,10 @@ export default describe('member api test', () => {
   })
 
   it('get members from project cache should ok', done => {
-    Member.getProjectMembers('projectId')
+    Member.getProjectMembers(member._boundToObjectId)
       .subscribe()
 
-    Member.getProjectMembers('projectId')
+    Member.getProjectMembers(member._boundToObjectId)
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe(data => {
         expect(data).to.be.instanceof(Array)
@@ -88,13 +91,12 @@ export default describe('member api test', () => {
   })
 
   it('delete member from project should ok', done => {
-    let member = members[0]
 
     httpBackend
       .whenDELETE(`${apihost}members/${member._memberId}`)
       .respond({})
 
-    Member.getProjectMembers('projectId')
+    Member.getProjectMembers(member._boundToObjectId)
       .skip(1)
       .subscribe(data => {
         expect(data.length).to.equal(members.length - 1)
@@ -130,6 +132,40 @@ export default describe('member api test', () => {
 
     Member.addMembers(projectId, mockEmails)
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribe()
+
+    httpBackend.flush()
+  })
+
+  it('delete and add project members should ok', done => {
+    const projectId = member._boundToObjectId
+    const mockEmails = projectMembers.map(member => member.email)
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/members`)
+      .respond(JSON.stringify(members))
+
+    httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
+      email: mockEmails
+    })
+      .respond(JSON.stringify(projectMembers))
+
+    httpBackend
+      .whenDELETE(`${apihost}members/${member._memberId}`)
+      .respond({})
+
+    Member.getProjectMembers(projectId)
+      .skip(2)
+      .subscribe(r => {
+        expect(r.length).to.equal(members.length + projectMembers.length - 1)
+        done()
+      })
+
+    Member.deleteMember(member._memberId)
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribe()
+
+    Member.addMembers(projectId, mockEmails)
+      .subscribeOn(Rx.Scheduler.async, global.timeout2)
       .subscribe()
 
     httpBackend.flush()

@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import MemberFetch from '../fetchs/MemberFetch'
 import MemberModel from '../models/MemberModel'
-import Member from '../schemas/Member'
+import { MemberData } from '../schemas/Member'
 import { makeColdSignal, errorHandler, observableError } from './utils'
 
 export class MemberAPI {
@@ -17,8 +17,8 @@ export class MemberAPI {
       .concatMap(x => MemberModel.delete(memberId))
   }
 
-  getOrgMembers (organizationId: string): Observable<Member[]> {
-    return makeColdSignal<Member[]>(observer => {
+  getOrgMembers (organizationId: string): Observable<MemberData[]> {
+    return makeColdSignal<MemberData[]>(observer => {
       const get = MemberModel.getOrgMembers(organizationId)
       if (get) {
         return get
@@ -30,8 +30,8 @@ export class MemberAPI {
     })
   }
 
-  getProjectMembers(projectId: string): Observable<Member[]> {
-    return makeColdSignal<Member[]>(observer => {
+  getProjectMembers(projectId: string): Observable<MemberData[]> {
+    return makeColdSignal<MemberData[]>(observer => {
       const get = MemberModel.getProjectMembers(projectId)
       if (get) {
         return get
@@ -47,8 +47,8 @@ export class MemberAPI {
    * 设计时是考虑到可以增加任意类型的 member
    * 比如项目加人时可调用，组织加人时也可以调用
    */
-  addMembers(_projectId: string, emails: string[]): Observable<Member | Member[]> {
-    return Observable.create((observer: Observer<Member | Member[]>) => {
+  addMembers(_projectId: string, emails: string[]): Observable<MemberData | MemberData[]> {
+    return Observable.create((observer: Observer<MemberData | MemberData[]>) => {
       Observable.fromPromise(MemberFetch.addProjectMembers(_projectId, emails))
         .catch(err => observableError(observer, err))
         .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
