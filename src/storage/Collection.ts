@@ -151,7 +151,14 @@ export default class Collection <T extends ISchema<T>> {
     return Observable.create((observer: Observer<boolean>) => {
       if (typeof this.condition === 'function') {
         model.get()
-          .forEach(data => observer.next(this.condition(data)))
+          .take(1)
+          .forEach(data => {
+            if (data) {
+              observer.next(this.condition(data))
+            } else {
+              observer.next(false)
+            }
+          })
       } else {
         return observer.next(true)
       }
