@@ -73,7 +73,7 @@ export const clone = <T>(origin: T): T => {
   if (origin instanceof Array) {
     target = new Array()
   }else {
-    target = Object.create(null)
+    target = {}
   }
   forEach(origin, (val: any, key: string) => {
     if (typeof val === 'object') {
