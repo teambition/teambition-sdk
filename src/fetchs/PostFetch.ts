@@ -66,6 +66,31 @@ export interface LikedResponse {
   }[]
 }
 
+export interface ArchivePostResponse {
+  isArchived: boolean,
+  updated: string
+  _id: string
+  _projectId: string
+}
+
+export interface UpdateInvolvesResponse {
+  _id: string
+  involveMembers: string[]
+  updated: string
+}
+
+export interface UpdatePinResponse {
+  _id: string
+  pin: boolean
+  updated: string
+}
+
+export interface UpdateTagsResponse {
+  _id: string
+  tagIds: string[]
+  updated: string
+}
+
 export class PostFetch extends BaseFetch {
   create(post: CreatePostOptions): Promise<PostData> {
     return this.fetch.post(`posts`, post)
@@ -91,12 +116,7 @@ export class PostFetch extends BaseFetch {
     return this.fetch.delete<void>(`posts/${postId}`)
   }
 
-  archive(postId: string): Promise<{
-    isArchived: boolean,
-    updated: string
-    _id: string
-    _projectId: string
-  }> {
+  archive(postId: string): Promise<ArchivePostResponse> {
     return this.fetch.post(`posts/${postId}/archive`)
   }
 
@@ -121,29 +141,17 @@ export class PostFetch extends BaseFetch {
     return this.fetch.delete(`posts/${postId}/archive`)
   }
 
-  updateInvolves(postId: string, members: UpdateInvolves): Promise<{
-    _id: string
-    involveMembers: string[]
-    updated: string
-  }> {
+  updateInvolves(postId: string, members: UpdateInvolves): Promise<UpdateInvolvesResponse> {
     return this.fetch.put(`posts/${postId}/involveMembers`, members)
   }
 
-  updatePin(postId: string, pin: boolean): Promise<{
-    _id: string
-    pin: boolean
-    updated: string
-  }> {
+  updatePin(postId: string, pin: boolean): Promise<UpdatePinResponse> {
     return this.fetch.put(`posts/${postId}/pin`, {
       pin: pin
     })
   }
 
-  updateTags(postId: string, tagIds: string[]): Promise<{
-    _id: string
-    tagIds: string[]
-    updated: string
-  }> {
+  updateTags(postId: string, tagIds: string[]): Promise<UpdateTagsResponse> {
     return this.fetch.put(`posts/${postId}/tagIds`, {
       tagIds: tagIds
     })

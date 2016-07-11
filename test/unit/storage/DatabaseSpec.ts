@@ -105,16 +105,17 @@ export default describe('database test: ', () => {
           data: 'tbsdk_test 88'
         }
       ]
-	    const set = Storage.storeCollection('collection_test_1', data)
-      const update = Storage.updateCollection('collection_test_1', patchData)
-      const get = Storage.get<typeof data>('collection_test_1')
-
-      set.concatMap(val => update)
-        .concatMap(val => get)
+	    Storage.storeCollection('collection_test_1', data)
+        .skip(1)
         .subscribe(r => {
           expect(r).to.deep.equal(patchData)
           done()
         })
+
+      Storage.updateCollection('collection_test_1', patchData)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
     })
 
     it('update collection not exist ele should ok', done => {
@@ -152,8 +153,9 @@ export default describe('database test: ', () => {
       const update = Storage.updateCollection('collection_test_2', patchData)
       const get = Storage.get<typeof data>('collection_test_2')
 
-      set.concatMap(r => update)
-        .concatMap(r => get)
+      set.take(1)
+        .concatMap(r => update)
+        .concatMap(r => get.take(1))
         .subscribe(r => {
           expect(r).to.deep.equal(patchData)
           done()
@@ -163,12 +165,13 @@ export default describe('database test: ', () => {
     })
 
     it('patch data is not object should throw', done => {
-      const set = Storage.storeOne({
+      Storage.storeOne({
         _id: '14.14',
         data: 'tbsdk_test 14'
-      })
+      }).subscribe()
 
-      set.concatMap(r => Storage.updateOne('14.14', '5555'))
+      Storage.updateOne('14.14', '5555')
+        .subscribeOn(Scheduler.async, global.timeout4)
         .subscribe(null, (err: Error) => {
           expect(err.message).to.equal(`A patch should be Object, patch: 5555, type: ${typeof '5555'}`)
           done()
@@ -199,16 +202,17 @@ export default describe('database test: ', () => {
         data: 'tbsdk_test 21.21'
       }
 
-      const set = Storage.storeOne<typeof data>(data)
-      const get = Storage.get<typeof data>('20.20')
-      const update = Storage.updateOne('21.21', patch)
-
-      set.concatMap(x => update)
-        .concatMap(x => get)
+      Storage.storeOne<typeof data>(data)
+        .skip(1)
         .subscribe(r => {
           expect(r.data.data).to.equal(patch.data)
           done()
-        }, err => console.log(err))
+        })
+
+      Storage.updateOne('21.21', patch)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe()
+
     })
 
     it('child of obj is updated, parent should be notified', done => {
@@ -292,10 +296,9 @@ export default describe('database test: ', () => {
       }
 
       Storage.storeOne(childObj)
-        .concatMap(x => Storage.storeOne(obj))
         .subscribe()
 
-      Storage.get<typeof obj>('28.28')
+      Storage.storeOne(obj)
         .skip(1)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(r => {
@@ -399,8 +402,9 @@ export default describe('database test: ', () => {
       Storage.storeCollection('collection_test_11', col, 'schema_test', (x: any) => {
         return parseInt(x.data.split(' ').pop(), 10) < 50
       })
+        .take(1)
         .concatMap(x => update)
-        .concatMap(x => get)
+        .concatMap(x => get.take(1))
         .subscribe(r => {
           expect(r.length).to.equal(1)
           expect(r[0]._id).to.equal('32.32')
@@ -506,6 +510,66 @@ export default describe('database test: ', () => {
       })
     })
 
+    it('update collection and new item updated, old singals should be notified', done => {
+      const objEle = [
+        {
+          _id: '21.21',
+          data: 'tbsdk_test 21'
+        },
+        {
+          _id: '22.22',
+          data: 'tbsdk_test 22'
+        }
+      ]
+
+      const colEle = [
+        {
+          _id: '21.21',
+          data: 'tbsdk_test 21.21'
+        },
+        {
+          _id: '23.23',
+          data: 'tbsdk_test 23'
+        }
+      ]
+
+      const patchData = {
+        _id: '23.23',
+        data: 'tbsdk_test 23.23'
+      }
+
+      const result = [
+        {
+          _id: '21.21',
+          data: 'tbsdk_test 21.21'
+        },
+        {
+          _id: '23.23',
+          data: 'tbsdk_test 23.23'
+        }
+      ]
+
+      Storage.storeCollection('collection_test_7', objEle)
+        .subscribe()
+
+      Storage.updateCollection('collection_test_7', colEle)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      Storage.get<typeof objEle>('collection_test_7')
+        .skip(1)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(x => {
+          expect(x).deep.equal(result)
+          done()
+        })
+
+      Storage.updateOne('23.23', patchData)
+        .subscribeOn(Scheduler.async, global.timeout4)
+        .subscribe()
+
+    })
+
   })
 
   it('store exist collection should throw', done => {
@@ -560,66 +624,6 @@ export default describe('database test: ', () => {
         expect(r[0].data).to.equal(colEle[0].data)
         done()
       })
-
-  })
-
-  it('update collection and new item updated, old singals should be notified', done => {
-    const objEle = [
-      {
-        _id: '21.21',
-        data: 'tbsdk_test 21'
-      },
-      {
-        _id: '22.22',
-        data: 'tbsdk_test 22'
-      }
-    ]
-
-    const colEle = [
-      {
-        _id: '21.21',
-        data: 'tbsdk_test 21.21'
-      },
-      {
-        _id: '23.23',
-        data: 'tbsdk_test 23'
-      }
-    ]
-
-    const patchData = {
-      _id: '23.23',
-      data: 'tbsdk_test 23.23'
-    }
-
-    const result = [
-      {
-        _id: '21.21',
-        data: 'tbsdk_test 21.21'
-      },
-      {
-        _id: '23.23',
-        data: 'tbsdk_test 23.23'
-      }
-    ]
-
-    Storage.storeCollection('collection_test_7', objEle)
-      .subscribe()
-
-    Storage.updateCollection('collection_test_7', colEle)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    Storage.get<typeof objEle>('collection_test_7')
-      .skip(1)
-      .subscribeOn(Scheduler.async, global.timeout3)
-      .subscribe(x => {
-        expect(x).deep.equal(result)
-        done()
-      })
-
-    Storage.updateOne('23.23', patchData)
-      .subscribeOn(Scheduler.async, global.timeout4)
-      .subscribe()
 
   })
 

@@ -52,13 +52,16 @@ export default describe('UserAPI test', () => {
     get.skip(1)
       .subscribe(r => {
         expect(r.name).to.equal('test')
-        done()
       })
 
     User.update({
       name: 'test'
-    }).subscribeOn(Rx.Scheduler.async, global.timeout1)
-      .subscribe()
+    })
+      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockPut)
+        done()
+      })
 
     httpBackend.flush()
 
@@ -86,11 +89,15 @@ export default describe('UserAPI test', () => {
       .subscribe(data => {
         expect(data.emails.length).to.equal(2)
         expect(data.emails[1]).to.deep.equal(updateData)
-        done()
       }, err => console.error(err))
 
     add.subscribeOn(Rx.Scheduler.async, global.timeout2)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal({
+          emails: mockResponse.emails
+        })
+        done()
+      })
 
     httpBackend.flush()
 
@@ -120,13 +127,15 @@ export default describe('UserAPI test', () => {
           break
         case 2:
           expect(data.phone).to.equal(updateData.phone)
-          done()
           break
       }
     })
 
     bind.subscribeOn(Rx.Scheduler.async, global.timeout2)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
 

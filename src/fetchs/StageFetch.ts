@@ -67,6 +67,14 @@ export class StageFetch extends Fetch {
       _newStageId: _newStageId
     })
   }
+
+  updateStageIds(_id: string, stageIds: string[]): Promise<{
+    stageIds: string[]
+  }> {
+    return this.fetch.put(`tasklists/${_id}/stageIds`, {
+      stageIds: stageIds
+    })
+  }
 }
 
 export default new StageFetch()

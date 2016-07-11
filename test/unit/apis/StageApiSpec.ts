@@ -1,8 +1,9 @@
 'use strict'
 import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
-import { Backend, apihost, StageAPI } from '../index'
+import { Backend, apihost, StageAPI, forEach } from '../index'
 import { stages } from '../../mock/stages'
+import { tasklists } from '../../mock/tasklists'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
@@ -111,29 +112,70 @@ export default describe('Stage API Test', () => {
   it('update stage should ok', done => {
     const stageId = stages[0]._id
     const tasklistId = stages[0]._tasklistId
+    const mockResponse = {
+      _id: stageId,
+      _tasklistId: tasklistId,
+      name: 'stage updated test',
+      updated: Date.now()
+    }
 
     httpBackend.whenPUT(`${apihost}stages/${stageId}`, {
       name: 'stage updated test'
     })
-      .respond({
-        _id: stageId,
-        _tasklistId: tasklistId,
-        name: 'stage updated test',
-        updated: Date.now()
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Stage.getAll(tasklistId)
       .skip(1)
       .subscribe(data => {
         expect(data[0].name).to.equal('stage updated test')
-        done()
       })
 
     Stage.update(stageId, {
       name: 'stage updated test'
     })
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('update stage ids should ok', done => {
+    const Stage = new StageAPI()
+    const tasklistId = tasklists[0]._id
+    const stageIds: string[] = stages.map(stage => stage._id)
+      .sort(x => Math.random() * 2 - 1)
+
+    httpBackend.whenPUT(`${apihost}tasklists/${tasklistId}/stageIds`, {
+      stageIds: stageIds
+    })
+      .respond({
+        stageIds: stageIds
+      })
+
+    httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/stages`)
+      .respond(JSON.stringify(stages))
+
+    Stage.getAll(tasklistId)
+      .skip(1)
+      .subscribe(data => {
+        const _stageIds: string[] = []
+        forEach(data, stage => {
+          _stageIds.push(stage._id)
+        })
+        expect(_stageIds).to.deep.equal(stageIds)
+      })
+
+    Stage.updateStageIds(tasklistId, stageIds)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe(r => {
+        expect(r).to.deep.equal({
+          stageIds: stageIds
+        })
+        done()
+      })
 
     httpBackend.flush()
   })

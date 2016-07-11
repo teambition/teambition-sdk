@@ -163,9 +163,12 @@ export default class DataBase {
           .concatMap(x => this._notifySignals(model, x))
           .catch(err => {
             observer.error(err)
-            return model.get()
+            return model.get().take(1)
           })
-          .forEach(result => observer.next(result))
+          .forEach(r => {
+            observer.next(patch)
+            observer.complete()
+          })
       })
     })
   }
@@ -190,10 +193,11 @@ export default class DataBase {
           })
           .catch(err => {
             observer.error(err)
-            return Observable.of(result)
+            return collection.get().take(1)
           })
           .forEach(dest => {
             observer.next(result)
+            observer.complete()
           })
       })
     })
@@ -272,30 +276,27 @@ export default class DataBase {
               if (judge) {
                 return collection.add(model)
               }else {
-                return collection.get()
+                return collection.get().take(1)
               }
             })
           judgeSignals.push(judgeSignal)
         }
       })
       if (judgeSignals.length) {
-        return Observable.from(judgeSignals)
-          .mergeAll()
-          .skip(length - 1)
+        return Observable.combineLatest(...judgeSignals)
+          .map(r => r[0])
       }
     }
     return Observable.of(null)
   }
 
-  private _notifySignals <T extends ISchema<T>> (model: Model<T>, x: T): Observable<T> {
-    return Observable.from(<any[]>[
+  private _notifySignals <T extends ISchema<T>> (model: Model<T>, x: T): Observable<any> {
+    return Observable.combineLatest(
       model.notify(),
       this._judgeModel(model),
       this._notifyCollections(model),
       this._notifyParents(model)
-    ])
-      .mergeAll()
-      .skip(3)
+    )
   }
 
   private _deleteParents(model: Model<any>): void {

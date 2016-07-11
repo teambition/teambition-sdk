@@ -16,6 +16,20 @@ export interface UpdateCollectionOptions {
   color?: string
 }
 
+export interface UnarchiveCollectionResponse {
+  isArchived: boolean
+  updated: string
+  _id: string
+  _projectId: string
+}
+
+export interface ArchiveCollectionResponse {
+  isArchived: boolean
+  updated: string
+  _id: string
+  _projectId: string
+}
+
 export class CollectionFetch extends BaseFetch {
   create(collection: CreateCollectionOptions): Promise<TBCollectionData> {
     return this.fetch.post(`collections`, collection)
@@ -33,12 +47,7 @@ export class CollectionFetch extends BaseFetch {
     return this.fetch.delete<void>(`collections/${collectionId}`)
   }
 
-  archive(collectionId: string): Promise<{
-    isArchived: boolean
-    updated: string
-    _id: string
-    _projectId: string
-  }> {
+  archive(collectionId: string): Promise<ArchiveCollectionResponse> {
     return this.fetch.post(`collections/${collectionId}/archive`)
   }
 
@@ -54,12 +63,7 @@ export class CollectionFetch extends BaseFetch {
     })
   }
 
-  unarchive(collectionId: string): Promise<{
-    isArchived: boolean
-    updated: string
-    _id: string
-    _projectId: string
-  }> {
+  unarchive(collectionId: string): Promise<UnarchiveCollectionResponse> {
     return this.fetch.delete(`collections/${collectionId}/archive`)
   }
 }

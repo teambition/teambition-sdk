@@ -150,7 +150,7 @@ export default describe('Task API test', () => {
         })
 
       Task.getTasklistDone(tasklistId, 2)
-        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(data => {
           expect(data.length).to.equal(length)
           done()
@@ -207,6 +207,13 @@ export default describe('Task API test', () => {
     it('undone task should ok', done => {
       const mockDoneTask = clone(tasksDone[0])
       const length = tasksUndone.length
+      const updated = new Date().toISOString()
+      mockDoneTask.updated = updated
+      const mockResponse = {
+        _id: mockDoneTask._id,
+        isDone: false,
+        updated: updated
+      }
 
       httpBackend.whenGET(`${apihost}tasks/${mockDoneTask._id}`)
         .respond(JSON.stringify(mockDoneTask))
@@ -214,9 +221,7 @@ export default describe('Task API test', () => {
       httpBackend.whenPUT(`${apihost}tasks/${mockDoneTask._id}/isDone`, {
         isDone: false
       })
-        .respond({
-          isDone: false
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.getTasklistUndone(tasklistId)
         .skip(1)
@@ -229,7 +234,6 @@ export default describe('Task API test', () => {
               expect(ele).to.equal(!mockDoneTask[key])
             }
           })
-          done()
         })
 
       Task.get(mockDoneTask._id)
@@ -238,7 +242,10 @@ export default describe('Task API test', () => {
 
       Task.updateStatus(mockDoneTask._id, false)
         .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
@@ -425,27 +432,30 @@ export default describe('Task API test', () => {
 
     it('done task from my tasks has dueDate should ok', done => {
       const task = organizationMyDueTasks[0]
+      const mockResponse = {
+        _id: task._id,
+        isDone: true,
+        updated: Date.now()
+      }
 
       httpBackend.whenPUT(`${apihost}tasks/${task._id}/isDone`, {
         isDone: true
       })
-        .respond({
-          _id: task._id,
-          isDone: true,
-          updated: Date.now()
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.getOrgMyDueTasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(29)
           expect(notInclude(data, task))
-          done()
         })
 
       Task.updateStatus(task._id, true)
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
@@ -1246,17 +1256,20 @@ export default describe('Task API test', () => {
     })
 
     it('update executor should ok', done => {
+      const mockResponse = {
+        _id: mockTaskGet._id,
+        _executorId: 'test executor',
+        executor: {
+          _id: 'test executor',
+          name: 'teambition sdk executor test',
+          avatarUrl: 'xxxx'
+        },
+        updated: new Date().toISOString()
+      }
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/_executorId`, {
         _executorId: 'test executor'
       })
-        .respond({
-          _executorId: 'test executor',
-          executor: {
-            _id: 'test executor',
-            name: 'teambition sdk executor test',
-            avatarUrl: 'xxxx'
-          }
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.get(mockTaskGet._id)
         .skip(1)
@@ -1266,146 +1279,178 @@ export default describe('Task API test', () => {
             name: 'teambition sdk executor test',
             avatarUrl: 'xxxx'
           })
-          done()
         })
 
       Task.updateExecutor(mockTaskGet._id, 'test executor')
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('update involove members should ok', done => {
+      const mockResponse = {
+        _id: mockTaskGet._id,
+        involveMembers: ['a', 'b'],
+        updated: new Date().toISOString()
+      }
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
         involveMembers: ['a', 'b']
       })
-        .respond({
-          involveMembers: ['a', 'b']
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.get(mockTaskGet._id)
         .skip(1)
         .subscribe(task => {
           expect(task.involveMembers).deep.equal(['a', 'b'])
-          done()
         })
 
       Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'involveMembers')
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('add involove members should ok', done => {
+      const mockResponse = {
+        _id: mockTaskGet._id,
+        involveMembers: mockTaskGet.involveMembers.concat(['a', 'b']),
+        updated: new Date().toISOString()
+      }
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
         addInvolvers: ['a', 'b']
       })
-        .respond({
-          involveMembers: mockTaskGet.involveMembers.concat(['a', 'b'])
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.get(mockTaskGet._id)
         .skip(1)
         .subscribe(task => {
           expect(task.involveMembers).deep.equal(mockTaskGet.involveMembers.concat(['a', 'b']))
-          done()
         })
 
       Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'addInvolvers')
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('del involove members should ok', done => {
+      const mockResponse = {
+        _id: mockTaskGet._id,
+        involveMembers: [],
+        updated: new Date().toISOString()
+      }
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
         delInvolvers: ['56986d43542ce1a2798c8cfb']
       })
-        .respond({
-          involveMembers: []
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.get(mockTaskGet._id)
         .skip(1)
         .subscribe(task => {
           expect(task.involveMembers.length).to.equal(0)
-          done()
         })
 
       Task.updateInvolvemembers(mockTaskGet._id, ['56986d43542ce1a2798c8cfb'], 'delInvolvers')
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('update note should ok', done => {
+      const mockResponse = {
+        _id: mockTaskGet._id,
+        note: '123',
+        updated: new Date().toISOString()
+      }
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/note`, {
         note: '123'
       })
-        .respond({
-          note: '123'
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.get(mockTaskGet._id)
         .skip(1)
         .subscribe(task => {
           expect(task.note).to.equal('123')
-          done()
         })
 
       Task.updateNote(mockTaskGet._id, '123')
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('update status should ok', done => {
+      const mockResponse = {
+        _id: mockTaskGet._id,
+        isDone: true,
+        updated: new Date().toISOString()
+      }
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/isDone`, {
         isDone: true
       })
-        .respond({
-          isDone: true
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.get(mockTaskGet._id)
         .skip(1)
         .subscribe(task => {
           expect(task.isDone).to.be.true
-          done()
         })
 
       Task.updateStatus(mockTaskGet._id, true)
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
 
     it('update task use update api should ok', done => {
+      const mockResponse = {
+        _id: mockTaskGet._id,
+        priority: 2,
+        updated: new Date().toISOString()
+      }
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}`, {
         priority: 2
       })
-        .respond({
-          priority: 2
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Task.get(mockTaskGet._id)
         .skip(1)
         .subscribe(task => {
           expect(task.priority).to.equal(2)
-          done()
         })
 
       Task.update(mockTaskGet._id, {
         priority: 2
       })
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })

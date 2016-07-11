@@ -11,7 +11,7 @@ export default class Model {
     return Model.DataBase.delete(namespace)
   }
 
-  update<T extends ISchema<T>>(namespace: string, patch: any): Observable<T> {
+  update<T>(namespace: string, patch: T): Observable<T> {
     if (DataBase.data.get(namespace)) {
       return Model.DataBase.updateOne<T>(namespace, patch)
     }else {

@@ -105,25 +105,35 @@ export default describe('Project API test', () => {
   it('update project should ok', done => {
     const project = projects[0]
     const updatedProject = clone(project)
+    const updated = new Date().toISOString()
     updatedProject.name = 'test project'
+    updatedProject.updated = updated
+
+    const mockResponse = {
+      _id: project._id,
+      name: 'test project',
+      updated: updated
+    }
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}`, {
       name: 'test project'
     })
-      .respond(updatedProject)
+      .respond(JSON.stringify(mockResponse))
 
     Project.getAll()
       .skip(1)
       .subscribe(r => {
         expectDeepEqual(r[0], updatedProject)
-        done()
       })
 
     Project.update(project._id, {
       name: 'test project'
     })
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -153,25 +163,28 @@ export default describe('Project API test', () => {
   it('archive project should ok', done => {
     const project = projects[0]
     const length = projects.length
+    const mockResponse = {
+      _id: project._id,
+      isArchived: true,
+      updated: new Date().toISOString()
+    }
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}/archive`)
-      .respond({
-        _id: project._id,
-        isArchived: true,
-        updated: new Date().toISOString()
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Project.getAll()
       .skip(1)
       .subscribe(r => {
         expect(r.length).to.equal(length - 1)
         expect(notInclude(r, project)).to.be.true
-        done()
       })
 
     Project.archive(project._id)
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
 
@@ -179,23 +192,26 @@ export default describe('Project API test', () => {
 
   it('clear read count should ok', done => {
     const project = projects[0]
+    const mockResponse = {
+      _id: project._id,
+      unreadCount: 0,
+      updated: Date.now().toString()
+    }
     httpBackend.whenPUT(`${apihost}projects/${project._id}/unreadCount`)
-      .respond({
-        _id: project._id,
-        unreadCount: 0,
-        updated: Date.now().toString()
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Project.getAll()
       .skip(1)
       .subscribe(r => {
         expect(r[0].unreadCount).to.equal(0)
-        done()
       })
 
     Project.clearUnreadCount(project._id)
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -281,6 +297,10 @@ export default describe('Project API test', () => {
 
   it('set default role in project should ok', done => {
     const project = projects[0]
+    const mockResponse = {
+      _id: project._id,
+      _roleId: project._roleId + 1
+    }
 
     httpBackend.whenGET(`${apihost}projects/${project._id}`)
       .respond(JSON.stringify(project))
@@ -288,49 +308,51 @@ export default describe('Project API test', () => {
     httpBackend.whenPUT(`${apihost}projects/${project._id}/_defaultRoleId`, {
       _roleId: project._roleId + 1
     })
-      .respond({
-        _id: project._id,
-        _roleId: project._roleId + 1
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Project.getOne(project._id)
       .skip(1)
       .subscribe(r => {
         expect(r._roleId).to.equal(project._roleId + 1)
-        done()
       })
 
     Project.setDefaultRole(project._id, project._roleId + 1)
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
 
   it('star project should ok', done => {
     const project = projects[0]
+    const mockResponse = {
+      _id: project._id,
+      isStar: true,
+      starsCount: project.starsCount + 1
+    }
 
     httpBackend.whenGET(`${apihost}projects/${project._id}`)
       .respond(JSON.stringify(project))
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}/star`)
-      .respond({
-        _id: project._id,
-        isStar: true,
-        starsCount: project.starsCount + 1
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Project.getOne(project._id)
       .skip(1)
       .subscribe(r => {
         expect(r.isStar).to.be.true
         expect(r.starsCount).to.equal(project.starsCount + 1)
-        done()
       })
 
     Project.star(project._id)
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -352,12 +374,17 @@ export default describe('Project API test', () => {
       .skip(1)
       .subscribe(r => {
         expect(r._organizationId).to.equal('test')
-        done()
       })
 
     Project.transfer(project._id, 'test')
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal({
+          _id: project._id,
+          _organizationId: 'test'
+        })
+        done()
+      })
 
     httpBackend.flush()
   })

@@ -72,6 +72,10 @@ export default class Model<T extends ISchema<T>> {
     return dest
   }
 
+  /**
+   * 1. normalize path 对象
+   * 2. 判断 normalize 后的对象是否存在于缓存中，若存在则更新，若不存在则建立缓存
+   */
   update(patch: any): Observable<T> {
     return Observable.create((observer: Observer<T>) => {
       setTimeout(() => {
@@ -139,6 +143,7 @@ export default class Model<T extends ISchema<T>> {
         this.data = assign(this.data, _finalPatch)
         const result = clone(this.data)
         observer.next(result)
+        observer.complete()
       })
     })
   }

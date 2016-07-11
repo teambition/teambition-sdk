@@ -110,10 +110,7 @@ export class ProjectAPI {
   archive(_id: string): Observable<ProjectData> {
     return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.archive(_id))
-        .concatMap(x => ProjectModel.update(<any>{
-          _id: _id,
-          isArchived: x.isArchived
-        }))
+        .concatMap(x => ProjectModel.update(x))
         .forEach(x => observer.next(<ProjectData>x))
         .then(x => observer.complete())
     })
@@ -123,10 +120,7 @@ export class ProjectAPI {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.clearUnreadCount(_id))
         .catch(err => observableError(observer, err))
-        .concatMap(x => ProjectModel.update(<any>{
-          _id: _id,
-          unreadCount: 0
-        }))
+        .concatMap(x => ProjectModel.update(x))
         .forEach(r => observer.next(r))
         .then(r => observer.complete())
     })

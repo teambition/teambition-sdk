@@ -15,6 +15,20 @@ export interface UpdateTasklistOptions {
   isArchived?: boolean
 }
 
+export interface ArchiveTasklistResponse {
+  _id: string
+  _projectId: string
+  isArchived: boolean
+  updated: string
+}
+
+export interface UnarchiveTasklistResponse {
+  _id: string
+  _projectId: string
+  isArchived: boolean
+  updated: string
+}
+
 export class TasklistFetch extends BaseFetch {
   create(createOptions: CreateTasklistOptions): Promise<TasklistData> {
     return this.fetch.post(`tasklists`, createOptions)
@@ -36,12 +50,7 @@ export class TasklistFetch extends BaseFetch {
     return this.fetch.delete(`tasklists/${_id}`)
   }
 
-  archive(_id: string): Promise<{
-    _id: string
-    _projectId: string
-    isArchived: boolean
-    updated: string
-  }> {
+  archive(_id: string): Promise<ArchiveTasklistResponse> {
     return this.fetch.post(`tasklists/${_id}/archive`)
   }
 
@@ -53,19 +62,8 @@ export class TasklistFetch extends BaseFetch {
     return this.fetch.put(`tasklists/${_id}/move`)
   }
 
-  unarchive(_id: string): Promise<{
-    _id: string
-    _projectId: string
-    isArchived: boolean
-    updated: string
-  }> {
+  unarchive(_id: string): Promise<UnarchiveTasklistResponse> {
     return this.fetch.delete(`tasklists/${_id}/archive`)
-  }
-
-  updateStageIds(_id: string, stageIds: string[]): Promise<string[]> {
-    return this.fetch.put(`tasklists/${_id}/stageIds`, {
-      stageIds: stageIds
-    })
   }
 }
 

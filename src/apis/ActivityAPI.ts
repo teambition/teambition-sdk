@@ -35,7 +35,7 @@ export class ActivityAPI {
     return Observable.create((observer: Observer<ActivityData>) => {
       Observable.fromPromise(ActivityFetch.add(data))
         .catch(err => observableError(observer, err))
-        .concatMap(a => ActivityModel.addOne(a))
+        .concatMap(a => ActivityModel.addOne(a).take(1))
         .forEach(r => observer.next(r))
         .then(x => observer.complete())
     })

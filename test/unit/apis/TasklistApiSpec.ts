@@ -1,9 +1,8 @@
 'use strict'
 import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
-import { apihost, StageAPI, TasklistAPI, Backend, clone, forEach } from '../index'
+import { apihost, TasklistAPI, Backend, clone } from '../index'
 import { tasklists } from '../../mock/tasklists'
-import { stages } from '../../mock/stages'
 import { notInclude, flush, expectDeepEqual } from '../utils'
 
 const expect = chai.expect
@@ -66,12 +65,16 @@ export default describe('tasklist api test', () => {
       .skip(1)
       .subscribe(data => {
         expect(data.title).to.equal(patch.title)
-        done()
       })
 
     Tasklist.update(tasklistId, patch)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal({
+          title: 'tasklist update test'
+        })
+        done()
+      })
 
     httpBackend.flush()
 
@@ -113,16 +116,17 @@ export default describe('tasklist api test', () => {
     const tasklist = tasklists[0]
     const tasklistId = tasklist._id
     const length = tasklists.length
+    const mockResponse = {
+      _id: tasklistId,
+      isArchived: true,
+      updated: Date.now()
+    }
 
     httpBackend.whenGET(`${apihost}tasklists/${tasklist._id}`)
       .respond(JSON.stringify(tasklist))
 
     httpBackend.whenPOST(`${apihost}tasklists/${tasklistId}/archive`)
-      .respond({
-        _id: tasklistId,
-        isArchived: true,
-        updated: Date.now()
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Tasklist.getTasklists(projectId)
       .skip(1)
@@ -135,12 +139,14 @@ export default describe('tasklist api test', () => {
       .skip(1)
       .subscribe(data => {
         expect(data.isArchived).to.be.true
-        done()
       })
 
     Tasklist.archive(tasklistId)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -150,19 +156,20 @@ export default describe('tasklist api test', () => {
     tasklist.isArchived = true
     tasklist._id = 'unarchivetasklisttest'
     const length = tasklists.length
-
     const tasklistId = tasklist._id
+
+    const mockResponse = {
+      _id: 'unarchivetasklisttest',
+      _projectId: projectId,
+      isArchived: false,
+      updated: Date.now()
+    }
 
     httpBackend.whenGET(`${apihost}tasklists/unarchivetasklisttest`)
       .respond(JSON.stringify(tasklist))
 
     httpBackend.whenDELETE(`${apihost}tasklists/unarchivetasklisttest/archive`)
-      .respond({
-        _id: 'unarchivetasklisttest',
-        _projectId: projectId,
-        isArchived: false,
-        updated: Date.now()
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Tasklist.getTasklists(projectId)
       .skip(1)
@@ -175,44 +182,14 @@ export default describe('tasklist api test', () => {
       .skip(1)
       .subscribe(data => {
         expect(data.isArchived).to.be.false
-        done()
       })
 
     Tasklist.unArchive('unarchivetasklisttest')
       .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe()
-
-    httpBackend.flush()
-  })
-
-  it('update stage ids should ok', done => {
-    const Stage = new StageAPI()
-    const tasklistId = tasklists[0]._id
-    const stageIds: string[] = stages.map(stage => stage._id)
-      .sort(x => Math.random() * 2 - 1)
-
-    httpBackend.whenPUT(`${apihost}tasklists/${tasklistId}/stageIds`, {
-      stageIds: stageIds
-    })
-      .respond(stageIds)
-
-    httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/stages`)
-      .respond(JSON.stringify(stages))
-
-    Stage.getAll(tasklistId)
-      .skip(1)
-      .subscribe(data => {
-        const _stageIds: string[] = []
-        forEach(data, stage => {
-          _stageIds.push(stage._id)
-        })
-        expect(_stageIds).to.deep.equal(stageIds)
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    Tasklist.updateStageIds(tasklistId, stageIds)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
 
     httpBackend.flush()
   })
