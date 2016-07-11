@@ -21,7 +21,7 @@ export class TaskModel extends BaseModel {
   addTasklistTasksUndone(_tasklistId: string, tasks: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     return this._saveCollection(`tasklist:tasks:undone/${_tasklistId}`, result, this._schemaName, (data: TaskData) => {
-      return data._tasklistId === _tasklistId && !data.isDone
+      return data._tasklistId === _tasklistId && !data.isDone && !data.isArchived
     })
   }
 
@@ -35,15 +35,14 @@ export class TaskModel extends BaseModel {
   addTasklistTasksDone(_tasklistId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `tasklist:tasks:done/${_tasklistId}`
-    const name = dbIndex
 
-    let collection: Collection<TaskData> = this._collections.get(name)
+    let collection: Collection<TaskData> = this._collections.get(dbIndex)
 
     if (!collection) {
       collection = new Collection<TaskData>(this._schemaName, (data: Task) => {
-        return data._tasklistId === _tasklistId && data.isDone
+        return data._tasklistId === _tasklistId && data.isDone && !data.isArchived
       }, dbIndex)
-      this._collections.set(name, collection)
+      this._collections.set(dbIndex, collection)
     }
 
     return collection.addPage(page, result)

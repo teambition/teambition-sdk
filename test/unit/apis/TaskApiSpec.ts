@@ -172,14 +172,49 @@ export default describe('Task API test', () => {
       Task.getTasklistDone(tasklistId)
         .subscribe()
 
-      Task.getTasklistDone(tasklistId, 1)
-        .subscribeOn(Scheduler.async, global.timeout2)
+      Task.getTasklistDone(tasklistId)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(data => {
           expect(data.length).to.equal(30)
           forEach(data, (task, index) => {
             expectDeepEqual(task, tasksDone[index])
           })
           expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get tasks concurrency should ok', done => {
+      const page1 = tasksDone.map((task, pos) => {
+        if (pos < 30) {
+          return task
+        }
+      }).filter(x => !!x)
+
+      httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
+        .respond(JSON.stringify(page1))
+
+      Task.getTasklistDone(tasklistId)
+        .subscribe()
+
+      Task.getTasklistDone(tasklistId)
+        .subscribe()
+
+      Task.getTasklistDone(tasklistId)
+        .subscribe()
+
+      Task.getTasklistDone(tasklistId)
+        .subscribe()
+
+      Task.getTasklistDone(tasklistId)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(data => {
+          expect(data.length).to.equal(30)
+          forEach(data, (task, index) => {
+            expectDeepEqual(task, tasksDone[index])
+          })
           done()
         })
 

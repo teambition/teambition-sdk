@@ -43,7 +43,7 @@ export function mockFetch() {
           uri = uri.substr(0, pos - 1)
         }
       }
-      const result = fetchStack[uri + method + dataPath]
+      const result = fetchStack[uri.toLowerCase() + method + dataPath]
       // console.log(uri + method + dataPath, fetchStack)
       if (result && result.status === 200) {
         const promise = new Promise((resolve, reject) => {
