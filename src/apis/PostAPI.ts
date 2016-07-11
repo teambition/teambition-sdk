@@ -7,7 +7,11 @@ import {
   default as PostFetch,
   CreatePostOptions,
   PostFavoriteResponse,
-  UpdateInvolves
+  UpdateInvolves,
+  ArchivePostResponse,
+  UpdateInvolvesResponse,
+  UpdatePinResponse,
+  UpdateTagsResponse
 } from '../fetchs/PostFetch'
 import { makeColdSignal, observableError, errorHandler } from './utils'
 
@@ -69,11 +73,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  archive(postId: string): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
+  archive(postId: string): Observable<ArchivePostResponse> {
+    return Observable.create((observer: Observer<ArchivePostResponse>) => {
       Observable.fromPromise(PostFetch.archive(postId))
         .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.update<PostData>(postId, post))
+        .concatMap(post => PostModel.update(postId, post))
         .forEach(post => observer.next(post))
         .then(x => observer.complete())
     })
@@ -82,18 +86,22 @@ export class PostAPI {
   /**
    * cold signal
    */
-  favorite(postId: string): Observable<PostData> {
+  favorite(postId: string): Observable<PostFavoriteResponse> {
     return Observable.create((observer: Observer<PostFavoriteResponse>) => {
+      let _result: PostFavoriteResponse
       Observable.fromPromise(PostFetch.favorite(postId))
         .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update(postId, {
-          isFavorite: result.isFavorite,
-          content: result.data.content,
-          title: result.data.title,
-          updated: result.data.updated,
-          created: result.data.created
-        }))
-        .forEach(v => observer.next(<any>v))
+        .concatMap(result => {
+          _result = result
+          return PostModel.update(postId, {
+            isFavorite: result.isFavorite,
+            content: result.data.content,
+            title: result.data.title,
+            updated: result.data.updated,
+            created: result.data.created
+          })
+        })
+        .forEach(v => observer.next(_result))
         .then(x => observer.complete())
     })
   }
@@ -140,11 +148,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  updatInvolves(postId: string, involves: UpdateInvolves): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
+  updatInvolves(postId: string, involves: UpdateInvolves): Observable<UpdateInvolvesResponse> {
+    return Observable.create((observer: Observer<UpdateInvolvesResponse>) => {
       Observable.fromPromise(PostFetch.updateInvolves(postId, involves))
         .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update<PostData>(postId, result))
+        .concatMap(result => PostModel.update(postId, result))
         .forEach(x => observer.next(x))
         .then(x => observer.complete())
     })
@@ -153,11 +161,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  updatePin(postId: string, pin: boolean): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
+  updatePin(postId: string, pin: boolean): Observable<UpdatePinResponse> {
+    return Observable.create((observer: Observer<UpdatePinResponse>) => {
       Observable.fromPromise(PostFetch.updatePin(postId, pin))
         .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.update<PostData>(postId, post))
+        .concatMap(post => PostModel.update(postId, post))
         .forEach(v => observer.next(v))
         .then(x => observer.complete())
     })
@@ -166,11 +174,11 @@ export class PostAPI {
   /**
    * cold signal
    */
-  updateTags(postId: string, tagIds: string[]): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
+  updateTags(postId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
+    return Observable.create((observer: Observer<UpdateTagsResponse>) => {
       Observable.fromPromise(PostFetch.updateTags(postId, tagIds))
         .catch(err => observableError(observer, err))
-        .concatMap(r => PostModel.update<PostData>(postId, r))
+        .concatMap(r => PostModel.update(postId, r))
         .forEach(x => observer.next(x))
         .then(x => observer.complete())
     })

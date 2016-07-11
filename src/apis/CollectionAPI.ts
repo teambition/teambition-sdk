@@ -3,7 +3,13 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import CollectionModel from '../models/CollectionModel'
 import { TBCollectionData } from '../schemas/Collection'
-import { default as CollectionFetch, CreateCollectionOptions, UpdateCollectionOptions } from '../fetchs/CollectionFetch'
+import {
+  default as CollectionFetch,
+  CreateCollectionOptions,
+  UpdateCollectionOptions,
+  UnarchiveCollectionResponse,
+  ArchiveCollectionResponse
+} from '../fetchs/CollectionFetch'
 import { makeColdSignal, errorHandler, observableError } from './utils'
 
 export class CollectionAPI {
@@ -53,11 +59,11 @@ export class CollectionAPI {
     })
   }
 
-  archive(collectionId: string): Observable<TBCollectionData> {
-    return Observable.create((observer: Observer<TBCollectionData>) => {
+  archive(collectionId: string): Observable<ArchiveCollectionResponse> {
+    return Observable.create((observer: Observer<ArchiveCollectionResponse>) => {
       Observable.fromPromise(CollectionFetch.archive(collectionId))
         .catch(err => observableError(observer, err))
-        .concatMap(r => CollectionModel.update<TBCollectionData>(collectionId, r))
+        .concatMap(r => CollectionModel.update(collectionId, r))
         .forEach(r => observer.next(r))
         .then(x => observer.complete())
     })
@@ -85,11 +91,11 @@ export class CollectionAPI {
     })
   }
 
-  unarchive(collectionId: string): Observable<TBCollectionData> {
-    return Observable.create((observer: Observer<TBCollectionData>) => {
+  unarchive(collectionId: string) {
+    return Observable.create((observer: Observer<UnarchiveCollectionResponse>) => {
       Observable.fromPromise(CollectionFetch.unarchive(collectionId))
         .catch(err => observableError(observer, err))
-        .concatMap(r => CollectionModel.update<TBCollectionData>(collectionId, r))
+        .concatMap(r => CollectionModel.update(collectionId, r))
         .forEach(r => observer.next(r))
         .then(x => observer.complete())
     })

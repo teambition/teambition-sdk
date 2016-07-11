@@ -44,10 +44,10 @@ export class StageAPI {
     })
   }
 
-  update(_stageId: string, data: StageUpdateData): Observable<StageData> {
-    return Observable.create((observer: Observer<StageData>) => {
+  update(_stageId: string, data: StageUpdateData): Observable<StageUpdateData> {
+    return Observable.create((observer: Observer<StageUpdateData>) => {
       return Observable.fromPromise(StageFetch.update(_stageId, data))
-        .concatMap(stage => StageModel.update<StageData>(_stageId, stage))
+        .concatMap(stage => StageModel.update(_stageId, stage))
         .forEach(stage => observer.next(stage))
         .then(x => observer.complete())
     })
@@ -58,6 +58,19 @@ export class StageAPI {
       Observable.fromPromise(StageFetch.delete(_stageId))
         .concatMap(x => StageModel.delete(_stageId))
         .forEach(x => observer.next(null))
+        .then(x => observer.complete())
+    })
+  }
+
+  updateStageIds(_tasklistId: string, stageIds: string[]): Observable<{
+    stageIds: string[]
+  }> {
+    return Observable.create((observer: Observer<string[]>) => {
+      Observable.fromPromise(StageFetch.updateStageIds(_tasklistId, stageIds))
+        .concatMap(r => StageModel.updateOrders(_tasklistId, r.stageIds))
+        .forEach(x => observer.next(<any>{
+          stageIds: stageIds
+        }))
         .then(x => observer.complete())
     })
   }

@@ -188,31 +188,38 @@ export default describe('Collection API test', () => {
 
   it('archive collection should ok', done => {
     const collectionId = collections[0]._id
+    const mockResponse = {
+      _id: collectionId,
+      isArchived: true,
+      updated: new Date().toISOString()
+    }
 
     httpBackend.whenPOST(`${apihost}collections/${collectionId}/archive`)
-      .respond({
-        _id: collectionId,
-        isArchived: true,
-        updated: new Date().toISOString()
-      })
+      .respond(JSON.stringify(mockResponse))
 
     collectionAPI.getByParent(parentId)
       .skip(1)
       .subscribe(r => {
         expect(r.length).to.equal(collections.length - 1)
         expect(notInclude(r, collections[0])).to.be.true
-        done()
       })
 
     collectionAPI.archive(collectionId)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
 
   it('move collection should ok', done => {
     const mockcollections: TBCollectionSchema[] = JSON.parse(JSON.stringify(collections))
+    const mockResponse = {
+      _id: collections[0]._id,
+      _parentId: 'mockparentid'
+    }
 
     forEach(mockcollections, (collection, index) => {
       collection._id = collection._id + index
@@ -225,10 +232,7 @@ export default describe('Collection API test', () => {
     httpBackend.whenPUT(`${apihost}collections/${collections[0]._id}/move`, {
       _parentId: 'mockparentid'
     })
-      .respond({
-        _id: collections[0]._id,
-        _parentId: 'mockparentid'
-      })
+      .respond(JSON.stringify(mockResponse))
 
     collectionAPI.getByParent(parentId)
       .skip(1)
@@ -246,12 +250,14 @@ export default describe('Collection API test', () => {
             expect(val).to.deep.equal(r[1][key])
           }
         })
-        done()
       })
 
     collectionAPI.move(collections[0]._id, 'mockparentid')
       .subscribeOn(Scheduler.async, global.timeout3)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -260,16 +266,17 @@ export default describe('Collection API test', () => {
     const mockCollection = clone(collections[0])
     mockCollection._id = 'mockcollectionid'
     mockCollection.isArchived = true
+    const mockResponse = {
+      _id: 'mockcollectionid',
+      isArchived: false,
+      updated: new Date().toISOString()
+    }
 
     httpBackend.whenGET(`${apihost}collections/mockcollectionid`)
       .respond(JSON.stringify(mockCollection))
 
     httpBackend.whenDELETE(`${apihost}collections/mockcollectionid/archive`)
-      .respond({
-        _id: 'mockcollectionid',
-        isArchived: false,
-        updated: new Date().toISOString()
-      })
+      .respond(JSON.stringify(mockResponse))
 
     collectionAPI.getByParent(parentId)
       .skip(1)
@@ -282,12 +289,14 @@ export default describe('Collection API test', () => {
       .skip(1)
       .subscribe(r => {
         expect(r.isArchived).to.be.false
-        done()
       })
 
     collectionAPI.unarchive('mockcollectionid')
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })

@@ -302,27 +302,30 @@ export default describe('Subtask API test: ', () => {
 
     it('done subtask should ok', done => {
       const mockId = page1[0]._id
+      const mockResponse = {
+        _id: mockId,
+        isDone: true,
+        updated: Date.now()
+      }
 
       httpBackend.whenPUT(`${apihost}subtasks/${mockId}/isDone`, {
         isDone: true
       })
-        .respond({
-          _id: mockId,
-          isDone: true,
-          updated: Date.now()
-        })
+        .respond(JSON.stringify(mockResponse))
 
       Subtask.getOrgMyDueSubtasks(userId, organization)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(page1.length - 1)
           expect(notInclude(data, page1[0])).to.be.true
-          done()
         })
 
       Subtask.updateStatus(mockId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
@@ -668,20 +671,21 @@ export default describe('Subtask API test: ', () => {
 
   it('update subtask should ok', done => {
     const dueDate = new Date().toISOString()
+    const mockResponse = {
+      content: 'test',
+      dueDate: dueDate,
+      updated: new Date().toISOString()
+    }
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}`, {
       content: 'test',
       dueDate: dueDate
-    }).respond({
-      content: 'test',
-      dueDate: dueDate
-    })
+    }).respond(JSON.stringify(mockResponse))
 
     Subtask.get(subtaskId)
       .skip(1)
       .subscribe(data => {
         expect(data.content).to.equal('test')
         expect(data.dueDate).to.equal(dueDate)
-        done()
       })
 
     Subtask.update(subtaskId, {
@@ -689,77 +693,94 @@ export default describe('Subtask API test: ', () => {
       dueDate: dueDate
     })
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
 
   it('transform subtask should ok', done => {
+    const mockResponse = {
+      _id: subtaskId,
+      _projectId: subtask._projectId,
+      _tasklistId: 'aaa',
+      _stageId: 'xxx',
+      content: subtask.content
+    }
+
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/transform`, {
       doLink: false,
       doLinked: false
     })
-      .respond({
-        _id: subtaskId,
-        _projectId: subtask._projectId,
-        _tasklistId: 'aaa',
-        _stageId: 'xxx',
-        content: subtask.content
-      })
+      .respond(JSON.stringify(mockResponse))
 
     Subtask.get(subtaskId)
       .skip(1)
       .subscribe(data => {
         expect(data).to.be.null
-        done()
       })
 
     Subtask.transform(subtaskId)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
 
   it('update content should ok', done => {
+    const mockResponse = {
+      _id: subtaskId,
+      content: 'update content test',
+      updated: new Date().toISOString()
+    }
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/content`, {
       content: 'update content test'
-    }).respond({
-      content: 'update content test'
-    })
+    }).respond(JSON.stringify(mockResponse))
 
     Subtask.get(subtaskId)
       .skip(1)
       .subscribe(data => {
         expect(data.content).to.equal('update content test')
-        done()
       })
 
     Subtask.updateContent(subtaskId, 'update content test')
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
 
   it('update dueDate should ok', done => {
     const dueDate = new Date().toISOString()
+    const mockResponse = {
+      _id: subtaskId,
+      dueDate: dueDate,
+      updated: new Date().toISOString()
+    }
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/dueDate`, {
       dueDate: dueDate
-    }).respond({
-      dueDate: dueDate
-    })
+    }).respond(JSON.stringify(mockResponse))
 
     Subtask.get(subtaskId)
       .skip(1)
       .subscribe(data => {
         expect(data.dueDate).to.equal(dueDate)
-        done()
       })
 
     Subtask.updateDuedate(subtaskId, dueDate)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -784,22 +805,27 @@ export default describe('Subtask API test: ', () => {
   })
 
   it('update subtask statu should ok', done => {
+    const mockResponse = {
+      _id: subtaskId,
+      isDone: true,
+      updated: new Date().toISOString()
+    }
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/isDone`, {
       isDone: true
     })
-      .respond({
-        isDone: true
-      })
+      .respond(JSON.stringify(mockResponse))
 
     const get = Subtask.get(subtaskId)
 
-    get.subscribe()
+    get.skip(1)
+      .subscribe(r => {
+        expect(r.isDone).to.be.true
+      })
 
     Subtask.updateStatus(subtaskId, true)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .concatMap(x => Subtask.get(subtaskId))
       .subscribe(data => {
-        expect(data.isDone).to.be.true
+        expect(data).to.deep.equal(mockResponse)
         done()
       })
 

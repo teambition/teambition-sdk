@@ -56,14 +56,11 @@ export class SubtaskAPI {
     })
   }
 
-  update(_subtaskId: string, options: SubtaskUpdateOptions): Observable<SubtaskData> {
-    return Observable.create((observer: Observer<SubtaskData>) => {
+  update(_subtaskId: string, options: SubtaskUpdateOptions): Observable<SubtaskUpdateOptions> {
+    return Observable.create((observer: Observer<SubtaskUpdateOptions>) => {
       Observable.fromPromise(SubtaskFetch.update(_subtaskId, options))
-        .catch(err => {
-          observer.error(err)
-          return Observable.of(null)
-        })
-        .concatMap(subtask => SubtaskModel.update<SubtaskData>(_subtaskId, subtask))
+        .catch(err => observableError(observer, err))
+        .concatMap(subtask => SubtaskModel.update(_subtaskId, subtask))
         .forEach(x => observer.next(x))
         .then(x => observer.complete())
     })
@@ -84,18 +81,15 @@ export class SubtaskAPI {
 
   transform(_subtaskId: string, doLink = false, doLinked = false): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      let task: Task
+      let _task: Task
       Observable.fromPromise(SubtaskFetch.transform(_subtaskId, doLink, doLinked))
-        .catch(err => {
-          observer.next(err)
-          return Observable.of(null)
-        })
+        .catch(err => observableError(observer, err))
         .concatMap(task => {
-          task = task
-          return TaskModel.addOne(task)
+          _task = task
+          return TaskModel.addOne(task).take(1)
         })
         .concatMap(x => SubtaskModel.delete(_subtaskId))
-        .forEach(x => observer.next(task))
+        .forEach(x => observer.next(_task))
         .then(x => observer.complete())
     })
   }

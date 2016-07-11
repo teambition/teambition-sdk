@@ -126,9 +126,14 @@ export default describe('post api test: ', () => {
       const archiveId = posts[0]._id
       const mockPost = clone(posts[0])
       mockPost.isArchived = true
+      const mockResponse = {
+        _id: archiveId,
+        isArchived: true,
+        updated: new Date().toISOString()
+      }
 
       httpBackend.whenPOST(`${apihost}posts/${archiveId}/archive`)
-        .respond(JSON.stringify(mockPost))
+        .respond(JSON.stringify(mockResponse))
 
       PostApi.getProjectPosts(projectId, {
         page: 1,
@@ -138,12 +143,14 @@ export default describe('post api test: ', () => {
         .subscribe(results => {
           expect(results.length).to.equal(posts.length - 1)
           notInclude(results, mockPost)
-          done()
         })
 
       PostApi.archive(archiveId)
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .subscribe(r => {
+          expect(r).to.deep.equal(mockResponse)
+          done()
+        })
 
       httpBackend.flush()
     })
@@ -153,47 +160,51 @@ export default describe('post api test: ', () => {
   it('favorite a post should ok', done => {
     const favoriteId = posts[0]._id
 
+    const mockResponse = {
+      isFavorite: true,
+      isUpdated: true,
+      isVisible: true,
+      refType: 'post',
+      created: posts[0].created,
+      updated: new Date().toISOString(),
+      creator: {
+        _id: 'xxx',
+        name: 'xxxxx',
+        avatarUrl: 'xxxxxxx'
+      },
+      project: {
+        _id: posts[0]._projectId,
+        name: 'project',
+      },
+      data: {
+        created: posts[0].created,
+        updated: new Date().toISOString(),
+        content: posts[0].content,
+        title: posts[0].title
+      },
+      _refId: posts[0]._id,
+      _creatorId: posts[0]._creatorId,
+      _id: posts[0]._id
+    }
+
     httpBackend.whenGET(`${apihost}posts/${favoriteId}`)
       .respond(JSON.stringify(posts[0]))
 
     httpBackend.whenPOST(`${apihost}posts/${favoriteId}/favorite`)
-      .respond({
-        isFavorite: true,
-        isUpdated: true,
-        isVisible: true,
-        refType: 'post',
-        created: posts[0].created,
-        updated: new Date().toISOString(),
-        creator: {
-          _id: 'xxx',
-          name: 'xxxxx',
-          avatarUrl: 'xxxxxxx'
-        },
-        project: {
-          _id: posts[0]._projectId,
-          name: 'project',
-        },
-        data: {
-          created: posts[0].created,
-          updated: new Date().toISOString(),
-          content: posts[0].content,
-          title: posts[0].title
-        },
-        _refId: posts[0]._id,
-        _creatorId: posts[0]._creatorId,
-        _id: posts[0]._id
-      })
+      .respond(JSON.stringify(mockResponse))
 
     PostApi.get(favoriteId)
       .skip(1)
       .subscribe(r => {
         expect(r.isFavorite).to.be.true
-        done()
       })
 
     PostApi.favorite(favoriteId)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -202,17 +213,19 @@ export default describe('post api test: ', () => {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
 
+    const mockResponse = {
+      isLike: true,
+      updated: new Date().toISOString(),
+      _id: testPostId,
+      likesCount: 1,
+      likesGroup: [{
+        _id: 'testuser',
+        name: 'test user name'
+      }]
+    }
+
     httpBackend.whenPOST(`${apihost}posts/${testPostId}/like`)
-      .respond({
-        isLike: true,
-        updated: new Date().toISOString(),
-        _id: testPostId,
-        likesCount: 1,
-        likesGroup: [{
-          _id: 'testuser',
-          name: 'test user name'
-        }]
-      })
+      .respond(JSON.stringify(mockResponse))
 
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
@@ -221,12 +234,14 @@ export default describe('post api test: ', () => {
       .skip(1)
       .subscribe(post => {
         expect(post.isLike).to.be.true
-        done()
       })
 
     PostApi.like(testPostId)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -235,17 +250,19 @@ export default describe('post api test: ', () => {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
 
+    const mockResponse = {
+      isLike: false,
+      updated: new Date().toISOString(),
+      _id: testPostId,
+      likesCount: 1,
+      likesGroup: [{
+        _id: 'testuser',
+        name: 'test user name'
+      }]
+    }
+
     httpBackend.whenDELETE(`${apihost}posts/${testPostId}/like`)
-      .respond({
-        isLike: false,
-        updated: new Date().toISOString(),
-        _id: testPostId,
-        likesCount: 1,
-        likesGroup: [{
-          _id: 'testuser',
-          name: 'test user name'
-        }]
-      })
+      .respond(JSON.stringify(mockResponse))
 
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
@@ -254,12 +271,14 @@ export default describe('post api test: ', () => {
       .skip(1)
       .subscribe(post => {
         expect(post.isLike).to.be.false
-        done()
       })
 
     PostApi.dislike(testPostId)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -269,12 +288,14 @@ export default describe('post api test: ', () => {
     const testPostId = testPost._id
     testPost.isArchived = true
 
+    const mockResponse = {
+      isArchived: false,
+      updated: new Date().toISOString(),
+      _id: testPostId
+    }
+
     httpBackend.whenDELETE(`${apihost}posts/${testPostId}/archive`)
-      .respond({
-        isArchived: false,
-        updated: new Date().toISOString(),
-        _id: testPostId
-      })
+      .respond(JSON.stringify(mockResponse))
 
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
@@ -283,12 +304,14 @@ export default describe('post api test: ', () => {
       .skip(1)
       .subscribe(post => {
         expect(post.isArchived).to.be.false
-        done()
       })
 
     PostApi.unarchive(testPostId)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -298,30 +321,34 @@ export default describe('post api test: ', () => {
     const testPostId = testPost._id
     const mockInvolves = ['aaaa', 'bbbb', 'cccc']
 
+    const mockResponse = {
+      involveMembers: mockInvolves,
+      updated: new Date().toISOString(),
+      _id: testPostId
+    }
+
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
 
     httpBackend.whenPUT(`${apihost}posts/${testPostId}/involveMembers`, {
       involveMembers: mockInvolves
     })
-      .respond({
-        involveMembers: mockInvolves,
-        updated: new Date().toISOString(),
-        _id: testPostId
-      })
+      .respond(JSON.stringify(mockResponse))
 
     PostApi.get(testPostId)
       .skip(1)
       .subscribe(result => {
         expect(result.involveMembers).to.deep.equal(mockInvolves)
-        done()
       })
 
     PostApi.updatInvolves(testPostId, {
       involveMembers: mockInvolves
     })
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -329,6 +356,11 @@ export default describe('post api test: ', () => {
   it('update pin should ok', done => {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
+    const mockResponse = {
+      pin: true,
+      updated: new Date().toISOString(),
+      _id: testPostId
+    }
 
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
@@ -336,22 +368,20 @@ export default describe('post api test: ', () => {
     httpBackend.whenPUT(`${apihost}posts/${testPostId}/pin`, {
       pin: true
     })
-      .respond({
-        pin: true,
-        updated: new Date().toISOString(),
-        _id: testPostId
-      })
+      .respond(JSON.stringify(mockResponse))
 
     PostApi.get(testPostId)
       .skip(1)
       .subscribe(result => {
         expect(result.pin).to.be.true
-        done()
       })
 
     PostApi.updatePin(testPostId, true)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })
@@ -361,28 +391,32 @@ export default describe('post api test: ', () => {
     const testPostId = testPost._id
     const mockTags = ['dddd', 'eeee', 'ffff']
 
+    const mockResponse = {
+      tagIds: mockTags,
+      updated: new Date().toISOString(),
+      _id: testPostId
+    }
+
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
 
     httpBackend.whenPUT(`${apihost}posts/${testPostId}/tagIds`, {
       tagIds: mockTags
     })
-      .respond({
-        tagIds: mockTags,
-        updated: new Date().toISOString(),
-        _id: testPostId
-      })
+      .respond(JSON.stringify(mockResponse))
 
     PostApi.get(testPostId)
       .skip(1)
       .subscribe(result => {
         expect(result.tagIds).to.deep.equal(mockTags)
-        done()
       })
 
     PostApi.updateTags(testPostId, mockTags)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .subscribe(r => {
+        expect(r).to.deep.equal(mockResponse)
+        done()
+      })
 
     httpBackend.flush()
   })

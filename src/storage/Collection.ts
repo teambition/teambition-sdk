@@ -68,12 +68,14 @@ export default class Collection <T extends ISchema<T>> {
           })
         }
         observer.next(result)
+        observer.complete()
       })
     })
   }
 
   add(model: Model<T>): Observable<T[]> {
     return model.get()
+      .take(1)
       .concatMap(x => {
         const flag = x[this._unionFlag]
         if (this.elements.indexOf(flag) === -1) {
@@ -135,13 +137,17 @@ export default class Collection <T extends ISchema<T>> {
             .mergeAll()
             .skip(signals.length - 1)
             .concatMap(x => this.get())
-            .forEach(result => observer.next(clone(diff)))
+            .forEach(result => {
+              observer.next(clone(diff))
+              observer.complete()
+            })
         }else {
           forEach(this.data, (ele, pos) => {
             this.data.splice(pos, 1)
             this.elements.splice(pos, 1)
           })
           observer.next([])
+          observer.complete()
         }
       })
     })
@@ -155,12 +161,15 @@ export default class Collection <T extends ISchema<T>> {
           .forEach(data => {
             if (data) {
               observer.next(this.condition(data))
+              observer.complete()
             } else {
               observer.next(false)
+              observer.complete()
             }
           })
       } else {
-        return observer.next(true)
+        observer.next(true)
+        observer.complete()
       }
     })
   }

@@ -27,7 +27,9 @@ export class StageModel extends BaseModel {
     return this._get<StageData>(_id)
   }
 
-  updateOrders(_tasklistId: string, ids: string[]): Observable<StageData[]> {
+  updateOrders(_tasklistId: string, ids: string[]): Observable<{
+    stageIds: string[]
+  }> {
     const stages: any[] = []
     forEach(ids, (id, pos) => {
       stages.push({
@@ -35,7 +37,12 @@ export class StageModel extends BaseModel {
         order: pos
       })
     })
-    return this._updateCollection<StageData>(`tasklist:stages/${_tasklistId}`, stages)
+    return Observable.combineLatest(
+      this._updateCollection<StageData>(`tasklist:stages/${_tasklistId}`, stages),
+      this.update(_tasklistId, {
+        stageIds: ids
+      })
+    ).map(r => r[1])
   }
 
 }
