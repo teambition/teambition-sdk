@@ -1,0 +1,24 @@
+{
+  "name": "teambition-sdk-mock",
+  "version": "{{version}}",
+  "description": "Front-End SDK for Teambition",
+  "main": "./index.js",
+  "browser": "./mock.bundle.js",
+  "typings": "./index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/teambition/teambition-sdk.git"
+  },
+  "keywords": [
+    "teambition",
+    "sdk",
+    "teambition-sdk",
+    "mock"
+  ],
+  "author": "lynweklm@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/teambition/teambition-sdk/issues"
+  },
+  "homepage": "https://github.com/teambition/teambition-sdk#readme"
+}

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "outDir": ".tmp",
+    "module": "commonjs",
+    "emitDecoratorMetadata": true
+  },
+  "exclude": [
+    "node_modules",
+    "tools/build",
+    "dist"
+  ],
+  "compileOnSave": false
+}

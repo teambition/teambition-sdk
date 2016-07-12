@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+  - "4.4"
+
+install:
+  - npm link
+  - npm install
+  - typings install
+  - npm run lint
+  - npm link teambition-sdk
+
+before_script:
+  - "npm run build_all"

@@ -1,0 +1,23 @@
+{
+  "name": "teambition-sdk-socket",
+  "version": "{{version}}",
+  "description": "Front-End SDK for Teambition",
+  "main": "./index.js",
+  "browser": "./socket.bundle.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/teambition/teambition-sdk.git"
+  },
+  "keywords": [
+    "teambition",
+    "sdk",
+    "teambition-sdk",
+    "socket"
+  ],
+  "author": "lynweklm@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/teambition/teambition-sdk/issues"
+  },
+  "homepage": "https://github.com/teambition/teambition-sdk#readme"
+}
