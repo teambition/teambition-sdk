@@ -14,6 +14,7 @@ export { eventParser } from './sockets/EventParser'
 export * from './teambition'
 
 export { EventData as EventSchema } from './schemas/Event'
+export { EntrycategoryData as EntrycategorySchema } from './schemas/Entrycategory'
 export { MemberData as MemberSchema } from './schemas/Member'
 export { MySubtaskData as MySubtaskSchema } from './schemas/MySubtask'
 export { SubtaskData as SubtaskSchema } from './schemas/Subtask'
@@ -30,6 +31,7 @@ export { UserMe } from './schemas/UserMe'
 
 // export fetchs
 
+export { default as EntrycategoryFetch } from './fetchs/EntrycategoryFetch'
 export { default as MemberFetch } from './fetchs/MemberFetch'
 export { default as OrganizationFetch } from './fetchs/OrganizationFetch'
 export { default as ProjectFetch } from './fetchs/ProjectFetch'
@@ -51,6 +53,7 @@ export function setAPIHost(host: string) {
 
 // export apis
 
+export * from './apis/EntrycategoryAPI'
 export * from './apis/MemberAPI'
 export * from './apis/OrganizationAPI'
 export * from './apis/ProjectAPI'
