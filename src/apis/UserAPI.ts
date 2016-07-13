@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import UserFetch from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
 import UserMe from '../schemas/UserMe'

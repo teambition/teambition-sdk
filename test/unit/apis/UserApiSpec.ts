@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import * as Rx from 'rxjs'
+import { Scheduler } from 'rxjs'
 import { Backend, UserAPI, forEach, clone, apihost } from '../index'
 import { userMe } from '../../mock/userme'
 import { flush } from '../utils'
@@ -57,7 +57,7 @@ export default describe('UserAPI test', () => {
     User.update({
       name: 'test'
     })
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r).to.deep.equal(mockPut)
         done()
@@ -91,7 +91,7 @@ export default describe('UserAPI test', () => {
         expect(data.emails[1]).to.deep.equal(updateData)
       }, err => console.error(err))
 
-    add.subscribeOn(Rx.Scheduler.async, global.timeout2)
+    add.subscribeOn(Scheduler.async, global.timeout2)
       .subscribe(r => {
         expect(r).to.deep.equal({
           emails: mockResponse.emails
@@ -131,7 +131,7 @@ export default describe('UserAPI test', () => {
       }
     })
 
-    bind.subscribeOn(Rx.Scheduler.async, global.timeout2)
+    bind.subscribeOn(Scheduler.async, global.timeout2)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()

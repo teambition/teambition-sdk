@@ -1,5 +1,6 @@
 'use strict'
-import { Observable, Observer } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Observer } from 'rxjs/Observer'
 import Model from './BaseModel'
 import { forEach, dropEle, concat } from '../utils/index'
 import { ISchema } from '../schemas/schema'
