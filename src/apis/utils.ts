@@ -1,5 +1,6 @@
 'use strict'
-import { Observer, Observable } from 'rxjs'
+import { Observer } from 'rxjs/Observer'
+import { Observable } from 'rxjs/Observable'
 
 export function observableError<T>(observer: Observer<T>, err: Error): Observable<T> {
   observer.error(err)

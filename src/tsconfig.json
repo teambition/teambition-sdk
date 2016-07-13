@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "outDir": ".tmp",
+    "module": "commonjs",
+    "emitDecoratorMetadata": true
+  },
+  "files": [
+    "./app.ts"
+  ],
+  "compileOnSave": false
+}

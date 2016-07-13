@@ -1,4 +1,8 @@
 'use strict'
+import 'rxjs/add/observable/fromPromise'
+import 'rxjs/add/operator/catch'
+import 'rxjs/add/operator/concatMap'
+import 'rxjs/add/operator/take'
 import { Observer } from 'rxjs/Observer'
 import { Observable } from 'rxjs/Observable'
 import ActivityModel from '../models/ActivityModel'

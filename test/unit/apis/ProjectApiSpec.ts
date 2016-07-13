@@ -1,5 +1,5 @@
 'use strict'
-import * as Rx from 'rxjs'
+import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import { Backend, ProjectAPI, apihost, clone, assign } from '../index'
 import { projects } from '../../mock/projects'
@@ -96,7 +96,7 @@ export default describe('Project API test', () => {
       Project.create({
         name: 'test project'
       })
-        .subscribeOn(Rx.Scheduler.async, global.timeout1)
+        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
     httpBackend.flush()
@@ -129,7 +129,7 @@ export default describe('Project API test', () => {
     Project.update(project._id, {
       name: 'test project'
     })
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()
@@ -154,7 +154,7 @@ export default describe('Project API test', () => {
       })
 
     Project.delete(project._id)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -180,7 +180,7 @@ export default describe('Project API test', () => {
       })
 
     Project.archive(project._id)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()
@@ -207,7 +207,7 @@ export default describe('Project API test', () => {
       })
 
     Project.clearUnreadCount(project._id)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()
@@ -239,7 +239,7 @@ export default describe('Project API test', () => {
     Project.copy(project._id, {
       name: 'teambition project copy test'
     })
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -267,7 +267,7 @@ export default describe('Project API test', () => {
       })
 
     Project.join('03a9f4')
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -289,7 +289,7 @@ export default describe('Project API test', () => {
       })
 
     Project.quit(project._id)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -317,7 +317,7 @@ export default describe('Project API test', () => {
       })
 
     Project.setDefaultRole(project._id, project._roleId + 1)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()
@@ -348,7 +348,7 @@ export default describe('Project API test', () => {
       })
 
     Project.star(project._id)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()
@@ -377,7 +377,7 @@ export default describe('Project API test', () => {
       })
 
     Project.transfer(project._id, 'test')
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r).to.deep.equal({
           _id: project._id,
