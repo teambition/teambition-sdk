@@ -14,12 +14,7 @@ const ctx = typeof global === 'undefined' ? window : global
 
 const teambition = ctx['teambition']
 
-if (teambition) {
-  const sdk = teambition.sdk
-  if (sdk) {
-    const socket = sdk.socket
-    if (socket) {
-      socket.initClient(client)
-    }
-  }
+if (teambition && teambition.sdk && teambition.sdk.socket) {
+  const socket = teambition.sdk.socket
+  socket.initClient(client)
 }
