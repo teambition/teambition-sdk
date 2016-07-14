@@ -1328,6 +1328,32 @@ export default describe('Task API test', () => {
       httpBackend.flush()
     })
 
+    it('update same executor should ok', done => {
+      const _executorId = mockTaskGet._executorId
+
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/_executorId`, {
+          _executorId
+        })
+        .respond('')
+
+      Task.get(mockTaskGet._id)
+        .subscribe(() => {
+          // 返回空符串时，缓存不会被更新，不会发送信号出去
+          // 这里的`done`方法只会被调用一次
+          done()
+        })
+
+      Task.updateExecutor(mockTaskGet._id, _executorId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(r => {
+          // 返回空符串时，缓存不会被更新，信号不会到达这里
+          // 这里的`done`方法不该被调用
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
     it('update involove members should ok', done => {
       const mockResponse = {
         _id: mockTaskGet._id,
@@ -1376,6 +1402,32 @@ export default describe('Task API test', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(r => {
           expect(r).to.deep.equal(mockResponse)
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add same involove members should ok', done => {
+      const involveMembers = mockTaskGet.involveMembers
+
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
+          involveMembers
+        })
+        .respond('')
+
+      Task.get(mockTaskGet._id)
+        .subscribe(r => {
+          // 返回空符串时，缓存不会被更新，不会发送信号出去
+          // 这里的`done`方法只会被调用一次
+          done()
+        })
+
+      Task.updateInvolvemembers(mockTaskGet._id, involveMembers, 'involveMembers')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(() => {
+          // 返回空符串时，缓存不会被更新，信号不会到达这里
+          // 这里的`done`方法不该被调用
           done()
         })
 

@@ -285,7 +285,9 @@ export class TaskModel extends BaseModel {
    * 比如更改一个截止日期，socket 不仅推送新的截止日期，还附带了 executor: null
    */
   update(_taskId: string, patch: any): Observable<TaskData> {
-    if (!patch._executorId && typeof patch.executor !== 'undefined') {
+    if (patch &&
+        !patch._executorId &&
+        typeof patch.executor !== 'undefined') {
       delete patch.executor
     }
     return super.update<TaskData>(_taskId, patch)
