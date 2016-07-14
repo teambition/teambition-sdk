@@ -263,10 +263,12 @@ export default describe('Task API test', () => {
         .subscribe(tasks => {
           expect(tasks.length).to.equal(length + 1)
           forEach(tasks[0], (ele, key) => {
-            if (key !== 'isDone') {
-              expect(ele).to.deep.equal(mockDoneTask[key])
-            }else {
-              expect(ele).to.equal(!mockDoneTask[key])
+            if (key !== '_requested') {
+              if (key !== 'isDone') {
+                expect(ele).to.deep.equal(mockDoneTask[key])
+              }else {
+                expect(ele).to.equal(!mockDoneTask[key])
+              }
             }
           })
         })

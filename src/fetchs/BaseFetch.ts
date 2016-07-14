@@ -36,8 +36,14 @@ _allowedMethod.forEach(httpMethod => {
     }else {
       let result: Promise<any>
       const now = Date.now()
-      if (httpMethod === 'get' && args.queryOrBody) {
-        args.queryOrBody._ = now
+      if (httpMethod === 'get') {
+        if (args.queryOrBody) {
+          args.queryOrBody._ = now
+        }else {
+          args.queryOrBody = {
+            _: now
+          }
+        }
       }
       result = args.originFn(args.url, args.queryOrBody)
         .then(r => {
