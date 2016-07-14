@@ -1,7 +1,8 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import { OrganizationData } from '../schemas/Organization'
+import Organization, { OrganizationData } from '../schemas/Organization'
 import Model from './BaseModel'
+import { datasToSchemas, dataToSchema } from '../utils/index'
 
 export class OrganizationModel extends Model {
   getAll(): Observable<Array<OrganizationData>> {
@@ -13,11 +14,13 @@ export class OrganizationModel extends Model {
   }
 
   saveAll(organizations: OrganizationData[]): Observable<OrganizationData[]> {
-    return this._saveCollection<OrganizationData>('organization', organizations)
+    const result = datasToSchemas<OrganizationData>(organizations, Organization)
+    return this._saveCollection<OrganizationData>('organization', result)
   }
 
   addOne(data: OrganizationData): Observable<OrganizationData> {
-    return this._save<OrganizationData>(data)
+    const result = dataToSchema<OrganizationData>(data, Organization)
+    return this._save<OrganizationData>(result)
   }
 }
 
