@@ -627,4 +627,18 @@ export default describe('database test: ', () => {
 
   })
 
+  it('store empty collection should ok', done => {
+    const empty = []
+
+    Storage.storeCollection('collection_test_8', empty)
+      .subscribe()
+
+    Storage.storeCollection('collection_test_8', empty)
+      .subscribe(r => {
+        expect(r.length).to.equal(0)
+        done()
+      })
+
+  })
+
 })

@@ -71,8 +71,8 @@ export default class DataBase {
     return Observable.create((observer: Observer<Observable<T[]>>) => {
       setTimeout(() => {
         const cache: Collection<T> = DataBase.data.get(index)
-        if (cache) {
-          const requested = data.length ? data[0]._requested : 0
+        if (cache && data.length) {
+          const requested = data[0]._requested
           if (requested && requested === cache.requested) {
             observer.next(cache.get())
           /* istanbul ignore if */
