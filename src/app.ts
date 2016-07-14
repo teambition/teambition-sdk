@@ -18,11 +18,11 @@ export { eventParser } from './sockets/EventParser'
 // typings
 export * from './teambition'
 
-export * from'./schemas'
+export * from './schemas'
 
 // export fetchs
 
-export * from'./fetchs'
+export * from './fetchs'
 
 /* istanbul ignore next */
 export function setToken(token: string): void {

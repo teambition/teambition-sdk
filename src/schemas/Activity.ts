@@ -1,7 +1,24 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
-import { MemberData } from '../schemas/Member'
 import File from './File'
+
+export interface Locales {
+  en: {
+    title: string
+  }
+  zh: {
+    title: string
+  },
+  ko: {
+    title: string
+  }
+  zh_tw: {
+    title: string
+  }
+  ja: {
+    title: string
+  }
+}
 
 export interface ActivityData extends ISchema<ActivityData> {
   _id: string
@@ -10,13 +27,18 @@ export interface ActivityData extends ISchema<ActivityData> {
   created: number
   boundToObjectType: string
   _boundToObjectId: string
-  creator: MemberData
+  creator: {
+    _id: string
+    name: string
+  }
   title: string
   content: {
     comment?: string
     attachments: File[]
     mentionsArray: string[]
-    mentions: MemberData
+    mentions: {
+      [index: string]: string
+    }
     attachmentsName: string
     creator: string
     linked?: {
@@ -35,6 +57,7 @@ export interface ActivityData extends ISchema<ActivityData> {
   linked: {
     _id?: string
   }
+  locales: Locales
 }
 
 @schemaName('Activity')
@@ -45,13 +68,16 @@ export default class Activity extends Schema implements ActivityData {
   created: number = undefined
   boundToObjectType: string = undefined
   _boundToObjectId: string = undefined
-  creator: MemberData = undefined
+  creator: {
+    _id: string
+    name: string
+  } = undefined
   title: string = undefined
   content: {
     comment?: string
     attachments: File[]
     mentionsArray: string[]
-    mentions: MemberData
+    mentions: {[index: string]: string}
     attachmentsName: string
     creator: string
     linked?: {
@@ -70,4 +96,5 @@ export default class Activity extends Schema implements ActivityData {
   linked: {
     _id?: string
   } = undefined
+  locales: Locales = undefined
 }

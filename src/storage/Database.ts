@@ -24,7 +24,6 @@ export default class DataBase {
    * 用来索引 schemaName -> collection names 映射
    */
   private _schemaMap = new Map<string, string[]>()
-  private _getSignalMap = new Map<string, Observable<any>>()
 
   constructor() {
     DataBase.data.clear()
@@ -108,20 +107,14 @@ export default class DataBase {
   }
 
   get<T>(index: string): Observable<T> {
-    let signal: Observable<T>
-    signal = this._getSignalMap.get(index)
-    if (!signal) {
-      signal = Observable.create((observer: Observer<Observable<T>>) => {
-        const cache = DataBase.data.get(index)
-        if (cache) {
-          observer.next(cache.get())
-        }else {
-          observer.next(Observable.of(null))
-        }
-      }).concatMap((x: Observable<T>) => x)
-      this._getSignalMap.set(index, signal)
-    }
-    return signal
+    return Observable.create((observer: Observer<Observable<T>>) => {
+      const cache = DataBase.data.get(index)
+      if (cache) {
+        return observer.next(cache.get())
+      }else {
+        return observer.next(Observable.of(null))
+      }
+    }).concatMap((x: Observable<T>) => x)
   }
 
   delete(index: string): Observable<void> {
@@ -230,7 +223,6 @@ export default class DataBase {
   flush(): void {
     DataBase.data.clear()
     this._schemaMap.clear()
-    this._getSignalMap.clear()
   }
 
   checkSchema<T extends ISchema<T>>(index: string): boolean {

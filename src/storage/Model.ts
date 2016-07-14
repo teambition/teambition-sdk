@@ -164,7 +164,8 @@ export default class Model<T extends ISchema<T>> {
           }
         })
         this.data = assign(this.data, _finalPatch)
-        observer.next(clone(this.data))
+        const result = clone(this.data)
+        observer.next(result)
         observer.complete()
       })
     })

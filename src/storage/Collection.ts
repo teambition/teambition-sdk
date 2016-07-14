@@ -20,8 +20,7 @@ export default class Collection <T extends ISchema<T>> {
     _data: T[],
     public schemaName?: string,
     public condition?: (data: T) => boolean,
-    private _unionFlag = '_id',
-    private _expire?: number
+    private _unionFlag = '_id'
   ) {
     const result: T[] = []
     if (_data.length) {
