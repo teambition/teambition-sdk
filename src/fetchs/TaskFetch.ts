@@ -68,6 +68,16 @@ export interface MoveTaskOptions {
   withTags?: boolean
 }
 
+export interface GetStageTasksOptions {
+  isDone?: boolean
+  _executorId?: string
+  dueDate?: string
+  accomplished?: string
+  all?: boolean
+  limit?: number
+  page?: number
+}
+
 export class TaskFetch extends Fetch {
   getTasksMe (option: TasksMeOptions): Promise<Task[]> {
     return this.fetch.get(`v2/tasks/me`, option)
@@ -105,6 +115,10 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`tasks/${_taskId}`, detailType ? {
       detailType: detailType
     } : null)
+  }
+
+  getStageTasks(stageId: string, query?: any): Promise<Task[]> {
+    return this.fetch.get(`stages/${stageId}/tasks`, query)
   }
 
   getProjectTasks(_id: string, query?: any): Promise<Task[]> {

@@ -25,6 +25,7 @@ import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
 import { organizationMyCreatedTasks } from '../../mock/organizationMyCreatedTasks'
 import { organizationMyInvolvesTasks } from '../../mock/organizationMyInvolvesTasks'
 import { tasklists } from '../../mock/tasklists'
+import { stageTasksUndone } from '../../mock/stageTasksUndone'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -1169,6 +1170,44 @@ export default describe('Task API test', () => {
       httpBackend.flush()
     })
 
+  })
+
+  describe('get stage tasks: ', () => {
+    const stageId = stageTasksUndone[0]._id
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}stages/${stageId}/tasks`)
+        .respond(JSON.stringify(stageTasksUndone))
+    })
+
+    it('get should ok', done => {
+      Task.getStageTasks(stageId)
+        .subscribe(r => {
+          forEach(r, (task, index) => {
+            expectDeepEqual(task, stageTasksUndone[index])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get from cache should ok', done => {
+      Task.getStageTasks(stageId)
+        .subscribe()
+
+      Task.getStageTasks(stageId)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(r => {
+          forEach(r, (task, index) => {
+            expectDeepEqual(task, stageTasksUndone[index])
+          })
+          expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
   })
 
   it('create task should ok', done => {
