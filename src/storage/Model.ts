@@ -26,8 +26,8 @@ export default class Model<T extends ISchema<T>> {
         const flag = val[_unionFlag]
         if (val instanceof Array && val.length) {
           forEach(val, (ele: any, pos: number) => {
-            const _flag = ele[_unionFlag]
-            if (_flag) {
+            if (ele && ele[_unionFlag]) {
+              const _flag = ele[_unionFlag]
               const cache: Model<any> = Data.get(_flag)
               const route = {
                 key: key,
@@ -91,16 +91,16 @@ export default class Model<T extends ISchema<T>> {
               const oldVal = this.data[key]
               if (oldVal instanceof Array && oldVal.length) {
                 forEach(oldVal, ele => {
-                  const _flag = ele[_unionFlag]
-                  if (_flag) {
+                  if (ele && ele[_unionFlag]) {
+                    const _flag = ele[_unionFlag]
                     this.removeChild(_flag)
                   }
                 })
               }
               const newEle: any[] = _finalPatch[key] = []
               forEach(val, (ele: any, pos: number) => {
-                const _flag = ele[_unionFlag]
-                if (_flag) {
+                if (ele && ele[_unionFlag]) {
+                  const _flag = ele[_unionFlag]
                   if (this.children.indexOf(_flag) === -1) {
                     const cache: Model<any> = Data.get(_flag)
                     const route = {
