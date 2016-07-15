@@ -2,6 +2,7 @@
 import 'es6-promise'
 import 'isomorphic-fetch'
 import 'es6-collections'
+import 'rxjs/add/operator/subscribeOn'
 import BaseFetch from './fetchs/BaseFetch'
 
 import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
