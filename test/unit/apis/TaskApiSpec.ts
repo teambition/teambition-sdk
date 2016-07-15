@@ -1,5 +1,5 @@
 'use strict'
-import { Scheduler } from 'rxjs'
+import { Scheduler, Observable } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
@@ -1227,17 +1227,16 @@ export default describe('Task API test', () => {
         })
         .respond(newTask)
 
-      Task.getProjectTasks(_projectId)
-        .skip(1)
-        .subscribe(tasks => {
+      Observable.combineLatest(
+          Task.getProjectTasks(_projectId).skip(1),
+          Task.fork(_taskId, {_stageId})
+            .subscribeOn(Scheduler.async, global.timeout1)
+        )
+        .subscribe(([tasks]) => {
           expect(tasks.map(task => task._id)).to.deep
             .equal([newTask].concat(projectTasks).map(task => task._id))
           done()
         })
-
-      Task.fork(_taskId, {_stageId})
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
     it('fork task and get tasklist tasks', done => {
@@ -1271,16 +1270,15 @@ export default describe('Task API test', () => {
         })
         .respond(newTask)
 
-      Task.getTasklistUndone(_newTasklistId)
-        .skip(1)
-        .subscribe(tasks => {
+      Observable.combineLatest(
+          Task.getTasklistUndone(_newTasklistId).skip(1),
+          Task.fork(_taskId, {_stageId: _newStageId})
+            .subscribeOn(Scheduler.async, global.timeout1)
+        )
+        .subscribe(([tasks]) => {
           expect(tasks).to.deep.equal([newTask])
           done()
         })
-
-      Task.fork(_taskId, {_stageId: _newStageId})
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
