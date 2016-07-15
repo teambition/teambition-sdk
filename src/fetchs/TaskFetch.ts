@@ -121,6 +121,11 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`stages/${stageId}/tasks`, query)
   }
 
+  getStageDoneTasks(stageId: string, query: any = {}): Promise<Task[]> {
+    query.isDone = true
+    return this.fetch.get(`stages/${stageId}/tasks`, query)
+  }
+
   getProjectTasks(_id: string, query?: any): Promise<Task[]> {
     return this.fetch.get(`projects/${_id}/tasks`, query)
   }

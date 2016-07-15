@@ -95,8 +95,28 @@ export class TaskModel extends BaseModel {
     })
   }
 
+  addStageDoneTasks(stageId: string, tasks: TaskData[]): Observable<TaskData[]> {
+    const dbIndex = `stage:tasks:done/${stageId}`
+    const result = datasToSchemas<TaskData>(tasks, Task)
+
+    return this._saveCollection(
+      dbIndex,
+      result,
+      this._schemaName,
+      (data: TaskData) => {
+        return data._stageId === stageId &&
+            data.isDone &&
+            !data.isArchived
+      }
+    )
+  }
+
   getStageTasks(stageId: string): Observable<TaskData[]> {
     return this._get<TaskData[]>(`stage:tasks:undone/${stageId}`)
+  }
+
+  getStageDoneTasks(stageId: string): Observable<TaskData[]> {
+    return this._get<TaskData[]>(`stage:tasks:done/${stageId}`)
   }
 
   /**

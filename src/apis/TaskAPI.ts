@@ -171,6 +171,18 @@ export class TaskAPI {
     })
   }
 
+  getStageDoneTasks(stageId: string, query?: GetStageTasksOptions): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getStageDoneTasks(stageId)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(TaskFetch.getStageDoneTasks(stageId, query))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addStageDoneTasks(stageId, tasks))
+    })
+  }
+
   get(_id: string, detailType?: detailType): Observable<TaskData> {
     return makeColdSignal<TaskData>(observer => {
       const get = TaskModel.getOne(_id)
