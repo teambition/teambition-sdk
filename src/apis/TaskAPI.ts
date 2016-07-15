@@ -8,7 +8,8 @@ import {
   default as TaskFetch,
   CreateTaskOptions,
   MoveTaskOptions,
-  UpdateTaskOptions
+  UpdateTaskOptions,
+  ForkTaskOptions
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 
@@ -172,6 +173,19 @@ export class TaskAPI {
   create(taskInfo: CreateTaskOptions): Observable<TaskData> {
     return Observable.create((observer: Observer<TaskData>) => {
       Observable.fromPromise(TaskFetch.create(taskInfo))
+        .catch(err => {
+          observer.error(err)
+          return Observable.of(null)
+        })
+        .concatMap(task => TaskModel.addOne(task))
+        .forEach(task => observer.next(task))
+        .then(x => observer.complete())
+    })
+  }
+
+  fork(_taskId: string, options: ForkTaskOptions): Observable<TaskData> {
+    return Observable.create((observer: Observer<TaskData>) => {
+      Observable.fromPromise(TaskFetch.fork(_taskId, options))
         .catch(err => {
           observer.error(err)
           return Observable.of(null)
