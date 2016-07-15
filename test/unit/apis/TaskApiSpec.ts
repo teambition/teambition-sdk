@@ -24,6 +24,7 @@ import { organizationMyTasks } from '../../mock/organizationMyTasks'
 import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
 import { organizationMyCreatedTasks } from '../../mock/organizationMyCreatedTasks'
 import { organizationMyInvolvesTasks } from '../../mock/organizationMyInvolvesTasks'
+import { tasklists } from '../../mock/tasklists'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -1194,6 +1195,93 @@ export default describe('Task API test', () => {
     })
 
     httpBackend.flush()
+  })
+
+  describe('fork task: ', () => {
+
+    const makeRandomNumber = () => {
+      return Math.exp(Math.log(Date.now()) * Math.random())
+    }
+
+    beforeEach(() => {
+      httpBackend.flush()
+    })
+
+    it('fork task and get project tasks', done => {
+
+      // 原数据
+      const task = projectTasks[0]
+      const _taskId = task._id
+      const _stageId = task._stageId
+      const _projectId = task._projectId
+
+      // 新复制数据
+      const newTask = clone(task)
+      newTask._id = makeRandomNumber().toString()
+
+      httpBackend.whenGET(`${apihost}projects/${_projectId}/tasks`)
+        .respond(JSON.stringify(projectTasks))
+
+      httpBackend.whenPUT(`${apihost}tasks/${_taskId}/fork`, {
+          _stageId
+        })
+        .respond(newTask)
+
+      Task.getProjectTasks(_projectId)
+        .skip(1)
+        .subscribe(tasks => {
+          expect(tasks.map(task => task._id)).to.deep
+            .equal([newTask].concat(projectTasks).map(task => task._id))
+          done()
+        })
+
+      Task.fork(_taskId, {_stageId})
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+    })
+
+    it('fork task and get tasklist tasks', done => {
+
+      // 原数据
+      const task = tasksUndone[0]
+      const _taskId = task._id
+      const _tasklistId = task._tasklistId
+
+      // 新复制数据
+      const newTask = clone(task)
+      newTask._id = makeRandomNumber().toString()
+      let _newTasklistId = null
+      let _newStageId = null
+      tasklists.some(tasklist => {
+        if (tasklist._id !== _tasklistId &&
+            tasklist.stageIds &&
+            tasklist.stageIds.length) {
+          newTask._projectId = tasklist._projectId
+          newTask._tasklistId = _newTasklistId = tasklist._id
+          newTask._stageId = _newStageId = tasklist.stageIds[0]
+          return true
+        }
+      })
+
+      httpBackend.whenGET(`${apihost}tasklists/${_newTasklistId}/tasks?isDone=false`)
+        .respond(JSON.stringify([]))
+
+      httpBackend.whenPUT(`${apihost}tasks/${_taskId}/fork`, {
+          _stageId: _newStageId
+        })
+        .respond(newTask)
+
+      Task.getTasklistUndone(_newTasklistId)
+        .skip(1)
+        .subscribe(tasks => {
+          expect(tasks).to.deep.equal([newTask])
+          done()
+        })
+
+      Task.fork(_taskId, {_stageId: _newStageId})
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+    })
   })
 
   describe('update task: ', () => {

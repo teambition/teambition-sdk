@@ -168,7 +168,7 @@ export class TaskFetch extends Fetch {
   }
 
   fork(_taskId: string, forkData: ForkTaskOptions): Promise<Task> {
-    return this.fetch.put(`tasks/${_taskId}/fork`)
+    return this.fetch.put(`tasks/${_taskId}/fork`, forkData)
   }
 
   getByStage(_stageId: string, options?: {
