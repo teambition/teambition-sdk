@@ -14,6 +14,11 @@
     "teambition-sdk",
     "socket"
   ],
+  "dependencies": {
+    "engine.io-client": "^1.6.9",
+    "jsonrpc-lite": "^1.2.1",
+    "snapper-consumer": "teambition/snapper-consumer"
+  },
   "author": "lynweklm@gmail.com",
   "license": "MIT",
   "bugs": {
