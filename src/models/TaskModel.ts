@@ -89,7 +89,6 @@ export class TaskModel extends BaseModel {
   addStageTasks(stageId: string, tasks: TaskData[]): Observable<TaskData[]> {
     const dbIndex = `stage:tasks:undone/${stageId}`
     const result = datasToSchemas<TaskData>(tasks, Task)
-
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return data._stageId === stageId && !data.isDone && !data.isArchived
     })

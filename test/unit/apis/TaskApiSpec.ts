@@ -1174,7 +1174,7 @@ export default describe('Task API test', () => {
   })
 
   describe('get stage tasks: ', () => {
-    const stageId = stageTasksUndone[0]._id
+    const stageId = stageTasksUndone[0]._stageId
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}stages/${stageId}/tasks`)
@@ -1304,10 +1304,8 @@ export default describe('Task API test', () => {
 
       httpBackend.whenGET(`${apihost}stages/${stageId}/tasks?isDone=true`)
         .respond(JSON.stringify([]))
-
       Observable.combineLatest(
           Task.getStageTasks(stageId).skip(1),
-          // REVIEW: `getStageDoneTasks`有问题
           Task.getStageDoneTasks(stageId).skip(1),
           Task.updateStatus(_taskId, true)
             .subscribeOn(Scheduler.async, global.timeout4)
@@ -1327,7 +1325,7 @@ export default describe('Task API test', () => {
 
   describe('stage done tasks: ', () => {
     const stageDoneTask = stageTasksDone[0]
-    const _stageId = stageDoneTask._id
+    const _stageId = stageDoneTask._stageId
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}stages/${_stageId}/tasks?isDone=true`)
@@ -1429,7 +1427,6 @@ export default describe('Task API test', () => {
 
       Observable.combineLatest(
           Task.getStageTasks(_stageId).skip(1),
-          // REVIEW: `getStageDoneTasks`有问题
           Task.getStageDoneTasks(_stageId).skip(1),
           Task.updateStatus(_taskId, false)
             .subscribeOn(Scheduler.async, global.timeout4)
