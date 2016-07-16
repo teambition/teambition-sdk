@@ -25,6 +25,8 @@ import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
 import { organizationMyCreatedTasks } from '../../mock/organizationMyCreatedTasks'
 import { organizationMyInvolvesTasks } from '../../mock/organizationMyInvolvesTasks'
 import { tasklists } from '../../mock/tasklists'
+import { stageTasksUndone } from '../../mock/stageTasksUndone'
+import { stageTasksDone } from '../../mock/stageTasksDone'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -1169,6 +1171,277 @@ export default describe('Task API test', () => {
       httpBackend.flush()
     })
 
+  })
+
+  describe('get stage tasks: ', () => {
+    const stageId = stageTasksUndone[0]._stageId
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}stages/${stageId}/tasks`)
+        .respond(JSON.stringify(stageTasksUndone))
+      httpBackend.flush()
+    })
+
+    it('get should ok', done => {
+      Task.getStageTasks(stageId)
+        .subscribe(r => {
+          forEach(r, (task, index) => {
+            expectDeepEqual(task, stageTasksUndone[index])
+          })
+          done()
+        })
+    })
+
+    it('get from cache should ok', done => {
+      Task.getStageTasks(stageId)
+        .subscribe()
+
+      Task.getStageTasks(stageId)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(r => {
+          forEach(r, (task, index) => {
+            expectDeepEqual(task, stageTasksUndone[index])
+          })
+          expect(spy).to.be.calledOnce
+          done()
+        })
+    })
+
+    it('create new task', done => {
+      const newTaskInfo = {
+        _tasklistId: stageTasksUndone[0]._tasklistId,
+        content: 'mocktaskcontent'
+      }
+      const now = new Date().toString()
+      const newTask = {
+        _id: 'mocktaskid',
+        _projectId: stageTasksUndone[0]._projectId,
+        _tasklistId: stageTasksUndone[0]._tasklistId,
+        _stageId: stageId,
+        content: 'mocktaskcontent',
+        updated: now,
+        created: now
+      }
+
+      httpBackend.whenPOST(`${apihost}tasks`, newTaskInfo)
+        .respond(JSON.stringify(newTask))
+
+      Observable.combineLatest(
+          Task.getStageTasks(stageId).skip(1),
+          Task.create(newTaskInfo).subscribeOn(Scheduler.async, global.timeout1)
+        )
+        .subscribe(([tasks, anotherNewTask]) => {
+          expect(tasks.length).to.be.equal(stageTasksUndone.length + 1)
+          expectDeepEqual(newTask, tasks[0])
+          expectDeepEqual(newTask, anotherNewTask)
+          done()
+        })
+    })
+
+    it('delete task', done => {
+      const _taskId = stageTasksUndone[0]._id
+      const nextTask = stageTasksUndone[1]
+
+      httpBackend.whenDELETE(`${apihost}tasks/${_taskId}`)
+        .respond({})
+
+      Observable.combineLatest(
+          Task.getStageTasks(stageId).skip(1),
+          Task.delete(_taskId)
+            .subscribeOn(Scheduler.async, global.timeout1)
+        )
+        .subscribe(([tasks, oldTask]) => {
+          expect(tasks.length).to.be.equal(stageTasksUndone.length - 1)
+          expectDeepEqual(nextTask, tasks[0])
+          expect(oldTask).to.be.null
+          done()
+        })
+    })
+
+    it('move task to another stage', done => {
+      const _taskId = stageTasksUndone[0]._id
+      const _anotherStageId = 'mockstageid'
+
+      httpBackend.whenPUT(`${apihost}tasks/${_taskId}/move`, {
+          _stageId: _anotherStageId
+        })
+        .respond({
+          _id: _taskId,
+          _stageId: _anotherStageId,
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}stages/${_anotherStageId}/tasks`)
+        .respond(JSON.stringify([]))
+
+      Observable.combineLatest(
+          Task.getStageTasks(stageId).skip(1),
+          Task.getStageTasks(_anotherStageId).skip(1),
+          Task.move(_taskId, {
+              _stageId: _anotherStageId
+            })
+            .subscribeOn(Scheduler.async, global.timeout4)
+        )
+        .subscribe(([tasks, anotherTasks, task]) => {
+          expect(tasks.length).to.be.equal(stageTasksUndone.length - 1)
+          expect(anotherTasks.length).to.be.equal(1)
+          expect(anotherTasks[0]._id).to.be.equal(task._id)
+          done()
+        })
+    })
+
+    it('update task state to `true`', done => {
+      const _taskId = stageTasksUndone[0]._id
+
+      httpBackend.whenPUT(`${apihost}tasks/${_taskId}/isDone`, {
+          isDone: true
+        })
+        .respond({
+          _id: _taskId,
+          isDone: true,
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}stages/${stageId}/tasks?isDone=true`)
+        .respond(JSON.stringify([]))
+      Observable.combineLatest(
+          Task.getStageTasks(stageId).skip(1),
+          Task.getStageDoneTasks(stageId).skip(1),
+          Task.updateStatus(_taskId, true)
+            .subscribeOn(Scheduler.async, global.timeout4)
+        )
+        .subscribe(([tasks, doneTasks, newPatch]) => {
+          expect(tasks.length).to.be.equal(stageTasksUndone.length - 1)
+          expect(doneTasks.length).to.be.equal(1)
+          expect(doneTasks[0]._id).to.be.equal(newPatch._id)
+          expect(doneTasks[0].isDone).to.be
+            .equal(newPatch.isDone)
+            .and.be.true
+          done()
+        })
+      httpBackend.flush()
+    })
+  })
+
+  describe('stage done tasks: ', () => {
+    const stageDoneTask = stageTasksDone[0]
+    const _stageId = stageDoneTask._stageId
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}stages/${_stageId}/tasks?isDone=true`)
+        .respond(JSON.stringify(stageTasksDone))
+      httpBackend.flush()
+    })
+
+    it('get', done => {
+      Task.getStageDoneTasks(_stageId)
+        .subscribe(r => {
+          forEach(r, (task, index) => {
+            expectDeepEqual(task, stageTasksDone[index])
+          })
+          done()
+        })
+    })
+
+    it('get from cache', done => {
+      Task.getStageDoneTasks(_stageId)
+        .subscribe()
+
+      Task.getStageDoneTasks(_stageId)
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(r => {
+          forEach(r, (task, index) => {
+            expectDeepEqual(task, stageTasksDone[index])
+          })
+          expect(spy).to.be.calledOnce
+          done()
+        })
+    })
+
+    it('delete task', done => {
+      const _taskId = stageDoneTask._id
+      const nextDoneTask = stageTasksDone[1]
+
+      httpBackend.whenDELETE(`${apihost}tasks/${_taskId}`)
+        .respond({})
+
+      Observable.combineLatest(
+          Task.getStageDoneTasks(_stageId).skip(1),
+          Task.delete(_taskId)
+            .subscribeOn(Scheduler.async, global.timeout1)
+        )
+        .subscribe(([tasks, oldTask]) => {
+          expect(tasks.length).to.be.equal(stageTasksDone.length - 1)
+          expectDeepEqual(nextDoneTask, tasks[0])
+          expect(oldTask).to.be.null
+          done()
+        })
+    })
+
+    it('move task to another stage', done => {
+      const _taskId = stageDoneTask._id
+      const _anotherStageId = 'mockstageid'
+
+      httpBackend.whenPUT(`${apihost}tasks/${_taskId}/move`, {
+          _stageId: _anotherStageId
+        })
+        .respond({
+          _id: _taskId,
+          _stageId: _anotherStageId,
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}stages/${_anotherStageId}/tasks?isDone=true`)
+        .respond(JSON.stringify([]))
+
+      Observable.combineLatest(
+          Task.getStageDoneTasks(_stageId).skip(1),
+          Task.getStageDoneTasks(_anotherStageId).skip(1),
+          Task.move(_taskId, {
+              _stageId: _anotherStageId
+            })
+            .subscribeOn(Scheduler.async, global.timeout4)
+        )
+        .subscribe(([tasks, anotherTasks, task]) => {
+          expect(tasks.length).to.be.equal(stageTasksDone.length - 1)
+          expect(anotherTasks.length).to.be.equal(1)
+          expect(anotherTasks[0]._id).to.be.equal(task._id)
+          done()
+        })
+    })
+
+    it('update task state to `false`', done => {
+      const _taskId = stageDoneTask._id
+
+      httpBackend.whenPUT(`${apihost}tasks/${_taskId}/isDone`, {
+          isDone: false
+        })
+        .respond({
+          _id: _taskId,
+          isDone: false,
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}stages/${_stageId}/tasks`)
+        .respond(JSON.stringify([]))
+
+      Observable.combineLatest(
+          Task.getStageTasks(_stageId).skip(1),
+          Task.getStageDoneTasks(_stageId).skip(1),
+          Task.updateStatus(_taskId, false)
+            .subscribeOn(Scheduler.async, global.timeout4)
+        )
+        .subscribe(([tasks, doneTasks, newPatch]) => {
+          expect(tasks.length).to.be.equal(1)
+          expect(doneTasks.length).to.be.equal(stageTasksDone.length - 1)
+          expect(tasks[0]._id).to.be.equal(newPatch._id)
+          expect(tasks[0].isDone).to.be
+            .equal(newPatch.isDone)
+            .and.be.false
+          done()
+        })
+      httpBackend.flush()
+    })
   })
 
   it('create task should ok', done => {

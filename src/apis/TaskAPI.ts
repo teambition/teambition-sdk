@@ -9,7 +9,8 @@ import {
   CreateTaskOptions,
   MoveTaskOptions,
   UpdateTaskOptions,
-  ForkTaskOptions
+  ForkTaskOptions,
+  GetStageTasksOptions
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 
@@ -155,6 +156,30 @@ export class TaskAPI {
       return Observable.fromPromise(TaskFetch.getProjectDoneTasks(_projectId, query))
         .catch(err => errorHandler(observer, err))
         .concatMap(tasks => TaskModel.addProjectDoneTasks(_projectId, tasks, page))
+    })
+  }
+
+  getStageTasks(stageId: string, query?: GetStageTasksOptions): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getStageTasks(stageId)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(TaskFetch.getStageTasks(stageId, query))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addStageTasks(stageId, tasks))
+    })
+  }
+
+  getStageDoneTasks(stageId: string, query?: GetStageTasksOptions): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getStageDoneTasks(stageId)
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(TaskFetch.getStageDoneTasks(stageId, query))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addStageDoneTasks(stageId, tasks))
     })
   }
 
