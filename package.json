@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.2.10",
+  "version": "0.2.12",
   "description": "Front-End SDK for Teambition",
   "main": "dist/cjs/app.js",
   "jsnext:main": "dist/es6/app.js",
@@ -57,7 +57,7 @@
     "chai": "^3.4.1",
     "commitizen": "^2.8.1",
     "cz-teambition-web-commit": "github:teambition/cz-teambition-web-commit",
-    "engine.io-client": "^1.6.9",    
+    "engine.io-client": "^1.6.9",
     "fetch-mock": "^4.5.0",
     "istanbul": "^0.4.3",
     "jsonrpc-lite": "^1.2.1",
