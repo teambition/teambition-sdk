@@ -1,7 +1,8 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 import { MemberData } from '../schemas/Member'
-import { visibility, LinkedSchema } from '../teambition'
+import { ObjectLinkData } from '../schemas/ObjectLink'
+import { visibility } from '../teambition'
 
 export interface FileData extends ISchema<FileData> {
   _id: string
@@ -33,10 +34,10 @@ export interface FileData extends ISchema<FileData> {
   class: string
   creatorName: string
   creatorAvatar: string
-  linked: LinkedSchema[]
   isLike: boolean
   likedPeople: string
   likesCount: number
+  linked?: ObjectLinkData[]
 }
 
 @schemaName('File')
@@ -70,7 +71,6 @@ export default class File extends Schema implements FileData {
   class: string = undefined
   creatorName: string = undefined
   creatorAvatar: string = undefined
-  linked: LinkedSchema[] = undefined
   isLike: boolean = undefined
   likedPeople: string = undefined
   likesCount: number = undefined

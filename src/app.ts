@@ -43,6 +43,7 @@ export { default as TaskFetch } from './fetchs/TaskFetch'
 export { default as SubtaskFetch } from './fetchs/SubtaskFetch'
 export { default as ActivityFetch } from './fetchs/ActivityFetch'
 export { default as StrikerFetch } from './fetchs/StrikerFetch'
+export { default as ObjectLinkFetch } from './fetchs/ObjectLinkFetch'
 
 export function setToken(token: string): void {
   BaseFetch.fetch.setToken(token)
@@ -67,10 +68,11 @@ export * from './apis/SubtaskAPI'
 export * from './apis/ActivityAPI'
 export * from './apis/FileAPI'
 export * from './apis/CollectionAPI'
+export * from './apis/ObjectLinkAPI'
 
 // for socket
 
-import { SocketClient } from './sockets/SocketClient'
+import { SocketClient as Client } from './sockets/SocketClient'
 
 declare const global: any
 
@@ -84,6 +86,6 @@ const sdk = teambition.sdk = Object.create(null)
 
 sdk.version = '0.2.12'
 
-sdk.socket = new SocketClient()
+sdk.socket = new Client()
 
-export const client: SocketClient = sdk.socket
+export const SocketClient: Client = sdk.socket
