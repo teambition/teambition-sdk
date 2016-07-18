@@ -1,20 +1,3 @@
-export interface LinkedSchema {
-  _id: string
-  _projectId: string
-  _parentId: string
-  _linkedId: string
-  _creatorId: string
-  updated: string
-  created: string
-  linkedType: string
-  parentType: string
-  creator: Executor
-  title: string
-  project: string
-  isDone: boolean
-  icon?: string
-}
-
 export type visibility = 'project' | 'organization' | 'all'
 
 export interface LikeSchema {

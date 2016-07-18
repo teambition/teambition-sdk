@@ -70,7 +70,7 @@
     "rollup-plugin-node-resolve": "^1.5.0",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
-    "snapper-consumer": "teambition/snapper-consumer",
+    "snapper-consumer": "^1.2.0",
     "ts-node": "^0.9.3",
     "tslint": "^3.13.0",
     "typescript": "^1.8.10",
