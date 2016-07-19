@@ -57,6 +57,18 @@ export interface ProjectTasksOptions {
   startDate?: string
 }
 
+export interface TransferProjectResponse {
+  _id: string
+  _organizationId: string
+  updated: string
+}
+
+export interface UnarchiveProjectResponse {
+  _id: string
+  isArchive: boolean
+  updated: string
+}
+
 export class ProjectFetch extends BaseFetch {
 
   getAll(querys?: any): Promise<ProjectData[]> {
@@ -168,20 +180,13 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get(`projects/${_id}/statistic`, query)
   }
 
-  transfer(_id: string, organizationId?: string): Promise<{
-    _organizationId: string
-    updated: string
-  }> {
+  transfer(_id: string, organizationId?: string): Promise<TransferProjectResponse> {
     return this.fetch.put(`projects/${_id}/transfer`, {
       _organizationId: organizationId
     })
   }
 
-  unarchive(_id: string): Promise<{
-    _id: string
-    isArchive: boolean
-    updated: string
-  }> {
+  unarchive(_id: string): Promise<UnarchiveProjectResponse> {
     return this.fetch.put(`projects/${_id}/unarchive`)
   }
 

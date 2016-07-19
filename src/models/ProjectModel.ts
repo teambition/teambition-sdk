@@ -49,10 +49,6 @@ export class ProjectModel extends BaseModel {
     return this._get<ProjectData[]>('archives:projects')
   }
 
-  update(project: any): Observable<ProjectData> {
-    return super.update<ProjectData>(project._id, project)
-  }
-
 }
 
 export default new ProjectModel()
