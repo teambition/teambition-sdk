@@ -49,6 +49,7 @@
     "es6-promise": "^3.1.2",
     "isomorphic-fetch": "^2.2.1",
     "rxjs": "^5.0.0-beta.10",
+    "snapper-consumer": "^1.2.0",
     "symbol-observable": "^1.0.1",
     "whatwg-fetch": "^1.0.0"
   },
@@ -70,7 +71,6 @@
     "rollup-plugin-node-resolve": "^1.5.0",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
-    "snapper-consumer": "^1.2.0",
     "ts-node": "^0.9.3",
     "tslint": "^3.13.0",
     "typescript": "^1.8.10",

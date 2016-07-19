@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Model from './BaseModel'
-import DataBase from '../storage/DataBase'
+import DataBase from '../storage/Database'
 import TagSchema, { TagData } from '../schemas/Tag'
 import { dataToSchema, datasToSchemas } from '../utils/index'
 import TaskSchema from '../schemas/Task'
@@ -12,7 +12,7 @@ import EntrySchema from '../schemas/Entry'
 import { ObjectSchema, TagsObjectType } from '../fetchs/TagFetch'
 
 export class TagModel extends Model {
-  private _schemaMap = {
+  private _schemaMap: any = {
     'task': {
       schema: TaskSchema,
       schemaName: 'Task'

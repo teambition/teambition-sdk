@@ -19,7 +19,7 @@ import { flush, expectDeepEqual, notInclude } from '../utils'
 const expect = chai.expect
 chai.use(sinonChai)
 
-export default describe.only('Tag API test:', () => {
+export default describe('Tag API test:', () => {
   let TaskApi: TaskAPI
   let TagApi: TagAPI
   let httpBackend: Backend
