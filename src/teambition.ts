@@ -6,17 +6,6 @@ export interface LikeSchema {
   likesGroup: Executor[]
 }
 
-export interface TagsData {
-  _creatorId: string
-  _id: string
-  _projectId: string
-  color: string
-  created: string
-  isArchived: boolean
-  name: string
-  updated: string
-}
-
 export interface TburlSchema {
   statusCode: number
   isExist: boolean

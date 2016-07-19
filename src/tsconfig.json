@@ -5,7 +5,11 @@
     "inlineSourceMap": true,
     "outDir": ".tmp",
     "module": "commonjs",
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true
   },
   "files": [
     "./app.ts"

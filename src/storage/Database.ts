@@ -17,7 +17,7 @@ export default class DataBase {
   /**
    * 存储所有的数据，以唯一的 key 为索引
    */
-  public static data = Data
+  public static data: Map<string, any> = Data
 
   /**
    * 用来索引 schemaName -> collection names 映射
