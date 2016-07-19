@@ -367,6 +367,7 @@ export default describe('Project API test', () => {
       _organizationId: 'test'
     })
       .respond(JSON.stringify({
+        _id: project._id,
         _organizationId: 'test'
       }))
 

@@ -5,7 +5,9 @@ import {
   default as ProjectFetch,
   ProjectCreateOptions,
   ProjectUpdateOptions,
-  ProjectCopyOptions
+  ProjectCopyOptions,
+  UnarchiveProjectResponse,
+  TransferProjectResponse
 } from '../fetchs/ProjectFetch'
 import ProjectModel from '../models/ProjectModel'
 import { ProjectData } from '../schemas/Project'
@@ -92,7 +94,7 @@ export class ProjectAPI {
   update(_id: string, updateInfo: ProjectUpdateOptions): Observable<any> {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.update(_id, updateInfo))
-        .concatMap(project => ProjectModel.update(project))
+        .concatMap(project => ProjectModel.update(_id, project))
         .forEach(x => observer.next(x))
         .then(x => observer.complete())
     })
@@ -110,7 +112,7 @@ export class ProjectAPI {
   archive(_id: string): Observable<ProjectData> {
     return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.archive(_id))
-        .concatMap(x => ProjectModel.update(x))
+        .concatMap(x => ProjectModel.update(_id, x))
         .forEach(x => observer.next(<ProjectData>x))
         .then(x => observer.complete())
     })
@@ -120,7 +122,7 @@ export class ProjectAPI {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.clearUnreadCount(_id))
         .catch(err => observableError(observer, err))
-        .concatMap(x => ProjectModel.update(x))
+        .concatMap(x => ProjectModel.update(_id, x))
         .forEach(r => observer.next(r))
         .then(r => observer.complete())
     })
@@ -162,8 +164,13 @@ export class ProjectAPI {
   }
 
   join(_id: string): Observable<ProjectData> {
-    return Observable.fromPromise(ProjectFetch.join(_id))
-      .concatMap(x => this.getOne(_id))
+    return Observable.create((observer: Observer<ProjectData>) => {
+      Observable.fromPromise(ProjectFetch.join(_id))
+        .catch(err => observableError(observer, err))
+        .concatMap(x => this.getOne(_id).take(1))
+        .forEach(r => observer.next(r))
+        .then(() => observer.complete())
+    })
   }
 
   quit(_id: string, _ownerId?: string): Observable<void> {
@@ -192,7 +199,7 @@ export class ProjectAPI {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.setDefaultRole(_id, _roleId))
         .catch(err => observableError(observer, err))
-        .concatMap(x => ProjectModel.update(x))
+        .concatMap(x => ProjectModel.update(_id, x))
         .forEach(r => observer.next(r))
         .then(r => observer.complete())
     })
@@ -202,7 +209,7 @@ export class ProjectAPI {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.star(_id))
         .catch(err => observableError(observer, err))
-        .concatMap(x => ProjectModel.update(<any>x))
+        .concatMap(x => ProjectModel.update(_id, x))
         .forEach(r => observer.next(r))
         .then(r => observer.complete())
     })
@@ -220,22 +227,23 @@ export class ProjectAPI {
     })
   }
 
-  transfer(_id: string, organizationId?: string): Observable<{
-    _organizationId: string
-    updated: string
-  }> {
-    return Observable.create((observer: Observer<{
-      _organizationId: string
-      updated: string
-    }>) => {
+  transfer(_id: string, organizationId?: string): Observable<TransferProjectResponse> {
+    return Observable.create((observer: Observer<TransferProjectResponse>) => {
       Observable.fromPromise(ProjectFetch.transfer(_id, organizationId))
         .catch(err => observableError(observer, err))
-        .concatMap(x => ProjectModel.update(<any>{
-          _organizationId: x._organizationId,
-          _id: _id
-        }))
+        .concatMap(x => ProjectModel.update(_id, x))
         .forEach(r => observer.next(r))
         .then(r => observer.complete())
+    })
+  }
+
+  unarchive(_projectId: string): Observable<UnarchiveProjectResponse> {
+    return Observable.create((observer: Observer<UnarchiveProjectResponse>) => {
+      Observable.fromPromise(ProjectFetch.unarchive(_projectId))
+        .catch(err => observableError(observer, err))
+        .concatMap(r => ProjectModel.update(_projectId, r))
+        .forEach(r => observer.next(r))
+        .then(() => observer.complete())
     })
   }
 
