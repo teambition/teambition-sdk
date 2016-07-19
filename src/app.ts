@@ -29,6 +29,9 @@ export { OrganizationData as OrganizationSchema } from './schemas/Organization'
 export { FileData as FileSchema } from './schemas/File'
 export { TBCollectionData as TBCollectionSchema } from './schemas/Collection'
 export { UserMe } from './schemas/UserMe'
+export { TagData as TagSchema } from './schemas/Tag'
+export { ObjectLinkData as ObjectLinkSchema } from './schemas/ObjectLink'
+export { EntryData as EntrySchema } from './schemas/Entry'
 
 // export fetchs
 
@@ -44,6 +47,7 @@ export { default as SubtaskFetch } from './fetchs/SubtaskFetch'
 export { default as ActivityFetch } from './fetchs/ActivityFetch'
 export { default as StrikerFetch } from './fetchs/StrikerFetch'
 export { default as ObjectLinkFetch } from './fetchs/ObjectLinkFetch'
+export { default as TagFetch } from './fetchs/TagFetch'
 
 export function setToken(token: string): void {
   BaseFetch.fetch.setToken(token)
@@ -69,6 +73,7 @@ export * from './apis/ActivityAPI'
 export * from './apis/FileAPI'
 export * from './apis/CollectionAPI'
 export * from './apis/ObjectLinkAPI'
+export * from './apis/TagAPI'
 
 // for socket
 
