@@ -531,6 +531,32 @@ export default describe('Subtask API test: ', () => {
       httpBackend.flush()
     })
 
+    it('update subtask should ok', done => {
+      const mockId = page1[0]._id
+
+      httpBackend.whenPUT(`${apihost}subtasks/${mockId}/content`, {
+        content: 'mocktest'
+      })
+        .respond({
+          _id: mockId,
+          content: 'mocktest',
+          updated: new Date().toISOString()
+        })
+
+      Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .skip(1)
+        .subscribe(data => {
+          expect(data[0].content).to.equal('mocktest')
+          done()
+        })
+
+      Subtask.updateContent(mockId, 'mocktest')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
     it('delete subtask should ok', done => {
       const mockId = page1[0]._id
 
