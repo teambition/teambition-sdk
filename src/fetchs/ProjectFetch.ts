@@ -69,6 +69,18 @@ export interface UnarchiveProjectResponse {
   updated: string
 }
 
+export interface StarProjectResponse {
+  _id: string
+  isStar: boolean
+  starsCount: number
+}
+
+export interface UnstarProjectResponse {
+  _id: string
+  isStar: boolean
+  starsCount: number
+}
+
 export class ProjectFetch extends BaseFetch {
 
   getAll(querys?: any): Promise<ProjectData[]> {
@@ -165,12 +177,12 @@ export class ProjectFetch extends BaseFetch {
     } : null)
   }
 
-  star(_id: string): Promise<{
-    _id: string
-    isStar: boolean
-    starsCount: number
-  }> {
-    return this.fetch.put(`projects/${_id}/star`)
+  star(_projectId: string): Promise<StarProjectResponse> {
+    return this.fetch.put(`projects/${_projectId}/star`)
+  }
+
+  unstar(_projectId: string): Promise<UnstarProjectResponse> {
+    return this.fetch.delete(`projects/${_projectId}/star`)
   }
 
   getStatistic (_id: string, query?: {

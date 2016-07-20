@@ -7,7 +7,9 @@ import {
   ProjectUpdateOptions,
   ProjectCopyOptions,
   UnarchiveProjectResponse,
-  TransferProjectResponse
+  TransferProjectResponse,
+  StarProjectResponse,
+  UnstarProjectResponse
 } from '../fetchs/ProjectFetch'
 import ProjectModel from '../models/ProjectModel'
 import { ProjectData } from '../schemas/Project'
@@ -205,11 +207,21 @@ export class ProjectAPI {
     })
   }
 
-  star(_id: string): Observable<ProjectData> {
-    return Observable.create((observer: Observer<any>) => {
-      Observable.fromPromise(ProjectFetch.star(_id))
+  star(_projectId: string): Observable<StarProjectResponse> {
+    return Observable.create((observer: Observer<StarProjectResponse>) => {
+      Observable.fromPromise(ProjectFetch.star(_projectId))
         .catch(err => observableError(observer, err))
-        .concatMap(x => ProjectModel.update(_id, x))
+        .concatMap(x => ProjectModel.update(_projectId, x))
+        .forEach(r => observer.next(r))
+        .then(r => observer.complete())
+    })
+  }
+
+  unstar(_projectId: string): Observable<UnstarProjectResponse> {
+    return Observable.create((observer: Observer<UnstarProjectResponse>) => {
+      Observable.fromPromise(ProjectFetch.unstar(_projectId))
+        .catch(err => observableError(observer, err))
+        .concatMap(x => ProjectModel.update(_projectId, x))
         .forEach(r => observer.next(r))
         .then(r => observer.complete())
     })
