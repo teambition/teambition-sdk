@@ -357,6 +357,36 @@ export default describe('Project API test', () => {
     httpBackend.flush()
   })
 
+  it('unstar project should ok', done => {
+    const mockProject = clone(projects[0])
+    mockProject.isStar = true
+    mockProject.starsCount = mockProject.starsCount + 1
+    const mockResponse = {
+      _id: mockProject._id,
+      isStar: false,
+      starsCount: mockProject.starsCount - 1
+    }
+
+    httpBackend.whenGET(`${apihost}projects/${mockProject._id}`)
+      .respond(JSON.stringify(mockProject))
+
+    httpBackend.whenDELETE(`${apihost}projects/${mockProject._id}/star`)
+      .respond(JSON.stringify(mockResponse))
+
+    Project.getOne(mockProject._id)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.isStar).to.be.false
+        done()
+      })
+
+    Project.unstar(mockProject._id)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe()
+
+    httpBackend.flush()
+  })
+
   it('transfer project should ok', done => {
     const project = projects[0]
 
