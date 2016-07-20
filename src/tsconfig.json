@@ -12,7 +12,8 @@
     "noUnusedLocals": true
   },
   "files": [
-    "./app.ts"
+    "./app.ts",
+    "../typings/index.d.ts"
   ],
   "compileOnSave": false
 }
