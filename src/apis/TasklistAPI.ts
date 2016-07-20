@@ -27,7 +27,7 @@ export class TasklistAPI {
   getOne(_tasklistId: string, query?: any): Observable<TasklistData> {
     return makeColdSignal<TasklistData>(observer => {
       const get = TasklistModel.getOne(_tasklistId)
-      if (get) {
+      if (get && TasklistModel.checkSchema(_tasklistId)) {
         return get
       }
       return Observable.fromPromise(TasklistFetch.get(_tasklistId, query))

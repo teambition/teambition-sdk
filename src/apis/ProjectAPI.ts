@@ -59,7 +59,7 @@ export class ProjectAPI {
   getOne(_id: string, querys?: JSONObj): Observable<ProjectData> {
     return makeColdSignal<ProjectData>(observer => {
       const get = ProjectModel.getOne(_id)
-      if (get) {
+      if (get && ProjectModel.checkSchema(_id)) {
         return get
       }
       return Observable.fromPromise(ProjectFetch.getOne(_id, querys))

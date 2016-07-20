@@ -48,7 +48,7 @@ export class PostAPI {
   get(postId: string, query?: any): Observable<PostData> {
     return makeColdSignal<PostData>(observer => {
       const get = PostModel.getOne(postId)
-      if (get) {
+      if (get && PostModel.checkSchema(postId)) {
         return get
       }
       return Observable.fromPromise(PostFetch.get(postId, query))
