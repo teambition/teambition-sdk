@@ -18,5 +18,5 @@ if (process.env.running_under_istanbul) {
 export * from '../../src/app'
 export * from '../../src/utils/index'
 export { default as BaseFetch } from '../../src/fetchs/BaseFetch'
-export { Backend } from '../../mock/index'
+export { Backend, SocketMock } from '../../mock/index'
 export * from './app'

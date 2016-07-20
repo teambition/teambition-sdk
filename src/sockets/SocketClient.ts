@@ -2,7 +2,7 @@
 import UserFetch from '../fetchs/UserFetch'
 import ProjectFetch from '../fetchs/ProjectFetch'
 import { socketHandler } from './EventMaps'
-import { default as Consumer , RequestEvent } from 'snapper-consumer'
+import Consumer, { RequestEvent } from 'snapper-consumer'
 
 declare const global: any
 
@@ -38,7 +38,7 @@ export class SocketClient {
   }
 
   initClient(client: Consumer): void {
-    this._client = this._client ? this._client : client
+    this._client = client
     this._client._join = SocketClient._join
     this._client.onmessage = this._onmessage
   }
