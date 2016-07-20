@@ -29,7 +29,7 @@ export class SocketMock {
     this._sdk.socket.initClient(this)
   }
 
-  emmit(
+  emit(
     method: 'change' | 'destroy' | 'new',
     objectType: SocketEventType,
     objectId: string,
