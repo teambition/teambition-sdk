@@ -48,6 +48,7 @@ export function socketHandler (event: RequestEvent): Observable<any> {
 
 /**
  * refresh 事件需要逐个单独处理
+ * destroy 事件没有 data
  */
 function handler(socketMessage: MessageResult) {
   const method = socketMessage.method
@@ -59,7 +60,10 @@ function handler(socketMessage: MessageResult) {
   const data = socketMessage.data
   const _method = methodMap[method]
   const model = typeMap[type]
-  if (model && typeof data === 'object' && data._id) {
+  if (
+    (method !== 'destroy' && model && typeof data === 'object' && data._id) ||
+    (method === 'destroy' && model && id && _method)
+  ) {
     switch (method) {
       case 'new':
         return model[_method](data)

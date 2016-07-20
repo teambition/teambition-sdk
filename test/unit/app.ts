@@ -22,3 +22,5 @@ export * from './apis/PostApiSpec'
 export * from './apis/CollectionApiSpec'
 export * from './apis/ObjectLinkApiSpec'
 export * from './apis/TagApiSpec'
+
+export * from './socket/task'
