@@ -32,7 +32,7 @@ export default describe('socket task test: ', () => {
         done()
       })
 
-    Socket.emmit('change', 'task', mockTask._id, {
+    Socket.emit('change', 'task', mockTask._id, {
       _id: mockTask._id,
       content: 'mocktask'
     })
@@ -48,7 +48,7 @@ export default describe('socket task test: ', () => {
         done()
       })
 
-    Socket.emmit('destroy', 'task', mockTask._id)
+    Socket.emit('destroy', 'task', mockTask._id)
 
     httpBackend.flush()
   })
