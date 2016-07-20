@@ -27,7 +27,7 @@ export class StageAPI {
   getOne(_tasklistId: string, stageId: string): Observable<StageData> {
     return makeColdSignal<StageData>(observer => {
       const get = StageModel.getOne(stageId)
-      if (get) {
+      if (get && StageModel.checkSchema(stageId)) {
         return get
       }
       return Observable.fromPromise(StageFetch.get(_tasklistId, stageId))

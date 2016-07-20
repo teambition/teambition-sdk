@@ -26,7 +26,7 @@ export class OrganizationAPI {
   getOne (organizationId: string): Observable<OrganizationData> {
     return makeColdSignal<OrganizationData>(observer => {
       const get = OrganizationModel.getOne(organizationId)
-      if (get) {
+      if (get && OrganizationModel.checkSchema(organizationId)) {
         return get
       }
       return Observable.fromPromise(OrganizationFetch.getOne(organizationId))
