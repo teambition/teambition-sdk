@@ -139,7 +139,7 @@ export class SubtaskModel extends BaseModel {
 
     if (!collection) {
       collection = new MaxIdCollection(this._schemaName, (data: SubtaskData) => {
-        return organization.projectIds.indexOf(data._projectId) !== -1 && data.isDone && data._executorId === userId
+        return organization.projectIds.indexOf(data._projectId) !== -1 && data._executorId === userId
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
