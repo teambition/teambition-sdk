@@ -104,6 +104,9 @@ export class Fetch {
         .then((response: Response): Promise<T> => {
           if (response.status >= 200 && response.status < 300) {
             return response.json<T>()
+              .catch(e => {
+                return ''
+              })
           } else {
             return Promise.reject<T>(<any>response)
           }

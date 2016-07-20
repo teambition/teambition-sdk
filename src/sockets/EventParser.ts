@@ -11,27 +11,27 @@ export interface MessageResult {
 
 export function eventParser(event: RequestEvent) {
   const data = event.data
-    const methodAndDatas: MessageResult[] = []
-    if (data) {
-      const params = data.params
-      if (params && params.length) {
-        forEach(params, param => {
-          let result: {
-            e: string,
-            d: any
-          }
-          try {
-            result = JSON.parse(param)
-          }catch (e) {
-            return console.error(e)
-          }
-          const methodAndData: MessageResult = parser(result.e)
-          methodAndData.data = result.d
-          methodAndDatas.push(methodAndData)
-        })
-      }
+  const methodAndDatas: MessageResult[] = []
+  if (data) {
+    const params = data.params
+    if (params && params.length) {
+      forEach(params, param => {
+        let result: {
+          e: string,
+          d: any
+        }
+        try {
+          result = JSON.parse(param)
+        }catch (e) {
+          return console.error(e)
+        }
+        const methodAndData: MessageResult = parser(result.e)
+        methodAndData.data = result.d
+        methodAndDatas.push(methodAndData)
+      })
     }
-    return methodAndDatas
+  }
+  return methodAndDatas
 }
 
 const tokens = [':', '/']

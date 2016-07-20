@@ -18,7 +18,7 @@ export class UserModel extends Model {
 
   get(): Observable<UserMe> {
     if (!this.userId) {
-      return
+      return void 0
     }
     return this._get<UserMe>(this.userId)
   }

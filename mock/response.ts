@@ -21,11 +21,11 @@ export class HttpResponse {
       flushQueue: [],
       json: () => {
         if (typeof data === 'string') {
-          return JSON.parse(data)
+          return Promise.resolve(JSON.parse(data))
         }else if (typeof data === 'object') {
-          return data
+          return Promise.resolve(data)
         }else {
-          throw(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
+          return Promise.reject(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
         }
       }
     }
