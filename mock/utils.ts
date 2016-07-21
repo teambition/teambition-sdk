@@ -1,4 +1,5 @@
 'use strict'
+/* istanbul ignore next */
 export function forEach (target: any, eachFunc: (val: any, key: any) => any, inverse?: boolean) {
   let length: number
   if (target instanceof Array) {
