@@ -3,6 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subscription } from 'rxjs/Subscription'
 
+/* istanbul ignore next */
 export function removeObserver <T> (observable: Observable<T>, observer: Observer<T>, _observers: Observer<T>[]) {
   const originSubscribe = observable.subscribe
   observable.subscribe = function () {

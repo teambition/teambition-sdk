@@ -8,6 +8,7 @@ declare const global: any
 
 const ctx = typeof global === 'undefined' ? window : global
 
+/* istanbul ignore next */
 export class SocketClient {
 
   private static _isDebug = false

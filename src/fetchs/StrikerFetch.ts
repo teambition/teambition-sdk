@@ -6,12 +6,14 @@ export class StrikerFetch {
 
   private _strikerApiHost = 'https://striker.teambition.net'
 
+  /* istanbul ignore next */
   setHost(host: string) {
     this._strikerApiHost = host
   }
 
   upload(file: File): Promise<FileRes> {
     let formData: any
+    /* istanbul ignore if */
     if (typeof FormData !== 'undefined') {
       formData = new FormData()
       formData.append('size', file.size)
@@ -35,6 +37,7 @@ export class StrikerFetch {
         const status = resp.status
         if (status >= 200 && status < 400) {
           return resp.json()
+        /** istanbul ignore if */
         }else {
           return Promise.reject(resp)
         }

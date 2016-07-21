@@ -1,9 +1,11 @@
 'use strict'
+import 'tslib'
 import 'es6-promise'
-import 'isomorphic-fetch'
 import 'es6-collections'
+import 'isomorphic-fetch'
 import 'rxjs/add/operator/subscribeOn'
 import BaseFetch from './fetchs/BaseFetch'
+import StrikerFetch from './fetchs/StrikerFetch'
 
 import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
 
@@ -20,12 +22,19 @@ export * from'./schemas'
 
 export * from'./fetchs'
 
+/* istanbul ignore next */
 export function setToken(token: string): void {
   BaseFetch.fetch.setToken(token)
 }
 
-export function setAPIHost(host: string) {
+/* istanbul ignore next */
+export function setAPIHost(host: string): void {
   BaseFetch.fetch.setAPIHost(host)
+}
+
+/* istanbul ignore next */
+export function setStrikerHost(host: string): void {
+  StrikerFetch.setHost(host)
 }
 
 // export apis

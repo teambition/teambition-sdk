@@ -49,7 +49,7 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
 
 export const assign = <T, U>(target: T, patch: U): T & U => {
   if (typeof target !== 'object' || !target) {
-    return
+    return void 0
   }
   if (typeof patch !== 'object' || !patch) {
     return <any>target
@@ -67,7 +67,7 @@ export const clone = <T>(origin: T): T => {
   }
   /* istanbul ignore if */
   if (!origin || typeof origin !== 'object') {
-    return
+    return void 0
   }
   let target: any
   if (origin instanceof Array) {
