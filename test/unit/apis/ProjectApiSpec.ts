@@ -1,7 +1,7 @@
 'use strict'
 import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
-import { Backend, ProjectAPI, apihost, clone, assign } from '../index'
+import { Backend, ProjectAPI, apihost, clone, assign, forEach } from '../index'
 import { projects } from '../../mock/projects'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
@@ -26,11 +26,13 @@ export default describe('Project API test', () => {
 
   it('get projects should ok', done => {
 
-    const sub = Project.getAll()
+    Project.getAll()
       .subscribe(projects => {
         expect(projects).to.be.instanceof(Array)
+        forEach(projects, (project, pos) => {
+          expectDeepEqual(project, projects[pos])
+        })
         done()
-        sub.unsubscribe()
       })
 
     httpBackend.flush()
@@ -51,11 +53,10 @@ export default describe('Project API test', () => {
         }
       ]))
 
-    const sub = Project.getOrgs('test')
+    Project.getOrgs('test')
       .subscribe(r => {
         expect(r).to.be.instanceof(Array)
         done()
-        sub.unsubscribe()
       })
 
     httpBackend.flush()
