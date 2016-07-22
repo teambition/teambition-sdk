@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "Front-End SDK for Teambition",
   "main": "dist/cjs/app.js",
   "jsnext:main": "dist/es6/app.js",
