@@ -1,21 +1,18 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
+import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
 import Model from './Model'
 import { forEach, clone, assign } from '../utils/index'
-import { removeObserver } from '../decorators/rx'
 import { ISchema } from '../schemas/schema'
 
 export default class Collection <T extends ISchema<T>> {
   public elements: string[] = []
   public data: T[]
   public requested: number
-  /**
-   * @warn
-   * memory leak
-   */
-  private _observers: Observer<T[]>[]  = []
+
+  private _subject: BehaviorSubject<T[]>
 
   constructor(
     public index: string,
@@ -43,34 +40,17 @@ export default class Collection <T extends ISchema<T>> {
       })
     }
     this.data = result
+    this._subject = new BehaviorSubject(result)
     Data.set(index, this)
   }
 
   get(): Observable<T[]> {
-    const dest = Observable.create((observer: Observer<T[]>) => {
-      setTimeout(() => {
-        const result = clone(this.data)
-        this._observers.push(observer)
-        observer.next(result)
-        removeObserver(dest, observer, this._observers)
-      })
-    })
-    return dest
+    return this._subject
   }
 
   notify(): Observable<T[]> {
-    return Observable.create((observer: Observer<T[]>) => {
-      setTimeout(() => {
-        const result = clone(this.data)
-        if (this._observers.length) {
-          forEach(this._observers, obs => {
-            obs.next(result)
-          })
-        }
-        observer.next(result)
-        observer.complete()
-      })
-    })
+    this._subject.next(clone(this.data))
+    return this._subject.take(1)
   }
 
   add(model: Model<T>): Observable<T[]> {
@@ -136,7 +116,7 @@ export default class Collection <T extends ISchema<T>> {
           Observable.from(signals)
             .mergeAll()
             .skip(signals.length - 1)
-            .concatMap(x => this.get())
+            .concatMap(x => this.get().take(1))
             .forEach(result => {
               observer.next(clone(diff))
               observer.complete()
