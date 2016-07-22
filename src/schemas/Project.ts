@@ -59,9 +59,6 @@ export interface ProjectData extends ISchema<ProjectData> {
   canTransfer: boolean
   _roleId: number
   link: {
-    inviteLink: string
-    mobileInviteLink: string
-    signCode: string
     created: string
     expiration: string
   }
@@ -74,6 +71,12 @@ export interface ProjectData extends ISchema<ProjectData> {
   calLink: string
   taskCalLink: string
   _orgRoleId: number
+  applications?: {
+    _id: string
+    name: string
+    type?: number
+    order?: number
+  }
 }
 
 @schemaName('Project')
@@ -135,9 +138,6 @@ export default class Project extends Schema implements ProjectData {
   canTransfer: boolean = undefined
   _roleId: number = undefined
   link: {
-    inviteLink: string
-    mobileInviteLink: string
-    signCode: string
     created: string
     expiration: string
   } = undefined
