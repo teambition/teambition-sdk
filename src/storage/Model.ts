@@ -1,10 +1,10 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
+import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
 import { forEach, assign, clone } from '../utils/index'
 import { Schema, ISchema } from '../schemas/schema'
-import { removeObserver } from '../decorators/rx'
 
 export default class Model<T extends ISchema<T>> {
   public collections: string[] = []
@@ -12,12 +12,8 @@ export default class Model<T extends ISchema<T>> {
   public children: string[] = []
   public index: string
 
-  /**
-   * @warn
-   * memory leak
-   */
-  private _observers: Observer<T>[] = []
   private _childIndexes: string[] = []
+  private _subject: BehaviorSubject<T>
 
   constructor(public data: T, private _unionFlag = '_id') {
     const index = this.index = data[this._unionFlag]
@@ -57,19 +53,12 @@ export default class Model<T extends ISchema<T>> {
         }
       }
     })
+    this._subject = new BehaviorSubject(data)
     Data.set(index, this)
   }
 
   get(): Observable<T> {
-    const dest = Observable.create((observer: Observer<T>) => {
-      setTimeout(() => {
-        const result = clone(this.data)
-        this._observers.push(observer)
-        observer.next(result)
-        removeObserver(dest, observer, this._observers)
-      })
-    })
-    return dest
+    return this._subject
   }
 
   /**
@@ -149,18 +138,8 @@ export default class Model<T extends ISchema<T>> {
   }
 
   notify(): Observable<T> {
-    return Observable.create((observer: Observer<T>) => {
-      setTimeout(() => {
-        const result = clone(this.data)
-        if (this._observers.length) {
-          forEach(this._observers, obs => {
-            obs.next(result)
-          })
-        }
-        observer.next(result)
-        observer.complete()
-      })
-    })
+    this._subject.next(clone(this.data))
+    return this._subject.take(1)
   }
 
   getSchemaName(): string {
