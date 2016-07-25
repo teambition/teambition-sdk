@@ -23,6 +23,14 @@ export interface UserMe extends ISchema<UserMe> {
   pinyin: string
   py: string
   isNew?: boolean
+  plan: {
+    status: string
+    expired: string
+    paidCount: number
+    membersCount: number
+    days: number
+    objectType: string
+  }
   notification?: {
     comment: {
       mobile: boolean
@@ -61,6 +69,12 @@ export interface UserMe extends ISchema<UserMe> {
       email: boolean
     }
   }
+  lastEntered: {
+    web?: string
+    ios?: string
+    android?: string
+    third: string
+  }
   locationByIP: {
     country: string
     region: string
@@ -72,13 +86,12 @@ export interface UserMe extends ISchema<UserMe> {
   enabledGoogleTwoFactor?: boolean
   emails: UserEmail[]
   snapperToken: string
-  hasNew: boolean
   badge: number
-  inbox: number
   normal?: number
   ated: number
   later: number
   private?: number
+  inbox: number
   hasNormal?: boolean
   hasAted?: boolean
   hasLater?: boolean
@@ -102,6 +115,20 @@ export default class User extends Schema implements UserMe {
   pinyin: string = undefined
   py: string = undefined
   isNew: boolean = undefined
+  plan: {
+    status: string
+    expired: string
+    paidCount: number
+    membersCount: number
+    days: number
+    objectType: string
+  } = undefined
+  lastEntered: {
+    web?: string
+    ios?: string
+    android?: string
+    third: string
+  } = undefined
   locationByIP: {
     country: string
     region: string
@@ -110,11 +137,10 @@ export default class User extends Schema implements UserMe {
   strikerAuth: string = undefined
   emails: UserEmail[] = undefined
   snapperToken: string = undefined
-  hasNew: boolean = undefined
   badge: number = undefined
-  inbox: number = undefined
   ated: number = undefined
   later: number = undefined
+  inbox: number = undefined
   calLink: string = undefined
   taskCalLink: string = undefined
   joinedProjectsCount: number = undefined

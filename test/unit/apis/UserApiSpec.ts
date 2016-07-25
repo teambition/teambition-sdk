@@ -106,7 +106,7 @@ export default describe('UserAPI test', () => {
   it('bind phone should ok', done => {
     const mockResponse = clone(userMe)
     const updateData = {
-      phone: '13334444555',
+      phone: '13345678999',
       vcode: '4843'
     }
     mockResponse.phone = updateData.phone
