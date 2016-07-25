@@ -16,7 +16,9 @@ export interface RequestEvent {
   data: RequestObject
 }
 
-export type SocketEventType = 'activity' | 'project' | 'task' | 'subtask' | 'post' | 'work' | 'tasklist' | 'stage' | 'collection' | 'tag' | 'user'
+export type SocketEventType = 'activity' | 'project' | 'task' | 'subtask' |
+                              'post' | 'work' | 'tasklist' | 'stage' |
+                              'collection' | 'tag' | 'user' | 'preference'
 
 export class SocketMock {
   onmessage: (e: RequestEvent) => void

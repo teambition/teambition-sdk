@@ -24,4 +24,5 @@ export * from './apis/CollectionApiSpec'
 export * from './apis/ObjectLinkApiSpec'
 export * from './apis/TagApiSpec'
 
+export * from './socket/preference'
 export * from './socket/task'

@@ -24,9 +24,9 @@ export class PreferenceAPI {
     })
   }
 
-  update (preferenceID: string, patch: any): Observable<PreferenceData> {
+  update (preferenceId: string, patch: any): Observable<PreferenceData> {
     return Observable.create((observer: Observer<any>) => {
-      Observable.fromPromise(PreferenceFetch.update(preferenceID, patch))
+      Observable.fromPromise(PreferenceFetch.update(preferenceId, patch))
         .catch(err => errorHandler(observer, err))
         .concatMap(data => PreferenceModel.update(data))
         .forEach(result => observer.next(result))
