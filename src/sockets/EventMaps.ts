@@ -2,6 +2,7 @@
 import { Observable } from 'rxjs/Observable'
 import { RequestEvent } from 'snapper-consumer'
 import UserModel from '../models/UserModel'
+import PreferenceModel from '../models/PreferenceModel'
 import TaskModel from '../models/TaskModel'
 import SubtaskModel from '../models/SubtaskModel'
 import PostModel from '../models/PostModel'
@@ -27,7 +28,8 @@ const typeMap: any = {
   'stage': StageModel,
   'collection': CollectionModel,
   'tag': TagModel,
-  'user': UserModel
+  'user': UserModel,
+  'preference': PreferenceModel
 }
 
 const methodMap: any = {
@@ -61,13 +63,20 @@ function handler(socketMessage: MessageResult) {
   const _method = methodMap[method]
   const model = typeMap[type]
   if (
-    (method !== 'destroy' && model && typeof data === 'object' && data._id) ||
+    (method !== 'destroy' && model && typeof data === 'object' && id) ||
     (method === 'destroy' && model && id && _method)
   ) {
     switch (method) {
       case 'new':
         return model[_method](data)
       case 'change':
+        const length = model[_method].length
+        switch (length) {
+          case 1:
+            return model[_method](data)
+          case 2:
+            return model[_method](id, data)
+        }
         return model[_method](id, data)
       case 'destroy':
         return model[_method](id)
