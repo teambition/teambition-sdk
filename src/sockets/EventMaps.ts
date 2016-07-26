@@ -18,6 +18,7 @@ import { MessageResult, eventParser } from './EventParser'
 import { forEach } from '../utils/index'
 
 const typeMap: any = {
+  'activities': ActivityModel,
   'activity': ActivityModel,
   'project': ProjectModel,
   'task': TaskModel,
@@ -55,8 +56,8 @@ export function socketHandler (event: RequestEvent): Observable<any> {
 function handler(socketMessage: MessageResult) {
   const method = socketMessage.method
   let type = socketMessage.type
-  if (type.charAt(type.length - 1) === 's') {
-    type = type.substring(0, type.length - 1.)
+  if (type.charAt(type.length - 1) === 's' && type !== 'activities') {
+    type = type.substring(0, type.length - 1)
   }
   const id = socketMessage.id
   const data = socketMessage.data
