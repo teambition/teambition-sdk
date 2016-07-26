@@ -26,3 +26,4 @@ export * from './apis/TagApiSpec'
 
 export * from './socket/preference'
 export * from './socket/task'
+export * from './socket/activity'

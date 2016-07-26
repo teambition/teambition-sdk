@@ -130,10 +130,6 @@ export const datasToSchemas = <U>(datas: any[], SchemaClass: any): U[] => {
   return result
 }
 
-export const isFunction = (target: any) => {
-  return typeof target === 'function'
-}
-
 export function dropEle<T>(ele: T, arr: T[]): T[] {
   forEach(arr, (_ele, pos) => {
     const isEqual = ele === _ele

@@ -2,7 +2,7 @@
   "name": "teambition-sdk-socket",
   "version": "{{version}}",
   "description": "Front-End SDK for Teambition",
-  "main": "./index.js",
+  "main": "./SocketApp.js",
   "browser": "./socket.bundle.js",
   "repository": {
     "type": "git",
