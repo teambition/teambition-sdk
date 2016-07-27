@@ -26,7 +26,7 @@ export class Fetch {
   }
 
   public setHeaders(headers: any): void {
-    assign(this._opts, headers)
+    assign(this._opts.headers, headers)
   }
 
   public setToken(token: string): void {
