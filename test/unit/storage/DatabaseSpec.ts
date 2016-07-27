@@ -510,6 +510,35 @@ export default describe('database test: ', () => {
       })
     })
 
+    it('update collection with empty array, old singals should be notified', done => {
+      const objEle = [
+        {
+          _id: '24.24',
+          data: 'tbsdk_test 24'
+        }
+      ]
+
+      const colEle = []
+
+      const result = []
+
+      Storage.storeCollection('collection_test_15', objEle)
+        .subscribe()
+
+      Storage.updateCollection('collection_test_15', colEle)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      Storage.get<typeof objEle>('collection_test_15')
+        .skip(1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(x => {
+          expect(x).deep.equal(result)
+          done()
+        })
+
+    })
+
     it('update collection and new item updated, old singals should be notified', done => {
       const objEle = [
         {

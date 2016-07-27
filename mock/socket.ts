@@ -16,7 +16,7 @@ export interface RequestEvent {
   data: RequestObject
 }
 
-export type SocketEventType = 'activity' | 'project' | 'task' | 'subtask' |
+export type SocketEventType = 'activity' | 'message' | 'project' | 'task' | 'subtask' |
                               'post' | 'work' | 'tasklist' | 'stage' |
                               'collection' | 'tag' | 'user' | 'preference'
 
