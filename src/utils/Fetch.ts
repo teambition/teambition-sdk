@@ -25,6 +25,10 @@ export class Fetch {
     this._apiHost = host
   }
 
+  public setHeaders(headers: any): void {
+    assign(this._opts, headers)
+  }
+
   public setToken(token: string): void {
     delete this._opts.credentials
     this._opts.headers.Authorization = `OAuth2 ${token}`
