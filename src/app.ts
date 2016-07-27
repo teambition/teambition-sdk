@@ -28,6 +28,11 @@ export function setToken(token: string): void {
 }
 
 /* istanbul ignore next */
+export function setHeaders(headers: any): void {
+  BaseFetch.fetch.setHeaders(headers)
+}
+
+/* istanbul ignore next */
 export function setAPIHost(host: string): void {
   BaseFetch.fetch.setAPIHost(host)
 }
