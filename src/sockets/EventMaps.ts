@@ -12,6 +12,7 @@ import TasklistModel from '../models/TasklistModel'
 import StageModel from '../models/StageModel'
 import TagModel from '../models/TagModel'
 import ActivityModel from '../models/ActivityModel'
+import MessageModel from '../models/MessageModel'
 import ProjectModel from '../models/ProjectModel'
 import ProjectFetch from '../fetchs/ProjectFetch'
 import { MessageResult, eventParser } from './EventParser'
@@ -20,6 +21,7 @@ import { forEach } from '../utils/index'
 const typeMap: any = {
   'activities': ActivityModel,
   'activity': ActivityModel,
+  'message': MessageModel,
   'project': ProjectModel,
   'task': TaskModel,
   'subtask': SubtaskModel,

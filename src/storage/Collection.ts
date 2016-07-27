@@ -122,9 +122,9 @@ export default class Collection <T extends ISchema<T>> {
               observer.complete()
             })
         }else {
-          forEach(this.data, (ele, pos) => {
-            this.data.splice(pos, 1)
-            this.elements.splice(pos, 1)
+          forEach(this.data, () => {
+            this.data.pop()
+            this.elements.pop()
           })
           observer.next([])
           observer.complete()
