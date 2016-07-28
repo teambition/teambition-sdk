@@ -90,9 +90,15 @@ function handler(socketMessage: MessageResult) {
       case 'project':
         let projectid = data
         return Observable.fromPromise(ProjectFetch.getOne(projectid))
-          .concatMap(project => ProjectModel.addOne(project))
+          .concatMap(project => ProjectModel.addOne(project).take(1))
     }
     return Observable.of(null)
+  } else if (method === 'remove') {
+    switch (type) {
+      case 'project':
+        const projectId = data
+        return ProjectModel.delete(projectId)
+    }
   }
   return Observable.of(null)
 }

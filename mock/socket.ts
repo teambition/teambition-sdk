@@ -32,7 +32,7 @@ export class SocketMock {
   }
 
   emit(
-    method: 'change' | 'destroy' | 'new' | 'refresh',
+    method: 'change' | 'destroy' | 'new' | 'refresh' | 'remove',
     objectType: SocketEventType,
     objectId: string,
     patch?: any,

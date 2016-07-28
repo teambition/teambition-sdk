@@ -41,4 +41,24 @@ export default describe('project socket test', () => {
 
     httpBackend.flush()
   })
+
+  it('delete project', done => {
+    const organizationId = project._organizationId
+    const nextProjectId = projects[1]._id
+
+    httpBackend.whenGET(`${apihost}organizations/${organizationId}/projects`)
+      .respond(JSON.stringify(projects))
+
+    Project.getOrgs(organizationId)
+      .skip(1)
+      .subscribe(newProjects => {
+        expect(newProjects.length).to.equal(projects.length - 1)
+        expectDeepEqual(newProjects[0]._id, nextProjectId)
+        done()
+      })
+
+    Socket.emit('remove', 'project', '', projectId)
+
+    httpBackend.flush()
+  })
 })
