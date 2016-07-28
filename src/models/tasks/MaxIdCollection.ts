@@ -12,7 +12,9 @@ export default class MaxIdCollection<T extends ISchema<SubtaskData | TaskData>> 
     const result = super.addPage(page, <any[]>data)
     const maxPageData = data
       .sort((a: any, b: any) => new Date(b.created).valueOf() - new Date(a.created).valueOf())
-    this.maxId = maxPageData[maxPageData.length - 1]['_id']
+    if (maxPageData.length) {
+      this.maxId = maxPageData[maxPageData.length - 1]['_id']
+    }
     return result
   }
 }

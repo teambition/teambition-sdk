@@ -509,6 +509,19 @@ export default describe('Subtask API test: ', () => {
       httpBackend.flush()
     })
 
+    it('get empty array when no data', done => {
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me/created?page=1`)
+        .respond('[]')
+
+      Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .subscribe(data => {
+          expect(data).to.be.deep.equal([])
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
     it('add subtask should ok', done => {
       const mockGet = clone(page1[0])
       mockGet._id = 'mockmysubtasktest'
