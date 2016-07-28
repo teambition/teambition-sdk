@@ -1,8 +1,10 @@
 'use strict'
+import { Subject } from 'rxjs/Subject'
 import UserFetch from '../fetchs/UserFetch'
 import ProjectFetch from '../fetchs/ProjectFetch'
 import { socketHandler } from './EventMaps'
 import Consumer, { RequestEvent } from 'snapper-consumer'
+import { UserMe } from '../schemas/UserMe'
 
 declare const global: any
 
@@ -19,6 +21,10 @@ export class SocketClient {
 
   private _socketUrl = 'wss://push.teambition.com'
 
+  private _me: UserMe
+
+  private _getUserMeStream = new Subject<UserMe>()
+
   /**
    * 由于新的 API 可以一次性订阅所有项目的 socket，参数中 _projectId 其实已经没用了
    * 但是由于 snapper-consumer 的内部设计只能先保留这个参数
@@ -26,6 +32,12 @@ export class SocketClient {
   private static _join (_projectId: string, consumerId: string): Promise<any> {
     return ProjectFetch.subscribeSocket(consumerId).catch(e => {
       SocketClient._isSubscribe = false
+    })
+  }
+
+  constructor() {
+    this._getUserMeStream.subscribe(userMe => {
+      this._me = userMe
     })
   }
 
@@ -42,19 +54,31 @@ export class SocketClient {
     this._client = client
     this._client._join = SocketClient._join
     this._client.onmessage = this._onmessage
+    this._client['getToken'] = () => {
+      if (this._me) {
+        return this._me.snapperToken
+      }else {
+        return null
+      }
+    }
   }
 
-  connect(): Promise<any> {
-    return UserFetch.getUserMe()
-      .then(userMe => {
-        return this._client
-          .connect(this._socketUrl, {
-            path: '/websocket',
-            token: userMe.snapperToken
-          })
-      }).then(() => {
-        return this.join()
-      })
+  connect(): Promise<any> | Consumer {
+    if (!this._checkToken()) {
+      return UserFetch.getUserMe()
+        .then(userMe => {
+          this._me = userMe
+          this._client
+            .connect(this._socketUrl, {
+              path: '/websocket',
+              token: userMe.snapperToken
+            })
+        }).then(() => {
+          return this.join()
+        })
+    } else {
+      return this.join()
+    }
   }
 
   join(): Consumer {
@@ -75,5 +99,30 @@ export class SocketClient {
       ctx['console']['log'](event)
     }
     return socketHandler(event).subscribe(null, err => ctx['console']['error'](err))
+  }
+
+  private _checkToken(): void {
+    if (!this._me) {
+      this._getToken()
+    } else {
+      const auth = this._me.snapperToken.split('.')[1]
+      const token: {
+        exp: number
+        userId: string
+        source: 'teambition'
+      } = JSON.parse(window.atob(auth))
+      const expire = token.exp * 1000 - 3600000
+      // token.exp * 1000 - 1 * 60 * 60 * 1000
+      if (expire < Date.now()) {
+        this._getToken()
+      }
+    }
+  }
+
+  private _getToken(): void {
+    UserFetch.getUserMe()
+      .then(r => {
+        this._getUserMeStream.next(r)
+      })
   }
 }
