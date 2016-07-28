@@ -761,6 +761,19 @@ export default describe('Task API test', () => {
       httpBackend.flush()
     })
 
+    it('get empty array when no data', done => {
+      httpBackend.whenGET(`${apihost}organizations/${organizationId}/tasks/me/created?page=1`)
+        .respond('[]')
+
+      Task.getOrgMyCreatedTasks(userId, organization)
+        .subscribe(data => {
+          expect(data).to.be.deep.equal([])
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
     it('add task should ok', done => {
       const mockGet = clone(page1[0])
       mockGet._id = 'mockcreatedtasktest'
