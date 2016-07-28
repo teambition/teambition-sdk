@@ -84,15 +84,15 @@ function handler(socketMessage: MessageResult) {
       case 'destroy':
         return model[_method](id)
     }
-    if (method === 'refresh') {
-      switch (type) {
-        case 'projects':
-          let projectid = data
-          return Observable.fromPromise(ProjectFetch.getOne(projectid))
-            .concatMap(project => ProjectModel.addOne(project))
-      }
-      return Observable.of(null)
+  }
+  if (method === 'refresh') {
+    switch (type) {
+      case 'project':
+        let projectid = data
+        return Observable.fromPromise(ProjectFetch.getOne(projectid))
+          .concatMap(project => ProjectModel.addOne(project))
     }
+    return Observable.of(null)
   }
   return Observable.of(null)
 }
