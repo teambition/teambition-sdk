@@ -65,19 +65,12 @@ export class SocketClient {
 
   connect(): Promise<any> | Consumer {
     if (!this._checkToken()) {
-      return UserFetch.getUserMe()
-        .then(userMe => {
-          this._me = userMe
-          this._client
-            .connect(this._socketUrl, {
-              path: '/websocket',
-              token: userMe.snapperToken
-            })
-        }).then(() => {
-          return this.join()
+      return this._getToken()
+        .then(() => {
+          this._connect()
         })
     } else {
-      return this.join()
+      return this._connect()
     }
   }
 
@@ -93,12 +86,25 @@ export class SocketClient {
     return SocketClient._isSubscribe
   }
 
+  private _connect() {
+    this._client
+      .connect(this._socketUrl, {
+        path: '/websocket',
+        token: this._me.snapperToken
+      })
+    return this.join()
+  }
+
   private _onmessage(event: RequestEvent) {
     if (SocketClient._isDebug) {
       // 避免被插件清除掉
       ctx['console']['log'](event)
     }
-    return socketHandler(event).subscribe(null, err => ctx['console']['error'](err))
+    const subscription = socketHandler(event)
+      .subscribe(null, err => ctx['console']['error'](err), () => {
+        subscription.unsubscribe()
+      })
+    return subscription
   }
 
   private _checkToken(): void {
@@ -119,8 +125,8 @@ export class SocketClient {
     }
   }
 
-  private _getToken(): void {
-    UserFetch.getUserMe()
+  private _getToken(): Promise<void> {
+    return UserFetch.getUserMe()
       .then(r => {
         this._getUserMeStream.next(r)
       })
