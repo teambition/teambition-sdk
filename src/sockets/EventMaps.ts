@@ -84,14 +84,20 @@ function handler(socketMessage: MessageResult) {
       case 'destroy':
         return model[_method](id)
     }
-    if (method === 'refresh') {
-      switch (type) {
-        case 'projects':
-          let projectid = data
-          return Observable.fromPromise(ProjectFetch.getOne(projectid))
-            .concatMap(project => ProjectModel.addOne(project))
-      }
-      return Observable.of(null)
+  }
+  if (method === 'refresh') {
+    switch (type) {
+      case 'project':
+        let projectid = data
+        return Observable.fromPromise(ProjectFetch.getOne(projectid))
+          .concatMap(project => ProjectModel.addOne(project).take(1))
+    }
+    return Observable.of(null)
+  } else if (method === 'remove') {
+    switch (type) {
+      case 'project':
+        const projectId = data
+        return ProjectModel.delete(projectId)
     }
   }
   return Observable.of(null)
