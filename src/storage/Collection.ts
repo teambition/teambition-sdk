@@ -4,7 +4,7 @@ import { Observer } from 'rxjs/Observer'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
 import Model from './Model'
-import { forEach, clone, assign } from '../utils/index'
+import { forEach, clone, assign, dropEle } from '../utils/index'
 import { ISchema } from '../schemas/schema'
 
 export default class Collection <T extends ISchema<T>> {
@@ -161,11 +161,7 @@ export default class Collection <T extends ISchema<T>> {
       this.requested = Date.now()
       this.elements.splice(pos, 1)
       this.data.splice(pos, 1)
-      forEach(model.collections, (collectionName, pos) => {
-        if (collectionName === this.index) {
-          model.collections.splice(pos, 1)
-        }
-      })
+      dropEle(this.index, model.collections)
     }
     return this
   }

@@ -308,10 +308,11 @@ export default class DataBase {
   private _deleteParents(model: Model<any>): void {
     const children = model.children
     if (children.length) {
-      forEach(children, child => {
+      while (children.length) {
+        const child = children.pop()
         const childModel: Model<any> = DataBase.data.get(child)
         childModel.removeParent(model.index)
-      })
+      }
     }
   }
 
@@ -319,11 +320,12 @@ export default class DataBase {
     const parents = model.parents
     if (parents.length) {
       const signals: Observable<any>[] = []
-      forEach(parents, parent => {
+      while (parents.length) {
+        const parent = parents.pop()
         const parentModel: Model<any> = DataBase.data.get(parent)
         parentModel.removeChild(model.index)
         signals.push(parentModel.notify())
-      })
+      }
       return Observable.from(signals)
         .mergeAll()
         .skip(signals.length - 1)
@@ -335,13 +337,14 @@ export default class DataBase {
     const collections = model.collections
     if (collections.length) {
       const signals: Observable<any>[] = []
-      forEach(collections, collectionName => {
+      while (collections.length) {
+        const collectionName = collections.pop()
         const collection: Collection<any> = DataBase.data.get(collectionName)
         if (collection) {
           collection.remove(model)
           signals.push(collection.notify())
         }
-      })
+      }
       if (signals.length) {
         return Observable.from(signals)
           .mergeAll()

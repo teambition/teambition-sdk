@@ -1,4 +1,5 @@
 'use strict'
+import 'rxjs/add/operator/publishReplay'
 import { Observer } from 'rxjs/Observer'
 import { Observable } from 'rxjs/Observable'
 
@@ -16,5 +17,8 @@ export function makeColdSignal <T> (func: (observer: Observer<Observable<T>>) =>
   return Observable.create((observer: Observer<Observable<T>>) => {
     const signal = func(observer)
     observer.next(signal)
-  }).concatMap((x: Observable<T>) => x)
+  })
+    .concatMap((x: Observable<T>) => x)
+    .publishReplay(1)
+    .refCount()
 }

@@ -667,7 +667,102 @@ export default describe('database test: ', () => {
         expect(r.length).to.equal(0)
         done()
       })
+  })
 
+  it('delete element from multi collections should ok', done => {
+    Storage.storeCollection('collection_test_16', [
+      {
+        _id: '30.30',
+        data: 'tbsdk_test 30'
+      },
+      {
+        _id: '31.31',
+        data: 'tbsdk_test 31'
+      }
+    ])
+      .skip(1)
+      .subscribe(r => {
+        expect(r.length).to.equal(1)
+      })
+
+    Storage.storeCollection('collection_test_17', [
+      {
+        _id: '30.30',
+        data: 'tbsdk_test 30'
+      },
+      {
+        _id: '32.32',
+        data: 'tbsdk_test 32'
+      }
+    ])
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.length).to.equal(1)
+      })
+
+    Storage.storeCollection('collection_test_18', [
+      {
+        _id: '30.30',
+        data: 'tbsdk_test 30'
+      },
+      {
+        _id: '33.33',
+        data: 'tbsdk_test 33'
+      }
+    ])
+      .subscribeOn(Scheduler.async, global.timeout2)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.length).to.equal(1)
+        done()
+      })
+
+    Storage.delete('30.30')
+      .subscribeOn(Scheduler.async, global.timeout3)
+      .subscribe()
+  })
+
+  it('delete element from multi parents should ok', done => {
+    Storage.storeOne({
+      _id: '34.34',
+      child: {
+        _id: '35.35'
+      }
+    })
+      .skip(1)
+      .subscribe(r => {
+        expect(r.child).to.be.undefined
+      })
+
+    Storage.storeOne({
+      _id: '36.36',
+      child: {
+        _id: '35.35'
+      }
+    })
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.child).to.be.undefined
+      })
+
+    Storage.storeOne({
+      _id: '37.37',
+      child: {
+        _id: '35.35'
+      }
+    })
+      .subscribeOn(Scheduler.async, global.timeout2)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.child).to.be.undefined
+        done()
+      })
+
+    Storage.delete('35.35')
+      .subscribeOn(Scheduler.async, global.timeout3)
+      .subscribe()
   })
 
 })
