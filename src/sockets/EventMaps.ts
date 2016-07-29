@@ -71,7 +71,15 @@ function handler(socketMessage: MessageResult) {
   ) {
     switch (method) {
       case 'new':
-        return model[_method](data)
+        if (data instanceof Array && data.length) {
+          return Observable.from<any>(data.map((value: any) => {
+            return model[_method](value).take(1)
+          }))
+            .mergeAll()
+            .skip(data.length - 1)
+        }else {
+          return model[_method](data)
+        }
       case 'change':
         const length = model[_method].length
         switch (length) {

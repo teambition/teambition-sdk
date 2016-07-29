@@ -1,5 +1,6 @@
 'use strict'
 import { Subject } from 'rxjs/Subject'
+import { Subscription } from 'rxjs/Subscription'
 import UserFetch from '../fetchs/UserFetch'
 import ProjectFetch from '../fetchs/ProjectFetch'
 import { socketHandler } from './EventMaps'
@@ -102,7 +103,9 @@ export class SocketClient {
     }
     const subscription = socketHandler(event)
       .subscribe(null, err => ctx['console']['error'](err), () => {
-        subscription.unsubscribe()
+        if (subscription instanceof Subscription) {
+          subscription.unsubscribe()
+        }
       })
     return subscription
   }
