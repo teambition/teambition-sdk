@@ -25,6 +25,7 @@ import { organizationMyDoneTasks } from '../../mock/organizationMyDoneTasks'
 import { organizationMyCreatedTasks } from '../../mock/organizationMyCreatedTasks'
 import { organizationMyInvolvesTasks } from '../../mock/organizationMyInvolvesTasks'
 import { tasklists } from '../../mock/tasklists'
+import { tasksOneDayMe } from '../../mock/tasksOneDayMe'
 import { stageTasksUndone } from '../../mock/stageTasksUndone'
 import { stageTasksDone } from '../../mock/stageTasksDone'
 
@@ -685,6 +686,62 @@ export default describe('Task API test', () => {
         })
 
       Task.delete(task._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+  })
+
+  describe('get my today tasks: ', () => {
+    const _userId = tasksOneDayMe[0]._executorId
+    const mockTaskGet = clone(tasksOneDayMe[0])
+    const dueDate = new Date().toISOString()
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}v2/tasks/me?count=1000&endDate=${dueDate}&hasDueDate=true&isDone=false`)
+        .respond(JSON.stringify(tasksOneDayMe))
+    })
+
+    it('get should ok', done => {
+      Task.getOneDayTasksMe(_userId, dueDate)
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, tasksOneDayMe[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('update task dueDate should ok', done => {
+      const newDueDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString()
+
+      httpBackend.whenGET(`${apihost}tasks/${mockTaskGet._id}`)
+        .respond(JSON.stringify(mockTaskGet))
+
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/dueDate`, {
+        dueDate: newDueDate
+      }).respond({
+        dueDate: newDueDate
+      })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.dueDate).to.equal(newDueDate)
+        })
+
+      Task.getOneDayTasksMe(_userId, dueDate)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          done()
+        })
+
+      Task.updateDueDate(mockTaskGet._id, newDueDate)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
