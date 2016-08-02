@@ -166,13 +166,15 @@ export default class Collection <T extends ISchema<T>> {
     return this
   }
 
-  destroy(): Collection<T> {
+  destroy(): void {
     forEach(this.data, (ele, pos) => {
       this.data.splice(pos, 1)
     })
     this.requested = 0
     this.elements = []
-    return this
+    this._subject.next(null)
+    this._subject.complete()
+    this._subject = null
   }
 
 }
