@@ -76,7 +76,7 @@ export interface ProjectData extends ISchema<ProjectData> {
     name: string
     type?: number
     order?: number
-  }
+  }[]
 }
 
 @schemaName('Project')
