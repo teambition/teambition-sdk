@@ -26,7 +26,6 @@ export interface ProjectData extends ISchema<ProjectData> {
   created: string
   updated: string
   isArchived: boolean
-  inviteLink: string
   isStar: boolean
   hasRight: number
   hasOrgRight: number
@@ -62,14 +61,11 @@ export interface ProjectData extends ISchema<ProjectData> {
     created: string
     expiration: string
   }
-  mobileInviteLink: string
   signCode: string
   starsCount: number
   _rootCollectionId: string
   _defaultCollectionId: string
   shortLink: string
-  calLink: string
-  taskCalLink: string
   _orgRoleId: number
   applications?: {
     _id: string
@@ -105,7 +101,6 @@ export default class Project extends Schema implements ProjectData {
   created: string = undefined
   updated: string = undefined
   isArchived: boolean = undefined
-  inviteLink: string = undefined
   isStar: boolean = undefined
   hasRight: number = undefined
   hasOrgRight: number = undefined
@@ -141,13 +136,10 @@ export default class Project extends Schema implements ProjectData {
     created: string
     expiration: string
   } = undefined
-  mobileInviteLink: string = undefined
   signCode: string = undefined
   starsCount: number = undefined
   _rootCollectionId: string = undefined
   _defaultCollectionId: string = undefined
   shortLink: string = undefined
-  calLink: string = undefined
-  taskCalLink: string = undefined
   _orgRoleId: number = undefined
 }

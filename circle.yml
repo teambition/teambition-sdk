@@ -1,0 +1,18 @@
+machine:
+  node:
+    version: 4.4.7
+
+dependencies:
+  override:
+    - npm install
+    - npm run typings
+    - npm link
+    - npm link teambition-sdk
+
+test:
+  pre:
+    - npm run build_all
+
+notify:
+  webhooks:
+    - url: http://teambition.vvlyn.com/api/circle

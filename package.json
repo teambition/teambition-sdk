@@ -16,14 +16,14 @@
     "build_e2e": "rm -rf .tmp/e2e && tsc ./test/e2e/main.ts -m es2015 --outDir .tmp/e2e                                  --sourcemap --sourceRoot test/e2e  --target ES2015    --diagnostics --pretty                                                               --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ts-node ./tools/tasks/bundle.e2e.ts",
     "build_socket": "rm -rf dist/bundle/tbsdk.socket.js && tsc ./src/SocketApp.ts    -m commonjs --outDir dist/socket    --sourcemap --sourceRoot src       --target ES5    --diagnostics --pretty                                                               --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ts-node ./tools/tasks/bundle.socket.ts",
     "watch": "npm run watch_test & ts-node ./tools/tasks/test.ts",
-    "watch_test": "tsc tools/build/test.d.ts test/unit/app.ts -m commonjs --outDir spec-js                           --sourcemap --sourceRoot test       --target ES5      --diagnostics --pretty                                     --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node -w",
+    "watch_test": "tsc tools/build/test.d.ts test/unit/app.ts -m commonjs --outDir spec-js                           --sourcemap --sourceRoot test       --target ES5      --diagnostics --pretty                                     --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --isolatedModules -w",
     "build_bundle": "rm -rf dist/bundle/tbsdk.umd.js && ts-node ./tools/tasks/bundle.sdk.ts",
     "build_mock": "rm -rf dist/mock-es6 && tsc mock/index.ts                      -m es2015   --outDir dist/mock-es6 --sourcemap --sourceRoot mock      --target ES2015 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ts-node ./tools/tasks/bundle.mock.ts",
     "build_mock_cjs": "rm -rf dist/mock-cjs && tsc mock/index.ts  tools/build/bundle.d.ts -m commonjs --outDir dist/mock-cjs --sourcemap --sourceRoot mock      --target ES5    -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_all": "rm -rf dist && mkdir dist && mkdir dist/bundle && npm run build_es6 && npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_mock_cjs && npm run build_test && npm run build_e2e && npm run build_socket",
     "lint": "tslint ./src/**/*.ts && tslint ./mock/**/*.ts && tslint ./test/unit/**/*.ts",
     "cover": "npm run build_test && istanbul cover _mocha ./spec-js/test/unit/app.js -- -t 10000",
-    "prepublish": "typings install",
+    "typings": "typings install",
     "publish_all": "npm run build_all && npm publish && ts-node ./tools/tasks/publish.ts && cp ./dist/mock-cjs/** ./.tmp/mock && cp ./dist/socket/** ./.tmp/socket && npm publish .tmp/mock/ && npm publish .tmp/socket/"
   },
   "repository": {
