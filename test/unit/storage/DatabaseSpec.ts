@@ -3,6 +3,7 @@ import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import Database from '../../../src/storage/Database'
+import { flush } from '../utils'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -12,6 +13,8 @@ export default describe('database test: ', () => {
   let Storage: Database
 
   beforeEach(() => {
+    flush()
+
     Storage = new Database()
   })
 
@@ -644,16 +647,19 @@ export default describe('database test: ', () => {
         data: 'tbsdk_test 19.19'
       }
     ]
-    const set1 = Storage.storeCollection('collection_test_5', objEle)
-    const set2 = Storage.storeCollection('collection_test_6', colEle)
+    Storage.storeCollection('collection_test_5', objEle)
+      .subscribe()
 
-    set1.concatMap(x => set2)
-      .concatMap(x => Storage.get<typeof objEle>('collection_test_5'))
+    Storage.storeCollection('collection_test_6', colEle)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe()
+
+    Storage.get('collection_test_5')
+      .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe(r => {
         expect(r[0].data).to.equal(colEle[0].data)
         done()
       })
-
   })
 
   it('store empty collection should ok', done => {
@@ -672,8 +678,8 @@ export default describe('database test: ', () => {
   it('delete element from multi collections should ok', done => {
     Storage.storeCollection('collection_test_16', [
       {
-        _id: '30.30',
-        data: 'tbsdk_test 30'
+        _id: '43.43',
+        data: 'tbsdk_test 43'
       },
       {
         _id: '31.31',
@@ -687,8 +693,8 @@ export default describe('database test: ', () => {
 
     Storage.storeCollection('collection_test_17', [
       {
-        _id: '30.30',
-        data: 'tbsdk_test 30'
+        _id: '43.43',
+        data: 'tbsdk_test 43'
       },
       {
         _id: '32.32',
@@ -703,8 +709,8 @@ export default describe('database test: ', () => {
 
     Storage.storeCollection('collection_test_18', [
       {
-        _id: '30.30',
-        data: 'tbsdk_test 30'
+        _id: '43.43',
+        data: 'tbsdk_test 43'
       },
       {
         _id: '33.33',
@@ -718,16 +724,16 @@ export default describe('database test: ', () => {
         done()
       })
 
-    Storage.delete('30.30')
+    Storage.delete('43.43')
       .subscribeOn(Scheduler.async, global.timeout3)
       .subscribe()
   })
 
   it('delete element from multi parents should ok', done => {
     Storage.storeOne({
-      _id: '34.34',
+      _id: '44.44',
       child: {
-        _id: '35.35'
+        _id: '45.45'
       }
     })
       .skip(1)
@@ -736,9 +742,9 @@ export default describe('database test: ', () => {
       })
 
     Storage.storeOne({
-      _id: '36.36',
+      _id: '46.46',
       child: {
-        _id: '35.35'
+        _id: '45.45'
       }
     })
       .subscribeOn(Scheduler.async, global.timeout1)
@@ -748,9 +754,9 @@ export default describe('database test: ', () => {
       })
 
     Storage.storeOne({
-      _id: '37.37',
+      _id: '47.47',
       child: {
-        _id: '35.35'
+        _id: '45.45'
       }
     })
       .subscribeOn(Scheduler.async, global.timeout2)
@@ -760,9 +766,43 @@ export default describe('database test: ', () => {
         done()
       })
 
-    Storage.delete('35.35')
+    Storage.delete('45.45')
       .subscribeOn(Scheduler.async, global.timeout3)
       .subscribe()
+  })
+
+  it('get object from database should be new object', done => {
+    const data = {
+      _id: '48.48',
+      data: 'tbsdk_test 48'
+    }
+    Storage.storeOne(data)
+      .subscribe(r => {
+        expect(r).to.not.equal(data)
+        done()
+      })
+  })
+
+  it('get collection from database should be new Array', done => {
+    const data = [
+      {
+        _id: '49.49',
+        data: 'tbsdk_test 49'
+      },
+      {
+        _id: '50.50',
+        data: 'tbsdk_test 50'
+      }
+    ]
+
+    Storage.storeCollection('collection_test_19', data)
+      .subscribe(r => {
+        expect(r).to.not.equal(data)
+        data.forEach((val, index) => {
+          expect(val).to.not.equal(r[index])
+        })
+        done()
+      })
   })
 
 })
