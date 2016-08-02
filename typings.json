@@ -4,8 +4,8 @@
   "globalDependencies": {
     "chai": "registry:dt/chai#3.4.0+20160601211834",
     "mocha": "registry:dt/mocha#2.2.5+20160720003353",
-    "node": "registry:dt/node#6.0.0+20160720070758",
-    "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160524142046"
+    "node": "registry:dt/node#6.0.0+20160801161248",
+    "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160728142841"
   },
   "globalDevDependencies": {
     "sinon": "registry:dt/sinon#1.16.0+20160517064723",

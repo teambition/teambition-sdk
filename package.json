@@ -64,6 +64,7 @@
     "istanbul": "^0.4.3",
     "jsonrpc-lite": "^1.2.1",
     "mocha": "^2.3.4",
+    "moment": "^2.14.1",
     "remap-istanbul": "^0.6.4",
     "rollup": "^0.26.3",
     "rollup-plugin-alias": "^1.2.0",
