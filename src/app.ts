@@ -1,7 +1,6 @@
 'use strict'
 import 'tslib'
-import 'es6-promise'
-import 'es6-collections'
+import 'core-js/shim'
 import 'isomorphic-fetch'
 import 'rxjs/add/operator/subscribeOn'
 import BaseFetch from './fetchs/BaseFetch'
