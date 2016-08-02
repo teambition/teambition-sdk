@@ -1,4 +1,4 @@
-# isomorphic-sdk for Teambition APIs [![Travis](https://travis-ci.org/teambition/teambition-sdk.svg?branch=master&style=flat-square)](https://travis-ci.org/teambition/teambition-sdk)
+# isomorphic-sdk for Teambition APIs [![CircleCI](https://circleci.com/gh/teambition/teambition-sdk/tree/master.svg?style=svg)](https://circleci.com/gh/teambition/teambition-sdk/tree/master)
 
 ## 设计理念
 
