@@ -728,12 +728,6 @@ export default describe('Task API test', () => {
         dueDate: newDueDate
       })
 
-      Task.get(mockTaskGet._id)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.dueDate).to.equal(newDueDate)
-        })
-
       Task.getOneDayTasksMe(_userId, dueDate)
         .skip(1)
         .subscribe(data => {
@@ -741,8 +735,15 @@ export default describe('Task API test', () => {
           done()
         })
 
-      Task.updateDueDate(mockTaskGet._id, newDueDate)
+      Task.get(mockTaskGet._id)
+        .skip(1)
         .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          expect(data.dueDate).to.equal(newDueDate)
+        })
+
+      Task.updateDueDate(mockTaskGet._id, newDueDate)
+        .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
       httpBackend.flush()

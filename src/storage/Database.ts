@@ -43,13 +43,12 @@ export default class DataBase {
         const cache: Model<T> = DataBase.data.get(index)
         let signal: Observable<T>
         if (cache) {
-          signal = cache.update(data)
-            .concatMap(x => this._judgeModel(cache))
-            .concatMap(x => cache.get())
+          signal = this.updateOne<T>(index, data)
+            .concatMap(() => cache.get())
         }else {
           const model = new Model(data, unionFlag)
           signal = this._judgeModel(model)
-            .concatMap(x => model.get())
+            .concatMap(() => model.get())
         }
         observer.next(signal)
       })

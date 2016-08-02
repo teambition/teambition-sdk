@@ -762,7 +762,7 @@ export default describe('Subtask API test: ', () => {
       })
 
     Subtask.transform(subtaskId)
-      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()

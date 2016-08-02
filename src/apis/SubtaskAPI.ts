@@ -81,15 +81,11 @@ export class SubtaskAPI {
 
   transform(_subtaskId: string, doLink = false, doLinked = false): Observable<Task> {
     return Observable.create((observer: Observer<Task>) => {
-      let _task: Task
       Observable.fromPromise(SubtaskFetch.transform(_subtaskId, doLink, doLinked))
         .catch(err => observableError(observer, err))
-        .concatMap(task => {
-          _task = task
-          return TaskModel.addOne(task).take(1)
-        })
-        .concatMap(x => SubtaskModel.delete(_subtaskId))
-        .forEach(x => observer.next(_task))
+        .concatMap(x => SubtaskModel.delete(_subtaskId).map(() => x))
+        .concatMap(x => TaskModel.addOne(x).take(1).map(() => x))
+        .forEach(x => observer.next(x))
         .then(x => observer.complete())
     })
   }
