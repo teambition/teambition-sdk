@@ -1,4 +1,5 @@
-/// <reference path="./type.d.ts" />
+/// <reference path="../../typings/globals/mocha/index.d.ts" />
+/// <reference path="../../typings/globals/chai/index.d.ts" />
 'use strict'
 import { setToken, setAPIHost } from 'teambition-sdk'
 
