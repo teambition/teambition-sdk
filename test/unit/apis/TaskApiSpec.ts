@@ -748,6 +748,27 @@ export default describe('Task API test', () => {
       httpBackend.flush()
     })
 
+    it('delete task should ok', done => {
+      const task = tasksOneDayMe[0]
+
+      httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
+        .respond({})
+
+      Task.getOneDayTasksMe(userId, dueDate)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          expect(notInclude(data, task))
+          done()
+        })
+
+      Task.delete(task._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
   })
 
   describe('get organization created tasks: ', () => {
