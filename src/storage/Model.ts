@@ -212,12 +212,14 @@ export default class Model<T extends ISchema<T>> {
     }
   }
 
-  destroy(): Model<T> {
+  destroy(): void {
     this.data = null
     this.parents = []
     this.children = []
     this._childIndexes = []
-    return this
+    this._subject.next(null)
+    this._subject.complete()
+    this._subject = null
   }
 
 }
