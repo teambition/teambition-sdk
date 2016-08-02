@@ -40,7 +40,7 @@ export default class Collection <T extends ISchema<T>> {
       })
     }
     this.data = result
-    this._subject = new BehaviorSubject(result)
+    this._subject = new BehaviorSubject(clone(result))
     Data.set(index, this)
   }
 

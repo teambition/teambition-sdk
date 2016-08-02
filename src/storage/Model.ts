@@ -53,7 +53,7 @@ export default class Model<T extends ISchema<T>> {
         }
       }
     })
-    this._subject = new BehaviorSubject(data)
+    this._subject = new BehaviorSubject(clone(data))
     Data.set(index, this)
   }
 
@@ -208,7 +208,7 @@ export default class Model<T extends ISchema<T>> {
     if (this.data && this.data instanceof Schema) {
       return this.data.checkSchema()
     }else {
-      return true
+      return false
     }
   }
 
