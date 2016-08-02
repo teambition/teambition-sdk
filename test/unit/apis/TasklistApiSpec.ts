@@ -100,13 +100,14 @@ export default describe('tasklist api test', () => {
 
     Tasklist.getOne(tasklistId)
       .skip(1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(data => {
         expect(data).to.be.null
         done()
       })
 
     Tasklist.delete(tasklistId)
-      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe()
 
     httpBackend.flush()
