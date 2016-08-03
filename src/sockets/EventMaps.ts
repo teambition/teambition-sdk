@@ -13,6 +13,7 @@ import StageModel from '../models/StageModel'
 import TagModel from '../models/TagModel'
 import ActivityModel from '../models/ActivityModel'
 import MessageModel from '../models/MessageModel'
+import MemberModel from '../models/MemberModel'
 import ProjectModel from '../models/ProjectModel'
 import ProjectFetch from '../fetchs/ProjectFetch'
 import { MessageResult, eventParser } from './EventParser'
@@ -32,7 +33,8 @@ const typeMap: any = {
   'collection': CollectionModel,
   'tag': TagModel,
   'user': UserModel,
-  'preference': PreferenceModel
+  'preference': PreferenceModel,
+  'member': MemberModel
 }
 
 const methodMap: any = {
@@ -98,7 +100,8 @@ function handler(socketMessage: MessageResult) {
       case 'project':
         let projectid = data
         return Observable.fromPromise(ProjectFetch.getOne(projectid))
-          .concatMap(project => ProjectModel.addOne(project).take(1))
+          .concatMap(project => ProjectModel.addOne(project))
+          .take(1)
     }
     return Observable.of(null)
   } else if (method === 'remove') {
