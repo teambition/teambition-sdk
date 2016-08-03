@@ -3,13 +3,11 @@
     "target": "es6",
     "experimentalDecorators": true,
     "inlineSourceMap": true,
-    "outDir": ".tmp",
+    "outDir": "../.tmp",
     "module": "commonjs",
     "emitDecoratorMetadata": true,
     "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true
+    "noImplicitReturns": true
   },
   "files": [
     "./app.ts",

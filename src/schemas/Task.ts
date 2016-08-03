@@ -67,5 +67,6 @@ export default class Task extends Schema implements TaskData {
   _projectId: string = undefined
   _executorId: string = undefined
   involveMembers: string[] = undefined
-  tagIds: string[]
+  tagIds: string[] = undefined
+  subtasks?: Subtask[]
 }
