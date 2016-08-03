@@ -18,7 +18,7 @@ export interface RequestEvent {
 
 export type SocketEventType = 'activity' | 'message' | 'project' | 'task' | 'subtask' |
                               'post' | 'work' | 'tasklist' | 'stage' |
-                              'collection' | 'tag' | 'user' | 'preference'
+                              'collection' | 'tag' | 'user' | 'preference' | 'member'
 
 export class SocketMock {
   onmessage: (e: RequestEvent) => void
@@ -36,7 +36,7 @@ export class SocketMock {
     objectType: SocketEventType,
     objectId: string,
     patch?: any,
-    delay = 500
+    delay = 180
   ) {
     const params = {
       e: `:${method}:${objectType}/${objectId}`,

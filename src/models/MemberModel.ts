@@ -71,6 +71,11 @@ export class MemberModel extends BaseModel {
         return super.delete(_memberId)
       })
   }
+
+  addOne(member: MemberData): Observable<MemberData> {
+    const result = dataToSchema<MemberData>(member, Member)
+    return this._save(result, '_memberId')
+  }
 }
 
 export default new MemberModel()
