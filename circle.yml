@@ -12,6 +12,8 @@ dependencies:
 test:
   pre:
     - npm run build_all
+  post:
+    - cp coverage/coverage.json $CIRCLE_ARTIFACTS/json_output
 
 notify:
   webhooks:
