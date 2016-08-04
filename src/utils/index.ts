@@ -60,7 +60,8 @@ export const assign = <T, U>(target: T, patch: U): T & U => {
   return <T & U>target
 }
 
-export const clone = <T>(origin: T): T => {
+export const clone = <T>(origin: T, old?: any): T => {
+  old = old || origin
   /* istanbul ignore if */
   if (origin === null) {
     return null
@@ -78,12 +79,12 @@ export const clone = <T>(origin: T): T => {
   forEach(origin, (val: any, key: string) => {
     if (typeof val === 'object') {
       // null
-      if (val) {
-        target[key] = clone(val)
-      }else {
+      if (val && val !== old) {
+        target[key] = clone(val, old)
+      } else {
         target[key] = val
       }
-    }else {
+    } else {
       target[key] = val
     }
   })
@@ -118,14 +119,20 @@ export const uuid = () => {
   return UUID
 }
 
-export const dataToSchema = <U extends ISchema<U>> (data: any, SchemaClass: any): U => {
-  return setSchema(new SchemaClass(), data)
+export const dataToSchema = <U extends ISchema<U>> (data: any, SchemaClass: any, unionFlag = '_id'): U => {
+  const result = setSchema(new SchemaClass(), data)
+  result.$$unionFlag = unionFlag
+  result.setBloodyParent()
+  return result
 }
 
-export const datasToSchemas = <U>(datas: any[], SchemaClass: any): U[] => {
+export const datasToSchemas = <U>(datas: any[], SchemaClass: any, unionFlag = '_id'): U[] => {
   const result = new Array<U>()
   forEach(datas, data => {
-    result.push(setSchema(new SchemaClass(), data))
+    const schema = setSchema(new SchemaClass(), data)
+    schema.$$unionFlag = unionFlag
+    schema.setBloodyParent()
+    result.push(schema)
   })
   return result
 }
@@ -139,4 +146,21 @@ export function dropEle<T>(ele: T, arr: T[]): T[] {
     return !isEqual
   })
   return arr
+}
+
+/**
+ * 对比第一个对象上有没有值与第二个上不同
+ * @param first  assign(target, patch) 中的 patch
+ * @param second assign(target, patch) 中的 target
+ */
+export function diffEle (first: any, second: any): boolean {
+  let result = false
+  forEach(first, (val, key) => {
+    if (val !== second[key]) {
+      result = true
+      return false
+    }
+    return true
+  })
+  return result
 }

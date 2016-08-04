@@ -7,7 +7,7 @@ import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
 
-export default describe('Project API test', () => {
+export default describe('Project API test: ', () => {
   let httpBackend: Backend
   let Project: ProjectAPI
 

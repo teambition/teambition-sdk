@@ -137,13 +137,14 @@ export default describe('tasklist api test', () => {
       })
 
     Tasklist.getOne(tasklistId)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .skip(1)
       .subscribe(data => {
         expect(data.isArchived).to.be.true
       })
 
     Tasklist.archive(tasklistId)
-      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe(r => {
         expect(r).to.deep.equal(mockResponse)
         done()

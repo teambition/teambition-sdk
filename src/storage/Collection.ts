@@ -1,10 +1,11 @@
 'use strict'
+import 'rxjs/add/operator/debounceTime'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
 import Model from './Model'
-import { forEach, clone, assign, dropEle } from '../utils/index'
+import { forEach, clone, assign, dropEle, diffEle } from '../utils/index'
 import { ISchema } from '../schemas/schema'
 
 export default class Collection <T extends ISchema<T>> {
@@ -30,7 +31,7 @@ export default class Collection <T extends ISchema<T>> {
         const cache: Model<T> = Data.get(_index)
         if (cache) {
           cache.addToCollection(index)
-          if (this._diffEle(ele, cache.data)) {
+          if (diffEle(ele, cache.data)) {
             result.push(assign(cache.data, ele))
             this._notifyCacheCollections(cache)
               ._notifyCacheParents(cache)
@@ -51,7 +52,7 @@ export default class Collection <T extends ISchema<T>> {
   }
 
   get(): Observable<T[]> {
-    return this._subject
+    return this._subject.debounceTime(0)
   }
 
   notify(): Observable<T[]> {
@@ -181,18 +182,6 @@ export default class Collection <T extends ISchema<T>> {
     this._subject.next(null)
     this._subject.complete()
     this._subject = null
-  }
-
-  private _diffEle(ele: any, old: any): boolean {
-    let result = false
-    forEach(ele, (val, key) => {
-      if (val !== old[key]) {
-        result = true
-        return false
-      }
-      return true
-    })
-    return result
   }
 
   private _notifyCacheParents(cache: Model<T>): Collection<T> {

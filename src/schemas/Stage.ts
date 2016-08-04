@@ -1,5 +1,5 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
+import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 
 export interface StageData extends ISchema<StageData> {
   _id: string
@@ -15,7 +15,7 @@ export interface StageData extends ISchema<StageData> {
 export default class Stage extends Schema implements StageData {
   _id: string = undefined
   _projectId: string = undefined
-  _tasklistId: string = undefined
+  @bloodyParent('Tasklist')_tasklistId: string = undefined
   name: string = undefined
   order: number = undefined
   totalCount: number = undefined

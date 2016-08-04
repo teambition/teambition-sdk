@@ -3,6 +3,12 @@ import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import Database from '../../../src/storage/Database'
+import { clone, dataToSchema, forEach } from '../index'
+import { Schema, setSchema, child } from '../../../src/schemas/schema'
+import TaskSchema from '../../../src/schemas/Task'
+import SubtaskSchema from '../../../src/schemas/Subtask'
+import { modelMock } from '../../mock/modelMock'
+import { organizationMySubtasks } from '../../mock/organizationMySubtasks'
 import { flush } from '../utils'
 
 const expect = chai.expect
@@ -803,6 +809,70 @@ export default describe('database test: ', () => {
         })
         done()
       })
+  })
+
+  describe('schema data test: ', () => {
+
+    it('element should be deleted when bloody parent has been deleted', done => {
+      const subtasks = clone(modelMock.subtasks)
+      class TestSchema extends Schema {
+        _id: string = undefined
+        name: string = undefined
+        @child('Array', 'Subtask') subtasks: any[] = []
+      }
+      const _id = subtasks[0]._taskId
+
+      let testSchema: TestSchema
+
+      testSchema = setSchema(new TestSchema(), {
+        _id: _id,
+        name: 'mocktestschema 1',
+        subtasks: subtasks
+      })
+
+      Storage.storeOne(testSchema)
+        .subscribe()
+
+      Storage.storeCollection(`task:subtasks/${testSchema._id}`, subtasks)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(0)
+          done()
+        })
+
+      Storage.delete(_id)
+        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribe()
+    })
+
+    it('circular dependencies should ok', done => {
+      const subtask = clone(organizationMySubtasks[0])
+      const taskSchema = dataToSchema<TaskSchema>(clone(modelMock), TaskSchema)
+      const subtaskSchema = dataToSchema<SubtaskSchema>(subtask, SubtaskSchema)
+
+      Storage.storeOne(subtaskSchema)
+        .subscribe()
+
+      Storage.storeOne(taskSchema)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .skip(1)
+        .subscribe(r => {
+          forEach(r.subtasks, _subtask => {
+            if (_subtask._id === subtask._id) {
+              expect(_subtask.content).to.equal('circular update')
+            }
+          })
+          done()
+        })
+
+      Storage.updateOne(subtask._id, {
+        content: 'circular update'
+      })
+        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribe()
+
+    })
   })
 
 })

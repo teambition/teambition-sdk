@@ -1,11 +1,11 @@
 /// <reference path="./type.d.ts" />
 'use strict'
-
 export * from './utils/fetch'
 export * from './utils/setSchema'
 export * from './utils/utils'
 
 export * from './storage/DatabaseSpec'
+export * from './storage/Model'
 
 export * from './apis/EntrycategoryApiSpec'
 export * from './apis/MemberApiSpec'

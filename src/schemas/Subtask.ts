@@ -1,5 +1,5 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
+import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import { Executor } from '../teambition'
 
 export interface SubtaskData extends ISchema<SubtaskData> {
@@ -25,7 +25,7 @@ export default class Subtask extends Schema implements SubtaskData {
   content: string = undefined
   isDone: boolean = undefined
   _executorId: string = undefined
-  _taskId: string = undefined
+  @bloodyParent('Task') _taskId: string = undefined
   dueDate: string = undefined
   order: number = undefined
   executor: Executor = undefined
