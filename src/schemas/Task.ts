@@ -1,5 +1,5 @@
 'use strict'
-import { Schema, ISchema, schemaName } from './schema'
+import { Schema, ISchema, schemaName, child, bloodyParent } from './schema'
 import Subtask from './Subtask'
 import { Executor, visibility } from '../teambition'
 
@@ -61,12 +61,13 @@ export default class Task extends Schema implements TaskData {
   created: string = undefined
   updated: string = undefined
   visible: visibility = undefined
-  _stageId: string = undefined
+  @bloodyParent('Stage') _stageId: string = undefined
   _creatorId: string = undefined
   _tasklistId: string = undefined
   _projectId: string = undefined
   _executorId: string = undefined
   involveMembers: string[] = undefined
   tagIds: string[] = undefined
-  subtasks?: Subtask[]
+  @child('Array', 'Subtask')
+  subtasks?: Subtask[] = undefined
 }

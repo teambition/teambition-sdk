@@ -32,7 +32,7 @@ import { stageTasksDone } from '../../mock/stageTasksDone'
 const expect = chai.expect
 chai.use(sinonChai)
 
-export default describe('Task API test', () => {
+export default describe('Task API test: ', () => {
   let Task: TaskAPI
   let httpBackend: Backend
 

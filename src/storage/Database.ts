@@ -11,7 +11,7 @@ import { forEach } from '../utils/index'
 import Data from './Map'
 import Model from './Model'
 import Collection from './Collection'
-import { ISchema } from '../schemas/schema'
+import { ISchema, bloodyParentMap } from '../schemas/schema'
 
 export default class DataBase {
   /**
@@ -120,14 +120,22 @@ export default class DataBase {
         if (cache) {
           if (cache instanceof Model) {
             this._deleteParents(cache)
-
-            signal = Observable.from([
+            const signals = [
               this._deleteChild(cache),
               this._deleteFromCollections(cache)
-            ])
+            ]
+            if (bloodyParentMap.has(index)) {
+              const bloodyChildren = bloodyParentMap.get(index)
+              forEach(bloodyChildren, children => {
+                signals.push(this.delete(children))
+              })
+              bloodyParentMap.delete(index)
+            }
+
+            signal = Observable.from(signals)
               .mergeAll()
-              .skip(1)
-          }else if (cache instanceof Collection) {
+              .skip(signals.length - 1)
+          } else if (cache instanceof Collection) {
             const schemaName = cache.schemaName
             if (schemaName) {
               const collectionName = cache.index
@@ -229,9 +237,12 @@ export default class DataBase {
     if (length) {
       forEach(parents, parent => {
         const parentModel: Model<any> = DataBase.data.get(parent)
-        const signal = parentModel.notify()
-          .concatMap(result => this._notifyCollections(parentModel))
-          .concatMap(result => this._notifyParents(parentModel))
+        const grandParents = parentModel.parents
+        let signal = parentModel.notify()
+        if (!(grandParents && grandParents.length && grandParents.indexOf(model.index) !== -1)) {
+          signal = signal.concatMap(result => this._notifyCollections(parentModel))
+            .concatMap(result => this._notifyParents(parentModel))
+        }
         signals.push(signal)
       })
       return Observable.from(signals)
@@ -286,8 +297,7 @@ export default class DataBase {
         }
       })
       if (judgeSignals.length) {
-        return Observable.combineLatest(...judgeSignals)
-          .map(r => r[0])
+        return Observable.combineLatest<any>(...judgeSignals)
       }
     }
     return Observable.of(null)

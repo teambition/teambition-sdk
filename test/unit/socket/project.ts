@@ -53,7 +53,7 @@ export default describe('project socket test', () => {
       .skip(1)
       .subscribe(newProjects => {
         expect(newProjects.length).to.equal(projects.length - 1)
-        expectDeepEqual(newProjects[0]._id, nextProjectId)
+        expect(newProjects[0]._id).to.equal(nextProjectId)
         done()
       })
 

@@ -1,5 +1,5 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
+import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 
 export interface ProjectData extends ISchema<ProjectData> {
   _id: string
@@ -85,7 +85,7 @@ export default class Project extends Schema implements ProjectData {
   pinyin: string = undefined
   description: string = undefined
   category: string = undefined
-  _organizationId: string = undefined
+  @bloodyParent('Organization') _organizationId: string = undefined
   navigation: {
     tasks: number
     posts: number

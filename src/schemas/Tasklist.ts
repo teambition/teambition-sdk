@@ -1,5 +1,5 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
+import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import { StageData } from '../schemas/Stage'
 
 export interface TasklistData extends ISchema<TasklistData> {
@@ -24,7 +24,7 @@ export interface TasklistData extends ISchema<TasklistData> {
 export default class Tasklist extends Schema implements TasklistData {
   _id: string = undefined
   title: string = undefined
-  _projectId: string = undefined
+  @bloodyParent('Project')_projectId: string = undefined
   _creatorId: string = undefined
   description: string = undefined
   isArchived: boolean = undefined
