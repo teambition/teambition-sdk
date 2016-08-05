@@ -1,23 +1,32 @@
 'use strict'
 import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
-import { Backend, ProjectAPI, apihost, clone, assign, forEach } from '../index'
+import * as sinon from 'sinon'
+import * as SinonChai from 'sinon-chai'
+import { Backend, ProjectAPI, apihost, clone, assign, forEach, BaseFetch } from '../index'
 import { projects } from '../../mock/projects'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
+chai.use(SinonChai)
 
 export default describe('Project API test: ', () => {
   let httpBackend: Backend
   let Project: ProjectAPI
+  let spy: Sinon.SinonSpy
 
   beforeEach(() => {
     flush()
     Project = new ProjectAPI()
     httpBackend = new Backend()
+    spy = sinon.spy(BaseFetch.fetch, 'get')
     httpBackend
       .whenGET(`${apihost}projects`)
       .respond(JSON.stringify(projects))
+  })
+
+  afterEach(() => {
+    BaseFetch.fetch.get['restore']()
   })
 
   after(() => {
@@ -70,6 +79,23 @@ export default describe('Project API test: ', () => {
     Project.getOne(project._id)
       .subscribe(r => {
         expectDeepEqual(r, projects[0])
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get project from cache should ok', done => {
+    const project = projects[0]
+    httpBackend.whenGET(`${apihost}projects/${project._id}`)
+      .respond(JSON.stringify(projects[0]))
+
+    Project.getOne(project._id)
+      .subscribe()
+
+    Project.getOne(project._id)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe(r => {
         done()
       })
 

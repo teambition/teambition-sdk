@@ -9,7 +9,7 @@ import {
   forEach,
   BaseFetch
 } from '../index'
-import { flush, expectDeepEqual, notInclude } from '../utils'
+import { flush, notInclude } from '../utils'
 import { messages } from '../../mock/messages'
 
 const expect = chai.expect
@@ -54,7 +54,9 @@ export default describe('MessageAPI test: ', () => {
       Message.getMessages(getMessagesQuery)
         .subscribe(data => {
           forEach(data, (message, index) => {
-            expectDeepEqual(message, messages[index])
+            ['_id', 'name', 'logo'].forEach(k => {
+              expect(messages[index][k]).to.equal(message[k])
+            })
           })
           done()
         })
@@ -69,7 +71,9 @@ export default describe('MessageAPI test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(results => {
           forEach(results, (message, index) => {
-            expectDeepEqual(message, messages[index])
+            ['_id', 'name', 'logo'].forEach(k => {
+              expect(messages[index][k]).to.equal(message[k])
+            })
           })
           expect(spy).to.be.calledOnce
           done()

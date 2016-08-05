@@ -154,20 +154,37 @@ const cacheSchemaMap = new WeakMap<any, ChildMap>()
  */
 export function child (type: 'Array' | 'Object', schemaName: string, unionFlag = '_id') {
   return function(target: any, key: string) {
-    Object.defineProperty(target, '$$children', {
-      get() {
-        if (!cacheSchemaMap.has(this)) {
-          cacheSchemaMap.set(this, new Map<any, any>())
+    if (!target.$$children) {
+      Object.defineProperty(target, '$$children', {
+        get() {
+          if (!cacheSchemaMap.has(this)) {
+            cacheSchemaMap.set(this, new Map<any, any>())
+          }
+          const weakMap = cacheSchemaMap.get(this)
+          weakMap.set(key, {
+            type,
+            schemaName,
+            unionFlag
+          })
+          return weakMap
+        },
+        set (val: {
+          key: string
+          type: 'Object' | 'Array',
+          schemaName: string
+          unionFlag: string
+        }) {
+          const weakMap = cacheSchemaMap.get(this)
+          weakMap.set(val.key, {
+            type: val.type,
+            schemaName: val.schemaName,
+            unionFlag: val.unionFlag
+          })
         }
-        const weakMap = cacheSchemaMap.get(this)
-        weakMap.set(key, {
-          type,
-          schemaName,
-          unionFlag
-        })
-        return weakMap
-      }
-    })
+      })
+    } else {
+      target.$$children = { key, type, schemaName, unionFlag }
+    }
   }
 }
 

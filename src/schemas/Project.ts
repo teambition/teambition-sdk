@@ -49,8 +49,8 @@ export interface ProjectData extends ISchema<ProjectData> {
     avatarUrl: string
     _id: string
   }
-  unreadCount: number
-  unreadMessageCount: number
+  unreadCount?: number
+  unreadMessageCount?: number
   pushStatus: boolean
   canQuit: boolean
   canDelete: boolean
@@ -124,8 +124,6 @@ export default class Project extends Schema implements ProjectData {
     avatarUrl: string
     _id: string
   } = undefined
-  unreadCount: number = undefined
-  unreadMessageCount: number = undefined
   pushStatus: boolean = undefined
   canQuit: boolean = undefined
   canDelete: boolean = undefined

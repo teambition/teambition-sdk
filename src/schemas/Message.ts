@@ -1,5 +1,5 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
+import { Schema, schemaName, ISchema, child } from './schema'
 
 export interface MessageData extends ISchema<MessageData> {
   _id: string
@@ -66,7 +66,7 @@ export default class Message extends Schema implements MessageData {
   title: string = undefined
   _latestActivityId: string = undefined
   subtitle: string = undefined
-  project: {
+  @child('Object', 'Project') project: {
     name: string
     logo: string
     _id: string
