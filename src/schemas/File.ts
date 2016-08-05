@@ -1,5 +1,5 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
+import { Schema, schemaName, ISchema, child } from './schema'
 import { MemberData } from '../schemas/Member'
 import { ObjectLinkData } from '../schemas/ObjectLink'
 import { visibility } from '../teambition'
@@ -74,4 +74,5 @@ export default class File extends Schema implements FileData {
   isLike: boolean = undefined
   likedPeople: string = undefined
   likesCount: number = undefined
+  @child('Array', 'ObjectLink') linked?: ObjectLinkData[]
 }

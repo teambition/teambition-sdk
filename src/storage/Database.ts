@@ -5,13 +5,14 @@ import 'rxjs/add/observable/combineLatest'
 import 'rxjs/add/operator/mergeAll'
 import 'rxjs/add/operator/skip'
 import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/do'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { forEach } from '../utils/index'
 import Data from './Map'
 import Model from './Model'
 import Collection from './Collection'
-import { ISchema, bloodyParentMap } from '../schemas/schema'
+import { ISchema, bloodyParentMap, Schema } from '../schemas/schema'
 
 export default class DataBase {
   /**
@@ -44,6 +45,15 @@ export default class DataBase {
         let signal: Observable<T>
         if (cache) {
           signal = this.updateOne<T>(index, data)
+            .do(() => {
+              if (cache instanceof Schema) {
+                if (cache.data.$$keys) {
+                  cache.data.$$keys.clear()
+                }
+              } else {
+                cache.data.checkSchema = () => true
+              }
+            })
             .concatMap(() => cache.get())
         }else {
           const model = new Model(data, unionFlag)

@@ -68,6 +68,17 @@ export default class Task extends Schema implements TaskData {
   _executorId: string = undefined
   involveMembers: string[] = undefined
   tagIds: string[] = undefined
-  @child('Array', 'Subtask')
-  subtasks?: Subtask[] = undefined
+  @child('Array', 'Subtask') subtasks?: Subtask[]
+  @child('Object', 'Project') project?: {
+    _id: string
+    name: string
+  }
+  @child('Object', 'Stage') stage?: {
+    name: string
+    _id: string
+  }
+  @child('Object', 'Tasklist') tasklist?: {
+    title: string
+    _id: string
+  }
 }

@@ -4,7 +4,7 @@ import { Observer } from 'rxjs/Observer'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
 import { forEach, assign, clone, diffEle, dataToSchema } from '../utils/index'
-import { Schema, ISchema, ChildMap } from '../schemas/schema'
+import { ISchema, ChildMap } from '../schemas/schema'
 import * as Schemas from '../schemas/index'
 
 export default class Model<T extends ISchema<T>> {
@@ -241,7 +241,7 @@ export default class Model<T extends ISchema<T>> {
   }
 
   checkSchema(): boolean {
-    if (this.data && this.data instanceof Schema) {
+    if (this.data && typeof this.data['checkSchema'] === 'function') {
       return this.data.checkSchema()
     }else {
       return false

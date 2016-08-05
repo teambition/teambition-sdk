@@ -822,9 +822,7 @@ export default describe('database test: ', () => {
       }
       const _id = subtasks[0]._taskId
 
-      let testSchema: TestSchema
-
-      testSchema = setSchema(new TestSchema(), {
+      const testSchema = setSchema(new TestSchema(), {
         _id: _id,
         name: 'mocktestschema 1',
         subtasks: subtasks
@@ -871,6 +869,49 @@ export default describe('database test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
+
+    })
+
+    it('get data from cache after it cached should ok', done => {
+      class TestSchema extends Schema {
+        _id: string = undefined
+        name: string = undefined
+        project: {
+          _id: string
+          name: string
+        } = undefined
+      }
+
+      class ProjectSchema extends Schema {
+        _id: string = undefined
+        name: string = undefined
+        logo: string = undefined
+      }
+
+      const testSchema = setSchema(new TestSchema(), {
+        _id: 'mocktestschema2',
+        name: 'mocktestschema 2',
+        project: {
+          _id: 'mockprojecttest',
+          name: 'mock project test'
+        }
+      })
+
+      const projectSchema = setSchema(new ProjectSchema(), {
+        _id: 'mockprojecttest',
+        name: 'mock project test',
+        logo: 'https:/api.teambition.com/logo/1'
+      })
+
+      Storage.storeOne(testSchema)
+        .subscribe()
+
+      Storage.storeOne(projectSchema)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(r => {
+          expect(testSchema.$$data.project.checkSchema()).to.be.true
+          done()
+        })
 
     })
   })
