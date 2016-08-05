@@ -71,6 +71,7 @@ export interface ISchema<T> {
   $$children?: ChildMap
   _requested?: number
   checkSchema?: () => boolean
+  getSchemaName?: () => string
 }
 
 export class Schema {
@@ -79,6 +80,7 @@ export class Schema {
   $$children: ChildMap
   $$bloodyParent: BloodyParent
   $$unionFlag: string
+  getSchemaName?: () => string
 
   constructor() {
     let _$$unionFlag: string
