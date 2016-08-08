@@ -19,7 +19,7 @@ export class TagAPI {
     return Observable.create((observer: Observer<TagData>) => {
       Observable.fromPromise(TagFetch.create(options))
         .catch(err => observableError(observer, err))
-        .concatMap(r => TagModel.addOne(r))
+        .concatMap(r => TagModel.addOne(r).take(1))
         .forEach(r => observer.next(r))
         .then(() => observer.complete())
     })

@@ -21,7 +21,7 @@ export class CollectionAPI {
     return Observable.create((observer: Observer<TBCollectionData>) => {
       Observable.fromPromise(CollectionFetch.create(collection))
         .catch(err => observableError(observer, err))
-        .concatMap(collection => CollectionModel.addOne(collection))
+        .concatMap(collection => CollectionModel.addOne(collection).take(1))
         .forEach(r => observer.next(r))
         .then(x => observer.complete())
     })

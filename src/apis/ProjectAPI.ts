@@ -85,17 +85,17 @@ export class ProjectAPI {
   create(projectInfo: ProjectCreateOptions): Observable<ProjectData> {
     return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.create(projectInfo))
-        .concatMap(project => ProjectModel.addOne(project))
-        .forEach(res => {
-          observer.next(res)
-          observer.complete()
-        })
+        .catch(err => observableError(observer, err))
+        .concatMap(project => ProjectModel.addOne(project).take(1))
+        .forEach(res => observer.next(res))
+        .then(() => observer.complete())
     })
   }
 
   update(_id: string, updateInfo: ProjectUpdateOptions): Observable<any> {
     return Observable.create((observer: Observer<any>) => {
       Observable.fromPromise(ProjectFetch.update(_id, updateInfo))
+        .catch(err => observableError(observer, err))
         .concatMap(project => ProjectModel.update(_id, project))
         .forEach(x => observer.next(x))
         .then(x => observer.complete())
@@ -105,6 +105,7 @@ export class ProjectAPI {
   delete(_id: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
       Observable.fromPromise(ProjectFetch.delete(_id))
+        .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.delete(_id))
         .forEach(x => observer.next(null))
         .then(x => observer.complete())
@@ -114,6 +115,7 @@ export class ProjectAPI {
   archive(_id: string): Observable<ProjectData> {
     return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.archive(_id))
+        .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.update(_id, x))
         .forEach(x => observer.next(<ProjectData>x))
         .then(x => observer.complete())

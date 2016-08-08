@@ -37,7 +37,9 @@ export class EntrycategoryAPI {
     return Observable.create((observer: Observer<EntrycategoryData>) => {
       return Observable.fromPromise(EntrycategoryFetch.create(entrycategory))
         .catch(err => observableError(observer, err))
-        .concatMap(entrycategory => EntrycategoryModel.addOne(entrycategory))
+        .concatMap(entrycategory => EntrycategoryModel.addOne(entrycategory).take(1))
+        .forEach(r => observer.next(r))
+        .then(() => observer.complete())
     })
   }
 
