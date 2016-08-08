@@ -176,12 +176,7 @@ export default class Model<T extends ISchema<T>> {
   }
 
   getSchemaName(): string {
-    const getSchemaName = this.data['getSchemaName']
-    if (this.data && typeof getSchemaName  === 'function') {
-      return getSchemaName()
-    }else {
-      return null
-    }
+    return this.data.$$schemaName
   }
 
   addToCollection(collectionName: string): Model<T> {

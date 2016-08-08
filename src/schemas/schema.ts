@@ -22,12 +22,17 @@ export interface BloodyParent {
 export const setSchema = <T extends Schema>(target: T, data: any): T => {
   target.$$data = data
   forEach(target, (value, key) => {
-    if (key === '$$data') {
+    if (key === '$$schemaName') {
+      Object.defineProperty(target, '$$schemaName', {
+        enumerable: false,
+        writable: false
+      })
+    } else if (key === '$$data') {
       Object.defineProperty(target, key, {
         enumerable: false,
         configurable: true
       })
-    }else if (key === '$$keys') {
+    } else if (key === '$$keys') {
       Object.defineProperty(target, key, {
         enumerable: false,
         set(newVal) {
@@ -37,8 +42,8 @@ export const setSchema = <T extends Schema>(target: T, data: any): T => {
           return value
         }
       })
-    }else {
-      if (typeof data[key] === 'undefined') {
+    } else {
+      if (typeof data[key] === 'undefined' && !target[key]) {
         target.$$keys.add(key)
       }
       Object.defineProperty(target, key, {
@@ -65,13 +70,13 @@ export const setSchema = <T extends Schema>(target: T, data: any): T => {
 }
 
 export interface ISchema<T> {
+  $$schemaName?: string
   $$keys?: Set<string>
   $$data?: T
   $$bloodyParent?: BloodyParent
   $$children?: ChildMap
   _requested?: number
   checkSchema?: () => boolean
-  getSchemaName?: () => string
 }
 
 export class Schema {
@@ -80,7 +85,7 @@ export class Schema {
   $$children: ChildMap
   $$bloodyParent: BloodyParent
   $$unionFlag: string
-  getSchemaName?: () => string
+  $$schemaName: string
 
   constructor() {
     let _$$unionFlag: string
@@ -93,6 +98,7 @@ export class Schema {
       },
       enumerable: false
     })
+    this.$$schemaName = this.$$schemaName
   }
 
   setBloodyParent() {
@@ -140,9 +146,7 @@ export class Schema {
 
 export function schemaName (name: string) {
   return function(target: any) {
-    target.prototype.getSchemaName = function () {
-      return name
-    }
+    target.prototype.$$schemaName = name
   }
 }
 

@@ -17,7 +17,7 @@ export function expectDeepEqual(a: any, b: any) {
   const origin = isSchema ? b : a
   const other = isSchema ? a : b
   forEach(origin, (val, key) => {
-    if (key !== '_requested') {
+    if (key !== '_requested' && key !== '$$schemaName') {
       expect(val).to.deep.equal(other[key])
     }
   })
