@@ -424,11 +424,8 @@ export default describe('database test: ', () => {
 
     describe('change ele to satisfy collection condition: ', () => {
       class TestEle {
+        $$schemaName = 'TestEle'
         constructor(public _id: string, public name: string, public age: number) {}
-
-        getSchemaName() {
-          return 'TestEle'
-        }
       }
 
       it('collection should be updated', done => {

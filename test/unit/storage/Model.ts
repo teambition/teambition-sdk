@@ -33,7 +33,7 @@ export default describe('storage Model test: ', () => {
   })
 
   it('get schema name should ok', () => {
-    expect(model.getSchemaName()).to.equal('Task')
+    expect(model.data.$$schemaName).to.equal('Task')
   })
 
   it('get data should ok', done => {
