@@ -18,11 +18,9 @@ export class FileAPI {
         .catch(err => observableError(observer, err))
         .concatMap(res => Observable.fromPromise<FileData[]>(FileFetch.create(parentId, <any>res)))
         .catch(err => observableError(observer, err))
-        .concatMap(file => WorkModel.addOne(file[0]))
-        .forEach(r => {
-          observer.next(r)
-          observer.complete()
-        })
+        .concatMap(file => WorkModel.addOne(file[0]).take(1))
+        .forEach(r => observer.next(r))
+        .then(() => observer.complete())
     })
   }
 }

@@ -46,13 +46,10 @@ export class SubtaskAPI {
   }): Observable<SubtaskData> {
     return Observable.create((observer: Observer<SubtaskData>) => {
       Observable.fromPromise(SubtaskFetch.create(subtaskData))
-        .catch(err => {
-          observer.error(err)
-          return Observable.of(null)
-        })
-        .concatMap(subtask => SubtaskModel.addOne(subtask))
+        .catch(err => observableError(observer, err))
+        .concatMap(subtask => SubtaskModel.addOne(subtask).take(1))
         .forEach(subtask => observer.next(subtask))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -69,10 +66,7 @@ export class SubtaskAPI {
   delete(_subtaskid: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
       Observable.fromPromise(SubtaskFetch.delete(_subtaskid))
-        .catch(err => {
-          observer.error(err)
-          return Observable.of(null)
-        })
+        .catch(err => observableError(observer, err))
         .concatMap(x => SubtaskModel.delete(_subtaskid))
         .forEach(x => observer.next(null))
         .then(x => observer.complete())

@@ -11,7 +11,7 @@ export class ObjectLinkAPI {
     return Observable.create((observer: Observer<ObjectLinkData>) => {
       Observable.fromPromise(ObjectLinkFetch.create(option))
         .catch(err => observableError(observer, err))
-        .concatMap(r => ObjectLinkModel.addOne(r))
+        .concatMap(r => ObjectLinkModel.addOne(r).take(1))
         .forEach(r => observer.next(r))
         .then(() => observer.complete())
     })

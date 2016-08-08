@@ -215,10 +215,7 @@ export class TaskAPI {
   create(taskInfo: CreateTaskOptions): Observable<TaskData> {
     return Observable.create((observer: Observer<TaskData>) => {
       Observable.fromPromise(TaskFetch.create(taskInfo))
-        .catch(err => {
-          observer.error(err)
-          return Observable.of(null)
-        })
+        .catch(err => observableError(observer, err))
         .concatMap(task => TaskModel.addOne(task).take(1))
         .forEach(task => observer.next(task))
         .then(x => observer.complete())
@@ -228,10 +225,7 @@ export class TaskAPI {
   fork(_taskId: string, options: ForkTaskOptions): Observable<TaskData> {
     return Observable.create((observer: Observer<TaskData>) => {
       Observable.fromPromise(TaskFetch.fork(_taskId, options))
-        .catch(err => {
-          observer.error(err)
-          return Observable.of(null)
-        })
+        .catch(err => observableError(observer, err))
         .concatMap(task => TaskModel.addOne(task).take(1))
         .forEach(task => observer.next(task))
         .then(x => observer.complete())
@@ -241,10 +235,7 @@ export class TaskAPI {
   delete(_taskId: string): Observable<void> {
     return Observable.create((observer: Observer<void>) => {
       Observable.fromPromise(TaskFetch.delete(_taskId))
-        .catch(err => {
-          observer.error(err)
-          return TaskModel.getOne(_taskId)
-        })
+        .catch(err => observableError(observer, err))
         .concatMap(x => TaskModel.delete(_taskId))
         .forEach(x => observer.next(null))
         .then(x => observer.complete())
