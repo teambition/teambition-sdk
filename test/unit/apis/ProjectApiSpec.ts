@@ -96,6 +96,7 @@ export default describe('Project API test: ', () => {
     Project.getOne(project._id)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
+        expect(spy).to.calledOnce
         done()
       })
 
