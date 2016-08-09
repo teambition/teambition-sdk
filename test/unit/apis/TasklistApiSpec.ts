@@ -27,6 +27,29 @@ export default describe('tasklist api test', () => {
     httpBackend.restore()
   })
 
+  it('create tasklist should ok', done => {
+    const mockTasklist = clone(tasklists[0])
+    mockTasklist._id = 'mocktasklistid'
+    mockTasklist.title = 'mocktasklist'
+
+    httpBackend.whenPOST(`${apihost}tasklists`, {
+      title: 'mocktasklist',
+      _projectId: projectId
+    })
+      .respond(JSON.stringify(mockTasklist))
+
+    Tasklist.create({
+      title: 'mocktasklist',
+      _projectId: projectId
+    })
+      .subscribe(r => {
+        expectDeepEqual(r, mockTasklist)
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
   it('get tasklists by projectId should ok', done => {
     Tasklist.getTasklists(projectId)
       .subscribe(data => {

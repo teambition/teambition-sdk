@@ -46,6 +46,8 @@ export default class DataBase {
         if (cache) {
           signal = this.updateOne<T>(index, data)
             .do(() => {
+              // 这里是将存过一次的数据进行标记，表示这个数据已经是完整的了
+              // 那些从 Collection 与 Model 解析下来的数据就有可能不是完整的
               if (cache instanceof Schema) {
                 if (cache.data.$$keys) {
                   cache.data.$$keys.clear()
