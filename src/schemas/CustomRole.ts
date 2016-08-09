@@ -1,6 +1,6 @@
 'use strict'
 import { schemaName, ISchema } from './schema'
-import DefaultRoleScheam from './DefaultRole'
+import DefaultRoleSchema from './DefaultRole'
 
 export interface CustomRoleData extends ISchema<CustomRoleData> {
   _id: string
@@ -15,7 +15,7 @@ export interface CustomRoleData extends ISchema<CustomRoleData> {
 }
 
 @schemaName('Role')
-export default class CustomRoleSchema extends DefaultRoleScheam implements CustomRoleData {
+export default class CustomRoleSchema extends DefaultRoleSchema implements CustomRoleData {
   _id: string = undefined
   _creatorId: string = undefined
   _organizationId: string = undefined
