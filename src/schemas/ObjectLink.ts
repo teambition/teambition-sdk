@@ -1,5 +1,5 @@
 'use strict'
-import { ISchema, Schema, schemaName } from './schema'
+import { ISchema, Schema, schemaName, bloodyParentWithProperty } from './schema'
 
 export type parentType = 'task' | 'post' | 'event' | 'work'
 
@@ -29,7 +29,7 @@ export interface ObjectLinkData extends ISchema<ObjectLinkData> {
 export default class ObjectLinkSchema extends Schema implements ObjectLinkData {
   _id: string = undefined
   _creatorId: string = undefined
-  _parentId: string = undefined
+  @bloodyParentWithProperty('parentType') _parentId: string = undefined
   parentType: parentType = undefined
   linkedType: string = undefined
   _linkedId: string = undefined

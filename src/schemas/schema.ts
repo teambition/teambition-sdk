@@ -213,3 +213,26 @@ export function bloodyParent(schemaName: string, unionFlag = '_id') {
     })
   }
 }
+
+/**
+ * 用于注解对象上的一个属性，这个属性通常是一个 id
+ * 这个 id 代表着是这个被注解对象的血亲
+ * 一个对象在它的血亲被删除后也会被删除
+ * 这个注解对应 schemaName 在运行时才能拿到的情况
+ */
+export function bloodyParentWithProperty(propertyName: string, unionFlag = '_id') {
+  return function (target: any, key: string) {
+    Object.defineProperty(target, '$$bloodyParent', {
+      get() {
+        return {
+          key,
+          unionFlag,
+          schemaName: this[propertyName],
+          [unionFlag]: this[key]
+        }
+      },
+      enumerable: false,
+      configurable: false
+    })
+  }
+}

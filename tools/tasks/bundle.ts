@@ -9,7 +9,6 @@ const commonjs = require('rollup-plugin-commonjs')
 
 export function bundle (entry: string, output: string, name: string, ise2e?: boolean) {
   const babelConf = babel({
-    presets: [ 'es2015-rollup' ],
     runtimeHelpers: true,
     exclude: 'dist/bundle/**'
   })
