@@ -25,7 +25,7 @@ export default describe('utils/fetch', () => {
     const url = `${fetch.getAPIHost()}${path}`
     const data = {test: 'test'}
     fetchMock.mock(url, data)
-    return fetch.get(path)
+    fetch.get(path)
       .then(() => {
         expect(fetchMock.calls().matched.length).to.equal(1)
         expect(fetchMock.lastUrl()).to.equal(url)
@@ -49,7 +49,7 @@ export default describe('utils/fetch', () => {
     const url = `${apiHost}${path}`
     fetch.setToken(token)
     fetchMock.mock(url, {})
-    return fetch.get(path)
+    fetch.get(path)
       .then((res) => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
@@ -72,7 +72,7 @@ export default describe('utils/fetch', () => {
       const responseData = {test: 'test'}
       const body = {body: 'body'}
       fetchMock.mock(url, httpMethod, responseData)
-      return fetch[httpMethod](path, httpMethod === 'get' ? null : body)
+      fetch[httpMethod](path, httpMethod === 'get' ? null : body)
         .then((res) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
@@ -93,7 +93,7 @@ export default describe('utils/fetch', () => {
         const responseData = {body: {test: 'test'}, status: status}
         const body = {body: 'body'}
         fetchMock.mock(url, httpMethod, responseData)
-        return fetch[httpMethod](path, httpMethod === 'get' ? null : body)
+        fetch[httpMethod](path, httpMethod === 'get' ? null : body)
           .then((res: Response) => {
             expect(res).not.to.deep.equal(responseData.body)
             done()

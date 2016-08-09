@@ -7,6 +7,8 @@ import { clone, dataToSchema, forEach } from '../index'
 import { Schema, setSchema, child } from '../../../src/schemas/schema'
 import TaskSchema from '../../../src/schemas/Task'
 import SubtaskSchema from '../../../src/schemas/Subtask'
+import ObjectLinkSchema from '../../../src/schemas/ObjectLink'
+import { objectLinks } from '../../mock/objectLinks'
 import { modelMock } from '../../mock/modelMock'
 import { organizationMySubtasks } from '../../mock/organizationMySubtasks'
 import { flush } from '../utils'
@@ -837,6 +839,30 @@ export default describe('database test: ', () => {
         })
 
       Storage.delete(_id)
+        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribe()
+    })
+
+    it('bloodyParentWithProperty should ok', done => {
+      const objectLinkData = objectLinks[0]
+      const task = clone(modelMock)
+      task._id = objectLinkData._parentId
+
+      const taskSchema = dataToSchema<TaskSchema>(clone(task), TaskSchema)
+      const objectLinkSchema = dataToSchema<ObjectLinkSchema>(clone(objectLinkData), ObjectLinkSchema)
+
+      Storage.storeOne(taskSchema)
+        .subscribe()
+
+      Storage.storeOne(objectLinkSchema)
+        .skip(1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(r => {
+          expect(r).to.be.null
+          done()
+        })
+
+      Storage.delete(taskSchema._id)
         .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
     })
