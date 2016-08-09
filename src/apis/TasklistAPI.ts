@@ -1,15 +1,30 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
-import TasklistFetch, { UpdateTasklistOptions, ArchiveTasklistResponse, UnarchiveTasklistResponse } from '../fetchs/TasklistFetch'
+import TasklistFetch, {
+  CreateTasklistOptions,
+  UpdateTasklistOptions,
+  ArchiveTasklistResponse,
+  UnarchiveTasklistResponse
+} from '../fetchs/TasklistFetch'
 import TasklistModel from '../models/TasklistModel'
 import { TasklistData } from '../schemas/Tasklist'
-import { errorHandler, makeColdSignal } from './utils'
+import { errorHandler, makeColdSignal, observableError } from './utils'
 
 export class TasklistAPI {
 
   constructor() {
     TasklistModel.destructor()
+  }
+
+  create(option: CreateTasklistOptions): Observable<TasklistData> {
+    return Observable.create((observer: Observer<TasklistData>) => {
+      Observable.fromPromise(TasklistFetch.create(option))
+        .catch(err => observableError(observer, err))
+        .concatMap(r => TasklistModel.addOne(r).take(1))
+        .forEach(r => observer.next(r))
+        .then(() => observer.complete())
+    })
   }
 
   getTasklists(_projectId: string, query?: any): Observable<TasklistData[]> {
