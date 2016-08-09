@@ -1,6 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import * as Rx from 'rxjs'
+import { MemberSchema } from '../index'
 import { MemberAPI, Backend, apihost } from '../index'
 import { members } from '../../mock/members'
 import { projectMembers } from '../../mock/projectMembers'
@@ -107,6 +108,24 @@ export default describe('member api test', () => {
     Member.deleteMember(member._memberId)
       .subscribeOn(Rx.Scheduler.async, global.timeout1)
       .subscribe()
+
+    httpBackend.flush()
+  })
+
+  it('add members before getting members', done => {
+    const projectId = projectMembers[0]._boundToObjectId
+    const mockEmails = projectMembers.map(member => member.email)
+
+    httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
+        email: mockEmails
+      })
+      .respond(JSON.stringify(projectMembers))
+
+    Member.addMembers(projectId, mockEmails)
+      .subscribe((members: MemberSchema[]) => {
+        expect(members.length).to.be.equal(projectMembers.length)
+        done()
+      })
 
     httpBackend.flush()
   })

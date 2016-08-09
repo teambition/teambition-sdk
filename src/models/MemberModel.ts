@@ -37,13 +37,15 @@ export class MemberModel extends BaseModel {
     const dbIndex = `project:members/${projectId}`
     if (members instanceof Array) {
       const result = datasToSchemas<MemberData>(members, Member)
-      forEach(result, val => {
-        const cache = this._projectMembers.get(dbIndex)
-        if (cache) {
+      const cache = this._projectMembers.get(dbIndex)
+      if (cache) {
+        forEach(result, val => {
           cache.push(val)
-        }
-      })
-      return this._updateCollection<Member>(dbIndex, this._projectMembers.get(dbIndex))
+        })
+        return this._updateCollection<Member>(dbIndex, cache)
+      } else {
+        return this.saveProjectMembers(projectId, members)
+      }
     }else {
       const result = dataToSchema<MemberData>(members, Member)
       return this._save(result, '_memberId')
