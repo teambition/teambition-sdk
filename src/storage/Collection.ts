@@ -123,8 +123,7 @@ export default class Collection <T extends ISchema<T>> {
           Observable.from(signals)
             .mergeAll()
             .skip(signals.length - 1)
-            .concatMap(x => this.get().take(1))
-            .forEach(result => {
+            .forEach(() => {
               observer.next(clone(diff))
               observer.complete()
             })
