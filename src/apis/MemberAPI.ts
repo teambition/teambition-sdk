@@ -17,29 +17,35 @@ export class MemberAPI {
       .concatMap(x => MemberModel.delete(memberId))
   }
 
-  getOrgMembers (organizationId: string): Observable<MemberData[]> {
+  getOrgMembers (organizationId: string, page = 1, count = 30): Observable<MemberData[]> {
     return makeColdSignal<MemberData[]>(observer => {
-      const get = MemberModel.getOrgMembers(organizationId)
+      const get = MemberModel.getOrgMembers(organizationId, page)
       if (get) {
         return get
       }
       return Observable
-        .fromPromise(MemberFetch.getOrgMembers(organizationId))
+        .fromPromise(MemberFetch.getOrgMembers(organizationId, {
+          page,
+          count
+        }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(x => MemberModel.saveOrgMembers(organizationId, x))
+        .concatMap(x => MemberModel.saveOrgMembers(organizationId, x, page, count))
     })
   }
 
-  getProjectMembers(projectId: string): Observable<MemberData[]> {
+  getProjectMembers(projectId: string, page = 1, count = 30): Observable<MemberData[]> {
     return makeColdSignal<MemberData[]>(observer => {
-      const get = MemberModel.getProjectMembers(projectId)
+      const get = MemberModel.getProjectMembers(projectId, page)
       if (get) {
         return get
       }
       return Observable
-        .fromPromise(MemberFetch.getProjectMembers(projectId))
+        .fromPromise(MemberFetch.getProjectMembers(projectId, {
+          page,
+          count
+        }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(x => MemberModel.saveProjectMembers(projectId, x))
+        .concatMap(x => MemberModel.saveProjectMembers(projectId, x, page, count))
     })
   }
 

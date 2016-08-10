@@ -2,17 +2,23 @@
 import BaseFetch from './BaseFetch'
 import { MemberData } from '../schemas/Member'
 
+export interface GetMembersOptions {
+  limit?: number
+  page?: number
+  count?: number
+}
+
 export class MemberFetch extends BaseFetch {
   deleteMember(memberId: string): Promise<void> {
     return this.fetch.delete<void>(`members/${memberId}`)
   }
 
-  getOrgMembers (organizationId: string): Promise<MemberData[]> {
-    return this.fetch.get<MemberData[]>(`V2/organizations/${organizationId}/members`)
+  getOrgMembers (organizationId: string, query?: GetMembersOptions): Promise<MemberData[]> {
+    return this.fetch.get<MemberData[]>(`V2/organizations/${organizationId}/members`, query)
   }
 
-  getProjectMembers(projectId: string): Promise<MemberData[]> {
-    return this.fetch.get<MemberData[]>(`projects/${projectId}/members`)
+  getProjectMembers(projectId: string, query?: GetMembersOptions): Promise<MemberData[]> {
+    return this.fetch.get<MemberData[]>(`projects/${projectId}/members`, query)
   }
 
   updateRole(memberId: string, roleId: string): Promise<{roleId: string}> {

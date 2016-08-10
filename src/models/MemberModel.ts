@@ -1,81 +1,86 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
+import Collection from './BaseCollection'
 import { datasToSchemas, forEach, dataToSchema } from '../utils/index'
 import { default as Member, MemberData } from '../schemas/Member'
 
 export class MemberModel extends BaseModel {
 
   private _schemaName = 'Member'
-  private _projectMembers = new Map<string, MemberData[]>()
+  private _collections = new Map<string, Collection<MemberData>>()
 
   destructor() {
-    this._projectMembers.clear()
+    this._collections.clear()
   }
 
-  saveProjectMembers(projectId: string, members: MemberData[]): Observable<MemberData[]> {
+  saveProjectMembers(projectId: string, members: MemberData[], page: number, count: number): Observable<MemberData[]> {
     const result = datasToSchemas<MemberData>(members, Member)
     const dbIndex = `project:members/${projectId}`
-    this._projectMembers.set(dbIndex, result)
-    return this._saveCollection(dbIndex, result, this._schemaName, (data: MemberData) => {
-      return data._boundToObjectId === projectId && data.boundToObjectType === 'project'
-    }, '_memberId')
+
+    let collection: Collection<MemberData> = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection<MemberData>(this._schemaName, data => {
+        return data._boundToObjectId === projectId && data.boundToObjectType === 'project'
+      }, dbIndex, count, '_memberId')
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
   }
 
-  getProjectMembers(projectId: string): Observable<MemberData[]> {
-    return this._get<Array<MemberData>>(`project:members/${projectId}`)
+  getProjectMembers(projectId: string, page: number): Observable<MemberData[]> {
+    const collection = this._collections.get(`project:members/${projectId}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
   }
 
-  saveOrgMembers(organizationId: string, members: MemberData[]): Observable<MemberData[]> {
+  saveOrgMembers(organizationId: string, members: MemberData[], page: number, count: number): Observable<MemberData[]> {
     const result = datasToSchemas<MemberData>(members, Member)
-    return this._saveCollection(`organization:members/${organizationId}`, result, this._schemaName, (data: MemberData) => {
-      return data._boundToObjectId === organizationId && data.boundToObjectType === 'organization'
-    }, '_memberId')
+    const dbIndex = `organization:members/${organizationId}`
+
+    let collection = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection<MemberData>(this._schemaName, data => {
+        return data._boundToObjectId === organizationId && data.boundToObjectType === 'organization'
+      }, dbIndex, count, '_memberId')
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
   }
 
-  getOrgMembers(organizationId: string): Observable<MemberData[]> {
-    return this._get<Array<MemberData>>(`organization:members/${organizationId}`)
+  getOrgMembers(organizationId: string, page: number): Observable<MemberData[]> {
+    const collection = this._collections.get(`organization:members/${organizationId}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
   }
 
   addProjectMembers(projectId: string, members: MemberData | MemberData[]): Observable<MemberData | MemberData[]> {
     const dbIndex = `project:members/${projectId}`
     if (members instanceof Array) {
       const result = datasToSchemas<MemberData>(members, Member)
-      const cache = this._projectMembers.get(dbIndex)
-      if (cache) {
+      let collection = this._collections.get(dbIndex)
+      if (collection) {
+        const signals: Observable<MemberData>[] = []
         forEach(result, val => {
-          cache.push(val)
+          signals.push(this._save<MemberData>(val, '_memberId'))
         })
-        return this._updateCollection<Member>(dbIndex, cache)
+        return Observable.from(signals)
+          .mergeAll()
+          .skip(signals.length - 1)
       } else {
-        return this.saveProjectMembers(projectId, members)
+        return this.saveProjectMembers(projectId, members, 1, 30)
       }
     }else {
       const result = dataToSchema<MemberData>(members, Member)
       return this._save(result, '_memberId')
         .take(1)
     }
-  }
-
-  delete(_memberId: string): Observable<void> {
-    return this._get<MemberData>(_memberId)
-      .take(1)
-      .concatMap(member => {
-        const projectId = member._boundToObjectId
-        const dbIndex = `project:members/${projectId}`
-        const cache = this._projectMembers.get(dbIndex)
-        if (cache && cache.length) {
-          forEach(cache, (mem, index) => {
-            if (mem._memberId === _memberId) {
-              cache.splice(index, 1)
-              return false
-            }else {
-              return null
-            }
-          })
-        }
-        return super.delete(_memberId)
-      })
   }
 
   addOne(member: MemberData): Observable<MemberData> {

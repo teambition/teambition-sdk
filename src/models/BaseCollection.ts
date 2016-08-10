@@ -15,7 +15,8 @@ export default class BaseCollection<T extends ISchema<T>> extends Model {
     private _schemaName: string,
     private _condition: (data: T) => boolean,
     private _dbIndex: string,
-    private _pageLength = 30
+    private _pageLength = 30,
+    private _unionFlag = '_id'
   ) {
     super()
     this._data = new Map<number, T[]>()
@@ -61,7 +62,7 @@ export default class BaseCollection<T extends ISchema<T>> extends Model {
          */
         if (page === 1) {
           // 可发射多次的流
-          destSignal = this._saveCollection(this._dbIndex, result, this._schemaName, this._condition)
+          destSignal = this._saveCollection(this._dbIndex, result, this._schemaName, this._condition, this._unionFlag)
         }else {
           // 只会发射一次
           destSignal = this._updateCollection<T>(this._dbIndex, result)
