@@ -9,10 +9,10 @@ if (process.env.running_under_istanbul) {
   global.timeout3 = 300
   global.timeout4 = 400
 }else {
-  global.timeout1 = 15
-  global.timeout2 = 30
-  global.timeout3 = 50
-  global.timeout4 = 100
+  global.timeout1 = 30
+  global.timeout2 = 60
+  global.timeout3 = 90
+  global.timeout4 = 120
 }
 
 export * from '../../src/app'

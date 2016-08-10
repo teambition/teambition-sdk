@@ -9,6 +9,10 @@ export class MemberModel extends BaseModel {
   private _schemaName = 'Member'
   private _projectMembers = new Map<string, MemberData[]>()
 
+  destructor() {
+    this._projectMembers.clear()
+  }
+
   saveProjectMembers(projectId: string, members: MemberData[]): Observable<MemberData[]> {
     const result = datasToSchemas<MemberData>(members, Member)
     const dbIndex = `project:members/${projectId}`
