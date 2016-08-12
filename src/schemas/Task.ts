@@ -30,7 +30,13 @@ export interface TaskData extends ISchema<TaskData> {
   subtasks?: Subtask[]
   commentsCount?: number
   attachmentsCount?: number
+  isLike?: boolean
   likesCount?: number
+  likesGroup?: {
+    _id: string
+    avatarUrl: string
+    name: string
+  }[]
   objectlinksCount?: number
   subtaskCount?: {
     total: number

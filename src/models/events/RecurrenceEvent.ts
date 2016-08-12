@@ -1,6 +1,6 @@
 'use strict'
 import { EventData } from '../../schemas/Event'
-import { clone } from '../../utils/index'
+import { clone, assign } from '../../utils/index'
 import { visibility } from '../../teambition'
 import EventSchema from '../../schemas/Event'
 import { setSchema } from '../../schemas/schema'
@@ -55,6 +55,7 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
         _event.recurrence = rec
       }
     })
+    assign(this, _event)
   }
 
   setStart(date?: Date): void {
@@ -94,11 +95,34 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
   takeUntilTime(time: Date): GeneratorResult[] {
     this._checkRecurrence()
     const result: GeneratorResult[] = []
-    let startDate = this._startDate
-    while (new Date(startDate).valueOf() < time.valueOf()) {
+    while (new Date(this._startDate).valueOf() < time.valueOf()) {
       result.push(this.next())
     }
     return result
+  }
+
+  takeByTime(time: Date): EventData {
+    let startDate = this.startDate
+    const timeVal = time.valueOf()
+    let startVal = new Date(startDate).valueOf()
+    while (startVal < timeVal) {
+      startDate = this._recurrence.after(new Date(startDate))
+      startVal = new Date(startDate).valueOf()
+    }
+    if (startVal === timeVal) {
+      const result = clone(this)
+      const startDateObject = new Date(startDate)
+      result._id = this._id + '&' + startDateObject.toISOString()
+      result.startDate = startDateObject.toISOString()
+      result.endDate = this._genNewEnd(startDateObject)
+      return result
+    } else {
+      return null
+    }
+  }
+
+  clone() {
+    return setSchema ( new RecurrenceEvent(this), this )
   }
 
   /**

@@ -20,7 +20,7 @@ export class StrikerFetch {
       formData.append('file', file)
       formData.append('name', file.name)
       formData.append('type', file.type)
-    }else {
+    } else {
       formData = file
     }
     return UserFetch.getUserMe()

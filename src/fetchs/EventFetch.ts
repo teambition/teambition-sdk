@@ -1,8 +1,8 @@
 'use strict'
 import BaseFetch from './BaseFetch'
 import { visibility } from '../teambition'
-import { EventData } from '../schemas/event'
-import { ActivityData } from '../schemas/activity'
+import { EventData } from '../schemas/Event'
+import { ActivityData } from '../schemas/Activity'
 
 export interface CreateEventOptions {
   _projectId: string
@@ -161,9 +161,7 @@ export class EventFetch extends BaseFetch {
   }
 
   likeRepeatEvent(eventId: string, occurrenceDate: number): Promise<LikeRepeatEventResponse> {
-    return this.fetch.post(`events/${eventId}/like_repeat_event`, {
-      occurrenceDate: occurrenceDate
-    })
+    return this.fetch.post(`events/${eventId}/like_repeat_event`, { occurrenceDate })
   }
 
   unarchive(eventId: string): Promise<UnarchiveEventResponse> {

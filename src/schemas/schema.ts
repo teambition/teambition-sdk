@@ -47,13 +47,10 @@ export const setSchema = <T extends Schema>(target: T, data: any): T => {
         target.$$keys.add(key)
       }
       if ( ! (!(key in data) && (key in target)) ) {
-        const originGet = Object.getOwnPropertyDescriptor(target, key).get
         const originSet = Object.getOwnPropertyDescriptor(target, key).set
         Object.defineProperty(target, key, {
           get() {
-            if (originGet) {
-              return originGet.call(this)
-            } else if (target.$$data) {
+            if (target.$$data) {
               return target.$$data[key]
             }
           },

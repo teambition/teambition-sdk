@@ -63,7 +63,7 @@ export default class Model<T extends ISchema<T>> {
       }
     })
     this._genChild(this.$$children)
-    this._subject = new BehaviorSubject(clone(data))
+    this._subject = new BehaviorSubject(this._clone(data))
     Data.set(index, this)
   }
 
@@ -164,7 +164,7 @@ export default class Model<T extends ISchema<T>> {
           }
         })
         this.data = assign(this.data, _finalPatch)
-        const result = clone(this.data)
+        const result = this._clone(this.data)
         observer.next(result)
         observer.complete()
       })
@@ -172,7 +172,7 @@ export default class Model<T extends ISchema<T>> {
   }
 
   notify(): Observable<T> {
-    this._subject.next(clone(this.data))
+    this._subject.next(this._clone(this.data))
     return this._subject.take(1)
   }
 
@@ -315,6 +315,14 @@ export default class Model<T extends ISchema<T>> {
 
   private _schemaFactory(schemaName: string, data: any, flag: string) {
     return dataToSchema(data, Schemas[`${schemaName}Schema`], flag)
+  }
+
+  private _clone(obj: any) {
+    if (typeof obj.clone === 'function') {
+      return obj.clone()
+    } else {
+      return clone(obj)
+    }
   }
 
 }

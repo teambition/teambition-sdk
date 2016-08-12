@@ -1,4 +1,5 @@
 'use strict'
+import 'rxjs/add/operator/switch'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import {
@@ -19,8 +20,9 @@ import {
   UpdateEventTagsResponse
 } from '../fetchs/EventFetch'
 import EventModel from '../models/EventModel'
+import { RecurrenceEvent } from '../models/events/RecurrenceEvent'
 import { EventData } from '../schemas/Event'
-import { observableError, makeColdSignal, errorHandler } from './utils'
+import { observableError, errorHandler } from './utils'
 
 export class EventAPI {
   constructor() {
@@ -39,15 +41,37 @@ export class EventAPI {
   }
 
   get(eventId: string, query?: any): Observable<EventData> {
-    return makeColdSignal<EventData>(observer => {
-      const cache = EventModel.get(eventId)
-      if (cache && EventModel.checkSchema(eventId)) {
-        return cache
+    // 不是 mongodb id
+    let date: Date
+    if (eventId.length !== 24) {
+      const idAndDate = eventId.split('&')
+      eventId = idAndDate[0]
+      date = new Date(idAndDate[1])
+    }
+    return Observable.create((observer: Observer<Observable<EventData>>) => {
+      let dest: Observable<EventData | void | RecurrenceEvent> = EventModel.get(eventId)
+      if (!dest || !EventModel.checkSchema(eventId)) {
+        dest = Observable.fromPromise(EventFetch.get(eventId, query))
+          .catch(err => errorHandler(observer, err))
+          .concatMap(x => EventModel.addOne(x))
       }
-      return Observable.fromPromise(EventFetch.get(eventId, query))
-        .catch(err => errorHandler(observer, err))
-        .concatMap(x => EventModel.addOne(x))
+      dest = dest.map((x: RecurrenceEvent) => {
+        if (date) {
+          const result = x.takeByTime(date)
+          if (result) {
+            return result
+          } else {
+            return observer.next(EventModel.getByAlias(eventId + date.toISOString()))
+          }
+        } else {
+          return x
+        }
+      })
+      observer.next(<any>dest)
     })
+      .switch()
+      .publishReplay(1)
+      .refCount()
   }
 
   update(eventId: string, query: UpdateEventOptions): Observable<any> {
@@ -85,8 +109,10 @@ export class EventAPI {
       Observable.fromPromise(EventFetch.commentsRepeatEvent(eventId, commentBody))
         .catch(err => observableError(observer, err))
         .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
-        .forEach(x => observer.next(x))
+        .concatMap((x: CommentRepeatResponse) => EventModel.update<EventData>(eventId, x.repeat).map(() => x))
+        .forEach((x: CommentRepeatResponse) => observer.next(x))
         .then(() => observer.complete())
+        .catch(e => observer.error(e))
     })
   }
 
@@ -105,7 +131,8 @@ export class EventAPI {
       Observable.fromPromise(EventFetch.likeRepeatEvent(eventId, occurrenceDate))
         .catch(err => observableError(observer, err))
         .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
-        .forEach(x => observer.next(x))
+        .concatMap((x: LikeRepeatEventResponse) => EventModel.update<EventData>(eventId, x.repeat).map(() => x))
+        .forEach((x: LikeRepeatEventResponse) => observer.next(x))
         .then(() => observer.complete())
     })
   }

@@ -126,9 +126,25 @@ export default describe('Event test:', () => {
       expect(Recurrence.next().done).to.be.false
     })
 
+    it('takeUntilTime should ok', () => {
+      const day = MockRecurrence.day
+      const Recurrence = new RecurrenceEvent(day)
+
+      const result = Recurrence.takeUntilTime(new Date(moment(day.startDate).add(5, 'day').add(1, 'hour')))
+      expect(result.length).to.equal(6)
+    })
+
+    it('takeByTime should ok', () => {
+      const day = MockRecurrence.day
+      const Recurrence = new RecurrenceEvent(day)
+
+      const result = Recurrence.takeByTime(new Date(moment(day.startDate).add(5, 'day')))
+      expect(result.startDate).to.equal(moment(day.startDate).add(5, 'day').toISOString())
+    })
+
   })
 
-  describe.only('api test: ', () => {
+  describe('api test: ', () => {
     it('create event should ok', done => {
       const mockPost = {
         _projectId: '569df8b418bfe350733e2461',
@@ -285,18 +301,249 @@ export default describe('Event test:', () => {
     })
 
     it('comment repeat event should ok', done => {
-      const mockReapeatEvent = MockRecurrence.commentRepeatResponse.repeat
+      const mockReapeatEvent = clone(MockRecurrence.commentRepeatResponse.repeat)
+      mockReapeatEvent.recurrence = [
+        'RRULE:FREQ=DAILY;DTSTART=20160721T020000Z;INTERVAL=1'
+      ]
+      const comment = {
+        action: 'comment',
+        _creatorId: 'mockid',
+        attachments: [],
+        mentions: [],
+        timestamp: Date.now()
+      }
 
-      httpBackend.whenPOST(`${apihost}events/${mockReapeatEvent._id}/comments_repeat_event`)
+      httpBackend.whenPOST(`${apihost}events/${mockReapeatEvent._id}/comments_repeat_event`, comment)
         .respond(JSON.stringify(MockRecurrence.commentRepeatResponse))
 
       httpBackend.whenGET(`${apihost}events/${mockReapeatEvent._id}`)
         .respond(JSON.stringify(mockReapeatEvent))
 
-      EventApi.get(mockReapeatEvent._id)
-        .subscribe(() => {
+      EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.commentRepeatResponse.new.startDate).toISOString())
+        .skip(1)
+        .subscribe(r => {
+          expectDeepEqual(r, MockRecurrence.commentRepeatResponse.new)
           done()
         })
+
+      EventApi.commentsRepeatEvent(mockReapeatEvent._id, <any>comment)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('like event should ok', done => {
+      const normalEvent = projectEvents[1]
+      const likeResponse = {
+        isLike: true,
+        likesCount: 1,
+        likesGroup: [
+          {
+            _id: 'mockid',
+            avatarUrl: 'mockurl',
+            name: 'mockName'
+          }
+        ]
+      }
+      httpBackend.whenPOST(`${apihost}events/${normalEvent._id}/like`)
+        .respond(JSON.stringify(likeResponse))
+
+      httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
+        .respond(JSON.stringify(normalEvent))
+
+      EventApi.get(normalEvent._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.isLike).to.be.true
+          expect(r.likesGroup).to.deep.equal(likeResponse.likesGroup)
+          expect(r.likesCount).to.equal(1)
+          done()
+        })
+
+      EventApi.like(normalEvent._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('likeRepeatEvent should ok', done => {
+      const mockReapeatEvent = clone(MockRecurrence.likeRepeat.repeat)
+      mockReapeatEvent.recurrence = [
+        'RRULE:FREQ=DAILY;DTSTART=20160721T020000Z;INTERVAL=1'
+      ]
+      const now = Date.now()
+
+      httpBackend.whenPOST(`${apihost}events/${mockReapeatEvent._id}/like_repeat_event`, {
+        occurrenceDate: now
+      })
+        .respond(JSON.stringify(MockRecurrence.likeRepeat))
+
+      httpBackend.whenGET(`${apihost}events/${mockReapeatEvent._id}`)
+        .respond(JSON.stringify(mockReapeatEvent))
+
+      EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.likeRepeat.new.startDate).toISOString())
+        .skip(1)
+        .subscribe(r => {
+          expectDeepEqual(r, MockRecurrence.likeRepeat.new)
+          done()
+        })
+
+      EventApi.likeRepeatEvent(mockReapeatEvent._id, now)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('unarchive should ok', done => {
+      const normalEvent = clone(projectEvents[1])
+      normalEvent.isArchived = true
+
+      httpBackend.whenDELETE(`${apihost}events/${normalEvent._id}/archive`)
+        .respond({
+          _id: normalEvent._id,
+          isArchived: false,
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
+        .respond(JSON.stringify(normalEvent))
+
+      EventApi.get(normalEvent._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.isArchived).to.be.false
+          done()
+        })
+
+      EventApi.unarchive(normalEvent._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('update event content should ok', done => {
+      const normalEvent = clone(projectEvents[1])
+
+      httpBackend.whenPUT(`${apihost}events/${normalEvent._id}/content`, {
+        content: 'mock content'
+      })
+        .respond({
+          _id: normalEvent._id,
+          content: 'mock content',
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
+        .respond(JSON.stringify(normalEvent))
+
+      EventApi.get(normalEvent._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.content).to.equal('mock content')
+          done()
+        })
+
+      EventApi.updateContent(normalEvent._id, 'mock content')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('updateInvolvemembers should ok', done => {
+      const normalEvent = clone(projectEvents[1])
+
+      httpBackend.whenPUT(`${apihost}events/${normalEvent._id}/involveMembers`, {
+        addInvolvers: ['mockinvolve']
+      })
+        .respond({
+          _id: normalEvent._id,
+          involveMembers: normalEvent.involveMembers.concat(['mockinvolve']),
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
+        .respond(JSON.stringify(normalEvent))
+
+      EventApi.get(normalEvent._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.involveMembers).to.deep.equal(normalEvent.involveMembers.concat(['mockinvolve']))
+          done()
+        })
+
+      EventApi.updateInvolvemembers(normalEvent._id, {
+        addInvolvers: ['mockinvolve']
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('updateReminders should ok', done => {
+      const normalEvent = clone(projectEvents[1])
+      const reminders = [
+        {
+          method: 'popup',
+          minutes: 0
+        }
+      ]
+
+      httpBackend.whenPUT(`${apihost}events/${normalEvent._id}/reminders`, { reminders })
+        .respond({
+          _id: normalEvent._id,
+          reminders,
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
+        .respond(JSON.stringify(normalEvent))
+
+      EventApi.get(normalEvent._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.reminders).to.deep.equal(reminders)
+          done()
+        })
+
+      EventApi.updateReminders(normalEvent._id, <any>reminders)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('updateTags should ok', done => {
+      const normalEvent = clone(projectEvents[1])
+      const tags = ['mocktag1', 'mocktag2']
+
+      httpBackend.whenPUT(`${apihost}events/${normalEvent._id}/tagIds`, {
+        tagIds: tags
+      })
+        .respond({
+          _id: normalEvent._id,
+          tagIds: tags,
+          updated: new Date().toISOString()
+        })
+
+      httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
+        .respond(JSON.stringify(normalEvent))
+
+      EventApi.get(normalEvent._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.tagIds).to.deep.equal(tags)
+          done()
+        })
+
+      EventApi.updateTags(normalEvent._id, tags)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
 
       httpBackend.flush()
     })

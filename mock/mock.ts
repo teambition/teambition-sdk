@@ -1,6 +1,5 @@
 'use strict'
 import { flushState } from './backend'
-import { forEach } from './utils'
 
 declare const global: any
 
@@ -8,17 +7,12 @@ export const fetchStack = {}
 
 export const parseObject = (obj: any) => {
   if (typeof obj === 'string') {
-    obj = JSON.parse(obj)
+    return obj
   }
-  let result = ''
-  forEach(obj, (element: any, key: string) => {
-    if (element && typeof element === 'object') {
-      result += key + parseObject(element)
-    }else {
-      result += key + element
-    }
-  })
-  return result
+  if (obj && typeof obj === 'object') {
+    return JSON.stringify(obj)
+  }
+  return ''
 }
 
 const context = typeof window !== 'undefined' ? window : global

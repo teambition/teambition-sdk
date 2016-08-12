@@ -29,6 +29,13 @@ export interface EventData extends ISchema<EventData> {
   isFavorite?: boolean
   objectlinksCount?: number
   mockId?: string
+  isLike?: boolean
+  likesCount?: number
+  likesGroup?: {
+    _id: string
+    avatarUrl: string
+    name: string
+  }[]
 }
 
 @schemaName('Event')
