@@ -18,9 +18,10 @@ export interface IRecurrenceEvent extends EventData {
   take(count: number): GeneratorResult[]
 }
 
+export type TRecurrenceEvent = IRecurrenceEvent & RecurrenceEvent
+
 export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
   public recurrence: string[]
-  public mockId: string
 
   private _recurrence: any
   private _startDate: Date
@@ -40,7 +41,6 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
       this._isRecurrenceEvent = true
     }
     this.recurrence = _event.recurrence
-    this.mockId = _event._id + '&' + _event.startDate
     Object.defineProperty(this, 'recurrence', {
       get() {
         return _event.recurrence
@@ -73,7 +73,7 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
       result.startDate = startDate
       result.endDate = this._genNewEnd(startDateObj)
       // mock 出来的日程 _id 为原始 _id + startDate 的 ISOString
-      result._id = result._id + startDateObj.toISOString()
+      result._id = result._id + '&' + startDateObj.toISOString()
       this.setStart(startDateObj)
     }
     return {
@@ -102,6 +102,7 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
   }
 
   takeByTime(time: Date): EventData {
+    this._checkRecurrence()
     let startDate = this.startDate
     const timeVal = time.valueOf()
     let startVal = new Date(startDate).valueOf()
@@ -121,8 +122,26 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
     }
   }
 
+  isBetween(startDate: Date, endDate: Date | 'feature'): boolean {
+    const eventStartDate = new Date(this.startDate).valueOf()
+    const eventEndDate = new Date(this.endDate).valueOf()
+    if (!this._recurrence) {
+      if (endDate === 'feature') {
+        return eventStartDate < startDate.valueOf()
+      } else {
+        return eventStartDate < startDate.valueOf() || eventEndDate > endDate.valueOf()
+      }
+    } else {
+      if (endDate === 'feature') {
+        return !!this._recurrence.after(startDate)
+      } else {
+        return !!this._recurrence.between(startDate, endDate).length
+      }
+    }
+  }
+
   clone() {
-    return setSchema ( new RecurrenceEvent(this), this )
+    return new RecurrenceEvent(this)
   }
 
   /**

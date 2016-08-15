@@ -20,7 +20,7 @@ import {
   UpdateEventTagsResponse
 } from '../fetchs/EventFetch'
 import EventModel from '../models/EventModel'
-import { RecurrenceEvent } from '../models/events/RecurrenceEvent'
+import { TRecurrenceEvent } from '../models/events/RecurrenceEvent'
 import { EventData } from '../schemas/Event'
 import { observableError, errorHandler } from './utils'
 
@@ -40,28 +40,29 @@ export class EventAPI {
     })
   }
 
-  get(eventId: string, query?: any): Observable<EventData> {
+  get(eventId: string, query?: any): Observable<TRecurrenceEvent> {
     // 不是 mongodb id
     let date: Date
-    if (eventId.length !== 24) {
+    if (eventId.length > 24) {
       const idAndDate = eventId.split('&')
       eventId = idAndDate[0]
       date = new Date(idAndDate[1])
     }
     return Observable.create((observer: Observer<Observable<EventData>>) => {
-      let dest: Observable<EventData | void | RecurrenceEvent> = EventModel.get(eventId)
+      let dest: Observable<EventData | void | TRecurrenceEvent> = EventModel.get(eventId)
       if (!dest || !EventModel.checkSchema(eventId)) {
         dest = Observable.fromPromise(EventFetch.get(eventId, query))
           .catch(err => errorHandler(observer, err))
           .concatMap(x => EventModel.addOne(x))
       }
-      dest = dest.map((x: RecurrenceEvent) => {
+      dest = dest.map((x: TRecurrenceEvent) => {
         if (date) {
           const result = x.takeByTime(date)
           if (result) {
             return result
           } else {
-            return observer.next(EventModel.getByAlias(eventId + date.toISOString()))
+            const result = EventModel.getByAlias(eventId + date.toISOString())
+            return observer.next(result)
           }
         } else {
           return x
@@ -185,5 +186,23 @@ export class EventAPI {
         .forEach(x => observer.next(x))
         .then(() => observer.complete())
     })
+  }
+
+  getProjectEvents(projectId: string, startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<TRecurrenceEvent[]> {
+    const signal: Observable<Observable<TRecurrenceEvent[]>> = Observable.create((observer: Observer<Observable<EventData[]>>) => {
+      let dest: Observable<EventData[]>
+      const cache = EventModel.getProjectEvents(projectId, startDate, endDate)
+      if (cache) {
+        dest = cache
+      }
+      dest = Observable.fromPromise(EventFetch.getProjectEvents(projectId, startDate, endDate))
+        .catch(e => errorHandler(observer, e))
+        .concatMap(r => EventModel.addProjectEvents(projectId, r, startDate, endDate))
+
+      observer.next(dest)
+    })
+    return signal.switch()
+      .publishReplay(1)
+      .refCount()
   }
 }

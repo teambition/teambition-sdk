@@ -210,6 +210,16 @@ export class EventFetch extends BaseFetch {
     }
     return this.fetch.put(`events/${eventId}/tagIds`, body)
   }
+
+  getProjectEvents(projectId: string, startDate: Date, endDate: Date | 'feature'): Promise<EventData[]> {
+    let query: string
+    if (endDate instanceof Date) {
+      query = `&endDate=${endDate.toISOString()}`
+    } else {
+      query = ''
+    }
+    return this.fetch.get(`projects/${projectId}/events?startDate=${startDate.toISOString()}${query}`)
+  }
 }
 
 export default new EventFetch()
