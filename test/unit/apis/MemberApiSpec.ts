@@ -1,18 +1,22 @@
 'use strict'
 import * as chai from 'chai'
-import * as Rx from 'rxjs'
+import * as sinon from 'sinon'
+import * as sinonChai from 'sinon-chai'
+import { Scheduler } from 'rxjs'
 import { MemberSchema } from '../index'
-import { MemberAPI, Backend, apihost } from '../index'
+import { MemberAPI, Backend, apihost, clone, BaseFetch } from '../index'
 import { members } from '../../mock/members'
 import { projectMembers } from '../../mock/projectMembers'
 import { organizations } from '../../mock/organizations'
 import { notInclude, flush } from '../utils'
 
 const expect = chai.expect
+chai.use(sinonChai)
 
 export default describe('member api test', () => {
   let Member: MemberAPI
   let httpBackend: Backend
+  let spy: Sinon.SinonSpy
 
   const member = members[0]
 
@@ -20,20 +24,25 @@ export default describe('member api test', () => {
     flush()
     Member = new MemberAPI()
     httpBackend = new Backend()
+    spy = sinon.spy(BaseFetch.fetch, 'get')
     httpBackend
-      .whenGET(`${apihost}projects/${member._boundToObjectId}/members`)
-      .respond(JSON.stringify(members))
+      .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=1&count=30`)
+      .respond(JSON.stringify(members.slice(0, 30)))
   })
 
   after(() => {
     httpBackend.restore()
   })
 
-  it('get organization members should ok', (done: Function) => {
+  afterEach(() => {
+    BaseFetch.fetch.get['restore']()
+  })
+
+  it('get organization members should ok', done => {
     const id = organizations[0]._id
 
     httpBackend
-      .whenGET(`${apihost}V2/organizations/${id}/members`)
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=30`)
       .respond(members)
 
     Member.getOrgMembers(id)
@@ -49,18 +58,38 @@ export default describe('member api test', () => {
     const id = organizations[0]._id
 
     httpBackend
-      .whenGET(`${apihost}V2/organizations/${id}/members`)
-      .respond(members)
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=30`)
+      .respond(members.slice(0, 30))
 
     Member.getOrgMembers(id)
       .subscribe()
 
     Member.getOrgMembers(id)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(members => {
         expect(members).to.instanceof(Array)
+        expect(spy).to.be.calledOnce
         done()
       })
+
+    httpBackend.flush()
+  })
+
+  it('get project members page2 should ok', done => {
+    httpBackend
+      .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=2&count=30`)
+      .respond(members.slice(30))
+
+    Member.getProjectMembers(member._boundToObjectId)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.length).to.equal(members.length)
+        done()
+      })
+
+    Member.getProjectMembers(member._boundToObjectId, 2)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe()
 
     httpBackend.flush()
   })
@@ -69,7 +98,7 @@ export default describe('member api test', () => {
     Member.getProjectMembers(member._boundToObjectId)
       .subscribe(data => {
         expect(data).to.be.instanceof(Array)
-        expect(data.length).to.equal(members.length)
+        expect(data.length).to.equal(30)
         done()
       })
 
@@ -81,12 +110,38 @@ export default describe('member api test', () => {
       .subscribe()
 
     Member.getProjectMembers(member._boundToObjectId)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(data => {
         expect(data).to.be.instanceof(Array)
-        expect(data.length).to.equal(members.length)
+        expect(data.length).to.equal(30)
+        expect(spy).to.be.calledOnce
         done()
       })
+
+    httpBackend.flush()
+  })
+
+  it('get members from project page2 should ok', done => {
+    const id = member._boundToObjectId
+
+    httpBackend
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=30`)
+      .respond(members.slice(0, 30))
+
+    httpBackend
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=2&count=30`)
+      .respond(members.slice(30))
+
+    Member.getOrgMembers(id)
+      .skip(1)
+      .subscribe(r => {
+        expect(r.length).to.equal(members.length)
+        done()
+      })
+
+    Member.getOrgMembers(id, 2)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe()
 
     httpBackend.flush()
   })
@@ -100,13 +155,13 @@ export default describe('member api test', () => {
     Member.getProjectMembers(member._boundToObjectId)
       .skip(1)
       .subscribe(data => {
-        expect(data.length).to.equal(members.length - 1)
+        expect(data.length).to.equal(30 - 1)
         expect(notInclude(data, member)).to.be.true
         done()
       })
 
     Member.deleteMember(member._memberId)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -134,7 +189,7 @@ export default describe('member api test', () => {
     const projectId = projectMembers[0]._boundToObjectId
     const mockEmails = projectMembers.map(member => member.email)
 
-    httpBackend.whenGET(`${apihost}projects/${projectId}/members`)
+    httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
       .respond(JSON.stringify(members))
 
     httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
@@ -150,7 +205,7 @@ export default describe('member api test', () => {
       })
 
     Member.addMembers(projectId, mockEmails)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     httpBackend.flush()
@@ -159,14 +214,18 @@ export default describe('member api test', () => {
   it('delete and add project members should ok', done => {
     const projectId = member._boundToObjectId
     const mockEmails = projectMembers.map(member => member.email)
+    const addResponse = clone(projectMembers).map(v => {
+      v._boundToObjectId = projectId
+      return v
+    })
 
-    httpBackend.whenGET(`${apihost}projects/${projectId}/members`)
-      .respond(JSON.stringify(members))
+    httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
+      .respond(JSON.stringify(members.slice(0, 30)))
 
     httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
       email: mockEmails
     })
-      .respond(JSON.stringify(projectMembers))
+      .respond(JSON.stringify(addResponse))
 
     httpBackend
       .whenDELETE(`${apihost}members/${member._memberId}`)
@@ -175,16 +234,16 @@ export default describe('member api test', () => {
     Member.getProjectMembers(projectId)
       .skip(2)
       .subscribe(r => {
-        expect(r.length).to.equal(members.length + projectMembers.length - 1)
+        expect(r.length).to.equal(30 + projectMembers.length - 1)
         done()
       })
 
     Member.deleteMember(member._memberId)
-      .subscribeOn(Rx.Scheduler.async, global.timeout1)
+      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
     Member.addMembers(projectId, mockEmails)
-      .subscribeOn(Rx.Scheduler.async, global.timeout2)
+      .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe()
 
     httpBackend.flush()
