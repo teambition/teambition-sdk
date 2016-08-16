@@ -8,7 +8,7 @@ import { setSchema } from '../../schemas/schema'
 const { rrulestr } = require('rrule')
 
 export interface GeneratorResult {
-  value: EventData
+  value: TRecurrenceEvent
   done: boolean
 }
 
@@ -65,11 +65,11 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
 
   next(): GeneratorResult {
     this._checkRecurrence()
-    let result: EventData
+    let result: TRecurrenceEvent
     const startDate = this._recurrence.after(this._startDate)
     const startDateObj = new Date(startDate)
     if (startDate) {
-      result = clone(this)
+      result = this.clone()
       result.startDate = startDate
       result.endDate = this._genNewEnd(startDateObj)
       // mock 出来的日程 _id 为原始 _id + startDate 的 ISOString
