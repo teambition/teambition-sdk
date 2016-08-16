@@ -7,7 +7,7 @@ import { notInclude, flush, expectDeepEqual } from '../utils'
 
 const expect = chai.expect
 
-export default describe('tasklist api test', () => {
+export default describe('tasklist api test:', () => {
   let httpBackend: Backend
   let Tasklist: TasklistAPI
   let projectId: string
@@ -80,6 +80,9 @@ export default describe('tasklist api test', () => {
     const patch = {
       title: 'tasklist update test'
     }
+
+    httpBackend.whenGET(`${apihost}tasklists/${tasklistId}`)
+      .respond(JSON.stringify(tasklists[0]))
 
     httpBackend.whenPUT(`${apihost}tasklists/${tasklistId}`, patch)
       .respond(JSON.stringify(patch))

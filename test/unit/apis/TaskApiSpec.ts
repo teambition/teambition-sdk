@@ -63,6 +63,8 @@ export default describe('Task API test: ', () => {
     const mockTaskDone = clone(tasksDone[0])
     mockTaskDone._id = 'mocktaskdone'
 
+    const page1 = tasksDone.slice(0, 30)
+
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=false`)
         .respond(JSON.stringify(tasksUndone))
@@ -72,6 +74,9 @@ export default describe('Task API test: ', () => {
 
       httpBackend.whenGET(`${apihost}tasks/${mockTaskDone._id}`)
         .respond(JSON.stringify(mockTaskDone))
+
+      httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
+        .respond(JSON.stringify(page1))
     })
 
     after(() => {
@@ -102,12 +107,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get tasks done should ok', done => {
-      const page1 = tasksDone.map((task, pos) => {
-        if (pos < 30) {
-          return task
-        }
-      }).filter(x => !!x)
-
       httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
         .respond(JSON.stringify(page1))
 
@@ -191,14 +190,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get tasks concurrency should ok', done => {
-      const page1 = tasksDone.map((task, pos) => {
-        if (pos < 30) {
-          return task
-        }
-      }).filter(x => !!x)
-
-      httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
-        .respond(JSON.stringify(page1))
 
       Task.getTasklistDone(tasklistId)
         .subscribe()
@@ -694,18 +685,17 @@ export default describe('Task API test: ', () => {
 
   })
 
-  describe('get my today tasks: ', () => {
+  describe('get my tasks has dueDate: ', () => {
     const _userId = tasksOneDayMe[0]._executorId
     const mockTaskGet = clone(tasksOneDayMe[0])
-    const dueDate = new Date().toISOString()
 
     beforeEach(() => {
-      httpBackend.whenGET(`${apihost}v2/tasks/me?count=1000&endDate=${dueDate}&hasDueDate=true&isDone=false`)
+      httpBackend.whenGET(`${apihost}v2/tasks/me?count=500&page=1&hasDueDate=true&isDone=false`)
         .respond(JSON.stringify(tasksOneDayMe))
     })
 
     it('get should ok', done => {
-      Task.getOneDayTasksMe(_userId, dueDate)
+      Task.getMyDueTasks(_userId)
         .subscribe(data => {
           forEach(data, (task, pos) => {
             expectDeepEqual(task, tasksOneDayMe[pos])
@@ -717,18 +707,17 @@ export default describe('Task API test: ', () => {
     })
 
     it('update task dueDate should ok', done => {
-      const newDueDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString()
 
       httpBackend.whenGET(`${apihost}tasks/${mockTaskGet._id}`)
         .respond(JSON.stringify(mockTaskGet))
 
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/dueDate`, {
-        dueDate: newDueDate
+        dueDate: null
       }).respond({
-        dueDate: newDueDate
+        dueDate: null
       })
 
-      Task.getOneDayTasksMe(_userId, dueDate)
+      Task.getMyDueTasks(_userId)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(tasksOneDayMe.length - 1)
@@ -739,10 +728,10 @@ export default describe('Task API test: ', () => {
         .skip(1)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(data => {
-          expect(data.dueDate).to.equal(newDueDate)
+          expect(data.dueDate).to.equal(null)
         })
 
-      Task.updateDueDate(mockTaskGet._id, newDueDate)
+      Task.updateDueDate(mockTaskGet._id, null)
         .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
@@ -755,7 +744,87 @@ export default describe('Task API test: ', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
 
-      Task.getOneDayTasksMe(userId, dueDate)
+      Task.getMyDueTasks(userId)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          expect(notInclude(data, task))
+          done()
+        })
+
+      Task.delete(task._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+  })
+
+  describe('get my tasks no dueDate: ', () => {
+    const _userId = tasksOneDayMe[0]._executorId
+    const mockTaskGet = clone(tasksOneDayMe[0])
+    const mockTasks = clone(tasksOneDayMe).map(v => {
+      v.dueDate = null
+      return v
+    })
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}v2/tasks/me?count=500&page=1&hasDueDate=false&isDone=false`)
+        .respond(JSON.stringify(mockTasks))
+    })
+
+    it('get should ok', done => {
+      Task.getMyTasks(_userId)
+        .subscribe(data => {
+          forEach(data, (task, pos) => {
+            expectDeepEqual(task, mockTasks[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('update task dueDate should ok', done => {
+      const dueDate = new Date().toISOString()
+      httpBackend.whenGET(`${apihost}tasks/${mockTaskGet._id}`)
+        .respond(JSON.stringify(mockTaskGet))
+
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/dueDate`, {
+        dueDate: dueDate
+      }).respond({
+        dueDate: dueDate
+      })
+
+      Task.getMyTasks(_userId)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          done()
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(data => {
+          expect(data.dueDate).to.equal(dueDate)
+        })
+
+      Task.updateDueDate(mockTaskGet._id, dueDate)
+        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete task should ok', done => {
+      const task = tasksOneDayMe[0]
+
+      httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
+        .respond({})
+
+      Task.getMyTasks(userId)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(tasksOneDayMe.length - 1)
@@ -1787,18 +1856,16 @@ export default describe('Task API test: ', () => {
         })
         .respond('')
 
+      let i = 1
+
       Task.get(mockTaskGet._id)
         .subscribe(() => {
-          // 返回空符串时，缓存不会被更新，不会发送信号出去
-          // 这里的`done`方法只会被调用一次
-          done()
+          expect(i++).to.equal(1)
         })
 
       Task.updateExecutor(mockTaskGet._id, _executorId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(r => {
-          // 返回空符串时，缓存不会被更新，信号不会到达这里
-          // 这里的`done`方法不该被调用
           done()
         })
 
@@ -1867,18 +1934,17 @@ export default describe('Task API test: ', () => {
         })
         .respond('')
 
+      let i = 1
+
       Task.get(mockTaskGet._id)
         .subscribe(r => {
-          // 返回空符串时，缓存不会被更新，不会发送信号出去
-          // 这里的`done`方法只会被调用一次
-          done()
-        })
+          expect(i).to.equal(1)
+          i++
+        }, err => console.error(err))
 
       Task.updateInvolvemembers(mockTaskGet._id, involveMembers, 'involveMembers')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(() => {
-          // 返回空符串时，缓存不会被更新，信号不会到达这里
-          // 这里的`done`方法不该被调用
           done()
         })
 

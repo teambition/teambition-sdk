@@ -5,11 +5,13 @@ import { Observable } from 'rxjs/Observable'
 
 export function observableError<T>(observer: Observer<T>, err: Error): Observable<T> {
   observer.error(err)
+  observer.complete()
   return Observable.of(null)
 }
 
 export function errorHandler<T>(observer: Observer<Observable<T>>, err: Error): Observable<T> {
   observer.error(err)
+  observer.complete()
   return Observable.of(null)
 }
 

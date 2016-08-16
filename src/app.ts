@@ -18,11 +18,11 @@ export { eventParser } from './sockets/EventParser'
 // typings
 export * from './teambition'
 
-export * from'./schemas'
+export * from './schemas'
 
 // export fetchs
 
-export * from'./fetchs'
+export * from './fetchs'
 
 /* istanbul ignore next */
 export function setToken(token: string): void {
@@ -56,7 +56,9 @@ declare const global: any
 
 const ctx = typeof global === 'undefined' ? window : global
 
-ctx['teambition'] = Object.create(null)
+if (!ctx['teambition']) {
+  ctx['teambition'] = Object.create(null)
+}
 
 const teambition = ctx['teambition']
 

@@ -56,26 +56,38 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  addOneDayTasksMe(userId: string, dueDate: string, tasks: TaskData[]): Observable<TaskData[]> {
+  addMyDueTasks(userId: string, tasks: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
-    const localeDateString = new Date(dueDate).toLocaleDateString()
-    const dbIndex = `tasks:me/${localeDateString}`
-
-    // 先获取明天的时间，在把时分秒置为 0
-    const tomorrowWithTime = new Date(Date.now() + 86400000)
-    const tomorrow = new Date(tomorrowWithTime.toLocaleDateString())
+    const dbIndex = `tasks:me/hasdueDate`
 
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return data._executorId === userId &&
-             tomorrow > new Date(data.dueDate) &&
+             data.dueDate &&
              !data.isDone &&
              !data.isArchived
     })
   }
 
-  getOneDayTasksMe(dueDate: string): Observable<TaskData[]> {
-    const localeDateString = (new Date(dueDate)).toLocaleDateString()
-    const dbIndex = `tasks:me/${localeDateString}`
+  getMyDueTasks(): Observable<TaskData[]> {
+    const dbIndex = `tasks:me/hasdueDate`
+
+    return this._get<TaskData[]>(dbIndex)
+  }
+
+  addMyTasks(userId: string, tasks: TaskData[]): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `tasks:me/noDueDate`
+
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
+      return data._executorId === userId &&
+             !data.dueDate &&
+             !data.isDone &&
+             !data.isArchived
+    })
+  }
+
+  getMyTasks(): Observable<TaskData[]> {
+    const dbIndex = `tasks:me/noDueDate`
 
     return this._get<TaskData[]>(dbIndex)
   }

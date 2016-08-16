@@ -20,8 +20,7 @@ export default class Collection <T extends ISchema<T>> {
     _data: T[],
     public schemaName?: string,
     public condition?: (data: T) => boolean,
-    private _unionFlag = '_id',
-    private _expire?: number
+    private _unionFlag = '_id'
   ) {
     const result: T[] = []
     if (_data.length) {
@@ -47,7 +46,7 @@ export default class Collection <T extends ISchema<T>> {
       })
     }
     this.data = result
-    this._subject = new BehaviorSubject(clone(result))
+    this._subject = new BehaviorSubject(this._clone(result))
     Data.set(index, this)
   }
 
@@ -56,7 +55,7 @@ export default class Collection <T extends ISchema<T>> {
   }
 
   notify(): Observable<T[]> {
-    this._subject.next(clone(this.data))
+    this._subject.next(this._clone(this.data))
     return this._subject.take(1)
   }
 
@@ -207,6 +206,18 @@ export default class Collection <T extends ISchema<T>> {
       })
     }
     return this
+  }
+
+  private _clone(sorces: any[]): T[] {
+    const result: T[] = []
+    forEach(sorces, obj => {
+      if (typeof obj.clone === 'function') {
+        result.push(obj.clone())
+      } else {
+        result.push(clone(obj))
+      }
+    })
+    return result
   }
 
 }

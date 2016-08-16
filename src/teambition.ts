@@ -1,4 +1,4 @@
-export type visibility = 'project' | 'organization' | 'all'
+export type visibility = 'project' | 'organization' | 'all' | 'members'
 
 export interface LikeSchema {
   isLike: boolean

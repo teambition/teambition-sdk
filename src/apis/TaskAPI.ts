@@ -36,20 +36,37 @@ export class TaskAPI {
     })
   }
 
-  getOneDayTasksMe(_userId: string, dueDate: string): Observable<TaskData[]> {
+  getMyDueTasks(_userId: string): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(observer => {
-      const get = TaskModel.getOneDayTasksMe(dueDate)
+      const get = TaskModel.getMyDueTasks()
       if (get) {
         return get
       }
       return Observable.fromPromise(TaskFetch.getTasksMe({
-        count: 1000,
-        endDate: dueDate,
+        count: 500,
+        page: 1,
         hasDueDate: true,
         isDone: false
       }))
         .catch(err => errorHandler(observer, err))
-        .concatMap(tasks => TaskModel.addOneDayTasksMe(_userId, dueDate, tasks))
+        .concatMap(tasks => TaskModel.addMyDueTasks(_userId, tasks))
+    })
+  }
+
+  getMyTasks(_userId: string): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const get = TaskModel.getMyTasks()
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(TaskFetch.getTasksMe({
+        count: 500,
+        page: 1,
+        hasDueDate: false,
+        isDone: false
+      }))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(tasks => TaskModel.addMyTasks(_userId, tasks))
     })
   }
 

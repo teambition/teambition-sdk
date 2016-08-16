@@ -16,28 +16,28 @@ export class HttpResponse {
   }
 
   respond(data: any) {
-    fetchStack[this.namespace] = {
+    fetchStack.set(this.namespace, {
       status: 200,
       flushQueue: [],
       json: () => {
         if (typeof data === 'string') {
-          return Promise.resolve(JSON.parse(data))
+          return Promise.resolve(data === '' ? Object.create(null) : JSON.parse(data))
         }else if (typeof data === 'object') {
           return Promise.resolve(data)
         }else {
           return Promise.reject(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
         }
       }
-    }
+    })
   }
 
   error(message: any, status: number) {
-    fetchStack[this.namespace] = {
+    fetchStack.set(this.namespace, {
       status: status,
       data: message,
       json: () => {
-        return message
+        return Promise.resolve(message)
       }
-    }
+    })
   }
 }

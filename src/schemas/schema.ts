@@ -46,20 +46,26 @@ export const setSchema = <T extends Schema>(target: T, data: any): T => {
       if (typeof data[key] === 'undefined' && !target[key]) {
         target.$$keys.add(key)
       }
-      Object.defineProperty(target, key, {
-        get() {
-          if (target.$$data) {
-            return target.$$data[key]
-          }
-        },
-        set(newVal: any) {
-          if (target.$$data) {
-            target.$$data[key] = newVal
-            target.$$keys.delete(key)
-          }
-        },
-        configurable: true
-      })
+      if ( ! (!(key in data) && (key in target)) ) {
+        const originSet = Object.getOwnPropertyDescriptor(target, key).set
+        Object.defineProperty(target, key, {
+          get() {
+            if (target.$$data) {
+              return target.$$data[key]
+            }
+          },
+          set(newVal: any) {
+            if (typeof originSet === 'function') {
+              originSet.call(this, newVal)
+            }
+            if (target.$$data) {
+              target.$$data[key] = newVal
+              target.$$keys.delete(key)
+            }
+          },
+          configurable: true
+        })
+      }
     }
   })
   const $$keys = Object.keys(data)

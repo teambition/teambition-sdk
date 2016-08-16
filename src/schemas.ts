@@ -1,4 +1,5 @@
-export { EventData as EventSchema } from './schemas/Event'
+export { TRecurrenceEvent as EventSchema } from './models/events/RecurrenceEvent'
+export { RecurrenceEvent } from './models/events/RecurrenceEvent'
 export { EntrycategoryData as EntrycategorySchema } from './schemas/Entrycategory'
 export { MemberData as MemberSchema } from './schemas/Member'
 export { MySubtaskData as MySubtaskSchema } from './schemas/MySubtask'

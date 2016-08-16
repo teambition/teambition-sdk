@@ -61,18 +61,17 @@ export default describe('socket task test: ', () => {
     httpBackend.flush()
   })
 
-  describe('my today tasks should ok', () => {
+  describe('my tasks has dueDate: ', () => {
     const _userId = tasksOneDayMe[0]._executorId
     const dueDate = new Date().toISOString()
 
     beforeEach(() => {
-      httpBackend.whenGET(`${apihost}v2/tasks/me?count=1000&endDate=${dueDate}&hasDueDate=true&isDone=false`)
+      httpBackend.whenGET(`${apihost}v2/tasks/me?count=500&page=1&hasDueDate=true&isDone=false`)
         .respond(JSON.stringify(tasksOneDayMe))
     })
 
     it('update task dueDate should ok', done => {
-      const newDueDate = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString()
-      TaskApi.getOneDayTasksMe(_userId, dueDate)
+      TaskApi.getMyDueTasks(_userId)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(tasksOneDayMe.length - 1)
@@ -84,12 +83,12 @@ export default describe('socket task test: ', () => {
 
       Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
         _id: tasksOneDayMe[0]._id,
-        dueDate: newDueDate
+        dueDate: null
       })
     })
 
     it('delete task should ok', done => {
-      TaskApi.getOneDayTasksMe(_userId, dueDate)
+      TaskApi.getMyDueTasks(_userId)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(tasksOneDayMe.length - 1)
@@ -103,7 +102,7 @@ export default describe('socket task test: ', () => {
     })
 
     it('new task should ok', done => {
-      TaskApi.getOneDayTasksMe(_userId, dueDate)
+      TaskApi.getMyDueTasks(_userId)
         .skip(1)
         .subscribe(data => {
           expect(data.length).to.equal(tasksOneDayMe.length + 1)
@@ -117,6 +116,67 @@ export default describe('socket task test: ', () => {
         _id: 'mocktaskid',
         content: 'mock task content',
         dueDate: moment(dueDate).add(1, 'hour').toISOString() ,
+        _tasklistId: tasksOneDayMe[0]._tasklistId,
+        _executorId: tasksOneDayMe[0]._executorId
+      })
+    })
+
+  })
+
+  describe('my tasks have no dueDate: ', () => {
+    const _userId = tasksOneDayMe[0]._executorId
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}v2/tasks/me?count=500&page=1&hasDueDate=false&isDone=false`)
+        .respond(JSON.stringify(tasksOneDayMe))
+    })
+
+    it('update task dueDate should ok', done => {
+      TaskApi.getMyTasks(_userId)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          notInclude(data, tasksOneDayMe[0]._id)
+          done()
+        })
+
+      httpBackend.flush()
+
+      Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
+        _id: tasksOneDayMe[0]._id,
+        dueDate: new Date().toISOString()
+      })
+    })
+
+    it('delete task should ok', done => {
+      TaskApi.getMyTasks(_userId)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          notInclude(data, tasksOneDayMe[0]._id)
+          done()
+        })
+
+      httpBackend.flush()
+
+      Socket.emit('destroy', 'task', tasksOneDayMe[0]._id)
+    })
+
+    it('new task should ok', done => {
+      TaskApi.getMyTasks(_userId)
+        .skip(1)
+        .subscribe(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length + 1)
+          expect(data[0]._id).to.equal('mocktaskid')
+          done()
+        })
+
+      httpBackend.flush()
+
+      Socket.emit('new', 'task', 'mocktaskid', {
+        _id: 'mocktaskid',
+        content: 'mock task content',
+        dueDate: null,
         _tasklistId: tasksOneDayMe[0]._tasklistId,
         _executorId: tasksOneDayMe[0]._executorId
       })

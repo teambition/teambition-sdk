@@ -15,18 +15,27 @@ export interface EventData extends ISchema<EventData> {
   _projectId: string
   _sourceId: string
   sourceDate: string
-  source: string
-  recurrence: string[]
+  source?: string
+  // implements in Event Generator Class
+  recurrence?: string[]
   reminders: string[]
   isArchived: boolean
-  visible: visibility
-  isDeleted: boolean
+  visible: visibility | string
+  isDeleted?: boolean
   created: string
   updated: string
   tagIds: string[]
   status?: string
   isFavorite?: boolean
   objectlinksCount?: number
+  mockId?: string
+  isLike?: boolean
+  likesCount?: number
+  likesGroup?: {
+    _id: string
+    avatarUrl: string
+    name: string
+  }[]
 }
 
 @schemaName('Event')
@@ -48,8 +57,5 @@ export default class Event extends Schema implements EventData {
   untilDate: string = undefined
   _sourceId: string = undefined
   sourceDate: string = undefined
-  isDeleted: boolean = undefined
-  recurrence: string[] = undefined
   reminders: string[] = undefined
-  source: string = undefined
 }

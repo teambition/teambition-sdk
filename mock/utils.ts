@@ -20,7 +20,7 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
       }
     }
   } else if (typeof FormData !== 'undefined' && target instanceof FormData) {
-    return target.forEach((val: any, key: string) => eachFunc(val, key))
+    return
   } else if (typeof File !== 'undefined' && target instanceof File) {
     for (let x in target) {
       eachFunc(target[x], x)
