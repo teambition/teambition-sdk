@@ -11,6 +11,7 @@ export class Backend {
 
   constructor() {
     flushState.flushed = false
+    fetchStack.clear()
     mockFetch()
   }
 
@@ -31,7 +32,7 @@ export class Backend {
   }
 
   flush() {
-    forEach(fetchStack, (value: any, key: string) => {
+    fetchStack.forEach((value: any, key: string) => {
       forEach(value.flushQueue, (resolves: any[]) => {
         resolves[0](resolves[1])
       })

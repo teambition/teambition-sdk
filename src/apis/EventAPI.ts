@@ -205,4 +205,21 @@ export class EventAPI {
       .publishReplay(1)
       .refCount()
   }
+
+  getMyEvents(userId: string, endDate: Date, query?: any): Observable<TRecurrenceEvent[]> {
+    const signal: Observable<Observable<TRecurrenceEvent[]>> = Observable.create((observer: Observer<Observable<EventData[]>>) => {
+      let dest: Observable<EventData[]>
+      const cache = EventModel.getMyEvents(userId, endDate)
+      if (cache) {
+        dest = cache
+      }
+      dest = Observable.fromPromise(EventFetch.getMyEvents(endDate))
+        .catch(e => errorHandler(observer, e))
+        .concatMap(r => EventModel.addMyEvents(userId, endDate, r))
+      observer.next(dest)
+    })
+    return signal.switch()
+      .publishReplay(1)
+      .refCount()
+  }
 }

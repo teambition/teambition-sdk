@@ -169,16 +169,23 @@ export default class DataBase {
         const model: Model<T> = DataBase.data.get(index)
         if (!model) {
           const err = new Error(`Patch target not exist: ${index}`)
-          return observer.error(err)
+          observer.error(err)
+          return observer.complete()
         }
         if (!(model instanceof Model)) {
-          const err = new Error(`Patch target mush be instanceof Model: ${model.index}`)
-          return observer.error(err)
+          const err = new Error(`Patch target mush be instanceof Model: ${index}`)
+          observer.error(err)
+          return observer.complete()
+        }
+        if (!patch || !Object.keys(patch).length) {
+          observer.next(patch)
+          return observer.complete()
         }
         model.update(patch)
           .concatMap(x => this._notifySignals(model, x))
           .catch(err => {
             observer.error(err)
+            observer.complete()
             return model.get().take(1)
           })
           .forEach(r => {

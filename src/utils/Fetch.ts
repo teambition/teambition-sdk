@@ -109,7 +109,7 @@ export class Fetch {
           if (response.status >= 200 && response.status < 300) {
             return response.json<T>()
               .catch(e => {
-                return ''
+                return Object.create(null)
               })
           } else {
             return Promise.reject<T>(<any>response)

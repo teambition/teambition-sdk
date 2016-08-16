@@ -220,6 +220,15 @@ export class EventFetch extends BaseFetch {
     }
     return this.fetch.get(`projects/${projectId}/events?startDate=${startDate.toISOString()}${query}`)
   }
+
+  getMyEvents(endDate: Date, query?: any): Promise<EventData[]> {
+    if (query) {
+      query.endDate = endDate.toISOString()
+    } else {
+      query = { endDate: endDate.toISOString() }
+    }
+    return this.fetch.get(`events/me`, query)
+  }
 }
 
 export default new EventFetch()

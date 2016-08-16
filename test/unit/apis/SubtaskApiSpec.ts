@@ -613,6 +613,9 @@ export default describe('Subtask API test: ', () => {
   it('add to subtask to task should ok', done => {
     const taskId = subtasks[0]._taskId
 
+    httpBackend.whenGET(`${apihost}tasks/${taskId}/subtasks`)
+      .respond(JSON.stringify(subtasks))
+
     Subtask.getFromTask(taskId)
       .skip(1)
       .subscribe(data => {

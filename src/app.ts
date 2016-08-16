@@ -56,7 +56,9 @@ declare const global: any
 
 const ctx = typeof global === 'undefined' ? window : global
 
-ctx['teambition'] = Object.create(null)
+if (!ctx['teambition']) {
+  ctx['teambition'] = Object.create(null)
+}
 
 const teambition = ctx['teambition']
 

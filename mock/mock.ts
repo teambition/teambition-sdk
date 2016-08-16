@@ -3,7 +3,12 @@ import { flushState } from './backend'
 
 declare const global: any
 
-export const fetchStack = {}
+export const fetchStack: Map<string, {
+  status: number
+  flushQueue?: any[]
+  data?: any
+  json?: () => Promise<string>
+}> = new Map<string, any>()
 
 export const parseObject = (obj: any) => {
   if (typeof obj === 'string') {
@@ -37,28 +42,32 @@ export function mockFetch() {
           uri = uri.substr(0, pos - 1)
         }
       }
-      const result = fetchStack[uri.toLowerCase() + method + dataPath]
+      const result = fetchStack.get(uri.toLowerCase() + method + dataPath)
       // console.log(uri + method + dataPath, fetchStack)
       if (result && result.status === 200) {
         const promise = new Promise((resolve, reject) => {
           if (flushState.flushed) {
             resolve(result)
-          }else {
+          } else {
             result.flushQueue.push([resolve, result])
           }
         })
         return promise
-      }else if (result && result.status) {
+      } else if (result && result.status) {
         /* istanbul ignore if */
         return Promise.reject(new Error(`${result.data}, statu code: ${result.status}`))
-      }else {
+      } else {
         /* istanbul ignore if */
+        const definedUri: string[] = []
+        fetchStack.forEach((val, key) => {
+          definedUri.push(key)
+        })
         throw new Error(
             `nothing expect return from server,
             uri: ${uri}, method: ${options.method},
             parsedUri: ${uri + method + dataPath}
             body: ${JSON.stringify(options.body)},
-            defined uri: ${JSON.stringify(Object.keys(fetchStack), null, 2)}`
+            defined uri: ${JSON.stringify(definedUri, null, 2)}`
         )
       }
     }

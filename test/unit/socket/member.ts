@@ -26,7 +26,7 @@ export default describe('socket member test', () => {
   })
 
   it('change role should ok', done => {
-    httpBackend.whenGET(`${apihost}projects/${projectId}/members`)
+    httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
       .respond(JSON.stringify(members))
 
     MemberApi.getProjectMembers(projectId)

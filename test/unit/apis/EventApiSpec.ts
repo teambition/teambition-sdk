@@ -14,6 +14,7 @@ import {
 import { flush, expectDeepEqual } from '../utils'
 import * as MockRecurrence from '../../mock/recurrenceEvents'
 import { projectEvents } from '../../mock/projectEvents'
+import { myEvents } from '../../mock/myEvents'
 
 const expect = chai.expect
 
@@ -590,13 +591,11 @@ export default describe('Event test:', () => {
           })
           return result
         })
-        .publishReplay(1)
-        .refCount()
     })
 
     it('get project events should ok', done => {
       signal.subscribe(r => {
-        expect(r.length).to.equal(32)
+        expect(r.length).to.equal(31)
         done()
       })
 
@@ -662,7 +661,7 @@ export default describe('Event test:', () => {
 
       signal.skip(1)
         .subscribe(r => {
-          expect(r.length).to.equal(24)
+          expect(r.length).to.equal(23)
           done()
         })
 
@@ -681,7 +680,7 @@ export default describe('Event test:', () => {
 
       signal.skip(1)
         .subscribe(r => {
-          expect(r.length).to.equal(31)
+          expect(r.length).to.equal(30)
           done()
         })
 
@@ -710,7 +709,7 @@ export default describe('Event test:', () => {
 
       signal.skip(1)
         .subscribe(r => {
-          expect(r.length).to.equal(33)
+          expect(r.length).to.equal(32)
           expectDeepEqual(r[0], mockEvent)
           done()
         })
@@ -742,7 +741,7 @@ export default describe('Event test:', () => {
 
       signal.skip(1)
         .subscribe(r => {
-          expect(r.length).to.equal(40)
+          expect(r.length).to.equal(39)
           expect(r[0].title).to.equal('mockrecurrencetest')
           done()
         })
@@ -772,6 +771,248 @@ export default describe('Event test:', () => {
       ]
 
       httpBackend.whenPOST(`${apihost}events/${projectEvents[0]._id}/comments_repeat_event`, comment)
+        .respond(JSON.stringify({
+          new: mockNew,
+          repeat: mockReapeat,
+          comment: {
+            _id: 'mock_comment_id'
+          }
+        }))
+
+      let events: EventSchema[]
+      signal.subscribe(r => {
+        events = r
+      })
+
+      setTimeout(() => {
+        const eventId = events[0]._id
+        EventApi.get(eventId)
+          .skip(1)
+          .subscribe(r => {
+            expect(r._id).to.equal('mock_new_event')
+            done()
+          })
+
+        EventApi.commentsRepeatEvent(events[0]._sourceId, <any>comment)
+          .subscribeOn(Scheduler.async, global.timeout1)
+          .subscribe()
+      }, global.timeout2)
+
+      httpBackend.flush()
+    })
+  })
+
+  describe('get my events test: ', () => {
+    const userId = myEvents[0]._creatorId
+    const today = new Date(2016, 8, 4)
+
+    let signal: Observable<EventSchema[]>
+
+    beforeEach(() => {
+      // http://project.ci/api/events/me?endDate=2016-08-04T16%3A00%3A00.000Z
+      httpBackend.whenGET(`${apihost}events/me?endDate=${today.toISOString()}`)
+        .respond(JSON.stringify(myEvents))
+
+      signal = EventApi.getMyEvents(userId, today)
+        .map(r => {
+          const result: EventSchema[] = []
+          r.forEach(event => {
+            if (event.recurrence) {
+              if (event.isBetween(today, 'feature')) {
+                event.setStart(today)
+                const eventsBetweenTimes = event.takeUntilTime(moment(today).add(1, 'week').toDate()).map(r => r.value)
+                if (eventsBetweenTimes.length) {
+                  concat(result, eventsBetweenTimes)
+                } else {
+                  result.push(event.next().value)
+                }
+              }
+            } else {
+              result.push(event)
+            }
+          })
+          return result
+        })
+    })
+
+    it('get my events should ok', done => {
+      signal.subscribe(r => {
+        expect(r.length).to.equal(41)
+        done()
+      })
+
+      httpBackend.flush()
+    })
+
+    it('change recurrence date, my events should be notified', done => {
+      const eventId = myEvents[0]._id
+      httpBackend.whenPUT(`${apihost}events/${eventId}`, {
+        title: 'new title'
+      })
+        .respond(JSON.stringify({
+          _id: eventId,
+          title: 'new title',
+          updated: new Date().toISOString()
+        }))
+
+      signal.skip(1)
+        .subscribe(r => {
+          expect(r[0].title).to.equal('new title')
+          done()
+        })
+
+      EventApi.update(eventId, {
+        title: 'new title'
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('change normal date, my events should be notified', done => {
+      const eventId = myEvents[1]._id
+      httpBackend.whenPUT(`${apihost}events/${eventId}`, {
+        title: 'new title'
+      })
+        .respond(JSON.stringify({
+          _id: eventId,
+          title: 'new title',
+          updated: new Date().toISOString()
+        }))
+
+      signal.skip(1)
+        .subscribe(r => {
+          expect(r[8].title).to.equal('new title')
+          done()
+        })
+
+      EventApi.update(eventId, {
+        title: 'new title'
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete recurrence date, my events should be notified', done => {
+      const eventId = myEvents[0]._id
+        httpBackend.whenDELETE(`${apihost}events/${eventId}`)
+          .respond({})
+
+      signal.skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(33)
+          done()
+        })
+
+      EventApi.delete(eventId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete normal event should ok', done => {
+      const eventId = myEvents[1]._id
+
+      httpBackend.whenDELETE(`${apihost}events/${eventId}`)
+          .respond({})
+
+      signal.skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(40)
+          done()
+        })
+
+      EventApi.delete(eventId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('add new normal event should ok', done => {
+      const mockPost = {
+        _projectId: '569df8b418bfe350733e2461',
+        _creatorId: '56986d43542ce1a2798c8cfb',
+        title: 'mocktest',
+        startDate: '2016-07-21T11:00:00.000Z',
+        endDate: '2016-07-21T12:00:00.000Z',
+        involveMembers: ['56986d43542ce1a2798c8cfb'],
+        visible: 'members'
+      }
+      const mockEvent = clone(myEvents[1])
+      mockEvent._id = 'mockevent'
+
+      httpBackend.whenPOST(`${apihost}events`, mockPost)
+        .respond(JSON.stringify(mockEvent))
+
+      signal.skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(42)
+          expectDeepEqual(r[0], mockEvent)
+          done()
+        })
+
+      EventApi.create(mockPost)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('add recurrence event should ok', done => {
+      const mockPost = {
+        _projectId: '569df8b418bfe350733e2461',
+        _creatorId: '56986d43542ce1a2798c8cfb',
+        title: 'mockrecurrencetest',
+        startDate: '2016-07-21T11:00:00.000Z',
+        endDate: '2016-07-21T12:00:00.000Z',
+        involveMembers: ['56986d43542ce1a2798c8cfb'],
+        visible: 'members',
+        recurrence: MockRecurrence.day.recurrence
+      }
+      const mockEvent = clone(myEvents[0])
+      mockEvent._id = 'mockrecurrence'
+      mockEvent.title = 'mockrecurrencetest'
+
+      httpBackend.whenPOST(`${apihost}events`, mockPost)
+        .respond(JSON.stringify(mockEvent))
+
+      signal.skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(49)
+          expect(r[0].title).to.equal('mockrecurrencetest')
+          done()
+        })
+
+      EventApi.create(mockPost)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('get event from my events, and update it should ok', done => {
+      const comment = {
+        action: 'comment',
+        _creatorId: 'mockid',
+        attachments: [],
+        mentions: [],
+        timestamp: Date.now()
+      }
+      const mockNew = clone(myEvents[0])
+      const mockReapeat = clone(myEvents[0])
+      mockNew._id = 'mock_new_event'
+      mockNew.startDate = '2016-09-04T02:00:00.000Z'
+      mockReapeat.recurrence = [
+        'RRULE:FREQ=DAILY;DTSTART=20160721T020000Z;INTERVAL=1',
+        'EXDATE:20160904T020000Z'
+      ]
+
+      httpBackend.whenPOST(`${apihost}events/${myEvents[0]._id}/comments_repeat_event`, comment)
         .respond(JSON.stringify({
           new: mockNew,
           repeat: mockReapeat,

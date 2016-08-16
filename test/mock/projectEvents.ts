@@ -30,33 +30,6 @@ export const projectEvents = [
     objectlinksCount: 0
   },
   {
-    _id: '5790334e9cee05e759cb2ef9',
-    endDate: '2016-07-28T03:00:00.000Z',
-    startDate: '2016-07-28T02:00:00.000Z',
-    _projectId: '56988fb705ead4ae7bb8dcfe',
-    location: '',
-    content: '',
-    title: '普通日程1号',
-    _creatorId: '56986d43542ce1a2798c8cfb',
-    tagIds: [],
-    updated: '2016-07-21T02:28:30.982Z',
-    created: '2016-07-21T02:28:30.982Z',
-    visiable: 'members',
-    visible: 'members',
-    isArchived: false,
-    involveMembers: [
-      '56986d43542ce1a2798c8cfb'
-    ],
-    status: '',
-    untilDate: null,
-    _sourceId: null,
-    sourceDate: null,
-    recurrence: null,
-    reminders: [],
-    isFavorite: false,
-    objectlinksCount: 0
-  },
-  {
     _id: '579033c828bb08a462fe352c',
     endDate: '2018-06-04T17:00:00.000Z',
     startDate: '2018-06-04T16:00:00.000Z',

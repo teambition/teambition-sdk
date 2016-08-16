@@ -127,7 +127,7 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
     const eventEndDate = new Date(this.endDate).valueOf()
     if (!this._recurrence) {
       if (endDate === 'feature') {
-        return eventStartDate < startDate.valueOf()
+        return eventStartDate > startDate.valueOf() || eventEndDate > startDate.valueOf()
       } else {
         return eventStartDate < startDate.valueOf() || eventEndDate > endDate.valueOf()
       }

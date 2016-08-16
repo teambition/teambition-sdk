@@ -5,6 +5,7 @@ import UserModel from '../models/UserModel'
 import PreferenceModel from '../models/PreferenceModel'
 import TaskModel from '../models/TaskModel'
 import SubtaskModel from '../models/SubtaskModel'
+import EventModel from '../models/EventModel'
 import PostModel from '../models/PostModel'
 import CollectionModel from '../models/CollectionModel'
 import WorkModel from '../models/WorkModel'
@@ -25,6 +26,7 @@ const typeMap: any = {
   'message': MessageModel,
   'project': ProjectModel,
   'task': TaskModel,
+  'event': EventModel,
   'subtask': SubtaskModel,
   'post': PostModel,
   'work': WorkModel,

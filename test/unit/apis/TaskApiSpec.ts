@@ -63,6 +63,8 @@ export default describe('Task API test: ', () => {
     const mockTaskDone = clone(tasksDone[0])
     mockTaskDone._id = 'mocktaskdone'
 
+    const page1 = tasksDone.slice(0, 30)
+
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=false`)
         .respond(JSON.stringify(tasksUndone))
@@ -72,6 +74,9 @@ export default describe('Task API test: ', () => {
 
       httpBackend.whenGET(`${apihost}tasks/${mockTaskDone._id}`)
         .respond(JSON.stringify(mockTaskDone))
+
+      httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
+        .respond(JSON.stringify(page1))
     })
 
     after(() => {
@@ -102,12 +107,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get tasks done should ok', done => {
-      const page1 = tasksDone.map((task, pos) => {
-        if (pos < 30) {
-          return task
-        }
-      }).filter(x => !!x)
-
       httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
         .respond(JSON.stringify(page1))
 
@@ -191,14 +190,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get tasks concurrency should ok', done => {
-      const page1 = tasksDone.map((task, pos) => {
-        if (pos < 30) {
-          return task
-        }
-      }).filter(x => !!x)
-
-      httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
-        .respond(JSON.stringify(page1))
 
       Task.getTasklistDone(tasklistId)
         .subscribe()
@@ -1865,18 +1856,16 @@ export default describe('Task API test: ', () => {
         })
         .respond('')
 
+      let i = 1
+
       Task.get(mockTaskGet._id)
         .subscribe(() => {
-          // 返回空符串时，缓存不会被更新，不会发送信号出去
-          // 这里的`done`方法只会被调用一次
-          done()
+          expect(i++).to.equal(1)
         })
 
       Task.updateExecutor(mockTaskGet._id, _executorId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(r => {
-          // 返回空符串时，缓存不会被更新，信号不会到达这里
-          // 这里的`done`方法不该被调用
           done()
         })
 
@@ -1945,18 +1934,17 @@ export default describe('Task API test: ', () => {
         })
         .respond('')
 
+      let i = 1
+
       Task.get(mockTaskGet._id)
         .subscribe(r => {
-          // 返回空符串时，缓存不会被更新，不会发送信号出去
-          // 这里的`done`方法只会被调用一次
-          done()
-        })
+          expect(i).to.equal(1)
+          i++
+        }, err => console.error(err))
 
       Task.updateInvolvemembers(mockTaskGet._id, involveMembers, 'involveMembers')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(() => {
-          // 返回空符串时，缓存不会被更新，信号不会到达这里
-          // 这里的`done`方法不该被调用
           done()
         })
 
