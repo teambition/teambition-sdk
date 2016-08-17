@@ -8,6 +8,15 @@ export interface UserEmail {
   id: string
 }
 
+export interface PaymentPlan {
+  status: 'paid' | 'trial'
+  expired: string
+  paidCount: number
+  membersCount: number
+  days: number
+  objectType: 'free' | 'organization' | 'professional' | 'user'
+}
+
 export interface UserMe extends ISchema<UserMe> {
   _id: string
   email: string
@@ -23,14 +32,7 @@ export interface UserMe extends ISchema<UserMe> {
   pinyin: string
   py: string
   isNew?: boolean
-  plan: {
-    status: string
-    expired: string
-    paidCount: number
-    membersCount: number
-    days: number
-    objectType: string
-  }
+  plan: PaymentPlan
   notification?: {
     comment: {
       mobile: boolean
@@ -115,14 +117,7 @@ export default class User extends Schema implements UserMe {
   pinyin: string = undefined
   py: string = undefined
   isNew: boolean = undefined
-  plan: {
-    status: string
-    expired: string
-    paidCount: number
-    membersCount: number
-    days: number
-    objectType: string
-  } = undefined
+  plan: PaymentPlan = undefined
   lastEntered: {
     web?: string
     ios?: string

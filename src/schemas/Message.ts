@@ -1,5 +1,6 @@
 'use strict'
 import { Schema, schemaName, ISchema, child } from './schema'
+import { ExecutorOrCreator } from '../teambition'
 
 export interface MessageData extends ISchema<MessageData> {
   _id: string
@@ -19,11 +20,7 @@ export interface MessageData extends ISchema<MessageData> {
   isRead: boolean
   unreadActivitiesCount: number
   boundToObjectUpdated: string
-  creator: {
-    _id: string
-    name: string
-    avatarUrl: string
-  }
+  creator: ExecutorOrCreator
   title: string
   body?: string
   mentions?: {
@@ -58,11 +55,7 @@ export default class Message extends Schema implements MessageData {
   isRead: boolean = undefined
   unreadActivitiesCount: number = undefined
   boundToObjectUpdated: string = undefined
-  creator: {
-    _id: string
-    name: string
-    avatarUrl: string
-  } = undefined
+  creator: ExecutorOrCreator = undefined
   title: string = undefined
   _latestActivityId: string = undefined
   subtitle: string = undefined

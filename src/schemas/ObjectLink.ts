@@ -1,5 +1,6 @@
 'use strict'
 import { ISchema, Schema, schemaName, bloodyParentWithProperty } from './schema'
+import { ExecutorOrCreator } from '../teambition'
 
 export type parentType = 'task' | 'post' | 'event' | 'work'
 
@@ -11,11 +12,7 @@ export interface ObjectLinkData extends ISchema<ObjectLinkData> {
   linkedType: string
   _linkedId: string
   created: string
-  creator: {
-    _id: string
-    name: string
-    avatarUrl: string
-  }
+  creator: ExecutorOrCreator
   title: string
   data: any
   project?: {
@@ -34,11 +31,7 @@ export default class ObjectLinkSchema extends Schema implements ObjectLinkData {
   linkedType: string = undefined
   _linkedId: string = undefined
   created: string = undefined
-  creator: {
-    _id: string
-    name: string
-    avatarUrl: string
-  } = undefined
+  creator: ExecutorOrCreator = undefined
   title: string = undefined
   data: any = undefined
 }

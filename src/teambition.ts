@@ -3,7 +3,7 @@ export type visibility = 'project' | 'organization' | 'all' | 'members'
 export interface LikeSchema {
   isLike: boolean
   likesCount: number
-  likesGroup: Executor[]
+  likesGroup: ExecutorOrCreator[]
 }
 
 export interface TburlSchema {
@@ -29,7 +29,7 @@ export interface ProjectActivitiesSchema {
   }
   created: string
   boundToObjectType: string
-  creator: Executor
+  creator: ExecutorOrCreator
   title: string
   creatorId?: string
   creatorName?: string
@@ -57,13 +57,13 @@ export interface HomeActivitySchema {
   _boundToObjectId: string,
   boundToObjectType: 'post' | 'task' | 'event' | 'work'
   rawAction: string
-  creator: Executor
+  creator: ExecutorOrCreator
   title: string
   likes: LikeSchema[]
   isLike: boolean
 }
 
-export interface Executor {
+export interface ExecutorOrCreator {
   name: string
   avatarUrl: string
   _id: string
