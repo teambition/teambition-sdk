@@ -1,7 +1,7 @@
 'use strict'
 import { Schema, ISchema, schemaName, child, bloodyParent } from './schema'
 import Subtask from './Subtask'
-import { Executor, visibility } from '../teambition'
+import { ExecutorOrCreator, visibility } from '../teambition'
 
 export interface TaskData extends ISchema<TaskData> {
   _id: string
@@ -42,7 +42,7 @@ export interface TaskData extends ISchema<TaskData> {
     total: number
     done: number
   }
-  executor?: Executor
+  executor?: ExecutorOrCreator
   stage?: {
     name: string
     _id: string

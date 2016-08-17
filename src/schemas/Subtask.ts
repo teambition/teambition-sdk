@@ -1,6 +1,6 @@
 'use strict'
 import { Schema, schemaName, ISchema, bloodyParent } from './schema'
-import { Executor } from '../teambition'
+import { ExecutorOrCreator } from '../teambition'
 
 export interface SubtaskData extends ISchema<SubtaskData> {
   _id: string
@@ -13,7 +13,7 @@ export interface SubtaskData extends ISchema<SubtaskData> {
   _taskId: string
   dueDate: string
   order: number
-  executor: Executor
+  executor: ExecutorOrCreator
 }
 
 @schemaName('Subtask')
@@ -28,5 +28,5 @@ export default class Subtask extends Schema implements SubtaskData {
   @bloodyParent('Task') _taskId: string = undefined
   dueDate: string = undefined
   order: number = undefined
-  executor: Executor = undefined
+  executor: ExecutorOrCreator = undefined
 }

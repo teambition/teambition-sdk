@@ -1,6 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 import File from './File'
+import { ExecutorOrCreator } from '../teambition'
 
 export interface Locales {
   en: {
@@ -27,10 +28,7 @@ export interface ActivityData extends ISchema<ActivityData> {
   created: number
   boundToObjectType: string
   _boundToObjectId: string
-  creator: {
-    _id: string
-    name: string
-  }
+  creator: ExecutorOrCreator
   title: string
   content: {
     comment?: string
@@ -68,10 +66,7 @@ export default class Activity extends Schema implements ActivityData {
   created: number = undefined
   boundToObjectType: string = undefined
   _boundToObjectId: string = undefined
-  creator: {
-    _id: string
-    name: string
-  } = undefined
+  creator: ExecutorOrCreator = undefined
   title: string = undefined
   content: {
     comment?: string

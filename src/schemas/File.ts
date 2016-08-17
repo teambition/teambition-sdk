@@ -1,8 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema, child } from './schema'
-import { MemberData } from '../schemas/Member'
 import { ObjectLinkData } from '../schemas/ObjectLink'
-import { visibility } from '../teambition'
+import { visibility, ExecutorOrCreator } from '../teambition'
 
 export interface FileData extends ISchema<FileData> {
   _id: string
@@ -16,7 +15,7 @@ export interface FileData extends ISchema<FileData> {
   _parentId: string
   _projectId: string
   _creatorId: string
-  creator: MemberData
+  creator: ExecutorOrCreator
   tagIds: string[]
   visiable: visibility
   downloadUrl: string
@@ -53,7 +52,7 @@ export default class File extends Schema implements FileData {
   _parentId: string = undefined
   _projectId: string = undefined
   _creatorId: string = undefined
-  creator: MemberData = undefined
+  creator: ExecutorOrCreator = undefined
   tagIds: string[] = undefined
   visiable: visibility = undefined
   downloadUrl: string = undefined

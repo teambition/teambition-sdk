@@ -1,5 +1,6 @@
 'use strict'
 import { Schema, schemaName, ISchema, bloodyParent } from './schema'
+import { ExecutorOrCreator } from '../teambition'
 
 export interface ProjectData extends ISchema<ProjectData> {
   _id: string
@@ -44,11 +45,7 @@ export interface ProjectData extends ISchema<ProjectData> {
   worksCount: number
   tagsCount: number
   _defaultRoleId: string
-  creator: {
-    name: string
-    avatarUrl: string
-    _id: string
-  }
+  creator: ExecutorOrCreator
   unreadCount?: number
   unreadMessageCount?: number
   pushStatus: boolean
@@ -119,11 +116,7 @@ export default class Project extends Schema implements ProjectData {
   worksCount: number = undefined
   tagsCount: number = undefined
   _defaultRoleId: string = undefined
-  creator: {
-    name: string
-    avatarUrl: string
-    _id: string
-  } = undefined
+  creator: ExecutorOrCreator = undefined
   pushStatus: boolean = undefined
   canQuit: boolean = undefined
   canDelete: boolean = undefined
