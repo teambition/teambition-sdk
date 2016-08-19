@@ -16,6 +16,7 @@ import ActivityModel from '../models/ActivityModel'
 import MessageModel from '../models/MessageModel'
 import MemberModel from '../models/MemberModel'
 import ProjectModel from '../models/ProjectModel'
+import SubscribeModel from '../models/SubscribeModel'
 import ProjectFetch from '../fetchs/ProjectFetch'
 import { MessageResult, eventParser } from './EventParser'
 import { forEach } from '../utils/index'
@@ -36,7 +37,8 @@ const typeMap: any = {
   'tag': TagModel,
   'user': UserModel,
   'preference': PreferenceModel,
-  'member': MemberModel
+  'member': MemberModel,
+  'subscriber': SubscribeModel
 }
 
 const methodMap: any = {
