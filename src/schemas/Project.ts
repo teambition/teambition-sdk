@@ -2,7 +2,7 @@
 import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import { ExecutorOrCreator } from '../teambition'
 
-export interface ProjectData extends ISchema<ProjectData> {
+export interface ProjectData extends ISchema {
   _id: string
   name: string
   _creatorId: string
@@ -38,31 +38,18 @@ export interface ProjectData extends ISchema<ProjectData> {
     _id: string
     isExpired: boolean
   }
-  forksCount: number
-  tasksCount: number
-  postsCount: number
-  eventsCount: number
-  worksCount: number
-  tagsCount: number
-  _defaultRoleId: string
-  creator: ExecutorOrCreator
   unreadCount?: number
   unreadMessageCount?: number
+  _defaultRoleId: string
+  creator: ExecutorOrCreator
   pushStatus: boolean
   canQuit: boolean
   canDelete: boolean
   canArchive: boolean
   canTransfer: boolean
   _roleId: number
-  link: {
-    created: string
-    expiration: string
-  }
-  signCode: string
-  starsCount: number
   _rootCollectionId: string
   _defaultCollectionId: string
-  shortLink: string
   _orgRoleId: number
   applications?: {
     _id: string
@@ -73,7 +60,7 @@ export interface ProjectData extends ISchema<ProjectData> {
 }
 
 @schemaName('Project')
-export default class Project extends Schema implements ProjectData {
+export default class ProjectSchema extends Schema<ProjectData> implements ProjectData {
   _id: string = undefined
   name: string = undefined
   _creatorId: string = undefined
@@ -109,12 +96,6 @@ export default class Project extends Schema implements ProjectData {
     _id: string
     isExpired: boolean
   } = undefined
-  forksCount: number = undefined
-  tasksCount: number = undefined
-  postsCount: number = undefined
-  eventsCount: number = undefined
-  worksCount: number = undefined
-  tagsCount: number = undefined
   _defaultRoleId: string = undefined
   creator: ExecutorOrCreator = undefined
   pushStatus: boolean = undefined
@@ -127,8 +108,6 @@ export default class Project extends Schema implements ProjectData {
     created: string
     expiration: string
   } = undefined
-  signCode: string = undefined
-  starsCount: number = undefined
   _rootCollectionId: string = undefined
   _defaultCollectionId: string = undefined
   shortLink: string = undefined

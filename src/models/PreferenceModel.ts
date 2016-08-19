@@ -1,7 +1,8 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Model from './BaseModel'
-import { PreferenceData } from '../schemas/Preference'
+import { PreferenceData, default as Preference } from '../schemas/Preference'
+import { dataToSchema } from '../utils/index'
 
 export class PreferenceModel extends Model {
 
@@ -13,7 +14,8 @@ export class PreferenceModel extends Model {
 
   set(data: PreferenceData): Observable<PreferenceData> {
     this.preferenceId = data._id
-    return this._save(data)
+    const result = dataToSchema(data, Preference)
+    return this._save(result)
   }
 
   get(): Observable<PreferenceData> {

@@ -3,10 +3,10 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import Model from './BaseModel'
 import { forEach, dropEle, concat } from '../utils/index'
-import { ISchema } from '../schemas/schema'
+import { Schema } from '../schemas/schema'
 
-export default class BaseCollection<T extends ISchema<T>> extends Model {
-  protected _data: Map<number, T[]>
+export default class BaseCollection<T> extends Model {
+  protected _data: Map<number, Schema<T>[]>
   protected _pages: number[]
 
   private _singals = new Map<number, Observable<T[]>>()
@@ -19,7 +19,7 @@ export default class BaseCollection<T extends ISchema<T>> extends Model {
     private _unionFlag = '_id'
   ) {
     super()
-    this._data = new Map<number, T[]>()
+    this._data = new Map<number, Schema<T>[]>()
     this._pages = []
   }
 
@@ -27,7 +27,7 @@ export default class BaseCollection<T extends ISchema<T>> extends Model {
     return this._pages.indexOf(page) !== -1
   }
 
-  addPage(page: number, data: T[]): Observable<T[]> {
+  addPage(page: number, data: Schema<T>[]): Observable<T[]> {
     if (this._singals.has(page)) {
       return this._singals.get(page)
     }
@@ -106,12 +106,12 @@ export default class BaseCollection<T extends ISchema<T>> extends Model {
   }
 
   $destroy(): void {
-    this._data = new Map<number, T[]>()
+    this._data = new Map<number, Schema<T>[]>()
     this._pages = []
   }
 
-  private _getAll(): T[] {
-    const result: T[] = []
+  private _getAll(): Schema<T>[] {
+    const result: Schema<T>[] = []
     forEach(this._pages, page => {
       concat(result, this._data.get(page))
     })

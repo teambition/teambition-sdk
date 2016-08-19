@@ -2,7 +2,7 @@
 import { schemaName, ISchema } from './schema'
 import DefaultRoleSchema from './DefaultRole'
 
-export interface CustomRoleData extends ISchema<CustomRoleData> {
+export interface CustomRoleData extends ISchema {
   _id: string
   name: string
   _creatorId: string

@@ -814,7 +814,11 @@ export default describe('database test: ', () => {
 
     it('element should be deleted when bloody parent has been deleted', done => {
       const subtasks = clone(modelMock.subtasks)
-      class TestSchema extends Schema {
+      class TestSchema extends Schema<{
+        _id: string
+        name: string
+        subtasks: any[]
+      }> {
         _id: string = undefined
         name: string = undefined
         @child('Array', 'Subtask') subtasks: any[] = []
@@ -848,8 +852,8 @@ export default describe('database test: ', () => {
       const task = clone(modelMock)
       task._id = objectLinkData._parentId
 
-      const taskSchema = dataToSchema<TaskSchema>(clone(task), TaskSchema)
-      const objectLinkSchema = dataToSchema<ObjectLinkSchema>(clone(objectLinkData), ObjectLinkSchema)
+      const taskSchema = dataToSchema(clone(task), TaskSchema)
+      const objectLinkSchema = dataToSchema(clone(objectLinkData), ObjectLinkSchema)
 
       Storage.storeOne(taskSchema)
         .subscribe()
@@ -869,8 +873,8 @@ export default describe('database test: ', () => {
 
     it('circular dependencies should ok', done => {
       const subtask = clone(organizationMySubtasks[0])
-      const taskSchema = dataToSchema<TaskSchema>(clone(modelMock), TaskSchema)
-      const subtaskSchema = dataToSchema<SubtaskSchema>(subtask, SubtaskSchema)
+      const taskSchema = dataToSchema(clone(modelMock), TaskSchema)
+      const subtaskSchema = dataToSchema(subtask, SubtaskSchema)
 
       Storage.storeOne(subtaskSchema)
         .subscribe()
@@ -896,7 +900,7 @@ export default describe('database test: ', () => {
     })
 
     it('get data from cache after it cached should ok', done => {
-      class TestSchema extends Schema {
+      class TestSchema extends Schema<any> {
         _id: string = undefined
         name: string = undefined
         project: {
@@ -905,7 +909,7 @@ export default describe('database test: ', () => {
         } = undefined
       }
 
-      class ProjectSchema extends Schema {
+      class ProjectSchema extends Schema<any> {
         _id: string = undefined
         name: string = undefined
         logo: string = undefined

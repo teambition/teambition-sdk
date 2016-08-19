@@ -1,7 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 
-export interface EntrycategoryData extends ISchema<EntrycategoryData> {
+export interface EntrycategoryData extends ISchema {
   _id: string
   _projectId: string
   _creatorId: string
@@ -15,7 +15,7 @@ export interface EntrycategoryData extends ISchema<EntrycategoryData> {
 }
 
 @schemaName('Entrycategory')
-export default class Entrycategory extends Schema implements EntrycategoryData {
+export default class Entrycategory extends Schema<EntrycategoryData> implements EntrycategoryData {
   _id: string = undefined
   _projectId: string = undefined
   _creatorId: string = undefined

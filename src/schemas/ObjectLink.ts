@@ -4,7 +4,7 @@ import { ExecutorOrCreator } from '../teambition'
 
 export type parentType = 'task' | 'post' | 'event' | 'work'
 
-export interface ObjectLinkData extends ISchema<ObjectLinkData> {
+export interface ObjectLinkData extends ISchema {
   _id: string
   _creatorId: string
   _parentId: string
@@ -23,7 +23,7 @@ export interface ObjectLinkData extends ISchema<ObjectLinkData> {
 }
 
 @schemaName('ObjectLink')
-export default class ObjectLinkSchema extends Schema implements ObjectLinkData {
+export default class ObjectLinkSchema extends Schema<ObjectLinkData> implements ObjectLinkData {
   _id: string = undefined
   _creatorId: string = undefined
   @bloodyParentWithProperty('parentType') _parentId: string = undefined

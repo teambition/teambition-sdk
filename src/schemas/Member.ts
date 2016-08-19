@@ -1,7 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 
-export interface MemberData extends ISchema<MemberData> {
+export interface MemberData extends ISchema {
   _id: string
   _boundToObjectId: string
   boundToObjectType: string
@@ -28,7 +28,7 @@ export interface MemberData extends ISchema<MemberData> {
 }
 
 @schemaName('Member')
-export default class Member extends Schema {
+export default class Member extends Schema<MemberData> {
   _id: string = undefined
   _boundToObjectId: string = undefined
   boundToObjectType: string = undefined

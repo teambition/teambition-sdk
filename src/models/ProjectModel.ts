@@ -17,19 +17,20 @@ export class ProjectModel extends BaseModel {
 
   addArchivesProjects(projects: ProjectData[]): Observable<ProjectData[]> {
     const result = datasToSchemas<ProjectData>(projects, Project)
-    return this._saveCollection(`archives:projects`, result, this._schemaName, (data: ProjectData) => {
+    return this._saveCollection(`archives:projects`, result, this._schemaName, data => {
       return data.isArchived
     })
   }
 
   addOrgsProjects(_organizationId: string, projects: ProjectData[]): Observable<ProjectData[]> {
-    return this._saveCollection(`orgs:projects/${_organizationId}`, projects, this._schemaName, (data: ProjectData) => {
+    const result = datasToSchemas<ProjectData>(projects, Project)
+    return this._saveCollection(`orgs:projects/${_organizationId}`, result, this._schemaName, (data: ProjectData) => {
       return data._organizationId === _organizationId
     })
   }
 
   addOne(project: ProjectData): Observable<ProjectData> {
-    const result = dataToSchema<ProjectData>(project, Project)
+    const result = dataToSchema(project, Project)
     return this._save(result)
   }
 

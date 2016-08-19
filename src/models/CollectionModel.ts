@@ -8,8 +8,8 @@ export class CollectionModel extends BaseModel {
 
   private _schemaName = 'TBCollection'
 
-  addOne(collection: TBCollectionData): Observable<TBCollection> {
-    const result =  dataToSchema<TBCollection>(collection, TBCollection)
+  addOne(collection: TBCollectionData): Observable<TBCollectionData> {
+    const result = dataToSchema<TBCollectionData>(collection, TBCollection)
     return this._save(result)
   }
 
@@ -17,9 +17,9 @@ export class CollectionModel extends BaseModel {
     return this._get<TBCollection>(collectionId)
   }
 
-  addCollections(_parentId: string, collections: TBCollectionData[]): Observable<TBCollection[]> {
-    const result = datasToSchemas<TBCollection>(collections, TBCollection)
-    return this._saveCollection<TBCollection>(`collections/${_parentId}`, result, this._schemaName, (data: TBCollectionData) => {
+  addCollections(_parentId: string, collections: TBCollectionData[]): Observable<TBCollectionData[]> {
+    const result = datasToSchemas<TBCollectionData>(collections, TBCollection)
+    return this._saveCollection<TBCollectionData>(`collections/${_parentId}`, result, this._schemaName, (data: TBCollectionData) => {
       return data._parentId === _parentId && !data.isArchived
     })
   }

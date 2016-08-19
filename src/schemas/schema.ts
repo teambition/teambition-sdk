@@ -19,7 +19,7 @@ export interface BloodyParent {
   [index: string]: string
 }
 
-export const setSchema = <T extends Schema>(target: T, data: any): T => {
+export const setSchema = <T>(target: Schema<T>, data: T): T & Schema<T> => {
   target.$$data = data
   forEach(target, (value, key) => {
     if (key === '$$schemaName') {
@@ -72,26 +72,22 @@ export const setSchema = <T extends Schema>(target: T, data: any): T => {
   $$keys.forEach((key) => {
     target[key] = data[key]
   })
-  return target
+  return <any>target
 }
 
-export interface ISchema<T> {
+export interface ISchema {
   $$schemaName?: string
-  $$keys?: Set<string>
-  $$data?: T
-  $$bloodyParent?: BloodyParent
-  $$children?: ChildMap
   _requested?: number
-  checkSchema?: () => boolean
 }
 
-export class Schema {
+export class Schema <T> {
   $$keys = new Set<string>()
-  $$data: any
+  $$data: T
   $$children: ChildMap
   $$bloodyParent: BloodyParent
   $$unionFlag: string
   $$schemaName: string
+  _requested?: number
 
   constructor() {
     let _$$unionFlag: string

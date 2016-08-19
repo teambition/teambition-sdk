@@ -21,7 +21,7 @@ export interface Locales {
   }
 }
 
-export interface ActivityData extends ISchema<ActivityData> {
+export interface ActivityData extends ISchema {
   _id: string
   action: string
   rawAction: string
@@ -59,7 +59,7 @@ export interface ActivityData extends ISchema<ActivityData> {
 }
 
 @schemaName('Activity')
-export default class Activity extends Schema implements ActivityData {
+export default class Activity extends Schema<ActivityData> implements ActivityData {
   _id: string = undefined
   action: string = undefined
   rawAction: string = undefined

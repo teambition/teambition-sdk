@@ -29,7 +29,7 @@ export class ActivityModel extends BaseModel {
     const result = datasToSchemas<ActivityData>(activities, Activity)
     let collection = this._collections.get(name)
     if (!collection) {
-      collection = new Collection(this._schemaName, (data: ActivityData) => {
+      collection = new Collection(this._schemaName, (data: Activity) => {
         return data._boundToObjectId === _boundToObjectId
       }, dbIndex)
       this._collections.set(name, collection)
