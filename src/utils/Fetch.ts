@@ -90,7 +90,13 @@ export class Fetch {
     }
     let result: string[] = []
     forEach(query, (val: any, key: string) => {
-      result.push(`${key}=${val}`)
+      if (Array.isArray(val)) {
+        (<any[]>val).forEach(val => {
+          result.push(`${key}=${val}`)
+        })
+      } else {
+        result.push(`${key}=${val}`)
+      }
     })
     return result.length ? '?' + result.join('&') : ''
   }
