@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { Fetch } from '../index'
+import { Fetch, forEach } from '../index'
 const fetchMock = require('fetch-mock')
 
 const expect = chai.expect
@@ -40,6 +40,20 @@ export default describe('utils/fetch', () => {
         fetchMock.restore()
         done()
       })
+  })
+
+  it('should serialize array to query string', () => {
+    const query = {a: 'a', b: [1, 2, 'b', 'b'], c: 3}
+    const parts = []
+    forEach(query, (value, key) => {
+      if (!Array.isArray(value)) {
+        value = <any>[value]
+      }
+      parts.push(...(<any[]>value).map(value => `${key}=${value}`))
+    })
+    const actual = fetch['_buildQuery'](query)
+    const expected = `?${parts.join('&')}`
+    expect(actual).to.be.equal(expected)
   })
 
   it('should set token', done => {
