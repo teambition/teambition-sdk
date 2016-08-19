@@ -3,7 +3,7 @@ import { Schema, schemaName, ISchema, child } from './schema'
 import { ObjectLinkData } from '../schemas/ObjectLink'
 import { visibility, ExecutorOrCreator } from '../teambition'
 
-export interface FileData extends ISchema<FileData> {
+export interface FileData extends ISchema {
   _id: string
   fileName: string
   fileType: string
@@ -40,7 +40,7 @@ export interface FileData extends ISchema<FileData> {
 }
 
 @schemaName('File')
-export default class File extends Schema implements FileData {
+export default class File extends Schema<FileData> implements FileData {
   _id: string = undefined
   fileName: string = undefined
   fileType: string = undefined

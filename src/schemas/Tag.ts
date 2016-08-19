@@ -1,6 +1,6 @@
 import { Schema, ISchema, schemaName } from './schema'
 
-export interface TagData extends ISchema<TagData> {
+export interface TagData extends ISchema {
   _creatorId: string
   _id: string
   _projectId: string
@@ -16,7 +16,7 @@ export interface TagData extends ISchema<TagData> {
 }
 
 @schemaName('Tag')
-export default class TagSchema extends Schema implements TagData {
+export default class TagSchema extends Schema<TagData> implements TagData {
   _creatorId: string = undefined
   _id: string = undefined
   _projectId: string = undefined

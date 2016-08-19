@@ -17,7 +17,7 @@ export interface PaymentPlan {
   objectType: 'free' | 'organization' | 'professional' | 'user'
 }
 
-export interface UserMe extends ISchema<UserMe> {
+export interface UserMe extends ISchema {
   _id: string
   email: string
   name: string
@@ -104,19 +104,16 @@ export interface UserMe extends ISchema<UserMe> {
 }
 
 @schemaName('UserMe')
-export default class User extends Schema implements UserMe {
+export default class User extends Schema<UserMe> implements UserMe {
   _id: string = undefined
   email: string = undefined
   name: string = undefined
   avatarUrl: string = undefined
   created: string = undefined
   title: string = undefined
-  location: string = undefined
   phone: string = undefined
-  isActive: boolean = undefined
   pinyin: string = undefined
   py: string = undefined
-  isNew: boolean = undefined
   plan: PaymentPlan = undefined
   lastEntered: {
     web?: string
@@ -136,7 +133,5 @@ export default class User extends Schema implements UserMe {
   ated: number = undefined
   later: number = undefined
   inbox: number = undefined
-  calLink: string = undefined
-  taskCalLink: string = undefined
   joinedProjectsCount: number = undefined
 }

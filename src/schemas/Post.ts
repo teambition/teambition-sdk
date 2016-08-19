@@ -1,7 +1,7 @@
 'use strict'
 import { schemaName, Schema, ISchema } from './schema'
 
-export interface PostData extends ISchema<PostData> {
+export interface PostData extends ISchema {
   _id: string
   _projectId: string
   _creatorId: string
@@ -21,7 +21,7 @@ export interface PostData extends ISchema<PostData> {
 }
 
 @schemaName('Post')
-export default class Post extends Schema implements PostData {
+export default class Post extends Schema<PostData> implements PostData {
   _id: string = undefined
   _projectId: string = undefined
   _creatorId: string = undefined

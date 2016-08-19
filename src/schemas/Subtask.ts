@@ -2,7 +2,7 @@
 import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import { ExecutorOrCreator } from '../teambition'
 
-export interface SubtaskData extends ISchema<SubtaskData> {
+export interface SubtaskData extends ISchema {
   _id: string
   _projectId: string
   _creatorId: string
@@ -17,7 +17,7 @@ export interface SubtaskData extends ISchema<SubtaskData> {
 }
 
 @schemaName('Subtask')
-export default class Subtask extends Schema implements SubtaskData {
+export default class Subtask extends Schema<SubtaskData> implements SubtaskData {
   _id: string = undefined
   _projectId: string = undefined
   _creatorId: string = undefined

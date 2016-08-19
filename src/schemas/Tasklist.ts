@@ -2,7 +2,7 @@
 import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import { StageData } from '../schemas/Stage'
 
-export interface TasklistData extends ISchema<TasklistData> {
+export interface TasklistData extends ISchema {
   _id: string
   title: string
   _projectId: string
@@ -21,7 +21,7 @@ export interface TasklistData extends ISchema<TasklistData> {
 }
 
 @schemaName('Tasklist')
-export default class Tasklist extends Schema implements TasklistData {
+export default class Tasklist extends Schema<TasklistData> implements TasklistData {
   _id: string = undefined
   title: string = undefined
   @bloodyParent('Project')_projectId: string = undefined

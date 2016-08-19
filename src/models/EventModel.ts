@@ -22,11 +22,11 @@ export class EventModel extends Model {
   }
 
   addOne(event: EventData): Observable<RecurrenceEvent> {
-    const result = setSchema( new RecurrenceEvent(event), event )
+    const result = setSchema<any>( new RecurrenceEvent(event), event )
     if (event._sourceId && event._sourceId !== event._id) {
       this._recurrenceEventAlias.set(event._sourceId + event.startDate, event._id)
     }
-    return this._save(result)
+    return this._save<RecurrenceEvent>(result)
   }
 
   get(eventId: string): Observable<RecurrenceEvent> {
@@ -43,7 +43,7 @@ export class EventModel extends Model {
 
   addProjectEvents(projectId: string, events: EventData[], startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<RecurrenceEvent[]> {
     const result = this._genEventResult(events)
-    return this._saveCollection(`project:events/${projectId}/${startDate}/${endDate}`, result, this._schemaName, (data: RecurrenceEvent) => {
+    return this._saveCollection<any>(`project:events/${projectId}/${startDate}/${endDate}`, result, this._schemaName, (data: RecurrenceEvent) => {
       return !data.isArchived &&
              data._projectId === projectId &&
              data.isBetween(startDate, endDate)
@@ -56,7 +56,7 @@ export class EventModel extends Model {
 
   addMyEvents(userId: string, endDate: Date, events: EventData[]): Observable<EventData[]> {
     const result = this._genEventResult(events)
-    return this._saveCollection(`my:events/${userId}`, result, this._schemaName, data => {
+    return this._saveCollection<any>(`my:events/${userId}`, result, this._schemaName, (data: RecurrenceEvent) => {
       return !data.isArchived &&
              data.involveMembers &&
              data.involveMembers.indexOf(userId) !== -1 &&
@@ -69,9 +69,9 @@ export class EventModel extends Model {
   }
 
   private _genEventResult(events: EventData[]): RecurrenceEvent[] {
-    const results: RecurrenceEvent[] = []
+    const results: any[] = []
     forEach(events, event => {
-      const result = setSchema( new RecurrenceEvent(event), event )
+      const result = setSchema<any>( new RecurrenceEvent(event), event )
       if (event._sourceId && event._sourceId !== event._id) {
         this._recurrenceEventAlias.set(event._sourceId + event.startDate, event._id)
       }

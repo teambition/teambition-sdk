@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import DataBase from '../storage/Database'
-import { ISchema } from '../schemas/schema'
+import { Schema } from '../schemas/schema'
 
 export default class Model {
 
@@ -28,13 +28,13 @@ export default class Model {
     return Model.DataBase.checkSchema(index)
   }
 
-  protected _save<T extends ISchema<T>>(data: T, unionFlag?: string): Observable<T> {
-    return Model.DataBase.storeOne<T>(data, unionFlag)
+  protected _save<T>(data: Schema<T> & T, unionFlag?: string): Observable<T> {
+    return Model.DataBase.storeOne(data, unionFlag)
   }
 
-  protected _saveCollection<T extends ISchema<T>>(
+  protected _saveCollection<T>(
     namespace: string,
-    data: T[],
+    data: Schema<T>[],
     schemaName?: string,
     condition?: (data: T) => boolean,
     unionFlag?: string
@@ -46,7 +46,7 @@ export default class Model {
     return DataBase.data.get(index) ? Model.DataBase.get<T>(index) : null
   }
 
-  protected _updateCollection<T extends ISchema<T>>(namespace: string, patch: any): Observable<T[]> {
+  protected _updateCollection<T>(namespace: string, patch: any): Observable<T[]> {
     if (DataBase.data.get(namespace)) {
       return Model.DataBase.updateCollection<T>(namespace, patch)
     }else {

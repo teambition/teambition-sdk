@@ -4,10 +4,10 @@ import { Observer } from 'rxjs/Observer'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
 import { forEach, assign, clone, diffEle, dataToSchema } from '../utils/index'
-import { ISchema, ChildMap } from '../schemas/schema'
+import { ISchema, Schema, ChildMap } from '../schemas/schema'
 import * as Schemas from '../schemas/index'
 
-export default class Model<T extends ISchema<T>> {
+export default class Model<T extends ISchema> {
   public collections: string[] = []
   public parents: string[] = []
   public children: string[] = []
@@ -20,9 +20,12 @@ export default class Model<T extends ISchema<T>> {
   private _subject: BehaviorSubject<T>
   private $$children: ChildMap
 
-  constructor(public data: T, private _unionFlag = '_id') {
+  constructor(public data: Schema<T> & T | T, private _unionFlag = '_id') {
     const index = this.index = data[this._unionFlag]
-    const $$children = this.data.$$children
+    let $$children: ChildMap
+    if (data instanceof Schema) {
+      $$children = data.$$children
+    }
     this.$$children = $$children ? $$children : new Map<any, any>()
     forEach(data, (val: any, key: string) => {
       if (!this.$$children.has(key)) {
@@ -94,7 +97,7 @@ export default class Model<T extends ISchema<T>> {
               if (oldVal && !(oldVal instanceof Array)) {
                 throw new Error(`Wrong patch type, oldVal is not an Array, but patch is Array`)
               }
-              const result: Model<any>[] = []
+              const result: Schema<any>[] = []
               forEach(val, (childEle, pos) => {
                 const unionFlag = childEle[childMap.unionFlag]
                 const newRoute = { key, pos }
@@ -237,7 +240,7 @@ export default class Model<T extends ISchema<T>> {
   }
 
   checkSchema(): boolean {
-    if (this.data && typeof this.data['checkSchema'] === 'function') {
+    if (this.data && this.data instanceof Schema) {
       return this.data.checkSchema()
     }else {
       return false
@@ -274,7 +277,7 @@ export default class Model<T extends ISchema<T>> {
           if (!(childData instanceof Array)) {
             throw new Error(`child type error, expect Array : ${JSON.stringify(childData, null, 2)}`)
           }
-          const ArrResult: Model<any>[] = []
+          const ArrResult: Schema<any>[] = []
           forEach(childData, (childEle, pos) => {
             ArrResult.push(this._genChildEle(childEle, child.unionFlag, child.schemaName))
             this.addChildren(childEle[child.unionFlag], { key, pos })
@@ -288,7 +291,7 @@ export default class Model<T extends ISchema<T>> {
   /**
    * 生成一个子元素
    */
-  private _genChildEle(childData: any, flag: string, schemaName: string) {
+  private _genChildEle(childData: any, flag: string, schemaName: string): Schema<any> {
     const unionFlag = childData[flag]
     if (!unionFlag) {
       throw new Error(
@@ -313,16 +316,22 @@ export default class Model<T extends ISchema<T>> {
     }
   }
 
-  private _schemaFactory(schemaName: string, data: any, flag: string) {
-    return dataToSchema(data, Schemas[`${schemaName}Schema`], flag)
+  private _schemaFactory<U extends Schema<U>>(schemaName: string, data: U, flag: string) {
+    return dataToSchema<U>(data, Schemas[`${schemaName}Schema`], flag)
   }
 
-  private _clone(obj: any) {
+  private _clone(obj: any): T {
+    let result: T
     if (typeof obj.clone === 'function') {
-      return obj.clone()
+      result = obj.clone()
     } else {
-      return clone(obj)
+      result = clone(obj)
     }
+    const schemaName = this.getSchemaName()
+    if (schemaName) {
+      result.$$schemaName = schemaName
+    }
+    return result
   }
 
 }

@@ -2,7 +2,7 @@
 import { Schema, ISchema, schemaName } from './schema'
 import { visibility } from '../teambition'
 
-export interface EntryData extends ISchema<EntryData> {
+export interface EntryData extends ISchema {
   _id: string
   _projectId: string
   _creatorId: string
@@ -21,7 +21,7 @@ export interface EntryData extends ISchema<EntryData> {
 }
 
 @schemaName('Entry')
-export default class EntrySchema extends Schema implements EntryData {
+export default class EntrySchema extends Schema<EntryData> implements EntryData {
   _id: string = undefined
   _projectId: string = undefined
   _creatorId: string = undefined

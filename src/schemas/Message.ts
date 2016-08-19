@@ -2,7 +2,7 @@
 import { Schema, schemaName, ISchema, child } from './schema'
 import { ExecutorOrCreator } from '../teambition'
 
-export interface MessageData extends ISchema<MessageData> {
+export interface MessageData extends ISchema {
   _id: string
   _userId: string
   _projectId: string
@@ -38,7 +38,7 @@ export interface MessageData extends ISchema<MessageData> {
 }
 
 @schemaName('Message')
-export default class Message extends Schema implements MessageData {
+export default class Message extends Schema<MessageData> implements MessageData {
   _id: string = undefined
   _userId: string = undefined
   _projectId: string = undefined

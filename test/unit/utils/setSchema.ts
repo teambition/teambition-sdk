@@ -11,7 +11,7 @@ export default describe('set schema test', () => {
   it('data should deep equal origin after setSchema', () => {
     const Task = new TaskSchema()
     const mockTask = clone(tasksUndone[0])
-    const schema = setSchema(Task, mockTask)
+    const schema = setSchema(Task, <any>mockTask)
     expect(schema.checkSchema()).to.be.true
     expect(schema.$$keys.size).to.equal(0)
   })
@@ -20,7 +20,7 @@ export default describe('set schema test', () => {
     const Task = new TaskSchema()
     const mockTask = clone(tasksUndone[0])
     delete mockTask.priority
-    const schema = setSchema(Task, mockTask)
+    const schema = setSchema(Task, <any>mockTask)
     expect(schema.checkSchema()).to.be.false
     expect(schema.$$keys.size).to.equal(1)
   })

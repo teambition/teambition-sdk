@@ -1,7 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 
-export interface PreferenceData extends ISchema<PreferenceData> {
+export interface PreferenceData extends ISchema {
   _id: string
   _userId: string
   language: string
@@ -28,7 +28,7 @@ export interface PreferenceData extends ISchema<PreferenceData> {
 }
 
 @schemaName('Preference')
-export default class Preference extends Schema implements PreferenceData {
+export default class Preference extends Schema<PreferenceData> implements PreferenceData {
   _id: string = undefined
   _userId: string = undefined
   language: string = undefined

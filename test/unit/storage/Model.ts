@@ -16,8 +16,8 @@ export default describe('storage Model test: ', () => {
   beforeEach(() => {
     Data.clear()
 
-    schema = dataToSchema<Schemas.TaskSchema>(clone(modelMock), Schemas.TaskSchema)
-    model = new Model(schema)
+    schema = dataToSchema<Schemas.TaskSchema>(<any>clone(modelMock), Schemas.TaskSchema)
+    model = new Model(<any>schema)
   })
 
   it('new model should ok', () => {

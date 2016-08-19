@@ -1,5 +1,5 @@
 'use strict'
-import { ISchema, setSchema } from '../schemas/schema'
+import { setSchema, Schema } from '../schemas/schema'
 
 export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 
@@ -119,15 +119,15 @@ export const uuid = () => {
   return UUID
 }
 
-export const dataToSchema = <U extends ISchema<U>> (data: any, SchemaClass: any, unionFlag = '_id'): U => {
+export const dataToSchema = <T> (data: T, SchemaClass: any, unionFlag = '_id'): T & Schema<T> => {
   const result = setSchema(new SchemaClass(), data)
   result.$$unionFlag = unionFlag
   result.setBloodyParent()
   return result
 }
 
-export const datasToSchemas = <U>(datas: any[], SchemaClass: any, unionFlag = '_id'): U[] => {
-  const result = new Array<U>()
+export const datasToSchemas = <U>(datas: U[], SchemaClass: any, unionFlag = '_id'): (Schema<U> & U)[] => {
+  const result = new Array<(Schema<U> & U)>()
   forEach(datas, data => {
     const schema = setSchema(new SchemaClass(), data)
     schema.$$unionFlag = unionFlag

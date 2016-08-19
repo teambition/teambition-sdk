@@ -1,7 +1,8 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Model from './BaseModel'
-import UserMe from '../schemas/UserMe'
+import { default as User, UserMe } from '../schemas/UserMe'
+import { dataToSchema } from '../utils/index'
 
 export class UserModel extends Model {
 
@@ -13,7 +14,7 @@ export class UserModel extends Model {
 
   set(data: UserMe): Observable<UserMe> {
     this.userId = data._id
-    return this._save(data)
+    return this._save(dataToSchema(data, User))
   }
 
   get(): Observable<UserMe> {

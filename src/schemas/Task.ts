@@ -3,7 +3,7 @@ import { Schema, ISchema, schemaName, child, bloodyParent } from './schema'
 import Subtask from './Subtask'
 import { ExecutorOrCreator, visibility } from '../teambition'
 
-export interface TaskData extends ISchema<TaskData> {
+export interface TaskData extends ISchema {
   _id: string
   content: string
   note: string
@@ -55,7 +55,7 @@ export interface TaskData extends ISchema<TaskData> {
 }
 
 @schemaName('Task')
-export default class Task extends Schema implements TaskData {
+export default class Task extends Schema<TaskData> implements TaskData {
   _id: string = undefined
   content: string = undefined
   note: string = undefined

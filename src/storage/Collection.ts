@@ -6,23 +6,23 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
 import Model from './Model'
 import { forEach, clone, assign, dropEle, diffEle } from '../utils/index'
-import { ISchema } from '../schemas/schema'
+import { Schema, ISchema } from '../schemas/schema'
 
-export default class Collection <T extends ISchema<T>> {
+export default class Collection <T extends ISchema> {
   public elements: string[] = []
-  public data: T[]
+  public data: ((T & Schema<T>) | T)[]
   public requested: number
 
   private _subject: BehaviorSubject<T[]>
 
   constructor(
     public index: string,
-    _data: T[],
+    _data: (T & Schema<T>)[] | T[],
     public schemaName?: string,
     public condition?: (data: T) => boolean,
     private _unionFlag = '_id'
   ) {
-    const result: T[] = []
+    const result: ((T & Schema<T>) | T)[] = []
     if (_data.length) {
       this.requested = _data[0]._requested
       forEach(_data, (ele, pos) => {
@@ -81,11 +81,11 @@ export default class Collection <T extends ISchema<T>> {
    * 重新按照 patch 的顺序调整原有元素的顺序
    * 检查数据整体长度，如果 patch 长度小于原有数据长度则剪裁掉数据
    */
-  update(patch: T[]): Observable<T[]> {
-    return Observable.create((observer: Observer<T[]>) => {
+  update(patch: (Schema<T> & T)[]): Observable<(Schema<T> | T)[]> {
+    return Observable.create((observer: Observer<(Schema<T> | T)[]>) => {
       setTimeout(() => {
         const signals: Observable<T>[] = []
-        const diff: T[] = []
+        const diff: (Schema<T> | T)[] = []
         if (patch.length) {
           this.requested = patch[patch.length - 1]._requested
           forEach(patch, (ele, position) => {

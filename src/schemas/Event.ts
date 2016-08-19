@@ -2,7 +2,7 @@
 import { Schema, schemaName, ISchema } from './schema'
 import { visibility } from '../teambition'
 
-export interface EventData extends ISchema<EventData> {
+export interface EventData extends ISchema {
   _id: string
   _creatorId: string
   title: string
@@ -39,7 +39,7 @@ export interface EventData extends ISchema<EventData> {
 }
 
 @schemaName('Event')
-export default class Event extends Schema implements EventData {
+export default class Event extends Schema<EventData> implements EventData {
   _id: string = undefined
   endDate: string = undefined
   startDate: string = undefined

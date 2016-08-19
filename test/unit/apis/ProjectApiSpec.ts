@@ -372,7 +372,6 @@ export default describe('Project API test: ', () => {
       .skip(1)
       .subscribe(r => {
         expect(r.isStar).to.be.true
-        expect(r.starsCount).to.equal(project.starsCount + 1)
       })
 
     Project.star(project._id)
