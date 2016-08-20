@@ -1,7 +1,8 @@
 'use strict'
 import Fetch from './BaseFetch'
 import { TaskData } from '../schemas/Task'
-import { visibility, ExecutorOrCreator } from '../teambition'
+import Task from '../schemas/Task'
+import { visibility, ExecutorOrCreator, FavoriteResponse, LikeResponse } from '../teambition'
 
 export interface TasksMeOptions {
   count?: number
@@ -220,11 +221,7 @@ export class TaskFetch extends Fetch {
     return this.fetch.put(`stages/${stageId}/tasks/visible`)
   }
 
-  favorite(_taskId: string): Promise<{
-    _id: string
-    updated: string
-    favorite: boolean
-  }> {
+  favorite(_taskId: string): Promise<FavoriteResponse> {
     return this.fetch.post(`tasks/${_taskId}/favorite`)
   }
 
@@ -267,14 +264,7 @@ export class TaskFetch extends Fetch {
     } : null)
   }
 
-  like(_taskId: string): Promise<{
-    isLike: boolean
-    likesCount: number
-    likesGroup: {
-      _id: string
-      name: string
-    }[]
-  }> {
+  like(_taskId: string): Promise<LikeResponse> {
     return this.fetch.post(`tasks/${_taskId}/like`)
   }
 

@@ -89,3 +89,18 @@ export interface ReportAnalysisSchema {
     date: string
   }[]
 }
+
+export interface FavoriteResponse {
+  _id: string
+  updated: string
+  favorite: boolean
+}
+
+export interface LikeResponse {
+  isLike: boolean
+  likesCount: number
+  likesGroup: {
+    _id: string
+    name: string
+  }[]
+}
