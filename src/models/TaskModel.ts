@@ -130,28 +130,33 @@ export class TaskModel extends BaseModel {
     })
   }
 
-  addStageDoneTasks(stageId: string, tasks: TaskData[]): Observable<TaskData[]> {
+  addStageDoneTasks(stageId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
     const dbIndex = `stage:tasks:done/${stageId}`
     const result = datasToSchemas<TaskData>(tasks, Task)
-
-    return this._saveCollection(
-      dbIndex,
-      result,
-      this._schemaName,
-      (data: TaskData) => {
-        return data._stageId === stageId &&
-            data.isDone &&
-            !data.isArchived
-      }
-    )
+    let collection: Collection<TaskData> = this._collections.get(dbIndex)
+    if (!collection) {
+      collection = new Collection(
+        this._schemaName,
+        (data: TaskData) => {
+          return data._stageId === stageId &&
+              data.isDone &&
+              !data.isArchived
+        },
+        dbIndex
+      )
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
   }
 
   getStageTasks(stageId: string): Observable<TaskData[]> {
     return this._get<TaskData[]>(`stage:tasks:undone/${stageId}`)
   }
 
-  getStageDoneTasks(stageId: string): Observable<TaskData[]> {
-    return this._get<TaskData[]>(`stage:tasks:done/${stageId}`)
+  getStageDoneTasks(stageId: string, page: number): Observable<TaskData[]> {
+    const dbIndex = `stage:tasks:done/${stageId}`
+    const collection = this._collections.get(dbIndex)
+    return collection ? collection.get(page) : null
   }
 
   /**

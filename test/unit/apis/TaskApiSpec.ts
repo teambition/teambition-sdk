@@ -1334,41 +1334,102 @@ export default describe('Task API test: ', () => {
 
   })
 
-  describe('get stage tasks: ', () => {
+  describe('stage tasks: ', () => {
+
     const stageId = stageTasksUndone[0]._stageId
+    const stageDoneTask = stageTasksDone[0]
+    const stageTasksDonePage1 = stageTasksDone.filter((task, index) => index < 30)
+    const stageTasksDonePage2 = stageTasksDone.filter((task, index) => index >= 30 && index < 60)
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}stages/${stageId}/tasks`)
         .respond(JSON.stringify(stageTasksUndone))
+
+      httpBackend.whenGET(`${apihost}stages/${stageId}/tasks?page=1&isDone=true`)
+        .respond(JSON.stringify(stageTasksDonePage1))
+
+      httpBackend.whenGET(`${apihost}stages/${stageId}/tasks?page=2&isDone=true`)
+        .respond(JSON.stringify(stageTasksDonePage2))
+
       httpBackend.flush()
     })
 
-    it('get should ok', done => {
-      Task.getStageTasks(stageId)
-        .subscribe(r => {
-          forEach(r, (task, index) => {
+    it('should get undone/done tasks', done => {
+      Observable.combineLatest(
+          Task.getStageTasks(stageId),
+          Task.getStageDoneTasks(stageId, {page: 1})
+            .skip(1),
+          Task.getStageDoneTasks(stageId, {page: 2})
+            .subscribeOn(Scheduler.async, global.timeout2)
+        )
+        .subscribe(([tasks, doneTasksPage1, doneTasksPage2]) => {
+          forEach(tasks, (task, index) => {
             expectDeepEqual(task, stageTasksUndone[index])
+          })
+          forEach(doneTasksPage1, (task, index) => {
+            if (index < 30) {
+              expectDeepEqual(task, stageTasksDonePage1[index])
+            } else {
+              expectDeepEqual(task, doneTasksPage2[index - 30])
+            }
+          })
+          forEach(doneTasksPage2, (task, index) => {
+            expectDeepEqual(task, stageTasksDonePage2[index])
           })
           done()
         })
     })
 
-    it('get from cache should ok', done => {
-      Task.getStageTasks(stageId)
-        .subscribe()
-
-      Task.getStageTasks(stageId)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(r => {
-          forEach(r, (task, index) => {
+    it('should get undone/done tasks found in cache', done => {
+      Observable.combineLatest(
+          Task.getStageTasks(stageId),
+          Task.getStageDoneTasks(stageId, {page: 1})
+            .skip(1),
+          Task.getStageDoneTasks(stageId, {page: 2})
+            .subscribeOn(Scheduler.async, global.timeout2),
+          Task.getStageTasks(stageId)
+            .subscribeOn(Scheduler.async, global.timeout3),
+          Task.getStageDoneTasks(stageId, {page: 1})
+            .subscribeOn(Scheduler.async, global.timeout3),
+          Task.getStageDoneTasks(stageId, {page: 2})
+            .subscribeOn(Scheduler.async, global.timeout3 * 2)
+        )
+        .subscribe(([
+          tasks,
+          doneTasksPage1,
+          doneTasksPage2,
+          tasksCached,
+          doneTasksPage1Cached,
+          doneTasksPage2Cached
+        ]) => {
+          forEach(tasks, (task, index) => {
             expectDeepEqual(task, stageTasksUndone[index])
           })
-          expect(spy).to.be.calledOnce
+          forEach(doneTasksPage1, (task, index) => {
+            if (index < 30) {
+              expectDeepEqual(task, stageTasksDonePage1[index])
+            } else {
+              expectDeepEqual(task, doneTasksPage2[index - 30])
+            }
+          })
+          forEach(doneTasksPage2, (task, index) => {
+            expectDeepEqual(task, stageTasksDonePage2[index])
+          })
+          forEach(tasksCached, (task, index) => {
+            expectDeepEqual(task, stageTasksUndone[index])
+          })
+          forEach(doneTasksPage1Cached, (task, index) => {
+            expectDeepEqual(task, stageTasksDonePage1[index])
+          })
+          forEach(doneTasksPage2Cached, (task, index) => {
+            expectDeepEqual(task, stageTasksDonePage2[index])
+          })
+          expect(spy.calledThrice).to.be.true
           done()
         })
     })
 
-    it('create new task', done => {
+    it('should create new one then added to undone task list', done => {
       const newTaskInfo = {
         _tasklistId: stageTasksUndone[0]._tasklistId,
         content: 'mocktaskcontent'
@@ -1399,7 +1460,7 @@ export default describe('Task API test: ', () => {
         })
     })
 
-    it('delete task', done => {
+    it('should delete one from undone task list', done => {
       const _taskId = stageTasksUndone[0]._id
       const nextTask = stageTasksUndone[1]
 
@@ -1419,7 +1480,7 @@ export default describe('Task API test: ', () => {
         })
     })
 
-    it('move task to another stage', done => {
+    it('should move one to the undone task list of another stage', done => {
       const _taskId = stageTasksUndone[0]._id
       const _anotherStageId = 'mockstageid'
 
@@ -1451,7 +1512,7 @@ export default describe('Task API test: ', () => {
         })
     })
 
-    it('update task state to `true`', done => {
+    it('should update task state to `true` then moved to done task list', done => {
       const _taskId = stageTasksUndone[0]._id
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/isDone`, {
@@ -1482,44 +1543,8 @@ export default describe('Task API test: ', () => {
         })
       httpBackend.flush()
     })
-  })
 
-  describe('stage done tasks: ', () => {
-    const stageDoneTask = stageTasksDone[0]
-    const _stageId = stageDoneTask._stageId
-
-    beforeEach(() => {
-      httpBackend.whenGET(`${apihost}stages/${_stageId}/tasks?isDone=true`)
-        .respond(JSON.stringify(stageTasksDone))
-      httpBackend.flush()
-    })
-
-    it('get', done => {
-      Task.getStageDoneTasks(_stageId)
-        .subscribe(r => {
-          forEach(r, (task, index) => {
-            expectDeepEqual(task, stageTasksDone[index])
-          })
-          done()
-        })
-    })
-
-    it('get from cache', done => {
-      Task.getStageDoneTasks(_stageId)
-        .subscribe()
-
-      Task.getStageDoneTasks(_stageId)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(r => {
-          forEach(r, (task, index) => {
-            expectDeepEqual(task, stageTasksDone[index])
-          })
-          expect(spy).to.be.calledOnce
-          done()
-        })
-    })
-
-    it('delete task', done => {
+    it('should delete one from done task list', done => {
       const _taskId = stageDoneTask._id
       const nextDoneTask = stageTasksDone[1]
 
@@ -1527,19 +1552,20 @@ export default describe('Task API test: ', () => {
         .respond({})
 
       Observable.combineLatest(
-          Task.getStageDoneTasks(_stageId).skip(1),
+          Task.getStageDoneTasks(stageId, {page: 1})
+            .skip(1),
           Task.delete(_taskId)
             .subscribeOn(Scheduler.async, global.timeout1)
         )
         .subscribe(([tasks, oldTask]) => {
-          expect(tasks.length).to.be.equal(stageTasksDone.length - 1)
+          expect(tasks.length).to.be.equal(stageTasksDonePage1.length - 1)
           expectDeepEqual(nextDoneTask, tasks[0])
           expect(oldTask).to.be.null
           done()
         })
     })
 
-    it('move task to another stage', done => {
+    it('should move one to the done task list of another stage', done => {
       const _taskId = stageDoneTask._id
       const _anotherStageId = 'mockstageid'
 
@@ -1556,22 +1582,24 @@ export default describe('Task API test: ', () => {
         .respond(JSON.stringify([]))
 
       Observable.combineLatest(
-          Task.getStageDoneTasks(_stageId).skip(1),
-          Task.getStageDoneTasks(_anotherStageId).skip(1),
+          Task.getStageDoneTasks(stageId, {page: 1})
+            .skip(1),
+          Task.getStageDoneTasks(_anotherStageId)
+            .skip(1),
           Task.move(_taskId, {
               _stageId: _anotherStageId
             })
             .subscribeOn(Scheduler.async, global.timeout4)
         )
         .subscribe(([tasks, anotherTasks, task]) => {
-          expect(tasks.length).to.be.equal(stageTasksDone.length - 1)
+          expect(tasks.length).to.be.equal(stageTasksDonePage1.length - 1)
           expect(anotherTasks.length).to.be.equal(1)
           expect(anotherTasks[0]._id).to.be.equal(task._id)
           done()
         })
     })
 
-    it('update task state to `false`', done => {
+    it('should update task state to `false` then moved to undone task list', done => {
       const _taskId = stageDoneTask._id
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/isDone`, {
@@ -1583,18 +1611,20 @@ export default describe('Task API test: ', () => {
           updated: new Date().toISOString()
         })
 
-      httpBackend.whenGET(`${apihost}stages/${_stageId}/tasks`)
+      httpBackend.whenGET(`${apihost}stages/${stageId}/tasks`)
         .respond(JSON.stringify([]))
 
       Observable.combineLatest(
-          Task.getStageTasks(_stageId).skip(1),
-          Task.getStageDoneTasks(_stageId).skip(1),
+          Task.getStageTasks(stageId)
+            .skip(1),
+          Task.getStageDoneTasks(stageId, {page: 1})
+            .skip(1),
           Task.updateStatus(_taskId, false)
             .subscribeOn(Scheduler.async, global.timeout4)
         )
         .subscribe(([tasks, doneTasks, newPatch]) => {
           expect(tasks.length).to.be.equal(1)
-          expect(doneTasks.length).to.be.equal(stageTasksDone.length - 1)
+          expect(doneTasks.length).to.be.equal(stageTasksDonePage1.length - 1)
           expect(tasks[0]._id).to.be.equal(newPatch._id)
           expect(tasks[0].isDone).to.be
             .equal(newPatch.isDone)
