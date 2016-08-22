@@ -60,7 +60,7 @@ export default describe('SubscribeApiSpec: ', () => {
     httpBackend.flush()
   })
 
-  it('update organization subscribe should ok', done => {
+  it('add project to organization subscribe should ok', done => {
     const mockprojects = orgsSubscribe.body.projects.concat([{
       _id: 'mockprojectid',
       name: 'mockprojectId',
@@ -89,6 +89,35 @@ export default describe('SubscribeApiSpec: ', () => {
       })
 
     SubscribeApi.updateOrgsSubscribe('mock', ['mockprojectid'])
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe()
+
+    httpBackend.flush()
+  })
+
+  it('remove project to organization subscribe should ok', done => {
+    const mockprojects = []
+
+    httpBackend.whenPUT(`${apihost}subscribers/report?_organizationId=mock`, {
+      $del: {
+        'body.projects': ['mockprojectid']
+      }
+    })
+      .respond({
+        _id: orgsSubscribe._id,
+        body: {
+          projects: mockprojects
+        }
+      })
+
+    SubscribeApi.getOrgsSubscribe('mock')
+      .skip(1)
+      .subscribe(r => {
+        expect(r.body.projects).to.deep.equal(mockprojects)
+        done()
+      })
+
+    SubscribeApi.updateOrgsSubscribe('mock', null, ['mockprojectid'])
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
