@@ -9,7 +9,8 @@ import {
   UnarchiveProjectResponse,
   TransferProjectResponse,
   StarProjectResponse,
-  UnstarProjectResponse
+  UnstarProjectResponse,
+  GetAnalysisReportUnit
 } from '../fetchs/ProjectFetch'
 import ProjectModel from '../models/ProjectModel'
 import { ProjectData } from '../schemas/Project'
@@ -19,7 +20,9 @@ import {
   InviteLinkSchema,
   HomeActivitySchema,
   RecommendMemberSchema,
-  ProjectStatisticSchema
+  ProjectStatisticSchema,
+  ReportSummarySchema,
+  ReportAnalysisSchema
 } from '../teambition'
 
 export type JSONObj = {
@@ -258,6 +261,41 @@ export class ProjectAPI {
         .concatMap(r => ProjectModel.update(_projectId, r))
         .forEach(r => observer.next(r))
         .then(() => observer.complete())
+    })
+  }
+
+  /**
+   * 从一个未 complete 的 get 流中 take(1)
+   * 因为这个数据不可能再变更
+   */
+  getReportSummary (_projectId: string, query?: any): Observable<ReportSummarySchema> {
+    return makeColdSignal<ReportSummarySchema>(observer => {
+      const index = `reportSummary:${_projectId}`
+      let result = ProjectModel.getNonstandardSchema<ReportSummarySchema>(index)
+      if (!result) {
+        result = Observable.fromPromise(ProjectFetch.getReportSummary(_projectId))
+          .catch(err => errorHandler(observer, err))
+          .concatMap(r => ProjectModel.saveNonstandardSchema(index, r))
+      }
+      return result.take(1)
+    })
+  }
+
+  getAnalysisReport(_projectId: string, startDate: Date, endDate: Date, unit: GetAnalysisReportUnit): Observable<ReportAnalysisSchema> {
+    return makeColdSignal<ReportAnalysisSchema>(observer => {
+      const index = `reportAnalysis:${_projectId}`
+      let result = ProjectModel.getNonstandardSchema<ReportAnalysisSchema>(index)
+      if (!result) {
+        result = Observable.fromPromise(ProjectFetch.getAnalysisReport(
+          _projectId,
+          startDate.toISOString().split('T')[0],
+          endDate.toISOString().split('T')[0],
+          unit
+        ))
+          .catch(err => errorHandler(observer, err))
+          .concatMap(r => ProjectModel.saveNonstandardSchema(index, r))
+      }
+      return result.take(1)
     })
   }
 

@@ -8,7 +8,9 @@ import {
   visibility,
   CreatedInProjectSchema,
   RecommendMemberSchema,
-  ProjectStatisticSchema
+  ProjectStatisticSchema,
+  ReportSummarySchema,
+  ReportAnalysisSchema
 } from '../teambition'
 
 export interface ProjectCreateOptions {
@@ -80,6 +82,8 @@ export interface UnstarProjectResponse {
   isStar: boolean
   starsCount: number
 }
+
+export type GetAnalysisReportUnit = 'week' | 'month' | 'day' | '7'
 
 export class ProjectFetch extends BaseFetch {
 
@@ -222,6 +226,14 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.post(`projects/subscribe`, {
       consumerId: consumerId
     })
+  }
+
+  getReportSummary (_projectId: string, query?: any): Promise<ReportSummarySchema> {
+    return this.fetch.get(`projects/${_projectId}/report-summary`, query)
+  }
+
+  getAnalysisReport(_projectId: string, startDate: string, endDate: string, unit: GetAnalysisReportUnit): Promise<ReportAnalysisSchema> {
+    return this.fetch.get(`projects/${_projectId}/analysis-report`, { startDate, endDate, unit })
   }
 }
 

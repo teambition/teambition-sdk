@@ -105,3 +105,23 @@ export interface ProjectStatisticSchema {
   recent: number[]
   days: number[][]
 }
+
+export interface ReportSummarySchema {
+  unassignedTasksCount: number
+  notStartedTasksCount: number
+  inprogressOntimeTasksCount: number
+  inprogressDelayTasksCount: number
+  accomplishedOntimeTasksCount: number
+  accomplishedDelayTasksCount: number
+  accomplishedWeekTaskCount: number
+  accomplishedWeekSubTaskCount: number
+}
+
+export interface ReportAnalysisSchema {
+  values: {
+    unfinishedTaskCount: number
+    // 2016-08-22 这种格式
+    date: string
+    _projectId: string
+  }
+}
