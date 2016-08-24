@@ -73,10 +73,12 @@ export class MemberModel extends BaseModel {
         return Observable.from(signals)
           .mergeAll()
           .skip(signals.length - 1)
+          .map(() => members)
       } else {
         return this.saveProjectMembers(projectId, members, 1, 30)
+          .take(1)
       }
-    }else {
+    } else {
       const result = dataToSchema<MemberData>(members, Member)
       return this._save(result, '_memberId')
         .take(1)
