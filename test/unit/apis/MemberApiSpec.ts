@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
-import { Scheduler } from 'rxjs'
+import { Scheduler, Observable } from 'rxjs'
 import { MemberSchema } from '../index'
 import { MemberAPI, Backend, apihost, clone, BaseFetch } from '../index'
 import { members } from '../../mock/members'
@@ -207,6 +207,53 @@ export default describe('member api test', () => {
     Member.addMembers(projectId, mockEmails)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
+
+    httpBackend.flush()
+  })
+
+  it('add project members multiple times', done => {
+    const projectId = projectMembers[0]._boundToObjectId
+    const limit = Math.floor(projectMembers.length / 3)
+    const chunks = []
+    let start = 0
+    while (projectMembers.length > start) {
+      chunks.push(projectMembers.slice(start, start + limit))
+      start += limit
+    }
+
+    chunks.forEach(chunkProjectMembers => {
+      const emails = chunkProjectMembers.map(member => member.email)
+      httpBackend.whenPOST(
+        `${apihost}v2/projects/${projectId}/members`,
+          {
+            email: emails
+          }
+        )
+        .respond(JSON.stringify(chunkProjectMembers))
+    })
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
+      .respond(JSON.stringify(members))
+
+    Observable.combineLatest(
+        Member.getProjectMembers(projectId)
+          .skip(1),
+        Observable.combineLatest(
+            chunks.map(chunkProjectMembers => {
+              const emails = chunkProjectMembers.map(member => member.email)
+              return Member.addMembers(projectId, emails)
+            })
+          )
+          .map(data => {
+            return [].concat(...data)
+          })
+          .subscribeOn(Scheduler.async, global.timeout1)
+      )
+      .subscribe(([finalMembers, addedMembers]) => {
+        expect(finalMembers.length).to.be.equal(members.length + projectMembers.length)
+        expect(addedMembers.length).to.be.equal(projectMembers.length)
+        done()
+      })
 
     httpBackend.flush()
   })
