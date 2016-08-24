@@ -29,6 +29,7 @@ export * from './apis/TagApiSpec'
 export * from './apis/RoleApiSpec'
 export * from './apis/SubscribeApiSpec'
 export * from './apis/FeedbackApiSpec'
+export * from './apis/ReportApiSpec'
 
 export * from './socket/activity'
 export * from './socket/message'

@@ -62,10 +62,10 @@ export function write (dest: string, code: string) {
   })
 }
 
-function getSize (code) {
+function getSize (code: string): string {
   return (code.length / 1024).toFixed(2) + 'kb'
 }
 
-function blue (str) {
+function blue (str: string): string {
   return '\x1b[1m\x1b[34m' + str + '\x1b[39m\x1b[22m'
 }
