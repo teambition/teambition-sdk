@@ -283,19 +283,13 @@ export class ProjectAPI {
 
   getAnalysisReport(_projectId: string, startDate: Date, endDate: Date, unit: GetAnalysisReportUnit): Observable<ReportAnalysisSchema> {
     return makeColdSignal<ReportAnalysisSchema>(observer => {
-      const index = `reportAnalysis:${_projectId}`
-      let result = ProjectModel.getNonstandardSchema<ReportAnalysisSchema>(index)
-      if (!result) {
-        result = Observable.fromPromise(ProjectFetch.getAnalysisReport(
-          _projectId,
-          startDate.toISOString().split('T')[0],
-          endDate.toISOString().split('T')[0],
-          unit
-        ))
-          .catch(err => errorHandler(observer, err))
-          .concatMap(r => ProjectModel.saveNonstandardSchema(index, r))
-      }
-      return result.take(1)
+      return Observable.fromPromise(ProjectFetch.getAnalysisReport(
+        _projectId,
+        startDate.toISOString().split('T')[0],
+        endDate.toISOString().split('T')[0],
+        unit
+      ))
+        .catch(err => errorHandler(observer, err))
     })
   }
 

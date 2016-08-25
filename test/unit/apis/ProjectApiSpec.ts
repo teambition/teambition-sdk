@@ -498,26 +498,4 @@ export default describe('Project API test: ', () => {
 
     httpBackend.flush()
   })
-
-  it('get project report analysis from cache should ok', done => {
-    const projectId = projects[0]._id
-    const startDate = '2016-07-01'
-    const endDate = '2016-08-22'
-
-    httpBackend.whenGET(`${apihost}projects/${projectId}/analysis-report?startDate=${startDate}&endDate=${endDate}&unit=week`)
-      .respond(JSON.stringify(reportAnalysis))
-
-    Project.getAnalysisReport(projectId, new Date(startDate), new Date(endDate), 'week')
-      .subscribe()
-
-    Project.getAnalysisReport(projectId, new Date(startDate), new Date(endDate), 'week')
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expectDeepEqual(r, reportAnalysis)
-        expect(spy).to.be.calledOnce
-        done()
-      })
-
-    httpBackend.flush()
-  })
 })
