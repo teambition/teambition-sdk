@@ -107,14 +107,16 @@ export interface ProjectStatisticSchema {
 }
 
 export interface ReportSummarySchema {
-  unassignedTasksCount: number
-  notStartedTasksCount: number
-  inprogressOntimeTasksCount: number
-  inprogressDelayTasksCount: number
-  accomplishedOntimeTasksCount: number
   accomplishedDelayTasksCount: number
-  accomplishedWeekTaskCount: number
+  accomplishedOntimeTasksCount: number
   accomplishedWeekSubTaskCount: number
+  accomplishedWeekTaskCount: number
+  inprogressDelayTasksCount: number
+  inprogressOntimeTasksCount: number
+  inprogressSubTasksCount: number
+  notStartedTasksCount: number
+  totalTasksCount: number
+  unassignedTasksCount: number
 }
 
 export interface ReportAnalysisSchema {
