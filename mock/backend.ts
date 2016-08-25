@@ -16,19 +16,19 @@ export class Backend {
   }
 
   whenGET(uri: string) {
-    return new HttpResponse(uri.toLowerCase(), 'get')
+    return new HttpResponse(uri, 'get')
   }
 
   whenPUT(uri: string, data?: any) {
-    return new HttpResponse(uri.toLowerCase(), 'put', data)
+    return new HttpResponse(uri, 'put', data)
   }
 
   whenPOST(uri: string, data?: any) {
-    return new HttpResponse(uri.toLowerCase(), 'post', data)
+    return new HttpResponse(uri, 'post', data)
   }
 
   whenDELETE(uri: string) {
-    return new HttpResponse(uri.toLowerCase(), 'delete')
+    return new HttpResponse(uri, 'delete')
   }
 
   flush() {
