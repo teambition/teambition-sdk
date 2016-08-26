@@ -1,9 +1,7 @@
 'use strict'
 import { EventData } from '../../schemas/Event'
 import { clone, assign } from '../../utils/index'
-import { visibility } from '../../teambition'
 import EventSchema from '../../schemas/Event'
-import { setSchema } from '../../schemas/schema'
 
 const { rrulestr } = require('rrule')
 

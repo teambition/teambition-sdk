@@ -81,7 +81,7 @@ export default describe('ObjectLink API test:', () => {
 
   it('delete objectlink should ok', done => {
     const objectlinkId = objectLinks[0]._id
-    httpBackend.whenDELETE(`${apihost}objectLinks/${objectlinkId}`)
+    httpBackend.whenDELETE(`${apihost}objectlinks/${objectlinkId}`)
       .respond({})
 
     ObjectLink.get(parentId, <any>parentType)

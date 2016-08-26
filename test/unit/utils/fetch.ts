@@ -79,15 +79,17 @@ export default describe('utils/fetch', () => {
       })
   });
 
-  ['get', 'post', 'put', 'delete'].forEach((httpMethod) => {
+  ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
     it(`should define ${httpMethod}`, done => {
       const path = 'test'
       const url = `${fetch.getAPIHost()}${path}`
-      const responseData = {test: 'test'}
-      const body = {body: 'body'}
-      fetchMock.mock(url, httpMethod, responseData)
+      const responseData = { test: 'test' }
+      const body = { body: 'body' }
+      fetchMock.mock(url, JSON.stringify(responseData), {
+        method: httpMethod
+      })
       fetch[httpMethod](path, httpMethod === 'get' ? null : body)
-        .then((res) => {
+        .then((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
           if (httpMethod === 'put' || httpMethod === 'post') {
@@ -139,8 +141,10 @@ export default describe('utils/fetch', () => {
 
       const url = `${fetch.getAPIHost()}mock${httpMethod}?_=${now}`
 
-      fetchMock.mock(url, httpMethod, {
+      fetchMock.mock(url, JSON.stringify({
         requestTime: now
+      }), {
+        method: httpMethod
       })
 
       fetch[httpMethod](`mock${httpMethod}`)

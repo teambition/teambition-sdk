@@ -10,7 +10,8 @@ import {
   forEach,
   clone,
   OrganizationSchema,
-  BaseFetch
+  BaseFetch,
+  concat
 } from '../index'
 import { flush, expectDeepEqual, notInclude } from '../utils'
 import { tasksDone } from '../../mock/tasksDone'
@@ -2091,6 +2092,77 @@ export default describe('Task API test: ', () => {
       httpBackend.flush()
     })
 
-  })
+    it('archive task should ok', done => {
+      httpBackend.whenPOST(`${apihost}tasks/${mockTaskGet._id}/archive`)
+        .respond(JSON.stringify({
+          _id: mockTaskGet._id,
+          isArchived: true
+        }))
 
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.isArchived).to.be.true
+          done()
+        })
+
+      Task.archive(mockTaskGet._id)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('unarchive task should ok', done => {
+      const _mock = clone(mockTaskGet)
+      _mock.isArchived = true
+
+      httpBackend.whenGET(`${apihost}tasks/${mockTaskGet._id}`)
+        .respond(JSON.stringify(_mock))
+
+      httpBackend.whenDELETE(`${apihost}tasks/${mockTaskGet._id}/archive?_stageId=${mockTaskGet._stageId}`)
+        .respond(JSON.stringify({
+          _id: mockTaskGet._id,
+          isArchived: false
+        }))
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.isArchived).to.be.false
+          done()
+        })
+
+      Task.unarchive(mockTaskGet._id, mockTaskGet._stageId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('updateTags should ok', done => {
+      const tags = concat(mockTaskGet.tagIds, ['mocktag1', 'mocktag2'])
+      httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/tagIds`, {
+        tagIds: tags
+      })
+        .respond({
+          _id: mockTaskGet._id,
+          tagIds: tags
+        })
+
+      Task.get(mockTaskGet._id)
+        .skip(1)
+        .subscribe(r => {
+          expect(r.tagIds).to.deep.equal(tags)
+          done()
+        })
+
+      Task.updateTags(mockTaskGet._id, tags)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+  })
 })

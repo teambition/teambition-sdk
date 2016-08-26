@@ -1,7 +1,6 @@
 'use strict'
 import * as chai from 'chai'
 import BaseModel from '../../src/models/BaseModel'
-import { Schema } from '../../src/schemas/schema'
 import { forEach } from './index'
 
 const expect = chai.expect
