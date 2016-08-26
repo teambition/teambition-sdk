@@ -1,7 +1,7 @@
 'use strict'
 import Fetch from './BaseFetch'
-import Task from '../schemas/Task'
-import { visibility } from '../teambition'
+import { TaskData } from '../schemas/Task'
+import { visibility, ExecutorOrCreator } from '../teambition'
 
 export interface TasksMeOptions {
   count?: number
@@ -56,7 +56,7 @@ export interface ForkTaskOptions {
 
 export interface ImportTaskOptions {
   _stageId?: string
-  tasks: Task[]
+  tasks: TaskData[]
   involveMembers?: string[]
   _executorId?: string
   dueDate?: string
@@ -78,16 +78,67 @@ export interface GetStageTasksOptions {
   page?: number
 }
 
+export interface BatchUpdateDuedateResponse {
+  _stageId: string
+  dueDate: string
+  updated: string
+}
+
+export interface ArchiveTaskResponse {
+  isArchived: boolean
+  updated: string
+  _id: string
+  _projectId: string
+}
+
+export interface UpdateNoteResponse {
+  _id: string
+  updated: string
+  note: string
+}
+
+export interface UpdateTagsResponse {
+  _id: string
+  tagIds: string[]
+  updated: string
+}
+
+export interface UpdateStatusResponse {
+  _id: string
+  updated: string
+  isDone: boolean
+}
+
+export interface UpdateContentResponse {
+  _id: string
+  content: string
+  updated: string
+}
+
+export interface UpdateDueDateResponse {
+  _id: string
+  updated: string
+  dueDate: string
+}
+
+export interface UpdateExecutorResponse {
+  _executorId: string
+  _id: string
+  executor: ExecutorOrCreator
+  involveMembers?: string[]
+  updated: string
+}
+
 export class TaskFetch extends Fetch {
-  getTasksMe (option: TasksMeOptions): Promise<Task[]> {
+  getTasksMe (option: TasksMeOptions): Promise<TaskData[]> {
     return this.fetch.get(`v2/tasks/me`, option)
   }
 
-  getOrgsTasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<Task[]> {
+  getOrgsTasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<TaskData[]> {
     return this.fetch.get(`organizations/${organizationId}/tasks/me`, option)
   }
 
-  getOrgsTasksCreated(organizationId: string, page?: number, maxId?: string): Promise<Task[]> {
+  getOrgsTasksCreated(organizationId: string, page?: number, maxId?: string): Promise<TaskData[]> {
     const query = this.checkQuery({
       page: page,
       maxId: maxId
@@ -95,7 +146,7 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`organizations/${organizationId}/tasks/me/created`, query)
   }
 
-  getOrgsTasksInvolves(organizationId: string, page?: number, maxId?: string): Promise<Task[]> {
+  getOrgsTasksInvolves(organizationId: string, page?: number, maxId?: string): Promise<TaskData[]> {
     const query = this.checkQuery({
       page: page,
       maxId: maxId
@@ -103,34 +154,34 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`organizations/${organizationId}/tasks/me/involves`, query)
   }
 
-  create(createTaskData: CreateTaskOptions): Promise<Task> {
+  create(createTaskData: CreateTaskOptions): Promise<TaskData> {
     return this.fetch.post(`tasks`, createTaskData)
   }
 
-  get(_taskId: string): Promise<Task>
+  get(_taskId: string): Promise<TaskData>
 
-  get(_taskId: string, detailType: string): Promise<Task>
+  get(_taskId: string, detailType: string): Promise<TaskData>
 
-  get(_taskId: string, detailType?: string): Promise<Task> {
+  get(_taskId: string, detailType?: string): Promise<TaskData> {
     return this.fetch.get(`tasks/${_taskId}`, detailType ? {
       detailType: detailType
     } : null)
   }
 
-  getStageTasks(stageId: string, query?: any): Promise<Task[]> {
+  getStageTasks(stageId: string, query?: any): Promise<TaskData[]> {
     return this.fetch.get(`stages/${stageId}/tasks`, query)
   }
 
-  getStageDoneTasks(stageId: string, query: any = {}): Promise<Task[]> {
+  getStageDoneTasks(stageId: string, query: any = {}): Promise<TaskData[]> {
     query.isDone = true
     return this.fetch.get(`stages/${stageId}/tasks`, query)
   }
 
-  getProjectTasks(_id: string, query?: any): Promise<Task[]> {
+  getProjectTasks(_id: string, query?: any): Promise<TaskData[]> {
     return this.fetch.get(`projects/${_id}/tasks`, query)
   }
 
-  getProjectDoneTasks(_id: string, query: any = {}): Promise<Task[]> {
+  getProjectDoneTasks(_id: string, query: any = {}): Promise<TaskData[]> {
     query.isDone = true
     return this.fetch.get(`projects/${_id}/tasks`, query)
   }
@@ -143,20 +194,11 @@ export class TaskFetch extends Fetch {
     return this.fetch.delete(`tasks/${_taskId}`)
   }
 
-  archive(_taskId: string): Promise<{
-    isArchived: boolean
-    updated: string
-    _id: string
-    _projectId: string
-  }> {
+  archive(_taskId: string): Promise<ArchiveTaskResponse> {
     return this.fetch.post(`tasks/${_taskId}/archive`)
   }
 
-  batchUpdateDuedate(stageId: string, dueDate: string): Promise<{
-    _stageId: string
-    dueDate: string
-    updated: string
-  }> {
+  batchUpdateDuedate(stageId: string, dueDate: string): Promise<BatchUpdateDuedateResponse> {
     return this.fetch.put(`stages/${stageId}/tasks/dueDate`, {
       dueDate: dueDate
     })
@@ -186,14 +228,14 @@ export class TaskFetch extends Fetch {
     return this.fetch.post(`tasks/${_taskId}/favorite`)
   }
 
-  fork(_taskId: string, forkData: ForkTaskOptions): Promise<Task> {
+  fork(_taskId: string, forkData: ForkTaskOptions): Promise<TaskData> {
     return this.fetch.put(`tasks/${_taskId}/fork`, forkData)
   }
 
   getByStage(_stageId: string, options?: {
     count: number
     page: number
-  }): Promise<Task[]> {
+  }): Promise<TaskData[]> {
     return this.fetch.get(`stages/${_stageId}/tasks`, options)
   }
 
@@ -206,7 +248,7 @@ export class TaskFetch extends Fetch {
     limit?: number
     page?: number
     dumpType?: 'json' | 'excel'
-  }): Promise<Task[]> {
+  }): Promise<TaskData[]> {
     return this.fetch.get(`tasklists/${_tasklistId}/tasks`, options)
   }
 
@@ -214,9 +256,9 @@ export class TaskFetch extends Fetch {
     return this.fetch.post(`tasklists/${_tasklistId}/import_tasks`, importData)
   }
 
-  getInvolves(): Promise<Task>
+  getInvolves(): Promise<TaskData>
 
-  getInvolves(page: number, count: number): Promise<Task>
+  getInvolves(page: number, count: number): Promise<TaskData>
 
   getInvolves(page?: number, count?: number) {
     return this.fetch.get(`tasks/involves`, page && count ? {
@@ -236,66 +278,45 @@ export class TaskFetch extends Fetch {
     return this.fetch.post(`tasks/${_taskId}/like`)
   }
 
-  move(_taskId: string, moveOption: MoveTaskOptions): Promise<Task> {
+  move(_taskId: string, moveOption: MoveTaskOptions): Promise<TaskData> {
     return this.fetch.put(`tasks/${_taskId}/move`, moveOption)
   }
 
-  unarchive(_taskId: string, _stageId: string): Promise<{
-    isArchived: boolean
-    updated: string
-    _id: string
-    _projectId: string
-  }> {
+  unarchive(_taskId: string, _stageId: string): Promise<ArchiveTaskResponse> {
     return this.fetch.delete(`tasks/${_taskId}/archive?_stageId=${_stageId}`)
   }
 
-  updateContent(_taskId: string, content: string): Promise<{
-    _id: string
-    content: string
-    updated: string
-  }> {
+  updateContent(_taskId: string, content: string): Promise<UpdateContentResponse> {
     return this.fetch.put(`tasks/${_taskId}/content`, {
       content: content
     })
   }
 
-  updateDueDate(_taskId: string, dueDate: string): Promise<{
-    _id: string
-    updated: string
-    dueDate: string
-  }> {
+  updateDueDate(_taskId: string, dueDate: string): Promise<UpdateDueDateResponse> {
     return this.fetch.put(`tasks/${_taskId}/dueDate`, {
       dueDate: dueDate
     })
   }
 
-  updateExecutor(_taskId: string, _executorId: string): Promise<{}> {
+  updateExecutor(_taskId: string, _executorId: string): Promise<UpdateExecutorResponse> {
     return this.fetch.put(`tasks/${_taskId}/_executorId`, {
       _executorId: _executorId
     })
   }
 
   updateInvolvemembers(_taskId: string, memberIds: string[], type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'): Promise<{}> {
-    const putData: any = {}
+    const putData: any = Object.create(null)
     putData[type] = memberIds
     return this.fetch.put(`tasks/${_taskId}/involveMembers`, putData)
   }
 
-  updateNote(_taskId: string, note: string): Promise<{
-    _id: string
-    updated: string
-    note: string
-  }> {
+  updateNote(_taskId: string, note: string): Promise<UpdateNoteResponse> {
     return this.fetch.put(`tasks/${_taskId}/note`, {
       note: note
     })
   }
 
-  updateStatus(_taskId: string, status: boolean): Promise<{
-    _id: string
-    updated: string
-    isDone: boolean
-  }> {
+  updateStatus(_taskId: string, status: boolean): Promise<UpdateStatusResponse> {
     return this.fetch.put(`tasks/${_taskId}/isDone`, {
       isDone: status
     })
@@ -309,11 +330,7 @@ export class TaskFetch extends Fetch {
     })
   }
 
-  updateTags(_taskId: string, tagIds: string[]): Promise<{
-    _id: string
-    tagIds: string[]
-    updated: string
-  }> {
+  updateTags(_taskId: string, tagIds: string[]): Promise<UpdateTagsResponse> {
     return this.fetch.put(`tasks/${_taskId}/tagIds`, {
       tagIds: tagIds
     })

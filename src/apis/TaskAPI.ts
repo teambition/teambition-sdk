@@ -10,7 +10,14 @@ import {
   MoveTaskOptions,
   UpdateTaskOptions,
   ForkTaskOptions,
-  GetStageTasksOptions
+  GetStageTasksOptions,
+  ArchiveTaskResponse,
+  UpdateNoteResponse,
+  UpdateTagsResponse,
+  UpdateStatusResponse,
+  UpdateContentResponse,
+  UpdateDueDateResponse,
+  UpdateExecutorResponse
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 
@@ -267,22 +274,22 @@ export class TaskAPI {
     })
   }
 
-  updateContent(_taskId: string, content: string): Observable<TaskData> {
-    return Observable.create((observer: Observer<TaskData>) => {
+  updateContent(_taskId: string, content: string): Observable<UpdateContentResponse> {
+    return Observable.create((observer: Observer<UpdateContentResponse>) => {
       const promise = TaskFetch.updateContent(_taskId, content)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateDueDate(_taskId: string, dueDate: string): Observable<TaskData> {
-    return Observable.create((observer: Observer<TaskData>) => {
+  updateDueDate(_taskId: string, dueDate: string): Observable<UpdateDueDateResponse> {
+    return Observable.create((observer: Observer<UpdateDueDateResponse>) => {
       const promise = TaskFetch.updateDueDate(_taskId, dueDate)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateExecutor(_taskId: string, _executorId: string): Observable<TaskData> {
-    return Observable.create((observer: Observer<TaskData>) => {
+  updateExecutor(_taskId: string, _executorId: string): Observable<UpdateExecutorResponse> {
+    return Observable.create((observer: Observer<UpdateExecutorResponse>) => {
       const promise = TaskFetch.updateExecutor(_taskId, _executorId)
       this._updateFromPromise(_taskId, observer, promise)
     })
@@ -295,38 +302,53 @@ export class TaskAPI {
     })
   }
 
-  updateNote(_taskId: string, note: string): Observable<TaskData> {
-    return Observable.create((observer: Observer<TaskData>) => {
+  updateNote(_taskId: string, note: string): Observable<UpdateNoteResponse> {
+    return Observable.create((observer: Observer<UpdateNoteResponse>) => {
       const promise = TaskFetch.updateNote(_taskId, note)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  updateStatus(_taskId: string, status: boolean): Observable<TaskData> {
-    return Observable.create((observer: Observer<TaskData>) => {
+  updateStatus(_taskId: string, status: boolean): Observable<UpdateStatusResponse> {
+    return Observable.create((observer: Observer<UpdateStatusResponse>) => {
       const promise = TaskFetch.updateStatus(_taskId, status)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  update<T extends UpdateTaskOptions>(_taskId: string, patch: T): Observable<TaskData> {
-    return Observable.create((observer: Observer<TaskData>) => {
+  update<T extends UpdateTaskOptions>(_taskId: string, patch: T): Observable<T> {
+    return Observable.create((observer: Observer<T>) => {
       const promise = TaskFetch.update(_taskId, patch)
       this._updateFromPromise(_taskId, observer, promise)
     })
   }
 
-  private _updateFromPromise(_taskId: string, observer: Observer<TaskData>, promise: Promise<any>) {
-    let result: TaskData
+  archive(taskId: string): Observable<ArchiveTaskResponse> {
+    return Observable.create((observer: Observer<ArchiveTaskResponse>) => {
+      const promise = TaskFetch.archive(taskId)
+      this._updateFromPromise(taskId, observer, promise)
+    })
+  }
+
+  unarchive(taskId: string, stageId: string): Observable<ArchiveTaskResponse> {
+    return Observable.create((observer: Observer<ArchiveTaskResponse>) => {
+      const promise = TaskFetch.unarchive(taskId, stageId)
+      this._updateFromPromise(taskId, observer, promise)
+    })
+  }
+
+  updateTags(taskId: string, tags: string[]): Observable<UpdateTagsResponse> {
+    return Observable.create((observer: Observer<UpdateTagsResponse>) => {
+      const promise = TaskFetch.updateTags(taskId, tags)
+      this._updateFromPromise(taskId, observer, promise)
+    })
+  }
+
+  private _updateFromPromise<T>(_taskId: string, observer: Observer<T>, promise: Promise<T>): Promise<void> {
     return Observable.fromPromise(promise)
       .catch(err => observableError(observer, err))
-      .concatMap(task => {
-        result = task
-        return TaskModel.update(_taskId, task)
-      })
-      .forEach(task => {
-        observer.next(result)
-        observer.complete()
-      })
+      .concatMap(r => TaskModel.update(_taskId, r))
+      .forEach(r => observer.next(r))
+      .then(() => observer.complete())
   }
 }
