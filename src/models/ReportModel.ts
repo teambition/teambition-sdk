@@ -22,9 +22,9 @@ export class ReportModel extends Model {
     data: TaskData[] | SubtaskData[],
     page: number,
     status: TaskStatus,
-    taskType: TaskType,
-    schema: 'task' | 'subtask',
-    isWeekSearch: boolean
+    taskType?: TaskType,
+    schema?: 'task' | 'subtask',
+    isWeekSearch?: boolean
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     if (schema === 'task') {
       if (status === 'accomplished') {
@@ -107,8 +107,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type: TaskType,
-    schema: 'task',
+    type?: TaskType,
+    schema?: 'task',
     isWeekSearch?: boolean
   ): Observable<TaskData[]>
 
@@ -116,8 +116,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type: TaskType,
-    schema: 'subtask',
+    type?: TaskType,
+    schema?: 'subtask',
     isWeekSearch?: boolean
   ): Observable<SubtaskData[]>
 
@@ -125,8 +125,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type: TaskType,
-    schema: 'task' | 'subtask',
+    type?: TaskType,
+    schema?: 'task' | 'subtask',
     isWeekSearch?: boolean
   ): Observable<TaskData[]> | Observable<SubtaskData[]>
 
@@ -134,8 +134,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type: TaskType,
-    schema: 'task' | 'subtask',
+    type?: TaskType,
+    schema?: 'task' | 'subtask',
     isWeekSearch?: boolean
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     if (status === 'notstart') {

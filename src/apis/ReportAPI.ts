@@ -2,7 +2,10 @@
 import { Observable } from 'rxjs/Observable'
 import {
   default as ReportFetch,
-  GetReportAccomplishedOption
+  GetReportAccomplishedOption,
+  TaskType,
+  GetReportInprogressOption,
+  GetReportNotStartOption
 } from '../fetchs/ReportFetch'
 import ReportModel from '../models/ReportModel'
 import { TaskData } from '../schemas/Task'
@@ -33,7 +36,7 @@ export class ReportAPI {
    */
   getAccomplished (
     projectId: string,
-    taskType: 'task' | 'subtask',
+    taskType: TaskType,
     option: GetReportAccomplishedOption
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     return makeColdSignal<any>(observer => {
@@ -41,11 +44,64 @@ export class ReportAPI {
       if (cache) {
         return cache
       }
-      return Observable.fromPromise(
-        ReportFetch.getReportAccomplished(projectId, taskType, option)
+      return Observable.fromPromise<any>(
+        ReportFetch.getAccomplished(projectId, taskType, option)
       )
         .catch(err => errorHandler(observer, err))
         .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'accomplished', option.queryType, taskType, option.isWeekSearch))
+    })
+  }
+
+  getInprogress(
+    projectId: string,
+    taskType: 'task',
+    option: GetReportInprogressOption
+  ): Observable<TaskData[]>
+
+  getInprogress(
+    projectId: string,
+    taskType: 'subtask',
+    option: GetReportInprogressOption
+  ): Observable<SubtaskData[]>
+
+  getInprogress(
+    projectId: string,
+    taskType: TaskType,
+    option: GetReportInprogressOption
+  ): Observable<TaskData[]> | Observable<SubtaskData[]>
+
+  getInprogress(
+    projectId: string,
+    taskType: TaskType,
+    option: GetReportInprogressOption
+  ): Observable<TaskData[]> | Observable<SubtaskData[]> {
+    return makeColdSignal<any>(observer => {
+      const cache = ReportModel.getData(projectId, option.page, 'progress', option.queryType, taskType)
+      if (cache) {
+        return cache
+      }
+      return Observable.fromPromise<any>(
+        ReportFetch.getInprogress(projectId, taskType, option)
+      )
+        .catch(err => errorHandler(observer, err))
+        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'progress', option.queryType, taskType))
+    })
+  }
+
+  getNotStart(
+    projectId: string,
+    option: GetReportNotStartOption
+  ): Observable<TaskData[]> {
+    return makeColdSignal<any>(observer => {
+      const cache = ReportModel.getData(projectId, option.page, 'notstart')
+      if (cache) {
+        return cache
+      }
+      return Observable.fromPromise<any>(
+        ReportFetch.getNotStart(projectId, option)
+      )
+        .catch(err => errorHandler(observer, err))
+        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'notstart'))
     })
   }
 }
