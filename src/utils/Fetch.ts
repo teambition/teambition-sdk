@@ -113,9 +113,9 @@ export class Fetch {
       return fetch(this._apiHost + url, options)
         .then((response: Response): Promise<T> => {
           if (response.status >= 200 && response.status < 300) {
-            return response.json<T>()
-              .catch(e => {
-                return Object.create(null)
+            return response.json()
+              .catch((e: any) => {
+                return ''
               })
           } else {
             return Promise.reject<T>(<any>response)
