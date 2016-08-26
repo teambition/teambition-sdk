@@ -22,8 +22,8 @@ export class ReportModel extends Model {
     data: TaskData[] | SubtaskData[],
     page: number,
     status: TaskStatus,
-    taskType?: TaskType,
     schema?: 'task' | 'subtask',
+    taskType?: TaskType,
     isWeekSearch?: boolean
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     if (schema === 'task') {
@@ -54,6 +54,8 @@ export class ReportModel extends Model {
           return this.storeProgressOntimeTasks(projectId, <TaskData[]>data, page)
         } else if (taskType === 'delay') {
           return this.storeProgressDelayTasks(projectId, <TaskData[]>data, page)
+        } else if (taskType === 'all') {
+          return this.storeProgressAllTasks(projectId, <TaskData[]>data, page)
         } else {
           return Observable.throw(new Error(`unsppported taskType: ${taskType}, expectd: 'ontime' | 'delay'`))
         }
@@ -86,12 +88,10 @@ export class ReportModel extends Model {
           return Observable.throw(new Error(`unsppported taskType: ${taskType}, expectd: 'all' | 'delay' | 'ontime'`))
         }
       } else if (status === 'progress') {
-        if (taskType === 'ontime') {
-          return this.storeProgressOntimeSubtasks(projectId, <SubtaskData[]>data, page)
-        } else if (taskType === 'delay') {
-          return this.storeProgressDelaySubtasks(projectId, <SubtaskData[]>data, page)
+        if (taskType === 'all') {
+          return this.storeProgressAllSubtasks(projectId, <SubtaskData[]>data, page)
         } else {
-          return Observable.throw(new Error(`unsppported taskType: ${taskType}, expectd: 'ontime' | 'delay'`))
+          return Observable.throw(new Error(`unsppported taskType: ${taskType}, expectd: 'all'`))
         }
       } else if (status === 'notstart') {
         return this.storeNotStartSubtasks(projectId, <SubtaskData[]>data, page)
@@ -107,8 +107,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type?: TaskType,
     schema?: 'task',
+    type?: TaskType,
     isWeekSearch?: boolean
   ): Observable<TaskData[]>
 
@@ -116,8 +116,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type?: TaskType,
     schema?: 'subtask',
+    type?: TaskType,
     isWeekSearch?: boolean
   ): Observable<SubtaskData[]>
 
@@ -125,8 +125,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type?: TaskType,
     schema?: 'task' | 'subtask',
+    type?: TaskType,
     isWeekSearch?: boolean
   ): Observable<TaskData[]> | Observable<SubtaskData[]>
 
@@ -134,8 +134,8 @@ export class ReportModel extends Model {
     projectId: string,
     page: number,
     status: TaskStatus,
-    type?: TaskType,
     schema?: 'task' | 'subtask',
+    type?: TaskType,
     isWeekSearch?: boolean
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     if (status === 'notstart') {
@@ -210,7 +210,7 @@ export class ReportModel extends Model {
     const result = datasToSchemas(data, TaskSchema)
     const dbIndex = `project:report:progress:ontime:tasks/${projectId}`
     let collection = this._collections.get(dbIndex)
-    if (collection) {
+    if (!collection) {
       collection = new Collection('Task', (data: TaskData) => {
         const now = Date.now()
         return !data.isDone &&
@@ -218,12 +218,9 @@ export class ReportModel extends Model {
           data._projectId === projectId &&
           (
             (
-              data.dueDate &&
+              data.dueDate && new Date(data.dueDate).valueOf() > now &&
               (
-                (
-                  !data.startDate &&
-                  new Date(data.dueDate).valueOf() > now
-                ) ||
+                !data.startDate ||
                 (
                   data.startDate &&
                   new Date(data.startDate).valueOf() < now
@@ -232,22 +229,6 @@ export class ReportModel extends Model {
             ) ||
             !data.dueDate && data.startDate && new Date(data.startDate).valueOf() < now
           )
-      }, dbIndex)
-      this._collections.set(dbIndex, collection)
-    }
-    return collection.addPage(page, result)
-  }
-
-  private storeProgressOntimeSubtasks(projectId: string, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
-    const result = datasToSchemas(data, SubtaskSchema)
-    const dbIndex = `project:report:progress:ontime:subtasks/${projectId}`
-    let collection = this._collections.get(dbIndex)
-    if (collection) {
-      collection = new Collection('Subtask', (data: SubtaskData) => {
-        const now = Date.now()
-        return !data.isDone &&
-          data._projectId === projectId &&
-          data.dueDate && new Date(data.dueDate).valueOf() < now
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -342,7 +323,7 @@ export class ReportModel extends Model {
     const result = datasToSchemas(data, TaskSchema)
     const dbIndex = `project:report:progress:delay:tasks/${projectId}`
     let collection = this._collections.get(dbIndex)
-    if (collection) {
+    if (!collection) {
       collection = new Collection('Task', (data: TaskData) => {
         return !data.isDone &&
           !data.isArchived &&
@@ -355,16 +336,34 @@ export class ReportModel extends Model {
     return collection.addPage(page, result)
   }
 
-  private storeProgressDelaySubtasks(projectId: string, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
-    const result = datasToSchemas(data, SubtaskSchema)
-    const dbIndex = `project:report:progress:delay:subtasks/${projectId}`
+  private storeProgressAllTasks(projectId: string, data: TaskData[], page: number): Observable<TaskData[]> {
+    const result = datasToSchemas(data, TaskSchema)
+    const dbIndex = `project:report:progress:all:tasks/${projectId}`
     let collection = this._collections.get(dbIndex)
-    if (collection) {
+    if (!collection) {
+      collection = new Collection('Task', (data: TaskData) => {
+        return !data.isDone &&
+          !data.isArchived &&
+          data._projectId === projectId &&
+          (!!data.startDate || !!data.dueDate)
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  private storeProgressAllSubtasks(projectId: string, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
+    const result = datasToSchemas(data, SubtaskSchema)
+    const dbIndex = `project:report:progress:all:subtasks/${projectId}`
+    let collection = this._collections.get(dbIndex)
+    if (!collection) {
       collection = new Collection('Subtask', (data: SubtaskData) => {
         return !data.isDone &&
           data._projectId === projectId &&
-          data.dueDate &&
-          new Date(data.dueDate).valueOf() < Date.now()
+          (
+            (data.dueDate && new Date(data.dueDate).valueOf() > Date.now()) ||
+            !data.dueDate
+          )
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -489,7 +488,8 @@ export class ReportModel extends Model {
                  (
                    data.startDate &&
                    new Date(data.accomplished).valueOf() > new Date(data.startDate).valueOf()
-                 )
+                 ) ||
+                 !data.dueDate
                )
       }, dbIndex)
       this._collections.set(dbIndex, collection)
@@ -511,8 +511,11 @@ export class ReportModel extends Model {
                data.isDone &&
                Date.now() - new Date(data.updated).valueOf() > 604800000 &&
                (
-                 data.dueDate &&
-                 new Date(data.updated).valueOf() < new Date(data.dueDate).valueOf()
+                 (
+                   data.dueDate &&
+                   new Date(data.updated).valueOf() < new Date(data.dueDate).valueOf()
+                 ) ||
+                 !data.dueDate
                )
       }, dbIndex)
       this._collections.set(dbIndex, collection)

@@ -40,7 +40,7 @@ export class ReportAPI {
     option: GetReportAccomplishedOption
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     return makeColdSignal<any>(observer => {
-      const cache = ReportModel.getData(projectId, option.page, 'accomplished', option.queryType, taskType, option.isWeekSearch)
+      const cache = ReportModel.getData(projectId, option.page, 'accomplished', taskType, option.queryType, option.isWeekSearch)
       if (cache) {
         return cache
       }
@@ -48,7 +48,7 @@ export class ReportAPI {
         ReportFetch.getAccomplished(projectId, taskType, option)
       )
         .catch(err => errorHandler(observer, err))
-        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'accomplished', option.queryType, taskType, option.isWeekSearch))
+        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'accomplished', taskType, option.queryType, option.isWeekSearch))
     })
   }
 
@@ -61,7 +61,12 @@ export class ReportAPI {
   getInprogress(
     projectId: string,
     taskType: 'subtask',
-    option: GetReportInprogressOption
+    option: {
+      queryType: 'all'
+      page?: number
+      count?: number
+      [index: string]: any
+    }
   ): Observable<SubtaskData[]>
 
   getInprogress(
@@ -76,7 +81,7 @@ export class ReportAPI {
     option: GetReportInprogressOption
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     return makeColdSignal<any>(observer => {
-      const cache = ReportModel.getData(projectId, option.page, 'progress', option.queryType, taskType)
+      const cache = ReportModel.getData(projectId, option.page, 'progress', taskType, option.queryType)
       if (cache) {
         return cache
       }
@@ -84,7 +89,7 @@ export class ReportAPI {
         ReportFetch.getInprogress(projectId, taskType, option)
       )
         .catch(err => errorHandler(observer, err))
-        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'progress', option.queryType, taskType))
+        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'progress', taskType, option.queryType))
     })
   }
 
@@ -93,7 +98,7 @@ export class ReportAPI {
     option: GetReportNotStartOption
   ): Observable<TaskData[]> {
     return makeColdSignal<any>(observer => {
-      const cache = ReportModel.getData(projectId, option.page, 'notstart')
+      const cache = ReportModel.getData(projectId, option.page, 'notstart', 'task')
       if (cache) {
         return cache
       }
@@ -101,7 +106,7 @@ export class ReportAPI {
         ReportFetch.getNotStart(projectId, option)
       )
         .catch(err => errorHandler(observer, err))
-        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'notstart'))
+        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'notstart', 'task'))
     })
   }
 }
