@@ -72,7 +72,10 @@ export default class BaseCollection<T> extends Model {
         this._singals.set(page, destSignal)
       }
       observer.next(destSignal)
-    }).concatMap((x: Observable<T[]>) => x)
+    })
+      .concatMap((x: Observable<T[]>) => x)
+      .publishReplay()
+      .refCount(1)
   }
 
   get(page?: number): Observable<T[]> {
@@ -84,7 +87,7 @@ export default class BaseCollection<T> extends Model {
             .map(r => {
               const result: T[] = []
               forEach(r, (ele, index) => {
-                if (index >= 30 * (page - 1) && index < 30 * page) {
+                if (index >= this._pageLength * (page - 1) && index < this._pageLength * page) {
                   result.push(ele)
                 }
               })
