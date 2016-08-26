@@ -15,6 +15,7 @@ import TasklistModel from '../models/TasklistModel'
 import StageModel from '../models/StageModel'
 import TagModel from '../models/TagModel'
 import ActivityModel from '../models/ActivityModel'
+import HomeActivityModel from '../models/HomeActivityModel'
 import MessageModel from '../models/MessageModel'
 import MemberModel from '../models/MemberModel'
 import ProjectModel from '../models/ProjectModel'
@@ -27,6 +28,8 @@ import { MessageResult, eventParser } from './EventParser'
 import { forEach } from '../utils/index'
 
 const typeMap: any = {
+  'homeActivities': HomeActivityModel,
+  'homeActivity': HomeActivityModel,
   'activities': ActivityModel,
   'activity': ActivityModel,
   'message': MessageModel,
@@ -75,7 +78,9 @@ export function socketHandler (event: RequestEvent): Observable<any> {
 function handler(socketMessage: MessageResult) {
   const method = socketMessage.method
   let type = socketMessage.type
-  if (type.charAt(type.length - 1) === 's' && type !== 'activities') {
+  if (type.charAt(type.length - 1) === 's' &&
+      type !== 'activities' &&
+      type !== 'homeActivities') {
     type = type.substring(0, type.length - 1)
   }
   const id = socketMessage.id

@@ -1,5 +1,5 @@
 'use strict'
-import { Scheduler } from 'rxjs'
+import { Scheduler, Observable } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as SinonChai from 'sinon-chai'
@@ -7,6 +7,7 @@ import { Backend, ProjectAPI, apihost, clone, assign, forEach, BaseFetch } from 
 import { projects } from '../../mock/projects'
 import { reportSummary } from '../../mock/reportSummary'
 import { reportAnalysis } from '../../mock/reportAnalysis'
+import { homeActivities } from '../../mock/homeActivities'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
@@ -497,5 +498,52 @@ export default describe('Project API test: ', () => {
       })
 
     httpBackend.flush()
+  })
+
+  describe('get home activities: ', () => {
+
+    const toIds = (...data: {_id: string}[][]) => [].concat(...data.map(data => data.map(one => one._id)))
+    const projectId = homeActivities[0].rootId.split('#')[1]
+    const count = 30
+    const pageOne = homeActivities.slice(0, count)
+    const pageTwo = homeActivities.slice(count, count * 2)
+
+    beforeEach(() => {
+      httpBackend
+        .whenGET(`${apihost}projects/${projectId}/activities?page=1`)
+        .respond(JSON.stringify(pageOne))
+      httpBackend
+        .whenGET(`${apihost}projects/${projectId}/activities?page=2`)
+        .respond(JSON.stringify(pageTwo))
+      httpBackend.flush()
+    })
+
+    it('get should ok', done => {
+      Observable.combineLatest(
+          Project.getHomeActivities(projectId, {page: 1})
+            .skip(1),
+          Project.getHomeActivities(projectId, {page: 2})
+            .subscribeOn(Scheduler.async, global.timeout2)
+        )
+        .subscribe(([dataOne, dataTwo]) => {
+          expect(toIds(dataOne)).to.be.deep.equal(toIds(pageOne, pageTwo))
+          expect(toIds(dataTwo)).to.be.deep.equal(toIds(pageTwo))
+          done()
+        })
+    })
+
+    it('get from cache should ok', done => {
+      Observable.combineLatest(
+          Project.getHomeActivities(projectId, {page: 1}),
+          Project.getHomeActivities(projectId, {page: 1})
+            .subscribeOn(Scheduler.async, global.timeout2)
+        )
+        .subscribe(([data, cache]) => {
+          expect(toIds(data)).to.be.deep.equal(toIds(pageOne))
+          expect(toIds(cache)).to.be.deep.equal(toIds(pageOne))
+          expect(spy.calledOnce).to.be.true
+          done()
+        })
+    })
   })
 })

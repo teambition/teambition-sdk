@@ -13,12 +13,13 @@ import {
   GetAnalysisReportUnit
 } from '../fetchs/ProjectFetch'
 import ProjectModel from '../models/ProjectModel'
+import HomeActivityModel from '../models/HomeActivityModel'
 import { ProjectData } from '../schemas/Project'
+import { HomeActivityData } from '../schemas/HomeActivity'
 import { makeColdSignal, errorHandler, observableError } from './utils'
 import {
   CreatedInProjectSchema,
   InviteLinkSchema,
-  HomeActivitySchema,
   RecommendMemberSchema,
   ProjectStatisticSchema,
   ReportSummarySchema,
@@ -29,10 +30,23 @@ export type JSONObj = {
   [index: string]: any
 }
 
+export interface GetHomeActivitiesOptions {
+  page?: number
+  count?: number
+  type?: string
+  _creatorId?: string
+  _teamId?: string
+  created?: string
+  startDate?: string
+  endDate?: string
+  fields?: string
+}
+
 export class ProjectAPI {
 
   constructor() {
     ProjectModel.destructor()
+    HomeActivityModel.destructor()
   }
 
   getAll(querys?: JSONObj): Observable<ProjectData[]> {
@@ -158,15 +172,18 @@ export class ProjectAPI {
   }
 
   /**
-   * TODO
-   * ADD HOME ACTIVITY MODEL
+   * 项目主页动态
    */
-  getHomeActivities(_id: string, querys?: JSONObj): Observable<HomeActivitySchema[]> {
-    return Observable.create((observer: Observer<HomeActivitySchema[]>) => {
-      Observable.fromPromise(ProjectFetch.getHomeActivities(_id, querys))
-        .catch(err => observableError(observer, err))
-        .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+  getHomeActivities(_id: string, query?: GetHomeActivitiesOptions): Observable<HomeActivityData[]> {
+    return makeColdSignal<HomeActivityData[]>(observer => {
+      const page = (query && query.page) ? query.page : 1
+      const cache = HomeActivityModel.get(_id, page)
+      if (cache) {
+        return cache
+      }
+      return Observable.fromPromise(ProjectFetch.getHomeActivities(_id, query))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(activities => HomeActivityModel.add(_id, activities, page))
     })
   }
 
