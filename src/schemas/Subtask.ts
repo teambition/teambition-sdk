@@ -14,6 +14,7 @@ export interface SubtaskData extends ISchema {
   dueDate: string
   order: number
   executor: ExecutorOrCreator
+  updated?: string
 }
 
 @schemaName('Subtask')

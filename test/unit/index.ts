@@ -4,10 +4,10 @@ import BaseFetch from '../../src/fetchs/BaseFetch'
 export const apihost = BaseFetch.fetch.getAPIHost()
 
 if (process.env.running_under_istanbul) {
-  global.timeout1 = 100
-  global.timeout2 = 200
-  global.timeout3 = 300
-  global.timeout4 = 400
+  global.timeout1 = 200
+  global.timeout2 = 300
+  global.timeout3 = 400
+  global.timeout4 = 500
 }else {
   global.timeout1 = 30
   global.timeout2 = 60

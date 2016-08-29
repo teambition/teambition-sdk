@@ -5,6 +5,8 @@ import * as sinon from 'sinon'
 import * as SinonChai from 'sinon-chai'
 import { Backend, ProjectAPI, apihost, clone, assign, forEach, BaseFetch } from '../index'
 import { projects } from '../../mock/projects'
+import { reportSummary } from '../../mock/reportSummary'
+import { reportAnalysis } from '../../mock/reportAnalysis'
 import { expectDeepEqual, notInclude, flush } from '../utils'
 
 const expect = chai.expect
@@ -441,6 +443,56 @@ export default describe('Project API test: ', () => {
           _id: project._id,
           _organizationId: 'test'
         })
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get project report summary should ok', done => {
+    const projectId = projects[0]._id
+    httpBackend.whenGET(`${apihost}projects/${projectId}/report-summary`)
+      .respond(JSON.stringify(reportSummary))
+
+    Project.getReportSummary(projectId)
+      .subscribe(r => {
+        expectDeepEqual(r, reportSummary)
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get project report summary from cache should ok', done => {
+    const projectId = projects[0]._id
+    httpBackend.whenGET(`${apihost}projects/${projectId}/report-summary`)
+      .respond(JSON.stringify(reportSummary))
+
+    Project.getReportSummary(projectId)
+      .subscribe()
+
+    Project.getReportSummary(projectId)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe(r => {
+        expectDeepEqual(r, reportSummary)
+        expect(spy).to.be.calledOnce
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get project report analysis should ok', done => {
+    const projectId = projects[0]._id
+    const startDate = '2016-07-01'
+    const endDate = '2016-08-22'
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/analysis-report?startDate=${startDate}&endDate=${endDate}&unit=week`)
+      .respond(JSON.stringify(reportAnalysis))
+
+    Project.getAnalysisReport(projectId, new Date(startDate), new Date(endDate), 'week')
+      .subscribe(r => {
+        expectDeepEqual(r, reportAnalysis)
         done()
       })
 

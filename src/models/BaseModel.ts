@@ -28,6 +28,31 @@ export default class Model {
     return Model.DataBase.checkSchema(index)
   }
 
+  /**
+   * 存储那些不标准的 Schema，这些 Schema 通常没有 _id 字段且后续不需要更新
+   * 在获取后删除由于 sdk 导致的冗余字段
+   **/
+  saveNonstandardSchema<T>(_id: string, data: T): Observable<T> {
+    data['_id'] = _id
+    return Model.DataBase.storeOne<T>(data)
+      .map(r => {
+        delete r['_id']
+        delete r['_requested']
+        return r
+      })
+  }
+
+  // 获取那些不标准的 Schema，在获取后删除由于 sdk 导致的冗余字段
+  getNonstandardSchema<T>(_id: string): Observable<T> {
+    return DataBase.data.get(_id) ? Model.DataBase.get<T>(_id)
+      .map(r => {
+        delete r['_id']
+        delete r['_requested']
+        return r
+      })
+    : null
+  }
+
   protected _save<T>(data: Schema<T> & T, unionFlag?: string): Observable<T> {
     return Model.DataBase.storeOne(data, unionFlag)
   }
