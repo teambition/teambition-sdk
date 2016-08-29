@@ -5,20 +5,12 @@ import 'core-js/es6/set'
 import 'core-js/es6/map'
 import 'core-js/es6/weak-map'
 import 'isomorphic-fetch'
+import './rxjs/toLoading'
 import 'rxjs/add/operator/subscribeOn'
 import BaseFetch from './fetchs/BaseFetch'
 import StrikerFetch from './fetchs/StrikerFetch'
-import { monkeyPatchObservableCreate } from './apis/utils'
 
 import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
-
-monkeyPatchObservableCreate()
-
-declare module 'rxjs/Observable' {
-  interface Observable<T> {
-    loading$: Observable<boolean>
-  }
-}
 
 export const Utils = { forEach, assign, clone, uuid, concat, dropEle }
 export * from './utils/Fetch'

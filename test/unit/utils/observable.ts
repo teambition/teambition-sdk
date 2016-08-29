@@ -5,19 +5,17 @@ import * as chai from 'chai'
 
 const expect = chai.expect
 
-export default describe('Observable monkeypatch test: ', () => {
-  it('when next, loading$ stream should ok', done => {
+export default describe('Observable toLoading test: ', () => {
+  it('toLoading should ok', done => {
     const stream = Observable.create((observer: Observer<string>) => {
       observer.next('hello')
     })
-    const loading$ = stream.loading$
+    const loading$ = stream.toLoading()
     let loading = true
 
     loading$.subscribe(r => {
       loading = r
     })
-
-    expect(loading).to.be.true
 
     stream.subscribe(() => {
       expect(loading).to.be.false
@@ -25,18 +23,16 @@ export default describe('Observable monkeypatch test: ', () => {
     })
   })
 
-  it('when error, loading$ stream should ok', done => {
+  it('when error, toLoading should ok', done => {
     const stream = Observable.create((observer: Observer<string>) => {
       observer.error(new Error('not happy'))
     })
-    const loading$ = stream.loading$
+    const loading$ = stream.toLoading()
     let loading = true
 
     loading$.subscribe(r => {
       loading = r
     })
-
-    expect(loading).to.be.true
 
     stream.subscribe({
       error: (err: Error) => {
@@ -47,13 +43,13 @@ export default describe('Observable monkeypatch test: ', () => {
     })
   })
 
-  it('loading$ in async stream should ok', done => {
+  it('toLoading an async stream should ok', done => {
     const stream = Observable.create((observer: Observer<string>) => {
       setTimeout(() => {
         observer.next('hello')
       }, global.timeout2)
     })
-    const loading$ = stream.loading$
+    const loading$ = stream.toLoading()
     let loading = true
 
     loading$.subscribe(r => {
