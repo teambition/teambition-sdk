@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { apihost, ProjectAPI, Backend, SocketMock } from '../index'
 import { flush, expectDeepEqual } from '../utils'
 import { projects } from '../../mock/projects'
+import { homeActivities } from '../../mock/homeActivities'
 
 export default describe('project socket test', () => {
 
@@ -58,6 +59,27 @@ export default describe('project socket test', () => {
       })
 
     Socket.emit('remove', 'project', '', projectId)
+
+    httpBackend.flush()
+  })
+
+  it('new home activity', done => {
+    const homeActivity = homeActivities[0]
+    const projectId = homeActivity.rootId.split('#')[1]
+
+    httpBackend
+      .whenGET(`${apihost}projects/${projectId}/activities`)
+      .respond([])
+
+    Project.getHomeActivities(projectId)
+      .skip(1)
+      .subscribe(activities => {
+        expect(activities.length).to.equal(1)
+        expectDeepEqual(activities[0], homeActivity)
+        done()
+      })
+
+    Socket.emit('new', 'homeActivity', projectId, homeActivity)
 
     httpBackend.flush()
   })

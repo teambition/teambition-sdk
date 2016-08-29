@@ -19,50 +19,6 @@ export interface ProjectInviteSchema {
   signCode: string
 }
 
-export interface ProjectActivitiesSchema {
-  _id: string
-  action: string
-  content: {
-    objects: any
-    objectType: string
-    creator: string
-  }
-  created: string
-  boundToObjectType: string
-  creator: ExecutorOrCreator
-  title: string
-  creatorId?: string
-  creatorName?: string
-  avatarUrl?: string
-  icon?: string
-  files?: any[]
-  type?: string
-  postTitle?: string
-  objectHref?: string
-  isDone?: boolean
-  objectContent?: string
-}
-
-export interface HomeActivitySchema {
-  _id: string
-  _creatorId: string
-  action: string
-  content: {
-    objects: any[],
-    objectType: 'post' | 'task' | 'event' | 'work',
-    creator: string
-  },
-  rootId: string,
-  created: string
-  _boundToObjectId: string,
-  boundToObjectType: 'post' | 'task' | 'event' | 'work'
-  rawAction: string
-  creator: ExecutorOrCreator
-  title: string
-  likes: LikeSchema[]
-  isLike: boolean
-}
-
 export interface ExecutorOrCreator {
   name: string
   avatarUrl: string

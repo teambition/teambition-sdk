@@ -1,9 +1,9 @@
 'use strict'
 import BaseFetch from './BaseFetch'
 import { ProjectData } from '../schemas/Project'
+import { HomeActivityData } from '../schemas/HomeActivity'
 import Event from '../schemas/Event'
 import {
-  HomeActivitySchema,
   InviteLinkSchema,
   visibility,
   CreatedInProjectSchema,
@@ -146,7 +146,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get(`projects/${_id}/invitelink`, querys)
   }
 
-  getHomeActivities(_id: string, query?: any): Promise<HomeActivitySchema[]> {
+  getHomeActivities(_id: string, query?: any): Promise<HomeActivityData[]> {
     return this.fetch.get(`projects/${_id}/activities`, query)
   }
 
