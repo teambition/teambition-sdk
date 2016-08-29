@@ -83,7 +83,7 @@ export interface UnstarProjectResponse {
   starsCount: number
 }
 
-export type GetAnalysisReportUnit = 'week' | 'month' | 'day' | number
+export type GetAnalysisReportUnit = 'week' | 'month' | 'quarter' | 'year' | number
 
 export class ProjectFetch extends BaseFetch {
 
