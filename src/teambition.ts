@@ -80,6 +80,5 @@ export interface ReportAnalysisSchema {
     unfinishedTaskCount: number
     // 2016-08-22 这种格式
     date: string
-    _projectId: string
   }[]
 }
