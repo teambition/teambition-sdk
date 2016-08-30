@@ -99,9 +99,11 @@ export default describe('Task API test: ', () => {
         .error('Unauthorize', 401)
 
       Task.getTasklistUndone('error')
-        .subscribe(null, err => {
-          expect(err.message).to.equal('Unauthorize, statu code: 401')
-          done()
+        .subscribe({
+          error: (err: Error) => {
+            expect(err.message).to.equal('Unauthorize, statu code: 401')
+            done()
+          }
         })
 
       httpBackend.flush()
@@ -912,7 +914,8 @@ export default describe('Task API test: ', () => {
 
     it('get empty array when no data', done => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/tasks/me/created?page=1`)
-        .respond('[]')
+        .empty()
+        .respond([])
 
       Task.getOrgMyCreatedTasks(userId, organization)
         .subscribe(data => {
@@ -1526,7 +1529,9 @@ export default describe('Task API test: ', () => {
         })
 
       httpBackend.whenGET(`${apihost}stages/${stageId}/tasks?isDone=true`)
+        .empty()
         .respond(JSON.stringify([]))
+
       Observable.combineLatest(
           Task.getStageTasks(stageId).skip(1),
           Task.getStageDoneTasks(stageId).skip(1),
@@ -1613,7 +1618,8 @@ export default describe('Task API test: ', () => {
         })
 
       httpBackend.whenGET(`${apihost}stages/${stageId}/tasks`)
-        .respond(JSON.stringify([]))
+        .empty()
+        .respond([])
 
       Observable.combineLatest(
           Task.getStageTasks(stageId)

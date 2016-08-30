@@ -28,6 +28,9 @@ export default class BaseCollection<T> extends Model {
   }
 
   addPage(page: number, data: Schema<T>[]): Observable<T[]> {
+    if (!data) {
+      return Observable.of(null)
+    }
     if (this._singals.has(page)) {
       return this._singals.get(page)
     }

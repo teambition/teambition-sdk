@@ -8,6 +8,7 @@ export * from './utils/observable'
 export * from './storage/DatabaseSpec'
 export * from './storage/Model'
 
+export * from './apis/CommonApiSpec'
 export * from './apis/EntrycategoryApiSpec'
 export * from './apis/MemberApiSpec'
 export * from './apis/OrganizationsApiSpec'

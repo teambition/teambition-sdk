@@ -1,5 +1,16 @@
 'use strict'
 /* istanbul ignore next */
+export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
+
+export function forEach<T> (
+  target: {
+    [index: string]: T
+  },
+  eachFunc: (val: T, key: string) => void, inverse?: boolean
+): void
+
+export function forEach (target: any, eachFunc: (val: any, key: any) => void, inverse?: boolean): void
+
 export function forEach (target: any, eachFunc: (val: any, key: any) => any, inverse?: boolean) {
   let length: number
   if (target instanceof Array) {

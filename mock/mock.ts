@@ -3,12 +3,27 @@ import { flushState } from './backend'
 
 declare const global: any
 
-export const fetchStack: Map<string, {
+export interface FlushQueue {
+  resolve?: Function
+  reject?: Function
+  data?: {
+    status: number
+    json: () => Promise<any>,
+    response: any
+  }
+  reason?: any
+}
+
+export interface FetchResult {
   status: number
-  flushQueue?: any[]
+  flushQueue?: FlushQueue
   data?: any
-  json?: () => Promise<string>
-}> = new Map<string, any>()
+  reason?: any
+  json?: () => Promise<any>
+}
+
+export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
+export const flushStack = new Set<FlushQueue>()
 
 export const parseObject = (obj: any) => {
   if (typeof obj === 'string') {
@@ -42,20 +57,37 @@ export function mockFetch() {
           uri = uri.substr(0, pos - 1)
         }
       }
-      const result = fetchStack.get(uri + method + dataPath)
+      const fetchIndex = uri + method + dataPath
+      const results = fetchStack.get(fetchIndex)
+      let result: FetchResult
+      if (results.length > 1) {
+        result = results.shift()
+      } else {
+        result = results[0]
+      }
       // console.log(uri + method + dataPath, fetchStack)
+      let promise: Promise<any>
       if (result && result.status === 200) {
-        const promise = new Promise((resolve, reject) => {
+        promise = new Promise(resolve => {
           if (flushState.flushed) {
             resolve(result)
           } else {
-            result.flushQueue.push([resolve, result])
+            result.flushQueue.resolve = resolve
+            flushStack.add(result.flushQueue)
           }
         })
-        return promise
       } else if (result && result.status) {
         /* istanbul ignore if */
-        return Promise.reject(new Error(`${result.data}, statu code: ${result.status}`))
+        const err = new Error(`${result.reason}, statu code: ${result.status}`)
+        if (flushState.flushed) {
+          promise = Promise.reject(err)
+        } else {
+          promise = new Promise((resolve, reject) => {
+            result.flushQueue.reject = reject
+            result.flushQueue.reason = err
+          })
+          flushStack.add(result.flushQueue)
+        }
       } else {
         /* istanbul ignore if */
         const definedUri: string[] = []
@@ -66,10 +98,11 @@ export function mockFetch() {
             `nothing expect return from server,
             uri: ${uri}, method: ${options.method},
             parsedUri: ${uri + method + dataPath}
-            body: ${JSON.stringify(options.body)},
+            body: ${JSON.stringify(options.body, null, 2)},
             defined uri: ${JSON.stringify(definedUri, null, 2)}`
         )
       }
+      return promise
     }
   }
 }
