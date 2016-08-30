@@ -547,6 +547,27 @@ export default describe('database test: ', () => {
 
     })
 
+    it('update empty collection should ok', done => {
+      Storage.storeCollection('collection_test_20', [])
+        .subscribe()
+
+      Storage.updateCollection('collection_test_20', [
+        {
+          _id: '51.51',
+          data: 'tbsdk_test 51'
+        }
+      ])
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      Storage.get<any[]>('collection_test_20')
+        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribe(r => {
+          expect(r.length).to.equal(1)
+          done()
+        })
+    })
+
     it('update collection and new item updated, old singals should be notified', done => {
       const objEle = [
         {
