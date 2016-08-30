@@ -13,6 +13,11 @@ import FeedbackModel from '../models/FeedbackModel'
 import { observableError, errorHandler, makeColdSignal } from './utils'
 
 export class FeedbackAPI {
+
+  constructor() {
+    FeedbackModel.destructor()
+  }
+
   create(_projectId: string, option: CreateProjectFeedbackOption): Observable<FeedbackData> {
     return Observable.create((observer: Observer<FeedbackData>) => {
       Observable.fromPromise(FeedbackFetch.createProjectFeedback(_projectId, option))

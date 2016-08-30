@@ -73,7 +73,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     httpBackend.flush()
   })
 
-  it ('get projectFeedbacks page 2 should ok', done => {
+  it('get projectFeedbacks page 2 should ok', done => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=2&from=${from}&to=${to}`)
       .respond(JSON.stringify(projectFeedbacks.slice(1)))
 

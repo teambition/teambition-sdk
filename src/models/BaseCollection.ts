@@ -1,8 +1,10 @@
 'use strict'
+import 'rxjs/add/operator/switch'
+import 'rxjs/add/operator/publishReplay'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import Model from './BaseModel'
-import { forEach, dropEle, concat } from '../utils/index'
+import { forEach, concat } from '../utils/index'
 import { Schema } from '../schemas/schema'
 
 export default class BaseCollection<T> extends Model {
@@ -30,9 +32,6 @@ export default class BaseCollection<T> extends Model {
   addPage(page: number, data: Schema<T>[]): Observable<T[]> {
     if (!data) {
       return Observable.of(null)
-    }
-    if (this._singals.has(page)) {
-      return this._singals.get(page)
     }
     return Observable.create((observer: Observer<Observable<T[]>>) => {
       let destSignal: Observable<T[]>
@@ -66,25 +65,25 @@ export default class BaseCollection<T> extends Model {
         if (page === 1) {
           // 可发射多次的流
           destSignal = this._saveCollection(this._dbIndex, result, this._schemaName, this._condition, this._unionFlag)
+            .publishReplay(1)
+            .refCount()
         } else {
           // 只会发射一次
           destSignal = this._updateCollection<T>(this._dbIndex, result)
+            .publishReplay(1)
+            .refCount()
         }
       }
-      if (destSignal) {
-        this._singals.set(page, destSignal)
-      }
+      this._singals.set(page, destSignal)
       observer.next(destSignal)
     })
-      .concatMap((x: Observable<T[]>) => x)
-      .publishReplay()
-      .refCount(1)
+      .switch()
   }
 
   get(page?: number): Observable<T[]> {
     if (page) {
       if (this.hasPage(page)) {
-        const getSignal = this._get<T[]>(this._dbIndex)
+        const getSignal = this._singals.get(page)
         if (getSignal) {
           return getSignal
             .map(r => {
@@ -96,19 +95,14 @@ export default class BaseCollection<T> extends Model {
               })
               return result
             })
-        }else {
+        } else {
           return null
         }
       }
-    }else {
+    } else {
       return this._get<T[]>(this._dbIndex)
     }
     return null
-  }
-
-  deletePage(page: number): void {
-    this._data.delete(page)
-    dropEle(page, this._pages)
   }
 
   $destroy(): void {
