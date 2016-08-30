@@ -105,11 +105,6 @@ export default class BaseCollection<T> extends Model {
     return null
   }
 
-  $destroy(): void {
-    this._data = new Map<number, Schema<T>[]>()
-    this._pages = []
-  }
-
   private _getAll(): Schema<T>[] {
     const result: Schema<T>[] = []
     forEach(this._pages, page => {
