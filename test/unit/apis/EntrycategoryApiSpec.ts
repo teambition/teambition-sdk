@@ -37,7 +37,7 @@ export default describe('entrycategory api test: ', () => {
         .respond(JSON.stringify(entrycategories))
     })
 
-    it ('get should ok', done => {
+    it('get should ok', done => {
       EntrycategoryApi.getEntrycategories({
         _projectId: projectId,
         page: 1,
@@ -47,7 +47,7 @@ export default describe('entrycategory api test: ', () => {
           expectDeepEqual(entrycategory, entrycategories[index])
         })
         done()
-      })
+      }, err => console.error(err))
 
       httpBackend.flush()
     })

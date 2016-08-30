@@ -80,6 +80,9 @@ export default class DataBase {
     }
     return Observable.create((observer: Observer<Observable<(T | Schema<T>)[]>>) => {
       setTimeout(() => {
+        if (!data) {
+          return observer.complete()
+        }
         const cache: Collection<T> = DataBase.data.get(index)
         if (cache && data.length) {
           const requested = data[0]._requested

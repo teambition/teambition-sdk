@@ -20,7 +20,5 @@ export function makeColdSignal <T> (func: (observer: Observer<Observable<T>>) =>
     const signal = func(observer)
     observer.next(signal)
   })
-    .concatMap((x: Observable<T>) => x)
-    .publishReplay(1)
-    .refCount()
+    .switch()
 }

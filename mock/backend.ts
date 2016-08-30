@@ -1,7 +1,6 @@
 'use strict'
 import { HttpResponse } from './response'
-import { fetchStack, restore, mockFetch } from './mock'
-import { forEach } from './utils'
+import { fetchStack, flushStack, restore, mockFetch } from './mock'
 
 export const flushState = {
   flushed: false
@@ -12,6 +11,7 @@ export class Backend {
   constructor() {
     flushState.flushed = false
     fetchStack.clear()
+    flushStack.clear()
     mockFetch()
   }
 
@@ -32,12 +32,14 @@ export class Backend {
   }
 
   flush() {
-    fetchStack.forEach((value: any, key: string) => {
-      forEach(value.flushQueue, (resolves: any[]) => {
-        resolves[0](resolves[1])
-      })
-    })
     flushState.flushed = true
+    flushStack.forEach(val => {
+      if (val.resolve) {
+        val.resolve(val.data)
+      } else if (val.reject) {
+        val.reject(val.reason)
+      }
+    })
   }
 
   restore(): void {

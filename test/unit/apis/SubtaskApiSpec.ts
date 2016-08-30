@@ -511,7 +511,8 @@ export default describe('Subtask API test: ', () => {
 
     it('get empty array when no data', done => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me/created?page=1`)
-        .respond('[]')
+        .empty()
+        .respond([])
 
       Subtask.getOrgMyCreatedSubtasks(userId, organization)
         .subscribe(data => {
