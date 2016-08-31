@@ -5,8 +5,9 @@
     "chai": "registry:dt/chai#3.4.0+20160601211834",
     "core-js": "registry:dt/core-js#0.0.0+20160725163759",
     "mocha": "registry:dt/mocha#2.2.5+20160720003353",
-    "node": "registry:dt/node#6.0.0+20160823142437",
-    "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160826011651"
+    "node": "registry:dt/node#6.0.0+20160830141956",
+    "whatwg-streams": "registry:dt/whatwg-streams#0.0.0+20160829180742",
+    "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160829180742"
   },
   "globalDevDependencies": {
     "sinon": "registry:dt/sinon#1.16.0+20160517064723",
