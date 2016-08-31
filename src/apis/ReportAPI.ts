@@ -29,6 +29,12 @@ export class ReportAPI {
     option: GetReportAccomplishedOption
   ): Observable<TaskData[]>
 
+  getAccomplished (
+    projectId: string,
+    taskType: TaskType,
+    option: GetReportAccomplishedOption
+  ): Observable<TaskData[]> | Observable<SubtaskData[]>
+
   /**
    * 当 option.isWeekSearch 为 true 时不分页
    * 即使传入 page count 参数也会被忽略掉
