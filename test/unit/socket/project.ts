@@ -12,6 +12,8 @@ export default describe('project socket test', () => {
 
   const project = projects[0]
   const projectId = project._id
+  const personalProjects = projects.filter(project => project._organizationId === null)
+  const personalProject = personalProjects[0]
 
   beforeEach(() => {
     flush()
@@ -22,6 +24,28 @@ export default describe('project socket test', () => {
 
     httpBackend.whenGET(`${apihost}projects/${projectId}`)
       .respond(JSON.stringify(project))
+  })
+
+  // 创建新个人项目
+  it('new personal project', done => {
+
+    httpBackend.whenGET(`${apihost}projects/personal`)
+      .respond([])
+
+    httpBackend.whenGET(`${apihost}projects/${personalProject._id}`)
+      .respond(JSON.stringify(personalProject))
+
+    Project.getPersonal()
+      .skip(1)
+      .subscribe(projects => {
+        expect(projects.length).to.equal(1)
+        expectDeepEqual(projects[0], personalProject)
+        done()
+      })
+
+    Socket.emit('refresh', 'project', '', personalProject._id)
+
+    httpBackend.flush()
   })
 
   it('new project', done => {
@@ -39,6 +63,25 @@ export default describe('project socket test', () => {
       })
 
     Socket.emit('refresh', 'project', '', projectId)
+
+    httpBackend.flush()
+  })
+
+  // 删除个人项目
+  it('delete personal project', done => {
+
+    httpBackend.whenGET(`${apihost}projects/personal`)
+      .respond(JSON.stringify(personalProjects))
+
+    Project.getPersonal()
+      .skip(1)
+      .subscribe(newProjects => {
+        expect(newProjects.length).to.equal(personalProjects.length - 1)
+        expect(newProjects[0]._id).to.equal(personalProjects[1]._id)
+        done()
+      })
+
+    Socket.emit('remove', 'project', '', personalProject._id)
 
     httpBackend.flush()
   })

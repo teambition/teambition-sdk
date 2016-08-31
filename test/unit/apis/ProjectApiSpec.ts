@@ -50,6 +50,32 @@ export default describe('Project API test: ', () => {
     httpBackend.flush()
   })
 
+  it('get personal projects should ok', done => {
+    httpBackend.whenGET(`${apihost}projects/personal`)
+      .respond(JSON.stringify([
+        {
+          _id: '50efadbe3b5b2c130f000009',
+          _organizationId: null,
+          name: 'test1'
+        },
+        {
+          _id: '57b52a3fd40431194e5c635d',
+          _organizationId: null,
+          name: 'test2'
+        }
+      ]))
+    Project.getPersonal()
+      .subscribe(projects => {
+        expect(projects).to.be.instanceof(Array)
+        forEach(projects, (project, pos) => {
+          expect(project._organizationId).to.equal(null)
+        })
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
   it('get orgs projects should ok', done => {
     httpBackend.whenGET(`${apihost}organizations/test/projects`)
       .respond(JSON.stringify([
