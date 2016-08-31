@@ -6,7 +6,7 @@ import TaskSchema, { TaskData } from '../schemas/Task'
 import SubtaskSchema, { SubtaskData } from '../schemas/Subtask'
 import { datasToSchemas } from '../utils'
 
-export type TaskStatus = 'accomplished' | 'progress' | 'notstart'
+export type TaskStatus = 'accomplished' | 'progress' | 'notstart' | 'unassigned'
 export type TaskType = 'all' | 'delay' | 'ontime'
 
 export class ReportModel extends Model {
@@ -61,6 +61,8 @@ export class ReportModel extends Model {
         }
       } else if (status === 'notstart') {
         return this.storeNotStartTasks(projectId, <TaskData[]>data, page)
+      } else if (status === 'unassigned') {
+        return this.storeUnassignedTasks(projectId, <TaskData[]>data, page)
       } else {
         return Observable.throw(new Error(`unsppported task status: ${status}, expectd: 'accomplished' | 'progress' | 'notstart'`))
       }
@@ -140,6 +142,10 @@ export class ReportModel extends Model {
   ): Observable<TaskData[]> | Observable<SubtaskData[]> {
     if (status === 'notstart') {
       type = 'all'
+    }
+    if (status === 'unassigned') {
+      type = 'all'
+      schema = 'task'
     }
     const weekSearch = isWeekSearch ? 'thisweek:' : ''
     const index = `project:report:${status}:${weekSearch + type}:${schema}s/${projectId}`
@@ -600,6 +606,20 @@ export class ReportModel extends Model {
             data._projectId === projectId &&
             Date.now() - new Date(data.updated).valueOf() <= 604800000
     })
+  }
+
+  private storeUnassignedTasks(projectId: string, data: TaskData[], page: number): Observable<TaskData[]> {
+    const result = datasToSchemas(data, TaskSchema)
+    const dbIndex = `project:report:unassigned:all:tasks/${projectId}`
+    let collection: Collection<TaskData> = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection('Task', (data: TaskData) => {
+        return !data.isArchived && !data.isDone && !data._executorId
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
   }
 }
 
