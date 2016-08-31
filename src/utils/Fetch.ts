@@ -1,9 +1,21 @@
 'use strict'
+import 'rxjs/add/operator/debounceTime'
+import { Observable } from 'rxjs/Observable'
+import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { assign, forEach } from './index'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
 
+export interface HttpErrorMessage {
+  method: AllowedHttpMethod
+  url: string
+  error: Response
+  body?: any
+}
+
 const allowedHttpMethod = ['get', 'post', 'put', 'delete']
+
+export const HttpError$: Observable<HttpErrorMessage> = new ReplaySubject<HttpErrorMessage>(5).debounceTime(100)
 
 export class Fetch {
 
@@ -101,7 +113,7 @@ export class Fetch {
     return result.length ? '?' + result.join('&') : ''
   }
 
-  private createMethod<T>(method: String): (url: string, body?: any) => Promise<T> {
+  private createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Promise<T> {
     return (url: string, body?: any): Promise<T> => {
       const options = assign({
         method: method
@@ -111,15 +123,28 @@ export class Fetch {
       }
 
       return fetch(this._apiHost + url, options)
-        .then((response: Response): Promise<T> => {
-          if (response.status >= 200 && response.status < 300) {
-            return response.json()
-              .catch((e: any) => {
-                return ''
-              })
+        .then((response: Response): Promise<string> => {
+          if (response.status >= 200 && response.status < 400) {
+            return response.text()
           } else {
-            return Promise.reject<T>(<any>response)
+            throw response
           }
+        })
+        .then(r => {
+          try {
+            return JSON.parse(r)
+          } catch (e) {
+            return r
+          }
+        })
+        .catch((e: Response) => {
+          setTimeout(() => {
+            (<ReplaySubject<HttpErrorMessage>>HttpError$).next({
+              error: e,
+              method, url, body
+            })
+          }, 10)
+          throw e
         })
     }
   }

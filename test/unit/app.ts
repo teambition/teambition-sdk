@@ -4,6 +4,7 @@ export * from './utils/fetch'
 export * from './utils/setSchema'
 export * from './utils/utils'
 export * from './utils/observable'
+export * from './utils/httpErrorSpec'
 
 export * from './storage/DatabaseSpec'
 export * from './storage/Model'

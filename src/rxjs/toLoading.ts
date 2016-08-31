@@ -9,8 +9,6 @@ declare module 'rxjs/Observable' {
   }
 }
 
-Observable.prototype.toLoading = toLoading
-
 export function toLoading<T>(this: Observable<T>): Observable<boolean> {
   return this.lift(new ToLoadingOperator())
 }
@@ -21,9 +19,9 @@ class ToLoadingOperator <T> implements Operator<T, boolean> {
   }
 }
 
-class ToLoadingSubscriber<T, R> extends Subscriber<T> {
+class ToLoadingSubscriber<T> extends Subscriber<T> {
 
-  constructor(destination: Subscriber<R>) {
+  constructor(destination: Subscriber<boolean>) {
     super(destination)
     this.destination.next(true)
   }
@@ -38,3 +36,5 @@ class ToLoadingSubscriber<T, R> extends Subscriber<T> {
     this.destination.complete()
   }
 }
+
+Observable.prototype.toLoading = toLoading

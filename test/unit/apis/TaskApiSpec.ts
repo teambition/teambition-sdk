@@ -96,12 +96,17 @@ export default describe('Task API test: ', () => {
 
     it('network error should be handed', done => {
       httpBackend.whenGET(`${apihost}tasklists/error/tasks?isDone=false`)
-        .error('Unauthorize', 401)
+        .error('Unauthorize', {
+          status: 401
+        })
 
       Task.getTasklistUndone('error')
+        .catch((err: Response) => {
+          return err.text()
+        })
         .subscribe({
-          error: (err: Error) => {
-            expect(err.message).to.equal('Unauthorize, statu code: 401')
+          next: r => {
+            expect(r).to.equal('Unauthorize')
             done()
           }
         })
@@ -1834,16 +1839,24 @@ export default describe('Task API test: ', () => {
     it('update task dueDate error format should throw', done => {
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/dueDate`, {
         dueDate: '123'
-      }).error('dueDate must be ISOString', 400)
+      }).error('dueDate must be ISOString', {
+        status: 400,
+        statusText: 'bad request'
+      })
 
       Task.get(mockTaskGet._id)
         .subscribe()
 
       Task.updateDueDate(mockTaskGet._id, '123')
+        .catch((err: Response) => {
+          return err.text()
+        })
         .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(null, err => {
-          expect(err.message).to.equal('dueDate must be ISOString, statu code: 400')
-          done()
+        .subscribe({
+          next: r => {
+            expect(r).to.equal('dueDate must be ISOString')
+            done()
+          }
         })
 
       httpBackend.flush()
@@ -1904,7 +1917,7 @@ export default describe('Task API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(r => {
           done()
-        })
+        }, err => console.error(err))
 
       httpBackend.flush()
     })

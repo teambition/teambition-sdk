@@ -35,9 +35,7 @@ export class Backend {
     flushState.flushed = true
     flushStack.forEach(val => {
       if (val.resolve) {
-        val.resolve(val.data)
-      } else if (val.reject) {
-        val.reject(val.reason)
+        val.resolve(val.response)
       }
     })
   }

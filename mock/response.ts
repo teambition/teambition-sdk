@@ -20,23 +20,30 @@ export class HttpResponse {
     return this
   }
 
-  respond(data: any) {
-    const json = () => {
-      if (typeof data === 'string') {
-        return Promise.resolve(data === '' ? '' : JSON.parse(data))
-      } else if (typeof data === 'object') {
-        return Promise.resolve(data)
-      } else {
-        return Promise.reject(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
-      }
+  respond(data: any, response: ResponseInit = {
+    status: 200
+  }) {
+    const status = response.status || 200
+    response.status = status
+    if (typeof status !== 'number') {
+      throw new Error(`status code must be a Number, ${status} is not valid`)
     }
+    if (status < 200 || status >= 400) {
+      throw new Error(`${status} is not a valid success Http Response, you should use .error method instead`)
+    }
+    if (typeof data === 'string') {
+      data = data === '' ? '' : data
+    } else if (typeof data === 'object') {
+      data = JSON.stringify(data)
+    } else {
+      throw(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
+    }
+    const responseData = new Response(data, response)
     const result = {
-      status: 200,
       flushQueue: {
-        data: {
-          status: 200, json, response: data
-        }
-      }, json, data
+        response: responseData
+      },
+      response: responseData
     }
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [ result ])
@@ -45,17 +52,14 @@ export class HttpResponse {
     }
   }
 
-  error(message: any, status: number) {
-    const json = () => {
-      return Promise.resolve(message)
-    }
+  error(message: string, response: ResponseInit) {
+    const responseData = new Response(message, response)
+
     const result = {
-      status, reason: message,
+      response: responseData,
       flushQueue: {
-        data: {
-          status, json, response: message
-        }
-      }, json
+        response: responseData
+      }
     }
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [result])
