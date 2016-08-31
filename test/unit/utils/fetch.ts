@@ -102,13 +102,13 @@ export default describe('utils/fetch', () => {
   });
 
   ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
-    [100, 400, 401, 403, 404, 500].forEach(status => {
+    [400, 401, 403, 404, 500].forEach(status => {
       it(`should handle ${status} status for ${httpMethod}`, done => {
         const path = 'test'
         const url = `${fetch.getAPIHost()}${path}`
-        const responseData = {body: {test: 'test'}, status: status}
+        const responseData = { body: {test: 'test' }, method: httpMethod, status }
         const body = {body: 'body'}
-        fetchMock.mock(url, httpMethod, responseData)
+        fetchMock.mock(url, responseData )
         fetch[httpMethod](path, httpMethod === 'get' ? null : body)
           .then((res: Response) => {
             expect(res).not.to.deep.equal(responseData.body)
@@ -118,7 +118,7 @@ export default describe('utils/fetch', () => {
             if (fetchMock.lastOptions()) {
               expect(fetchMock.lastOptions().method).to.equal(httpMethod)
             }
-            expect(res.status).to.deep.equal(responseData.status)
+            expect(res.status).to.deep.equal(status)
             fetchMock.restore()
             done()
           })

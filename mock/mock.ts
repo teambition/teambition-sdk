@@ -5,21 +5,12 @@ declare const global: any
 
 export interface FlushQueue {
   resolve?: Function
-  reject?: Function
-  data?: {
-    status: number
-    json: () => Promise<any>,
-    response: any
-  }
-  reason?: any
+  response: Response
 }
 
 export interface FetchResult {
-  status: number
   flushQueue?: FlushQueue
-  data?: any
-  reason?: any
-  json?: () => Promise<any>
+  response: Response
 }
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
@@ -67,27 +58,15 @@ export function mockFetch() {
       }
       // console.log(uri + method + dataPath, fetchStack)
       let promise: Promise<any>
-      if (result && result.status === 200) {
+      if (result && result.response) {
         promise = new Promise(resolve => {
           if (flushState.flushed) {
-            resolve(result)
+            resolve(result.response)
           } else {
             result.flushQueue.resolve = resolve
             flushStack.add(result.flushQueue)
           }
         })
-      } else if (result && result.status) {
-        /* istanbul ignore if */
-        const err = new Error(`${result.reason}, statu code: ${result.status}`)
-        if (flushState.flushed) {
-          promise = Promise.reject(err)
-        } else {
-          promise = new Promise((resolve, reject) => {
-            result.flushQueue.reject = reject
-            result.flushQueue.reason = err
-          })
-          flushStack.add(result.flushQueue)
-        }
       } else {
         /* istanbul ignore if */
         const definedUri: string[] = []

@@ -831,16 +831,22 @@ export default describe('Subtask API test: ', () => {
   it('update error format dueDate should be caught', done => {
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/dueDate`, {
       dueDate: 'xxx'
-    }).error('dueDate must be ISOString', 400)
+    }).error('dueDate must be ISOString', {
+      status: 400,
+      statusText: 'bad request'
+    })
 
     Subtask.get(subtaskId)
       .skip(1)
       .subscribe()
 
     Subtask.updateDuedate(subtaskId, 'xxx')
+      .catch((err: Response) => {
+        return err.text()
+      })
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(null, err => {
-        expect(err.message).to.equal('dueDate must be ISOString, statu code: 400')
+      .subscribe(r => {
+        expect(r).to.equal('dueDate must be ISOString')
         done()
       })
 
