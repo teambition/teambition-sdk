@@ -86,15 +86,6 @@ export default class BaseCollection<T> extends Model {
         const getSignal = this._singals.get(page)
         if (getSignal) {
           return getSignal
-            .map(r => {
-              const result: T[] = []
-              forEach(r, (ele, index) => {
-                if (index >= this._pageLength * (page - 1) && index < this._pageLength * page) {
-                  result.push(ele)
-                }
-              })
-              return result
-            })
         } else {
           return null
         }
