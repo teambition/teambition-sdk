@@ -15,7 +15,7 @@ export default describe('models/BaseCollection test: ', () => {
   beforeEach(() => {
     collection = new BaseCollection('MockBaseCollection', (data: any) => {
       return data.score < 20
-    }, `mock_collection_${++i}`)
+    }, `mock_collection_${++i}`, 5)
 
     let j = 0
     page1 = []
@@ -105,7 +105,7 @@ export default describe('models/BaseCollection test: ', () => {
       })
   ])
 
-  it('get page should ok', done => {
+  it('get page 1 should ok', done => {
     collection.addPage(1, page1)
       .subscribe()
 
@@ -113,6 +113,22 @@ export default describe('models/BaseCollection test: ', () => {
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(r => {
         expect(r.length).to.equal(page1.length)
+        done()
+      })
+  })
+
+  it('get page2 should ok', done => {
+    collection.addPage(1, page1)
+      .subscribe()
+
+    collection.addPage(2, page2)
+      .concatMap(() => collection.get(2))
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe(r => {
+        r.forEach((val, index) => {
+          expect(val._id).to.equal(page2[index]['_id'])
+        })
+        expect(r.length).to.equal(page2.length)
         done()
       })
   })

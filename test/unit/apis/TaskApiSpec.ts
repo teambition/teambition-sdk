@@ -1390,13 +1390,13 @@ export default describe('Task API test: ', () => {
           Task.getStageDoneTasks(stageId, {page: 1})
             .skip(1),
           Task.getStageDoneTasks(stageId, {page: 2})
-            .subscribeOn(Scheduler.async, global.timeout2),
+            .subscribeOn(Scheduler.async, global.timeout1),
           Task.getStageTasks(stageId)
-            .subscribeOn(Scheduler.async, global.timeout3),
+            .subscribeOn(Scheduler.async, global.timeout2),
           Task.getStageDoneTasks(stageId, {page: 1})
             .subscribeOn(Scheduler.async, global.timeout3),
           Task.getStageDoneTasks(stageId, {page: 2})
-            .subscribeOn(Scheduler.async, global.timeout3 * 2)
+            .subscribeOn(Scheduler.async, global.timeout4)
         )
         .subscribe(([
           tasks,
@@ -1422,8 +1422,8 @@ export default describe('Task API test: ', () => {
           forEach(tasksCached, (task, index) => {
             expectDeepEqual(task, stageTasksUndone[index])
           })
-          forEach(doneTasksPage1Cached, (task, index) => {
-            expectDeepEqual(task, stageTasksDonePage1[index])
+          forEach(stageTasksDonePage1, (task, index) => {
+            expectDeepEqual(task, doneTasksPage1Cached[index])
           })
           forEach(doneTasksPage2Cached, (task, index) => {
             expectDeepEqual(task, stageTasksDonePage2[index])
