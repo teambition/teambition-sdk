@@ -36,7 +36,11 @@ export default class BaseCollection<T> extends Model {
     return Observable.create((observer: Observer<Observable<T[]>>) => {
       let destSignal: Observable<T[]>
       if (this.hasPage(page)) {
-        destSignal = this.get(page)
+        if (page === 1) {
+          destSignal = this._singals.get(page)
+        } else {
+          destSignal = this.get(page)
+        }
       } else {
         this._data.set(page, data)
         if (!this._pages.length) {
@@ -83,11 +87,15 @@ export default class BaseCollection<T> extends Model {
   get(page?: number): Observable<T[]> {
     if (page) {
       if (this.hasPage(page)) {
-        const getSignal = this._singals.get(page)
-        if (getSignal) {
-          return getSignal
+        if (page !== 1) {
+          const getSignal = this._singals.get(page)
+          if (getSignal) {
+            return getSignal
+          } else {
+            return null
+          }
         } else {
-          return null
+          return this._get<T[]>(this._dbIndex)
         }
       }
     } else {
