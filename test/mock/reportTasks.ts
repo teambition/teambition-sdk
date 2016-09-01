@@ -9916,3 +9916,8 @@ export const notStartTasks = [
     '_requested': 1472203460112
   }
 ]
+
+export const unassignTasks = clone(notStartTasks).map(r => {
+  r._executorId = null
+  return r
+})

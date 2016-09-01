@@ -26,6 +26,12 @@ export interface GetReportNotStartOption {
   [index: string]: any
 }
 
+export interface GetUnassignedOption {
+  page?: number
+  count?: number
+  [index: string]: any
+}
+
 export class ReportFetch extends BaseFetch {
   getAccomplished(projectId: string, taskType: 'task', option: GetReportAccomplishedOption): Promise<(TaskData[])>
 
@@ -78,6 +84,10 @@ export class ReportFetch extends BaseFetch {
     option: GetReportNotStartOption
   ): Promise<TaskData[]> {
     return this.fetch.get(`projects/${projectId}/report-not-started`, option)
+  }
+
+  getUnassigned(projectId: string, option: GetUnassignedOption): Promise<TaskData[]> {
+    return this.fetch.get(`projects/${projectId}/report-unassigned`, option)
   }
 }
 

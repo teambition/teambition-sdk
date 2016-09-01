@@ -26,7 +26,8 @@ import {
   inprogressSubtasks,
   inprogressOntimeTasks,
   inprogressAllTasks,
-  notStartTasks
+  notStartTasks,
+  unassignTasks
 } from '../../mock/reportTasks'
 import { flush, expectDeepEqual, notInclude } from '../utils'
 
@@ -443,7 +444,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -671,7 +672,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -873,7 +874,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -1100,7 +1101,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -1302,7 +1303,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -1529,7 +1530,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -1723,7 +1724,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -1937,7 +1938,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -2152,8 +2153,10 @@ export default describe('Report API Test: ', () => {
         count: 20
       })
         .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe(() => {
-          done()
+        .subscribe({
+          next: () => {
+            done()
+          }
         })
 
       httpBackend.flush()
@@ -2546,7 +2549,7 @@ export default describe('Report API Test: ', () => {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
+        .subscribeOn(Scheduler.async, global.timeout3)
         .subscribe(() => {
           done()
         })
@@ -2634,6 +2637,207 @@ export default describe('Report API Test: ', () => {
         })
 
       ReportApi.getNotStart(projectId, {
+        page: 1,
+        count: 20
+      })
+        .skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(page1.length - 1)
+          notInclude(r, page1[0])
+          done()
+        })
+
+      TaskApi.updateStatus(taskId, true)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+  })
+
+  describe('unassigned tasks test: ', () => {
+    const page1 = unassignTasks.slice(0, 20)
+    const page2 = unassignTasks.slice(20)
+    const mockTask = clone(page1[0])
+    const taskId = mockTask._id
+    mockTask._id = 'mockunassignedtask'
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}projects/${projectId}/report-unassigned?page=1&count=20`)
+        .respond(JSON.stringify(page1))
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/report-unassigned?page=2&count=20`)
+        .respond(JSON.stringify(page2))
+    })
+
+    it('get should ok', done => {
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .subscribe(r => {
+          forEach(r, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get from cache should ok', done => {
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .subscribe()
+
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe(r => {
+          forEach(r, (task, pos) => {
+            expectDeepEqual(task, page1[pos])
+          })
+          expect(spy).to.be.calledOnce
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('get page2 should ok', done => {
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+          done()
+        })
+
+      ReportApi.getUnassigned(projectId, {
+        page: 2,
+        count: 20
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('get page2 from cache should ok', done => {
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+          expect(spy).to.be.calledTwice
+        })
+
+      ReportApi.getUnassigned(projectId, {
+        page: 2,
+        count: 20
+      })
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      ReportApi.getUnassigned(projectId, {
+        page: 2,
+        count: 20
+      })
+        .subscribeOn(Scheduler.async, global.timeout3)
+        .subscribe(() => {
+          done()
+        })
+
+      httpBackend.flush()
+    })
+
+    it('add new task should ok', done => {
+      httpBackend.whenGET(`${apihost}tasks/mockunassignedtask`)
+        .respond(JSON.stringify(mockTask))
+
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(page1.length + 1)
+          expectDeepEqual(r[0], mockTask)
+          done()
+        })
+
+      TaskApi.get('mockunassignedtask')
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('delete task should ok', done => {
+      httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
+        .respond({})
+
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(page1.length - 1)
+          notInclude(r, page1[0])
+          done()
+        })
+
+      TaskApi.delete(taskId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('archive task should ok', done => {
+      httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
+        .respond({
+          isArchived: true,
+          _id: taskId
+        })
+
+      ReportApi.getUnassigned(projectId, {
+        page: 1,
+        count: 20
+      })
+        .skip(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(page1.length - 1)
+          notInclude(r, page1[0])
+          done()
+        })
+
+      TaskApi.archive(taskId)
+        .subscribeOn(Scheduler.async, global.timeout1)
+        .subscribe()
+
+      httpBackend.flush()
+    })
+
+    it('change status should ok', done => {
+      httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
+        isDone: true
+      })
+        .respond({
+          isDone: true,
+          _id: taskId
+        })
+
+      ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })

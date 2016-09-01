@@ -5,7 +5,8 @@ import {
   GetReportAccomplishedOption,
   TaskType,
   GetReportInprogressOption,
-  GetReportNotStartOption
+  GetReportNotStartOption,
+  GetUnassignedOption
 } from '../fetchs/ReportFetch'
 import ReportModel from '../models/ReportModel'
 import { TaskData } from '../schemas/Task'
@@ -113,6 +114,18 @@ export class ReportAPI {
       )
         .catch(err => errorHandler(observer, err))
         .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'notstart', 'task'))
+    })
+  }
+
+  getUnassigned(projectId: string, option: GetUnassignedOption): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(observer => {
+      const cache = ReportModel.getData(projectId, option.page, 'unassigned')
+      if (cache) {
+        return cache
+      }
+      return Observable.fromPromise(ReportFetch.getUnassigned(projectId, option))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'unassigned', 'task'))
     })
   }
 }
