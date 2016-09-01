@@ -8,11 +8,6 @@ import { datasToSchemas, dataToSchema } from '../utils/index'
 export class HomeActivityModel extends BaseModel {
 
   private _schemaName = 'HomeActivity'
-  private _collections = new Map<string, Collection<HomeActivityData>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   addOne(activity: HomeActivityData): Observable<HomeActivityData> {
     const result = dataToSchema<HomeActivityData>(activity, HomeActivity)

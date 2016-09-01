@@ -190,7 +190,7 @@ export default describe('member api test', () => {
     const mockEmails = projectMembers.map(member => member.email)
 
     httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
-      .respond(JSON.stringify(members))
+      .respond(JSON.stringify(members.slice(0, 30)))
 
     httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
       email: mockEmails
@@ -200,7 +200,7 @@ export default describe('member api test', () => {
     Member.getProjectMembers(projectId)
       .skip(1)
       .subscribe(r => {
-        expect(r.length).to.equal(members.length + projectMembers.length)
+        expect(r.length).to.equal(30 + projectMembers.length)
         done()
       })
 

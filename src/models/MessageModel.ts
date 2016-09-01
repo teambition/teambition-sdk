@@ -7,11 +7,6 @@ import Collection from './BaseCollection'
 
 export class MessageModel extends BaseModel {
   private _schemaName = 'Message'
-  private _collections = new Map<string, Collection<MessageData>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   addOne(message: MessageData): Observable<MessageData> {
     const result = dataToSchema<MessageData>(message, Message)

@@ -7,11 +7,6 @@ import Collection from './BaseCollection'
 
 export class PostModel extends BaseModel {
   private _schemaName = 'Post'
-  private _collections = new Map<string, Collection<PostData>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   addOne(post: PostData): Observable<PostData> {
     const result = dataToSchema<PostData>(post, Post)

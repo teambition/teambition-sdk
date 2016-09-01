@@ -10,11 +10,6 @@ import { OrganizationData } from '../schemas/Organization'
 export class SubtaskModel extends BaseModel {
 
   private _schemaName = 'Subtask'
-  private _collections = new Map<string, Collection<any>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   addOne(subtask: SubtaskData): Observable<SubtaskData> {
     const result = dataToSchema<SubtaskData>(subtask, Subtask)

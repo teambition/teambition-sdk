@@ -50,6 +50,20 @@ export function mockFetch() {
       }
       const fetchIndex = uri + method + dataPath
       const results = fetchStack.get(fetchIndex)
+      if (!results) {
+        /* istanbul ignore if */
+        const definedUri: string[] = []
+        fetchStack.forEach((val, key) => {
+          definedUri.push(key)
+        })
+        throw new Error(
+            `nothing expect return from server,
+            uri: ${uri}, method: ${options.method},
+            parsedUri: ${uri + method + dataPath}
+            body: ${JSON.stringify(options.body, null, 2)},
+            defined uri: ${JSON.stringify(definedUri, null, 2)}`
+        )
+      }
       let result: FetchResult
       if (results.length > 1) {
         result = results.shift()
@@ -67,19 +81,6 @@ export function mockFetch() {
             flushStack.add(result.flushQueue)
           }
         })
-      } else {
-        /* istanbul ignore if */
-        const definedUri: string[] = []
-        fetchStack.forEach((val, key) => {
-          definedUri.push(key)
-        })
-        throw new Error(
-            `nothing expect return from server,
-            uri: ${uri}, method: ${options.method},
-            parsedUri: ${uri + method + dataPath}
-            body: ${JSON.stringify(options.body, null, 2)},
-            defined uri: ${JSON.stringify(definedUri, null, 2)}`
-        )
       }
       return promise
     }

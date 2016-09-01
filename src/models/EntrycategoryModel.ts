@@ -7,11 +7,6 @@ import { datasToSchemas, dataToSchema } from '../utils/index'
 
 export class EntrycategoryModel extends Model {
   private _schemaName = 'Entrycategory'
-  private _collections = new Map<string, Collection<EntrycategoryData>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   addOne(entrycategory: EntrycategoryData): Observable<EntrycategoryData> {
     const result = dataToSchema<EntrycategoryData>(entrycategory, Entrycategory)

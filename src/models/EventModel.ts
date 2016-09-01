@@ -18,6 +18,7 @@ export class EventModel extends Model {
   private _recurrenceEventAlias = new Map<string, string>()
 
   desctructor() {
+    super.destructor()
     this._recurrenceEventAlias.clear()
   }
 

@@ -9,6 +9,7 @@ export class UserModel extends Model {
   public userId: string
 
   destructor() {
+    super.destructor()
     this.userId = null
   }
 

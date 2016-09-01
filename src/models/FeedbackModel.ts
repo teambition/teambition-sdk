@@ -8,11 +8,6 @@ import { dataToSchema, datasToSchemas } from '../utils'
 export class FeedbackModel extends Model {
 
   private _schemaName = 'Feedback'
-  private _collections = new Map<string, Collection<FeedbackData>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   addOne(data: FeedbackData): Observable<FeedbackData> {
     const result = dataToSchema(data, FeedbackSchema)
