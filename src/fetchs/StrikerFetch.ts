@@ -39,7 +39,7 @@ export class StrikerFetch {
           return resp.json()
         /** istanbul ignore if */
         }else {
-          return Promise.reject(resp)
+          return Promise.reject<any>(resp)
         }
       })
   }
