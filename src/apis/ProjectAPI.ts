@@ -61,6 +61,18 @@ export class ProjectAPI {
     })
   }
 
+  getPersonal(querys?: any): Observable<ProjectData[]> {
+    return makeColdSignal<ProjectData[]>(observer => {
+      const get = ProjectModel.getPersonalProjects()
+      if (get) {
+        return get
+      }
+      return Observable.fromPromise(ProjectFetch.getPersonal(querys))
+        .catch(err => errorHandler(observer, err))
+        .concatMap(projects => ProjectModel.addPersonalProjects(projects))
+    })
+  }
+
   getOrgs(_organizationId: string, querys?: any): Observable<ProjectData[]> {
     return makeColdSignal<ProjectData[]>(observer => {
       const get = ProjectModel.getOrgProjects(_organizationId)
