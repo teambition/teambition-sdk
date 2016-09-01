@@ -1,4 +1,5 @@
 'use strict'
+import 'isomorphic-fetch'
 import 'rxjs/add/operator/debounceTime'
 import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
