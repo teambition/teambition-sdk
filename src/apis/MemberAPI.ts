@@ -49,17 +49,23 @@ export class MemberAPI {
     })
   }
 
+  addMembers(_projectId: string, emails: string): Observable<MemberData>
+
+  addMembers(_projectId: string, emails: string[]): Observable<MemberData[]>
+
+  addMembers(_projectId: string, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]>
+
   /**
    * 设计时是考虑到可以增加任意类型的 member
    * 比如项目加人时可调用，组织加人时也可以调用
    */
-  addMembers(_projectId: string, emails: string[]): Observable<MemberData | MemberData[]> {
+  addMembers(_projectId: string, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]> {
     return Observable.create((observer: Observer<MemberData | MemberData[]>) => {
-      Observable.fromPromise(MemberFetch.addProjectMembers(_projectId, emails))
-        .catch(err => observableError(observer, err))
+      Observable.fromPromise(MemberFetch.addProjectMembers(_projectId, <string[]>emails))
+        .catch((err: any) => observableError(observer, err))
         .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 }

@@ -9,6 +9,7 @@ export class PreferenceModel extends Model {
   public preferenceId: string
 
   destructor() {
+    super.destructor()
     this.preferenceId = null
   }
 

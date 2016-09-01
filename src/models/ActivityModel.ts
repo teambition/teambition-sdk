@@ -9,12 +9,6 @@ export class ActivityModel extends BaseModel {
 
   private _schemaName = 'Activity'
 
-  private _collections = new Map<string, Collection<ActivityData>>()
-
-  destructor() {
-    this._collections.clear()
-  }
-
   addOne(activity: ActivityData): Observable<ActivityData> {
     const result = dataToSchema<ActivityData>(activity, Activity)
     return this._save(result)

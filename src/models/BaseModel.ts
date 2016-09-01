@@ -2,10 +2,13 @@
 import { Observable } from 'rxjs/Observable'
 import DataBase from '../storage/Database'
 import { Schema } from '../schemas/schema'
+import Collection from './BaseCollection'
 
 export default class Model {
 
   public static DataBase = new DataBase()
+
+  protected _collections = new Map<string, Collection<any>>()
 
   delete(namespace: string): Observable<void> {
     return Model.DataBase.delete(namespace)
@@ -20,8 +23,8 @@ export default class Model {
   }
 
   // 单例 Model， 这个方法由子类继承，清除子类的状态信息，方便测试
-  destructor(): void {
-    return void 0
+  destructor() {
+    this._collections.clear()
   }
 
   checkSchema(index: string): boolean {

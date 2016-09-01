@@ -9,6 +9,7 @@ export class SubscribeModel extends Model {
   private _alias = new Map<string, Observable<SubscribeData>>()
 
   destructor() {
+    super.destructor()
     this._alias.clear()
   }
 

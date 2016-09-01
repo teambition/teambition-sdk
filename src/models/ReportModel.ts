@@ -11,12 +11,6 @@ export type TaskType = 'all' | 'delay' | 'ontime'
 
 export class ReportModel extends Model {
 
-  private _collections = new Map<string, Collection<any>>()
-
-  destructor() {
-    this._collections.clear()
-  }
-
   storeData (
     projectId: string,
     data: TaskData[] | SubtaskData[],

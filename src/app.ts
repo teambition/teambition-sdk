@@ -12,6 +12,7 @@ import StrikerFetch from './fetchs/StrikerFetch'
 import { forEach, assign, clone, uuid, concat, dropEle } from './utils/index'
 
 export const Utils = { forEach, assign, clone, uuid, concat, dropEle }
+export { testable } from './testable'
 export * from './utils/Fetch'
 export { eventParser } from './sockets/EventParser'
 

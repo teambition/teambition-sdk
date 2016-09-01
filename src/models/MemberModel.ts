@@ -8,11 +8,6 @@ import { default as Member, MemberData } from '../schemas/Member'
 export class MemberModel extends BaseModel {
 
   private _schemaName = 'Member'
-  private _collections = new Map<string, Collection<MemberData>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   saveProjectMembers(projectId: string, members: MemberData[], page: number, count: number): Observable<MemberData[]> {
     const result = datasToSchemas<MemberData>(members, Member)
@@ -60,19 +55,26 @@ export class MemberModel extends BaseModel {
     return null
   }
 
+  addProjectMembers(projectId: string, members: MemberData): Observable<MemberData>
+
+  addProjectMembers(projectId: string, members: MemberData[]): Observable<MemberData[]>
+
+  addProjectMembers(projectId: string, members: MemberData | MemberData[]): Observable<MemberData | MemberData[]>
+
   addProjectMembers(projectId: string, members: MemberData | MemberData[]): Observable<MemberData | MemberData[]> {
     const dbIndex = `project:members/${projectId}`
     if (members instanceof Array) {
-      const result = datasToSchemas<MemberData>(members, Member)
       let collection = this._collections.get(dbIndex)
       if (collection) {
         const signals: Observable<MemberData>[] = []
-        forEach(result, val => {
-          signals.push(this._save<MemberData>(val, '_memberId'))
+        forEach(members, val => {
+          const result = dataToSchema(val, Member)
+          signals.push(this._save<MemberData>(result, '_memberId'))
         })
         return Observable.from(signals)
           .mergeAll()
           .skip(signals.length - 1)
+          .take(1)
           .map(() => members)
       } else {
         return this.saveProjectMembers(projectId, members, 1, 30)

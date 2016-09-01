@@ -9,11 +9,6 @@ import { OrganizationData } from '../schemas/Organization'
 
 export class TaskModel extends BaseModel {
   private _schemaName = 'Task'
-  private _collections = new Map<string, Collection<any>>()
-
-  destructor() {
-    this._collections.clear()
-  }
 
   /**
    * 不分页不用 Collection
