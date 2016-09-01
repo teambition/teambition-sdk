@@ -109,12 +109,18 @@ export default describe('models/BaseCollection test: ', () => {
     collection.addPage(1, page1)
       .subscribe()
 
-    collection.get(1)
+    collection.addPage(1, page1)
       .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r.length).to.equal(page1.length)
-        done()
-      })
+      .subscribe()
+
+    setTimeout(() => {
+      collection.get(1)
+        .subscribe(r => {
+          expect(r.length).to.equal(page1.length)
+          done()
+        })
+    }, global.timeout2)
+
   })
 
   it('get page2 should ok', done => {
