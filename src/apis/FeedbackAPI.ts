@@ -30,13 +30,13 @@ export class FeedbackAPI {
 
   getProjectFeedback(projectId: string, query: GetProjectFeedbackQuerys): Observable<FeedbackData[]> {
     return makeColdSignal<FeedbackData[]>(observer => {
-      const cache = FeedbackModel.getProjectFeedbacks(projectId, query.page)
+      const cache = FeedbackModel.getProjectFeedbacks(projectId, query.page, query.from, query.to)
       if (cache) {
         return cache
       }
       return Observable.fromPromise(FeedbackFetch.getProjectFeedback(projectId, query))
         .catch(err => errorHandler(observer, err))
-        .concatMap(r => FeedbackModel.addProjectFeedbacks(projectId, r, query.page, query.count))
+        .concatMap(r => FeedbackModel.addProjectFeedbacks(projectId, r, query.page, query.count, query.from, query.to))
     })
   }
 

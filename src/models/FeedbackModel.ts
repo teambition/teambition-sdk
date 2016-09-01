@@ -23,9 +23,9 @@ export class FeedbackModel extends Model {
     return this._get<FeedbackData>(feedbackId)
   }
 
-  addProjectFeedbacks(projectId: string, feedbacks: FeedbackData[], page = 1, count = 100): Observable<FeedbackData[]> {
+  addProjectFeedbacks(projectId: string, feedbacks: FeedbackData[], page = 1, count = 100, from: string, to: string): Observable<FeedbackData[]> {
     const result = datasToSchemas(feedbacks, FeedbackSchema)
-    const dbIndex = `project:feedbacks/${projectId}`
+    const dbIndex = `project:feedbacks:${from}:${to}/${projectId}`
 
     let cache: Collection<FeedbackData> = this._collections.get(dbIndex)
     if (!cache) {
@@ -37,8 +37,8 @@ export class FeedbackModel extends Model {
     return cache.addPage(page, result)
   }
 
-  getProjectFeedbacks(projectId: string, page: number) {
-    const collection = this._collections.get(`project:feedbacks/${projectId}`)
+  getProjectFeedbacks(projectId: string, page: number, from: string, to: string) {
+    const collection = this._collections.get(`project:feedbacks:${from}:${to}/${projectId}`)
     if (collection) {
       return collection.get(page)
     }
