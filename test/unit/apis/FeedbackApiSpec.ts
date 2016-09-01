@@ -17,7 +17,7 @@ export default describe('FeedbackAPI Spec: ', () => {
 
   const projectId = projectFeedbacks[0]._boundToObjectId
   const from = new Date(2015, 1, 1).toISOString()
-  const to = new Date(2017, 1, 1).toISOString()
+  let to = new Date(2017, 1, 1).toISOString()
 
   beforeEach(() => {
     flush()
@@ -42,8 +42,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
-      from: from,
-      to: to
+      from, to
     })
       .subscribe(r => {
         expectDeepEqual(r[0], projectFeedbacks[0])
@@ -80,8 +79,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
-      from: from,
-      to: to
+      from, to
     })
       .skip(1)
       .subscribe(r => {
@@ -99,6 +97,33 @@ export default describe('FeedbackAPI Spec: ', () => {
       .subscribe()
 
     httpBackend.flush()
+  })
+
+  it('get feedback in another day should ok', done => {
+
+    FeedbackApi.getProjectFeedback(projectId, {
+      count: 1,
+      page: 1,
+      from, to
+    }).subscribe()
+
+    to = new Date(2016, 12, 1).toISOString()
+    httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=1&from=${from}&to=${to}`)
+      .respond(JSON.stringify(projectFeedbacks.slice(0, 1)))
+
+    FeedbackApi.getProjectFeedback(projectId, {
+      count: 1,
+      page: 1,
+      from, to
+    })
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe(r => {
+        expect(spy).to.be.calledTwice
+        done()
+      })
+
+    httpBackend.flush()
+
   })
 
   it('update project feedback should ok', done => {
