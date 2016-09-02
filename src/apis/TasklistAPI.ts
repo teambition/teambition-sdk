@@ -56,7 +56,7 @@ export class TasklistAPI {
       Observable.fromPromise(TasklistFetch.update(_tasklistId, patch))
         .concatMap(tasklist => TasklistModel.update(_tasklistId, tasklist))
         .forEach(tasklist => observer.next(tasklist))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -65,7 +65,7 @@ export class TasklistAPI {
       Observable.fromPromise(TasklistFetch.delete(_tasklistId))
         .concatMap(x => TasklistModel.delete(_tasklistId))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -74,7 +74,7 @@ export class TasklistAPI {
       Observable.fromPromise(TasklistFetch.archive(_tasklistId))
         .concatMap(tasklist => TasklistModel.update(_tasklistId, tasklist))
         .forEach(tasklist => observer.next(tasklist))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -83,7 +83,7 @@ export class TasklistAPI {
       return Observable.fromPromise(TasklistFetch.unarchive(_tasklistId))
         .concatMap(tasklist => TasklistModel.update(_tasklistId, tasklist))
         .forEach(x => observer.next(x))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 

@@ -52,7 +52,7 @@ export class StageAPI {
         .catch(err => observableError(observer, err))
         .concatMap(stage => StageModel.update(_stageId, stage))
         .forEach(stage => observer.next(stage))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -62,7 +62,7 @@ export class StageAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => StageModel.delete(_stageId))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -76,7 +76,7 @@ export class StageAPI {
         .forEach(x => observer.next(<any>{
           stageIds: stageIds
         }))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 

@@ -1,7 +1,7 @@
 {
   "rules": {
     "curly": true,
-    "eofline": false,
+    "eofline": true,
     "align": [true, "parameters"],
     "class-name": true,
     "indent": [true, 2],
@@ -14,7 +14,14 @@
     "no-var-keyword": true,
     "no-empty": true,
     "no-unused-expression": true,
-    "no-unused-variable": true,
+    "no-unused-variable": [
+      true,
+      {
+        "ignore-pattern": "^(_.*)$"
+      }
+    ],
+    "no-unused-new": true,
+    "no-eval": true,
     "no-use-before-declare": true,
     "no-var-requires": false,
     "no-require-imports": false,
@@ -33,6 +40,7 @@
       "property-declaration": "nospace",
       "variable-declaration": "nospace"
     }],
+    "use-isnan": true,
     "whitespace": [true,
       "check-branch",
       "check-decl",

@@ -243,7 +243,7 @@ export class TaskAPI {
         .catch(err => observableError(observer, err))
         .concatMap(task => TaskModel.addOne(task).take(1))
         .forEach(task => observer.next(task))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -253,7 +253,7 @@ export class TaskAPI {
         .catch(err => observableError(observer, err))
         .concatMap(task => TaskModel.addOne(task).take(1))
         .forEach(task => observer.next(task))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -263,7 +263,7 @@ export class TaskAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => TaskModel.delete(_taskId))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
