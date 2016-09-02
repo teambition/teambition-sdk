@@ -41,7 +41,7 @@ export class ActivityAPI {
         .catch(err => observableError(observer, err))
         .concatMap(a => ActivityModel.addOne(a).take(1))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 }

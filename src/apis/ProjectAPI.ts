@@ -127,7 +127,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(project => ProjectModel.update(_id, project))
         .forEach(x => observer.next(x))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -137,7 +137,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.delete(_id))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -147,7 +147,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.update(_id, x))
         .forEach(x => observer.next(<ProjectData>x))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 

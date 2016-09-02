@@ -36,7 +36,7 @@ export class MessageAPI {
         .catch(err => observableError(observer, err))
         .concatMap(message => MessageModel.update(messageId, message))
         .forEach(message => observer.next(message))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -46,7 +46,7 @@ export class MessageAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => MessageModel.markAllAsRead(type))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -56,7 +56,7 @@ export class MessageAPI {
         .catch(err => observableError(observer, err))
         .concatMap(message => MessageModel.update(messageId, message))
         .forEach(message => observer.next(message))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -66,7 +66,7 @@ export class MessageAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => MessageModel.delete(messageId))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -76,7 +76,7 @@ export class MessageAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => MessageModel.deleteAllRead(type))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 }

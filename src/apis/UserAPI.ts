@@ -33,7 +33,7 @@ export class UserAPI {
         .catch(err => errorHandler(observer, err))
         .concatMap(x => UserModel.update(x))
         .forEach(result => observer.next(result))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -45,7 +45,7 @@ export class UserAPI {
           emails: x
         }))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -55,7 +55,7 @@ export class UserAPI {
         .catch(err => errorHandler(observer, err))
         .concatMap(x => UserModel.update(x))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 }

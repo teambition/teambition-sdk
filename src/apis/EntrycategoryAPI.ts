@@ -48,7 +48,7 @@ export class EntrycategoryAPI {
       return Observable.fromPromise(EntrycategoryFetch.update(_entrycategoryId, data))
         .concatMap(entrycategory => EntrycategoryModel.update(_entrycategoryId, entrycategory))
         .forEach(entrycategory => observer.next(entrycategory))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -75,7 +75,7 @@ export class EntrycategoryAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => EntrycategoryModel.delete(entrycategoryId))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 

@@ -59,7 +59,7 @@ export class SubtaskAPI {
         .catch(err => observableError(observer, err))
         .concatMap(subtask => SubtaskModel.update(_subtaskId, subtask))
         .forEach(x => observer.next(x))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -69,7 +69,7 @@ export class SubtaskAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => SubtaskModel.delete(_subtaskid))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -80,7 +80,7 @@ export class SubtaskAPI {
         .concatMap(x => SubtaskModel.delete(_subtaskId).map(() => x))
         .concatMap(x => TaskModel.addOne(x).take(1).map(() => x))
         .forEach(x => observer.next(x))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 

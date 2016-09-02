@@ -23,7 +23,7 @@ export class CollectionAPI {
         .catch(err => observableError(observer, err))
         .concatMap(collection => CollectionModel.addOne(collection).take(1))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -45,7 +45,7 @@ export class CollectionAPI {
         .catch(err => observableError(observer, err))
         .concatMap(r => CollectionModel.update<TBCollectionData>(collectionId, r))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -55,7 +55,7 @@ export class CollectionAPI {
         .catch(err => observableError(observer, err))
         .concatMap(r => CollectionModel.delete(collectionId))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -65,7 +65,7 @@ export class CollectionAPI {
         .catch(err => observableError(observer, err))
         .concatMap(r => CollectionModel.update(collectionId, r))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -87,7 +87,7 @@ export class CollectionAPI {
         .catch(err => observableError(observer, err))
         .concatMap(r => CollectionModel.update<TBCollectionData>(collectionId, r))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -97,7 +97,7 @@ export class CollectionAPI {
         .catch(err => observableError(observer, err))
         .concatMap(r => CollectionModel.update(collectionId, r))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 }

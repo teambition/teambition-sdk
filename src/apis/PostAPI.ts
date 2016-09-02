@@ -68,7 +68,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => PostModel.delete(postId))
         .forEach(x => observer.next(null))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -81,7 +81,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(post => PostModel.update(postId, post))
         .forEach(post => observer.next(post))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -104,7 +104,7 @@ export class PostAPI {
           })
         })
         .forEach(v => observer.next(_result))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -117,7 +117,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(result => PostModel.update<PostData>(postId, result))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -130,7 +130,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(result => PostModel.update<PostData>(postId, result))
         .forEach(r => observer.next(r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -143,7 +143,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(result => PostModel.update(postId, result))
         .forEach(r => observer.next(<PostData>r))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -156,7 +156,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(result => PostModel.update(postId, result))
         .forEach(x => observer.next(x))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -169,7 +169,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(post => PostModel.update(postId, post))
         .forEach(v => observer.next(v))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -182,7 +182,7 @@ export class PostAPI {
         .catch(err => observableError(observer, err))
         .concatMap(r => PostModel.update(postId, r))
         .forEach(x => observer.next(x))
-        .then(x => observer.complete())
+        .then(() => observer.complete())
     })
   }
 }
