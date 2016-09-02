@@ -1,9 +1,15 @@
 'use strict'
-import 'isomorphic-fetch'
 import 'rxjs/add/operator/debounceTime'
 import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { assign, forEach } from './index'
+
+/* istanbul ignore if */
+if (typeof window !== 'undefined') {
+  window.fetch = null
+}
+
+require('isomorphic-fetch')
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
 
