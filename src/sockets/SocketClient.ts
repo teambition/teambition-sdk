@@ -2,7 +2,7 @@
 import { Subject } from 'rxjs/Subject'
 import { Subscription } from 'rxjs/Subscription'
 import UserFetch from '../fetchs/UserFetch'
-import ProjectFetch from '../fetchs/ProjectFetch'
+import SocketFetch from '../fetchs/SocketFetch'
 import { socketHandler } from './EventMaps'
 import Consumer, { RequestEvent } from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
@@ -13,28 +13,19 @@ const ctx = typeof global === 'undefined' ? window : global
 
 /* istanbul ignore next */
 export class SocketClient {
-
-  private static _isDebug = false
-
-  private static _isSubscribe = false
+  private _isDebug = false
 
   private _client: Consumer
 
   private _socketUrl = 'wss://push.teambition.com'
 
   private _me: UserMe
+  private _consumerId: string
 
   private _getUserMeStream = new Subject<UserMe>()
 
-  /**
-   * 由于新的 API 可以一次性订阅所有项目的 socket，参数中 _projectId 其实已经没用了
-   * 但是由于 snapper-consumer 的内部设计只能先保留这个参数
-   */
-  private static _join (_projectId: string, consumerId: string): Promise<any> {
-    return ProjectFetch.subscribeSocket(consumerId).catch(e => {
-      SocketClient._isSubscribe = false
-    })
-  }
+  private _joinedRoom = new Set<string>()
+  private _leavedRoom = new Set<string>()
 
   constructor() {
     this._getUserMeStream.subscribe(userMe => {
@@ -43,7 +34,7 @@ export class SocketClient {
   }
 
   debug(): void {
-    SocketClient._isDebug = true
+    this._isDebug = true
     ctx['console']['log']('socket debug start')
   }
 
@@ -53,8 +44,9 @@ export class SocketClient {
 
   initClient(client: Consumer): void {
     this._client = client
-    this._client._join = SocketClient._join
+    this._client._join = this._join
     this._client.onmessage = this._onmessage
+    this._client.onopen = this._onopen
     this._client['getToken'] = () => {
       if (this._me) {
         return this._me.snapperToken
@@ -64,7 +56,7 @@ export class SocketClient {
     }
   }
 
-  connect(): Promise<any> | Consumer {
+  connect(): Promise<void> {
     if (!this._checkToken()) {
       return this._getToken()
         .then(() => {
@@ -75,29 +67,54 @@ export class SocketClient {
     }
   }
 
-  join(): Consumer {
-    if (SocketClient._isSubscribe) {
+  /**
+   * uri 格式: :type/:id
+   * eg: projects, organizations/554c83b1b2c809b4715d17b0
+   */
+  join(uri: string): Consumer {
+    if (this._joinedRoom.has(uri)) {
       return this._client
     }
-    SocketClient._isSubscribe = true
-    return this._client.join.call(this._client)
+    return this._client.join.call(this._client, uri)
   }
 
-  isSubscribed() {
-    return SocketClient._isSubscribe
+  leave(uri: string): Promise<void> {
+    if (!this._consumerId) {
+      return Promise.reject(new Error(`leave room failed, no consumerId`))
+    }
+    if (this._leavedRoom.has(uri)) {
+      return Promise.resolve()
+    }
+    return SocketFetch.leave(uri, this._consumerId)
+      .then(() => {
+        if (this._joinedRoom) {
+          this._joinedRoom.delete(uri)
+        }
+        this._leavedRoom.add(uri)
+      })
+      .catch((e: any) => {
+        console.error(e)
+      })
   }
 
-  private _connect() {
+  // override Consumer onopen
+  private _onopen(): void {
+    this._joinedRoom.forEach(r => {
+      SocketFetch.join(r, this._consumerId)
+    })
+  }
+
+  private _connect(): Promise<void> {
     this._client
       .connect(this._socketUrl, {
         path: '/websocket',
         token: this._me.snapperToken
       })
-    return this.join()
+    return Promise.resolve()
   }
 
   private _onmessage(event: RequestEvent) {
-    if (SocketClient._isDebug) {
+    if (this._isDebug) {
       // 避免被插件清除掉
       ctx['console']['log'](event)
     }
@@ -132,6 +149,17 @@ export class SocketClient {
     return UserFetch.getUserMe()
       .then(r => {
         this._getUserMeStream.next(r)
+      })
+  }
+
+  private _join (room: string, consumerId: string): Promise<any> {
+    this._consumerId = consumerId
+    return SocketFetch.join(room, consumerId)
+      .then(() => {
+        this._joinedRoom.add(room)
+      })
+      .catch(e => {
+        console.error(e)
       })
   }
 }

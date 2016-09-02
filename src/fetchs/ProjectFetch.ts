@@ -226,12 +226,6 @@ export class ProjectFetch extends BaseFetch {
     })
   }
 
-  subscribeSocket(consumerId: string): Promise<any> {
-    return this.fetch.post(`projects/subscribe`, {
-      consumerId: consumerId
-    })
-  }
-
   getReportSummary (_projectId: string, query?: any): Promise<ReportSummarySchema> {
     return this.fetch.get(`projects/${_projectId}/report-summary`, query)
   }
