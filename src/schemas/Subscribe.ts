@@ -13,6 +13,7 @@ export interface SubscribeData extends ISchema {
       logo: string
       py: string
       pinyin: string
+      created: string
     }[]
     users: {
       _id: string
@@ -40,6 +41,7 @@ export default class SubscribeSchema extends Schema<SubscribeData> implements Su
       logo: string
       py: string
       pinyin: string
+      created: string
     }[]
     users: {
       _id: string
