@@ -4,6 +4,7 @@ import { Observer } from 'rxjs/Observer'
 import TaskModel from '../models/TaskModel'
 import { TaskData } from '../schemas/Task'
 import { errorHandler, makeColdSignal, observableError } from './utils'
+import Dirty from '../utils/Dirty'
 import {
   default as TaskFetch,
   CreateTaskOptions,
@@ -56,6 +57,7 @@ export class TaskAPI {
         isDone: false
       }))
         .catch(err => errorHandler(observer, err))
+        .map(Dirty.handlerMytasksApi)
         .concatMap(tasks => TaskModel.addMyDueTasks(_userId, tasks))
     })
   }
@@ -73,6 +75,7 @@ export class TaskAPI {
         isDone: false
       }))
         .catch(err => errorHandler(observer, err))
+        .map(Dirty.handlerMytasksApi)
         .concatMap(tasks => TaskModel.addMyTasks(_userId, tasks))
     })
   }
@@ -105,6 +108,7 @@ export class TaskAPI {
         hasDuedate: true
       }))
         .catch(err => errorHandler(observer, err))
+        .map(Dirty.handlerMytasksApi)
         .concatMap(tasks => TaskModel.addOrganizationMyDueTasks(userId, organization, tasks, page))
     })
   }
@@ -121,6 +125,7 @@ export class TaskAPI {
         hasDuedate: false
       }))
         .catch(err => errorHandler(observer, err))
+        .map(Dirty.handlerMytasksApi)
         .concatMap(tasks => TaskModel.addOrganizationMyTasks(userId, organization, tasks, page))
     })
   }
@@ -136,6 +141,7 @@ export class TaskAPI {
         isDone: true
       }))
         .catch(err => errorHandler(observer, err))
+        .map(Dirty.handlerMytasksApi)
         .concatMap(tasks => TaskModel.addOrganizationMyDoneTasks(userId, organization, tasks, page))
     })
   }
@@ -149,6 +155,7 @@ export class TaskAPI {
       const maxId = TaskModel.getOrgMyCreatedMaxId(organization._id)
       return Observable.fromPromise(TaskFetch.getOrgsTasksCreated(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
+        .map(Dirty.handlerMytasksApi)
         .concatMap(tasks => TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page))
     })
   }
@@ -162,6 +169,7 @@ export class TaskAPI {
       const maxId = TaskModel.getOrgMyInvolvesMaxId(organization._id)
       return Observable.fromPromise(TaskFetch.getOrgsTasksInvolves(organization._id, page, maxId))
         .catch(err => errorHandler(observer, err))
+        .map(Dirty.handlerMytasksApi)
         .concatMap(tasks => TaskModel.addOrgMyInvolvesTasks(userId, organization, tasks, page))
     })
   }
