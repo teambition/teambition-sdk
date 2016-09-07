@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import Database from '../../../src/storage/Database'
@@ -26,42 +25,39 @@ export default describe('database test: ', () => {
     Storage = new Database()
   })
 
-  it('database storeOne/getOne should ok', done => {
+  it('database storeOne/getOne should ok', function* () {
     const data = {
       _id: '1111',
       data: 'tbsdk_test 1'
     }
-    Storage.storeOne(data)
-      .subscribe(res => {
+    yield Storage.storeOne(data)
+      .take(1)
+      .forEach(res => {
         expect(res).to.deep.equal(data)
-        done()
       })
   })
 
-  it('database delete should ok', done => {
+  it('database delete should ok', function* () {
     const data = {
       _id: '3333',
       data: 'tbsdk_test 3'
     }
-    const set = Storage.storeOne(data)
 
-    const del = Storage.delete('3333')
+    yield Storage.storeOne(data).take(1)
 
-    const get = Storage.get('3333')
+    const stream = Storage.get('3333')
+      .publish()
+      .refCount()
 
-    set.concatMap(x => get)
-      .skip(1)
-      .subscribe(x => {
-        expect(x).to.be.null
-        done()
-      })
+    yield Storage.delete('3333')
 
-    del.subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    stream.take(1).do(x => {
+      expect(x).to.be.null
+    })
   })
 
   describe('update should ok: ', () => {
-    it('update object should ok', done => {
+    it('update object should ok', function* () {
       const data = {
         _id: '5555',
         data: 'tbsdk_test 5'
@@ -69,25 +65,22 @@ export default describe('database test: ', () => {
       const patchData = {
         data: 'tbsdk_test 6'
       }
-      const set = Storage.storeOne<typeof data>(data)
-      const update = Storage.updateOne('5555', patchData)
-      const get = Storage.get<typeof data>('5555')
 
-      set.subscribe()
+      yield Storage.storeOne<typeof data>(data).take(1)
 
-      get.subscribeOn(Scheduler.async, global.timeout1)
-        .skip(1)
-        .subscribe(r => {
+      const stream = Storage.get<typeof data>('5555')
+        .publish()
+        .refCount()
+
+      yield Storage.updateOne('5555', patchData)
+
+      yield stream.take(1)
+        .do(r => {
           expect(r.data).to.equal(patchData.data)
-          done()
         })
-
-      update.subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
-
     })
 
-    it('update collection exist ele should ok', done => {
+    it('update collection exist ele should ok', function* () {
       const data = [
         {
           _id: '6666',
@@ -116,20 +109,23 @@ export default describe('database test: ', () => {
           data: 'tbsdk_test 88'
         }
       ]
-	    Storage.storeCollection('collection_test_1', data)
-        .skip(1)
-        .subscribe(r => {
-          expect(r).to.deep.equal(patchData)
-          done()
-        })
 
-      Storage.updateCollection('collection_test_1', patchData)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield Storage.storeCollection('collection_test_1', data).take(1)
 
+      const stream = Storage.get('collection_test_1')
+        .publish()
+        .refCount()
+
+      yield stream.take(1)
+
+      yield Storage.updateCollection('collection_test_1', patchData)
+
+      yield stream.take(1).do(r => {
+        expect(r).to.deep.equal(patchData)
+      })
     })
 
-    it('update collection not exist ele should ok', done => {
+    it('update collection not exist ele should ok', function* () {
       const data = [
         {
           _id: '8888',
@@ -161,47 +157,45 @@ export default describe('database test: ', () => {
       ]
 
       const set = Storage.storeCollection('collection_test_2', data)
-      const update = Storage.updateCollection('collection_test_2', patchData)
-      const get = Storage.get<typeof data>('collection_test_2')
+        .publish()
+        .refCount()
 
-      set.take(1)
-        .concatMap(r => update)
-        .concatMap(r => get.take(1))
-        .subscribe(r => {
+      yield set.take(1)
+
+      yield Storage.updateCollection('collection_test_2', patchData)
+
+      yield Storage.get<typeof data>('collection_test_2')
+        .take(1)
+        .forEach(r => {
           expect(r).to.deep.equal(patchData)
-          done()
-        }, err => {
-          console.log(err)
         })
     })
 
-    it('patch data is not object should throw', done => {
-      Storage.storeOne({
+    it('patch data is not object should throw', function* () {
+      yield Storage.storeOne({
         _id: '14.14',
         data: 'tbsdk_test 14'
-      }).subscribe()
+      }).take(1)
 
-      Storage.updateOne('14.14', '5555')
-        .subscribeOn(Scheduler.async, global.timeout4)
-        .subscribe(null, (err: Error) => {
+      yield Storage.updateOne('14.14', '5555')
+        .toPromise()
+        .catch((err: Error) => {
           expect(err.message).to.equal(`A patch should be Object, patch: 5555, type: ${typeof '5555'}`)
-          done()
         })
-
     })
 
-    it('patch target not exist should throw', done => {
-      Storage.updateOne('teambtion', {
+    it('patch target not exist should throw', function* () {
+      yield Storage.updateOne('teambtion', {
         _id: 'teambtion',
         data: 'tbsdk_test teambtion'
       })
-      .subscribe(null, err => {
-        expect(err.message).to.equal('Patch target not exist: teambtion')
-        done()
-      })
+        .toPromise()
+        .catch(err => {
+          expect(err.message).to.equal('Patch target not exist: teambtion')
+        })
     })
 
-    it('patch object exist in other object should ok', done => {
+    it('patch object exist in other object should ok', function* () {
       const data = {
         _id: '20.20',
         data: {
@@ -213,20 +207,20 @@ export default describe('database test: ', () => {
         data: 'tbsdk_test 21.21'
       }
 
-      Storage.storeOne<typeof data>(data)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.data.data).to.equal(patch.data)
-          done()
-        })
+      const stream = Storage.storeOne<typeof data>(data)
+        .publish()
+        .refCount()
 
-      Storage.updateOne('21.21', patch)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe()
+      yield stream.take(1)
 
+      yield Storage.updateOne('21.21', patch)
+
+      yield stream.take(1).do(r => {
+        expect(r.data.data).to.equal(patch.data)
+      })
     })
 
-    it('child of obj is updated, parent should be notified', done => {
+    it('child of obj is updated, parent should be notified', function* () {
       const obj = {
         _id: '28.28',
         data: 'tbsdk_test 28',
@@ -236,25 +230,22 @@ export default describe('database test: ', () => {
         }
       }
 
-      Storage.storeOne(obj)
-        .subscribe()
+      yield Storage.storeOne(obj).take(1)
 
-      Storage.get<typeof obj>('28.28')
-        .skip(1)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
-          expect(r.child.data).to.equal('tbsdk_test 29.29')
-          done()
-        })
+      const stream = Storage.get<typeof obj>('28.28')
+        .publish()
+        .refCount()
 
-      Storage.updateOne('29.29', {
+      yield Storage.updateOne('29.29', {
         data: 'tbsdk_test 29.29'
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
+
+      yield stream.take(1).do(r => {
+        expect(r.child.data).to.equal('tbsdk_test 29.29')
+      })
     })
 
-    it('child of obj is updated to new one and the child is updated again, parent should be notified', done => {
+    it('child of obj is updated to new one and the child is updated again, parent should be notified', function* () {
       const obj = {
         _id: '28.28',
         data: 'tbsdk_test 28',
@@ -264,34 +255,29 @@ export default describe('database test: ', () => {
         }
       }
 
-      Storage.storeOne(obj)
-        .subscribe()
+      const stream = Storage.get<typeof obj>('28.28')
+        .publish()
+        .refCount()
 
-      Storage.get<typeof obj>('28.28')
-        .skip(2)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
-          expect(r.child.data).to.equal('new one')
-          done()
-        })
+      yield Storage.storeOne(obj).take(1)
 
-      Storage.updateOne('28.28', {
+      yield Storage.updateOne('28.28', {
         child: {
           _id: 'newOne',
           data: 'tbsdk_test new one'
         }
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
 
-      Storage.updateOne('newOne', {
+      yield stream.take(1).do(r => expect(r.child.data).to.equal('tbsdk_test new one'))
+
+      yield Storage.updateOne('newOne', {
         data: 'new one'
       })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe()
+
+      yield stream.take(1).do(r => expect(r.child.data).to.equal('new one'))
     })
 
-    it('stored child of obj updated, parent should be notified', done => {
+    it('stored child of obj updated, parent should be notified', function* () {
       const childObj = {
         _id: '29.29',
         data: 'tbsdk_test 29'
@@ -306,25 +292,23 @@ export default describe('database test: ', () => {
         }
       }
 
-      Storage.storeOne(childObj)
-        .subscribe()
+      yield Storage.storeOne(childObj).take(1)
 
-      Storage.storeOne(obj)
-        .skip(1)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
-          expect(r.child.data).to.equal('tbsdk_test 29.29')
-          done()
-        })
+      const stream = Storage.storeOne(obj)
+        .publish()
+        .refCount()
 
-      Storage.updateOne('29.29', {
+      yield Storage.updateOne('29.29', {
         data: 'tbsdk_test 29.29'
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
+
+      yield stream.take(1)
+        .do(r => {
+          expect(r.child.data).to.equal('tbsdk_test 29.29')
+        })
     })
 
-    it('ele obj updated, collection include it should be notified', done => {
+    it('ele obj updated, collection include it should be notified', function*() {
       const col = [
         {
           _id: '30.30',
@@ -336,24 +320,20 @@ export default describe('database test: ', () => {
         }
       ]
 
-      Storage.storeCollection('collection_test_10', col)
-        .subscribe(x => {
-          Storage.get<typeof col>('collection_test_10')
-            .skip(1)
-            .subscribe(r => {
-              expect(r[1].data).to.equal('tbsdk_test 31.31')
-              done()
-            })
-        })
+      yield Storage.storeCollection('collection_test_10', col).take(1)
 
-      Storage.updateOne('31.31', {
+      yield Storage.updateOne('31.31', {
         data: 'tbsdk_test 31.31'
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield Storage.get<typeof col>('collection_test_10')
+        .take(1)
+        .do(r => {
+          expect(r[1].data).to.equal('tbsdk_test 31.31')
+        })
     })
 
-    it('stored ele obj updated, collection include it should be notified', done => {
+    it('stored ele obj updated, collection include it should be notified', function* () {
       const obj = {
         _id: '30.30',
         data: 'tbsdk_test 30'
@@ -370,26 +350,25 @@ export default describe('database test: ', () => {
         }
       ]
 
-      Storage.storeOne(obj)
-        .concatMap(x => Storage.storeCollection('collection_test_10', col))
-        .subscribe()
+      yield Storage.storeOne(obj).take(1)
 
-      Storage.get<typeof col>('collection_test_10')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .skip(1)
-        .subscribe(r => {
-          expect(r[0].data).to.equal('tbsdk_test 30.30')
-          done()
-        })
+      yield Storage.storeCollection('collection_test_10', col).take(1)
 
-      Storage.updateOne('30.30', {
+      const stream = Storage.get<typeof col>('collection_test_10')
+        .publish()
+        .refCount()
+
+      yield Storage.updateOne('30.30', {
         data: 'tbsdk_test 30.30'
       })
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
+
+      yield stream.take(1)
+        .do(r => {
+          expect(r[0].data).to.equal('tbsdk_test 30.30')
+        })
     })
 
-    it('update ele in condition collection should ok', done => {
+    it('update ele in condition collection should ok', function* () {
       const getSchemaName = () => 'schema_test'
       const col = [
         {
@@ -404,24 +383,19 @@ export default describe('database test: ', () => {
         }
       ]
 
-      const update = Storage.updateOne('33.33', {
+      yield Storage.storeCollection('collection_test_11', col, 'schema_test', (x: any) => {
+        return parseInt(x.data.split(' ').pop(), 10) < 50
+      }).take(1)
+
+      yield Storage.updateOne('33.33', {
         data: 'tbsdk_test 80'
       })
 
-      const get = Storage.get<any[]>('collection_test_11')
-
-      Storage.storeCollection('collection_test_11', col, 'schema_test', (x: any) => {
-        return parseInt(x.data.split(' ').pop(), 10) < 50
-      })
-        .take(1)
-        .concatMap(x => update)
-        .concatMap(x => get.take(1))
-        .subscribe(r => {
+      yield Storage.get<any[]>('collection_test_11').take(1)
+        .do(r => {
           expect(r.length).to.equal(1)
           expect(r[0]._id).to.equal('32.32')
-          done()
         })
-
     })
 
     describe('change ele to satisfy collection condition: ', () => {
@@ -430,95 +404,85 @@ export default describe('database test: ', () => {
         constructor(public _id: string, public name: string, public age: number) {}
       }
 
-      it('collection should be updated', done => {
-        Storage.storeCollection('collection_test_14', [
+      it('collection should be updated', function* () {
+        yield Storage.storeCollection('collection_test_14', [
           new TestEle('40.40', 'tbsdk_test 40', 40),
           new TestEle('41.41', 'tbsdk_test 41', 41)
         ], 'TestEle', (ele: TestEle) => {
           return ele.age > 30
-        }).subscribe()
+        }).take(1)
 
-        Storage.get<TestEle[]>('collection_test_14')
-          .subscribeOn(Scheduler.async, global.timeout1)
-          .skip(1)
-          .subscribe(r => {
+        yield Storage.storeOne(new TestEle('42.42', 'tbsdk_test 42', 42))
+          .take(1)
+
+        yield Storage.get<TestEle[]>('collection_test_14')
+          .take(1)
+          .do(r => {
             expect(r.length).to.equal(3)
             expect(r[0].name).to.equal('tbsdk_test 42')
-            done()
           })
-
-        Storage.storeOne(new TestEle('42.42', 'tbsdk_test 42', 42))
-          .subscribeOn(Scheduler.async, global.timeout2)
-          .subscribe()
       })
 
-      it('after ele updated, collection should be updated', done => {
+      it('after ele updated, collection should be updated', function* () {
 
-        Storage.storeCollection('collection_test_12', [
+        yield Storage.storeCollection('collection_test_12', [
           new TestEle('34.34', 'tbsdk_test 34', 34),
           new TestEle('35.35', 'tbsdk_test 35', 35)
         ], 'TestEle', (ele: TestEle) => {
           return ele.age > 30
-        }).subscribe()
+        }).take(1)
 
-        Storage.get<TestEle[]>('collection_test_12')
-          .subscribeOn(Scheduler.async, global.timeout1)
-          .skip(1)
-          .subscribe(r => {
-            expect(r.length).to.equal(3)
-            expect(r[0].name).to.equal('tbsdk_test 36')
-            done()
-          })
+        yield Storage.storeOne(new TestEle('36.36', 'tbsdk_test 36', 20))
+          .take(1)
 
-        Storage.storeOne(new TestEle('36.36', 'tbsdk_test 36', 20))
-          .subscribeOn(Scheduler.async, global.timeout2)
-          .subscribe()
-
-        Storage.updateOne('36.36', {
+        yield Storage.updateOne('36.36', {
           age: 40
         })
-          .subscribeOn(Scheduler.async, global.timeout3)
-          .subscribe()
+
+        yield Storage.get<TestEle[]>('collection_test_12')
+          .take(1)
+          .do(r => {
+            expect(r.length).to.equal(3)
+            expect(r[0].name).to.equal('tbsdk_test 36')
+          })
       })
 
-      it('new ele add to collection updated, collection should be notified', done => {
+      it('new ele add to collection updated, collection should be notified', function* () {
 
-        Storage.storeCollection('collection_test_13', [
+        yield Storage.storeCollection('collection_test_13', [
           new TestEle('37.37', 'tbsdk_test 37', 37),
           new TestEle('38.38', 'tbsdk_test 35', 38)
         ], 'TestEle', (ele: TestEle) => {
           return ele.age > 30
-        })
-          .subscribe()
+        }).take(1)
 
-        Storage.get<TestEle[]>('collection_test_13')
-          .subscribeOn(Scheduler.async, global.timeout1)
-          .skip(2)
-          .subscribe(r => {
-            expect(r.length).to.equal(3)
-            expect(r[0].name).to.equal('tbsdk_test 39.39')
-            done()
-          })
+        yield Storage.storeOne(new TestEle('39.39', 'tbsdk_test 39', 20))
+          .take(1)
 
-        Storage.storeOne(new TestEle('39.39', 'tbsdk_test 39', 20))
-          .subscribeOn(Scheduler.async, global.timeout2)
-          .subscribe()
-
-        Storage.updateOne('39.39', {
+        yield Storage.updateOne('39.39', {
           age: 40
         })
-          .subscribeOn(Scheduler.async, global.timeout3)
-          .subscribe()
 
-        Storage.updateOne('39.39', {
+        yield Storage.get('collection_test_13')
+          .take(1)
+          .do(r => {
+            expect(r[0].age).to.equal(40)
+          })
+
+        yield Storage.updateOne('39.39', {
           name: 'tbsdk_test 39.39'
         })
-          .subscribeOn(Scheduler.async, global.timeout4)
-          .subscribe()
+
+        yield Storage.get<TestEle[]>('collection_test_13')
+          .take(1)
+          .do(r => {
+            expect(r.length).to.equal(3)
+            expect(r[0].name).to.equal('tbsdk_test 39.39')
+          })
       })
     })
 
-    it('update collection with empty array, old singals should be notified', done => {
+    it('update collection with empty array, old singals should be notified', function* () {
       const objEle = [
         {
           _id: '24.24',
@@ -530,45 +494,36 @@ export default describe('database test: ', () => {
 
       const result = []
 
-      Storage.storeCollection('collection_test_15', objEle)
-        .subscribe()
+      yield Storage.storeCollection('collection_test_15', objEle)
+        .take(1)
 
-      Storage.updateCollection('collection_test_15', colEle)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield Storage.updateCollection('collection_test_15', colEle)
 
-      Storage.get<typeof objEle>('collection_test_15')
-        .skip(1)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(x => {
+      yield Storage.get<typeof objEle>('collection_test_15')
+        .take(1)
+        .do(x => {
           expect(x).deep.equal(result)
-          done()
         })
-
     })
 
-    it('update empty collection should ok', done => {
-      Storage.storeCollection('collection_test_20', [])
-        .subscribe()
+    it('update empty collection should ok', function* () {
+      yield Storage.storeCollection('collection_test_20', []).take(1)
 
-      Storage.updateCollection('collection_test_20', [
+      yield Storage.updateCollection('collection_test_20', [
         {
           _id: '51.51',
           data: 'tbsdk_test 51'
         }
       ])
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
-      Storage.get<any[]>('collection_test_20')
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe(r => {
+      yield Storage.get<any[]>('collection_test_20')
+        .take(1)
+        .do(r => {
           expect(r.length).to.equal(1)
-          done()
         })
     })
 
-    it('update collection and new item updated, old singals should be notified', done => {
+    it('update collection and new item updated, old singals should be notified', function* () {
       const objEle = [
         {
           _id: '21.21',
@@ -607,30 +562,30 @@ export default describe('database test: ', () => {
         }
       ]
 
-      Storage.storeCollection('collection_test_7', objEle)
-        .subscribe()
+      yield Storage.storeCollection('collection_test_7', objEle).take(1)
 
-      Storage.updateCollection('collection_test_7', colEle)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      const stream = Storage.get<typeof objEle>('collection_test_7')
+        .publish()
+        .refCount()
 
-      Storage.get<typeof objEle>('collection_test_7')
-        .skip(1)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(x => {
+      yield Storage.updateCollection('collection_test_7', colEle)
+
+      yield stream.take(1).do(r => {
+        expect(r).to.deep.equal(colEle)
+      })
+
+      yield Storage.updateOne('23.23', patchData)
+
+      yield stream
+        .take(1)
+        .do(x => {
           expect(x).deep.equal(result)
-          done()
         })
-
-      Storage.updateOne('23.23', patchData)
-        .subscribeOn(Scheduler.async, global.timeout4)
-        .subscribe()
-
     })
 
   })
 
-  it('store exist collection should throw', done => {
+  it('store exist collection should throw', function* () {
     const set1 = Storage.storeCollection('collection_test_4', [
       {
         _id: '16.16',
@@ -645,14 +600,16 @@ export default describe('database test: ', () => {
       }
     ])
 
-    set1.concatMap(x => set2)
-      .subscribe(null, err => {
+    yield set1.take(1)
+
+    yield set2.take(1)
+      .toPromise()
+      .catch(err => {
         expect(err.message).to.equal('Can not store a existed data: collection_test_4')
-        done()
       })
   })
 
-  it('store collection that include exist object, the old one should be updated', done => {
+  it('store collection that include exist object, the old one should be updated', function* () {
     const objEle = [
       {
         _id: '18.18',
@@ -673,36 +630,35 @@ export default describe('database test: ', () => {
         data: 'tbsdk_test 19.19'
       }
     ]
-    Storage.storeCollection('collection_test_5', objEle)
-      .subscribe()
+    yield Storage.storeCollection('collection_test_5', objEle)
+      .take(1)
 
-    Storage.storeCollection('collection_test_6', colEle)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    yield Storage.storeCollection('collection_test_6', colEle)
+      .take(1)
 
-    Storage.get('collection_test_5')
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe(r => {
+    yield Storage.get('collection_test_5')
+      .take(1)
+      .do(r => {
         expect(r[0].data).to.equal(colEle[0].data)
-        done()
       })
   })
 
-  it('store empty collection should ok', done => {
+  it('store empty collection should ok', function* () {
     const empty = []
 
-    Storage.storeCollection('collection_test_8', empty)
-      .subscribe()
+    yield Storage.storeCollection('collection_test_8', empty)
+      .take(1)
 
-    Storage.storeCollection('collection_test_8', empty)
-      .subscribe(r => {
+    yield Storage.storeCollection('collection_test_8', empty)
+      .take(1)
+      .do(r => {
         expect(r.length).to.equal(0)
-        done()
       })
   })
 
-  it('delete element from multi collections should ok', done => {
-    Storage.storeCollection('collection_test_16', [
+  it('delete element from multi collections should ok', function* () {
+
+    yield Storage.storeCollection('collection_test_16', [
       {
         _id: '43.43',
         data: 'tbsdk_test 43'
@@ -711,13 +667,13 @@ export default describe('database test: ', () => {
         _id: '31.31',
         data: 'tbsdk_test 31'
       }
-    ])
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(1)
-      })
+    ]).take(1)
 
-    Storage.storeCollection('collection_test_17', [
+    const stream = Storage.get('collection_test_16')
+      .publish()
+      .refCount()
+
+    yield Storage.storeCollection('collection_test_17', [
       {
         _id: '43.43',
         data: 'tbsdk_test 43'
@@ -726,14 +682,13 @@ export default describe('database test: ', () => {
         _id: '32.32',
         data: 'tbsdk_test 32'
       }
-    ])
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(1)
-      })
+    ]).take(1)
 
-    Storage.storeCollection('collection_test_18', [
+    const stream2 = Storage.get('collection_test_17')
+      .publish()
+      .refCount()
+
+    yield Storage.storeCollection('collection_test_18', [
       {
         _id: '43.43',
         data: 'tbsdk_test 43'
@@ -743,73 +698,92 @@ export default describe('database test: ', () => {
         data: 'tbsdk_test 33'
       }
     ])
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(1)
-        done()
-      })
+      .take(1)
 
-    Storage.delete('43.43')
-      .subscribeOn(Scheduler.async, global.timeout3)
-      .subscribe()
+    yield Storage.delete('43.43')
+
+    yield [
+      stream.take(1)
+        .do((r: any[]) => {
+          expect(r.length).to.equal(1)
+        }),
+      stream2.take(1)
+        .do((r: any[]) => {
+          expect(r.length).to.equal(1)
+        }),
+      Storage.get('collection_test_18')
+        .take(1)
+        .do((r: any[]) => {
+          expect(r.length).to.equal(1)
+        })
+    ]
   })
 
-  it('delete element from multi parents should ok', done => {
-    Storage.storeOne({
+  it('delete element from multi parents should ok', function* () {
+    yield Storage.storeOne({
       _id: '44.44',
       child: {
         _id: '45.45'
       }
     })
-      .skip(1)
-      .subscribe(r => {
-        expect(r.child).to.be.undefined
-      })
+      .take(1)
 
-    Storage.storeOne({
+    const stream1 = Storage.get('44.44')
+      .publish()
+      .refCount()
+
+    yield Storage.storeOne({
       _id: '46.46',
       child: {
         _id: '45.45'
       }
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.child).to.be.undefined
-      })
+      .take(1)
 
-    Storage.storeOne({
+    const stream2 = Storage.get('46.46')
+      .publish()
+      .refCount()
+
+    yield Storage.storeOne({
       _id: '47.47',
       child: {
         _id: '45.45'
       }
     })
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.child).to.be.undefined
-        done()
-      })
+      .take(1)
 
-    Storage.delete('45.45')
-      .subscribeOn(Scheduler.async, global.timeout3)
-      .subscribe()
+    yield Storage.delete('45.45')
+
+    yield [
+      Storage.get('47.47')
+        .take(1)
+        .do((r: any) => {
+          expect(r.child).to.be.undefined
+        }),
+      stream1.take(1)
+        .do((r: any) => {
+          expect(r.child).to.be.undefined
+        }),
+      stream2.take(1)
+        .do((r: any) => {
+          expect(r.child).to.be.undefined
+        })
+    ]
   })
 
-  it('get object from database should be new object', done => {
+  it('get object from database should be new object', function* () {
     const data = {
       _id: '48.48',
       data: 'tbsdk_test 48'
     }
-    Storage.storeOne(data)
-      .subscribe(r => {
+    yield Storage.storeOne(data)
+      .take(1)
+      .do(r => {
         expect(r).to.not.equal(data)
-        done()
       })
   })
 
-  it('get collection from database should be new Array', done => {
+  it('get collection from database should be new Array', function* () {
     const data = [
       {
         _id: '49.49',
@@ -821,19 +795,21 @@ export default describe('database test: ', () => {
       }
     ]
 
-    Storage.storeCollection('collection_test_19', data)
-      .subscribe(r => {
+    yield Storage.storeCollection('collection_test_19', data)
+      .take(1)
+    yield Storage.get<typeof data>('collection_test_19')
+      .take(1)
+      .do(r => {
         expect(r).to.not.equal(data)
         data.forEach((val, index) => {
           expect(val).to.not.equal(r[index])
         })
-        done()
       })
   })
 
   describe('schema data test: ', () => {
 
-    it('element should be deleted when bloody parent has been deleted', done => {
+    it('element should be deleted when bloody parent has been deleted', function* () {
       const subtasks = clone(modelMock.subtasks)
       class TestSchema extends Schema<{
         _id: string
@@ -852,23 +828,24 @@ export default describe('database test: ', () => {
         subtasks: subtasks
       })
 
-      Storage.storeOne(testSchema)
-        .subscribe()
+      yield Storage.storeOne(testSchema).take(1)
 
-      Storage.storeCollection(`task:subtasks/${testSchema._id}`, subtasks)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .skip(1)
-        .subscribe(r => {
+      yield Storage.storeCollection(`task:subtasks/${testSchema._id}`, subtasks)
+        .take(1)
+
+      const stream = Storage.get(`task:subtasks/${testSchema._id}`)
+        .publish()
+        .refCount()
+
+      yield Storage.delete(_id)
+
+      yield stream.take(1)
+        .do((r: any[]) => {
           expect(r.length).to.equal(0)
-          done()
         })
-
-      Storage.delete(_id)
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
     })
 
-    it('bloodyParentWithProperty should ok', done => {
+    it('bloodyParentWithProperty should ok', function* () {
       const objectLinkData = objectLinks[0]
       const task = clone(modelMock)
       task._id = objectLinkData._parentId
@@ -876,51 +853,50 @@ export default describe('database test: ', () => {
       const taskSchema = dataToSchema(clone(task), TaskSchema)
       const objectLinkSchema = dataToSchema(clone(objectLinkData), ObjectLinkSchema)
 
-      Storage.storeOne(taskSchema)
-        .subscribe()
+      yield Storage.storeOne(taskSchema).take(1)
 
-      Storage.storeOne(objectLinkSchema)
-        .skip(1)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+      yield Storage.storeOne(objectLinkSchema)
+        .take(1)
+
+      yield Storage.delete(taskSchema._id)
+
+      yield Storage.get<ObjectLinkSchema>(objectLinkSchema._id)
+        .take(1)
+        .do(r => {
           expect(r).to.be.null
-          done()
         })
-
-      Storage.delete(taskSchema._id)
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
     })
 
-    it('circular dependencies should ok', done => {
+    it('circular dependencies should ok', function* () {
       const subtask = clone(organizationMySubtasks[0])
       const taskSchema = dataToSchema(clone(modelMock), TaskSchema)
       const subtaskSchema = dataToSchema(subtask, SubtaskSchema)
 
-      Storage.storeOne(subtaskSchema)
-        .subscribe()
+      yield Storage.storeOne(subtaskSchema).take(1)
 
-      Storage.storeOne(taskSchema)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .skip(1)
-        .subscribe(r => {
+      yield Storage.storeOne(taskSchema)
+        .take(1)
+
+      const stream = Storage.get<TaskSchema>(taskSchema._id)
+        .publish()
+        .refCount()
+
+      yield Storage.updateOne(subtask._id, {
+        content: 'circular update'
+      })
+
+      yield stream.take(1)
+        .do(r => {
           forEach(r.subtasks, _subtask => {
             if (_subtask._id === subtask._id) {
               expect(_subtask.content).to.equal('circular update')
             }
           })
-          done()
         })
-
-      Storage.updateOne(subtask._id, {
-        content: 'circular update'
-      })
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
 
     })
 
-    it('get data from cache after it cached should ok', done => {
+    it('get data from cache after it cached should ok', function* () {
       class TestSchema extends Schema<any> {
         _id: string = undefined
         name: string = undefined
@@ -951,16 +927,13 @@ export default describe('database test: ', () => {
         logo: 'https:/api.teambition.com/logo/1'
       })
 
-      Storage.storeOne(testSchema)
-        .subscribe()
+      yield Storage.storeOne(testSchema).take(1)
 
-      Storage.storeOne(projectSchema)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+      yield Storage.storeOne(projectSchema)
+        .take(1)
+        .do(r => {
           expect(testSchema.$$data.project.checkSchema()).to.be.true
-          done()
         })
-
     })
   })
 

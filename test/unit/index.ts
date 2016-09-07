@@ -1,13 +1,18 @@
 'use strict'
+import * as Tman from 'tman'
 import BaseFetch from '../../src/fetchs/BaseFetch'
 
 export const apihost = BaseFetch.fetch.getAPIHost()
 
+for (let key of ['describe', 'suite', 'test', 'it', 'before', 'after', 'beforeEach', 'afterEach']) {
+  global[key] = Tman[key]
+}
+
 if (process.env.running_under_istanbul) {
-  global.timeout1 = 200
-  global.timeout2 = 300
-  global.timeout3 = 400
-  global.timeout4 = 500
+  global.timeout1 = 60
+  global.timeout2 = 120
+  global.timeout3 = 180
+  global.timeout4 = 240
 }else {
   global.timeout1 = 30
   global.timeout2 = 60

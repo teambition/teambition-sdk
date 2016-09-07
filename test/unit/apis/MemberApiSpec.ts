@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
-import { Scheduler, Observable } from 'rxjs'
+import { Observable } from 'rxjs'
 import { MemberSchema } from '../index'
 import { MemberAPI, Backend, apihost, clone, BaseFetch } from '../index'
 import { members } from '../../mock/members'
@@ -38,90 +38,103 @@ export default describe('member api test', () => {
     BaseFetch.fetch.get['restore']()
   })
 
-  it('get organization members should ok', done => {
+  it('get organization members should ok', function* () {
     const id = organizations[0]._id
 
     httpBackend
       .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=30`)
       .respond(members)
 
-    Member.getOrgMembers(id)
-      .subscribe(members => {
+    httpBackend.flush()
+
+    yield Member.getOrgMembers(id)
+      .take(1)
+      .forEach(members => {
         expect(members).to.instanceof(Array)
-        done()
       })
 
-    httpBackend.flush()
   })
 
-  it('get organization members from cache should ok', done => {
+  it('get organization members from cache should ok', function* () {
     const id = organizations[0]._id
 
     httpBackend
       .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=30`)
       .respond(members.slice(0, 30))
 
-    Member.getOrgMembers(id)
-      .subscribe()
-
-    Member.getOrgMembers(id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(members => {
-        expect(members).to.instanceof(Array)
-        expect(spy).to.be.calledOnce
-        done()
-      })
+    const stream = Member.getOrgMembers(id)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    yield Member.getOrgMembers(id)
+      .take(1)
+      .forEach(members => {
+        expect(members).to.instanceof(Array)
+        expect(spy).to.be.calledOnce
+      })
   })
 
-  it('get project members page2 should ok', done => {
+  it('get project members page2 should ok', function* () {
     httpBackend
       .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=2&count=30`)
       .respond(members.slice(30))
 
-    Member.getProjectMembers(member._boundToObjectId)
-      .skip(1)
-      .subscribe(r => {
+    httpBackend.flush()
+
+    const stream = Member.getProjectMembers(member._boundToObjectId)
+      .publish()
+      .refCount()
+
+    yield stream.take(1)
+
+    stream.skip(1)
+      .forEach(r => {
         expect(r.length).to.equal(members.length)
-        done()
       })
 
-    Member.getProjectMembers(member._boundToObjectId, 2)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    yield Member.getProjectMembers(member._boundToObjectId, 2)
+      .take(1)
 
-    httpBackend.flush()
   })
 
-  it ('getMembers from project should ok', done => {
-    Member.getProjectMembers(member._boundToObjectId)
-      .subscribe(data => {
-        expect(data).to.be.instanceof(Array)
-        expect(data.length).to.equal(30)
-        done()
-      })
+  it ('getMembers from project should ok', function* () {
+    const stream = Member.getProjectMembers(member._boundToObjectId)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1).forEach(data => {
+      expect(data).to.be.instanceof(Array)
+      expect(data.length).to.equal(30)
+    })
+
   })
 
-  it('get members from project cache should ok', done => {
-    Member.getProjectMembers(member._boundToObjectId)
-      .subscribe()
+  it('get members from project cache should ok', function* () {
+    const stream = Member.getProjectMembers(member._boundToObjectId)
+      .publish()
+      .refCount()
 
-    Member.getProjectMembers(member._boundToObjectId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(data => {
+    httpBackend.flush()
+
+    yield stream.take(1)
+
+    yield Member.getProjectMembers(member._boundToObjectId)
+      .take(1)
+      .forEach(data => {
         expect(data).to.be.instanceof(Array)
         expect(data.length).to.equal(30)
         expect(spy).to.be.calledOnce
-        done()
       })
 
-    httpBackend.flush()
   })
 
-  it('get members from project page2 should ok', done => {
+  it ('get members from project page2 should ok', function* () {
     const id = member._boundToObjectId
 
     httpBackend
@@ -132,42 +145,46 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}V2/organizations/${id}/members?page=2&count=30`)
       .respond(members.slice(30))
 
-    Member.getOrgMembers(id)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(members.length)
-        done()
-      })
-
-    Member.getOrgMembers(id, 2)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    const stream = Member.getOrgMembers(id)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    stream.skip(1)
+      .forEach(r => {
+        expect(r.length).to.equal(members.length)
+      })
+
+    yield Member.getOrgMembers(id, 2).take(1)
   })
 
-  it('delete member from project should ok', done => {
+  it('delete member from project should ok', function* () {
 
     httpBackend
       .whenDELETE(`${apihost}members/${member._memberId}`)
       .respond({})
 
-    Member.getProjectMembers(member._boundToObjectId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.length).to.equal(30 - 1)
-        expect(notInclude(data, member)).to.be.true
-        done()
-      })
-
-    Member.deleteMember(member._memberId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    const stream = Member.getProjectMembers(member._boundToObjectId)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    stream.skip(1)
+      .forEach(data => {
+        expect(data.length).to.equal(30 - 1)
+        expect(notInclude(data, member)).to.be.true
+      })
+
+    yield Member.deleteMember(member._memberId)
   })
 
-  it('add members before getting members', done => {
+  it('add members before getting members', function* () {
     const projectId = projectMembers[0]._boundToObjectId
     const mockEmails = projectMembers.map(member => member.email)
 
@@ -176,16 +193,27 @@ export default describe('member api test', () => {
       })
       .respond(JSON.stringify(projectMembers))
 
-    Member.addMembers(projectId, mockEmails)
-      .subscribe((members: MemberSchema[]) => {
-        expect(members.length).to.be.equal(projectMembers.length)
-        done()
+    httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
+        email: mockEmails
       })
+      .respond(JSON.stringify(projectMembers))
+
+    const stream = Member.addMembers(projectId, mockEmails)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    yield Member.addMembers(projectId, mockEmails)
+      .forEach((members: MemberSchema[]) => {
+        expect(members.length).to.be.equal(projectMembers.length)
+      })
+
   })
 
-  it('add members to project should ok', done => {
+  it('add members to project should ok', function* () {
     const projectId = projectMembers[0]._boundToObjectId
     const mockEmails = projectMembers.map(member => member.email)
 
@@ -197,21 +225,23 @@ export default describe('member api test', () => {
     })
       .respond(JSON.stringify(projectMembers))
 
-    Member.getProjectMembers(projectId)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(30 + projectMembers.length)
-        done()
-      })
-
-    Member.addMembers(projectId, mockEmails)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    const stream = Member.getProjectMembers(projectId)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    stream.skip(1)
+      .forEach(r => {
+        expect(r.length).to.equal(30 + projectMembers.length)
+      })
+
+    yield Member.addMembers(projectId, mockEmails)
   })
 
-  it('add project members multiple times', done => {
+  it('add project members multiple times', function* () {
     const projectId = projectMembers[0]._boundToObjectId
     const limit = Math.floor(projectMembers.length / 3)
     const chunks = []
@@ -235,30 +265,33 @@ export default describe('member api test', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
       .respond(JSON.stringify(members))
 
-    Observable.combineLatest(
-        Member.getProjectMembers(projectId)
-          .skip(1),
-        Observable.combineLatest(
-            chunks.map(chunkProjectMembers => {
-              const emails = chunkProjectMembers.map(member => member.email)
-              return Member.addMembers(projectId, emails)
-            })
-          )
-          .map(data => {
-            return [].concat(...data)
-          })
-          .subscribeOn(Scheduler.async, global.timeout1)
-      )
-      .subscribe(([finalMembers, addedMembers]) => {
-        expect(finalMembers.length).to.be.equal(members.length + projectMembers.length)
-        expect(addedMembers.length).to.be.equal(projectMembers.length)
-        done()
-      })
+    const stream = Member.getProjectMembers(projectId)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    stream.skip(1)
+      .forEach(finalMembers => {
+        expect(finalMembers.length).to.be.equal(members.length + projectMembers.length)
+      })
+
+    yield Observable.from(chunks.map(chunkProjectMembers => {
+      const emails = chunkProjectMembers.map(member => member.email)
+      return Member.addMembers(projectId, emails)
+    }))
+      .flatMap(r => r)
+      .mergeAll()
+      .toArray()
+      .forEach(r => {
+        expect(r.length).to.be.equal(projectMembers.length)
+      })
+
   })
 
-  it('delete and add project members should ok', done => {
+  it('delete and add project members should ok', function* () {
     const projectId = member._boundToObjectId
     const mockEmails = projectMembers.map(member => member.email)
     const addResponse = clone(projectMembers).map(v => {
@@ -278,41 +311,41 @@ export default describe('member api test', () => {
       .whenDELETE(`${apihost}members/${member._memberId}`)
       .respond({})
 
-    Member.getProjectMembers(projectId)
-      .skip(2)
-      .subscribe(r => {
-        expect(r.length).to.equal(30 + projectMembers.length - 1)
-        done()
-      })
-
-    Member.deleteMember(member._memberId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    Member.addMembers(projectId, mockEmails)
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe()
+    const stream = Member.getProjectMembers(projectId)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    stream.skip(2)
+      .forEach(r => {
+        expect(r.length).to.equal(30 + projectMembers.length - 1)
+      })
+
+    yield Member.deleteMember(member._memberId)
+
+    yield Member.addMembers(projectId, mockEmails)
   })
 
-  it('get all org members 50 should ok', done => {
+  it('get all org members 50 should ok', function* () {
     const id = organizations[0]._id
 
     httpBackend
       .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=1000`)
       .respond(members)
 
-    Member.getAllOrgMembers(id)
-      .subscribe(r => {
-        expect(r.length).to.equal(members.length)
-        done()
-      })
-
     httpBackend.flush()
+
+    yield Member.getAllOrgMembers(id)
+      .take(1)
+      .forEach(r => {
+        expect(r.length).to.equal(members.length)
+      })
   })
 
-  it('get all org members 2900 should ok', done => {
+  it('get all org members 2900 should ok', function* () {
     const id = organizations[0]._id
     const mockMembers = new Array(2900)
       .fill(0)
@@ -338,32 +371,37 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}V2/organizations/${id}/members?page=3&count=1000`)
       .respond(JSON.stringify(page3))
 
-    Member.getAllOrgMembers(id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r.length).to.equal(mockMembers.length)
-        expect(spy).to.be.calledThrice
-        done()
-      })
+    const stream = Member.getAllOrgMembers(id)
+      .publish()
+      .refCount()
 
     httpBackend.flush()
+
+    yield stream.take(1)
+
+    yield stream.take(1).forEach(r => {
+      expect(r.length).to.equal(mockMembers.length)
+      expect(spy).to.be.calledThrice
+    })
+
   })
 
-  it('get all project members 50 should ok', done => {
+  it('get all project members 50 should ok', function* () {
     httpBackend
       .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=1&count=1000`)
       .respond(JSON.stringify(projectMembers))
 
-    Member.getAllProjectMembers(member._boundToObjectId)
-      .subscribe(r => {
+    httpBackend.flush()
+
+    yield Member.getAllProjectMembers(member._boundToObjectId)
+      .take(1)
+      .forEach(r => {
         expect(r.length).to.equal(projectMembers.length)
-        done()
       })
 
-    httpBackend.flush()
   })
 
-  it('get all project members 2900 should ok', done => {
+  it('get all project members 2900 should ok',  function* () {
     const mockMembers = new Array(2900)
       .fill(0)
       .map((r, index) => {
@@ -388,15 +426,14 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=3&count=1000`)
       .respond(JSON.stringify(page3))
 
-    Member.getAllProjectMembers(member._boundToObjectId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    httpBackend.flush()
+
+    yield Member.getAllProjectMembers(member._boundToObjectId)
+      .take(1)
+      .forEach(r => {
         expect(r.length).to.equal(mockMembers.length)
         expect(spy).to.be.calledThrice
-        done()
       })
-
-    httpBackend.flush()
   })
 
 })
