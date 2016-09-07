@@ -295,4 +295,108 @@ export default describe('member api test', () => {
 
     httpBackend.flush()
   })
+
+  it('get all org members 50 should ok', done => {
+    const id = organizations[0]._id
+
+    httpBackend
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=1000`)
+      .respond(members)
+
+    Member.getAllOrgMembers(id)
+      .subscribe(r => {
+        expect(r.length).to.equal(members.length)
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get all org members 2900 should ok', done => {
+    const id = organizations[0]._id
+    const mockMembers = new Array(2900)
+      .fill(0)
+      .map((r, index) => {
+        const result = clone(members[0])
+        result._id = result._id + 'index'
+        return result
+      })
+
+    const page1 = mockMembers.slice(0, 1000)
+    const page2 = mockMembers.slice(1000, 2000)
+    const page3 = mockMembers.slice(2000)
+
+    httpBackend
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=1000`)
+      .respond(JSON.stringify(page1))
+
+    httpBackend
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=2&count=1000`)
+      .respond(JSON.stringify(page2))
+
+    httpBackend
+      .whenGET(`${apihost}V2/organizations/${id}/members?page=3&count=1000`)
+      .respond(JSON.stringify(page3))
+
+    Member.getAllOrgMembers(id)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe(r => {
+        expect(r.length).to.equal(mockMembers.length)
+        expect(spy).to.be.calledThrice
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get all project members 50 should ok', done => {
+    httpBackend
+      .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=1&count=1000`)
+      .respond(JSON.stringify(projectMembers))
+
+    Member.getAllProjectMembers(member._boundToObjectId)
+      .subscribe(r => {
+        expect(r.length).to.equal(projectMembers.length)
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
+  it('get all project members 2900 should ok', done => {
+    const mockMembers = new Array(2900)
+      .fill(0)
+      .map((r, index) => {
+        const result = clone(projectMembers[0])
+        result._id = result._id + 'index'
+        return result
+      })
+
+    const page1 = mockMembers.slice(0, 1000)
+    const page2 = mockMembers.slice(1000, 2000)
+    const page3 = mockMembers.slice(2000)
+
+    httpBackend
+      .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=1&count=1000`)
+      .respond(JSON.stringify(page1))
+
+    httpBackend
+      .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=2&count=1000`)
+      .respond(JSON.stringify(page2))
+
+    httpBackend
+      .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=3&count=1000`)
+      .respond(JSON.stringify(page3))
+
+    Member.getAllProjectMembers(member._boundToObjectId)
+      .subscribeOn(Scheduler.async, global.timeout1)
+      .subscribe(r => {
+        expect(r.length).to.equal(mockMembers.length)
+        expect(spy).to.be.calledThrice
+        done()
+      })
+
+    httpBackend.flush()
+  })
+
 })
