@@ -34,7 +34,7 @@ export class ReportAPI {
     projectId: string,
     taskType: TaskType,
     option: GetReportAccomplishedOption
-  ): Observable<TaskData[]> | Observable<SubtaskData[]>
+  ): Observable<(TaskData | SubtaskData)[]>
 
   /**
    * 当 option.isWeekSearch 为 true 时不分页
@@ -45,7 +45,7 @@ export class ReportAPI {
     projectId: string,
     taskType: TaskType,
     option: GetReportAccomplishedOption
-  ): Observable<TaskData[]> | Observable<SubtaskData[]> {
+  ): Observable<(TaskData | SubtaskData)[]> {
     return makeColdSignal<any>(observer => {
       const cache = ReportModel.getData(projectId, option.page, 'accomplished', taskType, option.queryType, option.isWeekSearch)
       if (cache) {
@@ -80,13 +80,13 @@ export class ReportAPI {
     projectId: string,
     taskType: TaskType,
     option: GetReportInprogressOption
-  ): Observable<TaskData[]> | Observable<SubtaskData[]>
+  ): Observable<(TaskData | SubtaskData)[]>
 
   getInprogress(
     projectId: string,
     taskType: TaskType,
     option: GetReportInprogressOption
-  ): Observable<TaskData[]> | Observable<SubtaskData[]> {
+  ): Observable<(TaskData | SubtaskData)[]> {
     return makeColdSignal<any>(observer => {
       const cache = ReportModel.getData(projectId, option.page, 'progress', taskType, option.queryType)
       if (cache) {

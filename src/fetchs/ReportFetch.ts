@@ -41,13 +41,13 @@ export class ReportFetch extends BaseFetch {
     projectId: string,
     taskType: TaskType,
     option: GetReportAccomplishedOption
-  ): Promise<TaskData[]> | Promise<SubtaskData[]>
+  ): Promise<(TaskData | SubtaskData)[]>
 
   getAccomplished(
     projectId: string,
     taskType: TaskType,
     option: GetReportAccomplishedOption
-  ): Promise<TaskData[]> | Promise<SubtaskData[]> {
+  ): Promise<(TaskData | SubtaskData)[]> {
     option['taskType'] = taskType
     return this.fetch.get(`projects/${projectId}/report-accomplished`, option)
   }
@@ -68,13 +68,13 @@ export class ReportFetch extends BaseFetch {
     projectId: string,
     taskType: TaskType,
     option: GetReportInprogressOption
-  ): Promise<TaskData[]> | Promise<SubtaskData[]>
+  ): Promise<(TaskData | SubtaskData)[]>
 
   getInprogress(
     projectId: string,
     taskType: TaskType,
     option: GetReportInprogressOption
-  ): Promise<TaskData[]> | Promise<SubtaskData[]> {
+  ): Promise<(TaskData | SubtaskData)[]> {
     option['taskType'] = taskType
     return this.fetch.get(`projects/${projectId}/report-in-progress`, option)
   }
