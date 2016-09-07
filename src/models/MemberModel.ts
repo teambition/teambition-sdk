@@ -24,6 +24,19 @@ export class MemberModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
+  saveAllProjectMembers(projectId: string, members: MemberData[]): Observable<MemberData[]> {
+    const result = datasToSchemas(members, Member)
+    const dbIndex = `project:members:all/${projectId}`
+
+    return this._saveCollection(dbIndex, result, this._schemaName, data => {
+      return data._boundToObjectId === projectId && data.boundToObjectType === 'project'
+    }, '_memberId')
+  }
+
+  getAllProjectMembers(projectId: string): Observable<MemberData[]> {
+    return this._get<MemberData[]>(`project:members:all/${projectId}`)
+  }
+
   getProjectMembers(projectId: string, page: number): Observable<MemberData[]> {
     const collection = this._collections.get(`project:members/${projectId}`)
     if (collection) {
@@ -47,12 +60,25 @@ export class MemberModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
+  saveAllOrgMembers(organizationId: string, members: MemberData[]): Observable<MemberData[]> {
+    const result = datasToSchemas(members, Member)
+    const dbIndex = `organization:all:members/${organizationId}`
+
+    return this._saveCollection(dbIndex, result, this._schemaName, data => {
+      return data._boundToObjectId === organizationId && data.boundToObjectType === 'organization'
+    }, '_memberId')
+  }
+
   getOrgMembers(organizationId: string, page: number): Observable<MemberData[]> {
     const collection = this._collections.get(`organization:members/${organizationId}`)
     if (collection) {
       return collection.get(page)
     }
     return null
+  }
+
+  getAllOrgMembers(organizationId: string): Observable<MemberData[]> {
+    return this._get<MemberData[]>(`organization:all:members/${organizationId}`)
   }
 
   addProjectMembers(projectId: string, members: MemberData): Observable<MemberData>
