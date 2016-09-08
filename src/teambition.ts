@@ -73,6 +73,13 @@ export interface ReportSummarySchema {
   notStartedTasksCount: number
   totalTasksCount: number
   unassignedTasksCount: number
+  accomplishedTasksCount: number
+  accomplishedWeekTasksCount: number
+  accomplishedOntimeWeekTasksCount: number
+  accomplishedWeekSubTasksCount: number
+  accomplishedOntimeWeekSubTasksCount: number
+  accomplishedSubTasksCount: number
+  accomplishedOntimeSubTasksCount: number
 }
 
 export interface ReportAnalysisSchema {
