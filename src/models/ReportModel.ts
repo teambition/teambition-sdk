@@ -19,7 +19,7 @@ export class ReportModel extends Model {
     schema?: 'task' | 'subtask',
     taskType?: TaskType,
     isWeekSearch?: boolean
-  ): Observable<TaskData[]> | Observable<SubtaskData[]> {
+  ): Observable<(TaskData | SubtaskData)[]> {
     if (schema === 'task') {
       if (status === 'accomplished') {
         if (taskType === 'all') {
@@ -124,7 +124,7 @@ export class ReportModel extends Model {
     schema?: 'task' | 'subtask',
     type?: TaskType,
     isWeekSearch?: boolean
-  ): Observable<TaskData[]> | Observable<SubtaskData[]>
+  ): Observable<(TaskData | SubtaskData)[]>
 
   getData(
     projectId: string,
@@ -133,7 +133,7 @@ export class ReportModel extends Model {
     schema?: 'task' | 'subtask',
     type?: TaskType,
     isWeekSearch?: boolean
-  ): Observable<TaskData[]> | Observable<SubtaskData[]> {
+  ): Observable<(TaskData | SubtaskData)[]> {
     if (status === 'notstart') {
       type = 'all'
     }
