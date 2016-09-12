@@ -2,7 +2,6 @@
 import 'rxjs/add/operator/retry'
 import { Observable } from 'rxjs/Observable'
 import { RequestEvent } from 'snapper-consumer'
-import Database from '../storage/Database'
 import UserModel from '../models/UserModel'
 import PreferenceModel from '../models/PreferenceModel'
 import TaskModel from '../models/TaskModel'
@@ -22,8 +21,6 @@ import ProjectModel from '../models/ProjectModel'
 import SubscribeModel from '../models/SubscribeModel'
 import FeedbackModel from '../models/FeedbackModel'
 import ProjectFetch from '../fetchs/ProjectFetch'
-import TaskFetch from '../fetchs/TaskFetch'
-import EventFetch from '../fetchs/EventFetch'
 import { MessageResult, eventParser } from './EventParser'
 import { forEach } from '../utils/index'
 
@@ -48,11 +45,6 @@ const typeMap: any = {
   'member': MemberModel,
   'subscriber': SubscribeModel,
   'feedback': FeedbackModel
-}
-
-const fetchMap: any = {
-  task: TaskFetch,
-  event: EventFetch
 }
 
 const methodMap: any = {
@@ -103,31 +95,13 @@ function handler(socketMessage: MessageResult) {
           return model[_method](data)
         }
       case 'change':
-        if (Database.data.has(id)) {
-          const length = model[_method].length
-          switch (length) {
-            case 1:
-              return model[_method](data)
-            /* istanbul ignore case */
-            case 2:
-              return model[_method](id, data)
-          }
-        // change 的 object 没有被缓存过，则发请求去获取它的实体
-        } else {
-          const fetch = fetchMap[type]
-          if (fetch && typeof fetch.get === 'function') {
-            return Observable.fromPromise(fetch.get(id))
-              .retry(3)
-              .catch(err => {
-                return Observable.of(null)
-              })
-              .concatMap(r => {
-                return model[methodMap.new](r).take(1)
-              })
-          /* istanbul ignore if */
-          } else {
-            return Observable.of(null)
-          }
+        const length = model[_method].length
+        switch (length) {
+          case 1:
+            return model[_method](data)
+          /* istanbul ignore case */
+          case 2:
+            return model[_method](id, data)
         }
       case 'destroy':
         return model[_method](id)

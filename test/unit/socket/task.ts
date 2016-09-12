@@ -181,28 +181,5 @@ export default describe('socket task test: ', () => {
         _executorId: tasksOneDayMe[0]._executorId
       })
     })
-
-    it('change a not exist task should ok', done => {
-      const mockTask = clone(tasksOneDayMe[0])
-      mockTask._id = 'mocktaskid'
-      mockTask.dueDate = null
-
-      httpBackend.whenGET(`${apihost}tasks/mocktaskid`)
-        .respond(JSON.stringify(mockTask))
-
-      TaskApi.getMyTasks(_userId)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(tasksOneDayMe.length + 1)
-          expect(data[0]._id).to.equal('mocktaskid')
-          done()
-        })
-
-      Socket.emit('change', 'task', 'mocktaskid', {
-        content: 'xxx'
-      })
-
-      httpBackend.flush()
-    })
   })
 })
