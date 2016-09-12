@@ -352,13 +352,13 @@ export class TaskModel extends BaseModel {
    * 当变更一个 task 的非 executor 属性时，socket 推送的内容中 executor 永远为 null
    * 比如更改一个截止日期，socket 不仅推送新的截止日期，还附带了 executor: null
    */
-  update(_taskId: string, patch: any): Observable<TaskData> {
+  update<T extends { _executorId?: string, executor?: any }>(_taskId: string, patch: T): Observable<T> {
     if (patch &&
         !patch._executorId &&
         typeof patch.executor !== 'undefined') {
       delete patch.executor
     }
-    return super.update<TaskData>(_taskId, patch)
+    return super.update(_taskId, patch)
   }
 }
 

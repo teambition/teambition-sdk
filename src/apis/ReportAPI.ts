@@ -118,7 +118,7 @@ export class ReportAPI {
   }
 
   getUnassigned(projectId: string, option: GetUnassignedOption): Observable<TaskData[]> {
-    return makeColdSignal<TaskData[]>(observer => {
+    return makeColdSignal<any[]>(observer => {
       const cache = ReportModel.getData(projectId, option.page, 'unassigned')
       if (cache) {
         return cache

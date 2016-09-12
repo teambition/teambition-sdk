@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import UserFetch from '../fetchs/UserFetch'
 import UserModel from '../models/UserModel'
-import UserMe from '../schemas/UserMe'
+import { UserMe } from '../schemas/UserMe'
 import { errorHandler, makeColdSignal, observableError } from './utils'
 
 export class UserAPI {
