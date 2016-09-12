@@ -356,7 +356,7 @@ export class TaskAPI {
     return Observable.fromPromise(promise)
       .catch(err => observableError(observer, err))
       .concatMap(r => TaskModel.update(_taskId, r))
-      .forEach(r => observer.next(r))
+      .forEach((r: T) => observer.next(r))
       .then(() => observer.complete())
   }
 }
