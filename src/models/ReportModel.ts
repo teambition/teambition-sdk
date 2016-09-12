@@ -559,7 +559,7 @@ export class ReportModel extends Model {
 
   private storeThisweekAccomplishedOntimeSubtasks(projectId: string, data: SubtaskData[]): Observable<SubtaskData[]> {
     const result = datasToSchemas(data, SubtaskSchema)
-    return this._saveCollection(`project:report:accomplished:thisweek:all:subtasks/${projectId}`, result, 'Subtask', data => {
+    return this._saveCollection(`project:report:accomplished:thisweek:ontime:subtasks/${projectId}`, result, 'Subtask', data => {
       return data.isDone &&
             data._projectId === projectId &&
             Date.now() - new Date(data.updated).valueOf() <= 604800000 &&
