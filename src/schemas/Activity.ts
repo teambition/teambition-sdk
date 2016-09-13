@@ -44,6 +44,7 @@ export interface ActivityData extends ISchema {
   boundToObjectType: string
   content: {
     comment?: string
+    content?: string
     attachments?: File[]
     voice?: Voice
     mentionsArray?: string[]
@@ -106,6 +107,7 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
   boundToObjectType: string = undefined
   content: {
     comment?: string
+    content?: string
     attachments?: File[]
     mentionsArray?: string[]
     voice?: Voice
