@@ -21,6 +21,21 @@ export interface Locales {
   }
 }
 
+export interface Voice {
+  source: string,
+  fileType: 'amr',
+  fileCategory: string,
+  fileName: string,
+  thumbnailUrl: string,
+  previewUrl: string,
+  mimeType: string,
+  downloadUrl: string,
+  fileSize: number,
+  duration: number,
+  fileKey: string,
+  thumbnail: string
+}
+
 export interface ActivityData extends ISchema {
   _boundToObjectId: string
   _creatorId: string
@@ -29,14 +44,20 @@ export interface ActivityData extends ISchema {
   boundToObjectType: string
   content: {
     comment?: string
+    content?: string
     attachments?: File[]
-    voice?: string[]
+    voice?: Voice
     mentionsArray?: string[]
     mentions?: {
       [index: string]: string
     }
     attachmentsName?: string
     creator?: string
+    executor?: string
+    note?: string
+    subtask?: string
+    count?: string
+    dueDate?: string
     linked?: {
       _id: string
       _projectId: string
@@ -44,6 +65,21 @@ export interface ActivityData extends ISchema {
       objectType: string
       title: string
       url: string
+    }
+    linkedCollection?: {
+      _id: string,
+      title: string,
+      objectType: 'collection'
+    }
+    uploadWorks?: {
+      _id: string,
+      fileName: string,
+      objectType: 'work'
+    }[]
+    collection: {
+      _id: string,
+      title: string,
+      objectType: 'collection'
     }
   }
   created: number
@@ -71,12 +107,18 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
   boundToObjectType: string = undefined
   content: {
     comment?: string
+    content?: string
     attachments?: File[]
     mentionsArray?: string[]
-    voice?: string[]
+    voice?: Voice
     mentions?: {[index: string]: string}
     attachmentsName?: string
     creator?: string
+    executor?: string
+    note?: string
+    dueDate?: string
+    subtask?: string
+    count?: string
     linked?: {
       _id: string
       _projectId: string
@@ -84,6 +126,21 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
       objectType: string
       title: string
       url: string
+    }
+    linkedCollection?: {
+      _id: string,
+      title: string,
+      objectType: 'collection'
+    }
+    uploadWorks?: {
+      _id: string,
+      fileName: string,
+      objectType: 'work'
+    }[]
+    collection: {
+      _id: string,
+      title: string,
+      objectType: 'collection'
     }
   } = undefined
   created: number = undefined
