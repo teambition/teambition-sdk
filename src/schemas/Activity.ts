@@ -37,6 +37,7 @@ export interface ActivityData extends ISchema {
     }
     attachmentsName?: string
     creator?: string
+    note?: string
     linked?: {
       _id: string
       _projectId: string
@@ -77,6 +78,7 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
     mentions?: {[index: string]: string}
     attachmentsName?: string
     creator?: string
+    note?: string
     linked?: {
       _id: string
       _projectId: string
