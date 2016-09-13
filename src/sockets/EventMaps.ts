@@ -80,7 +80,7 @@ function handler(socketMessage: MessageResult) {
   const _method = methodMap[method]
   const model = typeMap[type]
   if (
-    (method !== 'destroy' && model && typeof data === 'object' && id) ||
+    (method !== 'destroy' && model && typeof data === 'object' && (!!id || method === 'new')) ||
     (method === 'destroy' && model && id && _method)
   ) {
     switch (method) {
@@ -91,7 +91,7 @@ function handler(socketMessage: MessageResult) {
           }))
             .mergeAll()
             .skip(data.length - 1)
-        }else {
+        } else {
           return model[_method](data)
         }
       case 'change':

@@ -44,9 +44,9 @@ export class SocketClient {
 
   initClient(client: Consumer): void {
     this._client = client
-    this._client._join = this._join
-    this._client.onmessage = this._onmessage
-    this._client.onopen = this._onopen
+    this._client._join = this._join.bind(this)
+    this._client.onmessage = this._onmessage.bind(this)
+    this._client.onopen = this._onopen.bind(this)
     this._client['getToken'] = () => {
       if (this._me) {
         return this._me.snapperToken
@@ -116,7 +116,7 @@ export class SocketClient {
   private _onmessage(event: RequestEvent) {
     if (this._isDebug) {
       // 避免被插件清除掉
-      ctx['console']['log'](event)
+      ctx['console']['log'](JSON.stringify(event, null, 2))
     }
     const subscription = socketHandler(event)
       .subscribe(null, err => ctx['console']['error'](err), () => {
