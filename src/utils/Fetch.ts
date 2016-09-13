@@ -81,8 +81,8 @@ export class Fetch {
   }
 
   public get <T>(url: string, query?: any) {
-    const queryString = this._buildQuery(query)
-    return this.createMethod<T>('get')(url + queryString)
+    const uri = this._buildQuery(url, query)
+    return this.createMethod<T>('get')(uri)
   }
 
   public post <T>(url: string, body?: any) {
@@ -97,9 +97,9 @@ export class Fetch {
     return this.createMethod<T>('delete')(url)
   }
 
-  private _buildQuery (query: any) {
+  private _buildQuery (url: string, query: any) {
     if (typeof query !== 'object' || !query) {
-      return ''
+      return url
     }
     let result: string[] = []
     forEach(query, (val: any, key: string) => {
@@ -111,7 +111,13 @@ export class Fetch {
         result.push(`${key}=${val}`)
       }
     })
-    return result.length ? '?' + result.join('&') : ''
+    let _query: string
+    if (url.indexOf('?') !== -1) {
+      _query = result.length ? '&' + result.join('&') : ''
+    } else {
+      _query = result.length ? '?' + result.join('&') : ''
+    }
+    return url + _query
   }
 
   private createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Promise<T> {

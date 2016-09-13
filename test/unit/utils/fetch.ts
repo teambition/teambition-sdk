@@ -51,10 +51,25 @@ export default describe('utils/fetch', () => {
       }
       parts.push(...(<any[]>value).map(value => `${key}=${value}`))
     })
-    const actual = fetch['_buildQuery'](query)
+    const actual = fetch['_buildQuery']('', query)
     const expected = `?${parts.join('&')}`
     expect(actual).to.be.equal(expected)
   })
+
+  it('should serialize query with queryUrl to query string', () => {
+    const query = {a: 'a', b: [1, 2, 'b', 'b'], c: 3}
+    const parts = []
+    forEach(query, (value, key) => {
+      if (!Array.isArray(value)) {
+        value = <any>[value]
+      }
+      parts.push(...(<any[]>value).map(value => `${key}=${value}`))
+    })
+    const actual = fetch['_buildQuery']('http://abc.com?_=123', query)
+    const expected = `http://abc.com?_=123&${parts.join('&')}`
+    expect(actual).to.be.equal(expected)
+  })
+
 
   it('should set token', done => {
     const token = 'test_token'
