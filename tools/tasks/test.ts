@@ -1,31 +1,18 @@
 'use strict'
-import * as Mocha from 'mocha'
 import * as path from 'path'
 import * as fs from 'fs'
 
+const Tman = require('Tman')
+
 const cache: {[index: string]: any} = {}
-const testDir = 'spec-js/test/unit'
+const testDir = path.join(process.cwd(), 'spec-js/test/unit')
 
-for (let key in require.cache) {
-  cache[key] = true
-}
-
-function clearCache() {
-  for (let key in require.cache) {
-    if (!cache[key] && !/\.node$/.test(key)) {
-      delete require.cache[key]
-    }
-  }
-}
-
-function runMocha() {
-  const mocha = new Mocha({
-    reporter: 'dot'
-  })
-
-  mocha.addFile(`${testDir}/app.js`)
-  mocha.run(err => {
-    clearCache()
+function runTman() {
+  Tman.loadFiles(`${testDir}/app.js`)
+  Tman.setExit(false)
+  Tman.mocha()
+  Tman.run()(() => {
+    Tman.reset()
   })
 }
 
@@ -36,7 +23,7 @@ function excuteTest() {
     clearTimeout(timer)
   }
   timer = setTimeout(() => {
-    runMocha()
+    runTman()
     timer = null
   }, 200)
 }
@@ -48,7 +35,7 @@ fs.watch(path.join(process.cwd(), 'spec-js'), <any>{
 })
 
 process.on('uncaughtException', err => {
-  console.log(`Caught exception: ${err}`);
+  console.log(`Caught exception: ${err.stack}`);
 })
 
 console.log('\x1b[1m\x1b[34mwatch start\x1b[39m\x1b[22m')
