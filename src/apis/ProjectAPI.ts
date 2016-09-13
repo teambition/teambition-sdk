@@ -310,12 +310,12 @@ export class ProjectAPI {
     })
   }
 
-  getAnalysisReport(_projectId: string, startDate: Date, endDate: Date, unit: GetAnalysisReportUnit): Observable<ReportAnalysisSchema> {
+  getAnalysisReport(_projectId: string, startDate: string, endDate: string, unit: GetAnalysisReportUnit): Observable<ReportAnalysisSchema> {
     return makeColdSignal<ReportAnalysisSchema>(observer => {
       return Observable.fromPromise(ProjectFetch.getAnalysisReport(
         _projectId,
-        startDate.toISOString().split('T')[0],
-        endDate.toISOString().split('T')[0],
+        startDate,
+        endDate,
         unit
       ))
         .catch(err => errorHandler(observer, err))

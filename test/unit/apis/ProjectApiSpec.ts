@@ -517,7 +517,7 @@ export default describe('Project API test: ', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/analysis-report?startDate=${startDate}&endDate=${endDate}&unit=week`)
       .respond(JSON.stringify(reportAnalysis))
 
-    Project.getAnalysisReport(projectId, new Date(startDate), new Date(endDate), 'week')
+    Project.getAnalysisReport(projectId, startDate, endDate, 'week')
       .subscribe(r => {
         expectDeepEqual(r, reportAnalysis)
         done()
