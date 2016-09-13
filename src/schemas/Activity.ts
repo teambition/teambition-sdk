@@ -60,7 +60,17 @@ export interface ActivityData extends ISchema {
       objectType: string
       title: string
       url: string
-    }
+    },
+    linkedCollection?: {
+      _id: string,
+      title: string,
+      objectType: 'collection'
+    },
+    uploadWorks?: {
+      _id: string,
+      fileName: string,
+      objectType: 'work'
+    }[]
   }
   created: number
   creator: ExecutorOrCreator
@@ -101,7 +111,17 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
       objectType: string
       title: string
       url: string
-    }
+    },
+    linkedCollection?: {
+      _id: string,
+      title: string,
+      objectType: 'collection'
+    },
+    uploadWorks?: {
+      _id: string,
+      fileName: string,
+      objectType: 'work'
+    }[]
   } = undefined
   created: number = undefined
   creator: ExecutorOrCreator = undefined
