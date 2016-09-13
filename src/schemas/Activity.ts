@@ -21,6 +21,21 @@ export interface Locales {
   }
 }
 
+export interface Voice {
+  source: string,
+  fileType: 'amr',
+  fileCategory: string,
+  fileName: string,
+  thumbnailUrl: string,
+  previewUrl: string,
+  mimeType: string,
+  downloadUrl: string,
+  fileSize: number,
+  duration: number,
+  fileKey: string,
+  thumbnail: string
+}
+
 export interface ActivityData extends ISchema {
   _boundToObjectId: string
   _creatorId: string
@@ -30,7 +45,7 @@ export interface ActivityData extends ISchema {
   content: {
     comment?: string
     attachments?: File[]
-    voice?: string[]
+    voice?: Voice
     mentionsArray?: string[]
     mentions?: {
       [index: string]: string
@@ -74,7 +89,7 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
     comment?: string
     attachments?: File[]
     mentionsArray?: string[]
-    voice?: string[]
+    voice?: Voice
     mentions?: {[index: string]: string}
     attachmentsName?: string
     creator?: string
