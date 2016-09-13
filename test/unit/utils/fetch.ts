@@ -70,7 +70,6 @@ export default describe('utils/fetch', () => {
     expect(actual).to.be.equal(expected)
   })
 
-
   it('should set token', done => {
     const token = 'test_token'
     const apiHost = 'https://www.teambition.com/api/'
