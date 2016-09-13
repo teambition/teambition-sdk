@@ -67,19 +67,24 @@ export interface ActivityData extends ISchema {
       url: string
     }
     linkedCollection?: {
-      _id: string,
-      title: string,
+      _id: string
+      title: string
       objectType: 'collection'
     }
     uploadWorks?: {
-      _id: string,
-      fileName: string,
+      _id: string
+      fileName: string
       objectType: 'work'
     }[]
     collection: {
-      _id: string,
-      title: string,
+      _id: string
+      title: string
       objectType: 'collection'
+    }
+    work?: {
+      _id: string
+      fileName: string
+      objectType: 'work'
     }
   }
   created: number
@@ -128,19 +133,24 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
       url: string
     }
     linkedCollection?: {
-      _id: string,
-      title: string,
+      _id: string
+      title: string
       objectType: 'collection'
     }
     uploadWorks?: {
-      _id: string,
-      fileName: string,
+      _id: string
+      fileName: string
       objectType: 'work'
     }[]
     collection: {
-      _id: string,
-      title: string,
+      _id: string
+      title: string
       objectType: 'collection'
+    }
+    work?: {
+      _id: string
+      fileName: string
+      objectType: 'work'
     }
   } = undefined
   created: number = undefined
