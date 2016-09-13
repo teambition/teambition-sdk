@@ -73,7 +73,7 @@ export default describe('socket message test: ', () => {
         done()
       })
 
-    Socket.emit('new', 'message', mockMessages[0]._id, mockMessage)
+    Socket.emit('new', 'message', '', mockMessage)
 
     httpBackend.flush()
   })

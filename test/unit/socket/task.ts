@@ -112,7 +112,7 @@ export default describe('socket task test: ', () => {
 
       httpBackend.flush()
 
-      Socket.emit('new', 'task', 'mocktaskid', {
+      Socket.emit('new', 'task', '', {
         _id: 'mocktaskid',
         content: 'mock task content',
         dueDate: moment(dueDate).add(1, 'hour').toISOString() ,
@@ -173,7 +173,7 @@ export default describe('socket task test: ', () => {
 
       httpBackend.flush()
 
-      Socket.emit('new', 'task', 'mocktaskid', {
+      Socket.emit('new', 'task', '', {
         _id: 'mocktaskid',
         content: 'mock task content',
         dueDate: null,

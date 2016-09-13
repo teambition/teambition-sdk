@@ -172,7 +172,7 @@ export default describe('socket event test: ', () => {
           done()
         })
 
-      Socket.emit('new', 'event', 'mockevent', mockEvent)
+      Socket.emit('new', 'event', '', mockEvent)
 
       httpBackend.flush()
     })
@@ -189,7 +189,7 @@ export default describe('socket event test: ', () => {
           done()
         })
 
-      Socket.emit('new', 'event', 'mockrecurrence', mockEvent)
+      Socket.emit('new', 'event', '', mockEvent)
 
       httpBackend.flush()
     })
@@ -234,7 +234,7 @@ export default describe('socket event test: ', () => {
             done()
           })
 
-        Socket.emit('new', 'event', 'mock_new_event', mockNew)
+        Socket.emit('new', 'event', '', mockNew)
         Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
       }, global.timeout2)
 
@@ -350,7 +350,7 @@ export default describe('socket event test: ', () => {
           done()
         })
 
-      Socket.emit('new', 'event', 'mockevent', mockEvent)
+      Socket.emit('new', 'event', '', mockEvent)
 
       httpBackend.flush()
     })
@@ -367,7 +367,7 @@ export default describe('socket event test: ', () => {
           done()
         })
 
-      Socket.emit('new', 'event', 'mockrecurrence', mockEvent)
+      Socket.emit('new', 'event', '', mockEvent)
 
       httpBackend.flush()
     })
@@ -412,7 +412,7 @@ export default describe('socket event test: ', () => {
             done()
           })
 
-        Socket.emit('new', 'event', 'mock_new_event', mockNew)
+        Socket.emit('new', 'event', '', mockNew)
         Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
       }, global.timeout2)
 

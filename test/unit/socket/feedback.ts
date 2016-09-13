@@ -42,7 +42,7 @@ export default describe('feedback socket: ', () => {
         done()
       })
 
-    Socket.emit('new', 'feedback', mockFeedback._id, mockFeedback)
+    Socket.emit('new', 'feedback', '', mockFeedback)
 
     httpBackend.flush()
   })

@@ -33,6 +33,22 @@ export class SocketMock {
   }
 
   emit(
+    method: 'change' | 'destroy' | 'refresh' | 'remove',
+    objectType: SocketEventType,
+    objectId: string,
+    patch?: any,
+    delay?: number
+  ): void
+
+  emit(
+    method: 'new',
+    objectType: SocketEventType,
+    objectId: '',
+    patch?: any,
+    delay?: number
+  ): void
+
+  emit(
     method: 'change' | 'destroy' | 'new' | 'refresh' | 'remove',
     objectType: SocketEventType,
     objectId: string,

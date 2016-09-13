@@ -75,7 +75,7 @@ export default describe('activity socket test', () => {
 
     httpBackend.flush()
 
-    Socket.emit('new', 'activity', _boundToObjectId, mockActivity)
+    Socket.emit('new', 'activity', '', mockActivity)
   })
 
   it('new comment should ok', done => {
@@ -131,6 +131,6 @@ export default describe('activity socket test', () => {
 
     httpBackend.flush()
 
-    Socket.emit('new', 'activity', _boundToObjectId, mockComment)
+    Socket.emit('new', 'activity', '', mockComment)
   })
 })
