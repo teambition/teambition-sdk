@@ -122,7 +122,7 @@ export default describe('project socket test', () => {
         done()
       })
 
-    Socket.emit('new', 'homeActivity', projectId, homeActivity)
+    Socket.emit('new', 'homeActivity', '', homeActivity)
 
     httpBackend.flush()
   })
