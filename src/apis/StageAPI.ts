@@ -8,10 +8,6 @@ import { StageData } from '../schemas/Stage'
 
 export class StageAPI {
 
-  constructor() {
-    StageModel.destructor()
-  }
-
   getAll(_tasklistId: string): Observable<StageData[]> {
     return makeColdSignal<StageData[]>(observer => {
       const get = StageModel.getStages(_tasklistId)

@@ -26,10 +26,6 @@ export type detailType = 'complete'
 
 export class TaskAPI {
 
-  constructor() {
-    TaskModel.destructor()
-  }
-
   getTasklistUndone(_tasklistId: string): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(observer => {
       const get = TaskModel.getTasklistTasksUndone(_tasklistId)

@@ -8,10 +8,6 @@ import FileFetch from '../fetchs/FileFetch'
 import { observableError } from './utils'
 
 export class FileAPI {
-  constructor () {
-    WorkModel.destructor()
-  }
-
   create(file: File, parentId: string): Observable<FileData> {
     return Observable.create((observer: Observer<FileData>) => {
       Observable.fromPromise(StrikerFetch.upload(file))

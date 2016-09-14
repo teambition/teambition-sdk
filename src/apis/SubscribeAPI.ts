@@ -8,10 +8,6 @@ import { makeColdSignal, errorHandler, observableError } from './utils'
 
 export class SubscribeAPI {
 
-  constructor() {
-    SubscribeModel.destructor()
-  }
-
   getOrgsSubscribe(_organizationId: string, query?: any): Observable<SubscribeData> {
     return makeColdSignal<SubscribeData>(observer => {
       const cache = SubscribeModel.getOne(_organizationId)

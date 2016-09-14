@@ -7,8 +7,15 @@ import Collection from './BaseCollection'
 export default class Model {
 
   public static DataBase = new DataBase()
+  public static TeardownLogics = new Set<Function>()
 
   protected _collections = new Map<string, Collection<any>>()
+
+  constructor() {
+    Model.TeardownLogics.add(() => {
+      this._collections.clear()
+    })
+  }
 
   delete(namespace: string): Observable<void> {
     return Model.DataBase.delete(namespace)
@@ -20,11 +27,6 @@ export default class Model {
     }else {
       return Observable.of(null)
     }
-  }
-
-  // 单例 Model， 这个方法由子类继承，清除子类的状态信息，方便测试
-  destructor() {
-    this._collections.clear()
   }
 
   checkSchema(index: string): boolean {

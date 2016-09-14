@@ -14,10 +14,6 @@ import { SubtaskData } from '../schemas/Subtask'
 import { makeColdSignal, errorHandler } from './utils'
 
 export class ReportAPI {
-  constructor() {
-    ReportModel.destructor()
-  }
-
   getAccomplished (
     projectId: string,
     taskType: 'subtask',

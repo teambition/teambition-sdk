@@ -16,10 +16,6 @@ import {
 import { makeColdSignal, observableError, errorHandler } from './utils'
 
 export class PostAPI {
-  constructor() {
-    PostModel.destructor()
-  }
-
   getProjectPosts(projectId: string, query?: {
     page: number
     count: number

@@ -12,10 +12,6 @@ import {
 import { makeColdSignal, observableError, errorHandler } from './utils'
 
 export class EntrycategoryAPI {
-  constructor() {
-    EntrycategoryModel.destructor()
-  }
-
   getEntrycategories(query: {
     _projectId: string
     page?: number

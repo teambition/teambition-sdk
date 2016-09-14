@@ -12,10 +12,6 @@ import {
 import { makeColdSignal, observableError, errorHandler } from './utils'
 
 export class MessageAPI {
-  constructor() {
-    MessageModel.destructor()
-  }
-
   getMessages(query?: GetMessageOptions): Observable<MessageData[]> {
     return makeColdSignal<MessageData[]>(observer => {
       const page = query && query.page ? query.page : 1

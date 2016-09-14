@@ -8,9 +8,11 @@ export class PreferenceModel extends Model {
 
   public preferenceId: string
 
-  destructor() {
-    super.destructor()
-    this.preferenceId = null
+  constructor() {
+    super()
+    PreferenceModel.TeardownLogics.add(() => {
+      this.preferenceId = null
+    })
   }
 
   set(data: PreferenceData): Observable<PreferenceData> {
