@@ -13,10 +13,6 @@ import { errorHandler, makeColdSignal, observableError } from './utils'
 
 export class TasklistAPI {
 
-  constructor() {
-    TasklistModel.destructor()
-  }
-
   create(option: CreateTasklistOptions): Observable<TasklistData> {
     return Observable.create((observer: Observer<TasklistData>) => {
       Observable.fromPromise(TasklistFetch.create(option))

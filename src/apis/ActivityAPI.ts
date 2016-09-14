@@ -18,9 +18,6 @@ export interface GetActivitiesOptions {
 }
 
 export class ActivityAPI {
-  constructor() {
-    ActivityModel.destructor()
-  }
 
   getActivities(_boundToObjectType: string, _boundToObjectId: string, query?: GetActivitiesOptions): Observable<ActivityData[]> {
     return makeColdSignal<ActivityData[]>(observer => {

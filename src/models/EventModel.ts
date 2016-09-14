@@ -17,9 +17,11 @@ export class EventModel extends Model {
 
   private _recurrenceEventAlias = new Map<string, string>()
 
-  desctructor() {
-    super.destructor()
-    this._recurrenceEventAlias.clear()
+  constructor() {
+    super()
+    EventModel.TeardownLogics.add(() => {
+      this._recurrenceEventAlias.clear()
+    })
   }
 
   addOne(event: EventData): Observable<RecurrenceEvent> {

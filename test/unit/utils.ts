@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import BaseModel from '../../src/models/BaseModel'
+import { testable } from '../../src/testable'
 import { forEach } from './index'
 
 const expect = chai.expect
@@ -34,5 +34,5 @@ export function notInclude(collection: any[], ele: any) {
 }
 
 export function flush() {
-  BaseModel.DataBase.flush()
+  testable.flushSideEffect()
 }

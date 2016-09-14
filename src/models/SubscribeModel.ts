@@ -8,9 +8,11 @@ export class SubscribeModel extends Model {
 
   private _alias = new Map<string, Observable<SubscribeData>>()
 
-  destructor() {
-    super.destructor()
-    this._alias.clear()
+  constructor() {
+    super()
+    SubscribeModel.TeardownLogics.add(() => {
+      this._alias.clear()
+    })
   }
 
   addOne(_organizationId: string, data: SubscribeData): Observable<SubscribeData> {

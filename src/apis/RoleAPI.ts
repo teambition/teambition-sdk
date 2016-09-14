@@ -7,10 +7,6 @@ import RoleModel from '../models/RoleModel'
 import { makeColdSignal, errorHandler } from './utils'
 
 export class RoleAPI {
-  constructor() {
-    RoleModel.destructor()
-  }
-
   getDefaultRoles(): Observable<DefaultRoleData[]> {
     return makeColdSignal<DefaultRoleData[]>(observer => {
       const cache = RoleModel.getDefault()

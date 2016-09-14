@@ -13,10 +13,6 @@ import {
 import { makeColdSignal, errorHandler, observableError } from './utils'
 
 export class CollectionAPI {
-  constructor() {
-    CollectionModel.destructor()
-  }
-
   create(collection: CreateCollectionOptions): Observable<TBCollectionData> {
     return Observable.create((observer: Observer<TBCollectionData>) => {
       Observable.fromPromise(CollectionFetch.create(collection))

@@ -7,10 +7,6 @@ import { errorHandler, makeColdSignal } from './utils'
 
 export class OrganizationAPI {
 
-  constructor() {
-    OrganizationModel.destructor()
-  }
-
   getOrgs(): Observable<OrganizationData[]> {
     return makeColdSignal<OrganizationData[]>(observer => {
       const get = OrganizationModel.getAll()

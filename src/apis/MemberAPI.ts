@@ -8,10 +8,6 @@ import { makeColdSignal, errorHandler, observableError } from './utils'
 
 export class MemberAPI {
 
-  constructor() {
-    MemberModel.destructor()
-  }
-
   deleteMember(memberId: string): Observable<void> {
     return Observable.fromPromise(MemberFetch.deleteMember(memberId))
       .concatMap(x => MemberModel.delete(memberId))

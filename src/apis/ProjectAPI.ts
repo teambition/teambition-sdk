@@ -44,11 +44,6 @@ export interface GetHomeActivitiesOptions {
 
 export class ProjectAPI {
 
-  constructor() {
-    ProjectModel.destructor()
-    HomeActivityModel.destructor()
-  }
-
   getAll(querys?: JSONObj): Observable<ProjectData[]> {
     return makeColdSignal<ProjectData[]>(observer => {
       const get = ProjectModel.getProjects()

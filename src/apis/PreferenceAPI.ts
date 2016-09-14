@@ -8,10 +8,6 @@ import { errorHandler, makeColdSignal } from './utils'
 
 export class PreferenceAPI {
 
-  constructor() {
-    PreferenceModel.destructor()
-  }
-
   getPreference(): Observable<PreferenceData> {
     return makeColdSignal<PreferenceData>(observer => {
       const get = PreferenceModel.get()

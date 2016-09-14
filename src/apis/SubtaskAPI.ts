@@ -11,10 +11,6 @@ import { OrganizationData } from '../schemas/Organization'
 
 export class SubtaskAPI {
 
-  constructor() {
-    SubtaskModel.destructor()
-  }
-
   getFromTask(_taskId: string): Observable<SubtaskData[]> {
     return makeColdSignal<SubtaskData[]>(observer => {
       const get = SubtaskModel.getFromTask(_taskId)

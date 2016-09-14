@@ -25,10 +25,6 @@ import { EventData } from '../schemas/Event'
 import { observableError, errorHandler } from './utils'
 
 export class EventAPI {
-  constructor() {
-    EventModel.destructor()
-  }
-
   create(option: CreateEventOptions): Observable<EventData> {
     return Observable.create((observer: Observer<EventData>) => {
       Observable.fromPromise(EventFetch.create(option))

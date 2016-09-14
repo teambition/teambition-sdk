@@ -8,10 +8,6 @@ import { errorHandler, makeColdSignal, observableError } from './utils'
 
 export class UserAPI {
 
-  constructor() {
-    UserModel.destructor()
-  }
-
   getUserMe(): Observable<UserMe> {
     return makeColdSignal<UserMe>(observer => {
       const get = UserModel.get()
