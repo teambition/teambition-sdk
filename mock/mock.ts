@@ -56,13 +56,15 @@ export function mockFetch() {
         fetchStack.forEach((val, key) => {
           definedUri.push(key)
         })
-        throw new Error(
+        const error = new TypeError(
             `nothing expect return from server,
             uri: ${uri}, method: ${options.method},
             parsedUri: ${uri + method + dataPath}
             body: ${JSON.stringify(options.body, null, 2)},
             defined uri: ${JSON.stringify(definedUri, null, 2)}`
         )
+        console.error(error)
+        throw error
       }
       let result: FetchResult
       if (results.length > 1) {

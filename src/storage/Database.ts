@@ -210,9 +210,12 @@ export default class DataBase {
     return Observable.create((observer: Observer<(Schema<T> | T)[]>) => {
       setTimeout(() => {
         if (!(patch instanceof Array)) {
-          observer.error(new Error(`Patch must be Array: ${index}`))
+          return observer.error(new TypeError(`Patch must be Array: ${index}`))
         }
         const collection: Collection<T> = DataBase.data.get(index)
+        if (!collection) {
+          return observer.error(new TypeError(`Patch target not exist: ${index}`))
+        }
         let result: (Schema<T> | T)[]
         collection.update(patch)
           .concatMap(x => {
