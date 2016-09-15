@@ -1,5 +1,11 @@
 /// <reference path="./type.d.ts" />
 'use strict'
+const Tman = require('tman')
+
+for (let key of ['describe', 'suite', 'test', 'it', 'before', 'after', 'beforeEach', 'afterEach']) {
+  global[key] = Tman[key]
+}
+
 export * from './utils/fetch'
 export * from './utils/setSchema'
 export * from './utils/utils'
