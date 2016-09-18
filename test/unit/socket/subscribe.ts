@@ -39,7 +39,5 @@ export default describe('Organization Subscribe Socket:', () => {
       })
 
     Socket.emit('change', 'subscriber', orgsSubscribe._id, mockUpdate)
-
-    httpBackend.flush()
   })
 })

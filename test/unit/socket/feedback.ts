@@ -43,8 +43,6 @@ export default describe('feedback socket: ', () => {
       })
 
     Socket.emit('new', 'feedback', '', mockFeedback)
-
-    httpBackend.flush()
   })
 
   it('delete feedback should ok', done => {
@@ -63,8 +61,6 @@ export default describe('feedback socket: ', () => {
       })
 
     Socket.emit('destroy', 'feedback', feedbackId)
-
-    httpBackend.flush()
   })
 
   it('update feedback should ok', done => {
@@ -87,7 +83,5 @@ export default describe('feedback socket: ', () => {
         comment: 'mock update feedback'
       }
     })
-
-    httpBackend.flush()
   })
 })

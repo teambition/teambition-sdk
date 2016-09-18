@@ -78,8 +78,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -101,8 +99,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -126,8 +122,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -150,8 +144,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -177,8 +169,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -206,8 +196,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })
@@ -236,8 +224,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -259,8 +245,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new subtask should ok', done => {
@@ -278,8 +262,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.get(mockSubtask._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -301,8 +283,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.delete(subtaskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -329,8 +309,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.updateStatus(subtaskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -360,8 +338,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -387,8 +363,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -412,8 +386,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -448,8 +420,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -473,8 +443,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -497,8 +465,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -524,8 +490,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -553,8 +517,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })
@@ -587,8 +549,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -615,8 +575,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -640,8 +598,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -676,8 +632,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new subtask should ok', done => {
@@ -701,8 +655,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.get(mockSubtask._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -726,8 +678,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.delete(subtaskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -756,8 +706,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.updateStatus(subtaskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })
@@ -790,8 +738,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -817,8 +763,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -842,8 +786,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -878,8 +820,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -903,8 +843,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -927,8 +865,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -954,8 +890,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -983,8 +917,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -1016,8 +948,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -1044,8 +974,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -1069,8 +997,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -1105,8 +1031,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new subtask should ok', done => {
@@ -1130,8 +1054,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.get(mockSubtask._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -1155,8 +1077,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.delete(subtaskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -1185,8 +1105,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.updateStatus(subtaskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })
@@ -1219,8 +1137,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -1246,8 +1162,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -1271,8 +1185,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -1307,8 +1219,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -1332,8 +1242,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -1356,8 +1264,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -1383,8 +1289,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -1412,8 +1316,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -1445,8 +1347,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -1473,8 +1373,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -1498,8 +1396,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -1534,8 +1430,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new subtask should ok', done => {
@@ -1559,8 +1453,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.get(mockSubtask._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -1584,8 +1476,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.delete(subtaskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -1614,8 +1504,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.updateStatus(subtaskId, false)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })
@@ -1647,8 +1535,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -1672,8 +1558,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -1695,8 +1579,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -1728,8 +1610,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -1752,8 +1632,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -1775,8 +1653,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -1801,8 +1677,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -1829,8 +1703,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -1861,8 +1733,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -1886,8 +1756,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -1909,8 +1777,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -1942,8 +1808,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -1966,8 +1830,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -1989,8 +1851,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -2015,8 +1875,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -2043,8 +1901,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -2075,8 +1931,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -2100,8 +1954,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -2123,8 +1975,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -2158,8 +2008,6 @@ export default describe('Report API Test: ', () => {
             done()
           }
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -2182,8 +2030,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -2205,8 +2051,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -2231,8 +2075,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -2259,8 +2101,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -2291,8 +2131,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -2316,8 +2154,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -2339,8 +2175,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -2371,8 +2205,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout4)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('add new subtask should ok', done => {
@@ -2394,8 +2226,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.get(mockSubtask._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -2418,8 +2248,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.delete(subtaskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -2447,8 +2275,6 @@ export default describe('Report API Test: ', () => {
       SubtaskApi.updateStatus(subtaskId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })
@@ -2479,8 +2305,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -2502,8 +2326,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -2523,8 +2345,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -2553,8 +2373,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -2576,8 +2394,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mocktask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -2598,8 +2414,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -2623,8 +2437,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -2650,8 +2462,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -2681,8 +2491,6 @@ export default describe('Report API Test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -2704,8 +2512,6 @@ export default describe('Report API Test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -2725,8 +2531,6 @@ export default describe('Report API Test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get page2 from cache should ok', done => {
@@ -2755,8 +2559,6 @@ export default describe('Report API Test: ', () => {
         .subscribe(() => {
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new task should ok', done => {
@@ -2777,8 +2579,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.get('mockunassignedtask')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete task should ok', done => {
@@ -2799,8 +2599,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.delete(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive task should ok', done => {
@@ -2824,8 +2622,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.archive(taskId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change status should ok', done => {
@@ -2851,8 +2647,6 @@ export default describe('Report API Test: ', () => {
       TaskApi.updateStatus(taskId, true)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 })

@@ -35,7 +35,5 @@ export default describe('socket preference test: ', () => {
     Socket.emit('change', 'preference', mockPreference._id, {
       openWindowMode: 'slide'
     })
-
-    httpBackend.flush()
   })
 })

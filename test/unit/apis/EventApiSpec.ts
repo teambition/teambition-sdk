@@ -176,8 +176,6 @@ export default describe('Event test:', () => {
           expect(r.recurrence).to.deep.equal(MockRecurrence.day.recurrence)
           done()
         }, err => console.error(err))
-
-      httpBackend.flush()
     })
 
     it('get event should ok', done => {
@@ -191,8 +189,6 @@ export default describe('Event test:', () => {
           expectDeepEqual(mockEvent, r)
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('update title should ok', done => {
@@ -222,8 +218,6 @@ export default describe('Event test:', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('update recurrence should ok', done => {
@@ -254,8 +248,6 @@ export default describe('Event test:', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete event should ok', done => {
@@ -277,8 +269,6 @@ export default describe('Event test:', () => {
       EventApi.delete(eventId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('archive event should ok', done => {
@@ -307,8 +297,6 @@ export default describe('Event test:', () => {
       EventApi.archive(mockevent._id, now)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('comment repeat event should ok', done => {
@@ -340,8 +328,6 @@ export default describe('Event test:', () => {
       EventApi.commentsRepeatEvent(mockReapeatEvent._id, <any>comment)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('like event should ok', done => {
@@ -375,8 +361,6 @@ export default describe('Event test:', () => {
       EventApi.like(normalEvent._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('likeRepeatEvent should ok', done => {
@@ -404,8 +388,6 @@ export default describe('Event test:', () => {
       EventApi.likeRepeatEvent(mockReapeatEvent._id, now)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('unarchive should ok', done => {
@@ -432,8 +414,6 @@ export default describe('Event test:', () => {
       EventApi.unarchive(normalEvent._id)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('update event content should ok', done => {
@@ -461,8 +441,6 @@ export default describe('Event test:', () => {
       EventApi.updateContent(normalEvent._id, 'mock content')
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('updateInvolvemembers should ok', done => {
@@ -492,8 +470,6 @@ export default describe('Event test:', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('updateReminders should ok', done => {
@@ -525,8 +501,6 @@ export default describe('Event test:', () => {
       EventApi.updateReminders(normalEvent._id, <any>reminders)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('updateTags should ok', done => {
@@ -555,8 +529,6 @@ export default describe('Event test:', () => {
       EventApi.updateTags(normalEvent._id, tags)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
   })
 
@@ -598,8 +570,6 @@ export default describe('Event test:', () => {
         expect(r.length).to.equal(31)
         done()
       })
-
-      httpBackend.flush()
     })
 
     it('change recurrence date, project events should be notified', done => {
@@ -624,8 +594,6 @@ export default describe('Event test:', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change normal date, project events should be notified', done => {
@@ -650,8 +618,6 @@ export default describe('Event test:', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete recurrence date, project events should be notified', done => {
@@ -668,8 +634,6 @@ export default describe('Event test:', () => {
       EventApi.delete(eventId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete normal event should ok', done => {
@@ -687,8 +651,6 @@ export default describe('Event test:', () => {
       EventApi.delete(eventId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('add new normal event should ok', done => {
@@ -717,8 +679,6 @@ export default describe('Event test:', () => {
       EventApi.create(mockPost)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('add recurrence event should ok', done => {
@@ -749,8 +709,6 @@ export default describe('Event test:', () => {
       EventApi.create(mockPost)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get event from project events, and update it should ok', done => {
@@ -797,8 +755,6 @@ export default describe('Event test:', () => {
           .subscribeOn(Scheduler.async, global.timeout1)
           .subscribe()
       }, global.timeout2)
-
-      httpBackend.flush()
     })
   })
 
@@ -840,8 +796,6 @@ export default describe('Event test:', () => {
         expect(r.length).to.equal(41)
         done()
       })
-
-      httpBackend.flush()
     })
 
     it('change recurrence date, my events should be notified', done => {
@@ -866,8 +820,6 @@ export default describe('Event test:', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('change normal date, my events should be notified', done => {
@@ -892,8 +844,6 @@ export default describe('Event test:', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete recurrence date, my events should be notified', done => {
@@ -910,8 +860,6 @@ export default describe('Event test:', () => {
       EventApi.delete(eventId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete normal event should ok', done => {
@@ -929,8 +877,6 @@ export default describe('Event test:', () => {
       EventApi.delete(eventId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('add new normal event should ok', done => {
@@ -959,8 +905,6 @@ export default describe('Event test:', () => {
       EventApi.create(mockPost)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('add recurrence event should ok', done => {
@@ -991,8 +935,6 @@ export default describe('Event test:', () => {
       EventApi.create(mockPost)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('get event from my events, and update it should ok', done => {
@@ -1039,8 +981,6 @@ export default describe('Event test:', () => {
           .subscribeOn(Scheduler.async, global.timeout1)
           .subscribe()
       }, global.timeout2)
-
-      httpBackend.flush()
     })
   })
 

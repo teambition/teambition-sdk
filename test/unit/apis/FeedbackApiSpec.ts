@@ -48,8 +48,6 @@ export default describe('FeedbackAPI Spec: ', () => {
         expectDeepEqual(r[0], projectFeedbacks[0])
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get projectFeedbacks from cache should ok', done => {
@@ -68,8 +66,6 @@ export default describe('FeedbackAPI Spec: ', () => {
         expect(spy).to.be.calledOnce
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get projectFeedbacks page 2 should ok', done => {
@@ -95,8 +91,6 @@ export default describe('FeedbackAPI Spec: ', () => {
     })
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('get feedback in another day should ok', done => {
@@ -121,8 +115,6 @@ export default describe('FeedbackAPI Spec: ', () => {
         expect(spy).to.be.calledTwice
         done()
       })
-
-    httpBackend.flush()
 
   })
 
@@ -154,8 +146,6 @@ export default describe('FeedbackAPI Spec: ', () => {
     })
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('delete should ok', done => {
@@ -179,8 +169,6 @@ export default describe('FeedbackAPI Spec: ', () => {
     FeedbackApi.deleteProjectFeedback(projectId, feedbackId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('create should ok', done => {
@@ -211,7 +199,5 @@ export default describe('FeedbackAPI Spec: ', () => {
     })
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 })

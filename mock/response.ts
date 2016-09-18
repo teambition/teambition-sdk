@@ -20,9 +20,13 @@ export class HttpResponse {
     return this
   }
 
-  respond(data: any, response: ResponseInit = {
-    status: 200
-  }) {
+  respond(
+    data: any,
+    response: ResponseInit = {
+      status: 200
+    },
+    wait?: number | Promise<any>
+  ) {
     const status = response.status || 200
     response.status = status
     if (typeof status !== 'number') {
@@ -40,10 +44,7 @@ export class HttpResponse {
     }
     const responseData = new Response(data, response)
     const result = {
-      flushQueue: {
-        response: responseData
-      },
-      response: responseData
+      wait, response: responseData
     }
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [ result ])
@@ -52,14 +53,11 @@ export class HttpResponse {
     }
   }
 
-  error(message: string, response: ResponseInit) {
+  error(message: string, response: ResponseInit, wait?: number | Promise<any>) {
     const responseData = new Response(message, response)
 
     const result = {
-      response: responseData,
-      flushQueue: {
-        response: responseData
-      }
+      wait, response: responseData
     }
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [result])

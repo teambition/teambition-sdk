@@ -41,8 +41,6 @@ export default describe('SubscribeApiSpec: ', () => {
         expectDeepEqual(r, orgsSubscribe)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get organization subscribe from cache should ok', done => {
@@ -56,8 +54,6 @@ export default describe('SubscribeApiSpec: ', () => {
         expect(spy).to.be.calledOnce
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('add project to organization subscribe should ok', done => {
@@ -91,8 +87,6 @@ export default describe('SubscribeApiSpec: ', () => {
     SubscribeApi.updateOrgsSubscribe('mock', ['mockprojectid'])
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('remove project to organization subscribe should ok', done => {
@@ -120,8 +114,6 @@ export default describe('SubscribeApiSpec: ', () => {
     SubscribeApi.updateOrgsSubscribe('mock', null, ['mockprojectid'])
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
 })

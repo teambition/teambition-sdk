@@ -34,8 +34,6 @@ export default describe('UserAPI test', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update user me should ok', done => {
@@ -62,8 +60,6 @@ export default describe('UserAPI test', () => {
         expect(r).to.deep.equal(mockPut)
         done()
       })
-
-    httpBackend.flush()
 
   })
 
@@ -98,8 +94,6 @@ export default describe('UserAPI test', () => {
         })
         done()
       })
-
-    httpBackend.flush()
 
   })
 
@@ -136,8 +130,6 @@ export default describe('UserAPI test', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
 
   })
 })

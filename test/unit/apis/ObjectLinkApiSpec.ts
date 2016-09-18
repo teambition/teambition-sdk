@@ -45,8 +45,6 @@ export default describe('ObjectLink API test:', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('create objectlink should ok', done => {
@@ -75,8 +73,6 @@ export default describe('ObjectLink API test:', () => {
     ObjectLink.create(createOptions)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('delete objectlink should ok', done => {
@@ -95,7 +91,5 @@ export default describe('ObjectLink API test:', () => {
     ObjectLink.delete(objectlinkId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 })

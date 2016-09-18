@@ -44,8 +44,6 @@ export default describe('project socket test', () => {
       })
 
     Socket.emit('refresh', 'project', '', personalProject._id)
-
-    httpBackend.flush()
   })
 
   it('new project', done => {
@@ -63,8 +61,6 @@ export default describe('project socket test', () => {
       })
 
     Socket.emit('refresh', 'project', '', projectId)
-
-    httpBackend.flush()
   })
 
   // 删除个人项目
@@ -82,8 +78,6 @@ export default describe('project socket test', () => {
       })
 
     Socket.emit('remove', 'project', '', personalProject._id)
-
-    httpBackend.flush()
   })
 
   it('delete project', done => {
@@ -102,8 +96,6 @@ export default describe('project socket test', () => {
       })
 
     Socket.emit('remove', 'project', '', projectId)
-
-    httpBackend.flush()
   })
 
   it('new home activity', done => {
@@ -123,7 +115,5 @@ export default describe('project socket test', () => {
       })
 
     Socket.emit('new', 'homeActivity', '', homeActivity)
-
-    httpBackend.flush()
   })
 })

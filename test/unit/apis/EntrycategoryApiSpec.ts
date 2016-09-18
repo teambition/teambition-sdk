@@ -48,8 +48,6 @@ export default describe('entrycategory api test: ', () => {
         })
         done()
       }, err => console.error(err))
-
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -72,8 +70,6 @@ export default describe('entrycategory api test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('add new entrycategory should ok', done => {
@@ -100,8 +96,6 @@ export default describe('entrycategory api test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete entrycategory should ok', done => {
@@ -125,8 +119,6 @@ export default describe('entrycategory api test: ', () => {
       EntrycategoryApi.delete(deleteId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })
@@ -165,8 +157,6 @@ export default describe('entrycategory api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
 })

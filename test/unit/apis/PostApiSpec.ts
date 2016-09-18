@@ -48,7 +48,6 @@ export default describe('post api test: ', () => {
         done()
       })
 
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -70,7 +69,6 @@ export default describe('post api test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('add new post should ok', done => {
@@ -95,7 +93,6 @@ export default describe('post api test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('delete post should ok', done => {
@@ -119,7 +116,6 @@ export default describe('post api test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('archive should ok', done => {
@@ -152,7 +148,6 @@ export default describe('post api test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
   })
@@ -205,8 +200,6 @@ export default describe('post api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('like post should ok', done => {
@@ -242,8 +235,6 @@ export default describe('post api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('delete like post should ok', done => {
@@ -279,8 +270,6 @@ export default describe('post api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('unarchive post should ok', done => {
@@ -312,8 +301,6 @@ export default describe('post api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update involves should ok', done => {
@@ -349,8 +336,6 @@ export default describe('post api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update pin should ok', done => {
@@ -382,8 +367,6 @@ export default describe('post api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update tags should ok', done => {
@@ -417,7 +400,5 @@ export default describe('post api test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 })

@@ -36,8 +36,6 @@ export default describe('Preferences API test', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update preferences should ok', done => {
@@ -64,7 +62,5 @@ export default describe('Preferences API test', () => {
         expect(r).to.deep.equal(mockPut)
         done()
       })
-
-    httpBackend.flush()
   })
 })

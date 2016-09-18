@@ -1,20 +1,12 @@
 'use strict'
-import { flushState } from './backend'
-
 declare const global: any
 
-export interface FlushQueue {
-  resolve?: Function
-  response: Response
-}
-
 export interface FetchResult {
-  flushQueue?: FlushQueue
+  wait: number | Promise<any>
   response: Response
 }
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
-export const flushStack = new Set<FlushQueue>()
 
 export const parseObject = (obj: any) => {
   if (typeof obj === 'string') {
@@ -57,14 +49,14 @@ export function mockFetch() {
           definedUri.push(key)
         })
         const error = new TypeError(
-            `nothing expect return from server,
+            `nothing expect response from server,
             uri: ${uri}, method: ${options.method},
             parsedUri: ${uri + method + dataPath}
             body: ${JSON.stringify(options.body, null, 2)},
             defined uri: ${JSON.stringify(definedUri, null, 2)}`
         )
         console.error(error)
-        throw error
+        return Promise.reject(error)
       }
       let result: FetchResult
       if (results.length > 1) {
@@ -73,18 +65,22 @@ export function mockFetch() {
         result = results[0]
       }
       // console.log(uri + method + dataPath, fetchStack)
-      let promise: Promise<any>
-      if (result && result.response) {
-        promise = new Promise(resolve => {
-          if (flushState.flushed) {
+      const wait = result.wait
+      if (!wait || wait < 0) {
+        return Promise.resolve(result.response)
+      } else if (typeof wait === 'number') {
+        return new Promise(resolve => {
+          setTimeout(() => {
             resolve(result.response)
-          } else {
-            result.flushQueue.resolve = resolve
-            flushStack.add(result.flushQueue)
-          }
+          }, wait)
         })
+      } else if (typeof wait.then !== 'undefined') {
+        return wait.then(() => {
+          return result.response
+        })
+      } else {
+        return Promise.reject(new TypeError(`unsupported wait type, expected number or Promise`))
       }
-      return promise
     }
   }
 }

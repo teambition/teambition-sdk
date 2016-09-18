@@ -44,8 +44,6 @@ export default describe('socket task test: ', () => {
       _id: mockTask._id,
       content: 'mocktask'
     })
-
-    httpBackend.flush()
   })
 
   it('destroy task should ok', done => {
@@ -57,8 +55,6 @@ export default describe('socket task test: ', () => {
       })
 
     Socket.emit('destroy', 'task', mockTask._id)
-
-    httpBackend.flush()
   })
 
   describe('my tasks has dueDate: ', () => {
@@ -79,8 +75,6 @@ export default describe('socket task test: ', () => {
           done()
         })
 
-      httpBackend.flush()
-
       Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
         _id: tasksOneDayMe[0]._id,
         dueDate: null
@@ -96,8 +90,6 @@ export default describe('socket task test: ', () => {
           done()
         })
 
-      httpBackend.flush()
-
       Socket.emit('destroy', 'task', tasksOneDayMe[0]._id)
     })
 
@@ -109,8 +101,6 @@ export default describe('socket task test: ', () => {
           expect(data[0]._id).to.equal('mocktaskid')
           done()
         })
-
-      httpBackend.flush()
 
       Socket.emit('new', 'task', '', {
         _id: 'mocktaskid',
@@ -140,8 +130,6 @@ export default describe('socket task test: ', () => {
           done()
         })
 
-      httpBackend.flush()
-
       Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
         _id: tasksOneDayMe[0]._id,
         dueDate: new Date().toISOString()
@@ -157,8 +145,6 @@ export default describe('socket task test: ', () => {
           done()
         })
 
-      httpBackend.flush()
-
       Socket.emit('destroy', 'task', tasksOneDayMe[0]._id)
     })
 
@@ -170,8 +156,6 @@ export default describe('socket task test: ', () => {
           expect(data[0]._id).to.equal('mocktaskid')
           done()
         })
-
-      httpBackend.flush()
 
       Socket.emit('new', 'task', '', {
         _id: 'mocktaskid',

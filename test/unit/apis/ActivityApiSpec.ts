@@ -54,7 +54,6 @@ export default describe('ActivityAPI test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('add should ok', done => {
@@ -84,7 +83,6 @@ export default describe('ActivityAPI test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout2)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('get activities from cache should ok', done => {
@@ -101,7 +99,6 @@ export default describe('ActivityAPI test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
   })
 
@@ -125,7 +122,5 @@ export default describe('ActivityAPI test: ', () => {
         expectDeepEqual(data, mockActivity)
         done()
       })
-
-    httpBackend.flush()
   })
 })

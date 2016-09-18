@@ -85,7 +85,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -100,7 +99,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -117,7 +115,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('add subtask should ok', done => {
@@ -139,7 +136,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -160,7 +156,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('done subtask should ok', done => {
@@ -187,7 +182,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
   })
 
@@ -222,7 +216,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -237,7 +230,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -254,7 +246,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('add subtask should ok', done => {
@@ -276,7 +267,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -297,7 +287,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('done subtask should ok', done => {
@@ -327,7 +316,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
   })
 
@@ -362,7 +350,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -377,7 +364,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -394,7 +380,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('add subtask should ok', done => {
@@ -416,7 +401,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -437,7 +421,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
   })
 
@@ -474,7 +457,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('get page2 should ok', done => {
@@ -489,7 +471,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('get from cache should ok', done => {
@@ -506,7 +487,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('get empty array when no data', done => {
@@ -520,7 +500,6 @@ export default describe('Subtask API test: ', () => {
           done()
         })
 
-      httpBackend.flush()
     })
 
     it('add subtask should ok', done => {
@@ -542,7 +521,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('update subtask should ok', done => {
@@ -568,7 +546,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
 
     it('delete subtask should ok', done => {
@@ -589,7 +566,6 @@ export default describe('Subtask API test: ', () => {
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
 
-      httpBackend.flush()
     })
   })
 
@@ -607,8 +583,6 @@ export default describe('Subtask API test: ', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('add to subtask to task should ok', done => {
@@ -628,8 +602,6 @@ export default describe('Subtask API test: ', () => {
     Subtask.get(subtaskId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('get task should ok', done => {
@@ -638,8 +610,6 @@ export default describe('Subtask API test: ', () => {
         expectDeepEqual(data, subtask)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('create subtask should ok', done => {
@@ -663,8 +633,6 @@ export default describe('Subtask API test: ', () => {
         expectDeepEqual(data, result)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('delete subtask should ok', done => {
@@ -681,8 +649,6 @@ export default describe('Subtask API test: ', () => {
     Subtask.delete(subtaskId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('delete subtask and get subtasks from task should ok', done => {
@@ -708,8 +674,6 @@ export default describe('Subtask API test: ', () => {
     Subtask.delete(subtaskId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('update subtask should ok', done => {
@@ -740,8 +704,6 @@ export default describe('Subtask API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('transform subtask should ok', done => {
@@ -771,8 +733,6 @@ export default describe('Subtask API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update content should ok', done => {
@@ -797,8 +757,6 @@ export default describe('Subtask API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update dueDate should ok', done => {
@@ -824,8 +782,6 @@ export default describe('Subtask API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update error format dueDate should be caught', done => {
@@ -849,8 +805,6 @@ export default describe('Subtask API test: ', () => {
         expect(r).to.equal('dueDate must be ISOString')
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update subtask statu should ok', done => {
@@ -877,8 +831,6 @@ export default describe('Subtask API test: ', () => {
         expect(data).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
 })

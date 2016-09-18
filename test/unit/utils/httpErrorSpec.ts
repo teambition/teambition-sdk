@@ -36,8 +36,6 @@ export default describe('HttpError$ test: ', () => {
       })
 
     mockFetch.get('users/me')
-
-    httpBackend.flush()
   })
 
   it('handler sequence error should ok', done => {
@@ -62,7 +60,5 @@ export default describe('HttpError$ test: ', () => {
     mockFetch.get('users/me')
 
     mockFetch.get('users/me')
-
-    httpBackend.flush()
   })
 })

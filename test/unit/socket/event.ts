@@ -47,8 +47,6 @@ export default describe('socket event test: ', () => {
       _id: event._id,
       title: 'mock title'
     })
-
-    httpBackend.flush()
   })
 
   it('destroy event should ok', done => {
@@ -60,8 +58,6 @@ export default describe('socket event test: ', () => {
       })
 
     Socket.emit('destroy', 'task', event._id)
-
-    httpBackend.flush()
   })
 
   describe('my events socket: ', () => {
@@ -112,7 +108,6 @@ export default describe('socket event test: ', () => {
           updated: new Date().toISOString()
         })
 
-      httpBackend.flush()
     })
 
     it('change normal date, my events should be notified', done => {
@@ -130,7 +125,6 @@ export default describe('socket event test: ', () => {
         updated: new Date().toISOString()
       })
 
-      httpBackend.flush()
     })
 
     it('delete recurrence date, my events should be notified', done => {
@@ -144,7 +138,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('destroy', 'event', eventId)
 
-      httpBackend.flush()
     })
 
     it('delete normal event should ok', done => {
@@ -158,7 +151,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('destroy', 'event', eventId)
 
-      httpBackend.flush()
     })
 
     it('add new normal event should ok', done => {
@@ -174,7 +166,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('new', 'event', '', mockEvent)
 
-      httpBackend.flush()
     })
 
     it('add recurrence event should ok', done => {
@@ -191,7 +182,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('new', 'event', '', mockEvent)
 
-      httpBackend.flush()
     })
 
     it('get event from my events, and update it should ok', done => {
@@ -238,7 +228,6 @@ export default describe('socket event test: ', () => {
         Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
       }, global.timeout2)
 
-      httpBackend.flush()
     })
   })
 
@@ -290,7 +279,6 @@ export default describe('socket event test: ', () => {
           updated: new Date().toISOString()
         })
 
-      httpBackend.flush()
     })
 
     it('change normal date, my events should be notified', done => {
@@ -308,7 +296,6 @@ export default describe('socket event test: ', () => {
         updated: new Date().toISOString()
       })
 
-      httpBackend.flush()
     })
 
     it('delete recurrence date, my events should be notified', done => {
@@ -322,7 +309,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('destroy', 'event', eventId)
 
-      httpBackend.flush()
     })
 
     it('delete normal event should ok', done => {
@@ -336,7 +322,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('destroy', 'event', eventId)
 
-      httpBackend.flush()
     })
 
     it('add new normal event should ok', done => {
@@ -352,7 +337,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('new', 'event', '', mockEvent)
 
-      httpBackend.flush()
     })
 
     it('add recurrence event should ok', done => {
@@ -369,7 +353,6 @@ export default describe('socket event test: ', () => {
 
       Socket.emit('new', 'event', '', mockEvent)
 
-      httpBackend.flush()
     })
 
     it('get event from project events, and update it should ok', done => {
@@ -416,7 +399,6 @@ export default describe('socket event test: ', () => {
         Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
       }, global.timeout2)
 
-      httpBackend.flush()
     })
   })
 

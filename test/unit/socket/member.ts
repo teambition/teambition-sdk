@@ -36,8 +36,6 @@ export default describe('socket member test', () => {
         done()
       })
 
-    httpBackend.flush()
-
     Socket.emit('change', 'member', members[0]._memberId, {
       _roleId: 'mockroleid'
     })

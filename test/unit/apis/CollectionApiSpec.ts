@@ -51,8 +51,6 @@ export default describe('Collection API test', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get collections from cache should ok', done => {
@@ -68,8 +66,6 @@ export default describe('Collection API test', () => {
         expect(spy).to.be.calledOnce
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('create collection should ok', done => {
@@ -97,8 +93,6 @@ export default describe('Collection API test', () => {
     })
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('get collection should ok', done => {
@@ -113,8 +107,6 @@ export default describe('Collection API test', () => {
         expectDeepEqual(r, collections[0])
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get collection from cache should ok', done => {
@@ -134,8 +126,6 @@ export default describe('Collection API test', () => {
         expect(spy).to.be.calledOnce
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update collection should ok', done => {
@@ -161,8 +151,6 @@ export default describe('Collection API test', () => {
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
 
-    httpBackend.flush()
-
   })
 
   it('delete collection should ok', done => {
@@ -182,8 +170,6 @@ export default describe('Collection API test', () => {
     collectionAPI.delete(collectionId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('archive collection should ok', done => {
@@ -210,8 +196,6 @@ export default describe('Collection API test', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('move collection should ok', done => {
@@ -258,8 +242,6 @@ export default describe('Collection API test', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('unarchive test should ok', done => {
@@ -297,7 +279,5 @@ export default describe('Collection API test', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 })

@@ -67,8 +67,6 @@ export default describe('Tag API test:', () => {
     TagApi.create({_projectId: projectId})
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('update tag should ok', done => {
@@ -95,8 +93,6 @@ export default describe('Tag API test:', () => {
     })
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('delete tag should ok', done => {
@@ -116,8 +112,6 @@ export default describe('Tag API test:', () => {
     TagApi.delete(tagId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
 
   })
 
@@ -143,8 +137,6 @@ export default describe('Tag API test:', () => {
     TagApi.archive(tagId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('unarchive should ok', done => {
@@ -178,8 +170,6 @@ export default describe('Tag API test:', () => {
     TagApi.unarchive('mocktag')
       .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('get relatedTagTasks should ok', done => {
@@ -195,8 +185,6 @@ export default describe('Tag API test:', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('relateTag should ok', done => {
@@ -232,7 +220,5 @@ export default describe('Tag API test:', () => {
     TagApi.relateTag(mockTask._id, 'task', tag._id)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 })

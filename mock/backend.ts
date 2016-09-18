@@ -1,17 +1,11 @@
 'use strict'
 import { HttpResponse } from './response'
-import { fetchStack, flushStack, restore, mockFetch } from './mock'
-
-export const flushState = {
-  flushed: false
-}
+import { fetchStack, restore, mockFetch } from './mock'
 
 export class Backend {
 
   constructor() {
-    flushState.flushed = false
     fetchStack.clear()
-    flushStack.clear()
     mockFetch()
   }
 
@@ -29,15 +23,6 @@ export class Backend {
 
   whenDELETE(uri: string) {
     return new HttpResponse(uri, 'delete')
-  }
-
-  flush() {
-    flushState.flushed = true
-    flushStack.forEach(val => {
-      if (val.resolve) {
-        val.resolve(val.response)
-      }
-    })
   }
 
   restore(): void {

@@ -60,8 +60,6 @@ export default describe('MessageAPI test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get messages from cache should ok', done => {
@@ -78,8 +76,6 @@ export default describe('MessageAPI test: ', () => {
           expect(spy).to.be.calledOnce
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('read a message should ok', done => {
@@ -103,8 +99,6 @@ export default describe('MessageAPI test: ', () => {
           expect(data).to.deep.equal(mockResponse)
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('mark all messages as read should ok', done => {
@@ -125,8 +119,6 @@ export default describe('MessageAPI test: ', () => {
       Message.markAllAsRead(_messageType)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('snooze a message should ok', done => {
@@ -160,8 +152,6 @@ export default describe('MessageAPI test: ', () => {
           expect(r).to.deep.equal(mockResponse)
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('delete all messages should ok', done => {
@@ -178,8 +168,6 @@ export default describe('MessageAPI test: ', () => {
       Message.deleteAllRead(_messageType)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
     it('delete a message should ok', done => {
@@ -197,8 +185,6 @@ export default describe('MessageAPI test: ', () => {
       Message.delete(_messageId)
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
-
-      httpBackend.flush()
     })
 
   })

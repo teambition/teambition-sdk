@@ -73,8 +73,6 @@ export default describe('activity socket test', () => {
         done()
       })
 
-    httpBackend.flush()
-
     Socket.emit('new', 'activity', '', mockActivity)
   })
 
@@ -128,8 +126,6 @@ export default describe('activity socket test', () => {
         expectDeepEqual(r[0], mockComment)
         done()
       })
-
-    httpBackend.flush()
 
     Socket.emit('new', 'activity', '', mockComment)
   })

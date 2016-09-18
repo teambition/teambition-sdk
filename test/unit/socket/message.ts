@@ -74,8 +74,6 @@ export default describe('socket message test: ', () => {
       })
 
     Socket.emit('new', 'message', '', mockMessage)
-
-    httpBackend.flush()
   })
 
   it('read a message should ok', done => {
@@ -89,8 +87,6 @@ export default describe('socket message test: ', () => {
     Socket.emit('change', 'message', mockMessages[0]._id, {
       isRead: true
     })
-
-    httpBackend.flush()
   })
 
   it('snooze a message should ok', done => {
@@ -104,7 +100,5 @@ export default describe('socket message test: ', () => {
     Socket.emit('change', 'message', mockMessages[0]._id, {
       isLater: true
     })
-
-    httpBackend.flush()
   })
 })

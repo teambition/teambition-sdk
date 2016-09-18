@@ -29,8 +29,6 @@ export default describe('role api spec: ', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get custom roles should ok', done => {
@@ -46,8 +44,6 @@ export default describe('role api spec: ', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('add role should ok', done => {
@@ -70,7 +66,5 @@ export default describe('role api spec: ', () => {
     RoleApi.getOne(mockAdd._id)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 })

@@ -34,8 +34,6 @@ export default describe('Stage API Test', () => {
         expect(data).to.be.instanceof(Array)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get stage by stage id should ok', done => {
@@ -50,8 +48,6 @@ export default describe('Stage API Test', () => {
         expectDeepEqual(stage, stages[0])
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('create stage should ok', done => {
@@ -82,8 +78,6 @@ export default describe('Stage API Test', () => {
     Stage.create(stageCrateInfo)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('delete stage should ok', done => {
@@ -105,8 +99,6 @@ export default describe('Stage API Test', () => {
     Stage.delete(stageId)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('update stage should ok', done => {
@@ -138,8 +130,6 @@ export default describe('Stage API Test', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update stage ids should ok', done => {
@@ -176,7 +166,5 @@ export default describe('Stage API Test', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 })

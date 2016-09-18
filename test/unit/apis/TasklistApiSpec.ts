@@ -46,8 +46,6 @@ export default describe('tasklist api test:', () => {
         expectDeepEqual(r, mockTasklist)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get tasklists by projectId should ok', done => {
@@ -56,8 +54,6 @@ export default describe('tasklist api test:', () => {
         expect(data).to.be.instanceof(Array)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get tasklist by tasklist id should ok', done => {
@@ -71,8 +67,6 @@ export default describe('tasklist api test:', () => {
         expectDeepEqual(data, tasklist)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('update tasklist should ok', done => {
@@ -101,8 +95,6 @@ export default describe('tasklist api test:', () => {
         })
         done()
       })
-
-    httpBackend.flush()
 
   })
 
@@ -135,8 +127,6 @@ export default describe('tasklist api test:', () => {
     Tasklist.delete(tasklistId)
       .subscribeOn(Scheduler.async, global.timeout2)
       .subscribe()
-
-    httpBackend.flush()
   })
 
   it('archive tasklist should ok', done => {
@@ -175,8 +165,6 @@ export default describe('tasklist api test:', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('unarchive tasklist should ok', done => {
@@ -218,7 +206,5 @@ export default describe('tasklist api test:', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
-
-    httpBackend.flush()
   })
 })
