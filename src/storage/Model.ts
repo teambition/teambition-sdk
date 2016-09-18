@@ -240,8 +240,9 @@ export default class Model<T extends ISchema> {
   }
 
   checkSchema(): boolean {
-    if (this.data && this.data instanceof Schema) {
-      return this.data.checkSchema()
+    // ref TPLN-287
+    if (this.data && typeof this.data['checkSchema'] === 'function') {
+      return this.data['checkSchema']()
     }else {
       return false
     }

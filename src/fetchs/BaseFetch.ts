@@ -33,13 +33,13 @@ _allowedMethod.forEach(httpMethod => {
     const cache = _requestCache.get(namespace)
     if (cache) {
       return cache
-    }else {
+    } else {
       let result: Promise<any>
       const now = Date.now()
       if (httpMethod === 'get') {
         if (args.queryOrBody) {
           args.queryOrBody._ = now
-        }else {
+        } else {
           args.queryOrBody = {
             _: now
           }
@@ -53,7 +53,7 @@ _allowedMethod.forEach(httpMethod => {
               forEach(r, ele => {
                 ele._requested = now
               })
-            }else {
+            } else {
               r._requested = now
             }
           }
