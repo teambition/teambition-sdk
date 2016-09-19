@@ -3,9 +3,9 @@
   "dependencies": {},
   "globalDependencies": {
     "chai": "registry:dt/chai#3.4.0+20160601211834",
-    "core-js": "registry:dt/core-js#0.0.0+20160725163759",
+    "core-js": "registry:dt/core-js#0.0.0+20160914114559",
     "mocha": "registry:dt/mocha#2.2.5+20160720003353",
-    "node": "registry:dt/node#6.0.0+20160831021119",
+    "node": "registry:dt/node#6.0.0+20160921192128",
     "whatwg-fetch": "registry:dt/whatwg-fetch#0.0.0+20160829180742",
     "whatwg-streams": "registry:dt/whatwg-streams#0.0.0+20160829180742"
   },
