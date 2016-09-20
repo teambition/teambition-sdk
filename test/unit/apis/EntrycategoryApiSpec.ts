@@ -1,7 +1,6 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
-import { Scheduler } from 'rxjs'
 import { Backend, EntrycategoryAPI, apihost, forEach, clone, BaseFetch } from '../index'
 import { entrycategories } from '../../mock/entrycategories'
 import { expectDeepEqual, flush, notInclude } from '../utils'
@@ -42,37 +41,38 @@ export default describe('entrycategory api test: ', () => {
         _projectId: projectId,
         page: 1,
         count: 20
-      }).subscribe(results => {
-        forEach(results, (entrycategory, index) => {
-          expectDeepEqual(entrycategory, entrycategories[index])
-        })
-        done()
-      }, err => console.error(err))
-    })
-
-    it('get from cache should ok', done => {
-      EntrycategoryApi.getEntrycategories({
-        _projectId: projectId,
-        page: 1,
-        count: 20
-      }).subscribe()
-
-      EntrycategoryApi.getEntrycategories({
-        _projectId: projectId,
-        page: 1,
-        count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe(results => {
           forEach(results, (entrycategory, index) => {
             expectDeepEqual(entrycategory, entrycategories[index])
           })
-          expect(spy).to.be.calledOnce
           done()
         })
     })
 
-    it('add new entrycategory should ok', done => {
+    it('get from cache should ok', function* () {
+      yield EntrycategoryApi.getEntrycategories({
+        _projectId: projectId,
+        page: 1,
+        count: 20
+      })
+        .take(1)
+
+      yield EntrycategoryApi.getEntrycategories({
+        _projectId: projectId,
+        page: 1,
+        count: 20
+      })
+        .take(1)
+        .do(results => {
+          forEach(results, (entrycategory, index) => {
+            expectDeepEqual(entrycategory, entrycategories[index])
+          })
+          expect(spy).to.be.calledOnce
+        })
+    })
+
+    it('add new entrycategory should ok', function* () {
       const mockPost = clone(entrycategories[0])
       const mockId = 'entrycategorymockid'
       mockPost._id = mockId
@@ -80,50 +80,56 @@ export default describe('entrycategory api test: ', () => {
       httpBackend.whenGET(`${apihost}entrycategories/${mockId}?_projectId=${projectId}`)
         .respond(JSON.stringify(mockPost))
 
-      EntrycategoryApi.getEntrycategories({
+      const signal = EntrycategoryApi.getEntrycategories({
         _projectId: projectId,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(results => {
-          expect(results.length).to.equal(entrycategories.length + 1)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      EntrycategoryApi.get(mockId, {
+      yield signal.take(1)
+
+      yield EntrycategoryApi.get(mockId, {
         _projectId: projectId
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(results => {
+          expect(results.length).to.equal(entrycategories.length + 1)
+        })
+
     })
 
-    it('delete entrycategory should ok', done => {
+    it('delete entrycategory should ok', function* () {
       const deleteId = entrycategories[0]._id
 
       httpBackend.whenDELETE(`${apihost}entrycategories/${deleteId}`)
         .respond({})
 
-      EntrycategoryApi.getEntrycategories({
+      const signal = EntrycategoryApi.getEntrycategories({
         _projectId: projectId,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(results => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield EntrycategoryApi.delete(deleteId)
+
+      yield signal.take(1)
+        .do(results => {
           notInclude(results, entrycategories[0])
           expect(results.length).to.equal(entrycategories.length - 1)
-          done()
         })
-
-      EntrycategoryApi.delete(deleteId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
 
-  it('update title should ok', done => {
+  it('update title should ok', function* () {
     const testEntrycategory = clone(entrycategories[0])
     const testEntrycategoryId = testEntrycategory._id
     const projectId = testEntrycategory._projectId
@@ -141,21 +147,25 @@ export default describe('entrycategory api test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    EntrycategoryApi.get(testEntrycategoryId, {
+    const signal = EntrycategoryApi.get(testEntrycategoryId, {
       _projectId: projectId
     })
-      .skip(1)
-      .subscribe(result => {
-        expect(result.title).to.equal('new title')
-      })
+      .publish()
+      .refCount()
 
-    EntrycategoryApi.update(testEntrycategoryId, {
+    yield signal.take(1)
+
+    yield EntrycategoryApi.update(testEntrycategoryId, {
       title: 'new title'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .take(1)
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
+      })
+
+    yield signal.take(1)
+      .do(result => {
+        expect(result.title).to.equal('new title')
       })
   })
 
