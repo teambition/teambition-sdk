@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as SinonChai from 'sinon-chai'
@@ -80,73 +79,76 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, thisweekAccomplishedTasks[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
       const mocktask = clone(thisweekAccomplishedTasks[0])
       mocktask._id = 'mocktask'
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mocktask))
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(thisweekAccomplishedTasks.length + 1)
           expectDeepEqual(r[0], mocktask)
-          done()
         })
-
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       const taskId = thisweekAccomplishedTasks[0]._id
 
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(thisweekAccomplishedTasks.length - 1)
           notInclude(r, thisweekAccomplishedTasks[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       const taskId = thisweekAccomplishedTasks[0]._id
 
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
@@ -155,23 +157,25 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(thisweekAccomplishedTasks.length - 1)
           notInclude(r, thisweekAccomplishedTasks[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       const taskId = thisweekAccomplishedTasks[0]._id
 
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
@@ -182,20 +186,26 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, false)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
+        queryType: 'all',
+        isWeekSearch: true
+      })
+        .take(1)
+        .do(r => {
           expect(r.length).to.equal(thisweekAccomplishedTasks.length - 1)
           notInclude(r, thisweekAccomplishedTasks[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
@@ -226,67 +236,70 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (subtask, pos) => {
             expectDeepEqual(subtask, thisweekAccomplishedSubtasks[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('add new subtask should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('add new subtask should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.get(mockSubtask._id).take(1)
+
+      signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(thisweekAccomplishedSubtasks.length + 1)
           expectDeepEqual(r[0], mockSubtask)
-          done()
         })
-
-      SubtaskApi.get(mockSubtask._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
 
       httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.delete(subtaskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(thisweekAccomplishedSubtasks.length - 1)
           notInclude(r, thisweekAccomplishedSubtasks[0])
-          done()
         })
 
-      SubtaskApi.delete(subtaskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
-
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/isDone`, {
         isDone: false
       })
@@ -295,20 +308,20 @@ export default describe('Report API Test: ', () => {
           _id: subtaskId
         })
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: true
       })
-        .skip(1)
-        .subscribe(r => {
+
+      yield signal.take(1)
+
+      yield SubtaskApi.updateStatus(subtaskId, false)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(thisweekAccomplishedSubtasks.length - 1)
           notInclude(r, thisweekAccomplishedSubtasks[0])
-          done()
         })
-
-      SubtaskApi.updateStatus(subtaskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
@@ -340,159 +353,168 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
+        queryType: 'all',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
+        queryType: 'all',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getAccomplished(projectId, 'task', {
-        queryType: 'all',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getAccomplished(projectId, 'task', {
-        queryType: 'all',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
-
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: false
       })
@@ -501,22 +523,24 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, false)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
@@ -551,136 +575,143 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (subtask, pos) => {
             expectDeepEqual(subtask, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
+        queryType: 'all',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
+        queryType: 'all',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
-        queryType: 'all',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
-        queryType: 'all',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new subtask should ok', done => {
+    it('add new subtask should ok', function* () {
 
       httpBackend.whenGET(`${apihost}subtasks/mocksubtask`)
         .respond(JSON.stringify(mockSubtask))
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.get(mockSubtask._id).take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockSubtask)
-          done()
         })
 
-      SubtaskApi.get(mockSubtask._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
 
       httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.delete(subtaskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      SubtaskApi.delete(subtaskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
 
       httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/isDone`, {
         isDone: false
@@ -690,22 +721,24 @@ export default describe('Report API Test: ', () => {
           _id: subtaskId
         })
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'all',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.updateStatus(subtaskId, false)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      SubtaskApi.updateStatus(subtaskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
@@ -740,159 +773,168 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
+        queryType: 'delay',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
+        queryType: 'delay',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getAccomplished(projectId, 'task', {
-        queryType: 'delay',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getAccomplished(projectId, 'task', {
-        queryType: 'delay',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
-
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: false
       })
@@ -901,22 +943,24 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, false)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
@@ -950,136 +994,150 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
+    it('get from cache should ok', function* () {
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (subtask, pos) => {
             expectDeepEqual(subtask, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-    })
+        .take(1)
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
+    })
+
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
+        queryType: 'delay',
+        isWeekSearch: false,
+        page: 1,
+        count: 20
+      })
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
+        queryType: 'delay',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
+        queryType: 'delay',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
-        queryType: 'delay',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
-        queryType: 'delay',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new subtask should ok', done => {
+    it('add new subtask should ok', function* () {
 
       httpBackend.whenGET(`${apihost}subtasks/mocksubtask`)
         .respond(JSON.stringify(mockSubtask))
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.get(mockSubtask._id).take(1)
+
+      yield signal
+        .take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockSubtask)
-          done()
         })
-
-      SubtaskApi.get(mockSubtask._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
 
       httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.delete(subtaskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      SubtaskApi.delete(subtaskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
 
       httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/isDone`, {
         isDone: false
@@ -1089,22 +1147,25 @@ export default describe('Report API Test: ', () => {
           _id: subtaskId
         })
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'delay',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.updateStatus(subtaskId, false)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
 
-      SubtaskApi.updateStatus(subtaskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
@@ -1139,159 +1200,168 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'task', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
+        queryType: 'ontime',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'task', {
+        queryType: 'ontime',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getAccomplished(projectId, 'task', {
-        queryType: 'ontime',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getAccomplished(projectId, 'task', {
-        queryType: 'ontime',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
-
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: false
       })
@@ -1300,22 +1370,24 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getAccomplished(projectId, 'task', {
+      const signal = ReportApi.getAccomplished(projectId, 'task', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, false)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
@@ -1349,136 +1421,143 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (subtask, pos) => {
             expectDeepEqual(subtask, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getAccomplished(projectId, 'subtask', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
+        queryType: 'ontime',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getAccomplished(projectId, 'subtask', {
+        queryType: 'ontime',
+        isWeekSearch: false,
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
-        queryType: 'ontime',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getAccomplished(projectId, 'subtask', {
-        queryType: 'ontime',
-        isWeekSearch: false,
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new subtask should ok', done => {
+    it('add new subtask should ok', function* () {
 
       httpBackend.whenGET(`${apihost}subtasks/mocksubtask`)
         .respond(JSON.stringify(mockSubtask))
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.get(mockSubtask._id).take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockSubtask)
-          done()
         })
 
-      SubtaskApi.get(mockSubtask._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
 
       httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
         .respond({})
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.delete(subtaskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      SubtaskApi.delete(subtaskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
 
       httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/isDone`, {
         isDone: false
@@ -1488,22 +1567,24 @@ export default describe('Report API Test: ', () => {
           _id: subtaskId
         })
 
-      ReportApi.getAccomplished(projectId, 'subtask', {
+      const signal = ReportApi.getAccomplished(projectId, 'subtask', {
         queryType: 'ontime',
         isWeekSearch: false,
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.updateStatus(subtaskId, false)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      SubtaskApi.updateStatus(subtaskId, false)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
@@ -1537,149 +1618,158 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
+    it('get from cache should ok', function* () {
       ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getInprogress(projectId, 'task', {
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getInprogress(projectId, 'task', {
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
+        queryType: 'delay',
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
+        queryType: 'delay',
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getInprogress(projectId, 'task', {
-        queryType: 'delay',
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getInprogress(projectId, 'task', {
-        queryType: 'delay',
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
-
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: true
       })
@@ -1688,21 +1778,23 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'delay',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, true)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
@@ -1735,149 +1827,155 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getInprogress(projectId, 'task', {
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getInprogress(projectId, 'task', {
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
+        queryType: 'ontime',
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
+        queryType: 'ontime',
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getInprogress(projectId, 'task', {
-        queryType: 'ontime',
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getInprogress(projectId, 'task', {
-        queryType: 'ontime',
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .take(1)
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
-
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .skip(1)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
         .subscribe(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: true
       })
@@ -1886,21 +1984,23 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'ontime',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, true)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
@@ -1933,151 +2033,161 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getInprogress(projectId, 'task', {
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getInprogress(projectId, 'task', {
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
+
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getInprogress(projectId, 'task', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
+        queryType: 'all',
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getInprogress(projectId, 'task', {
+        queryType: 'all',
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getInprogress(projectId, 'task', {
-        queryType: 'all',
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getInprogress(projectId, 'task', {
-        queryType: 'all',
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe({
-          next: () => {
-            done()
-          }
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
 
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
 
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: true
       })
@@ -2086,21 +2196,23 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getInprogress(projectId, 'task', {
+      const signal = ReportApi.getInprogress(projectId, 'task', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, true)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
@@ -2133,124 +2245,134 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getInprogress(projectId, 'subtask', {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getInprogress(projectId, 'subtask', {
+      yield ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (subtask, pos) => {
             expectDeepEqual(subtask, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getInprogress(projectId, 'subtask', {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getInprogress(projectId, 'subtask', {
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getInprogress(projectId, 'subtask', {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getInprogress(projectId, 'subtask', {
+        queryType: 'all',
+        page: 1,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getInprogress(projectId, 'subtask', {
+        queryType: 'all',
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
-          done()
         })
-
-      ReportApi.getInprogress(projectId, 'subtask', {
-        queryType: 'all',
-        page: 1,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getInprogress(projectId, 'subtask', {
-        queryType: 'all',
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout4)
-        .subscribe()
     })
 
-    it('add new subtask should ok', done => {
+    it('add new subtask should ok', function* () {
       httpBackend.whenGET(`${apihost}subtasks/mocksubtask`)
         .respond(JSON.stringify(mockSubtask))
 
-      ReportApi.getInprogress(projectId, 'subtask', {
+      const signal = ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.get(mockSubtask._id)
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockSubtask)
-          done()
         })
 
-      SubtaskApi.get(mockSubtask._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
 
       httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
         .respond({})
 
-      ReportApi.getInprogress(projectId, 'subtask', {
+      const signal = ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.delete(subtaskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      SubtaskApi.delete(subtaskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
 
       httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/isDone`, {
         isDone: true
@@ -2259,22 +2381,23 @@ export default describe('Report API Test: ', () => {
           isDone: true,
           _id: subtaskId
         })
-
-      ReportApi.getInprogress(projectId, 'subtask', {
+      const signal = ReportApi.getInprogress(projectId, 'subtask', {
         queryType: 'all',
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield SubtaskApi.updateStatus(subtaskId, true)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      SubtaskApi.updateStatus(subtaskId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
@@ -2307,139 +2430,152 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getNotStart(projectId, {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getNotStart(projectId, {
+      yield ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getNotStart(projectId, {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
+        .publish()
+        .refCount()
 
-      ReportApi.getNotStart(projectId, {
+      yield signal.take(1)
+
+      yield ReportApi.getNotStart(projectId, {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
+
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getNotStart(projectId, {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getNotStart(projectId, {
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getNotStart(projectId, {
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
 
-      ReportApi.getNotStart(projectId, {
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getNotStart(projectId, {
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
 
       httpBackend.whenGET(`${apihost}tasks/mocktask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getNotStart(projectId, {
+      const signal = ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mocktask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
-
-      TaskApi.get('mocktask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getNotStart(projectId, {
+      const signal = ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
+      const signal =
       ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: true
       })
@@ -2448,20 +2584,22 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getNotStart(projectId, {
+      const signal = ReportApi.getNotStart(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, true)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 
@@ -2493,138 +2631,145 @@ export default describe('Report API Test: ', () => {
         })
     })
 
-    it('get from cache should ok', done => {
-      ReportApi.getUnassigned(projectId, {
+    it('get from cache should ok', function* () {
+      yield ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .subscribe()
+        .take(1)
 
-      ReportApi.getUnassigned(projectId, {
+      yield ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
+        .take(1)
+        .do(r => {
           forEach(r, (task, pos) => {
             expectDeepEqual(task, page1[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('get page2 should ok', done => {
-      ReportApi.getUnassigned(projectId, {
+    it('get page2 should ok', function* () {
+      const signal = ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length + page2.length)
-          done()
-        })
 
-      ReportApi.getUnassigned(projectId, {
+      yield signal.take(1)
+
+      yield ReportApi.getUnassigned(projectId, {
         page: 2,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(page1.length + page2.length)
+        })
     })
 
-    it('get page2 from cache should ok', done => {
-      ReportApi.getUnassigned(projectId, {
+    it('get page2 from cache should ok', function* () {
+      const signal = ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield ReportApi.getUnassigned(projectId, {
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield ReportApi.getUnassigned(projectId, {
+        page: 2,
+        count: 20
+      })
+        .take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + page2.length)
           expect(spy).to.be.calledTwice
         })
-
-      ReportApi.getUnassigned(projectId, {
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      ReportApi.getUnassigned(projectId, {
-        page: 2,
-        count: 20
-      })
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(() => {
-          done()
-        })
     })
 
-    it('add new task should ok', done => {
+    it('add new task should ok', function* () {
       httpBackend.whenGET(`${apihost}tasks/mockunassignedtask`)
         .respond(JSON.stringify(mockTask))
 
-      ReportApi.getUnassigned(projectId, {
+      const signal = ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.get('mockunassignedtask').take(1)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length + 1)
           expectDeepEqual(r[0], mockTask)
-          done()
         })
-
-      TaskApi.get('mockunassignedtask')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('delete task should ok', done => {
+    it('delete task should ok', function* () {
       httpBackend.whenDELETE(`${apihost}tasks/${taskId}`)
         .respond({})
 
-      ReportApi.getUnassigned(projectId, {
+      const signal = ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.delete(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.delete(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('archive task should ok', done => {
+    it('archive task should ok', function* () {
       httpBackend.whenPOST(`${apihost}tasks/${taskId}/archive`)
         .respond({
           isArchived: true,
           _id: taskId
         })
 
-      ReportApi.getUnassigned(projectId, {
+      const signal = ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.archive(taskId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.archive(taskId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('change status should ok', done => {
+    it('change status should ok', function* () {
       httpBackend.whenPUT(`${apihost}tasks/${taskId}/isDone`, {
         isDone: true
       })
@@ -2633,20 +2778,22 @@ export default describe('Report API Test: ', () => {
           _id: taskId
         })
 
-      ReportApi.getUnassigned(projectId, {
+      const signal = ReportApi.getUnassigned(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(r => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield TaskApi.updateStatus(taskId, true)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(page1.length - 1)
           notInclude(r, page1[0])
-          done()
         })
-
-      TaskApi.updateStatus(taskId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
   })
 })
