@@ -1,7 +1,6 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
-import { Scheduler } from 'rxjs'
 import {
   Backend,
   ActivityAPI,
@@ -56,7 +55,7 @@ export default describe('ActivityAPI test: ', () => {
 
     })
 
-    it('add should ok', done => {
+    it('add should ok', function* () {
       const commentData = {
         _id: _boundToObjectId,
         objectType: 'tasks',
@@ -71,34 +70,35 @@ export default describe('ActivityAPI test: ', () => {
       })
         .respond(JSON.stringify(mockActivity))
 
-      Activity.getActivities(_boundToObjectType, _boundToObjectId)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Activity.getActivities(_boundToObjectType, _boundToObjectId)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Activity.addActivity(commentData)
+
+      yield Activity.getActivities(_boundToObjectType, _boundToObjectId)
+        .take(1)
+        .do(data => {
           expect(data.length).to.equal(activities.length + 1)
           expectDeepEqual(data[0], mockActivity)
-          done()
         })
-
-      Activity.addActivity(commentData)
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe()
 
     })
 
-    it('get activities from cache should ok', done => {
-      Activity.getActivities(_boundToObjectType, _boundToObjectId)
-        .subscribe()
+    it('get activities from cache should ok', function* () {
+      yield Activity.getActivities(_boundToObjectType, _boundToObjectId)
+        .take(1)
 
-      Activity.getActivities(_boundToObjectType, _boundToObjectId)
-        .subscribeOn(Scheduler.async, global.timeout2)
-        .subscribe(data => {
+      yield Activity.getActivities(_boundToObjectType, _boundToObjectId)
+        .take(1)
+        .do(data => {
           forEach(data, (activity, pos) => {
             expectDeepEqual(activity, activities[pos])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
-
     })
   })
 
