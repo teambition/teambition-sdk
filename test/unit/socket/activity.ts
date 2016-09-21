@@ -25,7 +25,7 @@ export default describe('activity socket test', () => {
       .respond(JSON.stringify(activities))
   })
 
-  it('new acitvity should ok', done => {
+  it('new acitvity should ok', function* () {
     const mockActivity = {
       '_creatorId': '56faa6e8bf84dfd30c4a9c1e',
       'rootId': 'project#5791a57c309ba9e45a45917c',
@@ -65,18 +65,22 @@ export default describe('activity socket test', () => {
       'title': '陈光辉 添加了子任务\'333333\''
     }
 
-    ActivityApi.getActivities(_boundToObjectType, _boundToObjectId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = ActivityApi.getActivities(_boundToObjectType, _boundToObjectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Socket.emit('new', 'activity', '', mockActivity, signal.take(1))
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(activities.length + 1)
         expectDeepEqual(r[0], mockActivity)
-        done()
       })
-
-    Socket.emit('new', 'activity', '', mockActivity)
   })
 
-  it('new comment should ok', done => {
+  it('new comment should ok', function* () {
     const mockComment = {
       'action': 'activity.comment',
       '_creatorId': '56faa6e8bf84dfd30c4a9c1e',
@@ -119,14 +123,18 @@ export default describe('activity socket test', () => {
       'title': '陈光辉: 222'
     }
 
-    ActivityApi.getActivities(_boundToObjectType, _boundToObjectId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = ActivityApi.getActivities(_boundToObjectType, _boundToObjectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Socket.emit('new', 'activity', '', mockComment, signal.take(1))
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(activities.length + 1)
         expectDeepEqual(r[0], mockComment)
-        done()
       })
-
-    Socket.emit('new', 'activity', '', mockComment)
   })
 })

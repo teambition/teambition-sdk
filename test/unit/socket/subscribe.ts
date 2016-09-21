@@ -19,7 +19,7 @@ export default describe('Organization Subscribe Socket:', () => {
       .respond(JSON.stringify(orgsSubscribe))
   })
 
-  it('udpate subscribe should ok', done => {
+  it('udpate subscribe should ok', function* () {
     const mockUpdate = clone(orgsSubscribe)
     mockUpdate.body.projects = mockUpdate.body.projects.concat([
       {
@@ -31,13 +31,15 @@ export default describe('Organization Subscribe Socket:', () => {
       }
     ])
 
-    SubscribeApi.getOrgsSubscribe('mock')
-      .skip(1)
-      .subscribe(r => {
-        expectDeepEqual(r, mockUpdate)
-        done()
-      })
+    const signal = SubscribeApi.getOrgsSubscribe('mock')
+      .publish()
+      .refCount()
 
-    Socket.emit('change', 'subscriber', orgsSubscribe._id, mockUpdate)
+    yield Socket.emit('change', 'subscriber', orgsSubscribe._id, mockUpdate, signal.take(1))
+
+    yield signal.take(1)
+      .do(r => {
+        expectDeepEqual(r, mockUpdate)
+      })
   })
 })
