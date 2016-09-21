@@ -10,7 +10,7 @@ import ObjectLinkSchema from '../../../src/schemas/ObjectLink'
 import { objectLinks } from '../../mock/objectLinks'
 import { modelMock } from '../../mock/modelMock'
 import { organizationMySubtasks } from '../../mock/organizationMySubtasks'
-import { flush } from '../utils'
+import { flush, expectDeepEqual } from '../utils'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -33,7 +33,7 @@ export default describe('database test: ', () => {
     yield Storage.storeOne(data)
       .take(1)
       .forEach(res => {
-        expect(res).to.deep.equal(data)
+        expectDeepEqual(res, data)
       })
   })
 

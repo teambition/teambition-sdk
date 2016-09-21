@@ -22,12 +22,7 @@ export interface BloodyParent {
 export const setSchema = <T>(target: Schema<T>, data: T): T & Schema<T> => {
   target.$$data = data
   forEach(target, (value, key) => {
-    if (key === '$$schemaName') {
-      Object.defineProperty(target, '$$schemaName', {
-        enumerable: false,
-        writable: false
-      })
-    } else if (key === '$$data') {
+    if (key === '$$data') {
       Object.defineProperty(target, key, {
         enumerable: false,
         configurable: true

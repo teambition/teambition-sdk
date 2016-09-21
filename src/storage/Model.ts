@@ -329,9 +329,7 @@ export default class Model<T extends ISchema> {
       result = clone(obj)
     }
     const schemaName = this.getSchemaName()
-    if (schemaName) {
-      result.$$schemaName = schemaName
-    }
+    result.$$schemaName = schemaName
     return result
   }
 

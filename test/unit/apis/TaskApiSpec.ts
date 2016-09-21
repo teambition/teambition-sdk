@@ -267,7 +267,7 @@ export default describe('Task API test: ', () => {
 
       yield Task.updateStatus(mockDoneTask._id, false)
         .do(r => {
-          expect(r).to.deep.equal(mockResponse)
+          expectDeepEqual(r, mockResponse)
         })
 
       yield Task.getTasklistUndone(tasklistId)
@@ -275,10 +275,10 @@ export default describe('Task API test: ', () => {
         .do(tasks => {
           expect(tasks.length).to.equal(length + 1)
           forEach(tasks[0], (ele, key) => {
-            if (key !== '_requested') {
+            if (key !== '_requested' && (key !== '$$schemaName')) {
               if (key !== 'isDone') {
                 expect(ele).to.deep.equal(mockDoneTask[key])
-              }else {
+              } else {
                 expect(ele).to.equal(!mockDoneTask[key])
               }
             }
@@ -1816,8 +1816,8 @@ export default describe('Task API test: ', () => {
       yield Task.fork(_taskId, {_stageId: _newStageId})
 
       yield signal.take(1)
-        .do(r => {
-          expect(r).to.deep.equal([newTask])
+        .do(([r]) => {
+          expectDeepEqual(r, newTask)
         })
     })
   })
