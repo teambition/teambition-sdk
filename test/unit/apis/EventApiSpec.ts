@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import * as moment from 'moment'
-import { Scheduler, Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 import {
   apihost,
   Backend,
@@ -175,7 +175,7 @@ export default describe('Event test:', () => {
         .subscribe(r => {
           expect(r.recurrence).to.deep.equal(MockRecurrence.day.recurrence)
           done()
-        }, err => console.error(err))
+        })
     })
 
     it('get event should ok', done => {
@@ -191,7 +191,7 @@ export default describe('Event test:', () => {
         })
     })
 
-    it('update title should ok', done => {
+    it('update title should ok', function* () {
       const mockEvent = clone(projectEvents[1])
 
       httpBackend.whenGET(`${apihost}events/${mockEvent._id}`)
@@ -206,21 +206,23 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      EventApi.get(mockEvent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.title).to.equal('new title')
-          done()
-        })
+      const signal = EventApi.get(mockEvent._id)
+        .publish()
+        .refCount()
 
-      EventApi.update(mockEvent._id, {
+      yield signal.take(1)
+
+      yield EventApi.update(mockEvent._id, {
         title: 'new title'
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.title).to.equal('new title')
+        })
     })
 
-    it('update recurrence should ok', done => {
+    it('update recurrence should ok', function* () {
       const mockEvent = clone(projectEvents[1])
 
       httpBackend.whenGET(`${apihost}events/${mockEvent._id}`)
@@ -236,21 +238,23 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      EventApi.get(mockEvent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.content).to.equal(mockEvent.content)
-          done()
-        })
+      const signal = EventApi.get(mockEvent._id)
+        .publish()
+        .refCount()
 
-      EventApi.update(mockEvent._id, {
+      yield signal.take(1)
+
+      yield EventApi.update(mockEvent._id, {
         recurrence: ['RRULE:FREQ=WEEKLY;DTSTART=20160801T030000Z;INTERVAL=1']
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.content).to.equal(mockEvent.content)
+        })
     })
 
-    it('delete event should ok', done => {
+    it('delete event should ok', function* () {
       const eventId = projectEvents[0]._id
 
       httpBackend.whenGET(`${apihost}events/${eventId}`)
@@ -259,19 +263,21 @@ export default describe('Event test:', () => {
       httpBackend.whenDELETE(`${apihost}events/${eventId}`)
         .respond(null)
 
-      EventApi.get(eventId)
-        .skip(1)
+      const signal = EventApi.get(eventId)
+        .publish()
+        .refCount()
+
+      signal.skip(1)
         .subscribe(r => {
           expect(r).to.be.null
-          done()
         })
 
-      EventApi.delete(eventId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.delete(eventId)
     })
 
-    it('archive event should ok', done => {
+    it('archive event should ok', function* () {
       const mockevent = clone(projectEvents[0])
       const now = Date.now()
 
@@ -287,19 +293,21 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         })
 
-      EventApi.get(mockevent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.isArchived).to.be.true
-          done()
-        })
+      const signal = EventApi.get(mockevent._id)
+        .publish()
+        .refCount()
 
-      EventApi.archive(mockevent._id, now)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.archive(mockevent._id, now)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.isArchived).to.be.true
+        })
     })
 
-    it('comment repeat event should ok', done => {
+    it('comment repeat event should ok', function* () {
       const mockReapeatEvent = clone(MockRecurrence.commentRepeatResponse.repeat)
       mockReapeatEvent.recurrence = [
         'RRULE:FREQ=DAILY;DTSTART=20160721T020000Z;INTERVAL=1'
@@ -318,19 +326,21 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${mockReapeatEvent._id}`)
         .respond(JSON.stringify(mockReapeatEvent))
 
-      EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.commentRepeatResponse.new.startDate).toISOString())
-        .skip(1)
-        .subscribe(r => {
-          expectDeepEqual(r, MockRecurrence.commentRepeatResponse.new)
-          done()
-        })
+      const signal = EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.commentRepeatResponse.new.startDate).toISOString())
+        .publish()
+        .refCount()
 
-      EventApi.commentsRepeatEvent(mockReapeatEvent._id, <any>comment)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.commentsRepeatEvent(mockReapeatEvent._id, <any>comment)
+
+      yield signal.take(1)
+        .do(r => {
+          expectDeepEqual(r, MockRecurrence.commentRepeatResponse.new)
+        })
     })
 
-    it('like event should ok', done => {
+    it('like event should ok', function* () {
       const normalEvent = projectEvents[1]
       const likeResponse = {
         isLike: true,
@@ -349,21 +359,23 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      EventApi.get(normalEvent._id)
-        .skip(1)
-        .subscribe(r => {
+      const signal = EventApi.get(normalEvent._id)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield EventApi.like(normalEvent._id)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.isLike).to.be.true
           expect(r.likesGroup).to.deep.equal(likeResponse.likesGroup)
           expect(r.likesCount).to.equal(1)
-          done()
         })
-
-      EventApi.like(normalEvent._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('likeRepeatEvent should ok', done => {
+    it('likeRepeatEvent should ok', function* () {
       const mockReapeatEvent = clone(MockRecurrence.likeRepeat.repeat)
       mockReapeatEvent.recurrence = [
         'RRULE:FREQ=DAILY;DTSTART=20160721T020000Z;INTERVAL=1'
@@ -378,19 +390,21 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${mockReapeatEvent._id}`)
         .respond(JSON.stringify(mockReapeatEvent))
 
-      EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.likeRepeat.new.startDate).toISOString())
-        .skip(1)
-        .subscribe(r => {
-          expectDeepEqual(r, MockRecurrence.likeRepeat.new)
-          done()
-        })
+      const signal = EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.likeRepeat.new.startDate).toISOString())
+        .publish()
+        .refCount()
 
-      EventApi.likeRepeatEvent(mockReapeatEvent._id, now)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.likeRepeatEvent(mockReapeatEvent._id, now)
+
+      yield signal.take(1)
+        .do(r => {
+          expectDeepEqual(r, MockRecurrence.likeRepeat.new)
+        })
     })
 
-    it('unarchive should ok', done => {
+    it('unarchive should ok', function* () {
       const normalEvent = clone(projectEvents[1])
       normalEvent.isArchived = true
 
@@ -404,19 +418,21 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      EventApi.get(normalEvent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.isArchived).to.be.false
-          done()
-        })
+      const signal = EventApi.get(normalEvent._id)
+        .publish()
+        .refCount()
 
-      EventApi.unarchive(normalEvent._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.unarchive(normalEvent._id)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.isArchived).to.be.false
+        })
     })
 
-    it('update event content should ok', done => {
+    it('update event content should ok', function* () {
       const normalEvent = clone(projectEvents[1])
 
       httpBackend.whenPUT(`${apihost}events/${normalEvent._id}/content`, {
@@ -431,19 +447,21 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      EventApi.get(normalEvent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.content).to.equal('mock content')
-          done()
-        })
+      const signal = EventApi.get(normalEvent._id)
+        .publish()
+        .refCount()
 
-      EventApi.updateContent(normalEvent._id, 'mock content')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.updateContent(normalEvent._id, 'mock content')
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.content).to.equal('mock content')
+        })
     })
 
-    it('updateInvolvemembers should ok', done => {
+    it('updateInvolvemembers should ok', function* () {
       const normalEvent = clone(projectEvents[1])
 
       httpBackend.whenPUT(`${apihost}events/${normalEvent._id}/involveMembers`, {
@@ -458,21 +476,23 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      EventApi.get(normalEvent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.involveMembers).to.deep.equal(normalEvent.involveMembers.concat(['mockinvolve']))
-          done()
-        })
+      const signal = EventApi.get(normalEvent._id)
+        .publish()
+        .refCount()
 
-      EventApi.updateInvolvemembers(normalEvent._id, {
+      yield signal.take(1)
+
+      yield EventApi.updateInvolvemembers(normalEvent._id, {
         addInvolvers: ['mockinvolve']
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.involveMembers).to.deep.equal(normalEvent.involveMembers.concat(['mockinvolve']))
+        })
     })
 
-    it('updateReminders should ok', done => {
+    it('updateReminders should ok', function* () {
       const normalEvent = clone(projectEvents[1])
       const reminders = [
         {
@@ -491,19 +511,21 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      EventApi.get(normalEvent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.reminders).to.deep.equal(reminders)
-          done()
-        })
+      const signal = EventApi.get(normalEvent._id)
+        .publish()
+        .refCount()
 
-      EventApi.updateReminders(normalEvent._id, <any>reminders)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.updateReminders(normalEvent._id, <any>reminders)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.reminders).to.deep.equal(reminders)
+        })
     })
 
-    it('updateTags should ok', done => {
+    it('updateTags should ok', function* () {
       const normalEvent = clone(projectEvents[1])
       const tags = ['mocktag1', 'mocktag2']
 
@@ -519,16 +541,18 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      EventApi.get(normalEvent._id)
-        .skip(1)
-        .subscribe(r => {
-          expect(r.tagIds).to.deep.equal(tags)
-          done()
-        })
+      const signal = EventApi.get(normalEvent._id)
+        .publish()
+        .refCount()
 
-      EventApi.updateTags(normalEvent._id, tags)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield EventApi.updateTags(normalEvent._id, tags)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.tagIds).to.deep.equal(tags)
+        })
     })
   })
 
@@ -572,7 +596,7 @@ export default describe('Event test:', () => {
       })
     })
 
-    it('change recurrence date, project events should be notified', done => {
+    it('change recurrence date, project events should be notified', function* () {
       const eventId = projectEvents[0]._id
       httpBackend.whenPUT(`${apihost}events/${eventId}`, {
         title: 'new title'
@@ -583,20 +607,19 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[0].title).to.equal('new title')
-          done()
-        })
+      yield signal.take(1)
 
-      EventApi.update(eventId, {
+      yield EventApi.update(eventId, {
         title: 'new title'
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r[0].title).to.equal('new title')
+        })
     })
 
-    it('change normal date, project events should be notified', done => {
+    it('change normal date, project events should be notified', function* () {
       const eventId = projectEvents[1]._id
       httpBackend.whenPUT(`${apihost}events/${eventId}`, {
         title: 'new title'
@@ -607,53 +630,50 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[8].title).to.equal('new title')
-          done()
-        })
+      yield signal.take(1)
 
-      EventApi.update(eventId, {
+      yield EventApi.update(eventId, {
         title: 'new title'
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r[8].title).to.equal('new title')
+        })
     })
 
-    it('delete recurrence date, project events should be notified', done => {
+    it('delete recurrence date, project events should be notified', function* () {
       const eventId = projectEvents[0]._id
         httpBackend.whenDELETE(`${apihost}events/${eventId}`)
           .respond({})
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(23)
-          done()
-        })
+      yield signal.take(1)
 
-      EventApi.delete(eventId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield EventApi.delete(eventId)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(23)
+        })
     })
 
-    it('delete normal event should ok', done => {
+    it('delete normal event should ok', function* () {
       const eventId = projectEvents[1]._id
 
       httpBackend.whenDELETE(`${apihost}events/${eventId}`)
           .respond({})
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(30)
-          done()
-        })
+      yield signal.take(1)
 
-      EventApi.delete(eventId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield EventApi.delete(eventId)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(30)
+        })
     })
 
-    it('add new normal event should ok', done => {
+    it('add new normal event should ok', function* () {
       const mockPost = {
         _projectId: '569df8b418bfe350733e2461',
         _creatorId: '56986d43542ce1a2798c8cfb',
@@ -669,19 +689,18 @@ export default describe('Event test:', () => {
       httpBackend.whenPOST(`${apihost}events`, mockPost)
         .respond(JSON.stringify(mockEvent))
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield EventApi.create(mockPost)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(32)
           expectDeepEqual(r[0], mockEvent)
-          done()
         })
-
-      EventApi.create(mockPost)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('add recurrence event should ok', done => {
+    it('add recurrence event should ok', function* () {
       const mockPost = {
         _projectId: '569df8b418bfe350733e2461',
         _creatorId: '56986d43542ce1a2798c8cfb',
@@ -699,19 +718,18 @@ export default describe('Event test:', () => {
       httpBackend.whenPOST(`${apihost}events`, mockPost)
         .respond(JSON.stringify(mockEvent))
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield EventApi.create(mockPost)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(39)
           expect(r[0].title).to.equal('mockrecurrencetest')
-          done()
         })
-
-      EventApi.create(mockPost)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('get event from project events, and update it should ok', done => {
+    it('get event from project events, and update it should ok', function* () {
       const comment = {
         action: 'comment',
         _creatorId: 'mockid',
@@ -738,23 +756,25 @@ export default describe('Event test:', () => {
         }))
 
       let events: EventSchema[]
-      signal.subscribe(r => {
-        events = r
-      })
+      yield signal.take(1)
+        .do(r => {
+          events = r
+        })
 
-      setTimeout(() => {
-        const eventId = events[0]._id
-        EventApi.get(eventId)
-          .skip(1)
-          .subscribe(r => {
-            expect(r._id).to.equal('mock_new_event')
-            done()
-          })
+      const eventId = events[0]._id
+      const signal2 = EventApi.get(eventId)
+        .publish()
+        .refCount()
 
-        EventApi.commentsRepeatEvent(events[0]._sourceId, <any>comment)
-          .subscribeOn(Scheduler.async, global.timeout1)
-          .subscribe()
-      }, global.timeout2)
+      yield signal2.take(1)
+
+      yield EventApi.commentsRepeatEvent(events[0]._sourceId, <any>comment)
+
+      yield signal2
+        .take(1)
+        .do(r => {
+          expect(r._id).to.equal('mock_new_event')
+        })
     })
   })
 
@@ -798,7 +818,7 @@ export default describe('Event test:', () => {
       })
     })
 
-    it('change recurrence date, my events should be notified', done => {
+    it('change recurrence date, my events should be notified', function* () {
       const eventId = myEvents[0]._id
       httpBackend.whenPUT(`${apihost}events/${eventId}`, {
         title: 'new title'
@@ -809,20 +829,19 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[0].title).to.equal('new title')
-          done()
-        })
+      yield signal.take(1)
 
-      EventApi.update(eventId, {
+      yield EventApi.update(eventId, {
         title: 'new title'
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r[0].title).to.equal('new title')
+        })
     })
 
-    it('change normal date, my events should be notified', done => {
+    it('change normal date, my events should be notified', function* () {
       const eventId = myEvents[1]._id
       httpBackend.whenPUT(`${apihost}events/${eventId}`, {
         title: 'new title'
@@ -833,53 +852,50 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[8].title).to.equal('new title')
-          done()
-        })
+      yield signal.take(1)
 
-      EventApi.update(eventId, {
+      yield EventApi.update(eventId, {
         title: 'new title'
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r[8].title).to.equal('new title')
+        })
     })
 
-    it('delete recurrence date, my events should be notified', done => {
+    it('delete recurrence date, my events should be notified', function* () {
       const eventId = myEvents[0]._id
         httpBackend.whenDELETE(`${apihost}events/${eventId}`)
           .respond({})
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(33)
-          done()
-        })
+      yield signal.take(1)
 
-      EventApi.delete(eventId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield EventApi.delete(eventId)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(33)
+        })
     })
 
-    it('delete normal event should ok', done => {
+    it('delete normal event should ok', function* () {
       const eventId = myEvents[1]._id
 
       httpBackend.whenDELETE(`${apihost}events/${eventId}`)
-          .respond({})
+        .respond({})
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield EventApi.delete(eventId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(40)
-          done()
         })
-
-      EventApi.delete(eventId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('add new normal event should ok', done => {
+    it('add new normal event should ok', function* () {
       const mockPost = {
         _projectId: '569df8b418bfe350733e2461',
         _creatorId: '56986d43542ce1a2798c8cfb',
@@ -895,19 +911,18 @@ export default describe('Event test:', () => {
       httpBackend.whenPOST(`${apihost}events`, mockPost)
         .respond(JSON.stringify(mockEvent))
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield EventApi.create(mockPost)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(42)
           expectDeepEqual(r[0], mockEvent)
-          done()
         })
-
-      EventApi.create(mockPost)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('add recurrence event should ok', done => {
+    it('add recurrence event should ok', function* () {
       const mockPost = {
         _projectId: '569df8b418bfe350733e2461',
         _creatorId: '56986d43542ce1a2798c8cfb',
@@ -925,19 +940,18 @@ export default describe('Event test:', () => {
       httpBackend.whenPOST(`${apihost}events`, mockPost)
         .respond(JSON.stringify(mockEvent))
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield EventApi.create(mockPost)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(49)
           expect(r[0].title).to.equal('mockrecurrencetest')
-          done()
         })
-
-      EventApi.create(mockPost)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('get event from my events, and update it should ok', done => {
+    it('get event from my events, and update it should ok', function* () {
       const comment = {
         action: 'comment',
         _creatorId: 'mockid',
@@ -964,23 +978,24 @@ export default describe('Event test:', () => {
         }))
 
       let events: EventSchema[]
-      signal.subscribe(r => {
-        events = r
-      })
+      yield signal.take(1)
+        .do(r => {
+          events = r
+        })
 
-      setTimeout(() => {
-        const eventId = events[0]._id
-        EventApi.get(eventId)
-          .skip(1)
-          .subscribe(r => {
-            expect(r._id).to.equal('mock_new_event')
-            done()
-          })
+      const eventId = events[0]._id
+      const signal2 = EventApi.get(eventId)
+        .publish()
+        .refCount()
 
-        EventApi.commentsRepeatEvent(events[0]._sourceId, <any>comment)
-          .subscribeOn(Scheduler.async, global.timeout1)
-          .subscribe()
-      }, global.timeout2)
+      yield signal.take(1)
+
+      yield EventApi.commentsRepeatEvent(events[0]._sourceId, <any>comment)
+
+      yield signal2.take(1)
+        .do(r => {
+          expect(r._id).to.equal('mock_new_event')
+        })
     })
   })
 
