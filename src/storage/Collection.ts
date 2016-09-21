@@ -34,10 +34,10 @@ export default class Collection <T extends ISchema> {
             result.push(assign(cache.data, ele))
             this._notifyCacheCollections(cache)
               ._notifyCacheParents(cache)
-          }else {
+          } else {
             result.push(cache.data)
           }
-        }else {
+        } else {
           const model = new Model(ele, _unionFlag)
           model.addToCollection(index)
           result.push(model.data)
