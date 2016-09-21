@@ -77,7 +77,7 @@ export class TasklistAPI {
   unArchive(_tasklistId: string): Observable<UnarchiveTasklistResponse> {
     return Observable.create((observer: Observer<UnarchiveTasklistResponse>) => {
       return Observable.fromPromise(TasklistFetch.unarchive(_tasklistId))
-        .concatMap(tasklist => TasklistModel.update(_tasklistId, tasklist))
+        .concatMap(x => TasklistModel.update(_tasklistId, x))
         .forEach(x => observer.next(x))
         .then(() => observer.complete())
     })
