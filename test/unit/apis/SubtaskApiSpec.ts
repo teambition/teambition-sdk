@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
@@ -55,17 +54,9 @@ export default describe('Subtask API test: ', () => {
   })
 
   describe('get organization my subtasks without dueDate: ', () => {
-    const page1 = organizationMySubtasks.map((task, pos) => {
-      if (pos < 30) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page1 = organizationMySubtasks.slice(0, 30)
 
-    const page2 = organizationMySubtasks.map((task, pos) => {
-      if (pos >= 30 && pos < 60) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page2 = organizationMySubtasks.slice(30, 60)
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me?page=1&isDone=false&hasDuedate=false`)
@@ -87,78 +78,83 @@ export default describe('Subtask API test: ', () => {
 
     })
 
-    it('get page2 should ok', done => {
-      Subtask.getOrgMySubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(page1.length + page2.length)
-          done()
-        })
+    it('get page2 should ok', function* () {
+      const signal = Subtask.getOrgMySubtasks(userId, organization)
+        .publish()
+        .refCount()
 
-      Subtask.getOrgMySubtasks(userId, organization, 2)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield Subtask.getOrgMySubtasks(userId, organization, 2)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(page1.length + page2.length)
+        })
 
     })
 
-    it('get from cache should ok', done => {
-      Subtask.getOrgMySubtasks(userId, organization)
-        .subscribe()
+    it('get from cache should ok', function* () {
+      yield Subtask.getOrgMySubtasks(userId, organization)
+        .take(1)
 
-      Subtask.getOrgMySubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(data => {
+      yield Subtask.getOrgMySubtasks(userId, organization, 1)
+        .take(1)
+        .do(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
-
     })
 
-    it('add subtask should ok', done => {
+    it('add subtask should ok', function* () {
       const mockGet = clone(page1[0])
       mockGet._id = 'mockmysubtasktest'
 
       httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
         .respond(JSON.stringify(mockGet))
 
-      Subtask.getOrgMySubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMySubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.get(mockGet._id)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length + 1)
           expectDeepEqual(data[0], mockGet)
-          done()
         })
-
-      Subtask.get(mockGet._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
       const mockId = page1[0]._id
 
       httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
         .respond({})
 
-      Subtask.getOrgMySubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMySubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.delete(mockId)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length - 1)
           expect(notInclude(data, page1[0])).to.be.true
-          done()
         })
-
-      Subtask.delete(mockId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
 
-    it('done subtask should ok', done => {
+    it('done subtask should ok', function* () {
       const mockId = page1[0]._id
 
       httpBackend.whenPUT(`${apihost}subtasks/${mockId}/isDone`, {
@@ -170,33 +166,27 @@ export default describe('Subtask API test: ', () => {
           updated: Date.now()
         })
 
-      Subtask.getOrgMySubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMySubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.updateStatus(mockId, true)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length - 1)
           expect(notInclude(data, page1[0])).to.be.true
-          done()
         })
-
-      Subtask.updateStatus(mockId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
   })
 
   describe('get organization my subtasks have dueDate: ', () => {
-    const page1 = organizationMyDueSubtasks.map((task, pos) => {
-      if (pos < 30) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page1 = organizationMyDueSubtasks.slice(0, 30)
 
-    const page2 = organizationMyDueSubtasks.map((task, pos) => {
-      if (pos >= 30 && pos < 60) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page2 = organizationMyDueSubtasks.slice(30, 60)
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me?page=1&isDone=false&hasDuedate=true`)
@@ -218,78 +208,85 @@ export default describe('Subtask API test: ', () => {
 
     })
 
-    it('get page2 should ok', done => {
-      Subtask.getOrgMyDueSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(page1.length + page2.length)
-          done()
-        })
+    it('get page2 should ok', function* () {
+      const signal = Subtask.getOrgMyDueSubtasks(userId, organization)
+        .publish()
+        .refCount()
 
-      Subtask.getOrgMyDueSubtasks(userId, organization, 2)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield Subtask.getOrgMyDueSubtasks(userId, organization, 2)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(page1.length + page2.length)
+        })
 
     })
 
-    it('get from cache should ok', done => {
-      Subtask.getOrgMyDueSubtasks(userId, organization)
-        .subscribe()
+    it('get from cache should ok', function* () {
+      yield Subtask.getOrgMyDueSubtasks(userId, organization)
+        .take(1)
 
-      Subtask.getOrgMyDueSubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(data => {
+      yield Subtask.getOrgMyDueSubtasks(userId, organization, 1)
+        .take(1)
+        .do(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
 
     })
 
-    it('add subtask should ok', done => {
+    it('add subtask should ok', function* () {
       const mockGet = clone(page1[0])
       mockGet._id = 'mockmysubtasktest'
 
       httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
         .respond(JSON.stringify(mockGet))
 
-      Subtask.getOrgMyDueSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMyDueSubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.get(mockGet._id)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length + 1)
           expectDeepEqual(data[0], mockGet)
-          done()
         })
-
-      Subtask.get(mockGet._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
       const mockId = page1[0]._id
 
       httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
         .respond({})
 
-      Subtask.getOrgMyDueSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMyDueSubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.delete(mockId)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length - 1)
           expect(notInclude(data, page1[0])).to.be.true
-          done()
         })
-
-      Subtask.delete(mockId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
 
-    it('done subtask should ok', done => {
+    it('done subtask should ok', function* () {
       const mockId = page1[0]._id
       const mockResponse = {
         _id: mockId,
@@ -302,35 +299,30 @@ export default describe('Subtask API test: ', () => {
       })
         .respond(JSON.stringify(mockResponse))
 
-      Subtask.getOrgMyDueSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(page1.length - 1)
-          expect(notInclude(data, page1[0])).to.be.true
+      const signal = Subtask.getOrgMyDueSubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.updateStatus(mockId, true)
+        .do(r => {
+          expect(r).to.deep.equal(mockResponse)
         })
 
-      Subtask.updateStatus(mockId, true)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
-          expect(r).to.deep.equal(mockResponse)
-          done()
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(page1.length - 1)
+          expect(notInclude(data, page1[0])).to.be.true
         })
 
     })
   })
 
   describe('get organization my subtasks done: ', () => {
-    const page1 = organizationMyDoneSubtasks.map((task, pos) => {
-      if (pos < 30) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page1 = organizationMyDoneSubtasks.slice(0, 30)
 
-    const page2 = organizationMyDoneSubtasks.map((task, pos) => {
-      if (pos >= 30 && pos < 60) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page2 = organizationMyDoneSubtasks.slice(30, 60)
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me?page=1&isDone=true`)
@@ -352,90 +344,88 @@ export default describe('Subtask API test: ', () => {
 
     })
 
-    it('get page2 should ok', done => {
-      Subtask.getOrgMyDoneSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(page1.length + page2.length)
-          done()
-        })
+    it('get page2 should ok', function* () {
+      const signal = Subtask.getOrgMyDoneSubtasks(userId, organization)
+        .publish()
+        .refCount()
 
-      Subtask.getOrgMyDoneSubtasks(userId, organization, 2)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield Subtask.getOrgMyDoneSubtasks(userId, organization, 2)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(page1.length + page2.length)
+        })
 
     })
 
-    it('get from cache should ok', done => {
-      Subtask.getOrgMyDoneSubtasks(userId, organization)
-        .subscribe()
+    it('get from cache should ok', function* () {
+      yield Subtask.getOrgMyDoneSubtasks(userId, organization)
+        .take(1)
 
-      Subtask.getOrgMyDoneSubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(data => {
+      yield Subtask.getOrgMyDoneSubtasks(userId, organization, 1)
+        .take(1)
+        .do(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
 
     })
 
-    it('add subtask should ok', done => {
+    it('add subtask should ok', function* () {
       const mockGet = clone(page1[0])
       mockGet._id = 'mockmysubtasktest'
 
       httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
         .respond(JSON.stringify(mockGet))
 
-      Subtask.getOrgMyDoneSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMyDoneSubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.get(mockGet._id)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length + 1)
           expectDeepEqual(data[0], mockGet)
-          done()
         })
-
-      Subtask.get(mockGet._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
       const mockId = page1[0]._id
 
       httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
         .respond({})
 
-      Subtask.getOrgMyDoneSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMyDoneSubtasks(userId, organization)
+        .publish()
+        .refCount()
+      yield signal.take(1)
+
+      yield Subtask.delete(mockId)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length - 1)
           expect(notInclude(data, page1[0])).to.be.true
-          done()
         })
-
-      Subtask.delete(mockId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
   })
 
   describe('get organization my created subtasks:', () => {
-    const page1 = organizationMyCreatedSubtasks.map((task, pos) => {
-      if (pos < 30) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page1 = organizationMyCreatedSubtasks.slice(0, 30)
 
-    const page2 = organizationMyCreatedSubtasks.map((task, pos) => {
-      if (pos >= 30 && pos < 60) {
-        return task
-      }
-    }).filter(x => !!x)
+    const page2 = organizationMyCreatedSubtasks.slice(30, 60)
 
     const maxId = page1[page1.length - 1]._id
 
@@ -459,32 +449,33 @@ export default describe('Subtask API test: ', () => {
 
     })
 
-    it('get page2 should ok', done => {
-      Subtask.getOrgMyCreatedSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+    it('get page2 should ok', function* () {
+      const signal = Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.getOrgMyCreatedSubtasks(userId, organization, 2)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length + page2.length)
-          done()
         })
-
-      Subtask.getOrgMyCreatedSubtasks(userId, organization, 2)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
     })
 
-    it('get from cache should ok', done => {
-      Subtask.getOrgMyCreatedSubtasks(userId, organization)
-        .subscribe()
+    it('get from cache should ok', function* () {
+      yield Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .take(1)
 
-      Subtask.getOrgMyCreatedSubtasks(userId, organization, 1)
-        .subscribeOn(Scheduler.async, global.timeout3)
-        .subscribe(data => {
+      yield Subtask.getOrgMyCreatedSubtasks(userId, organization, 1)
+        .take(1)
+        .do(data => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, page1[index])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
 
     })
@@ -502,28 +493,31 @@ export default describe('Subtask API test: ', () => {
 
     })
 
-    it('add subtask should ok', done => {
+    it('add subtask should ok', function* () {
       const mockGet = clone(page1[0])
       mockGet._id = 'mockmysubtasktest'
 
       httpBackend.whenGET(`${apihost}subtasks/${mockGet._id}`)
         .respond(JSON.stringify(mockGet))
 
-      Subtask.getOrgMyCreatedSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.get(mockGet._id)
+        .take(1)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length + 1)
           expectDeepEqual(data[0], mockGet)
-          done()
         })
-
-      Subtask.get(mockGet._id)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
 
-    it('update subtask should ok', done => {
+    it('update subtask should ok', function* () {
       const mockId = page1[0]._id
 
       httpBackend.whenPUT(`${apihost}subtasks/${mockId}/content`, {
@@ -535,36 +529,40 @@ export default describe('Subtask API test: ', () => {
           updated: new Date().toISOString()
         })
 
-      Subtask.getOrgMyCreatedSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
-          expect(data[0].content).to.equal('mocktest')
-          done()
-        })
+      const signal = Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .publish()
+        .refCount()
 
-      Subtask.updateContent(mockId, 'mocktest')
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield Subtask.updateContent(mockId, 'mocktest')
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data[0].content).to.equal('mocktest')
+        })
 
     })
 
-    it('delete subtask should ok', done => {
+    it('delete subtask should ok', function* () {
       const mockId = page1[0]._id
 
       httpBackend.whenDELETE(`${apihost}subtasks/${mockId}`)
         .respond({})
 
-      Subtask.getOrgMyCreatedSubtasks(userId, organization)
-        .skip(1)
-        .subscribe(data => {
+      const signal = Subtask.getOrgMyCreatedSubtasks(userId, organization)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Subtask.delete(mockId)
+
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(page1.length - 1)
           expect(notInclude(data, page1[0])).to.be.true
-          done()
         })
-
-      Subtask.delete(mockId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
     })
   })
@@ -585,23 +583,25 @@ export default describe('Subtask API test: ', () => {
       })
   })
 
-  it('add to subtask to task should ok', done => {
+  it('add to subtask to task should ok', function* () {
     const taskId = subtasks[0]._taskId
 
     httpBackend.whenGET(`${apihost}tasks/${taskId}/subtasks`)
       .respond(JSON.stringify(subtasks))
 
-    Subtask.getFromTask(taskId)
-      .skip(1)
-      .subscribe(data => {
+    const signal = Subtask.getFromTask(taskId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Subtask.get(subtaskId).take(1)
+
+    yield signal.take(1)
+      .do(data => {
         expect(data.length).to.equal(subtasks.length + 1)
         expectDeepEqual(data[0], subtask)
-        done()
       })
-
-    Subtask.get(subtaskId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
   })
 
   it('get task should ok', done => {
@@ -612,7 +612,7 @@ export default describe('Subtask API test: ', () => {
       })
   })
 
-  it('create subtask should ok', done => {
+  it('create subtask should ok', function* () {
     const createSubtaskData = {
       content: 'subtask create test',
       _taskId: '573c3442dc7658916f7b10e5',
@@ -628,30 +628,32 @@ export default describe('Subtask API test: ', () => {
     httpBackend.whenPOST(`${apihost}subtasks`, createSubtaskData)
       .respond(JSON.stringify(result))
 
-    Subtask.create(createSubtaskData)
-      .subscribe(data => {
+    yield Subtask.create(createSubtaskData)
+      .do(data => {
         expectDeepEqual(data, result)
-        done()
       })
   })
 
-  it('delete subtask should ok', done => {
+  it('delete subtask should ok', function* () {
     httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
       .respond({})
 
-    Subtask.get(subtaskId)
-      .skip(1)
+    const signal = Subtask.get(subtaskId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    signal.skip(1)
       .subscribe(data => {
         expect(data).to.be.null
-        done()
       })
 
-    Subtask.delete(subtaskId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    yield Subtask.delete(subtaskId)
+
   })
 
-  it('delete subtask and get subtasks from task should ok', done => {
+  it('delete subtask and get subtasks from task should ok', function* () {
     const subtask = subtasks[0]
     const taskId = subtask._taskId
     const subtaskId = subtask._id
@@ -663,20 +665,22 @@ export default describe('Subtask API test: ', () => {
     httpBackend.whenDELETE(`${apihost}subtasks/${subtaskId}`)
       .respond({})
 
-    Subtask.getFromTask(taskId)
-      .skip(1)
-      .subscribe(data => {
+    const signal = Subtask.getFromTask(taskId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Subtask.delete(subtaskId)
+
+    yield signal.take(1)
+      .do(data => {
         expect(data.length).to.equal(subtasks.length - 1)
         expectDeepEqual(data[0], nextSubtask)
-        done()
       })
-
-    Subtask.delete(subtaskId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
   })
 
-  it('update subtask should ok', done => {
+  it('update subtask should ok', function* () {
     const dueDate = new Date().toISOString()
     const mockResponse = {
       content: 'test',
@@ -686,27 +690,31 @@ export default describe('Subtask API test: ', () => {
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}`, {
       content: 'test',
       dueDate: dueDate
-    }).respond(JSON.stringify(mockResponse))
+    })
+      .respond(JSON.stringify(mockResponse))
 
-    Subtask.get(subtaskId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.content).to.equal('test')
-        expect(data.dueDate).to.equal(dueDate)
-      })
+    const signal = Subtask.get(subtaskId)
+      .publish()
+      .refCount()
 
-    Subtask.update(subtaskId, {
+    yield signal.take(1)
+
+    yield Subtask.update(subtaskId, {
       content: 'test',
       dueDate: dueDate
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
+      })
+
+    yield signal.take(1)
+      .do(data => {
+        expect(data.content).to.equal('test')
+        expect(data.dueDate).to.equal(dueDate)
       })
   })
 
-  it('transform subtask should ok', done => {
+  it('transform subtask should ok', function* () {
     const mockResponse = {
       _id: subtaskId,
       _projectId: subtask._projectId,
@@ -721,21 +729,24 @@ export default describe('Subtask API test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    Subtask.get(subtaskId)
-      .skip(1)
+    const signal = Subtask.get(subtaskId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    signal.skip(1)
       .subscribe(data => {
         expect(data).to.be.null
       })
 
-    Subtask.transform(subtaskId)
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe(r => {
+    yield Subtask.transform(subtaskId)
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
       })
   })
 
-  it('update content should ok', done => {
+  it('update content should ok', function* () {
     const mockResponse = {
       _id: subtaskId,
       content: 'update content test',
@@ -745,21 +756,24 @@ export default describe('Subtask API test: ', () => {
       content: 'update content test'
     }).respond(JSON.stringify(mockResponse))
 
-    Subtask.get(subtaskId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.content).to.equal('update content test')
+    const signal = Subtask.get(subtaskId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Subtask.updateContent(subtaskId, 'update content test')
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
       })
 
-    Subtask.updateContent(subtaskId, 'update content test')
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.content).to.equal('update content test')
       })
   })
 
-  it('update dueDate should ok', done => {
+  it('update dueDate should ok', function* () {
     const dueDate = new Date().toISOString()
     const mockResponse = {
       _id: subtaskId,
@@ -768,23 +782,27 @@ export default describe('Subtask API test: ', () => {
     }
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/dueDate`, {
       dueDate: dueDate
-    }).respond(JSON.stringify(mockResponse))
+    })
+      .respond(JSON.stringify(mockResponse))
 
-    Subtask.get(subtaskId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.dueDate).to.equal(dueDate)
+    const signal = Subtask.get(subtaskId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Subtask.updateDuedate(subtaskId, dueDate)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
       })
 
-    Subtask.updateDuedate(subtaskId, dueDate)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.dueDate).to.equal(dueDate)
       })
   })
 
-  it('update error format dueDate should be caught', done => {
+  it('update error format dueDate should be caught', function* () {
     httpBackend.whenPUT(`${apihost}subtasks/${subtaskId}/dueDate`, {
       dueDate: 'xxx'
     }).error('dueDate must be ISOString', {
@@ -792,22 +810,22 @@ export default describe('Subtask API test: ', () => {
       statusText: 'bad request'
     })
 
-    Subtask.get(subtaskId)
-      .skip(1)
-      .subscribe()
+    const signal = Subtask.get(subtaskId)
+      .publish()
+      .refCount()
 
-    Subtask.updateDuedate(subtaskId, 'xxx')
+    yield signal.take(1)
+
+    yield Subtask.updateDuedate(subtaskId, 'xxx')
       .catch((err: Response) => {
         return err.text()
       })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .do(r => {
         expect(r).to.equal('dueDate must be ISOString')
-        done()
       })
   })
 
-  it('update subtask statu should ok', done => {
+  it('update subtask statu should ok', function* () {
     const mockResponse = {
       _id: subtaskId,
       isDone: true,
@@ -818,18 +836,20 @@ export default describe('Subtask API test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    const get = Subtask.get(subtaskId)
+    const signal = Subtask.get(subtaskId)
+      .publish()
+      .refCount()
 
-    get.skip(1)
-      .subscribe(r => {
-        expect(r.isDone).to.be.true
+    yield signal.take(1)
+
+    yield Subtask.updateStatus(subtaskId, true)
+      .do(data => {
+        expect(data).to.deep.equal(mockResponse)
       })
 
-    Subtask.updateStatus(subtaskId, true)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(data => {
-        expect(data).to.deep.equal(mockResponse)
-        done()
+    yield signal.take(1)
+      .do(r => {
+        expect(r.isDone).to.be.true
       })
   })
 
