@@ -46,7 +46,8 @@ export class EventModel extends Model {
 
   addProjectEvents(projectId: string, events: EventData[], startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<RecurrenceEvent[]> {
     const result = this._genEventResult(events)
-    return this._saveCollection<any>(`project:events/${projectId}/${startDate}/${endDate}`, result, this._schemaName, (data: RecurrenceEvent) => {
+    const dbIndex = `project:events/${projectId}/${startDate.valueOf()}/${endDate.valueOf()}`
+    return this._saveCollection<any>(dbIndex, result, this._schemaName, (data: RecurrenceEvent) => {
       return !data.isArchived &&
              data._projectId === projectId &&
              data.isBetween(startDate, endDate)
@@ -54,7 +55,7 @@ export class EventModel extends Model {
   }
 
   getProjectEvents(projectId: string, startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<RecurrenceEvent[]> {
-    return this._get<RecurrenceEvent[]>(`project:events/${projectId}/${startDate}/${endDate}`)
+    return this._get<RecurrenceEvent[]>(`project:events/${projectId}/${startDate.valueOf()}/${endDate.valueOf()}`)
   }
 
   addMyEvents(userId: string, endDate: Date, events: EventData[]): Observable<EventData[]> {

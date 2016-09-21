@@ -66,9 +66,7 @@ export class EventAPI {
       })
       observer.next(<any>dest)
     })
-      .switch()
-      .publishReplay(1)
-      .refCount()
+      ._switch()
   }
 
   update(eventId: string, query: UpdateEventOptions): Observable<any> {
@@ -185,21 +183,20 @@ export class EventAPI {
   }
 
   getProjectEvents(projectId: string, startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<TRecurrenceEvent[]> {
-    const signal: Observable<Observable<TRecurrenceEvent[]>> = Observable.create((observer: Observer<Observable<EventData[]>>) => {
+    return Observable.create((observer: Observer<Observable<EventData[]>>) => {
       let dest: Observable<EventData[]>
       const cache = EventModel.getProjectEvents(projectId, startDate, endDate)
       if (cache) {
         dest = cache
+      } else {
+        dest = Observable.fromPromise(EventFetch.getProjectEvents(projectId, startDate, endDate))
+          .catch(e => errorHandler(observer, e))
+          .concatMap(r => EventModel.addProjectEvents(projectId, r, startDate, endDate))
       }
-      dest = Observable.fromPromise(EventFetch.getProjectEvents(projectId, startDate, endDate))
-        .catch(e => errorHandler(observer, e))
-        .concatMap(r => EventModel.addProjectEvents(projectId, r, startDate, endDate))
 
       observer.next(dest)
     })
-    return signal.switch()
-      .publishReplay(1)
-      .refCount()
+      .concatMap((r: Observable<TRecurrenceEvent[]>) => r)
   }
 
   getMyEvents(userId: string, endDate: Date, query?: any): Observable<TRecurrenceEvent[]> {
@@ -208,14 +205,13 @@ export class EventAPI {
       const cache = EventModel.getMyEvents(userId, endDate)
       if (cache) {
         dest = cache
+      } else {
+        dest = Observable.fromPromise(EventFetch.getMyEvents(endDate))
+          .catch(e => errorHandler(observer, e))
+          .concatMap(r => EventModel.addMyEvents(userId, endDate, r))
       }
-      dest = Observable.fromPromise(EventFetch.getMyEvents(endDate))
-        .catch(e => errorHandler(observer, e))
-        .concatMap(r => EventModel.addMyEvents(userId, endDate, r))
       observer.next(dest)
     })
     return signal.switch()
-      .publishReplay(1)
-      .refCount()
   }
 }
