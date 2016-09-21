@@ -46,6 +46,8 @@ export default describe('Project API test: ', () => {
         })
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('get personal projects should ok', done => {
@@ -70,6 +72,8 @@ export default describe('Project API test: ', () => {
         })
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('get orgs projects should ok', done => {
@@ -92,6 +96,8 @@ export default describe('Project API test: ', () => {
         expect(r).to.be.instanceof(Array)
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('get one project should ok', done => {
@@ -104,6 +110,8 @@ export default describe('Project API test: ', () => {
         expectDeepEqual(r, projects[0])
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('get project from cache should ok', done => {
@@ -120,6 +128,8 @@ export default describe('Project API test: ', () => {
         expect(spy).to.calledOnce
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('create project should ok', done => {
@@ -145,6 +155,8 @@ export default describe('Project API test: ', () => {
       })
         .subscribeOn(Scheduler.async, global.timeout1)
         .subscribe()
+
+    httpBackend.flush()
   })
 
   it('update project should ok', done => {
@@ -179,6 +191,8 @@ export default describe('Project API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('delete project should ok', done => {
@@ -199,6 +213,8 @@ export default describe('Project API test: ', () => {
     Project.delete(project._id)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
+
+    httpBackend.flush()
   })
 
   it('archive project should ok', done => {
@@ -227,6 +243,8 @@ export default describe('Project API test: ', () => {
         done()
       })
 
+    httpBackend.flush()
+
   })
 
   it('clear read count should ok', done => {
@@ -251,6 +269,8 @@ export default describe('Project API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('project copy should ok', done => {
@@ -278,6 +298,8 @@ export default describe('Project API test: ', () => {
     })
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
+
+    httpBackend.flush()
   })
 
   it('join project should ok', done => {
@@ -304,6 +326,8 @@ export default describe('Project API test: ', () => {
     Project.join('03a9f4')
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
+
+    httpBackend.flush()
   })
 
   it('quit project should ok', done => {
@@ -324,6 +348,8 @@ export default describe('Project API test: ', () => {
     Project.quit(project._id)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
+
+    httpBackend.flush()
   })
 
   it('set default role in project should ok', done => {
@@ -353,6 +379,8 @@ export default describe('Project API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('star project should ok', done => {
@@ -381,6 +409,8 @@ export default describe('Project API test: ', () => {
         expect(r).to.deep.equal(mockResponse)
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('unstar project should ok', done => {
@@ -409,6 +439,8 @@ export default describe('Project API test: ', () => {
     Project.unstar(mockProject._id)
       .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe()
+
+    httpBackend.flush()
   })
 
   it('transfer project should ok', done => {
@@ -440,6 +472,8 @@ export default describe('Project API test: ', () => {
         })
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('get project report summary should ok', done => {
@@ -452,6 +486,8 @@ export default describe('Project API test: ', () => {
         expectDeepEqual(r, reportSummary)
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('get project report summary from cache should ok', done => {
@@ -469,6 +505,8 @@ export default describe('Project API test: ', () => {
         expect(spy).to.be.calledOnce
         done()
       })
+
+    httpBackend.flush()
   })
 
   it('get project report analysis should ok', done => {
@@ -484,6 +522,8 @@ export default describe('Project API test: ', () => {
         expectDeepEqual(r, reportAnalysis)
         done()
       })
+
+    httpBackend.flush()
   })
 
   describe('get home activities: ', () => {
@@ -501,6 +541,7 @@ export default describe('Project API test: ', () => {
       httpBackend
         .whenGET(`${apihost}projects/${projectId}/activities?page=2`)
         .respond(JSON.stringify(pageTwo))
+      httpBackend.flush()
     })
 
     it('get should ok', done => {

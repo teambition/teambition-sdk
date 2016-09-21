@@ -152,7 +152,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.update(_id, x))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -160,9 +160,9 @@ export class ProjectAPI {
     return Observable.create((observer: Observer<ProjectData>) => {
       Observable.fromPromise(ProjectFetch.copy(_id, copyInfo))
         .catch(err => observableError(observer, err))
-        .concatMap(project => ProjectModel.addOne(project))
+        .concatMap(project => ProjectModel.addOne(project).take(1))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -210,7 +210,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.delete(_id))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -232,7 +232,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.update(_id, x))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -242,7 +242,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.update(_projectId, x))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -252,7 +252,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.update(_projectId, x))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -264,7 +264,7 @@ export class ProjectAPI {
       Observable.fromPromise(ProjectFetch.getStatistic(_id, query))
         .catch(err => observableError(observer, err))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
@@ -274,7 +274,7 @@ export class ProjectAPI {
         .catch(err => observableError(observer, err))
         .concatMap(x => ProjectModel.update(_id, x))
         .forEach(r => observer.next(r))
-        .then(r => observer.complete())
+        .then(() => observer.complete())
     })
   }
 
