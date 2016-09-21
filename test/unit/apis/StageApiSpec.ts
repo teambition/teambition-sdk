@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import { Backend, apihost, StageAPI, forEach } from '../index'
 import { stages } from '../../mock/stages'
@@ -50,7 +49,7 @@ export default describe('Stage API Test', () => {
       })
   })
 
-  it('create stage should ok', done => {
+  it('create stage should ok', function* () {
     const tasklistId = stages[0]._tasklistId
     const length = stages.length
     const stageCrateInfo = {
@@ -67,20 +66,22 @@ export default describe('Stage API Test', () => {
         isArchive: false
       })
 
-    Stage.getAll(tasklistId)
-      .skip(1)
-      .subscribe(data => {
+    const signal = Stage.getAll(tasklistId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Stage.create(stageCrateInfo)
+
+    yield signal.take(1)
+      .do(data => {
         expect(data.length).to.equal(length + 1)
         expect(data[0].name).to.equal('stage create test')
-        done()
       })
-
-    Stage.create(stageCrateInfo)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
   })
 
-  it('delete stage should ok', done => {
+  it('delete stage should ok', function* () {
     const tasklistId = stages[0]._tasklistId
     const stageId = stages[0]._id
     const length = stages.length
@@ -88,20 +89,22 @@ export default describe('Stage API Test', () => {
     httpBackend.whenDELETE(`${apihost}stages/${stageId}`)
       .respond({})
 
-    Stage.getAll(tasklistId)
-      .skip(1)
-      .subscribe(data => {
+    const signal = Stage.getAll(tasklistId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Stage.delete(stageId)
+
+    yield signal.take(1)
+      .do(data => {
         expect(data.length).to.equal(length - 1)
         expect(notInclude(data, stages[0])).to.be.true
-        done()
       })
-
-    Stage.delete(stageId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
   })
 
-  it('update stage should ok', done => {
+  it('update stage should ok', function* () {
     const stageId = stages[0]._id
     const tasklistId = stages[0]._tasklistId
     const mockResponse = {
@@ -116,23 +119,26 @@ export default describe('Stage API Test', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    Stage.getAll(tasklistId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data[0].name).to.equal('stage updated test')
-      })
+    const signal = Stage.getAll(tasklistId)
+      .publish()
+      .refCount()
 
-    Stage.update(stageId, {
+    yield signal.take(1)
+
+    yield Stage.update(stageId, {
       name: 'stage updated test'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
+      })
+
+    yield signal.take(1)
+      .do(data => {
+        expect(data[0].name).to.equal('stage updated test')
       })
   })
 
-  it('update stage ids should ok', done => {
+  it('update stage ids should ok', function* () {
     const Stage = new StageAPI()
     const tasklistId = tasklists[0]._id
     const stageIds: string[] = stages.map(stage => stage._id)
@@ -148,23 +154,26 @@ export default describe('Stage API Test', () => {
     httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/stages`)
       .respond(JSON.stringify(stages))
 
-    Stage.getAll(tasklistId)
-      .skip(1)
-      .subscribe(data => {
+    const signal = Stage.getAll(tasklistId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Stage.updateStageIds(tasklistId, stageIds)
+      .do(r => {
+        expect(r).to.deep.equal({
+          stageIds: stageIds
+        })
+      })
+
+    yield signal.take(1)
+      .do(data => {
         const _stageIds: string[] = []
         forEach(data, stage => {
           _stageIds.push(stage._id)
         })
         expect(_stageIds).to.deep.equal(stageIds)
-      })
-
-    Stage.updateStageIds(tasklistId, stageIds)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal({
-          stageIds: stageIds
-        })
-        done()
       })
   })
 })
