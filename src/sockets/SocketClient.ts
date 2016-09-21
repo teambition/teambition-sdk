@@ -1,6 +1,6 @@
 'use strict'
+import 'rxjs/add/operator/toPromise'
 import { Subject } from 'rxjs/Subject'
-import { Subscription } from 'rxjs/Subscription'
 import UserFetch from '../fetchs/UserFetch'
 import SocketFetch from '../fetchs/SocketFetch'
 import { socketHandler } from './EventMaps'
@@ -118,13 +118,9 @@ export class SocketClient {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
     }
-    const subscription = socketHandler(event)
-      .subscribe(null, err => ctx['console']['error'](err), () => {
-        if (subscription instanceof Subscription) {
-          subscription.unsubscribe()
-        }
-      })
-    return subscription
+    return socketHandler(event)
+      .toPromise()
+      .then(null, (err: any) => ctx['console']['error'](err))
   }
 
   private _checkToken(): void {
