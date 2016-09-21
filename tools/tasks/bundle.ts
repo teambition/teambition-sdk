@@ -2,16 +2,12 @@
 import * as path from 'path'
 import * as fs from 'fs'
 const rollup = require('rollup')
-const babel = require('rollup-plugin-babel')
 const nodeResolve = require('rollup-plugin-node-resolve')
 const alias = require('rollup-plugin-alias')
 const commonjs = require('rollup-plugin-commonjs')
+const compiler = require('google-closure-compiler-js').compile
 
 export function bundle (entry: string, output: string, name: string, ise2e?: boolean) {
-  const babelConf = babel({
-    runtimeHelpers: true,
-    exclude: 'dist/bundle/**'
-  })
   let plugins: any[]
   if (!ise2e) {
     plugins = [
@@ -19,7 +15,6 @@ export function bundle (entry: string, output: string, name: string, ise2e?: boo
         'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js'),
         'engine.io-client': path.join(process.cwd(), 'node_modules/engine.io-client/engine.io.js')
       }),
-      babelConf,
       nodeResolve({
         jsnext: false,
         main: true
@@ -28,8 +23,6 @@ export function bundle (entry: string, output: string, name: string, ise2e?: boo
         exclude: [ 'dist/es6/**', 'dist/mock-es6/**' ]
       })
     ]
-  }else {
-    plugins = [ babelConf ]
   }
   rollup.rollup({
     entry: entry,
@@ -48,6 +41,21 @@ export function bundle (entry: string, output: string, name: string, ise2e?: boo
     })
     .then(code => {
       return write(path.resolve(process.cwd(), output), code)
+    })
+    .then(() => {
+      const source = fs.readFileSync(path.resolve(process.cwd(), output), 'utf8')
+      const compilerFlags = {
+        jsCode: [{src: source}],
+        compilationLevel: 'ADVANCED',
+        languageIn: 'ES5',
+        createSourceMap: true,
+      }
+      const result: any = compiler(compilerFlags)
+      const minPath = `dist/bundle/${output.split('/').pop().split('.')[0]}.min.js`
+      const code = result.compiledCode
+      fs.writeFileSync(minPath, code, 'utf8')
+      fs.writeFileSync(`${minPath}.map`, result.sourceMap, 'utf8')
+      console.log(blue(minPath) + ' ' + getSize(code))
     })
     .catch(e => console.error(e.stack))
 }
