@@ -3,7 +3,10 @@ declare const global: any
 
 export interface FetchResult {
   wait: number | Promise<any>
-  response: Response
+  response: {
+    data: any
+    responseInit: ResponseInit
+  }
 }
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
@@ -67,16 +70,16 @@ export function mockFetch() {
       // console.log(uri + method + dataPath, fetchStack)
       const wait = result.wait
       if (!wait || wait < 0) {
-        return Promise.resolve(result.response)
+        return Promise.resolve(new Response(result.response.data, result.response.responseInit))
       } else if (typeof wait === 'number') {
         return new Promise(resolve => {
           setTimeout(() => {
-            resolve(result.response)
+            resolve(new Response(result.response.data, result.response.responseInit))
           }, wait)
         })
       } else if (typeof wait.then !== 'undefined') {
         return wait.then(() => {
-          return result.response
+          return new Response(result.response.data, result.response.responseInit)
         })
       } else {
         return Promise.reject(new TypeError(`unsupported wait type, expected number or Promise`))

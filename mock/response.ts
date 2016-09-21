@@ -42,9 +42,10 @@ export class HttpResponse {
     } else {
       throw(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
     }
-    const responseData = new Response(data, response)
     const result = {
-      wait, response: responseData
+      wait, response: {
+        data, responseInit: response
+      }
     }
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [ result ])
@@ -54,10 +55,10 @@ export class HttpResponse {
   }
 
   error(message: string, response: ResponseInit, wait?: number | Promise<any>) {
-    const responseData = new Response(message, response)
-
     const result = {
-      wait, response: responseData
+      wait, response: {
+        data: message, responseInit: response
+      }
     }
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [result])
