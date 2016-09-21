@@ -22,9 +22,9 @@ export default class Model {
   }
 
   update<T>(namespace: string, patch: T): Observable<T> {
-    if (DataBase.data.get(namespace)) {
+    if (typeof patch === 'object' && DataBase.data.get(namespace)) {
       return Model.DataBase.updateOne<T>(namespace, patch)
-    }else {
+    } else {
       return Observable.of(null)
     }
   }
