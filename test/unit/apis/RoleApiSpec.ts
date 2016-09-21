@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import { apihost, RoleAPI, Backend, forEach } from '../index'
 import { flush, expectDeepEqual } from '../utils'
@@ -46,7 +45,7 @@ export default describe('role api spec: ', () => {
       })
   })
 
-  it('add role should ok', done => {
+  it('add role should ok', function* () {
     const organizationId = roles[0]._organizationId
 
     httpBackend.whenGET(`${apihost}organizations/${organizationId}/roles`)
@@ -55,16 +54,19 @@ export default describe('role api spec: ', () => {
     httpBackend.whenGET(`${apihost}roles/${mockAdd._id}`)
       .respond(JSON.stringify(mockAdd))
 
-    RoleApi.getCustomRoles(organizationId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = RoleApi.getCustomRoles(organizationId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield RoleApi.getOne(mockAdd._id)
+      .take(1)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(roles.length + 1)
         expectDeepEqual(mockAdd, r[0])
-        done()
       })
-
-    RoleApi.getOne(mockAdd._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
   })
 })
