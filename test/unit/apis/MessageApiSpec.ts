@@ -1,7 +1,6 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
-import { Scheduler } from 'rxjs'
 import {
   Backend,
   MessageAPI,
@@ -62,23 +61,22 @@ export default describe('MessageAPI test: ', () => {
         })
     })
 
-    it('get messages from cache should ok', done => {
-      Message.getMessages(getMessagesQuery).subscribe()
+    it('get messages from cache should ok', function* () {
+      yield Message.getMessages(getMessagesQuery)
+        .take(1)
 
       Message.getMessages(getMessagesQuery)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(results => {
+        .do(results => {
           forEach(results, (message, index) => {
             ['_id', 'name', 'logo'].forEach(k => {
               expect(messages[index][k]).to.equal(message[k])
             })
           })
           expect(spy).to.be.calledOnce
-          done()
         })
     })
 
-    it('read a message should ok', done => {
+    it('read a message should ok', function* () {
       const mockResponse = {
         isRead: true,
         unreadActivitiesCount: 0,
@@ -91,37 +89,41 @@ export default describe('MessageAPI test: ', () => {
       })
         .respond(JSON.stringify(mockResponse))
 
-      Message.getMessages(getMessagesQuery).subscribe()
+      yield Message.getMessages(getMessagesQuery)
+        .take(1)
 
-      Message.read(_messageId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(data => {
-          expect(data).to.deep.equal(mockResponse)
-          done()
+      yield Message.read(_messageId)
+
+      yield Message.getMessages(getMessagesQuery)
+        .take(1)
+        .do(data => {
+          expect(data[0].isRead).to.equal(mockResponse.isRead)
         })
     })
 
-    it('mark all messages as read should ok', done => {
+    it('mark all messages as read should ok', function* () {
       httpBackend.whenPUT(`${apihost}messages/markallread`, {
         type: _messageType
       })
         .respond(JSON.stringify({}))
 
-      Message.getMessages(getMessagesQuery)
-        .skip(1)
-        .subscribe(messages => {
+      const signal = Message.getMessages(getMessagesQuery)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Message.markAllAsRead(_messageType)
+
+      yield signal.take(1)
+        .do(messages => {
           forEach(messages, message => {
             expect(message.isRead).to.be.true
           })
-          done()
         })
-
-      Message.markAllAsRead(_messageType)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
-    it('snooze a message should ok', done => {
+    it('snooze a message should ok', function* () {
       const reminderDate = '3016-07-27T18:23:43+08:00'
       const mockResponse = {
         _id: _messageId,
@@ -139,52 +141,59 @@ export default describe('MessageAPI test: ', () => {
       })
         .respond(JSON.stringify(mockResponse))
 
-      Message.getMessages(getMessagesQuery)
-        .skip(1)
-        .subscribe(results => {
+      const signal = Message.getMessages(getMessagesQuery)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Message.snooze(_messageId, reminderDate)
+        .do(r => {
+          expect(r).to.deep.equal(mockResponse)
+        })
+
+      yield signal.take(1)
+        .do(results => {
           notInclude(messages, messages[0])
           expect(results.length).to.equal(messages.length - 1)
         })
-
-      Message.snooze(_messageId, reminderDate)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
-          expect(r).to.deep.equal(mockResponse)
-          done()
-        })
     })
 
-    it('delete all messages should ok', done => {
+    it('delete all messages should ok', function* () {
       httpBackend.whenDELETE(`${apihost}messages?type=${_messageType}`)
         .respond(JSON.stringify({}))
 
-      Message.getMessages(getMessagesQuery)
-        .skip(1)
-        .subscribe(messages => {
-          expect(messages.length).to.equal(0)
-          done()
-        })
+      const signal = Message.getMessages(getMessagesQuery)
+        .publish()
+        .refCount()
 
-      Message.deleteAllRead(_messageType)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
+      yield signal.take(1)
+
+      yield Message.deleteAllRead(_messageType)
+
+      yield signal.take(1)
+        .do(messages => {
+          expect(messages.length).to.equal(0)
+        })
     })
 
-    it('delete a message should ok', done => {
+    it('delete a message should ok', function* () {
       httpBackend.whenDELETE(`${apihost}messages/${_messageId}`)
         .respond(JSON.stringify({}))
 
-      Message.getMessages(getMessagesQuery)
-        .skip(1)
-        .subscribe(results => {
+      const signal = Message.getMessages(getMessagesQuery)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Message.delete(_messageId)
+
+      yield signal.take(1)
+        .do(results => {
           notInclude(messages, messages[0])
           expect(results.length).to.equal(messages.length - 1)
-          done()
         })
-
-      Message.delete(_messageId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
     })
 
   })
