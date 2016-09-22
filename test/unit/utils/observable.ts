@@ -47,7 +47,7 @@ export default describe('Observable toLoading test: ', () => {
     const stream = Observable.create((observer: Observer<string>) => {
       setTimeout(() => {
         observer.next('hello')
-      }, global.timeout2)
+      }, 200)
     })
     const loading$ = stream.toLoading()
     let loading = true
@@ -58,7 +58,7 @@ export default describe('Observable toLoading test: ', () => {
 
     setTimeout(() => {
       expect(loading).to.be.true
-    }, global.timeout1)
+    }, 100)
 
     stream.subscribe(() => {
       expect(loading).to.be.false
