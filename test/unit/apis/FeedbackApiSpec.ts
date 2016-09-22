@@ -2,7 +2,6 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as SinonChai from 'sinon-chai'
-import { Scheduler } from 'rxjs'
 import { Backend, apihost, FeedbackAPI, BaseFetch, clone } from '../index'
 import { projectFeedbacks } from '../../mock/projectFeedbacks'
 import { flush, expectDeepEqual } from '../utils'
@@ -50,75 +49,77 @@ export default describe('FeedbackAPI Spec: ', () => {
       })
   })
 
-  it('get projectFeedbacks from cache should ok', done => {
-    const get = FeedbackApi.getProjectFeedback(projectId, {
+  it('get projectFeedbacks from cache should ok', function* () {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from: from,
       to: to
     })
 
-    get.subscribe()
+    yield signal.take(1)
 
-    get.subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield signal.take(1)
+      .do(r => {
         expectDeepEqual(r[0], projectFeedbacks[0])
         expect(spy).to.be.calledOnce
-        done()
       })
   })
 
-  it('get projectFeedbacks page 2 should ok', done => {
+  it('get projectFeedbacks page 2 should ok', function* () {
     httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=2&from=${from}&to=${to}`)
       .respond(JSON.stringify(projectFeedbacks.slice(1)))
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from, to
     })
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(2)
-        expectDeepEqual(r[1], projectFeedbacks[1])
-        done()
-      })
+      .publish()
+      .refCount()
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    yield signal.take(1)
+
+    yield FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 2,
       from, to
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+      .take(1)
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r.length).to.equal(2)
+        expectDeepEqual(r[1], projectFeedbacks[1])
+      })
   })
 
-  it('get feedback in another day should ok', done => {
+  it('get feedback in another day should ok', function* () {
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    yield FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from, to
-    }).subscribe()
+    })
+      .take(1)
 
     to = new Date(2016, 12, 1).toISOString()
     httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=1&from=${from}&to=${to}`)
       .respond(JSON.stringify(projectFeedbacks.slice(0, 1)))
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    yield FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from, to
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .take(1)
+      .do(r => {
         expect(spy).to.be.calledTwice
-        done()
       })
 
   })
 
-  it('update project feedback should ok', done => {
+  it('update project feedback should ok', function* () {
     const feedbackId = projectFeedbacks[0]._id
     httpBackend.whenPUT(`${apihost}projects/${projectId}/feedbacks/${feedbackId}`, {
       comment: 'mock update feedback'
@@ -129,49 +130,53 @@ export default describe('FeedbackAPI Spec: ', () => {
         }
       })
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from: from,
       to: to
     })
-      .skip(1)
-      .subscribe(r => {
-        expect(r[0].content.comment).to.equal('mock update feedback')
-        done()
-      })
+      .publish()
+      .refCount()
 
-    FeedbackApi.updateProjectFeedback(projectId, feedbackId, {
+    yield signal.take(1)
+
+    yield FeedbackApi.updateProjectFeedback(projectId, feedbackId, {
       comment: 'mock update feedback'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r[0].content.comment).to.equal('mock update feedback')
+      })
   })
 
-  it('delete should ok', done => {
+  it('delete should ok', function* () {
     const feedbackId = projectFeedbacks[0]._id
 
     httpBackend.whenDELETE(`${apihost}projects/${projectId}/feedbacks/${feedbackId}`)
       .respond({})
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from: from,
       to: to
     })
-      .skip(1)
-      .subscribe(r => {
-        expect(r).to.deep.equal([])
-        done()
-      })
+      .publish()
+      .refCount()
 
-    FeedbackApi.deleteProjectFeedback(projectId, feedbackId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    yield signal.take(1)
+
+    yield FeedbackApi.deleteProjectFeedback(projectId, feedbackId)
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r).to.deep.equal([])
+      })
   })
 
-  it('create should ok', done => {
+  it('create should ok', function* () {
     const mockFeedback = clone(projectFeedbacks[0])
     mockFeedback._id = 'mockFeedbackid'
     mockFeedback.content.comment = 'mock feedback post'
@@ -181,23 +186,25 @@ export default describe('FeedbackAPI Spec: ', () => {
     })
       .respond(JSON.stringify(mockFeedback))
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from: from,
       to: to
     })
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(2)
-        expectDeepEqual(r[0], mockFeedback)
-        done()
-      })
+      .publish()
+      .refCount()
 
-    FeedbackApi.create(projectId, {
+    yield signal.take(1)
+
+    yield FeedbackApi.create(projectId, {
       content: 'mock feedback post'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r.length).to.equal(2)
+        expectDeepEqual(r[0], mockFeedback)
+      })
   })
 })
