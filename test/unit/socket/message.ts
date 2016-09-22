@@ -30,7 +30,7 @@ export default describe('socket message test: ', () => {
       .respond(JSON.stringify(mockMessages))
   })
 
-  it('add a new message should ok', done => {
+  it('add a new message should ok', function* () {
     const mockMessage = {
       _id: '57987950bf83e5868ea6052b',
       _userId: '53ee3018caf6a0e8270de0f7',
@@ -66,45 +66,43 @@ export default describe('socket message test: ', () => {
       objectType: 'event'
     }
 
-    MessageApi.getMessages(getMessagesQuery)
-      .skip(1)
-      .subscribe(data => {
+    const signal = MessageApi.getMessages(getMessagesQuery)
+      .publish()
+      .refCount()
+
+    yield Socket.emit('new', 'message', '', mockMessage, signal.take(1))
+
+    yield signal.take(1)
+      .do(data => {
         expect(data.length).to.equal(mockMessages.length + 1)
-        done()
       })
-
-    Socket.emit('new', 'message', '', mockMessage)
-
-    httpBackend.flush()
   })
 
-  it('read a message should ok', done => {
-    MessageApi.getMessages(getMessagesQuery)
-      .skip(1)
-      .subscribe(data => {
-        expect(data[0].isRead).to.be.true
-        done()
-      })
+  it('read a message should ok', function* () {
+    const signal = MessageApi.getMessages(getMessagesQuery)
+      .publish()
+      .refCount()
 
-    Socket.emit('change', 'message', mockMessages[0]._id, {
+    yield Socket.emit('change', 'message', mockMessages[0]._id, {
       isRead: true
-    })
+    }, signal.take(1))
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data[0].isRead).to.be.true
+      })
   })
 
-  it('snooze a message should ok', done => {
-    MessageApi.getMessages(getMessagesQuery)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.length).to.equal(mockMessages.length - 1)
-        done()
-      })
+  it('snooze a message should ok', function* () {
+    const signal = MessageApi.getMessages(getMessagesQuery)
 
-    Socket.emit('change', 'message', mockMessages[0]._id, {
+    yield Socket.emit('change', 'message', mockMessages[0]._id, {
       isLater: true
-    })
+    }, signal.take(1))
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.length).to.equal(mockMessages.length - 1)
+      })
   })
 })

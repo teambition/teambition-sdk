@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import {
@@ -51,28 +50,23 @@ export default describe('Collection API test', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('get collections from cache should ok', done => {
-    collectionAPI.getByParent(parentId)
-      .subscribe()
+  it('get collections from cache should ok', function* () {
+    yield collectionAPI.getByParent(parentId)
+      .take(1)
 
-    collectionAPI.getByParent(parentId)
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe(r => {
+    yield collectionAPI.getByParent(parentId)
+      .take(1)
+      .do(r => {
         forEach(r, (val, index) => {
           expectDeepEqual(val, collections[index])
         })
         expect(spy).to.be.calledOnce
-        done()
       })
-
-    httpBackend.flush()
   })
 
-  it('create collection should ok', done => {
+  it('create collection should ok', function* () {
     const mockCollection = clone(collections[0])
     mockCollection._id = 'testcollection'
     mockCollection._parentId = parentId
@@ -83,22 +77,22 @@ export default describe('Collection API test', () => {
     })
       .respond(JSON.stringify(mockCollection))
 
-    collectionAPI.getByParent(parentId)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(collections.length + 1)
-        expectDeepEqual(r[0], mockCollection)
-        done()
-      })
+    const signal = collectionAPI.getByParent(parentId)
+      .publish()
+      .refCount()
 
-    collectionAPI.create({
+    yield signal.take(1)
+
+    yield collectionAPI.create({
       title: 'test',
       _parentId: parentId
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expect(r.length).to.equal(collections.length + 1)
+        expectDeepEqual(r[0], mockCollection)
+      })
   })
 
   it('get collection should ok', done => {
@@ -113,32 +107,27 @@ export default describe('Collection API test', () => {
         expectDeepEqual(r, collections[0])
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('get collection from cache should ok', done => {
+  it('get collection from cache should ok', function* () {
     const mockCollection = clone(collections[0])
     const collectionId = mockCollection._id
 
     httpBackend.whenGET(`${apihost}collections/${collectionId}`)
       .respond(JSON.stringify(mockCollection))
 
-    collectionAPI.getByParent(parentId)
-      .subscribe()
+    yield collectionAPI.getByParent(parentId)
+      .take(1)
 
-    collectionAPI.get(collectionId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield collectionAPI.get(collectionId)
+      .take(1)
+      .do(r => {
         expectDeepEqual(r, collections[0])
         expect(spy).to.be.calledOnce
-        done()
       })
-
-    httpBackend.flush()
   })
 
-  it('update collection should ok', done => {
+  it('update collection should ok', function* () {
     const mockCollection = clone(collections[0])
     const collectionId = mockCollection._id
     mockCollection.title = 'test'
@@ -148,45 +137,45 @@ export default describe('Collection API test', () => {
     })
       .respond(JSON.stringify(mockCollection))
 
-    collectionAPI.getByParent(parentId)
-      .skip(1)
-      .subscribe(r => {
-        expect(r[0].title).to.equal('test')
-        done()
-      })
+    const signal = collectionAPI.getByParent(parentId)
+      .publish()
+      .refCount()
 
-    collectionAPI.update(collectionId, {
+    yield signal.take(1)
+
+    yield collectionAPI.update(collectionId, {
       title: 'test'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expect(r[0].title).to.equal('test')
+      })
 
   })
 
-  it('delete collection should ok', done => {
+  it('delete collection should ok', function* () {
     const collectionId = collections[0]._id
 
     httpBackend.whenDELETE(`${apihost}collections/${collectionId}`)
       .respond({})
 
-    collectionAPI.getByParent(parentId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = collectionAPI.getByParent(parentId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield collectionAPI.delete(collectionId)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(collections.length - 1)
         expect(notInclude(r, collections[0])).to.be.true
-        done()
       })
-
-    collectionAPI.delete(collectionId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('archive collection should ok', done => {
+  it('archive collection should ok', function* () {
     const collectionId = collections[0]._id
     const mockResponse = {
       _id: collectionId,
@@ -197,24 +186,26 @@ export default describe('Collection API test', () => {
     httpBackend.whenPOST(`${apihost}collections/${collectionId}/archive`)
       .respond(JSON.stringify(mockResponse))
 
-    collectionAPI.getByParent(parentId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = collectionAPI.getByParent(parentId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield collectionAPI.archive(collectionId)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(collections.length - 1)
         expect(notInclude(r, collections[0])).to.be.true
       })
 
-    collectionAPI.archive(collectionId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('move collection should ok', done => {
+  it('move collection should ok', function* () {
     const mockcollections: TBCollectionSchema[] = JSON.parse(JSON.stringify(collections))
     const mockResponse = {
       _id: collections[0]._id,
@@ -234,16 +225,31 @@ export default describe('Collection API test', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    collectionAPI.getByParent(parentId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = collectionAPI.getByParent(parentId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    const signal2 = collectionAPI.getByParent('mockparentid')
+      .publish()
+      .refCount()
+
+    yield signal2.take(1)
+
+    yield collectionAPI.move(collections[0]._id, 'mockparentid')
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(collections.length - 1)
         expect(notInclude(r, collections[0])).to.be.true
       })
 
-    collectionAPI.getByParent('mockparentid')
-      .skip(1)
-      .subscribe(r => {
+    yield signal2.take(1)
+      .do(r => {
         expect(r.length).to.equal(collections.length + 1)
         forEach(r[0], (val: any, key: string) => {
           if (key !== '_id' && key !== '_requested') {
@@ -251,18 +257,9 @@ export default describe('Collection API test', () => {
           }
         })
       })
-
-    collectionAPI.move(collections[0]._id, 'mockparentid')
-      .subscribeOn(Scheduler.async, global.timeout3)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('unarchive test should ok', done => {
+  it('unarchive test should ok', function* () {
     const mockCollection = clone(collections[0])
     mockCollection._id = 'mockcollectionid'
     mockCollection.isArchived = true
@@ -278,26 +275,32 @@ export default describe('Collection API test', () => {
     httpBackend.whenDELETE(`${apihost}collections/mockcollectionid/archive`)
       .respond(JSON.stringify(mockResponse))
 
-    collectionAPI.getByParent(parentId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = collectionAPI.getByParent(parentId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    const signal2 = collectionAPI.get('mockcollectionid')
+      .publish()
+      .refCount()
+
+    yield signal2.take(1)
+
+    yield collectionAPI.unarchive('mockcollectionid')
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(collections.length + 1)
         expect(r[0]._id).to.equal('mockcollectionid')
       })
 
-    collectionAPI.get('mockcollectionid')
-      .skip(1)
+    yield signal2.take(1)
       .subscribe(r => {
         expect(r.isArchived).to.be.false
       })
-
-    collectionAPI.unarchive('mockcollectionid')
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 })

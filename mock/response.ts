@@ -5,14 +5,17 @@ export class HttpResponse {
   private namespace: string
 
   constructor(uri: string, method?: string, data?: any) {
-    let dataPath: string
-    try {
-      dataPath = data ? parseObject(data) : ''
-    } catch (error) {
-      throw error
+    if (!uri) {
+      throw new TypeError('no uri')
     }
+    const dataPath = data ? parseObject(data) : ''
     method = method ? method.toLowerCase() : ''
-    this.namespace = uri + method + dataPath
+    if (uri.indexOf('?') === -1) {
+      uri = data ? `${uri}?${dataPath}` : uri
+    } else {
+      uri = data ? `${uri}&${dataPath}` : uri
+    }
+    this.namespace = uri + method
   }
 
   empty(): HttpResponse {
@@ -20,9 +23,12 @@ export class HttpResponse {
     return this
   }
 
-  respond(data: any, response: ResponseInit = {
-    status: 200
-  }) {
+  respond(
+    data: any,
+    response?: ResponseInit,
+    wait?: number | Promise<any>
+  ) {
+    response = response || { status: 200 }
     const status = response.status || 200
     response.status = status
     if (typeof status !== 'number') {
@@ -38,12 +44,10 @@ export class HttpResponse {
     } else {
       throw(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
     }
-    const responseData = new Response(data, response)
     const result = {
-      flushQueue: {
-        response: responseData
-      },
-      response: responseData
+      wait, response: {
+        data, responseInit: response
+      }
     }
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [ result ])
@@ -52,13 +56,10 @@ export class HttpResponse {
     }
   }
 
-  error(message: string, response: ResponseInit) {
-    const responseData = new Response(message, response)
-
+  error(message: string, response: ResponseInit, wait?: number | Promise<any>) {
     const result = {
-      response: responseData,
-      flushQueue: {
-        response: responseData
+      wait, response: {
+        data: message, responseInit: response
       }
     }
     if (!fetchStack.has(this.namespace)) {

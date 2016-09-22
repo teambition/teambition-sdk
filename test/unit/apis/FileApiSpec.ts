@@ -53,7 +53,5 @@ export default describe('FileAPI test: ', () => {
         expect(data._parentId).to.equal('111')
         done()
       })
-
-    httpBackend.flush()
   })
 })

@@ -29,8 +29,6 @@ export default describe('Organizations API test', () => {
         expect(data).to.instanceof(Array)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get one organization should ok', done => {
@@ -48,7 +46,5 @@ export default describe('Organizations API test', () => {
         expectDeepEqual(data, organizations[0])
         done()
       })
-
-    httpBackend.flush()
   })
 })

@@ -21,8 +21,12 @@ export type SocketEventType = 'activity' | 'message' | 'project' | 'task' | 'sub
                               'collection' | 'tag' | 'user' | 'preference' | 'member' |
                               'event' | 'subscriber' | 'feedback' | 'homeActivity'
 
+export interface ToPromiseObject {
+  toPromise: () => Promise<any>
+}
+
 export class SocketMock {
-  onmessage: (e: RequestEvent) => void
+  onmessage: (e: RequestEvent) => Promise<any>
 
   private _ctx = typeof global === 'undefined' ? window : global
   private _sdk = this._ctx['teambition'].sdk
@@ -37,24 +41,24 @@ export class SocketMock {
     objectType: SocketEventType,
     objectId: string,
     patch?: any,
-    delay?: number
-  ): void
+    delay?: number | Promise<any> | ToPromiseObject
+  ): Promise<any>
 
   emit(
     method: 'new',
     objectType: SocketEventType,
     objectId: '',
     patch?: any,
-    delay?: number
-  ): void
+    delay?: number | Promise<any> | ToPromiseObject
+  ): Promise<any>
 
   emit(
     method: 'change' | 'destroy' | 'new' | 'refresh' | 'remove',
     objectType: SocketEventType,
     objectId: string,
     patch?: any,
-    delay = 180
-  ) {
+    delay: number | Promise<any> | ToPromiseObject = 0
+  ): Promise<any> {
     const params = {
       e: `:${method}:${objectType}/${objectId}`,
       d: patch
@@ -70,8 +74,30 @@ export class SocketMock {
         params: [ JSON.stringify(params) ]
       }
     }
-    setTimeout(() => {
-      this.onmessage(result)
-    }, delay)
+    if (typeof delay === 'number') {
+      if (delay > 0) {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve()
+          }, delay)
+        })
+          .then(() => {
+            return this.onmessage(result)
+          })
+      } else {
+        return this.onmessage(result)
+      }
+    } else if (typeof delay['then'] === 'function') {
+      return (<Promise<any>>delay).then(() => {
+        return this.onmessage(result)
+      })
+    } else if (typeof delay['toPromise'] === 'function') {
+      return (<ToPromiseObject>delay).toPromise()
+        .then(() => {
+          return this.onmessage(result)
+        })
+    } else {
+      return Promise.reject(new TypeError(`not a valid delay type, expected number or Promise or Observable`))
+    }
   }
 }

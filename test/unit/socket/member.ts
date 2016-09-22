@@ -25,21 +25,21 @@ export default describe('socket member test', () => {
     MemberApi = new MemberAPI
   })
 
-  it('change role should ok', done => {
+  it('change role should ok', function* () {
     httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
       .respond(JSON.stringify(members))
 
-    MemberApi.getProjectMembers(projectId)
-      .skip(1)
-      .subscribe(r => {
-        expect(r[0]._roleId).to.equal('mockroleid')
-        done()
-      })
+    const signal = MemberApi.getProjectMembers(projectId)
+      .publish()
+      .refCount()
 
-    httpBackend.flush()
-
-    Socket.emit('change', 'member', members[0]._memberId, {
+    yield Socket.emit('change', 'member', members[0]._memberId, {
       _roleId: 'mockroleid'
-    })
+    }, signal.take(1))
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r[0]._roleId).to.equal('mockroleid')
+      })
   })
 })

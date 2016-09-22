@@ -47,7 +47,5 @@ export default describe('Dirty APIs Spec', () => {
         expect(r[0].subtaskCount).to.deep.equal(mockTask.subtaskCount)
         done()
       })
-
-    httpBackend.flush()
   })
 })

@@ -6,6 +6,7 @@ import 'rxjs/add/operator/mergeAll'
 import 'rxjs/add/operator/skip'
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/do'
+import 'rxjs/add/operator/switch'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { forEach } from '../utils/index'
@@ -35,36 +36,41 @@ export default class DataBase {
     if (typeof index === 'undefined') {
       return Observable.throw(new Error(`unionFlag not exist in data: ${data}`))
     }
-    const dest: Observable<T> = Observable.create((observer: Observer<Observable<T>>) => {
+    return Observable.create((observer: Observer<Observable<T>>) => {
       setTimeout(() => {
         if (typeof data !== 'object' || data === null) {
           return observer.error(new Error(`Can not store an none object data`))
         }
-        const cache: Model<T> = DataBase.data.get(index)
+        let cache: Model<T> = DataBase.data.get(index)
         let signal: Observable<T>
         if (cache) {
           signal = this.updateOne<T>(index, data)
-            .do(() => {
-              // 这里是将存过一次的数据进行标记，表示这个数据已经是完整的了
-              // 那些从 Collection 与 Model 解析下来的数据就有可能不是完整的
-              if (cache instanceof Schema) {
-                if (cache.data instanceof Schema) {
-                  cache.data.$$keys.clear()
-                }
-              } else {
-                cache.data['checkSchema'] = () => true
-              }
-            })
             .concatMap(() => cache.get())
         } else {
-          const model = new Model(data, unionFlag)
-          signal = this._judgeModel(model)
-            .concatMap(() => model.get())
+          cache = new Model(data, unionFlag)
+          signal = this._judgeModel(cache)
+            .concatMap(() => cache.get())
+        }
+        // 这里是将存过一次的数据进行标记，表示这个数据已经是完整的了
+        // 那些从 Collection 与 Model 解析下来的数据就有可能不是完整的
+        if (cache instanceof Schema) {
+          if (cache.data instanceof Schema) {
+            cache.data.$$keys.clear()
+          }
+        } else {
+          if (!Object.getOwnPropertyDescriptor(cache.data, 'checkSchema')) {
+            Object.defineProperty(cache.data, 'checkSchema', {
+              get () {
+                return () => true
+              },
+              enumerable: false
+            })
+          }
         }
         observer.next(signal)
       })
-    }).concatMap((x: Observable<T>) => x)
-    return dest
+    })
+      .concatMap((x: Observable<T>) => x)
   }
 
   storeCollection <T extends ISchema> (
@@ -106,7 +112,8 @@ export default class DataBase {
         }
         observer.next(collection.get())
       })
-    }).concatMap((x: Observable<T[]>) => x)
+    })
+      .concatMap((x: Observable<T[]>) => x)
   }
 
   get<T>(index: string): Observable<T> {
@@ -117,7 +124,8 @@ export default class DataBase {
       }else {
         return observer.next(Observable.of(null))
       }
-    }).concatMap((x: Observable<T>) => x)
+    })
+      .concatMap((x: Observable<T>) => x)
   }
 
   delete(index: string): Observable<void> {
@@ -143,6 +151,7 @@ export default class DataBase {
             signal = Observable.from(signals)
               .mergeAll()
               .skip(signals.length - 1)
+              .map(() => null)
           } else if (cache instanceof Collection) {
             const schemaName = cache.schemaName
             if (schemaName) {
@@ -157,13 +166,14 @@ export default class DataBase {
               model.removeFromCollection(index)
             })
           }
-          cache.destroy()
         }
+        cache.destroy()
         DataBase.data.delete(index)
         observer.next(signal)
         observer.complete()
       })
-    }).concatMap((x: Observable<void>) => x)
+    })
+      .concatMap((x: Observable<void>) => x)
   }
 
   updateOne <T>(index: string, patch: any): Observable<T> {
@@ -172,13 +182,12 @@ export default class DataBase {
         const model: Model<T> = DataBase.data.get(index)
         if (!model) {
           const err = new Error(`Patch target not exist: ${index}`)
-          observer.error(err)
-          return observer.complete()
+          return observer.error(err)
         }
+        /* istanbul ignore if */
         if (!(model instanceof Model)) {
           const err = new Error(`Patch target mush be instanceof Model: ${index}`)
-          observer.error(err)
-          return observer.complete()
+          return observer.error(err)
         }
         if (!patch || !Object.keys(patch).length) {
           observer.next(patch)
@@ -191,7 +200,7 @@ export default class DataBase {
             observer.complete()
             return model.get().take(1)
           })
-          .forEach(r => {
+          .forEach(() => {
             observer.next(patch)
             observer.complete()
           })
@@ -242,9 +251,9 @@ export default class DataBase {
 
   checkSchema<T extends Schema<T>>(index: string): boolean {
     const cache: Collection<T> | Model<T> = DataBase.data.get(index)
-    if (cache instanceof Model) {
-      return cache.checkSchema()
-    }else {
+    if (cache && typeof cache['checkSchema'] !== 'undefined') {
+      return cache['checkSchema']()
+    } else {
       return false
     }
   }

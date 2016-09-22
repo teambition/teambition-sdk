@@ -31,34 +31,35 @@ export default describe('socket task test: ', () => {
       .respond(JSON.stringify(mockTask))
   })
 
-  it('change task should ok', done => {
+  it('change task should ok', function* () {
 
-    TaskApi.get(mockTask._id)
-      .skip(1)
-      .subscribe(task => {
-        expect(task.content).to.equal('mocktask')
-        done()
-      })
+    const signal = TaskApi.get(mockTask._id)
+      .publish()
+      .refCount()
 
-    Socket.emit('change', 'task', mockTask._id, {
+    yield Socket.emit('change', 'task', mockTask._id, {
       _id: mockTask._id,
       content: 'mocktask'
-    })
+    }, signal.take(1))
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(task => {
+        expect(task.content).to.equal('mocktask')
+      })
   })
 
-  it('destroy task should ok', done => {
-    TaskApi.get(mockTask._id)
-      .skip(1)
-      .subscribe(task => {
-        expect(task).to.be.null
-        done()
+  it('destroy task should ok', function* () {
+    const signal = TaskApi.get(mockTask._id)
+      .publish()
+      .refCount()
+
+    signal.skip(1)
+      .subscribe(r => {
+        expect(r).to.be.null
       })
 
-    Socket.emit('destroy', 'task', mockTask._id)
+    yield Socket.emit('destroy', 'task', mockTask._id, null, signal.take(1))
 
-    httpBackend.flush()
   })
 
   describe('my tasks has dueDate: ', () => {
@@ -70,55 +71,55 @@ export default describe('socket task test: ', () => {
         .respond(JSON.stringify(tasksOneDayMe))
     })
 
-    it('update task dueDate should ok', done => {
-      TaskApi.getMyDueTasks(_userId)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(tasksOneDayMe.length - 1)
-          notInclude(data, tasksOneDayMe[0]._id)
-          done()
-        })
+    it('update task dueDate should ok', function* () {
+      const signal = TaskApi.getMyDueTasks(_userId)
+        .publish()
+        .refCount()
 
-      httpBackend.flush()
-
-      Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
+      yield Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
         _id: tasksOneDayMe[0]._id,
         dueDate: null
-      })
-    })
+      }, signal.take(1))
 
-    it('delete task should ok', done => {
-      TaskApi.getMyDueTasks(_userId)
-        .skip(1)
-        .subscribe(data => {
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(tasksOneDayMe.length - 1)
           notInclude(data, tasksOneDayMe[0]._id)
-          done()
         })
-
-      httpBackend.flush()
-
-      Socket.emit('destroy', 'task', tasksOneDayMe[0]._id)
     })
 
-    it('new task should ok', done => {
-      TaskApi.getMyDueTasks(_userId)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(tasksOneDayMe.length + 1)
-          expect(data[0]._id).to.equal('mocktaskid')
-          done()
+    it('delete task should ok', function* () {
+      const signal = TaskApi.getMyDueTasks(_userId)
+        .publish()
+        .refCount()
+
+      yield Socket.emit('destroy', 'task', tasksOneDayMe[0]._id, null, signal.take(1))
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          notInclude(data, tasksOneDayMe[0]._id)
         })
+    })
 
-      httpBackend.flush()
+    it('new task should ok', function* () {
+      const signal = TaskApi.getMyDueTasks(_userId)
+        .publish()
+        .refCount()
 
-      Socket.emit('new', 'task', '', {
+      yield Socket.emit('new', 'task', '', {
         _id: 'mocktaskid',
         content: 'mock task content',
         dueDate: moment(dueDate).add(1, 'hour').toISOString() ,
         _tasklistId: tasksOneDayMe[0]._tasklistId,
         _executorId: tasksOneDayMe[0]._executorId
-      })
+      }, signal.take(1))
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length + 1)
+          expect(data[0]._id).to.equal('mocktaskid')
+        })
     })
 
   })
@@ -131,55 +132,55 @@ export default describe('socket task test: ', () => {
         .respond(JSON.stringify(tasksOneDayMe))
     })
 
-    it('update task dueDate should ok', done => {
-      TaskApi.getMyTasks(_userId)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(tasksOneDayMe.length - 1)
-          notInclude(data, tasksOneDayMe[0]._id)
-          done()
-        })
+    it('update task dueDate should ok', function* () {
+      const signal = TaskApi.getMyTasks(_userId)
+        .publish()
+        .refCount()
 
-      httpBackend.flush()
-
-      Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
+      yield Socket.emit('change', 'task', tasksOneDayMe[0]._id, {
         _id: tasksOneDayMe[0]._id,
         dueDate: new Date().toISOString()
-      })
-    })
+      }, signal.take(1))
 
-    it('delete task should ok', done => {
-      TaskApi.getMyTasks(_userId)
-        .skip(1)
-        .subscribe(data => {
+      yield signal.take(1)
+        .do(data => {
           expect(data.length).to.equal(tasksOneDayMe.length - 1)
           notInclude(data, tasksOneDayMe[0]._id)
-          done()
         })
-
-      httpBackend.flush()
-
-      Socket.emit('destroy', 'task', tasksOneDayMe[0]._id)
     })
 
-    it('new task should ok', done => {
-      TaskApi.getMyTasks(_userId)
-        .skip(1)
-        .subscribe(data => {
-          expect(data.length).to.equal(tasksOneDayMe.length + 1)
-          expect(data[0]._id).to.equal('mocktaskid')
-          done()
+    it('delete task should ok', function* () {
+      const signal = TaskApi.getMyTasks(_userId)
+        .publish()
+        .refCount()
+
+      yield Socket.emit('destroy', 'task', tasksOneDayMe[0]._id, null, signal.take(1))
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length - 1)
+          notInclude(data, tasksOneDayMe[0]._id)
         })
+    })
 
-      httpBackend.flush()
+    it('new task should ok', function* () {
+      const signal = TaskApi.getMyTasks(_userId)
+        .publish()
+        .refCount()
 
-      Socket.emit('new', 'task', '', {
+      yield Socket.emit('new', 'task', '', {
         _id: 'mocktaskid',
         content: 'mock task content',
         dueDate: null,
         _tasklistId: tasksOneDayMe[0]._tasklistId,
         _executorId: tasksOneDayMe[0]._executorId
-      })
+      }, signal.take(1))
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.equal(tasksOneDayMe.length + 1)
+          expect(data[0]._id).to.equal('mocktaskid')
+        })
     })
   })
 })

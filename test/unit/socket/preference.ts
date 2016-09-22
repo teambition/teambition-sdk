@@ -23,19 +23,19 @@ export default describe('socket preference test: ', () => {
       .respond(JSON.stringify(mockPreference))
   })
 
-  it('change preference should ok', done => {
+  it('change preference should ok', function* () {
 
-    PreferenceApi.getPreference()
-      .skip(1)
-      .subscribe(data => {
-        expect(data.openWindowMode).to.equal('slide')
-        done()
-      })
+    const signal = PreferenceApi.getPreference()
+      .publish()
+      .refCount()
 
-    Socket.emit('change', 'preference', mockPreference._id, {
+    yield Socket.emit('change', 'preference', mockPreference._id, {
       openWindowMode: 'slide'
-    })
+    }, signal.take(1))
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.openWindowMode).to.equal('slide')
+      })
   })
 })

@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
@@ -45,11 +44,9 @@ export default describe('ObjectLink API test:', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('create objectlink should ok', done => {
+  it('create objectlink should ok', function* () {
     const mockObjectLink = clone(objectLinks[0])
     const createOptions = {
       _parentId: parentId,
@@ -64,38 +61,38 @@ export default describe('ObjectLink API test:', () => {
     httpBackend.whenPOST(`${apihost}objectlinks`, createOptions)
       .respond(JSON.stringify(mockObjectLink))
 
-    ObjectLink.get(parentId, <any>parentType)
-      .skip(1)
-      .subscribe(r => {
+    const signal = ObjectLink.get(parentId, <any>parentType)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield ObjectLink.create(createOptions)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(objectLinks.length + 1)
         expectDeepEqual(r[0], mockObjectLink)
-        done()
       })
-
-    ObjectLink.create(createOptions)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('delete objectlink should ok', done => {
+  it('delete objectlink should ok', function* () {
     const objectlinkId = objectLinks[0]._id
     httpBackend.whenDELETE(`${apihost}objectlinks/${objectlinkId}`)
       .respond({})
 
-    ObjectLink.get(parentId, <any>parentType)
-      .skip(1)
-      .subscribe(r => {
+    const signal = ObjectLink.get(parentId, <any>parentType)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield ObjectLink.delete(objectlinkId)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(objectLinks.length - 1)
         expect(notInclude(r, objectLinks[0]))
-        done()
       })
-
-    ObjectLink.delete(objectlinkId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 })

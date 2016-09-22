@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import { apihost, TasklistAPI, Backend, clone } from '../index'
 import { tasklists } from '../../mock/tasklists'
@@ -46,8 +45,6 @@ export default describe('tasklist api test:', () => {
         expectDeepEqual(r, mockTasklist)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get tasklists by projectId should ok', done => {
@@ -56,8 +53,6 @@ export default describe('tasklist api test:', () => {
         expect(data).to.be.instanceof(Array)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get tasklist by tasklist id should ok', done => {
@@ -71,11 +66,9 @@ export default describe('tasklist api test:', () => {
         expectDeepEqual(data, tasklist)
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('update tasklist should ok', done => {
+  it('update tasklist should ok', function* () {
     const tasklistId = tasklists[0]._id
     const patch = {
       title: 'tasklist update test'
@@ -87,26 +80,27 @@ export default describe('tasklist api test:', () => {
     httpBackend.whenPUT(`${apihost}tasklists/${tasklistId}`, patch)
       .respond(JSON.stringify(patch))
 
-    Tasklist.getOne(tasklistId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.title).to.equal(patch.title)
-      })
+    const signal = Tasklist.getOne(tasklistId)
+      .publish()
+      .refCount()
 
-    Tasklist.update(tasklistId, patch)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield signal.take(1)
+
+    yield Tasklist.update(tasklistId, patch)
+      .do(r => {
         expect(r).to.deep.equal({
           title: 'tasklist update test'
         })
-        done()
       })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.title).to.equal(patch.title)
+      })
 
   })
 
-  it('delete tasklist should ok', done => {
+  it('delete tasklist should ok', function* () {
     const tasklist = tasklists[0]
     const tasklistId = tasklist._id
     const length = tasklists.length
@@ -117,29 +111,28 @@ export default describe('tasklist api test:', () => {
     httpBackend.whenGET(`${apihost}tasklists/${tasklist._id}`)
       .respond(JSON.stringify(tasklist))
 
-    Tasklist.getTasklists(projectId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.length).to.equal(length - 1)
-        expect(notInclude(data, tasklists[0])).to.be.true
-      })
+    const signal = Tasklist.getTasklists(projectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
 
     Tasklist.getOne(tasklistId)
       .skip(1)
-      .subscribeOn(Scheduler.async, global.timeout1)
       .subscribe(data => {
         expect(data).to.be.null
-        done()
       })
 
-    Tasklist.delete(tasklistId)
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe()
+    yield Tasklist.delete(tasklistId)
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.length).to.equal(length - 1)
+        expect(notInclude(data, tasklists[0])).to.be.true
+      })
   })
 
-  it('archive tasklist should ok', done => {
+  it('archive tasklist should ok', function* () {
     const tasklist = tasklists[0]
     const tasklistId = tasklist._id
     const length = tasklists.length
@@ -155,31 +148,31 @@ export default describe('tasklist api test:', () => {
     httpBackend.whenPOST(`${apihost}tasklists/${tasklistId}/archive`)
       .respond(JSON.stringify(mockResponse))
 
-    Tasklist.getTasklists(projectId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.length).is.equal(length - 1)
-        expect(notInclude(data, tasklists[0])).to.be.true
-      })
+    const signal = Tasklist.getTasklists(projectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
 
     Tasklist.getOne(tasklistId)
-      .subscribeOn(Scheduler.async, global.timeout1)
       .skip(1)
       .subscribe(data => {
         expect(data.isArchived).to.be.true
       })
 
-    Tasklist.archive(tasklistId)
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe(r => {
+    yield Tasklist.archive(tasklistId)
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
       })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.length).is.equal(length - 1)
+        expect(notInclude(data, tasklists[0])).to.be.true
+      })
   })
 
-  it('unarchive tasklist should ok', done => {
+  it('unarchive tasklist should ok', function* () {
     const tasklist = clone(tasklists[0])
     tasklist.isArchived = true
     tasklist._id = 'unarchivetasklisttest'
@@ -187,24 +180,29 @@ export default describe('tasklist api test:', () => {
     const tasklistId = tasklist._id
 
     const mockResponse = {
-      _id: 'unarchivetasklisttest',
+      _id: tasklistId,
       _projectId: projectId,
       isArchived: false,
       updated: Date.now()
     }
 
-    httpBackend.whenGET(`${apihost}tasklists/unarchivetasklisttest`)
+    httpBackend.whenGET(`${apihost}tasklists/${tasklistId}`)
       .respond(JSON.stringify(tasklist))
 
-    httpBackend.whenDELETE(`${apihost}tasklists/unarchivetasklisttest/archive`)
+    httpBackend.whenDELETE(`${apihost}tasklists/${tasklistId}/archive`)
       .respond(JSON.stringify(mockResponse))
 
-    Tasklist.getTasklists(projectId)
-      .skip(1)
-      .subscribe(data => {
-        expect(data.length).to.equal(length + 1)
-        expect(data[0]._id).to.equal('unarchivetasklisttest')
-      })
+    const signal = Tasklist.getTasklists(projectId)
+      .publish()
+      .refCount()
+
+    const signal2 = Tasklist.getOne(tasklistId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield signal2.take(1)
 
     Tasklist.getOne(tasklistId)
       .skip(1)
@@ -212,13 +210,15 @@ export default describe('tasklist api test:', () => {
         expect(data.isArchived).to.be.false
       })
 
-    Tasklist.unArchive('unarchivetasklisttest')
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe(r => {
+    yield Tasklist.unArchive('unarchivetasklisttest')
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
       })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.length).to.equal(length + 1)
+        expect(data[0]._id).to.equal('unarchivetasklisttest')
+      })
   })
 })

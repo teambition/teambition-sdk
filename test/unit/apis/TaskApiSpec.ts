@@ -89,8 +89,6 @@ export default describe('Task API test: ', () => {
           expect(data).to.be.instanceof(Array)
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('network error should be handed', done => {
@@ -109,8 +107,6 @@ export default describe('Task API test: ', () => {
             done()
           }
         })
-
-      httpBackend.flush()
     })
 
     it('get tasks done should ok', done => {
@@ -125,8 +121,6 @@ export default describe('Task API test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get tasks done next page should ok', function* () {
@@ -145,8 +139,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getTasklistDone(tasklistId)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
         .do(data => {
@@ -176,8 +168,6 @@ export default describe('Task API test: ', () => {
       httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
         .respond(JSON.stringify(page1))
 
-      httpBackend.flush()
-
       yield Task.getTasklistDone(tasklistId).take(1)
 
       yield Task.getTasklistDone(tasklistId)
@@ -193,7 +183,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get tasks concurrency should ok', function* () {
-      httpBackend.flush()
 
       yield [
         Task.getTasklistDone(tasklistId).take(1),
@@ -222,8 +211,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getTasklistUndone(tasklistId)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -259,8 +246,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.get(mockDoneTask._id).take(1)
@@ -289,8 +274,6 @@ export default describe('Task API test: ', () => {
 
     it('add task to task done should ok', function* () {
       const signal = Task.getTasklistDone(tasklistId)
-
-      httpBackend.flush()
 
       yield Task.get('mocktaskdone').take(1)
 
@@ -363,16 +346,12 @@ export default describe('Task API test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get my dueDate tasks more page has should ok', function* () {
       const signal = Task.getOrgMyDueTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -385,7 +364,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get my tasks has dueDate from cache should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getOrgMyDueTasks(userId, organization)
         .take(1)
@@ -401,8 +379,6 @@ export default describe('Task API test: ', () => {
 
     it('add my tasks has dueDate should ok', function* () {
       const signal = Task.getOrgMyDueTasks(userId, organization)
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -423,8 +399,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getOrgMyDueTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -455,8 +429,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateStatus(task._id, true)
@@ -472,7 +444,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get my tasks has no dueDate should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getOrgMyTasks(userId, organization)
         .take(1)
@@ -485,7 +456,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get my tasks page 2 should ok', function* () {
-      httpBackend.flush()
 
       const signal = Task.getOrgMyTasks(userId, organization)
         .publish()
@@ -503,8 +473,6 @@ export default describe('Task API test: ', () => {
 
     it('get my tasks from cache should ok', function* () {
 
-      httpBackend.flush()
-
       yield Task.getOrgMyTasks(userId, organization).take(1)
 
       yield Task.getOrgMyTasks(userId, organization, 1)
@@ -518,7 +486,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('add my tasks no dueDate should ok', function* () {
-      httpBackend.flush()
 
       const signal = Task.getOrgMyTasks(userId, organization)
 
@@ -541,8 +508,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getOrgMyTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -571,8 +536,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateStatus(task._id, true)
@@ -585,7 +548,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get my tasks done should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getOrgMyDoneTasks(userId, organization)
         .take(1)
@@ -601,8 +563,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.getOrgMyDoneTasks(userId, organization, 2)
@@ -615,7 +575,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get my tasks done from cache should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getOrgMyDoneTasks(userId, organization)
         .take(1)
@@ -634,8 +593,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getOrgMyDoneTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -657,8 +614,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getOrgMyDoneTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -690,8 +645,6 @@ export default describe('Task API test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('update task dueDate should ok', function* () {
@@ -708,8 +661,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getMyDueTasks(_userId)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -741,8 +692,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getMyDueTasks(userId)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -779,8 +728,6 @@ export default describe('Task API test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('update task dueDate should ok', function* () {
@@ -797,8 +744,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getMyTasks(_userId)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -826,8 +771,6 @@ export default describe('Task API test: ', () => {
 
       httpBackend.whenDELETE(`${apihost}tasks/${task._id}`)
         .respond({})
-
-      httpBackend.flush()
 
       const signal = Task.getMyTasks(userId)
         .publish()
@@ -870,16 +813,12 @@ export default describe('Task API test: ', () => {
           })
           done()
         })
-
-      httpBackend.flush()
     })
 
     it('get page2 should ok', function* () {
       const signal = Task.getOrgMyCreatedTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -893,7 +832,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get from cache should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getOrgMyCreatedTasks(userId, organization)
         .take(1)
@@ -913,8 +851,6 @@ export default describe('Task API test: ', () => {
         .empty()
         .respond([])
 
-      httpBackend.flush()
-
       yield Task.getOrgMyCreatedTasks(userId, organization)
         .take(1)
         .do(data => {
@@ -932,8 +868,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getOrgMyCreatedTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -955,8 +889,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getOrgMyCreatedTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -997,8 +929,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get should ok', function* () {
-      httpBackend.flush()
-
       yield Task.getProjectTasks(projectId, {
         page: 1
       })
@@ -1012,8 +942,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get done tasks should ok', function* () {
-      httpBackend.flush()
-
       yield Task.getProjectDoneTasks(projectId, {
         page: 1
       })
@@ -1030,8 +958,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getProjectTasks(projectId, {
         page: 1
       })
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -1054,8 +980,6 @@ export default describe('Task API test: ', () => {
         page: 1
       })
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.getProjectDoneTasks(projectId, {
@@ -1073,7 +997,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get from cache should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getProjectTasks(projectId, {
         page: 1
@@ -1093,7 +1016,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get done tasks from cache should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getProjectDoneTasks(projectId, {
         page: 1
@@ -1126,8 +1048,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.get(mockGet._id)
@@ -1154,8 +1074,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.get(mockGet._id).take(1)
@@ -1179,8 +1097,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.delete(mockId)
@@ -1203,8 +1119,6 @@ export default describe('Task API test: ', () => {
       })
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -1238,7 +1152,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getOrgMyInvolvesTasks(userId, organization)
         .take(1)
@@ -1254,8 +1167,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.getOrgMyInvolvesTasks(userId, organization, 2)
@@ -1268,7 +1179,6 @@ export default describe('Task API test: ', () => {
     })
 
     it('get from cache should ok', function* () {
-      httpBackend.flush()
 
       yield Task.getOrgMyInvolvesTasks(userId, organization)
         .take(1)
@@ -1294,8 +1204,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.get(mockGet._id).take(1)
@@ -1314,8 +1222,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.getOrgMyInvolvesTasks(userId, organization)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -1346,8 +1252,6 @@ export default describe('Task API test: ', () => {
 
       httpBackend.whenGET(`${apihost}stages/${stageId}/tasks?page=2&isDone=true`)
         .respond(JSON.stringify(stageTasksDonePage2))
-
-      httpBackend.flush()
     })
 
     it('should get undone/done tasks', function* () {
@@ -1390,14 +1294,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      const signalDone1 = Task.getStageDoneTasks(stageId, {page: 1})
-        .publish()
-        .refCount()
-
-      const signalDone2 = Task.getStageDoneTasks(stageId, {page: 2})
-        .publish()
-        .refCount()
-
       yield signal.take(1)
 
       yield signal.take(1)
@@ -1408,7 +1304,16 @@ export default describe('Task API test: ', () => {
           expect(spy.calledOnce).to.be.true
         })
 
+      const signalDone1 = Task.getStageDoneTasks(stageId, {page: 1})
+        .publish()
+        .refCount()
+
       yield signalDone1.take(1)
+
+      const signalDone2 = Task.getStageDoneTasks(stageId, {page: 2})
+        .publish()
+        .refCount()
+
       yield signalDone2.take(1)
 
       yield signalDone1.take(1)
@@ -1715,8 +1620,6 @@ export default describe('Task API test: ', () => {
       _projectId: '56988fb705ead4ae7bb8dcfe'
     }
 
-    httpBackend.flush()
-
     httpBackend.whenPOST(`${apihost}tasks`, {
       content: 'create task test',
       _tasklistId: '56988fb7644284a37be3ba6f'
@@ -1736,10 +1639,6 @@ export default describe('Task API test: ', () => {
     const makeRandomNumber = () => {
       return Math.exp(Math.log(Date.now()) * Math.random())
     }
-
-    beforeEach(() => {
-      httpBackend.flush()
-    })
 
     it('fork task and get project tasks', function* () {
 
@@ -1844,8 +1743,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.move(mockTaskGet._id, {
@@ -1870,8 +1767,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateContent(mockTaskGet._id, 'taskcontenttest')
@@ -1894,8 +1789,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateDueDate(mockTaskGet._id, dueDate)
@@ -1913,8 +1806,6 @@ export default describe('Task API test: ', () => {
         status: 400,
         statusText: 'bad request'
       })
-
-      httpBackend.flush()
 
       yield Task.get(mockTaskGet._id).take(1)
 
@@ -1950,8 +1841,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateExecutor(mockTaskGet._id, 'test executor')
@@ -1983,8 +1872,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       signal.subscribe(() => {
         i++
       })
@@ -2011,8 +1898,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.get(mockTaskGet._id)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -2042,8 +1927,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'addInvolvers')
@@ -2071,8 +1954,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       signal.subscribe(() => {
         i++
       })
@@ -2097,8 +1978,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateInvolvemembers(mockTaskGet._id, ['56986d43542ce1a2798c8cfb'], 'delInvolvers')
@@ -2122,8 +2001,6 @@ export default describe('Task API test: ', () => {
         note: '123'
       })
         .respond(JSON.stringify(mockResponse))
-
-      httpBackend.flush()
 
       const signal = Task.get(mockTaskGet._id)
         .publish()
@@ -2157,8 +2034,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.updateStatus(mockTaskGet._id, true)
@@ -2187,8 +2062,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.update(mockTaskGet._id, {
@@ -2214,8 +2087,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.get(mockTaskGet._id)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 
@@ -2243,8 +2114,6 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      httpBackend.flush()
-
       yield signal.take(1)
 
       yield Task.unarchive(mockTaskGet._id, mockTaskGet._stageId)
@@ -2268,8 +2137,6 @@ export default describe('Task API test: ', () => {
       const signal = Task.get(mockTaskGet._id)
         .publish()
         .refCount()
-
-      httpBackend.flush()
 
       yield signal.take(1)
 

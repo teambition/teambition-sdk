@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler, Observable } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as SinonChai from 'sinon-chai'
@@ -46,8 +45,6 @@ export default describe('Project API test: ', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get personal projects should ok', done => {
@@ -72,8 +69,6 @@ export default describe('Project API test: ', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get orgs projects should ok', done => {
@@ -96,8 +91,6 @@ export default describe('Project API test: ', () => {
         expect(r).to.be.instanceof(Array)
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('get one project should ok', done => {
@@ -110,29 +103,24 @@ export default describe('Project API test: ', () => {
         expectDeepEqual(r, projects[0])
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('get project from cache should ok', done => {
+  it('get project from cache should ok', function* () {
     const project = projects[0]
     httpBackend.whenGET(`${apihost}projects/${project._id}`)
       .respond(JSON.stringify(projects[0]))
 
-    Project.getOne(project._id)
-      .subscribe()
+    yield Project.getOne(project._id)
+      .take(1)
 
-    Project.getOne(project._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield Project.getOne(project._id)
+      .take(1)
+      .do(r => {
         expect(spy).to.calledOnce
-        done()
       })
-
-    httpBackend.flush()
   })
 
-  it('create project should ok', done => {
+  it('create project should ok', function* () {
 
     httpBackend
       .whenPOST(`${apihost}projects`, {
@@ -143,23 +131,23 @@ export default describe('Project API test: ', () => {
         name: 'test project'
       })
 
-      Project.getAll()
-        .skip(1)
-        .subscribe(r => {
-          expect(r[0].name).to.equal('test project')
-          done()
-        })
+      const signal = Project.getAll()
+        .publish()
+        .refCount()
 
-      Project.create({
+      yield signal.take(1)
+
+      yield Project.create({
         name: 'test project'
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
 
-    httpBackend.flush()
+      yield signal.take(1)
+        .do(r => {
+          expect(r[0].name).to.equal('test project')
+        })
   })
 
-  it('update project should ok', done => {
+  it('update project should ok', function* () {
     const project = projects[0]
     const updatedProject = clone(project)
     const updated = new Date().toISOString()
@@ -177,47 +165,48 @@ export default describe('Project API test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    Project.getAll()
-      .skip(1)
-      .subscribe(r => {
-        expectDeepEqual(r[0], updatedProject)
-      })
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
 
-    Project.update(project._id, {
+    yield signal.take(1)
+
+    yield Project.update(project._id, {
       name: 'test project'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
       })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expectDeepEqual(r[0], updatedProject)
+      })
   })
 
-  it('delete project should ok', done => {
+  it('delete project should ok', function* () {
     const project = projects[0]
     const length = projects.length
 
     httpBackend.whenDELETE(`${apihost}projects/${project._id}`)
       .respond({})
 
-    Project.getAll()
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.delete(project._id)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(length - 1)
         expect(notInclude(r, project)).to.be.true
-        done()
       })
-
-    Project.delete(project._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('archive project should ok', done => {
+  it('archive project should ok', function* () {
     const project = projects[0]
     const length = projects.length
     const mockResponse = {
@@ -229,25 +218,26 @@ export default describe('Project API test: ', () => {
     httpBackend.whenPUT(`${apihost}projects/${project._id}/archive`)
       .respond(JSON.stringify(mockResponse))
 
-    Project.getAll()
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.archive(project._id)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(length - 1)
         expect(notInclude(r, project)).to.be.true
       })
 
-    Project.archive(project._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
-
   })
 
-  it('clear read count should ok', done => {
+  it('clear read count should ok', function* () {
     const project = projects[0]
     const mockResponse = {
       _id: project._id,
@@ -257,23 +247,24 @@ export default describe('Project API test: ', () => {
     httpBackend.whenPUT(`${apihost}projects/${project._id}/unreadCount`)
       .respond(JSON.stringify(mockResponse))
 
-    Project.getAll()
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.clearUnreadCount(project._id)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r[0].unreadCount).to.equal(0)
       })
-
-    Project.clearUnreadCount(project._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('project copy should ok', done => {
+  it('project copy should ok', function* () {
     const length = projects.length
     const project = projects[0]
 
@@ -285,74 +276,75 @@ export default describe('Project API test: ', () => {
         name: 'teambition project copy test'
       }))
 
-    Project.getAll()
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(length + 1)
-        expect(r[0].name).to.equal('teambition project copy test')
-        done()
-      })
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
 
-    Project.copy(project._id, {
+    yield signal.take(1)
+
+    yield Project.copy(project._id, {
       name: 'teambition project copy test'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expect(r.length).to.equal(length + 1)
+        expect(r[0].name).to.equal('teambition project copy test')
+      })
   })
 
-  it('join project should ok', done => {
+  it('join project should ok', function* () {
+    const projectId = '#03a9f4'
     const mockProject = {
-      _id: '03a9f4',
+      _id: projectId,
       name: 'Blue Is the Warmest Colour'
     }
     const length = projects.length
 
-    httpBackend.whenPOST(`${apihost}v2/projects/03a9f4/join`)
+    httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/join`)
       .respond({})
 
-    httpBackend.whenGET(`${apihost}projects/03a9f4`)
+    httpBackend.whenGET(`${apihost}projects/${projectId}`)
       .respond(mockProject)
 
-    Project.getAll()
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.join(projectId)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(length + 1)
         expectDeepEqual(r[0], mockProject)
-        done()
       })
-
-    Project.join('03a9f4')
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('quit project should ok', done => {
+  it('quit project should ok', function* () {
     const project = projects[0]
     const length = projects.length
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}/quit`)
       .respond({})
 
-    Project.getAll()
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.quit(project._id)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(length - 1)
         notInclude(r, project)
-        done()
       })
-
-    Project.quit(project._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('set default role in project should ok', done => {
+  it('set default role in project should ok', function* () {
     const project = projects[0]
     const mockResponse = {
       _id: project._id,
@@ -367,23 +359,24 @@ export default describe('Project API test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    Project.getOne(project._id)
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getOne(project._id)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.setDefaultRole(project._id, project._roleId + 1)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r._roleId).to.equal(project._roleId + 1)
       })
-
-    Project.setDefaultRole(project._id, project._roleId + 1)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('star project should ok', done => {
+  it('star project should ok', function* () {
     const project = projects[0]
     const mockResponse = {
       _id: project._id,
@@ -397,23 +390,24 @@ export default describe('Project API test: ', () => {
     httpBackend.whenPUT(`${apihost}projects/${project._id}/star`)
       .respond(JSON.stringify(mockResponse))
 
-    Project.getOne(project._id)
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getOne(project._id)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.star(project._id)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.isStar).to.be.true
       })
-
-    Project.star(project._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('unstar project should ok', done => {
+  it('unstar project should ok', function* () {
     const mockProject = clone(projects[0])
     mockProject.isStar = true
     mockProject.starsCount = mockProject.starsCount + 1
@@ -429,21 +423,21 @@ export default describe('Project API test: ', () => {
     httpBackend.whenDELETE(`${apihost}projects/${mockProject._id}/star`)
       .respond(JSON.stringify(mockResponse))
 
-    Project.getOne(mockProject._id)
-      .skip(1)
-      .subscribe(r => {
+    const signal = Project.getOne(mockProject._id)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield Project.unstar(mockProject._id)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.isStar).to.be.false
-        done()
       })
-
-    Project.unstar(mockProject._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('transfer project should ok', done => {
+  it('transfer project should ok', function* () {
     const project = projects[0]
 
     httpBackend.whenGET(`${apihost}projects/${project._id}`)
@@ -457,23 +451,24 @@ export default describe('Project API test: ', () => {
         _organizationId: 'test'
       }))
 
-    Project.getOne(project._id)
-      .skip(1)
-      .subscribe(r => {
-        expect(r._organizationId).to.equal('test')
-      })
+    const signal = Project.getOne(project._id)
+      .publish()
+      .refCount()
 
-    Project.transfer(project._id, 'test')
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield signal.take(1)
+
+    yield Project.transfer(project._id, 'test')
+      .do(r => {
         expect(r).to.deep.equal({
           _id: project._id,
           _organizationId: 'test'
         })
-        done()
       })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expect(r._organizationId).to.equal('test')
+      })
   })
 
   it('get project report summary should ok', done => {
@@ -486,27 +481,22 @@ export default describe('Project API test: ', () => {
         expectDeepEqual(r, reportSummary)
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('get project report summary from cache should ok', done => {
+  it('get project report summary from cache should ok', function* () {
     const projectId = projects[0]._id
     httpBackend.whenGET(`${apihost}projects/${projectId}/report-summary`)
       .respond(JSON.stringify(reportSummary))
 
-    Project.getReportSummary(projectId)
-      .subscribe()
+    yield Project.getReportSummary(projectId)
+      .take(1)
 
-    Project.getReportSummary(projectId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield Project.getReportSummary(projectId)
+      .take(1)
+      .do(r => {
         expectDeepEqual(r, reportSummary)
         expect(spy).to.be.calledOnce
-        done()
       })
-
-    httpBackend.flush()
   })
 
   it('get project report analysis should ok', done => {
@@ -522,8 +512,6 @@ export default describe('Project API test: ', () => {
         expectDeepEqual(r, reportAnalysis)
         done()
       })
-
-    httpBackend.flush()
   })
 
   describe('get home activities: ', () => {
@@ -541,34 +529,41 @@ export default describe('Project API test: ', () => {
       httpBackend
         .whenGET(`${apihost}projects/${projectId}/activities?page=2`)
         .respond(JSON.stringify(pageTwo))
-      httpBackend.flush()
     })
 
-    it('get should ok', done => {
-      Observable.combineLatest(
-          Project.getHomeActivities(projectId, {page: 1})
-            .skip(1),
-          Project.getHomeActivities(projectId, {page: 2})
-            .subscribeOn(Scheduler.async, global.timeout2)
-        )
-        .subscribe(([dataOne, dataTwo]) => {
-          expect(toIds(dataOne)).to.be.deep.equal(toIds(pageOne, pageTwo))
-          expect(toIds(dataTwo)).to.be.deep.equal(toIds(pageTwo))
-          done()
+    it('get should ok', function* () {
+      const signal = Project.getHomeActivities(projectId, {page: 1})
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield Project.getHomeActivities(projectId, {page: 2})
+        .take(1)
+        .do(r => {
+          expect(toIds(r)).to.be.deep.equal(toIds(pageTwo))
+        })
+
+      yield signal.take(1)
+        .do(r => {
+          expect(toIds(r)).to.be.deep.equal(toIds(pageOne, pageTwo))
         })
     })
 
-    it('get from cache should ok', done => {
-      Observable.combineLatest(
-          Project.getHomeActivities(projectId, {page: 1}),
-          Project.getHomeActivities(projectId, {page: 1})
-            .subscribeOn(Scheduler.async, global.timeout2)
-        )
-        .subscribe(([data, cache]) => {
-          expect(toIds(data)).to.be.deep.equal(toIds(pageOne))
-          expect(toIds(cache)).to.be.deep.equal(toIds(pageOne))
+    it('get from cache should ok', function* () {
+      const signal = Project.getHomeActivities(projectId, {page: 1})
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+        .do(r => {
+          expect(toIds(r)).to.be.deep.equal(toIds(pageOne))
+        })
+
+      yield signal.take(1)
+        .do(r => {
+          expect(toIds(r)).to.be.deep.equal(toIds(pageOne))
           expect(spy.calledOnce).to.be.true
-          done()
         })
     })
   })

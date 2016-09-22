@@ -165,16 +165,10 @@ export class SubtaskAPI {
   }
 
   private _updateFromPromise(_subtaskId: string, observer: Observer<SubtaskData>, promise: Promise<any>) {
-    let result: SubtaskData
     Observable.fromPromise(promise)
       .catch(err => observableError(observer, err))
-      .concatMap(subtask => {
-        result = subtask
-        return SubtaskModel.update<SubtaskData>(_subtaskId, subtask)
-      })
-      .forEach(subtask => {
-        observer.next(result)
-        observer.complete()
-      })
+      .concatMap(subtask => SubtaskModel.update<SubtaskData>(_subtaskId, subtask))
+      .forEach(result => observer.next(result))
+      .then(() => observer.complete())
   }
 }

@@ -1,29 +1,32 @@
 'use strict'
-import { flushState } from './backend'
-
 declare const global: any
 
-export interface FlushQueue {
-  resolve?: Function
-  response: Response
-}
-
 export interface FetchResult {
-  flushQueue?: FlushQueue
-  response: Response
+  wait: number | Promise<any>
+  response: {
+    data: any
+    responseInit: ResponseInit
+  }
 }
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
-export const flushStack = new Set<FlushQueue>()
 
-export const parseObject = (obj: any) => {
-  if (typeof obj === 'string') {
-    return obj
+export const parseObject = (query: any) => {
+  let _query: any
+  try {
+    _query = JSON.parse(query)
+  } catch (e) {
+    _query = query
   }
-  if (obj && typeof obj === 'object') {
-    return JSON.stringify(obj)
+  if (typeof _query === 'string') {
+    return _query
   }
-  return ''
+  if (typeof _query !== 'object') {
+    return ''
+  }
+  return Object.keys(_query)
+    .map(key => `${key}=${_query[key]}`)
+    .join('&')
 }
 
 const context = typeof window !== 'undefined' ? window : global
@@ -41,14 +44,19 @@ export function mockFetch() {
   }): any => {
     const method = options.method ? options.method.toLowerCase() : ''
     if (method !== 'options') {
-      const dataPath = options.body ? parseObject(options.body) : ''
       if (method === 'get') {
         const pos = uri.indexOf('_=')
         if (pos !== -1) {
           uri = uri.substr(0, pos - 1)
         }
       }
-      const fetchIndex = uri + method + dataPath
+      const dataPath = options.body ? parseObject(options.body) : ''
+      if (uri.indexOf('?') === -1) {
+        uri = options.body ? `${uri}?${dataPath}` : uri
+      } else {
+        uri = options.body ? `${uri}&${dataPath}` : uri
+      }
+      const fetchIndex = uri + method
       const results = fetchStack.get(fetchIndex)
       if (!results) {
         /* istanbul ignore if */
@@ -57,14 +65,14 @@ export function mockFetch() {
           definedUri.push(key)
         })
         const error = new TypeError(
-            `nothing expect return from server,
+            `nothing expect response from server,
             uri: ${uri}, method: ${options.method},
             parsedUri: ${uri + method + dataPath}
             body: ${JSON.stringify(options.body, null, 2)},
             defined uri: ${JSON.stringify(definedUri, null, 2)}`
         )
         console.error(error)
-        throw error
+        return Promise.reject(error)
       }
       let result: FetchResult
       if (results.length > 1) {
@@ -73,18 +81,22 @@ export function mockFetch() {
         result = results[0]
       }
       // console.log(uri + method + dataPath, fetchStack)
-      let promise: Promise<any>
-      if (result && result.response) {
-        promise = new Promise(resolve => {
-          if (flushState.flushed) {
-            resolve(result.response)
-          } else {
-            result.flushQueue.resolve = resolve
-            flushStack.add(result.flushQueue)
-          }
+      const wait = result.wait
+      if (!wait || wait < 0) {
+        return Promise.resolve(new Response(result.response.data, result.response.responseInit))
+      } else if (typeof wait === 'number') {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(new Response(result.response.data, result.response.responseInit))
+          }, wait)
         })
+      } else if (typeof wait.then !== 'undefined') {
+        return wait.then(() => {
+          return new Response(result.response.data, result.response.responseInit)
+        })
+      } else {
+        return Promise.reject(new TypeError(`unsupported wait type, expected number or Promise`))
       }
-      return promise
     }
   }
 }

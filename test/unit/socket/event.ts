@@ -34,34 +34,37 @@ export default describe('socket event test: ', () => {
       .respond(JSON.stringify(event))
   })
 
-  it('change event should ok', done => {
+  it('change event should ok', function* () {
+    const signal = EventApi.get(event._id)
+      .publish()
+      .refCount()
 
-    EventApi.get(event._id)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.title).to.equal('mock title')
-        done()
-      })
+    yield signal.take(1)
 
-    Socket.emit('change', 'event', event._id, {
+    yield Socket.emit('change', 'event', event._id, {
       _id: event._id,
       title: 'mock title'
     })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expect(r.title).to.equal('mock title')
+      })
   })
 
-  it('destroy event should ok', done => {
-    EventApi.get(event._id)
-      .skip(1)
+  it('destroy event should ok', function* () {
+    const signal = EventApi.get(event._id)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    signal.skip(1)
       .subscribe(r => {
         expect(r).to.be.null
-        done()
       })
 
-    Socket.emit('destroy', 'task', event._id)
-
-    httpBackend.flush()
+    yield Socket.emit('destroy', 'task', event._id, null)
   })
 
   describe('my events socket: ', () => {
@@ -97,104 +100,104 @@ export default describe('socket event test: ', () => {
         })
     })
 
-    it('change recurrence date, my events should be notified', done => {
+    it('change recurrence date, my events should be notified', function* () {
       const eventId = myEvents[0]._id
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[0].title).to.equal('new title')
-          done()
-        })
+      yield signal.take(1)
 
-      Socket.emit('change', 'event', eventId, {
+      yield Socket.emit('change', 'event', eventId, {
           _id: eventId,
           title: 'new title',
           updated: new Date().toISOString()
         })
 
-      httpBackend.flush()
-    })
-
-    it('change normal date, my events should be notified', done => {
-      const eventId = myEvents[1]._id
-
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[8].title).to.equal('new title')
-          done()
+      yield signal.take(1)
+        .do(r => {
+          expect(r[0].title).to.equal('new title')
         })
 
-      Socket.emit('change', 'event', eventId, {
+    })
+
+    it('change normal date, my events should be notified', function* () {
+      const eventId = myEvents[1]._id
+
+      yield signal.take(1)
+
+      yield Socket.emit('change', 'event', eventId, {
         _id: eventId,
         title: 'new title',
         updated: new Date().toISOString()
       })
 
-      httpBackend.flush()
+      yield signal.take(1)
+        .do(r => {
+          expect(r[8].title).to.equal('new title')
+        })
+
     })
 
-    it('delete recurrence date, my events should be notified', done => {
+    it('delete recurrence date, my events should be notified', function* () {
       const eventId = myEvents[0]._id
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield Socket.emit('destroy', 'event', eventId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(33)
-          done()
         })
 
-      Socket.emit('destroy', 'event', eventId)
-
-      httpBackend.flush()
     })
 
-    it('delete normal event should ok', done => {
+    it('delete normal event should ok', function* () {
       const eventId = myEvents[1]._id
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield Socket.emit('destroy', 'event', eventId)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(40)
-          done()
         })
 
-      Socket.emit('destroy', 'event', eventId)
-
-      httpBackend.flush()
     })
 
-    it('add new normal event should ok', done => {
+    it('add new normal event should ok', function* () {
       const mockEvent = clone(myEvents[1])
       mockEvent._id = 'mockevent'
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield Socket.emit('new', 'event', '', mockEvent)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(42)
           expectDeepEqual(r[0], mockEvent)
-          done()
         })
 
-      Socket.emit('new', 'event', '', mockEvent)
-
-      httpBackend.flush()
     })
 
-    it('add recurrence event should ok', done => {
+    it('add recurrence event should ok', function* () {
       const mockEvent = clone(myEvents[0])
       mockEvent._id = 'mockrecurrence'
       mockEvent.title = 'mockrecurrencetest'
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield signal.take(1)
+
+      yield Socket.emit('new', 'event', '', mockEvent)
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(49)
           expect(r[0].title).to.equal('mockrecurrencetest')
-          done()
         })
 
-      Socket.emit('new', 'event', '', mockEvent)
-
-      httpBackend.flush()
     })
 
-    it('get event from my events, and update it should ok', done => {
+    it('get event from my events, and update it should ok', function* () {
       const comment = {
         action: 'comment',
         _creatorId: 'mockid',
@@ -221,24 +224,25 @@ export default describe('socket event test: ', () => {
         }))
 
       let events: EventSchema[]
-      signal.subscribe(r => {
+
+      yield signal.take(1).do(r => {
         events = r
       })
 
-      setTimeout(() => {
-        const eventId = events[0]._id
-        EventApi.get(eventId)
-          .skip(1)
-          .subscribe(r => {
-            expect(r._id).to.equal('mock_new_event')
-            done()
-          })
+      const eventId = events[0]._id
 
-        Socket.emit('new', 'event', '', mockNew)
-        Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
-      }, global.timeout2)
+      const signal2 = EventApi.get(eventId)
+        .publish()
+        .refCount()
 
-      httpBackend.flush()
+      yield Socket.emit('new', 'event', '', mockNew)
+      yield Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
+
+      yield signal2.take(1)
+        .do(r => {
+          expect(r._id).to.equal('mock_new_event')
+        })
+
     })
   })
 
@@ -275,104 +279,94 @@ export default describe('socket event test: ', () => {
         })
     })
 
-    it('change recurrence date, my events should be notified', done => {
+    it('change recurrence date, my events should be notified', function* () {
       const eventId = projectEvents[0]._id
 
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[0].title).to.equal('new title')
-          done()
-        })
+      yield signal.take(1)
 
-      Socket.emit('change', 'event', eventId, {
+      yield Socket.emit('change', 'event', eventId, {
           _id: eventId,
           title: 'new title',
           updated: new Date().toISOString()
         })
 
-      httpBackend.flush()
-    })
-
-    it('change normal date, my events should be notified', done => {
-      const eventId = projectEvents[1]._id
-
-      signal.skip(1)
-        .subscribe(r => {
-          expect(r[8].title).to.equal('new title')
-          done()
+      yield signal.take(1)
+        .do(r => {
+          expect(r[0].title).to.equal('new title')
         })
 
-      Socket.emit('change', 'event', eventId, {
+    })
+
+    it('change normal date, my events should be notified', function* () {
+      const eventId = projectEvents[1]._id
+
+      yield Socket.emit('change', 'event', eventId, {
         _id: eventId,
         title: 'new title',
         updated: new Date().toISOString()
-      })
+      }, signal.take(1))
 
-      httpBackend.flush()
+      yield signal.take(1)
+        .do(r => {
+          expect(r[8].title).to.equal('new title')
+        })
+
     })
 
-    it('delete recurrence date, my events should be notified', done => {
+    it('delete recurrence date, my events should be notified', function* () {
       const eventId = projectEvents[0]._id
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield Socket.emit('destroy', 'event', eventId, null, signal.take(1))
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(23)
-          done()
         })
 
-      Socket.emit('destroy', 'event', eventId)
-
-      httpBackend.flush()
     })
 
-    it('delete normal event should ok', done => {
+    it('delete normal event should ok', function* () {
       const eventId = projectEvents[1]._id
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield Socket.emit('destroy', 'event', eventId, null, signal.take(1))
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(30)
-          done()
         })
 
-      Socket.emit('destroy', 'event', eventId)
-
-      httpBackend.flush()
     })
 
-    it('add new normal event should ok', done => {
+    it('add new normal event should ok', function* () {
       const mockEvent = clone(projectEvents[1])
       mockEvent._id = 'mockevent'
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield Socket.emit('new', 'event', '', mockEvent, signal.take(1))
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(32)
           expectDeepEqual(r[0], mockEvent)
-          done()
         })
 
-      Socket.emit('new', 'event', '', mockEvent)
-
-      httpBackend.flush()
     })
 
-    it('add recurrence event should ok', done => {
+    it('add recurrence event should ok', function* () {
       const mockEvent = clone(projectEvents[0])
       mockEvent._id = 'mockrecurrence'
       mockEvent.title = 'mockrecurrencetest'
 
-      signal.skip(1)
-        .subscribe(r => {
+      yield Socket.emit('new', 'event', '', mockEvent, signal.take(1))
+
+      yield signal.take(1)
+        .do(r => {
           expect(r.length).to.equal(39)
           expect(r[0].title).to.equal('mockrecurrencetest')
-          done()
         })
 
-      Socket.emit('new', 'event', '', mockEvent)
-
-      httpBackend.flush()
     })
 
-    it('get event from project events, and update it should ok', done => {
+    it('get event from project events, and update it should ok', function* () {
       const comment = {
         action: 'comment',
         _creatorId: 'mockid',
@@ -399,24 +393,28 @@ export default describe('socket event test: ', () => {
         }))
 
       let events: EventSchema[]
-      signal.subscribe(r => {
-        events = r
-      })
 
-      setTimeout(() => {
-        const eventId = events[0]._id
-        EventApi.get(eventId)
-          .skip(1)
-          .subscribe(r => {
-            expect(r._id).to.equal('mock_new_event')
-            done()
-          })
+      yield signal.take(1)
+        .do(r => {
+          events = r
+        })
 
-        Socket.emit('new', 'event', '', mockNew)
-        Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
-      }, global.timeout2)
+      const eventId = events[0]._id
 
-      httpBackend.flush()
+      const signal2 = EventApi.get(eventId)
+        .publish()
+        .refCount()
+
+      yield signal2.take(1)
+
+      yield Socket.emit('new', 'event', '', mockNew)
+      yield Socket.emit('change', 'event', mockReapeat._id, mockReapeat)
+
+      yield signal2.take(1)
+        .do(r => {
+          expect(r._id).to.equal('mock_new_event')
+        })
+
     })
   })
 

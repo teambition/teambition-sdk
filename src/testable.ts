@@ -8,7 +8,6 @@ declare module './testable' {
 }
 
 function flushSideEffect() {
-  BaseModel.DataBase.flush()
   BaseModel.TeardownLogics.forEach(r => {
     if (typeof r === 'function') {
       r()
@@ -16,6 +15,7 @@ function flushSideEffect() {
       throw new TypeError(`TearDown logic must be function, but: ${JSON.stringify(r)}`)
     }
   })
+  BaseModel.DataBase.flush()
 }
 
 export class Testable { }

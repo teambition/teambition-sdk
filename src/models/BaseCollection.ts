@@ -81,7 +81,7 @@ export default class BaseCollection<T> extends Model {
       this._singals.set(page, destSignal)
       observer.next(destSignal)
     })
-      .switch()
+      ._switch()
   }
 
   get(page?: number): Observable<T[]> {

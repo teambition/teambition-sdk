@@ -93,6 +93,7 @@ function handler(socketMessage: MessageResult) {
             .skip(data.length - 1)
         } else {
           return model[_method](data)
+            .take(1)
         }
       case 'change':
         const length = model[_method].length

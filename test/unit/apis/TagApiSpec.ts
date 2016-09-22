@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
@@ -46,7 +45,7 @@ export default describe('Tag API test:', () => {
     BaseFetch.fetch.get['restore']()
   })
 
-  it('create tag should ok', done => {
+  it('create tag should ok', function* () {
     const mockTag = clone(tags[0])
     mockTag._id = 'mocktag'
     mockTag.name = 'mock tag'
@@ -56,22 +55,22 @@ export default describe('Tag API test:', () => {
     })
       .respond(JSON.stringify(mockTag))
 
-    TagApi.getByProjectId(projectId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = TagApi.getByProjectId(projectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield TagApi.create({_projectId: projectId})
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(tags.length + 1)
         expectDeepEqual(r[0], mockTag)
-        done()
       })
-
-    TagApi.create({_projectId: projectId})
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('update tag should ok', done => {
+  it('update tag should ok', function* () {
     const tagId = tags[0]._id
 
     httpBackend.whenGET(`${apihost}tags/${tagId}`)
@@ -79,49 +78,48 @@ export default describe('Tag API test:', () => {
 
     httpBackend.whenPUT(`${apihost}tags/${tagId}`, {
       color: 'red'
-    }).respond({
-      color: 'red'
     })
-
-    TagApi.get(tagId)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.color).to.equal('red')
-        done()
+      .respond({
+        color: 'red'
       })
 
-    TagApi.update(tagId, {
+    const signal = TagApi.get(tagId)
+
+    yield signal.take(1)
+
+    yield TagApi.update(tagId, {
       color: 'red'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expect(r.color).to.equal('red')
+      })
   })
 
-  it('delete tag should ok', done => {
+  it('delete tag should ok', function* () {
     const tagId = tags[0]._id
 
     httpBackend.whenDELETE(`${apihost}tags/${tagId}`)
       .respond({})
 
-    TagApi.getByProjectId(projectId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = TagApi.getByProjectId(projectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield TagApi.delete(tagId)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(tags.length - 1)
         expect(notInclude(r, tags[0])).to.be.true
-        done()
       })
-
-    TagApi.delete(tagId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
 
   })
 
-  it('archive should ok', done => {
+  it('archive should ok', function* () {
     const tagId = tags[0]._id
 
     httpBackend.whenPOST(`${apihost}tags/${tagId}/archive`)
@@ -132,22 +130,22 @@ export default describe('Tag API test:', () => {
         _projectId: projectId
       })
 
-    TagApi.getByProjectId(projectId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = TagApi.getByProjectId(projectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield TagApi.archive(tagId)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(tags.length - 1)
         expect(notInclude(r, tags[0])).to.be.true
-        done()
       })
-
-    TagApi.archive(tagId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('unarchive should ok', done => {
+  it('unarchive should ok', function* () {
     const mockTag = clone(tags[0])
     mockTag._id = 'mocktag'
     mockTag.name = 'mock tag'
@@ -164,42 +162,39 @@ export default describe('Tag API test:', () => {
         _projectId: projectId
       })
 
-    TagApi.get('mocktag')
-      .subscribe()
+    yield TagApi.get('mocktag')
+      .take(1)
 
-    TagApi.getByProjectId(projectId)
-      .skip(1)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    const signal = TagApi.getByProjectId(projectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield TagApi.unarchive('mocktag')
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(tags.length + 1)
-        done()
       })
-
-    TagApi.unarchive('mocktag')
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('get relatedTagTasks should ok', done => {
+  it('get relatedTagTasks should ok', function* () {
     const tag = tags[2]
 
     httpBackend.whenGET(`${apihost}tags/${tag._id}/tasks`)
       .respond(JSON.stringify(relatedTagTasks))
 
-    TagApi.getRelated(tag._id, 'task')
-      .subscribe(r => {
+    yield TagApi.getRelated(tag._id, 'task')
+      .take(1)
+      .do(r => {
         forEach(r, (task, index) => {
           expectDeepEqual(task, relatedTagTasks[index])
         })
-        done()
       })
-
-    httpBackend.flush()
   })
 
-  it('relateTag should ok', done => {
+  it('relateTag should ok', function* () {
     const tag = tags[2]
     const mockTask = clone(relatedTagTasks[0])
     mockTask._id = 'mocktaskid'
@@ -218,21 +213,21 @@ export default describe('Tag API test:', () => {
         updated: new Date().toISOString()
       })
 
-    TaskApi.get(mockTask._id)
-      .subscribe()
+    yield TaskApi.get(mockTask._id)
+      .take(1)
 
-    TagApi.getRelated(tag._id, 'task')
-      .skip(1)
-      .subscribe(r => {
+    const signal = TagApi.getRelated(tag._id, 'task')
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield TagApi.relateTag(mockTask._id, 'task', tag._id)
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(relatedTagTasks.length + 1)
         expect(r[0].tagIds).to.deep.equal(['haha', 'heihei', tag._id])
-        done()
       })
-
-    TagApi.relateTag(mockTask._id, 'task', tag._id)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 })

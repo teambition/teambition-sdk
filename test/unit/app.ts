@@ -12,6 +12,8 @@ export * from './utils/utils'
 export * from './utils/observable'
 export * from './utils/httpErrorSpec'
 
+export * from './mock/MockSpec'
+
 export * from './storage/DatabaseSpec'
 export * from './storage/Model'
 export * from './storage/BaseCollectionSpec'

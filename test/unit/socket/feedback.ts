@@ -25,69 +25,69 @@ export default describe('feedback socket: ', () => {
       .respond(JSON.stringify(projectFeedbacks.slice(0, 1)))
   })
 
-  it('new feedback should ok', done => {
+  it('new feedback should ok', function* () {
     const mockFeedback = clone(projectFeedbacks[0])
     mockFeedback._id = 'mockFeedbackid'
     mockFeedback.content.comment = 'mock feedback post'
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from, to
     })
-      .skip(1)
-      .subscribe(r => {
+      .publish()
+      .refCount()
+
+    yield Socket.emit('new', 'feedback', '', mockFeedback, signal.take(1))
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(2)
         expectDeepEqual(r[0], mockFeedback)
-        done()
       })
-
-    Socket.emit('new', 'feedback', '', mockFeedback)
-
-    httpBackend.flush()
   })
 
-  it('delete feedback should ok', done => {
+  it('delete feedback should ok', function* () {
     const feedbackId = projectFeedbacks[0]._id
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from: from,
       to: to
     })
-      .skip(1)
-      .subscribe(r => {
+      .publish()
+      .refCount()
+
+    yield Socket.emit('destroy', 'feedback', feedbackId, null, signal.take(1))
+
+    yield signal.take(1)
+      .do(r => {
         expect(r).to.deep.equal([])
-        done()
       })
-
-    Socket.emit('destroy', 'feedback', feedbackId)
-
-    httpBackend.flush()
   })
 
-  it('update feedback should ok', done => {
+  it('update feedback should ok', function* () {
     const feedbackId = projectFeedbacks[0]._id
 
-    FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
       count: 1,
       page: 1,
       from: from,
       to: to
     })
-      .skip(1)
-      .subscribe(r => {
-        expect(r[0].content.comment).to.equal('mock update feedback')
-        done()
-      })
+      .publish()
+      .refCount()
 
-    Socket.emit('change', 'feedback', feedbackId, {
+    yield Socket.emit('change', 'feedback', feedbackId, {
       content: {
         comment: 'mock update feedback'
       }
-    })
+    }, signal.take(1))
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(r => {
+        expect(r[0].content.comment).to.equal('mock update feedback')
+      })
   })
 })

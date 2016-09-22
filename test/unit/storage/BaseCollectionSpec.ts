@@ -1,6 +1,5 @@
 'use strict'
 import * as chai from 'chai'
-import { Scheduler } from 'rxjs'
 import { setSchema, Schema } from '../../../src/schemas/schema'
 import BaseCollection from '../../../src/models/BaseCollection'
 
@@ -54,88 +53,94 @@ export default describe('models/BaseCollection test: ', () => {
       })
   })
 
-  it('add page2 should ok', done => {
-    collection.addPage(1, page1)
-      .skip(1)
-      .subscribe(r => {
-        expect(r.length).to.equal(page1.length + page2.length)
-        done()
-      })
+  it('add page2 should ok', function* () {
+    const signal = collection.addPage(1, page1)
+      .publish()
+      .refCount()
 
-    collection.addPage(2, page2)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    signal.subscribe()
+
+    yield signal.take(1)
+
+    yield collection.addPage(2, page2)
+      .take(1)
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r.length).to.equal(page1.length + page2.length)
+      })
   })
 
-  it('add page1 multi times should ok', done => {
-    collection.addPage(1, page1)
-      .subscribe()
+  it('add page1 multi times should ok', function* () {
+    yield collection.addPage(1, page1)
+      .take(1)
 
-    collection.addPage(1, page1)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield collection.addPage(1, page1)
+      .take(1)
+      .do(r => {
         expect(r.length).to.equal(page1.length)
-        done()
       })
   })
 
-  it('add page2 multi times should ok', done => {
-    collection.addPage(1, page1)
-      .skip(1)
-      .subscribe(r => {
+  it('add page2 multi times should ok', function* () {
+    const signal = collection.addPage(1, page1)
+      .publish()
+      .refCount()
+
+    signal.subscribe()
+
+    yield signal.take(1)
+
+    yield [
+      collection.addPage(2, page2)
+        .take(1),
+      collection.addPage(2, page2)
+        .take(1)
+    ]
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.length).to.equal(page1.length + page2.length)
-        done()
       })
-
-    collection.addPage(2, page2)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    collection.addPage(2, page2)
-      .subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe()
   })
 
-  it('has page should ok', done => [
+  it('has page should ok', done => {
     collection.addPage(1, page1)
       .subscribe(() => {
         expect(collection.hasPage(1)).to.be.true
         expect(collection.hasPage(2)).to.be.false
         done()
       })
-  ])
+  })
 
-  it('get page 1 should ok', done => {
-    collection.addPage(1, page1)
-      .subscribe()
+  it('get page 1 should ok', function* () {
 
-    collection.addPage(1, page1)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
+    yield collection.addPage(1, page1)
+      .take(1)
 
-    setTimeout(() => {
-      collection.get(1)
-        .subscribe(r => {
-          expect(r.length).to.equal(page1.length)
-          done()
-        })
-    }, global.timeout2)
+    yield collection.addPage(1, page1)
+      .take(1)
+
+    yield collection.get(1)
+      .take(1)
+      .do(r => {
+        expect(r.length).to.equal(page1.length)
+      })
 
   })
 
-  it('get page2 should ok', done => {
-    collection.addPage(1, page1)
-      .subscribe()
+  it('get page2 should ok', function* () {
+    yield collection.addPage(1, page1)
+      .take(1)
 
-    collection.addPage(2, page2)
+    yield collection.addPage(2, page2)
       .concatMap(() => collection.get(2))
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .take(1)
+      .do(r => {
         r.forEach((val, index) => {
           expect(val._id).to.equal(page2[index]['_id'])
         })
         expect(r.length).to.equal(page2.length)
-        done()
       })
   })
 })

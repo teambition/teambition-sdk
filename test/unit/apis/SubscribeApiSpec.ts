@@ -1,5 +1,4 @@
 'use strict'
-import { Scheduler } from 'rxjs'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as SinonChai from 'sinon-chai'
@@ -41,26 +40,21 @@ export default describe('SubscribeApiSpec: ', () => {
         expectDeepEqual(r, orgsSubscribe)
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('get organization subscribe from cache should ok', done => {
-    SubscribeApi.getOrgsSubscribe('mock')
-      .subscribe()
+  it('get organization subscribe from cache should ok', function* () {
+    yield SubscribeApi.getOrgsSubscribe('mock')
+      .take(1)
 
-    SubscribeApi.getOrgsSubscribe('mock')
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+    yield SubscribeApi.getOrgsSubscribe('mock')
+      .take(1)
+      .do(r => {
         expectDeepEqual(r, orgsSubscribe)
         expect(spy).to.be.calledOnce
-        done()
       })
-
-    httpBackend.flush()
   })
 
-  it('add project to organization subscribe should ok', done => {
+  it('add project to organization subscribe should ok', function* () {
     const mockprojects = orgsSubscribe.body.projects.concat([{
       _id: 'mockprojectid',
       name: 'mockprojectId',
@@ -81,21 +75,21 @@ export default describe('SubscribeApiSpec: ', () => {
         }
       })
 
-    SubscribeApi.getOrgsSubscribe('mock')
-      .skip(1)
-      .subscribe(r => {
+    const signal = SubscribeApi.getOrgsSubscribe('mock')
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield SubscribeApi.updateOrgsSubscribe('mock', ['mockprojectid'])
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.body.projects).to.deep.equal(mockprojects)
-        done()
       })
-
-    SubscribeApi.updateOrgsSubscribe('mock', ['mockprojectid'])
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
-  it('remove project to organization subscribe should ok', done => {
+  it('remove project to organization subscribe should ok', function* () {
     const mockprojects = []
 
     httpBackend.whenPUT(`${apihost}subscribers/report?_organizationId=mock`, {
@@ -110,18 +104,18 @@ export default describe('SubscribeApiSpec: ', () => {
         }
       })
 
-    SubscribeApi.getOrgsSubscribe('mock')
-      .skip(1)
-      .subscribe(r => {
+    const signal = SubscribeApi.getOrgsSubscribe('mock')
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield SubscribeApi.updateOrgsSubscribe('mock', null, ['mockprojectid'])
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.body.projects).to.deep.equal(mockprojects)
-        done()
       })
-
-    SubscribeApi.updateOrgsSubscribe('mock', null, ['mockprojectid'])
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe()
-
-    httpBackend.flush()
   })
 
 })

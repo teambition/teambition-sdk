@@ -41,8 +41,6 @@ export default describe('common api test: ', () => {
           done()
         }
       })
-
-    httpBackend.flush()
   })
 
   it('retry should ok', done => {
@@ -64,8 +62,6 @@ export default describe('common api test: ', () => {
         expect(spy).to.be.calledThrice
         done()
       })
-
-    httpBackend.flush()
   })
 
   it('retry collection should ok', done => {
@@ -89,7 +85,5 @@ export default describe('common api test: ', () => {
           done()
         }
       })
-
-    httpBackend.flush()
   })
 })

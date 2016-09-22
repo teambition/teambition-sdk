@@ -1,7 +1,6 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
-import { Scheduler } from 'rxjs'
 import { Backend, PostAPI, apihost, forEach, clone, BaseFetch } from '../index'
 import { posts } from '../../mock/posts'
 import { expectDeepEqual, flush, notInclude } from '../utils'
@@ -48,32 +47,30 @@ export default describe('post api test: ', () => {
         done()
       })
 
-      httpBackend.flush()
     })
 
-    it('get from cache should ok', done => {
-      PostApi.getProjectPosts(projectId, {
-        page: 1,
-        count: 20
-      }).subscribe()
-
-      PostApi.getProjectPosts(projectId, {
+    it('get from cache should ok', function* () {
+      yield PostApi.getProjectPosts(projectId, {
         page: 1,
         count: 20
       })
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(results => {
+        .take(1)
+
+      yield PostApi.getProjectPosts(projectId, {
+        page: 1,
+        count: 20
+      })
+        .take(1)
+        .do(results => {
           forEach(results, (post, index) => {
             expectDeepEqual(post, posts[index])
           })
           expect(spy).to.be.calledOnce
-          done()
         })
 
-      httpBackend.flush()
     })
 
-    it('add new post should ok', done => {
+    it('add new post should ok', function* () {
       const mockPost = clone(posts[0])
       const mockId = 'postmockid'
       mockPost._id = mockId
@@ -81,48 +78,49 @@ export default describe('post api test: ', () => {
       httpBackend.whenGET(`${apihost}posts/${mockId}`)
         .respond(JSON.stringify(mockPost))
 
-      PostApi.getProjectPosts(projectId, {
+      const signal = PostApi.getProjectPosts(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(results => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield PostApi.get(mockId).take(1)
+
+      yield signal.take(1)
+        .do(results => {
           expect(results.length).to.equal(posts.length + 1)
-          done()
         })
 
-      PostApi.get(mockId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      httpBackend.flush()
     })
 
-    it('delete post should ok', done => {
+    it('delete post should ok', function* () {
       const deleteId = posts[0]._id
 
       httpBackend.whenDELETE(`${apihost}posts/${deleteId}`)
         .respond({})
 
-      PostApi.getProjectPosts(projectId, {
+      const signal = PostApi.getProjectPosts(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(results => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield PostApi.delete(deleteId)
+
+      yield signal.take(1)
+        .do(results => {
           notInclude(results, posts[0])
           expect(results.length).to.equal(posts.length - 1)
-          done()
         })
-
-      PostApi.delete(deleteId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe()
-
-      httpBackend.flush()
     })
 
-    it('archive should ok', done => {
+    it('archive should ok', function* () {
       const archiveId = posts[0]._id
       const mockPost = clone(posts[0])
       mockPost.isArchived = true
@@ -135,29 +133,31 @@ export default describe('post api test: ', () => {
       httpBackend.whenPOST(`${apihost}posts/${archiveId}/archive`)
         .respond(JSON.stringify(mockResponse))
 
-      PostApi.getProjectPosts(projectId, {
+      const signal = PostApi.getProjectPosts(projectId, {
         page: 1,
         count: 20
       })
-        .skip(1)
-        .subscribe(results => {
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield PostApi.archive(archiveId)
+        .do(r => {
+          expect(r).to.deep.equal(mockResponse)
+        })
+
+      yield signal.take(1)
+        .do(results => {
           expect(results.length).to.equal(posts.length - 1)
           notInclude(results, mockPost)
         })
 
-      PostApi.archive(archiveId)
-        .subscribeOn(Scheduler.async, global.timeout1)
-        .subscribe(r => {
-          expect(r).to.deep.equal(mockResponse)
-          done()
-        })
-
-      httpBackend.flush()
     })
 
   })
 
-  it('favorite a post should ok', done => {
+  it('favorite a post should ok', function* () {
     const favoriteId = posts[0]._id
 
     const mockResponse = {
@@ -193,23 +193,24 @@ export default describe('post api test: ', () => {
     httpBackend.whenPOST(`${apihost}posts/${favoriteId}/favorite`)
       .respond(JSON.stringify(mockResponse))
 
-    PostApi.get(favoriteId)
-      .skip(1)
-      .subscribe(r => {
+    const signal = PostApi.get(favoriteId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield PostApi.favorite(favoriteId)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.isFavorite).to.be.true
       })
-
-    PostApi.favorite(favoriteId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('like post should ok', done => {
+  it('like post should ok', function* () {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
 
@@ -230,23 +231,24 @@ export default describe('post api test: ', () => {
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
 
-    PostApi.get(testPostId)
-      .skip(1)
-      .subscribe(post => {
+    const signal = PostApi.get(testPostId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield PostApi.like(testPostId)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(post => {
         expect(post.isLike).to.be.true
       })
-
-    PostApi.like(testPostId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('delete like post should ok', done => {
+  it('delete like post should ok', function* () {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
 
@@ -267,23 +269,24 @@ export default describe('post api test: ', () => {
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
 
-    PostApi.get(testPostId)
-      .skip(1)
-      .subscribe(post => {
+    const signal = PostApi.get(testPostId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield PostApi.dislike(testPostId)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(post => {
         expect(post.isLike).to.be.false
       })
-
-    PostApi.dislike(testPostId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('unarchive post should ok', done => {
+  it('unarchive post should ok', function* () {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
     testPost.isArchived = true
@@ -300,23 +303,24 @@ export default describe('post api test: ', () => {
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
 
-    PostApi.get(testPostId)
-      .skip(1)
-      .subscribe(post => {
+    const signal = PostApi.get(testPostId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield PostApi.unarchive(testPostId)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(post => {
         expect(post.isArchived).to.be.false
       })
-
-    PostApi.unarchive(testPostId)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('update involves should ok', done => {
+  it('update involves should ok', function* () {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
     const mockInvolves = ['aaaa', 'bbbb', 'cccc']
@@ -335,25 +339,26 @@ export default describe('post api test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    PostApi.get(testPostId)
-      .skip(1)
-      .subscribe(result => {
-        expect(result.involveMembers).to.deep.equal(mockInvolves)
-      })
+    const signal = PostApi.get(testPostId)
+      .publish()
+      .refCount()
 
-    PostApi.updatInvolves(testPostId, {
+    yield signal.take(1)
+
+    yield PostApi.updatInvolves(testPostId, {
       involveMembers: mockInvolves
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .do(r => {
         expect(r).to.deep.equal(mockResponse)
-        done()
       })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(result => {
+        expect(result.involveMembers).to.deep.equal(mockInvolves)
+      })
   })
 
-  it('update pin should ok', done => {
+  it('update pin should ok', function* () {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
     const mockResponse = {
@@ -370,23 +375,24 @@ export default describe('post api test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    PostApi.get(testPostId)
-      .skip(1)
-      .subscribe(result => {
+    const signal = PostApi.get(testPostId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield PostApi.updatePin(testPostId, true)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(result => {
         expect(result.pin).to.be.true
       })
-
-    PostApi.updatePin(testPostId, true)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 
-  it('update tags should ok', done => {
+  it('update tags should ok', function* () {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
     const mockTags = ['dddd', 'eeee', 'ffff']
@@ -405,19 +411,20 @@ export default describe('post api test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    PostApi.get(testPostId)
-      .skip(1)
-      .subscribe(result => {
+    const signal = PostApi.get(testPostId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield PostApi.updateTags(testPostId, mockTags)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(result => {
         expect(result.tagIds).to.deep.equal(mockTags)
       })
-
-    PostApi.updateTags(testPostId, mockTags)
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
-      })
-
-    httpBackend.flush()
   })
 })

@@ -34,10 +34,10 @@ export default class Collection <T extends ISchema> {
             result.push(assign(cache.data, ele))
             this._notifyCacheCollections(cache)
               ._notifyCacheParents(cache)
-          }else {
+          } else {
             result.push(cache.data)
           }
-        }else {
+        } else {
           const model = new Model(ele, _unionFlag)
           model.addToCollection(index)
           result.push(model.data)
@@ -83,58 +83,56 @@ export default class Collection <T extends ISchema> {
    */
   update(patch: (Schema<T> & T)[]): Observable<(Schema<T> | T)[]> {
     return Observable.create((observer: Observer<(Schema<T> | T)[]>) => {
-      setTimeout(() => {
-        const signals: Observable<T>[] = []
-        const diff: (Schema<T> | T)[] = []
-        if (patch.length) {
-          this.requested = patch[patch.length - 1]._requested
-          forEach(patch, (ele, position) => {
-            const index = ele[this._unionFlag]
-            const cache: Model<T> = Data.get(index)
-            const pos = this.elements.indexOf(index)
-            if (pos !== -1) {
+      const signals: Observable<T>[] = []
+      const diff: (Schema<T> | T)[] = []
+      if (patch.length) {
+        this.requested = patch[patch.length - 1]._requested
+        forEach(patch, (ele, position) => {
+          const index = ele[this._unionFlag]
+          const cache: Model<T> = Data.get(index)
+          const pos = this.elements.indexOf(index)
+          if (pos !== -1) {
+            signals.push(cache.update(ele))
+            this.data.splice(pos, 1)
+            this.elements.splice(pos, 1)
+            this.data.splice(position, 0, cache.data)
+          } else {
+            if (cache) {
               signals.push(cache.update(ele))
-              this.data.splice(pos, 1)
-              this.elements.splice(pos, 1)
               this.data.splice(position, 0, cache.data)
+              diff.push(cache.data)
             }else {
-              if (cache) {
-                signals.push(cache.update(ele))
-                this.data.splice(position, 0, cache.data)
-                diff.push(cache.data)
-              }else {
-                const model = new Model(ele, this._unionFlag)
-                model.collections.push(this.index)
-                signals.push(model.get())
-                this.data.splice(position, 0, model.data)
-                diff.push(model.data)
-              }
-            }
-            this.elements.splice(position, 0, index)
-          })
-          const dist = this.data.length - patch.length
-          if (dist > 0) {
-            for (let i = 0; i < dist; i ++) {
-              this.data.pop()
-              this.elements.pop()
+              const model = new Model(ele, this._unionFlag)
+              model.collections.push(this.index)
+              signals.push(model.get())
+              this.data.splice(position, 0, model.data)
+              diff.push(model.data)
             }
           }
-          Observable.from(signals)
-            .mergeAll()
-            .skip(signals.length - 1)
-            .forEach(() => {
-              observer.next(clone(diff))
-              observer.complete()
-            })
-        }else {
-          forEach(this.data, () => {
+          this.elements.splice(position, 0, index)
+        })
+        const dist = this.data.length - patch.length
+        if (dist > 0) {
+          for (let i = 0; i < dist; i ++) {
             this.data.pop()
             this.elements.pop()
-          })
-          observer.next([])
-          observer.complete()
+          }
         }
-      })
+        Observable.from(signals)
+          .mergeAll()
+          .skip(signals.length - 1)
+          .forEach(() => {
+            observer.next(clone(diff))
+            observer.complete()
+          })
+      } else {
+        forEach(this.data, () => {
+          this.data.pop()
+          this.elements.pop()
+        })
+        observer.next([])
+        observer.complete()
+      }
     })
   }
 

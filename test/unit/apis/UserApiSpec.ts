@@ -1,6 +1,5 @@
 'use strict'
 import * as chai from 'chai'
-import { Scheduler } from 'rxjs'
 import { Backend, UserAPI, forEach, clone, apihost } from '../index'
 import { userMe } from '../../mock/userme'
 import { flush } from '../utils'
@@ -34,11 +33,9 @@ export default describe('UserAPI test', () => {
         })
         done()
       })
-
-    httpBackend.flush()
   })
 
-  it('update user me should ok', done => {
+  it('update user me should ok', function* () {
     const mockPut = clone(userMe)
     mockPut.name = 'test'
 
@@ -47,27 +44,27 @@ export default describe('UserAPI test', () => {
         name: 'test'
       }).respond(JSON.stringify(mockPut))
 
-    const get = User.getUserMe()
+    const signal = User.getUserMe()
+      .publish()
+      .refCount()
 
-    get.skip(1)
-      .subscribe(r => {
+    yield signal.take(1)
+
+    yield User.update({
+      name: 'test'
+    })
+      .do(r => {
+        expect(r).to.deep.equal(mockPut)
+      })
+
+    yield signal.take(1)
+      .do(r => {
         expect(r.name).to.equal('test')
       })
 
-    User.update({
-      name: 'test'
-    })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockPut)
-        done()
-      })
-
-    httpBackend.flush()
-
   })
 
-  it('add email should ok', done => {
+  it('add email should ok', function* () {
     const mockResponse = clone(userMe)
     const updateData = {
       email: 'test@teambition.com',
@@ -82,28 +79,28 @@ export default describe('UserAPI test', () => {
     })
       .respond(JSON.stringify(mockResponse.emails))
 
-    const get = User.getUserMe()
-    const add = User.addEmail(updateData.email)
+    const signal = User.getUserMe()
+      .publish()
+      .refCount()
 
-    get.skip(1)
-      .subscribe(data => {
-        expect(data.emails.length).to.equal(2)
-        expect(data.emails[1]).to.deep.equal(updateData)
-      }, err => console.error(err))
+    yield signal.take(1)
 
-    add.subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe(r => {
+    yield User.addEmail(updateData.email)
+      .do(r => {
         expect(r).to.deep.equal({
           emails: mockResponse.emails
         })
-        done()
       })
 
-    httpBackend.flush()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.emails.length).to.equal(2)
+        expect(data.emails[1]).to.deep.equal(updateData)
+      })
 
   })
 
-  it('bind phone should ok', done => {
+  it('bind phone should ok', function* () {
     const mockResponse = clone(userMe)
     const updateData = {
       phone: '13345678999',
@@ -115,29 +112,24 @@ export default describe('UserAPI test', () => {
       .whenPUT(`${apihost}users/phone`, updateData)
       .respond(JSON.stringify(mockResponse))
 
-    const get = User.getUserMe()
-    const bind = User.bindPhone(updateData.phone, updateData.vcode)
+    const signal = User.getUserMe()
+      .publish()
+      .refCount()
 
-    let times = 0
-
-    get.subscribe(data => {
-      switch (++times) {
-        case 1:
-          expect(data.phone).to.equal('')
-          break
-        case 2:
-          expect(data.phone).to.equal(updateData.phone)
-          break
-      }
-    })
-
-    bind.subscribeOn(Scheduler.async, global.timeout2)
-      .subscribe(r => {
-        expect(r).to.deep.equal(mockResponse)
-        done()
+    yield signal.take(1)
+      .do(data => {
+        expect(data.phone).to.equal('')
       })
 
-    httpBackend.flush()
+    yield User.bindPhone(updateData.phone, updateData.vcode)
+      .do(r => {
+        expect(r).to.deep.equal(mockResponse)
+      })
+
+    yield signal.take(1)
+      .do(data => {
+        expect(data.phone).to.equal(updateData.phone)
+      })
 
   })
 })
