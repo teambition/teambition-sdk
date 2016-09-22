@@ -5,14 +5,17 @@ export class HttpResponse {
   private namespace: string
 
   constructor(uri: string, method?: string, data?: any) {
-    let dataPath: string
-    try {
-      dataPath = data ? parseObject(data) : ''
-    } catch (error) {
-      throw error
+    if (!uri) {
+      throw new TypeError('no uri')
     }
+    const dataPath = data ? parseObject(data) : ''
     method = method ? method.toLowerCase() : ''
-    this.namespace = uri + method + dataPath
+    if (uri.indexOf('?') === -1) {
+      uri = data ? `${uri}?${dataPath}` : uri
+    } else {
+      uri = data ? `${uri}&${dataPath}` : uri
+    }
+    this.namespace = uri + method
   }
 
   empty(): HttpResponse {
@@ -22,11 +25,10 @@ export class HttpResponse {
 
   respond(
     data: any,
-    response: ResponseInit = {
-      status: 200
-    },
+    response?: ResponseInit,
     wait?: number | Promise<any>
   ) {
+    response = response || { status: 200 }
     const status = response.status || 200
     response.status = status
     if (typeof status !== 'number') {

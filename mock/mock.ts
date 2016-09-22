@@ -11,14 +11,22 @@ export interface FetchResult {
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
 
-export const parseObject = (obj: any) => {
-  if (typeof obj === 'string') {
-    return obj
+export const parseObject = (query: any) => {
+  let _query: any
+  try {
+    _query = JSON.parse(query)
+  } catch (e) {
+    _query = query
   }
-  if (obj && typeof obj === 'object') {
-    return JSON.stringify(obj)
+  if (typeof _query === 'string') {
+    return _query
   }
-  return ''
+  if (typeof _query !== 'object') {
+    return ''
+  }
+  return Object.keys(_query)
+    .map(key => `${key}=${_query[key]}`)
+    .join('&')
 }
 
 const context = typeof window !== 'undefined' ? window : global
@@ -36,14 +44,19 @@ export function mockFetch() {
   }): any => {
     const method = options.method ? options.method.toLowerCase() : ''
     if (method !== 'options') {
-      const dataPath = options.body ? parseObject(options.body) : ''
       if (method === 'get') {
         const pos = uri.indexOf('_=')
         if (pos !== -1) {
           uri = uri.substr(0, pos - 1)
         }
       }
-      const fetchIndex = uri + method + dataPath
+      const dataPath = options.body ? parseObject(options.body) : ''
+      if (uri.indexOf('?') === -1) {
+        uri = options.body ? `${uri}?${dataPath}` : uri
+      } else {
+        uri = options.body ? `${uri}&${dataPath}` : uri
+      }
+      const fetchIndex = uri + method
       const results = fetchStack.get(fetchIndex)
       if (!results) {
         /* istanbul ignore if */

@@ -9,8 +9,8 @@ export class Backend {
     mockFetch()
   }
 
-  whenGET(uri: string) {
-    return new HttpResponse(uri, 'get')
+  whenGET(uri: string, query?: any) {
+    return new HttpResponse(uri, 'get', query)
   }
 
   whenPUT(uri: string, data?: any) {
