@@ -23,19 +23,26 @@ export interface FileData extends ISchema {
   thumbnailUrl: string
   description: string
   source: string
-  folder: string
+  folder?: string
   involveMembers: string[]
   created: string
   updated: string
   lastVersionTime: string
   isArchived: boolean
   previewUrl: string
-  class: string
-  creatorName: string
-  creatorAvatar: string
-  isLike: boolean
-  likedPeople: string
-  likesCount: number
+  attachmentsCount?: number
+  commentsCount?: number
+  objectlinksCount?: number
+  pinyin?: string
+  py?: string
+  class?: string
+  creatorName?: string
+  creatorAvatar?: string
+  isFavorite?: boolean
+  isLike?: boolean
+  likedPeople?: string
+  likesCount?: number
+  likesGroup?: ExecutorOrCreator[]
   linked?: ObjectLinkData[]
 }
 
@@ -60,18 +67,11 @@ export default class File extends Schema<FileData> implements FileData {
   thumbnailUrl: string = undefined
   description: string = undefined
   source: string = undefined
-  folder: string = undefined
   involveMembers: string[] = undefined
   created: string = undefined
   updated: string = undefined
   lastVersionTime: string = undefined
   isArchived: boolean = undefined
   previewUrl: string = undefined
-  class: string = undefined
-  creatorName: string = undefined
-  creatorAvatar: string = undefined
-  isLike: boolean = undefined
-  likedPeople: string = undefined
-  likesCount: number = undefined
   @child('Array', 'ObjectLink') linked?: ObjectLinkData[]
 }

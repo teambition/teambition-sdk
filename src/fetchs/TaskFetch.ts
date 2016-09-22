@@ -1,7 +1,6 @@
 'use strict'
 import Fetch from './BaseFetch'
 import { TaskData } from '../schemas/Task'
-import Task from '../schemas/Task'
 import { visibility, ExecutorOrCreator, FavoriteResponse, LikeResponse } from '../teambition'
 
 export interface TasksMeOptions {

@@ -1,8 +1,7 @@
 'use strict'
 import BaseFetch from './BaseFetch'
 import { FileData } from '../schemas/File'
-import { FavoriteResponse, LikeResponse } from '../teambition'
-import { assign } from '../utils'
+import { FavoriteResponse, UndoFavoriteResponse, LikeResponse } from '../teambition'
 
 export interface FileRes {
   fileName: string
@@ -18,8 +17,15 @@ export interface FileCreateOptions {
 }
 
 export interface UpdateFileOptions {
-  fileName: string
+  fileName?: string
   description?: string
+}
+
+export interface UpdateFileResponse {
+  _id: string
+  fileName?: string
+  description?: string
+  updated: string
 }
 
 export interface ArchiveFileResponse {
@@ -57,12 +63,12 @@ export class FileFetch extends BaseFetch {
     return this.fetch.get(`works/${FileId}`, query)
   }
 
-  update(FileId: string, options: UpdateFileOptions): Promise<FileData> {
+  update(FileId: string, options: UpdateFileOptions): Promise<UpdateFileResponse> {
     return this.fetch.put(`works/${FileId}`, options)
   }
 
   delete(FileId: string): Promise<void> {
-    return this.fetch.delete(`works/${FileId}`)
+    return this.fetch.delete<void>(`works/${FileId}`)
   }
 
   archive(FileId: string): Promise<ArchiveFileResponse> {
@@ -77,29 +83,30 @@ export class FileFetch extends BaseFetch {
     return this.fetch.post(`works/${FileId}/favorite`)
   }
 
+  undoFavourite(FileId: string): Promise<UndoFavoriteResponse> {
+    return this.fetch.delete(`works/${FileId}/favorite`)
+  }
+
   fork(FileId: string, _parentId: string): Promise<FileData> {
     return this.fetch.put(`works/${FileId}/fork`, {
       _parentId
     })
   }
 
-  getCollectionFiles(projectId: string, parentId: string, page = 1, count = 30, query?: any): Promise<FileData[]> {
-    const _query = {
-      page,
-      count
-    }
-    if (query && typeof query === 'object') {
-      assign(_query, query)
-    }
-    return this.fetch.get(`projects/${projectId}/collections/${parentId}/works`, _query)
+  getFiles(projectId: string, parentId: string, query?: any): Promise<FileData[]> {
+    return this.fetch.get(`projects/${projectId}/collections/${parentId}/works`, query)
   }
 
   like(FileId: string): Promise<LikeResponse> {
     return this.fetch.post(`works/${FileId}/like`)
   }
 
-  move(FileId: string): Promise<MoveFileResponse> {
-    return this.fetch.put(`works/${FileId}/move`)
+  unlike(FileId: string): Promise<LikeResponse> {
+    return this.fetch.delete(`works/${FileId}/like`)
+  }
+
+  move(FileId: string, _parentId: string): Promise<MoveFileResponse> {
+    return this.fetch.put(`works/${FileId}/move`, {_parentId})
   }
 
   updateInvolves(FileId: string, memberIds: string[], type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'): Promise<UpdateFileInvolvesResponse> {

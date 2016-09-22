@@ -92,15 +92,25 @@ export interface ReportAnalysisSchema {
 
 export interface FavoriteResponse {
   _id: string
+  _creatorId: string
+  _refId: string
+  refType: string
+  isFavorite: boolean
+  isUpdated: boolean
+  isVisible: boolean
+  data: any
+  created: string
   updated: string
-  favorite: boolean
+}
+
+export interface UndoFavoriteResponse {
+  _refId: string
+  refType: string
+  isFavorite: boolean
 }
 
 export interface LikeResponse {
   isLike: boolean
   likesCount: number
-  likesGroup: {
-    _id: string
-    name: string
-  }[]
+  likesGroup: ExecutorOrCreator[]
 }
