@@ -1,6 +1,5 @@
 'use strict'
 import * as chai from 'chai'
-import { Scheduler } from 'rxjs'
 import { Backend, PreferenceAPI, forEach, clone, apihost } from '../index'
 import { preference } from '../../mock/preference'
 import { flush } from '../utils'
@@ -38,29 +37,32 @@ export default describe('Preferences API test', () => {
       })
   })
 
-  it('update preferences should ok', done => {
+  it('update preferences should ok', function* () {
     const mockPut = clone(preference)
     mockPut.language = 'zh'
 
     httpBackend
       .whenPUT(`${apihost}preferences/${preferenceId}`, {
         language: 'zh'
-      }).respond(JSON.stringify(mockPut))
-
-    const get = PreferenceApi.getPreference()
-
-    get.skip(1)
-      .subscribe(r => {
-        expect(r.language).to.equal('zh')
       })
+      .respond(JSON.stringify(mockPut))
 
-    PreferenceApi.update(preferenceId, {
+    const signal = PreferenceApi.getPreference()
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+
+    yield PreferenceApi.update(preferenceId, {
       language: 'zh'
     })
-      .subscribeOn(Scheduler.async, global.timeout1)
-      .subscribe(r => {
+      .do(r => {
         expect(r).to.deep.equal(mockPut)
-        done()
+      })
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r.language).to.equal('zh')
       })
   })
 })
