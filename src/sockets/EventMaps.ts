@@ -9,7 +9,7 @@ import SubtaskModel from '../models/SubtaskModel'
 import EventModel from '../models/EventModel'
 import PostModel from '../models/PostModel'
 import CollectionModel from '../models/CollectionModel'
-import WorkModel from '../models/WorkModel'
+import FileModel from '../models/FileModel'
 import TasklistModel from '../models/TasklistModel'
 import StageModel from '../models/StageModel'
 import TagModel from '../models/TagModel'
@@ -35,7 +35,7 @@ const typeMap: any = {
   'event': EventModel,
   'subtask': SubtaskModel,
   'post': PostModel,
-  'work': WorkModel,
+  'work': FileModel,
   'tasklist': TasklistModel,
   'stage': StageModel,
   'collection': CollectionModel,
