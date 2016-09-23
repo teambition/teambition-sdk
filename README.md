@@ -4,6 +4,13 @@
 
 # isomorphic-sdk for Teambition APIs
 
+## Env Setup
+```bash
+npm i -g macaca-cli
+ELECTRON_MIRROR=https://npm.taobao.org/mirrors/electron/ npm i -g macaca-electron 
+CHROMEDRIVER_CDNURL=http://npm.taobao.org/mirrors/chromedriver npm install macaca-chrome -g
+```
+
 ## 设计理念
 
 SDK 主要解决的是数据同步的问题。通俗点讲，就是在前端使用数据模型模拟出数据库的增删改查等操作。

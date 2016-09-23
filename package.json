@@ -6,7 +6,7 @@
   "jsnext:main": "dist/es6/app.js",
   "typings": "dist/cjs/app.d.ts",
   "scripts": {
-    "test": "npm run lint && npm run cover",
+    "test": "npm run lint && npm run cover && npm run macaca",
     "e2e": "mocha-phantomjs test/e2e/index.html",
     "commit": "npm run lint && git-cz",
     "build_cjs": "rm -rf dist/cjs && tsc tools/build/bundle.d.ts src/app.ts -m commonjs --outDir dist/cjs --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers",
@@ -24,6 +24,7 @@
     "lint": "tslint ./src/**/*.ts ./mock/**/*.ts ./test/unit/**/*.ts",
     "cover": "npm run build_test && istanbul cover _tman ./spec-js/test/unit/app.js -- -t 10000 --mocha",
     "typings": "typings install",
+    "macaca": "npm run build_test && macaca run --verbose -d spec-js/test/unit/app.js tman",
     "publish_all": "npm run build_all && npm publish && ts-node ./tools/tasks/publish.ts && cp ./dist/mock-cjs/** ./.tmp/mock && cp ./dist/socket/** ./.tmp/socket && npm publish .tmp/mock/ && npm publish .tmp/socket/"
   },
   "repository": {
@@ -62,6 +63,8 @@
     "google-closure-compiler-js": "^20160916.0.0",
     "istanbul": "^0.4.5",
     "jsonrpc-lite": "^1.2.1",
+    "macaca-cli": "^1.1.3",
+    "macaca-wd": "^1.0.10",
     "moment": "^2.15.0",
     "remap-istanbul": "^0.6.4",
     "rollup": "^0.36.0",
@@ -73,8 +76,9 @@
     "tman": "^1.6.0",
     "ts-node": "^1.3.0",
     "tslint": "^3.15.1",
-    "typescript": "^2.0.2",
-    "typings": "^1.4.0"
+    "typings": "^1.4.0",
+    "typescript": "^2.0.3",
+    "webdriver-client": "^1.0.13"
   },
   "config": {
     "commitizen": {

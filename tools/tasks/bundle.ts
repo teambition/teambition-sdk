@@ -8,25 +8,26 @@ const commonjs = require('rollup-plugin-commonjs')
 const compiler = require('google-closure-compiler-js').compile
 
 export function bundle (entry: string, output: string, name: string, ise2e?: boolean) {
-  let plugins: any[]
-  if (!ise2e) {
-    plugins = [
-      alias({
-        'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js'),
-        'engine.io-client': path.join(process.cwd(), 'node_modules/engine.io-client/engine.io.js')
-      }),
-      nodeResolve({
-        jsnext: false,
-        main: true
-      }),
-      commonjs({
-        exclude: [ 'dist/es6/**', 'dist/mock-es6/**' ]
-      })
-    ]
-  }
+  const plugins = [
+    alias({
+      'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js'),
+      'engine.io-client': path.join(process.cwd(), 'node_modules/engine.io-client/engine.io.js'),
+      'tman': path.join(process.cwd(), 'node_modules/tman/browser/tman.js')
+    }),
+    nodeResolve({
+      jsnext: false,
+      main: true,
+      browser: true,
+      skip: [ 'tman' ]
+    }),
+    commonjs({
+      exclude: [ 'dist/es6/**', 'dist/mock-es6/**' ]
+    })
+  ]
   rollup.rollup({
     entry: entry,
-    plugins: plugins
+    plugins: plugins,
+    treeshake: !ise2e
   })
     .then(bundle => {
       const code = bundle.generate({
@@ -43,19 +44,21 @@ export function bundle (entry: string, output: string, name: string, ise2e?: boo
       return write(path.resolve(process.cwd(), output), code)
     })
     .then(() => {
-      const source = fs.readFileSync(path.resolve(process.cwd(), output), 'utf8')
-      const compilerFlags = {
-        jsCode: [{src: source}],
-        compilationLevel: 'ADVANCED',
-        languageIn: 'ES5',
-        createSourceMap: true,
+      if (!ise2e) {
+        const source = fs.readFileSync(path.resolve(process.cwd(), output), 'utf8')
+        const compilerFlags = {
+          jsCode: [{src: source}],
+          compilationLevel: 'ADVANCED',
+          languageIn: 'ES5',
+          createSourceMap: true,
+        }
+        const result: any = compiler(compilerFlags)
+        const minPath = `dist/bundle/${output.split('/').pop().split('.')[0]}.min.js`
+        const code = result.compiledCode
+        fs.writeFileSync(minPath, code, 'utf8')
+        fs.writeFileSync(`${minPath}.map`, result.sourceMap, 'utf8')
+        console.log(blue(minPath) + ' ' + getSize(code))
       }
-      const result: any = compiler(compilerFlags)
-      const minPath = `dist/bundle/${output.split('/').pop().split('.')[0]}.min.js`
-      const code = result.compiledCode
-      fs.writeFileSync(minPath, code, 'utf8')
-      fs.writeFileSync(`${minPath}.map`, result.sourceMap, 'utf8')
-      console.log(blue(minPath) + ' ' + getSize(code))
     })
     .catch(e => console.error(e.stack))
 }

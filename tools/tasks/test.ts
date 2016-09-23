@@ -1,26 +1,7 @@
 'use strict'
 import * as path from 'path'
 import * as fs from 'fs'
-import * as Tman from 'tman'
-
-const cache: {[index: string]: any} = {}
-const testDir = path.join(process.cwd(), 'spec-js/test/unit')
-
-for (let key of ['describe', 'suite', 'test', 'it', 'before', 'after', 'beforeEach', 'afterEach']) {
-  global[key] = Tman[key]
-}
-
-function runTman() {
-  Object.keys(require.cache).forEach(id => {
-    delete require.cache[id]
-  })
-  Tman.loadFiles(`${testDir}/app.js`)
-  Tman.setExit(false)
-  Tman.mocha()
-  Tman.run()(() => {
-    Tman.reset()
-  })
-}
+import { runTman } from './tman'
 
 let timer: NodeJS.Timer
 
