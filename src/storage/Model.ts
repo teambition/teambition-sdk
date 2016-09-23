@@ -43,7 +43,7 @@ export default class Model<T extends ISchema> {
                 if (!cache) {
                   const subModel = new Model(ele, _unionFlag)
                   subModel.addParent(index)
-                }else {
+                } else {
                   cache.addParent(index)
                   val.splice(pos, 1, cache.data)
                 }
@@ -56,7 +56,7 @@ export default class Model<T extends ISchema> {
             if (cache) {
               cache.addParent(index)
               data[key] = cache.data
-            }else {
+            } else {
               const subModel = new Model(val, _unionFlag)
               subModel.addParent(index)
             }
@@ -231,7 +231,7 @@ export default class Model<T extends ISchema> {
       const route: any = this._childIndexes[pos]
       if (typeof route === 'object') {
         this.data[route.key].splice([route.pos], 1)
-      }else {
+      } else {
         delete this.data[route]
       }
       this._childIndexes.splice(pos, 1)
@@ -243,7 +243,7 @@ export default class Model<T extends ISchema> {
     // ref TPLN-287
     if (this.data && typeof this.data['checkSchema'] === 'function') {
       return this.data['checkSchema']()
-    }else {
+    } else {
       return false
     }
   }

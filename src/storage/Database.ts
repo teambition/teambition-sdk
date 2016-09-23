@@ -95,7 +95,7 @@ export default class DataBase {
           if (requested && requested === cache.requested) {
             observer.next(cache.get())
           /* istanbul ignore if */
-          }else {
+          } else {
             return observer.error(new Error(`Can not store a existed data: ${index}${schemaName ? ' ,schemaName: ' + schemaName : ''}`))
           }
         }
@@ -106,7 +106,7 @@ export default class DataBase {
             if (collections.indexOf(index) === -1) {
               collections.push(index)
             }
-          }else {
+          } else {
             this._schemaMap.set(schemaName, [index])
           }
         }
@@ -121,7 +121,7 @@ export default class DataBase {
       const cache = DataBase.data.get(index)
       if (cache) {
         return observer.next(cache.get())
-      }else {
+      } else {
         return observer.next(Observable.of(null))
       }
     })
@@ -317,7 +317,7 @@ export default class DataBase {
             .concatMap(judge => {
               if (judge) {
                 return collection.add(model)
-              }else {
+              } else {
                 return collection.get().take(1)
               }
             })

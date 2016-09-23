@@ -79,7 +79,7 @@ export default class Model {
   protected _updateCollection<T>(namespace: string, patch: any): Observable<T[]> {
     if (DataBase.data.get(namespace)) {
       return Model.DataBase.updateCollection<T>(namespace, patch)
-    }else {
+    } else {
       return Observable.of(null)
     }
   }
