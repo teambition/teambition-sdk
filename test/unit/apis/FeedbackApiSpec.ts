@@ -168,12 +168,12 @@ export default describe('FeedbackAPI Spec: ', () => {
 
     yield signal.take(1)
 
-    yield FeedbackApi.deleteProjectFeedback(projectId, feedbackId)
-
-    yield signal.take(1)
-      .do(r => {
+    signal.skip(1)
+      .subscribe(r => {
         expect(r).to.deep.equal([])
       })
+
+    yield FeedbackApi.deleteProjectFeedback(projectId, feedbackId)
   })
 
   it('create should ok', function* () {

@@ -59,12 +59,13 @@ export default describe('feedback socket: ', () => {
       .publish()
       .refCount()
 
-    yield Socket.emit('destroy', 'feedback', feedbackId, null, signal.take(1))
-
-    yield signal.take(1)
-      .do(r => {
+    signal.skip(1)
+      .subscribe(r => {
         expect(r).to.deep.equal([])
       })
+
+    yield Socket.emit('destroy', 'feedback', feedbackId, null, signal.take(1))
+
   })
 
   it('update feedback should ok', function* () {
