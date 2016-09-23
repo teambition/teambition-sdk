@@ -180,6 +180,10 @@ export default class Collection <T extends ISchema> {
     this._subject = null
   }
 
+  checkEmpty() {
+    return this.data == null || !this.data.length
+  }
+
   private _notifyCacheParents(cache: Model<T>): Collection<T> {
     const parents = cache.parents
     if (parents && parents.length) {

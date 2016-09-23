@@ -72,8 +72,18 @@ export default class Model {
     return Model.DataBase.storeCollection(namespace, data, schemaName, condition, unionFlag)
   }
 
-  protected _get<T>(index: string): Observable<T> {
-    return DataBase.data.get(index) ? Model.DataBase.get<T>(index) : null
+  protected _get<T>(index: string): Observable<T> | null {
+    const cache: any = DataBase.data.get(index)
+    if (cache) {
+      if (cache.checkEmpty && cache.checkEmpty()) {
+        DataBase.data.delete(index)
+        return null
+      } else {
+        return Model.DataBase.get<T>(index)
+      }
+    } else {
+      return null
+    }
   }
 
   protected _updateCollection<T>(namespace: string, patch: any): Observable<T[]> {
