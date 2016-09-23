@@ -169,12 +169,12 @@ export default describe('MessageAPI test: ', () => {
 
       yield signal.take(1)
 
-      yield Message.deleteAllRead(_messageType)
-
-      yield signal.take(1)
-        .do(messages => {
+      signal.skip(1)
+        .subscribe(messages => {
           expect(messages.length).to.equal(0)
         })
+
+      yield Message.deleteAllRead(_messageType)
     })
 
     it('delete a message should ok', function* () {

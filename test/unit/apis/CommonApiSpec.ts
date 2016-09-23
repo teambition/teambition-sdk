@@ -86,4 +86,17 @@ export default describe('common api test: ', () => {
         }
       })
   })
+
+  it('empty collection should not cached', function* () {
+    httpBackend.whenGET(`${apihost}tasklists/tasklistId/tasks?isDone=false`)
+      .respond([])
+
+    yield TaskApi.getTasklistUndone('tasklistId')
+      .take(1)
+
+    yield TaskApi.getTasklistUndone('tasklistId')
+      .take(1)
+
+    expect(spy).to.be.calledTwice
+  })
 })

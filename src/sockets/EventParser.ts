@@ -60,7 +60,7 @@ function parser(str: string) {
       case 0:
         if (state === BEGIN_STATE) {
           state = METHOD_STATE
-        }else if (state === METHOD_STATE) {
+        } else if (state === METHOD_STATE) {
           state = TYPE_STATE
         }
         break

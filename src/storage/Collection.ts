@@ -101,7 +101,7 @@ export default class Collection <T extends ISchema> {
               signals.push(cache.update(ele))
               this.data.splice(position, 0, cache.data)
               diff.push(cache.data)
-            }else {
+            } else {
               const model = new Model(ele, this._unionFlag)
               model.collections.push(this.index)
               signals.push(model.get())
@@ -178,6 +178,10 @@ export default class Collection <T extends ISchema> {
     this._subject.next(null)
     this._subject.complete()
     this._subject = null
+  }
+
+  checkEmpty() {
+    return this.data == null || !this.data.length
   }
 
   private _notifyCacheParents(cache: Model<T>): Collection<T> {

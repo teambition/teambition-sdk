@@ -38,7 +38,7 @@ export class StrikerFetch {
         if (status >= 200 && status < 400) {
           return resp.json()
         /** istanbul ignore if */
-        }else {
+        } else {
           return Promise.reject<any>(resp)
         }
       })
