@@ -10,6 +10,9 @@ import { LikeData } from '../schemas/Like'
 import { forEach } from './index'
 
 export class Dirty {
+  /**
+   * 处理任务列表中坏掉的 subtaskCount 字段
+   */
   handlerMytasksApi (tasks: TaskData[]): TaskData[] {
     forEach(tasks, task => {
       delete task.subtaskCount
