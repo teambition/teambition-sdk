@@ -9,7 +9,6 @@ import {
   ArchiveEventResponse,
   CommentBody,
   CommentRepeatResponse,
-  LikeEventResponse,
   LikeRepeatEventResponse,
   UnarchiveEventResponse,
   UpdateEventContentResponse,
@@ -108,16 +107,6 @@ export class EventAPI {
         .forEach((x: CommentRepeatResponse) => observer.next(x))
         .then(() => observer.complete())
         .catch(e => observer.error(e))
-    })
-  }
-
-  like(eventId: string): Observable<LikeEventResponse> {
-    return Observable.create((observer: Observer<LikeEventResponse>) => {
-      Observable.fromPromise(EventFetch.like(eventId))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
     })
   }
 

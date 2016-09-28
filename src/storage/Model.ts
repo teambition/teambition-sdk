@@ -3,7 +3,14 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import Data from './Map'
-import { forEach, assign, clone, diffEle, dataToSchema } from '../utils/index'
+import {
+  forEach,
+  assign,
+  clone,
+  diffEle,
+  dataToSchema,
+  capitalizeFirstLetter
+} from '../utils/index'
 import { ISchema, Schema, ChildMap } from '../schemas/schema'
 import * as Schemas from '../schemas/index'
 
@@ -318,7 +325,7 @@ export default class Model<T extends ISchema> {
   }
 
   private _schemaFactory<U extends Schema<U>>(schemaName: string, data: U, flag: string) {
-    return dataToSchema<U>(data, Schemas[`${schemaName}Schema`], flag)
+    return dataToSchema<U>(data, Schemas[`${ capitalizeFirstLetter(schemaName) }Schema`], flag)
   }
 
   private _clone(obj: any): T {

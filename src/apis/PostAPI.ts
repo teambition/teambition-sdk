@@ -107,32 +107,6 @@ export class PostAPI {
   /**
    * cold signal
    */
-  like(postId: string): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
-      Observable.fromPromise(PostFetch.like(postId))
-        .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update<PostData>(postId, result))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
-  }
-
-  /**
-   * cold signal
-   */
-  dislike(postId: string): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
-      Observable.fromPromise(PostFetch.dislike(postId))
-        .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update<PostData>(postId, result))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
-  }
-
-  /**
-   * cold signal
-   */
   unarchive(postId: string): Observable<PostData> {
     return Observable.create((observer: Observer<PostData>) => {
       Observable.fromPromise(PostFetch.unarchive(postId))

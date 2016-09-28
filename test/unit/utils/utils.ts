@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import { userMe } from '../../mock/userme'
-import { forEach, clone, assign, uuid, concat, dropEle } from '../index'
+import { forEach, clone, assign, uuid, concat, dropEle, capitalizeFirstLetter } from '../index'
 
 const expect = chai.expect
 
@@ -192,6 +192,13 @@ export default describe('utils test', () => {
   it('dropEle should ok', () => {
     const arr1 = [1, 2, 3, 4, 5]
     expect(dropEle(3, arr1)).to.deep.equal([1, 2, 4, 5])
+  })
+
+  it('capitalizeFirstLetter should ok', () => {
+    const str = 'hello'
+    const str1 = 'World'
+    expect(capitalizeFirstLetter(str)).to.equal('Hello')
+    expect(capitalizeFirstLetter(str1)).to.equal(str1)
   })
 
 })

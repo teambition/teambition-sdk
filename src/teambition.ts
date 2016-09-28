@@ -108,9 +108,3 @@ export interface UndoFavoriteResponse {
   refType: string
   isFavorite: boolean
 }
-
-export interface LikeResponse {
-  isLike: boolean
-  likesCount: number
-  likesGroup: ExecutorOrCreator[]
-}

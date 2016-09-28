@@ -22,7 +22,7 @@ export function eventParser(event: RequestEvent) {
         }
         try {
           result = JSON.parse(param)
-        }catch (e) {
+        } catch (e) {
           return console.error(e)
         }
         const methodAndData: MessageResult = parser(result.e)

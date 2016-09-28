@@ -1,7 +1,7 @@
 'use strict'
 import Fetch from './BaseFetch'
 import { TaskData } from '../schemas/Task'
-import { visibility, ExecutorOrCreator, FavoriteResponse, LikeResponse } from '../teambition'
+import { visibility, ExecutorOrCreator, FavoriteResponse } from '../teambition'
 
 export interface TasksMeOptions {
   count?: number
@@ -261,10 +261,6 @@ export class TaskFetch extends Fetch {
       page: page,
       count: count
     } : null)
-  }
-
-  like(_taskId: string): Promise<LikeResponse> {
-    return this.fetch.post(`tasks/${_taskId}/like`)
   }
 
   move(_taskId: string, moveOption: MoveTaskOptions): Promise<TaskData> {

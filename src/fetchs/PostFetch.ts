@@ -57,15 +57,6 @@ export type UpdateInvolves = {
   delInvolvers?: string[]
 }
 
-export interface LikedResponse {
-  isLiked: boolean,
-  likeCount: number,
-  likesGroup: {
-    _id: string
-    name: string
-  }[]
-}
-
 export interface ArchivePostResponse {
   isArchived: boolean,
   updated: string
@@ -122,14 +113,6 @@ export class PostFetch extends BaseFetch {
 
   favorite(postId: string): Promise<PostFavoriteResponse> {
     return this.fetch.post(`posts/${postId}/favorite`)
-  }
-
-  like(postId: string): Promise<LikedResponse> {
-    return this.fetch.post(`posts/${postId}/like`)
-  }
-
-  dislike(postId: string): Promise<LikedResponse> {
-    return this.fetch.delete(`posts/${postId}/like`)
   }
 
   unarchive(postId: string): Promise<{

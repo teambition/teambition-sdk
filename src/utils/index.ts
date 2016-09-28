@@ -154,6 +154,14 @@ export function dropEle<T>(ele: T, arr: T[]): T[] {
   return arr
 }
 
+export function capitalizeFirstLetter(str: string) {
+  const upper = str[0].toUpperCase()
+  if (str[0] === upper) {
+    return str
+  }
+  return upper + str.slice(1)
+}
+
 /**
  * 对比第一个对象上有没有值与第二个上不同
  * @param first  assign(target, patch) 中的 patch

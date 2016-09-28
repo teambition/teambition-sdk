@@ -3,6 +3,7 @@ import BaseFetch from './BaseFetch'
 import { visibility } from '../teambition'
 import { EventData } from '../schemas/Event'
 import { ActivityData } from '../schemas/Activity'
+import { LikeData } from '../schemas/Like'
 
 export interface CreateEventOptions {
   _projectId: string
@@ -57,26 +58,10 @@ export interface FavoriteEventResponse {
   updated: string
 }
 
-export interface LikeEventResponse {
-  isLike: boolean
-  likesCount: number
-  likesGroup: {
-    _id: string
-    name: string
-  }[]
-}
-
 export interface LikeRepeatEventResponse {
   new: EventData
   repeat: EventData
-  like: {
-    isLike: boolean
-    likesCount: number
-    likesGroup: {
-      _id: string
-      name: string
-    }[]
-  }
+  like: LikeData
 }
 
 export interface UnarchiveEventResponse {
@@ -154,10 +139,6 @@ export class EventFetch extends BaseFetch {
 
   commentsRepeatEvent(eventId: string, commentBody: CommentBody): Promise<CommentRepeatResponse> {
     return this.fetch.post(`events/${eventId}/comments_repeat_event`, commentBody)
-  }
-
-  like(eventId: string): Promise<LikeEventResponse> {
-    return this.fetch.post(`events/${eventId}/like`)
   }
 
   likeRepeatEvent(eventId: string, occurrenceDate: number): Promise<LikeRepeatEventResponse> {

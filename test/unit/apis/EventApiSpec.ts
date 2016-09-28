@@ -340,41 +340,6 @@ export default describe('Event test:', () => {
         })
     })
 
-    it('like event should ok', function* () {
-      const normalEvent = projectEvents[1]
-      const likeResponse = {
-        isLike: true,
-        likesCount: 1,
-        likesGroup: [
-          {
-            _id: 'mockid',
-            avatarUrl: 'mockurl',
-            name: 'mockName'
-          }
-        ]
-      }
-      httpBackend.whenPOST(`${apihost}events/${normalEvent._id}/like`)
-        .respond(JSON.stringify(likeResponse))
-
-      httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
-        .respond(JSON.stringify(normalEvent))
-
-      const signal = EventApi.get(normalEvent._id)
-        .publish()
-        .refCount()
-
-      yield signal.take(1)
-
-      yield EventApi.like(normalEvent._id)
-
-      yield signal.take(1)
-        .do(r => {
-          expect(r.isLike).to.be.true
-          expect(r.likesGroup).to.deep.equal(likeResponse.likesGroup)
-          expect(r.likesCount).to.equal(1)
-        })
-    })
-
     it('likeRepeatEvent should ok', function* () {
       const mockReapeatEvent = clone(MockRecurrence.likeRepeat.repeat)
       mockReapeatEvent.recurrence = [
