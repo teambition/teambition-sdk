@@ -10,7 +10,7 @@
     "e2e": "mocha-phantomjs test/e2e/index.html",
     "commit": "npm run lint && git-cz",
     "build_cjs": "rm -rf dist/cjs && tsc tools/build/bundle.d.ts src/app.ts -m commonjs --outDir dist/cjs --sourcemap --sourceRoot src --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers",
-    "watch_cjs": "tsc tools/build/bundle.d.ts src/app.ts -m commonjs --outDir dist/cjs --sourcemap --sourceRoot src --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution --skipLibCheck node -w",
+    "watch_cjs": "tsc tools/build/bundle.d.ts src/app.ts -m commonjs --outDir dist/cjs --sourcemap --sourceRoot src --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --skipLibCheck -w",
     "build_es6": "rm -rf dist/es6 && tsc tools/build/bundle.d.ts src/app.ts -m es2015 --outDir dist/es6 --sourcemap --sourceRoot src --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --noEmitHelpers",
     "build_test": "rm -rf spec-js && tsc test/unit/app.ts -m commonjs --outDir spec-js --target ES2015 --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_e2e": "rm -rf .tmp/e2e && tsc ./test/e2e/main.ts typings/globals/core-js/index.d.ts -m es2015 --outDir .tmp/e2e --sourcemap --sourceRoot test/e2e  --target ES5 --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ts-node ./tools/tasks/bundle.e2e.ts",
@@ -70,11 +70,11 @@
     "rollup-plugin-node-resolve": "^2.0.0",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
-    "tman": "^1.4.5",
+    "tman": "^1.6.0",
     "ts-node": "^1.3.0",
     "tslint": "^3.15.1",
     "typescript": "^2.0.2",
-    "typings": "^1.3.3"
+    "typings": "^1.4.0"
   },
   "config": {
     "commitizen": {
