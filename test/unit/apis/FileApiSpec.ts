@@ -1,7 +1,15 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
-import { FileAPI, FileSchema, apihost, Backend, BaseFetch, uuid, Utils } from '../index'
+import {
+  FileAPI,
+  FileSchema,
+  apihost,
+  Backend,
+  BaseFetch,
+  uuid,
+  Utils
+} from '../index'
 import { flush, expectDeepEqual } from '../utils'
 import { mockPureFile, mockFile } from '../../mock/files'
 
@@ -411,80 +419,6 @@ export default describe('FileAPI test: ', () => {
       .do(data => {
         expect(data.length).to.be.equal(files.length + 1)
         expectDeepEqual(data[0], misaki)
-      })
-  })
-
-  it('should like one file', function* () {
-    file.isLike = false
-    file.likesCount = 0
-    const fileId = file._id
-    const response = {
-      isLike: true,
-      likesCount: file.likesCount + 1
-    }
-
-    httpBackend.whenGET(`${apihost}works/${file._id}`)
-      .empty()
-      .respond(JSON.stringify(file))
-
-    httpBackend.whenPOST(`${apihost}works/${fileId}/like`)
-      .respond(JSON.stringify(response))
-
-    const signal = File.get(fileId)
-      .publish()
-      .refCount()
-
-    // get one
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isLike).to.be.false
-        expect(data.likesCount).to.be.equal(file.likesCount)
-      })
-
-    yield File.like(fileId)
-
-    // cache
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isLike).to.be.true
-        expectDeepEqual(data, Utils.assign(file, response))
-      })
-  })
-
-  it('should unlike one file', function* () {
-    file.isLike = true
-    file.likesCount = 1
-    const fileId = file._id
-    const response = {
-      isLike: false,
-      likesCount: file.likesCount - 1
-    }
-
-    httpBackend.whenGET(`${apihost}works/${file._id}`)
-      .empty()
-      .respond(JSON.stringify(file))
-
-    httpBackend.whenDELETE(`${apihost}works/${fileId}/like`)
-      .respond(JSON.stringify(response))
-
-    const signal = File.get(fileId)
-      .publish()
-      .refCount()
-
-    // get one
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isLike).to.be.true
-        expect(data.likesCount).to.be.equal(file.likesCount)
-      })
-
-    yield File.unlike(fileId)
-
-    // cache
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isLike).to.be.false
-        expectDeepEqual(data, Utils.assign(file, response))
       })
   })
 

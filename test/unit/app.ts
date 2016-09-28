@@ -1,10 +1,5 @@
 /// <reference path="./type.d.ts" />
 'use strict'
-const Tman = require('tman')
-
-for (let key of ['describe', 'suite', 'test', 'it', 'before', 'after', 'beforeEach', 'afterEach']) {
-  global[key] = Tman[key]
-}
 
 export * from './utils/fetch'
 export * from './utils/setSchema'
@@ -42,6 +37,7 @@ export * from './apis/RoleApiSpec'
 export * from './apis/SubscribeApiSpec'
 export * from './apis/FeedbackApiSpec'
 export * from './apis/ReportApiSpec'
+export * from './apis/LikeApiSpec'
 
 export * from './socket/activity'
 export * from './socket/message'
@@ -52,3 +48,4 @@ export * from './socket/member'
 export * from './socket/event'
 export * from './socket/subscribe'
 export * from './socket/feedback'
+export * from './socket/like'

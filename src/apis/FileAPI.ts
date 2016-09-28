@@ -11,7 +11,7 @@ import FileFetch, {
   MoveFileResponse,
   UpdateFileInvolvesResponse
 } from '../fetchs/FileFetch'
-import { FavoriteResponse, UndoFavoriteResponse, LikeResponse } from '../teambition'
+import { FavoriteResponse, UndoFavoriteResponse } from '../teambition'
 import { makeColdSignal, observableError, errorHandler } from './utils'
 
 export class FileAPI {
@@ -119,26 +119,6 @@ export class FileAPI {
         .catch(error => observableError(observer, error))
         .concatMap(file => FileModel.addOne(file).take(1))
         .forEach(file => observer.next(file))
-        .then(() => observer.complete())
-    })
-  }
-
-  like(fileId: string): Observable<LikeResponse> {
-    return Observable.create((observer: Observer<LikeResponse>) => {
-      Observable.fromPromise(FileFetch.like(fileId))
-        .catch(error => observableError(observer, error))
-        .concatMap(data => FileModel.update(fileId, data))
-        .forEach(data => observer.next(data))
-        .then(() => observer.complete())
-    })
-  }
-
-  unlike(fileId: string): Observable<LikeResponse> {
-    return Observable.create((observer: Observer<LikeResponse>) => {
-      Observable.fromPromise(FileFetch.unlike(fileId))
-        .catch(error => observableError(observer, error))
-        .concatMap(data => FileModel.update(fileId, data))
-        .forEach(data => observer.next(data))
         .then(() => observer.complete())
     })
   }

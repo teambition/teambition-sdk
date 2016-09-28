@@ -1,7 +1,7 @@
 'use strict'
 import BaseFetch from './BaseFetch'
 import { FileData } from '../schemas/File'
-import { FavoriteResponse, UndoFavoriteResponse, LikeResponse } from '../teambition'
+import { FavoriteResponse, UndoFavoriteResponse } from '../teambition'
 
 export interface FileRes {
   fileName: string
@@ -95,14 +95,6 @@ export class FileFetch extends BaseFetch {
 
   getFiles(projectId: string, parentId: string, query?: any): Promise<FileData[]> {
     return this.fetch.get(`projects/${projectId}/collections/${parentId}/works`, query)
-  }
-
-  like(FileId: string): Promise<LikeResponse> {
-    return this.fetch.post(`works/${FileId}/like`)
-  }
-
-  unlike(FileId: string): Promise<LikeResponse> {
-    return this.fetch.delete(`works/${FileId}/like`)
   }
 
   move(FileId: string, _parentId: string): Promise<MoveFileResponse> {

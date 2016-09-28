@@ -2,6 +2,7 @@
 import 'rxjs/add/operator/retry'
 import { Observable } from 'rxjs/Observable'
 import { RequestEvent } from 'snapper-consumer'
+import Dirty from '../utils/Dirty'
 import UserModel from '../models/UserModel'
 import PreferenceModel from '../models/PreferenceModel'
 import TaskModel from '../models/TaskModel'
@@ -97,6 +98,10 @@ function handler(socketMessage: MessageResult) {
         }
       case 'change':
         const length = model[_method].length
+        const dirtyStream = Dirty.handlerLikeMessage(id, type, data)
+        if (dirtyStream) {
+          return dirtyStream
+        }
         switch (length) {
           case 1:
             return model[_method](data)
