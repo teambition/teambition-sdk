@@ -78,6 +78,9 @@ export default class Model<T extends ISchema> {
   }
 
   get(): Observable<T> {
+    if (!this._subject.observers.length) {
+      this._subject.next(this._clone(this.data))
+    }
     return this._subject
   }
 
@@ -180,7 +183,9 @@ export default class Model<T extends ISchema> {
   }
 
   notify(): Observable<T> {
-    this._subject.next(this._clone(this.data))
+    if (this._subject.observers.length) {
+      this._subject.next(this._clone(this.data))
+    }
     return this._subject.take(1)
   }
 
