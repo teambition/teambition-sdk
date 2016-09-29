@@ -18,7 +18,7 @@
     "watch": "npm run watch_test & ts-node ./tools/tasks/test.ts",
     "watch_test": "tsc test/unit/app.ts -m commonjs --outDir spec-js --target ES2015 --diagnostics --pretty --sourcemap --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --skipLibCheck --isolatedModules -w",
     "build_bundle": "rm -rf dist/bundle/tbsdk.umd.js && ts-node ./tools/tasks/bundle.sdk.ts",
-    "build_mock": "rm -rf dist/mock-es6 && tsc mock/index.ts typings/globals/core-js/index.d.ts -m es2015 --outDir dist/mock-es6 --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ts-node ./tools/tasks/bundle.mock.ts",
+    "build_mock": "rm -rf dist/mock-es6 && tsc mock/index.ts typings/index.d.ts -m es2015 --outDir dist/mock-es6 --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node && ts-node ./tools/tasks/bundle.mock.ts",
     "build_mock_cjs": "rm -rf dist/mock-cjs && tsc mock/index.ts  tools/build/bundle.d.ts -m commonjs --outDir dist/mock-cjs --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_all": "rm -rf dist && mkdir dist && mkdir dist/bundle && npm run build_es6 && npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_mock_cjs && npm run build_test && npm run build_e2e && npm run build_socket",
     "lint": "tslint ./src/**/*.ts ./mock/**/*.ts ./test/unit/**/*.ts",
