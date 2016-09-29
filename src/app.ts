@@ -65,7 +65,7 @@ const teambition = ctx['teambition']
 
 const sdk = teambition.sdk = Object.create(null)
 
-sdk.version = '0.4.0-rc.2'
+sdk.version = '0.4.0'
 
 sdk.socket = new Client()
 
