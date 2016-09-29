@@ -74,6 +74,11 @@ export default describe('LikeAPI test: ', () => {
     yield signal.take(1)
       .do(r => {
         expect(r.likesCount).to.equal(like.likesCount + 1)
+        expect(r.likesGroup).to.deep.equal(like.likesGroup.concat({
+          _id: 'mockmember',
+          name: 'mockmember',
+          avatarUrl: 'url'
+        }))
       })
   })
 

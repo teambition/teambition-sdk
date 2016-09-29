@@ -134,22 +134,20 @@ export default class Model<T extends ISchema> {
               forEach(val, (ele: any, pos: number) => {
                 if (ele && ele[_unionFlag]) {
                   const _flag = ele[_unionFlag]
-                  if (this.children.indexOf(_flag) === -1) {
-                    const cache: Model<any> = Data.get(_flag)
-                    const route = {
-                      key: key,
-                      pos: pos
-                    }
-                    if (!cache) {
-                      const subModel = new Model(ele, _unionFlag)
-                      subModel.addParent(this.index)
-                      newEle.push(subModel.data)
-                    } else {
-                      newEle.push(cache.data)
-                      cache.addParent(this.index)
-                    }
-                    this.addChildren(_flag, route)
+                  const cache: Model<any> = Data.get(_flag)
+                  const route = {
+                    key: key,
+                    pos: pos
                   }
+                  if (!cache) {
+                    const subModel = new Model(ele, _unionFlag)
+                    subModel.addParent(this.index)
+                    newEle.push(subModel.data)
+                  } else {
+                    newEle.push(cache.data)
+                    cache.addParent(this.index)
+                  }
+                  this.addChildren(_flag, route)
                 } else {
                   newEle.push(ele)
                 }
