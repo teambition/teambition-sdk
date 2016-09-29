@@ -51,11 +51,16 @@ export default class Collection <T extends ISchema> {
   }
 
   get(): Observable<T[]> {
+    if (!this._subject.observers.length) {
+      this._subject.next(this._clone(this.data))
+    }
     return this._subject.debounceTime(0)
   }
 
   notify(): Observable<T[]> {
-    this._subject.next(this._clone(this.data))
+    if (this._subject.observers.length) {
+      this._subject.next(this._clone(this.data))
+    }
     return this._subject.take(1)
   }
 
