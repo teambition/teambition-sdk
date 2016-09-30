@@ -1,13 +1,15 @@
 'use strict'
 import * as chai from 'chai'
-import { TaskAPI, Backend, apihost, clone } from '../index'
+import { TaskAPI, Backend, apihost, clone, SocketMock } from '../index'
 import { tasksOneDayMe } from '../../mock/tasksOneDayMe'
+import { like } from '../../mock/like'
 import { flush } from '../utils'
 
 const expect = chai.expect
 
 export default describe('Dirty APIs Spec', () => {
   let httpBackend: Backend
+  let Socket: SocketMock
   let TaskApi: TaskAPI
 
   beforeEach(() => {
@@ -15,6 +17,7 @@ export default describe('Dirty APIs Spec', () => {
 
     httpBackend = new Backend()
     TaskApi = new TaskAPI()
+    Socket = new SocketMock()
   })
 
   it ('get tasks from my task api should ok', done => {
@@ -23,10 +26,9 @@ export default describe('Dirty APIs Spec', () => {
       total: 10,
       done: 2
     }
-
     const userId = mockTask._executorId
 
-    httpBackend.whenGET(`${apihost}tasks/${tasksOneDayMe[0]._id}`)
+    httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)
       .respond(JSON.stringify(mockTask))
 
     httpBackend.whenGET(`${apihost}v2/tasks/me?count=500&page=1&hasDueDate=false&isDone=false`)
@@ -46,6 +48,44 @@ export default describe('Dirty APIs Spec', () => {
       .subscribe(r => {
         expect(r[0].subtaskCount).to.deep.equal(mockTask.subtaskCount)
         done()
+      })
+  })
+
+  it('socket update dirty task should ok', function* () {
+    const mockTask = clone(tasksOneDayMe[0])
+    mockTask._id = 'dirtytaskmock'
+
+    httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)
+      .respond(JSON.stringify(mockTask))
+
+    const getTasks$ = TaskApi.get(mockTask._id)
+
+    yield Socket.emit('change', 'task', mockTask._id, {
+      executor: null,
+      content: 'hello'
+    }, getTasks$.take(1))
+
+    yield getTasks$.take(1)
+      .do(r => {
+        expect(r.content).to.equal('hello')
+        expect(r.executor).to.not.be.null
+      })
+  })
+
+  it('like data change should not handled by bounded object', function* () {
+    const mockTask = clone(tasksOneDayMe[0])
+    mockTask._id = 'dirtytaskmock'
+
+    httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)
+      .respond(JSON.stringify(mockTask))
+
+    const getTasks$ = TaskApi.get(mockTask._id)
+
+    yield Socket.emit('change', 'task', mockTask._id, like, getTasks$.take(1))
+
+    yield getTasks$.take(1)
+      .do(r => {
+        expect(r.likesGroup).to.be.undefined
       })
   })
 })

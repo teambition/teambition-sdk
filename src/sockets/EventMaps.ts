@@ -98,7 +98,7 @@ function handler(socketMessage: MessageResult) {
         }
       case 'change':
         const length = model[_method].length
-        const dirtyStream = Dirty.handlerLikeMessage(id, type, data)
+        const dirtyStream = Dirty.handlerSocketMessage(id, type, data)
         if (dirtyStream) {
           return dirtyStream
         }
