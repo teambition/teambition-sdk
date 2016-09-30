@@ -9,6 +9,7 @@ pids
 
 # Coverage directory used by tools like istanbul
 coverage
+.nyc_output
 
 # node-waf configuration
 .lock-wscript

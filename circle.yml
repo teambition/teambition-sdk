@@ -11,7 +11,7 @@ dependencies:
 
 test:
   post:
-    - cp coverage/coverage.json $CIRCLE_ARTIFACTS/json_output
+    - cp ./.nyc_output/*.json $CIRCLE_ARTIFACTS
 
 notify:
   webhooks:
