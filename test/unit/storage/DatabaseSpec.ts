@@ -2,11 +2,12 @@
 import * as chai from 'chai'
 import * as sinonChai from 'sinon-chai'
 import Database from '../../../src/storage/Database'
-import { clone, dataToSchema, forEach } from '../index'
+import { clone, dataToSchema, forEach, uuid } from '../index'
 import { Schema, setSchema, child } from '../../../src/schemas/schema'
 import TaskSchema from '../../../src/schemas/Task'
 import SubtaskSchema from '../../../src/schemas/Subtask'
 import ObjectLinkSchema from '../../../src/schemas/ObjectLink'
+import MessageSchema from '../../../src/schemas/Message'
 import { objectLinks } from '../../mock/objectLinks'
 import { modelMock } from '../../mock/modelMock'
 import { organizationMySubtasks } from '../../mock/organizationMySubtasks'
@@ -808,6 +809,25 @@ export default describe('database test: ', () => {
   })
 
   describe('schema data test: ', () => {
+
+    it('should store/get one lost children', function* () {
+      const messageData = {
+        _id: uuid()
+      }
+      const messageSchema = dataToSchema(messageData, MessageSchema)
+
+      yield Storage.storeOne(messageSchema)
+        .take(1)
+        .do(result => {
+          expectDeepEqual(result, messageSchema)
+        })
+
+      yield Storage.get(messageData._id)
+        .take(1)
+        .do(result => {
+          expectDeepEqual(result, messageSchema)
+        })
+    })
 
     it('element should be deleted when bloody parent has been deleted', function* () {
       const subtasks = clone(modelMock.subtasks)
