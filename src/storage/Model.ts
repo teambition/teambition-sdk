@@ -275,6 +275,9 @@ export default class Model<T extends ISchema> {
   private _genChild($$children: ChildMap) {
     this.$$children.forEach((child, key) => {
       const childData = this.data[key]
+      if (!childData) {
+        return
+      }
       switch (child.type) {
         case 'Object':
           const result = this._genChildEle(childData, child.unionFlag, child.schemaName)
