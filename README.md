@@ -102,30 +102,106 @@ class TaskView extends Backbone.View {
 比如获取一个任务:
 
 ```ts
-import {TasksAPI, TaskSchema} from 'teambition-sdk'
-import {Card} from 'teambition-ui'
-import Route from '../route'
-import {errorHandler} from '../errorHandler'
+import 'rxjs/add/operator/distinctUntilKeyChanged'
+import { TasksAPI } from 'teambition-sdk'
+import { Input } from '@angular/core'
 
 @component({
-  providers: [Route, TasksAPI],
-  template: require('./templates/index.vue'),
-  directives: [Card]
+  selector: 'task-detail',
+  template: `
+    <div> {{ task$?.name | async }} </div>
+    <div> {{ subtaskCount$ | async }} </div>
+  `
 })
-class TaskView {
+export default class TaskView {
 
-  private task: TaskSchema
+  @Input('taskId') taskId: string
 
-  constructor(private route: Route, private TasksAPI: TasksAPI) {}
+  private task$ = this.TaskAPI.get(this.taskId)
+    .publishReplay(1)
+    .refCount()
 
-  onInit() {
-    const taskId = this.route.params._id
-    TasksAPI.get(taskId)
-      .subscribe(task => {
-        this.task = task
-      }, errorHandler)
-  }
+  private subtaskCount$ = this.task$
+    .distinctUntilKeyChanged('subtasks')
+    .map(task => ({
+      total: task.subtasks.length,
+      done: task.subtasks.filter(x => x.isDone).length
+    }))
+
+  constructor(
+    private TasksAPI: TasksAPI
+  ) { }
 }
 ```
 
-在这种场景下，关于 task 的任何变更 (tasklist 变更，executor 变更，stage 变更等等) 都会触发 subscribe 中的回调，从而简化 View 层的逻辑。
+
+如果更加纯粹的使用 RxJS，甚至可以组合多种数据和业务:
+
+
+```ts
+import 'rxjs/add/operator/distinctUntilKeyChanged'
+import 'rxjs/add/operator/distinctUntilChanged'
+import { PermissionAPI, TasksAPI, ProjectAPI } from 'teambition-sdk'
+import { Input } from '@angular/core'
+import * as moment from 'moment'
+import { errorHandler } from '../errorHandler'
+
+@component({
+  selector: 'task-detail',
+  template: `
+    <div [ngClass]="{'active': permission$.canEdit | async}"></div>
+    <div> {{ task$?.name | async }} </div>
+    <div> {{ subtaskCount$ | async }} </div>
+    <div> {{ dueDate$ | async }} </div>
+  `
+})
+export default class TaskView {
+
+  @Input('taskId') taskId: string
+
+  private task$ = this.TaskAPI.get(this.taskId)
+    .catch(err => errorHandler(err))
+    .publishReplay(1)
+    .refCount()
+
+  private subtaskCount$ = this.task$
+    .distinctUntilKeyChanged('subtasks')
+    .map(task => ({
+      total: task.subtasks.length,
+      done: task.subtasks.filter(x => x.isDone).length
+    }))
+
+  private dueDate$ = this.task$
+    .map(task => moment(task.dueDate).format())
+
+  private project$ = this.task$
+    .distinctUntilKeyChanged('_projectId')
+    .switchMap(task => this.ProjectAPI.get(task._projectId))
+    .catch(err => errorHandler(err))
+    .publishReplay(1)
+    .refCount()
+
+  private permission$ = this.task$
+    .distinctUntilChanged((before, after) => {
+      return before._executorId === after._executorId &&
+        before._projectId === after._projectId
+    })
+    .switchMap(task => {
+      return this.project$
+        .distinctUntilKeyChanged('_defaultRoleId')
+        .switchMap(project => {
+          return this.PermissionAPI.getPermission(task, project)
+        })
+    })
+    .catch(err => errorHandler(err))
+    .publishReplay(1)
+    .refCount()
+
+  constructor(
+    private TasksAPI: TasksAPI,
+    private PermissionAPI: PermissionAPI
+  ) { }
+}
+```
+
+在这种场景下，关于 task 的任何变更 (tasklist 变更，executor 变更，stage 变更等等，权限变化) 都能让相关的数据自动更新，从而简化 View 层的逻辑。
