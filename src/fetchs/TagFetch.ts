@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { TagData } from '../schemas/Tag'
 import { TaskData } from '../schemas/Task'
@@ -51,43 +52,43 @@ export interface UnarchiveTagResponse {
 }
 
 export class TagFetch extends BaseFetch {
-  create(options: CreateTagOptions): Promise<TagData> {
+  create(options: CreateTagOptions): Observable<TagData> {
     return this.fetch.post(`tags`, options)
   }
 
-  get(_id: string, query?: any): Promise<TagData> {
+  get(_id: string, query?: any): Observable<TagData> {
     return this.fetch.get(`tags/${_id}`, query)
   }
 
-  update(_id: string, option: UpdateTagOptions): Promise<UpdateTagResponse> {
+  update(_id: string, option: UpdateTagOptions): Observable<UpdateTagResponse> {
     return this.fetch.put(`tags/${_id}`, option)
   }
 
-  delete(_id: string): Promise<void> {
+  delete(_id: string): Observable<void> {
     return this.fetch.delete<void>(`tags/${_id}`)
   }
 
-  archive(_id: string): Promise<ArchiveTagResponse> {
+  archive(_id: string): Observable<ArchiveTagResponse> {
     return this.fetch.post(`tags/${_id}/archive`)
   }
 
-  getByObject(_objectId: string, objectType: TagsObjectType, query?: any): Promise<TagData[]> {
+  getByObject(_objectId: string, objectType: TagsObjectType, query?: any): Observable<TagData[]> {
     return this.fetch.get(`tags/${objectType}s/${_objectId}/tags`, query)
   }
 
-  getByProjectId(_projectId: string, query?: any): Promise<TagData[]> {
+  getByProjectId(_projectId: string, query?: any): Observable<TagData[]> {
     return this.fetch.get(`projects/${_projectId}/tags`, query)
   }
 
-  getRelated(_tagId: string, objectType: TagsObjectType, query?: any): Promise<ObjectSchema> {
+  getRelated<T extends ObjectSchema>(_tagId: string, objectType: TagsObjectType, query?: any): Observable<T[]> {
     return this.fetch.get(`tags/${_tagId}/${objectType}s`)
   }
 
-  relateTag(_objectId: string, objectType: TagsObjectType, tagId: string): Promise<RelateTagResponse> {
+  relateTag(_objectId: string, objectType: TagsObjectType, tagId: string): Observable<RelateTagResponse> {
     return this.fetch.put(`${objectType}s/${_objectId}/tags/${tagId}`)
   }
 
-  unarchive(_id: string): Promise<UnarchiveTagResponse> {
+  unarchive(_id: string): Observable<UnarchiveTagResponse> {
     return this.fetch.delete(`tags/${_id}/archive`)
   }
 }

@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { FeedbackData } from '../schemas/Feedback'
 
@@ -28,19 +29,19 @@ export interface UpdateProjectFeedbackResponse {
 }
 
 export class FeedbackFetch extends BaseFetch {
-  getProjectFeedback(projectId: string, query: GetProjectFeedbackQuerys): Promise<FeedbackData[]> {
+  getProjectFeedback(projectId: string, query: GetProjectFeedbackQuerys): Observable<FeedbackData[]> {
     return this.fetch.get(`projects/${projectId}/feedbacks`, query)
   }
 
-  createProjectFeedback(_projectId: string, options: CreateProjectFeedbackOption): Promise<FeedbackData> {
+  createProjectFeedback(_projectId: string, options: CreateProjectFeedbackOption): Observable<FeedbackData> {
     return this.fetch.post(`projects/${_projectId}/feedbacks`, options)
   }
 
-  deleteProjectFeedback(_projectId: string, feedbackId: string): Promise<void> {
+  deleteProjectFeedback(_projectId: string, feedbackId: string): Observable<void> {
     return this.fetch.delete<void>(`projects/${_projectId}/feedbacks/${feedbackId}`)
   }
 
-  updateProjectFeedback(_projectId: string, feedbackId: string, options: UpdateProjectFeedbackOptions): Promise<UpdateProjectFeedbackResponse> {
+  updateProjectFeedback(_projectId: string, feedbackId: string, options: UpdateProjectFeedbackOptions): Observable<UpdateProjectFeedbackResponse> {
     return this.fetch.put(`projects/${_projectId}/feedbacks/${feedbackId}`, options)
   }
 }

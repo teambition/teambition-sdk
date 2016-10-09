@@ -1,6 +1,5 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
 import { PostData } from '../schemas/Post'
 import PostModel from '../models/PostModel'
 import {
@@ -9,11 +8,12 @@ import {
   PostFavoriteResponse,
   UpdateInvolves,
   ArchivePostResponse,
+  UnArchivePostResponse,
   UpdateInvolvesResponse,
   UpdatePinResponse,
   UpdateTagsResponse
 } from '../fetchs/PostFetch'
-import { makeColdSignal, observableError, errorHandler } from './utils'
+import { makeColdSignal } from './utils'
 
 export class PostAPI {
   getProjectPosts(projectId: string, query?: {
@@ -21,36 +21,29 @@ export class PostAPI {
     count: number
     fields?: string
   }): Observable<PostData[]> {
-    return makeColdSignal<PostData[]>(observer => {
+    return makeColdSignal<PostData[]>(() => {
       const page = query && query.page ? query.page : 1
       const get = PostModel.getPosts(projectId, page)
       if (get) {
         return get
       }
-      return Observable.fromPromise(PostFetch.getProjectPosts(projectId, query))
-        .catch(err => errorHandler(observer, err))
+      return PostFetch.getProjectPosts(projectId, query)
         .concatMap(posts => PostModel.addPosts(projectId, posts, page))
     })
   }
 
   create(post: CreatePostOptions): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
-      return Observable.fromPromise(PostFetch.create(post))
-        .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.addOne(post).take(1))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return PostFetch.create(post)
+      .concatMap(post => PostModel.addOne(post).take(1))
   }
 
   get(postId: string, query?: any): Observable<PostData> {
-    return makeColdSignal<PostData>(observer => {
+    return makeColdSignal<PostData>(() => {
       const get = PostModel.getOne(postId)
       if (get && PostModel.checkSchema(postId)) {
         return get
       }
-      return Observable.fromPromise(PostFetch.get(postId, query))
-        .catch(err => errorHandler(observer, err))
+      return PostFetch.get(postId, query)
         .concatMap(post => PostModel.addOne(post))
     })
   }
@@ -58,101 +51,65 @@ export class PostAPI {
   /**
    * cold signal
    */
-  delete(postId: string): Observable<PostData> {
-    return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(PostFetch.delete(postId))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => PostModel.delete(postId))
-        .forEach(x => observer.next(null))
-        .then(() => observer.complete())
-    })
+  delete(postId: string): Observable<void> {
+    return PostFetch.delete(postId)
+      .concatMap(x => PostModel.delete(postId))
   }
 
   /**
    * cold signal
    */
   archive(postId: string): Observable<ArchivePostResponse> {
-    return Observable.create((observer: Observer<ArchivePostResponse>) => {
-      Observable.fromPromise(PostFetch.archive(postId))
-        .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.update(postId, post))
-        .forEach(post => observer.next(post))
-        .then(() => observer.complete())
-    })
+    return PostFetch.archive(postId)
+      .concatMap(post => PostModel.update(postId, post))
   }
 
   /**
    * cold signal
    */
   favorite(postId: string): Observable<PostFavoriteResponse> {
-    return Observable.create((observer: Observer<PostFavoriteResponse>) => {
-      let _result: PostFavoriteResponse
-      Observable.fromPromise(PostFetch.favorite(postId))
-        .catch(err => observableError(observer, err))
-        .concatMap(result => {
-          _result = result
-          return PostModel.update(postId, {
-            isFavorite: result.isFavorite,
-            content: result.data.content,
-            title: result.data.title,
-            updated: result.data.updated,
-            created: result.data.created
-          })
+    return PostFetch.favorite(postId)
+      .concatMap(result => {
+        return PostModel.update(postId, {
+          isFavorite: result.isFavorite,
+          content: result.data.content,
+          title: result.data.title,
+          updated: result.data.updated,
+          created: result.data.created
         })
-        .forEach(v => observer.next(_result))
-        .then(() => observer.complete())
-    })
+          .map(() => result)
+      })
   }
 
   /**
    * cold signal
    */
-  unarchive(postId: string): Observable<PostData> {
-    return Observable.create((observer: Observer<PostData>) => {
-      Observable.fromPromise(PostFetch.unarchive(postId))
-        .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update(postId, result))
-        .forEach(r => observer.next(<PostData>r))
-        .then(() => observer.complete())
-    })
+  unarchive(postId: string): Observable<UnArchivePostResponse> {
+    return PostFetch.unarchive(postId)
+      .concatMap(result => PostModel.update(postId, result))
   }
 
   /**
    * cold signal
    */
   updatInvolves(postId: string, involves: UpdateInvolves): Observable<UpdateInvolvesResponse> {
-    return Observable.create((observer: Observer<UpdateInvolvesResponse>) => {
-      Observable.fromPromise(PostFetch.updateInvolves(postId, involves))
-        .catch(err => observableError(observer, err))
-        .concatMap(result => PostModel.update(postId, result))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return PostFetch.updateInvolves(postId, involves)
+      .concatMap(result => PostModel.update(postId, result))
   }
 
   /**
    * cold signal
    */
   updatePin(postId: string, pin: boolean): Observable<UpdatePinResponse> {
-    return Observable.create((observer: Observer<UpdatePinResponse>) => {
-      Observable.fromPromise(PostFetch.updatePin(postId, pin))
-        .catch(err => observableError(observer, err))
-        .concatMap(post => PostModel.update(postId, post))
-        .forEach(v => observer.next(v))
-        .then(() => observer.complete())
-    })
+    return PostFetch.updatePin(postId, pin)
+      .concatMap(post => PostModel.update(postId, post))
   }
 
   /**
    * cold signal
    */
   updateTags(postId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
-    return Observable.create((observer: Observer<UpdateTagsResponse>) => {
-      Observable.fromPromise(PostFetch.updateTags(postId, tagIds))
-        .catch(err => observableError(observer, err))
-        .concatMap(r => PostModel.update(postId, r))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return PostFetch.updateTags(postId, tagIds)
+      .concatMap(r => PostModel.update(postId, r))
   }
 }

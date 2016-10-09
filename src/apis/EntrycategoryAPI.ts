@@ -1,6 +1,5 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
 import { EntrycategoryData } from '../schemas/Entrycategory'
 import EntrycategoryModel from '../models/EntrycategoryModel'
 import {
@@ -9,7 +8,7 @@ import {
   UpdateEntrycategoryOptions,
   UpdateEntrycategoryResponse
 } from '../fetchs/EntrycategoryFetch'
-import { makeColdSignal, observableError, errorHandler } from './utils'
+import { makeColdSignal } from './utils'
 
 export class EntrycategoryAPI {
   getEntrycategories(query: {
@@ -17,62 +16,43 @@ export class EntrycategoryAPI {
     page?: number
     count?: number
   }): Observable<EntrycategoryData[]> {
-    return makeColdSignal<EntrycategoryData[]>(observer => {
+    return makeColdSignal<EntrycategoryData[]>(() => {
       const page = query && query.page ? query.page : 1
       const get = EntrycategoryModel.getEntrycategories(query._projectId, page)
       if (get) {
         return get
       }
-      return Observable.fromPromise(EntrycategoryFetch.getEntrycategories(query))
-        .catch(err => errorHandler(observer, err))
+      return EntrycategoryFetch.getEntrycategories(query)
         .concatMap(posts => EntrycategoryModel.addEntrycategories(query._projectId, posts, page))
     })
   }
 
   create(entrycategory: CreateEntrycategoryOptions): Observable<EntrycategoryData> {
-    return Observable.create((observer: Observer<EntrycategoryData>) => {
-      return Observable.fromPromise(EntrycategoryFetch.create(entrycategory))
-        .catch(err => observableError(observer, err))
-        .concatMap(entrycategory => EntrycategoryModel.addOne(entrycategory).take(1))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return EntrycategoryFetch.create(entrycategory)
+      .concatMap(entrycategory => EntrycategoryModel.addOne(entrycategory).take(1))
   }
 
   update(_entrycategoryId: string, data: UpdateEntrycategoryOptions): Observable<UpdateEntrycategoryResponse> {
-    return Observable.create((observer: Observer<UpdateEntrycategoryResponse>) => {
-      return Observable.fromPromise(EntrycategoryFetch.update(_entrycategoryId, data))
-        .concatMap(entrycategory => EntrycategoryModel.update(_entrycategoryId, entrycategory))
-        .forEach(entrycategory => observer.next(entrycategory))
-        .then(() => observer.complete())
-    })
+    return EntrycategoryFetch.update(_entrycategoryId, data)
+      .concatMap(entrycategory => EntrycategoryModel.update(_entrycategoryId, entrycategory))
   }
 
   get(_entrycategoryId: string, query: {
     _projectId: string
   }): Observable<EntrycategoryData> {
-    return makeColdSignal<EntrycategoryData>(observer => {
+    return makeColdSignal<EntrycategoryData>(() => {
       const get = EntrycategoryModel.getOne(_entrycategoryId)
       if (get) {
         return get
       }
-      return Observable.fromPromise(EntrycategoryFetch.get(_entrycategoryId, query))
-        .catch(err => errorHandler(observer, err))
+      return EntrycategoryFetch.get(_entrycategoryId, query)
         .concatMap(post => EntrycategoryModel.addOne(post))
     })
   }
 
-  /**
-   * cold signal
-   */
-  delete(entrycategoryId: string): Observable<EntrycategoryData> {
-    return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(EntrycategoryFetch.delete(entrycategoryId))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EntrycategoryModel.delete(entrycategoryId))
-        .forEach(x => observer.next(null))
-        .then(() => observer.complete())
-    })
+  delete(entrycategoryId: string): Observable<void> {
+    return EntrycategoryFetch.delete(entrycategoryId)
+      .concatMap(x => EntrycategoryModel.delete(entrycategoryId))
   }
 
 }

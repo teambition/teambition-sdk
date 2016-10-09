@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import Fetch from './BaseFetch'
 import Task from '../schemas/Task'
 import { SubtaskData } from '../schemas/Subtask'
@@ -23,19 +24,21 @@ export interface SubtaskUpdateOptions {
 }
 
 export class SubtaskFetch extends Fetch {
-  getMySubtasks(options: GetMySubtasksOptions): Promise<MySubtask[]> {
+  getMySubtasks(options: GetMySubtasksOptions): Observable<MySubtask[]> {
     return this.fetch.get(`v2/tasks/me/subtasks`, options)
   }
 
-  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Promise<SubtaskData[]> {
+  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Observable<SubtaskData[]> {
     return this.fetch.get(`organizations/${organizationId}/subtasks/me`, option)
   }
 
-  getOrgsSubtasksCreated(organizationId: string, page = 1, maxId?: string): Promise<SubtaskData[]> {
-    const query = this.checkQuery({
-      page: page,
-      maxId: maxId
-    })
+  getOrgsSubtasksCreated(organizationId: string, query: {
+    page: number,
+    maxId?: number
+  } = {
+    page: 1
+  }): Observable<SubtaskData[]> {
+    const _query = this.checkQuery(query)
     return this.fetch.get(`organizations/${organizationId}/subtasks/me/created`, query)
   }
 
@@ -43,45 +46,41 @@ export class SubtaskFetch extends Fetch {
     content: string
     _taskId: string
     _executorId?: string
-  }): Promise<SubtaskData> {
+  }): Observable<SubtaskData> {
     return this.fetch.post(`subtasks`, subtaskData)
   }
 
-  getOne(_subTaskId: string, _taskId?: string, withExecutor?: boolean): Promise<SubtaskData> {
-    let queryData: {
-      _taskId?: string
-      withExecutor?: boolean
+  getOne(_subTaskId: string, query?: {
+    _taskId?: string
+    withExecutor?: boolean
+  }): Observable<SubtaskData> {
+    this.checkQuery(query)
+    if (query.withExecutor) {
+      query.withExecutor = !!query.withExecutor
     }
-    if (_taskId && withExecutor) {
-      queryData = {}
-      if (_taskId) {
-        queryData._taskId = _taskId
-      }
-      queryData.withExecutor = !!withExecutor
-    }
-    return this.fetch.get(`subtasks/${_subTaskId}`, queryData)
+    return this.fetch.get(`subtasks/${_subTaskId}`, query)
   }
 
-  getFromTask(_taskId: string): Promise<SubtaskData[]> {
-    return this.fetch.get(`tasks/${_taskId}/subtasks`)
+  getFromTask(_taskId: string, query?: any): Observable<SubtaskData[]> {
+    return this.fetch.get(`tasks/${_taskId}/subtasks`, query)
   }
 
-  update<T extends SubtaskUpdateOptions>(_subTaskId: string, subtaskData: T): Promise<T> {
+  update<T extends SubtaskUpdateOptions>(_subTaskId: string, subtaskData: T): Observable<T> {
     return this.fetch.put(`subtasks/${_subTaskId}`, subtaskData)
   }
 
-  delete(_subTaskId: string): Promise<{}> {
+  delete(_subTaskId: string): Observable<{}> {
     return this.fetch.delete(`subtasks/${_subTaskId}`)
   }
 
-  transform(_subTaskId: string, doLink = false, doLinked = false): Promise<Task> {
+  transform(_subTaskId: string, doLink = false, doLinked = false): Observable<Task> {
     return this.fetch.put(`subtasks/${_subTaskId}/transform`, {
       doLink: doLink,
       doLinked: doLinked
     })
   }
 
-  updateContent(_subTaskId: string, content: string): Promise<{
+  updateContent(_subTaskId: string, content: string): Observable<{
     _id: string
     content: string
   }> {
@@ -90,7 +89,7 @@ export class SubtaskFetch extends Fetch {
     })
   }
 
-  updateDuedate(_subTaskId: string, dueDate: string): Promise<{
+  updateDuedate(_subTaskId: string, dueDate: string): Observable<{
     _id: string
     dueDate: string
   }> {
@@ -99,7 +98,7 @@ export class SubtaskFetch extends Fetch {
     })
   }
 
-  updateExecutor(_subTaskId: string, _executorId: string): Promise<{
+  updateExecutor(_subTaskId: string, _executorId: string): Observable<{
     _id: string
     _executorId: string
   }> {
@@ -108,7 +107,7 @@ export class SubtaskFetch extends Fetch {
     })
   }
 
-  updateStatus(_subTaskId: string, isDone: boolean): Promise<{
+  updateStatus(_subTaskId: string, isDone: boolean): Observable<{
     _id: string
     isDone: boolean
   }> {

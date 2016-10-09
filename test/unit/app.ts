@@ -1,7 +1,7 @@
 /// <reference path="./type.d.ts" />
 'use strict'
 
-export * from './utils/fetch'
+// export * from './utils/fetch'
 export * from './utils/setSchema'
 export * from './utils/utils'
 export * from './utils/observable'

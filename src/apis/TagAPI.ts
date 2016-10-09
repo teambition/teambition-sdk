@@ -1,6 +1,5 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
 import TagModel from '../models/TagModel'
 import TagFetch, {
   CreateTagOptions,
@@ -12,69 +11,43 @@ import TagFetch, {
   RelateTagResponse
 } from '../fetchs/TagFetch'
 import { TagData } from '../schemas/Tag'
-import { errorHandler, observableError, makeColdSignal } from './utils'
+import { makeColdSignal } from './utils'
 
 export class TagAPI {
   create(options: CreateTagOptions): Observable<TagData> {
-    return Observable.create((observer: Observer<TagData>) => {
-      Observable.fromPromise(TagFetch.create(options))
-        .catch(err => observableError(observer, err))
-        .concatMap(r => TagModel.addOne(r).take(1))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return TagFetch.create(options)
+      .concatMap(r => TagModel.addOne(r).take(1))
   }
 
   get(_id: string, query?: any): Observable<TagData> {
-    return makeColdSignal<TagData>(observer => {
+    return makeColdSignal<TagData>(() => {
       const cache = TagModel.getOne(_id)
       if (cache) {
         return cache
       }
-      return Observable.fromPromise(TagFetch.get(_id, query))
-        .catch(err => errorHandler(observer, err))
+      return TagFetch.get(_id, query)
         .concatMap(r => TagModel.addOne(r))
     })
   }
 
   update(_id: string, options: UpdateTagOptions): Observable<UpdateTagResponse> {
-    return Observable.create((observer: Observer<UpdateTagResponse>) => {
-      Observable.fromPromise(TagFetch.update(_id, options))
-        .catch(err => observableError(observer, err))
-        .concatMap(r => TagModel.update(_id, r))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return TagFetch.update(_id, options)
+      .concatMap(r => TagModel.update(_id, r))
   }
 
   delete(_id: string): Observable<void> {
-    return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(TagFetch.delete(_id))
-        .catch(err => observableError(observer, err))
-        .concatMap(() => TagModel.delete(_id))
-        .forEach(() => observer.next(null))
-        .then(() => observer.complete())
-    })
+    return TagFetch.delete(_id)
+      .concatMap(() => TagModel.delete(_id))
   }
 
   archive(_id: string): Observable<ArchiveTagResponse> {
-    return Observable.create((observer: Observer<ArchiveTagResponse>) => {
-      Observable.fromPromise(TagFetch.archive(_id))
-        .catch(err => observableError(observer, err))
-        .concatMap(r => TagModel.update(_id, r))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return TagFetch.archive(_id)
+      .concatMap(r => TagModel.update(_id, r))
   }
 
   unarchive(_id: string): Observable<ArchiveTagResponse> {
-    return Observable.create((observer: Observer<ArchiveTagResponse>) => {
-      Observable.fromPromise(TagFetch.unarchive(_id))
-        .catch(err => observableError(observer, err))
-        .concatMap(r => TagModel.update(_id, r))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return TagFetch.unarchive(_id)
+      .concatMap(r => TagModel.update(_id, r))
   }
 
   /**
@@ -93,36 +66,29 @@ export class TagAPI {
   // }
 
   getByProjectId(_projectId: string, query?: any): Observable<TagData[]> {
-    return makeColdSignal<TagData[]>(observer => {
+    return makeColdSignal<TagData[]>(() => {
       const cache = TagModel.getByProjectId(_projectId)
       if (cache) {
         return cache
       }
-      return Observable.fromPromise(TagFetch.getByProjectId(_projectId, query))
-        .catch(err => errorHandler(observer, err))
+      return TagFetch.getByProjectId(_projectId, query)
         .concatMap(r => TagModel.addByProjectId(_projectId, r))
     })
   }
 
   getRelated<T extends ObjectSchema>(_tagId: string, objectType: TagsObjectType, query?: any): Observable<T[]> {
-    return makeColdSignal<T[]>(observer => {
+    return makeColdSignal<T[]>(() => {
       const cache = TagModel.getRelated<T>(_tagId, objectType)
       if (cache) {
         return cache
       }
-      return Observable.fromPromise(TagFetch.getRelated(_tagId, objectType, query))
-        .catch(err => errorHandler(observer, err))
+      return TagFetch.getRelated<T>(_tagId, objectType, query)
         .concatMap(r => TagModel.addRelated(_tagId, objectType, r))
     })
   }
 
   relateTag(_objectId: string, objectType: TagsObjectType, tagId: string): Observable<RelateTagResponse> {
-    return Observable.create((observer: Observer<RelateTagResponse>) => {
-      Observable.fromPromise(TagFetch.relateTag(_objectId, objectType, tagId))
-        .catch(err => observableError(observer, err))
-        .concatMap(r => TagModel.relatedTag(_objectId, r))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return TagFetch.relateTag(_objectId, objectType, tagId)
+      .concatMap(r => TagModel.relatedTag(_objectId, r))
   }
 }

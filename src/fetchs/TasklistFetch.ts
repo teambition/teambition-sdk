@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { TasklistData } from '../schemas/Tasklist'
 
@@ -30,31 +31,31 @@ export interface UnarchiveTasklistResponse {
 }
 
 export class TasklistFetch extends BaseFetch {
-  create(createOptions: CreateTasklistOptions): Promise<TasklistData> {
+  create(createOptions: CreateTasklistOptions): Observable<TasklistData> {
     return this.fetch.post(`tasklists`, createOptions)
   }
 
-  getTasklists(_projectId: string, query?: any): Promise<TasklistData[]> {
+  getTasklists(_projectId: string, query?: any): Observable<TasklistData[]> {
     return this.fetch.get(`projects/${_projectId}/tasklists`, query)
   }
 
-  get(_id: string, query?: any): Promise<TasklistData> {
+  get(_id: string, query?: any): Observable<TasklistData> {
     return this.fetch.get(`tasklists/${_id}`, query)
   }
 
-  update(_id: string, updateData: UpdateTasklistOptions): Promise<UpdateTasklistOptions> {
+  update(_id: string, updateData: UpdateTasklistOptions): Observable<UpdateTasklistOptions> {
     return this.fetch.put(`tasklists/${_id}`, updateData)
   }
 
-  delete(_id: string): Promise<{}> {
+  delete(_id: string): Observable<{}> {
     return this.fetch.delete(`tasklists/${_id}`)
   }
 
-  archive(_id: string): Promise<ArchiveTasklistResponse> {
+  archive(_id: string): Observable<ArchiveTasklistResponse> {
     return this.fetch.post(`tasklists/${_id}/archive`)
   }
 
-  move(_id: string): Promise<{
+  move(_id: string): Observable<{
     _id: string
     _projectId: string
     updated: string
@@ -62,7 +63,7 @@ export class TasklistFetch extends BaseFetch {
     return this.fetch.put(`tasklists/${_id}/move`)
   }
 
-  unarchive(_id: string): Promise<UnarchiveTasklistResponse> {
+  unarchive(_id: string): Observable<UnarchiveTasklistResponse> {
     return this.fetch.delete(`tasklists/${_id}/archive`)
   }
 }

@@ -11,7 +11,6 @@ declare const global: any
 
 const ctx = typeof global === 'undefined' ? window : global
 
-/* istanbul ignore next */
 export class SocketClient {
   private _isDebug = false
 
@@ -141,8 +140,9 @@ export class SocketClient {
     }
   }
 
-  private _getToken(): Promise<void> {
+  private _getToken() {
     return UserFetch.getUserMe()
+      .toPromise()
       .then(r => {
         this._getUserMeStream.next(r)
       })

@@ -6,6 +6,7 @@ export class SocketFetch extends Fetch {
     return this.fetch.post<void>(`${room}/subscribe`, {
       consumerId: consumerId
     })
+      .toPromise()
   }
 
   leave(room: string, consumerId: string): Promise<void> {

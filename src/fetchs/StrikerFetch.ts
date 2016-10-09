@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import { FileRes } from './FileFetch'
 import UserFetch from './UserFetch'
 
@@ -11,7 +12,7 @@ export class StrikerFetch {
     this._strikerApiHost = host
   }
 
-  upload(file: File): Promise<FileRes> {
+  upload(file: File): Observable<FileRes> {
     let formData: any
     /* istanbul ignore if */
     if (typeof FormData !== 'undefined') {
@@ -24,7 +25,7 @@ export class StrikerFetch {
       formData = file
     }
     return UserFetch.getUserMe()
-      .then(userme => {
+      .concatMap<Response>(userme => {
         return fetch(`${this._strikerApiHost}/upload`, {
           headers: {
             'Authorization': userme.strikerAuth
@@ -33,7 +34,7 @@ export class StrikerFetch {
           body: formData
         })
       })
-      .then(resp => {
+      .concatMap<FileRes>(resp => {
         const status = resp.status
         if (status >= 200 && status < 400) {
           return resp.json()

@@ -1,9 +1,12 @@
 'use strict'
 import 'isomorphic-fetch'
+import 'rxjs/add/observable/dom/ajax'
 import 'rxjs/add/operator/debounceTime'
+import { AjaxResponse } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
-import { assign, forEach } from './index'
+import { Observer } from 'rxjs/Observer'
+import { Subject } from 'rxjs/Subject'
+import { assign, forEach, parseHeaders } from './index'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
 
@@ -16,7 +19,7 @@ export interface HttpErrorMessage {
 
 const allowedHttpMethod = ['get', 'post', 'put', 'delete']
 
-export const HttpError$: Observable<HttpErrorMessage> = new ReplaySubject<HttpErrorMessage>(5).debounceTime(100)
+export const HttpError$: Observable<HttpErrorMessage> = new Subject<HttpErrorMessage>()
 
 export class Fetch {
 
@@ -63,7 +66,7 @@ export class Fetch {
 
   public middleware(method: AllowedHttpMethod, decorator: (args?: {
     url: string
-    originFn: (url: string, queryOrBody?: any) => Promise<any>
+    originFn: (url: string, queryOrBody?: any) => Observable<any>
     queryOrBody?: any
   }) => any): void {
     if (allowedHttpMethod.indexOf(method) === -1) {
@@ -120,8 +123,8 @@ export class Fetch {
     return url + _query
   }
 
-  private createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Promise<T> {
-    return (url: string, body?: any): Promise<T> => {
+  private createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Observable<any> {
+    return (url: string, body?: any): Observable<T> => {
       const options = assign({
         method: method
       }, this._opts)
@@ -129,30 +132,67 @@ export class Fetch {
         options.body = typeof body === 'object' ? JSON.stringify(body) : body
       }
 
-      return fetch(this._apiHost + url, options)
-        .then((response: Response): Promise<string> => {
-          if (response.status >= 200 && response.status < 400) {
-            return response.text()
-          } else {
-            throw response
-          }
+      if (typeof window !== 'undefined') {
+        return Observable.ajax({
+          url: this._apiHost + url,
+          body, method,
+          headers: this._opts.headers,
+          withCredentials: this._opts.credentials === 'include',
+          responseType: this._opts.responseType || 'json',
+          crossDomain: typeof this._opts.crossDomain !== 'undefined' ? !!this._opts.crossDomain : true
         })
-        .then(r => {
-          try {
-            return JSON.parse(r)
-          } catch (e) {
-            return r
-          }
-        })
-        .catch((e: Response) => {
-          setTimeout(() => {
-            (<ReplaySubject<HttpErrorMessage>>HttpError$).next({
-              error: e,
-              method, url, body
+          .map(value => {
+            const resp = value.response
+            try {
+              return JSON.parse(resp)
+            } catch (e) {
+              return resp
+            }
+          })
+          .catch((e: AjaxResponse) => {
+            const headers = e.xhr.getAllResponseHeaders()
+            setTimeout(() => {
+              (<Subject<HttpErrorMessage>>HttpError$).next({
+                error: new Response(e.response, {
+                  status: e.status ? e.status : 500,
+                  statusText: e.responseText,
+                  headers: headers.length ? new Headers(parseHeaders(headers)) : new Headers()
+                }),
+                method, url, body
+              })
+            }, 10)
+            return Observable.throw(e)
+          })
+      } else {
+        return Observable.create((observer: Observer<any>) => {
+          fetch(this._apiHost + url, options)
+            .then((response: Response): Promise<string> => {
+              if (response.status >= 200 && response.status < 400) {
+                return response.text()
+              } else {
+                throw response
+              }
             })
-          }, 10)
-          throw e
+            .then(r => {
+              try {
+                const result = JSON.parse(r)
+                observer.next(result)
+              } catch (e) {
+                observer.next(r)
+              }
+              observer.complete()
+            })
+            .catch((e: Response) => {
+              setTimeout(() => {
+                (<Subject<HttpErrorMessage>>HttpError$).next({
+                  error: e,
+                  method, url, body
+                })
+              }, 10)
+              observer.error(e)
+            })
         })
+      }
     }
   }
 }

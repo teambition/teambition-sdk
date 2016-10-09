@@ -1,7 +1,16 @@
 'use strict'
 import * as chai from 'chai'
 import { userMe } from '../../mock/userme'
-import { forEach, clone, assign, uuid, concat, dropEle, capitalizeFirstLetter } from '../index'
+import {
+  forEach,
+  clone,
+  assign,
+  uuid,
+  concat,
+  dropEle,
+  capitalizeFirstLetter,
+  parseHeaders
+} from '../index'
 
 const expect = chai.expect
 
@@ -199,6 +208,23 @@ export default describe('utils test', () => {
     const str1 = 'World'
     expect(capitalizeFirstLetter(str)).to.equal('Hello')
     expect(capitalizeFirstLetter(str1)).to.equal(str1)
+  })
+
+  it('parseResponseHeaders should ok', () => {
+    const rawHeader = `Server: nginx
+      Date: Sun, 09 Oct 2016 08:31:00 GMT
+      Content-Type: application/json;charset=UTF-8
+      Content-Length: 151
+      Connection: keep-alive
+      Api-Server-IP: 10.75.0.71`
+    expect(parseHeaders(rawHeader)).to.deep.equal({
+      'Server': 'nginx',
+      'Date': 'Sun, 09 Oct 2016 08:31:00 GMT',
+      'Content-Type': 'application/json;charset=UTF-8',
+      'Content-Length': '151',
+      'Connection': 'keep-alive',
+      'Api-Server-IP': '10.75.0.71'
+    })
   })
 
 })

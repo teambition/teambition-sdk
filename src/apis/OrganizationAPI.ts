@@ -3,30 +3,28 @@ import { Observable } from 'rxjs/Observable'
 import OrganizationFetch from '../fetchs/OrganizationFetch'
 import OrganizationModel from '../models/OrganizationModel'
 import { OrganizationData } from '../schemas/Organization'
-import { errorHandler, makeColdSignal } from './utils'
+import { makeColdSignal } from './utils'
 
 export class OrganizationAPI {
 
   getOrgs(): Observable<OrganizationData[]> {
-    return makeColdSignal<OrganizationData[]>(observer => {
+    return makeColdSignal<OrganizationData[]>(() => {
       const get = OrganizationModel.getAll()
       if (get) {
         return get
       }
-      return Observable.fromPromise(OrganizationFetch.getOrgs())
-        .catch(err => errorHandler(observer, err))
+      return OrganizationFetch.getOrgs()
         .concatMap(x => OrganizationModel.saveAll(x))
     })
   }
 
   getOne (organizationId: string): Observable<OrganizationData> {
-    return makeColdSignal<OrganizationData>(observer => {
+    return makeColdSignal<OrganizationData>(() => {
       const get = OrganizationModel.getOne(organizationId)
       if (get && OrganizationModel.checkSchema(organizationId)) {
         return get
       }
-      return Observable.fromPromise(OrganizationFetch.getOne(organizationId))
-        .catch(err => errorHandler(observer, err))
+      return OrganizationFetch.getOne(organizationId)
         .concatMap(x => OrganizationModel.addOne(x))
     })
   }

@@ -178,3 +178,26 @@ export function diffEle (first: any, second: any): boolean {
   })
   return result
 }
+
+/**
+ * refer to https://github.com/github/fetch/blob/v1.0.0/fetch.js#L313
+ * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
+ * headers according to the format described here:
+ * http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
+ * This method parses that string into a user-friendly key/value pair object.
+ */
+export function parseHeaders(rawHeader: string) {
+  const head = Object.create(null)
+  const pairs = rawHeader.trim().split('\n')
+  pairs.forEach(function(header) {
+    const split = header.trim().split(':')
+    const key = split.shift().trim()
+    const value = split.join(':').trim()
+    head[key] = value
+  })
+  return head
+}
+
+export function isObject(obj: any): boolean {
+  return typeof obj === 'object'
+}

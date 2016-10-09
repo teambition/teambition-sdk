@@ -1,5 +1,5 @@
 'use strict'
-import { fetchStack, parseObject } from './mock'
+import { fetchStack, parseObject, reParseQuery } from './mock'
 
 export class HttpResponse {
   private namespace: string
@@ -11,11 +11,11 @@ export class HttpResponse {
     const dataPath = data ? parseObject(data) : ''
     method = method ? method.toLowerCase() : ''
     if (uri.indexOf('?') === -1) {
-      uri = data ? `${uri}?${dataPath}` : uri
+      uri = data && dataPath !== '' ? `${uri}?${dataPath}` : uri
     } else {
-      uri = data ? `${uri}&${dataPath}` : uri
+      uri = data && dataPath !== '' ? `${uri}&${dataPath}` : uri
     }
-    this.namespace = uri + method
+    this.namespace = reParseQuery(uri) + method
   }
 
   empty(): HttpResponse {

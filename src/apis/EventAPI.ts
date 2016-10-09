@@ -21,18 +21,11 @@ import {
 import EventModel from '../models/EventModel'
 import { TRecurrenceEvent } from '../models/events/RecurrenceEvent'
 import { EventData } from '../schemas/Event'
-import { observableError, errorHandler } from './utils'
 
 export class EventAPI {
   create(option: CreateEventOptions): Observable<EventData> {
-    return Observable.create((observer: Observer<EventData>) => {
-      Observable.fromPromise(EventFetch.create(option))
-        .catch(err => observableError(observer, err))
-        .concatMap(r => EventModel.addOne(r).take(1))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-        .catch(e => observer.error(e))
-    })
+    return EventFetch.create(option)
+      .concatMap(r => EventModel.addOne(r).take(1))
   }
 
   get(eventId: string, query?: any): Observable<TRecurrenceEvent> {
@@ -46,8 +39,7 @@ export class EventAPI {
     return Observable.create((observer: Observer<Observable<EventData>>) => {
       let dest: Observable<EventData | void | TRecurrenceEvent> = EventModel.get(eventId)
       if (!dest || !EventModel.checkSchema(eventId)) {
-        dest = Observable.fromPromise(EventFetch.get(eventId, query))
-          .catch(err => errorHandler(observer, err))
+        dest = EventFetch.get(eventId, query)
           .concatMap(x => EventModel.addOne(x))
       }
       dest = dest.map((x: TRecurrenceEvent) => {
@@ -69,106 +61,55 @@ export class EventAPI {
   }
 
   update(eventId: string, query: UpdateEventOptions): Observable<any> {
-    return Observable.create((observer: Observer<UpdateEventOptions>) => {
-      Observable.fromPromise(EventFetch.update(eventId, query))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.update(eventId, query)
+      .concatMap(x => EventModel.update(eventId, x))
   }
 
   delete(eventId: string): Observable<void> {
-    return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(EventFetch.delete(eventId))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.delete(eventId))
-        .forEach(() => observer.next(null))
-        .then(() => observer.complete())
-    })
+    return EventFetch.delete(eventId)
+      .concatMap(x => EventModel.delete(eventId))
   }
 
   archive(eventId: string, occurrenceDate: number): Observable<ArchiveEventResponse> {
-    return Observable.create((observer: Observer<ArchiveEventResponse>) => {
-      Observable.fromPromise(EventFetch.archive(eventId, occurrenceDate))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.archive(eventId, occurrenceDate)
+      .concatMap(x => EventModel.update(eventId, x))
   }
 
   commentsRepeatEvent(eventId: string, commentBody: CommentBody): Observable<CommentRepeatResponse> {
-    return Observable.create((observer: Observer<CommentRepeatResponse>) => {
-      Observable.fromPromise(EventFetch.commentsRepeatEvent(eventId, commentBody))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
-        .concatMap((x: CommentRepeatResponse) => EventModel.update<EventData>(eventId, x.repeat).map(() => x))
-        .forEach((x: CommentRepeatResponse) => observer.next(x))
-        .then(() => observer.complete())
-        .catch(e => observer.error(e))
-    })
+    return EventFetch.commentsRepeatEvent(eventId, commentBody)
+      .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
+      .concatMap((x: CommentRepeatResponse) => EventModel.update<EventData>(eventId, x.repeat).map(() => x))
   }
 
   likeRepeatEvent(eventId: string, occurrenceDate: number): Observable<LikeRepeatEventResponse> {
-    return Observable.create((observer: Observer<LikeRepeatEventResponse>) => {
-      Observable.fromPromise(EventFetch.likeRepeatEvent(eventId, occurrenceDate))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
-        .concatMap((x: LikeRepeatEventResponse) => EventModel.update<EventData>(eventId, x.repeat).map(() => x))
-        .forEach((x: LikeRepeatEventResponse) => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.likeRepeatEvent(eventId, occurrenceDate)
+      .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
+      .concatMap((x: LikeRepeatEventResponse) => EventModel.update<EventData>(eventId, x.repeat).map(() => x))
   }
 
   unarchive(eventId: string): Observable<UnarchiveEventResponse> {
-    return Observable.create((observer: Observer<UnarchiveEventResponse>) => {
-      Observable.fromPromise(EventFetch.unarchive(eventId))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.unarchive(eventId)
+      .concatMap(x => EventModel.update(eventId, x))
   }
 
   updateContent(eventId: string, content: string, occurrenceDate?: number): Observable<UpdateEventContentResponse> {
-    return Observable.create((observer: Observer<UpdateEventContentResponse>) => {
-      Observable.fromPromise(EventFetch.updateContent(eventId, content, occurrenceDate))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.updateContent(eventId, content, occurrenceDate)
+      .concatMap(x => EventModel.update(eventId, x))
   }
 
   updateInvolvemembers(eventId: string, options: UpdateEventInvolvesOptions): Observable<UpdateEventInvolvesResponse> {
-    return Observable.create((observer: Observer<UpdateEventInvolvesResponse>) => {
-      Observable.fromPromise(EventFetch.updateInvolvemembers(eventId, options))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.updateInvolvemembers(eventId, options)
+      .concatMap(x => EventModel.update(eventId, x))
   }
 
   updateReminders(eventId: string, reminders: EventReminder[], occurrenceDate?: number): Observable<UpdateEventReminderResponse> {
-    return Observable.create((observer: Observer<UpdateEventReminderResponse>) => {
-      Observable.fromPromise(EventFetch.updateReminders(eventId, reminders))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.updateReminders(eventId, reminders)
+      .concatMap(x => EventModel.update(eventId, x))
   }
 
   updateTags(eventId: string, tagIds: string[], occurrenceDate?: number): Observable<UpdateEventTagsResponse> {
-    return Observable.create((observer: Observer<UpdateEventTagsResponse>) => {
-      Observable.fromPromise(EventFetch.updateTags(eventId, tagIds, occurrenceDate))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => EventModel.update(eventId, x))
-        .forEach(x => observer.next(x))
-        .then(() => observer.complete())
-    })
+    return EventFetch.updateTags(eventId, tagIds, occurrenceDate)
+      .concatMap(x => EventModel.update(eventId, x))
   }
 
   getProjectEvents(projectId: string, startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<TRecurrenceEvent[]> {
@@ -178,14 +119,12 @@ export class EventAPI {
       if (cache) {
         dest = cache
       } else {
-        dest = Observable.fromPromise(EventFetch.getProjectEvents(projectId, startDate, endDate))
-          .catch(e => errorHandler(observer, e))
+        dest = EventFetch.getProjectEvents(projectId, startDate, endDate)
           .concatMap(r => EventModel.addProjectEvents(projectId, r, startDate, endDate))
       }
-
       observer.next(dest)
     })
-      .concatMap((r: Observable<TRecurrenceEvent[]>) => r)
+      ._switch()
   }
 
   getMyEvents(userId: string, endDate: Date, query?: any): Observable<TRecurrenceEvent[]> {
@@ -195,12 +134,11 @@ export class EventAPI {
       if (cache) {
         dest = cache
       } else {
-        dest = Observable.fromPromise(EventFetch.getMyEvents(endDate))
-          .catch(e => errorHandler(observer, e))
+        dest = EventFetch.getMyEvents(endDate)
           .concatMap(r => EventModel.addMyEvents(userId, endDate, r))
       }
       observer.next(dest)
     })
-    return signal.switch()
+    return signal._switch()
   }
 }

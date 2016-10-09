@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { parentType, ObjectLinkData } from '../schemas/ObjectLink'
 
@@ -10,15 +11,15 @@ export interface CreateObjectLinkOptions {
 }
 
 export class ObjectLinkFetch extends BaseFetch {
-  create(options: CreateObjectLinkOptions): Promise<ObjectLinkData> {
+  create(options: CreateObjectLinkOptions): Observable<ObjectLinkData> {
     return this.fetch.post(`objectlinks`, options)
   }
 
-  get(_parentId: string, parentType: parentType, query?: any): Promise<ObjectLinkData[]> {
+  get(_parentId: string, parentType: parentType, query?: any): Observable<ObjectLinkData[]> {
     return this.fetch.get(`v2/${parentType}s/${_parentId}/objectlinks`, query)
   }
 
-  delete(_id: string): Promise<{}> {
+  delete(_id: string): Observable<{}> {
     return this.fetch.delete(`objectlinks/${_id}`)
   }
 

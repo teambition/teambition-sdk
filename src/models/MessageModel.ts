@@ -54,7 +54,7 @@ export class MessageModel extends BaseModel {
 
   deleteAllRead(type: string): Observable<MessageData[]> {
     const dbIndex = `messages:${type}`
-    return this._updateCollection<Message>(dbIndex, [])
+    return this._updateCollection<MessageData>(dbIndex, [])
   }
 }
 
