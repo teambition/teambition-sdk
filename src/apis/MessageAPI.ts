@@ -1,6 +1,5 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
 import { MessageData } from '../schemas/Message'
 import MessageModel from '../models/MessageModel'
 import {
@@ -9,70 +8,44 @@ import {
   ReadResponse,
   SnoozeResponse
 } from '../fetchs/MessageFetch'
-import { makeColdSignal, observableError, errorHandler } from './utils'
+import { makeColdSignal } from './utils'
 
 export class MessageAPI {
   getMessages(query?: GetMessageOptions): Observable<MessageData[]> {
-    return makeColdSignal<MessageData[]>(observer => {
+    return makeColdSignal<MessageData[]>(() => {
       const page = query && query.page ? query.page : 1
       const type = query && query.type ? query.type : 'all'
       const get = MessageModel.getMessages(type, page)
       if (get) {
         return get
       }
-      return Observable.fromPromise(MessageFetch.getMessages(query))
-        .catch(err => errorHandler(observer, err))
+      return MessageFetch.getMessages(query)
         .concatMap(messages => MessageModel.addMessages(type, messages, page))
     })
   }
 
   read(messageId: string): Observable<ReadResponse> {
-    return Observable.create((observer: Observer<ReadResponse>) => {
-      Observable.fromPromise(MessageFetch.read(messageId))
-        .catch(err => observableError(observer, err))
-        .concatMap(message => MessageModel.update(messageId, message))
-        .forEach(message => observer.next(message))
-        .then(() => observer.complete())
-    })
+    return MessageFetch.read(messageId)
+      .concatMap(message => MessageModel.update(messageId, message))
   }
 
-  markAllAsRead(type: string): Observable<void> {
-    return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(MessageFetch.markAllAsRead(type))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => MessageModel.markAllAsRead(type))
-        .forEach(x => observer.next(null))
-        .then(() => observer.complete())
-    })
+  markAllAsRead(type: string): Observable<MessageData[]> {
+    return MessageFetch.markAllAsRead(type)
+      .concatMap(x => MessageModel.markAllAsRead(type))
   }
 
   snooze(messageId: string, date: string): Observable<SnoozeResponse> {
-    return Observable.create((observer: Observer<SnoozeResponse>) => {
-      Observable.fromPromise(MessageFetch.snooze(messageId, date))
-        .catch(err => observableError(observer, err))
-        .concatMap(message => MessageModel.update(messageId, message))
-        .forEach(message => observer.next(message))
-        .then(() => observer.complete())
-    })
+    return MessageFetch.snooze(messageId, date)
+      .concatMap(message => MessageModel.update(messageId, message))
   }
 
   delete(messageId: string): Observable<void> {
-    return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(MessageFetch.delete(messageId))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => MessageModel.delete(messageId))
-        .forEach(x => observer.next(null))
-        .then(() => observer.complete())
-    })
+    return MessageFetch.delete(messageId)
+      .concatMap(x => MessageModel.delete(messageId))
   }
 
-  deleteAllRead(type: string): Observable<void> {
-    return Observable.create((observer: Observer<void>) => {
-      Observable.fromPromise(MessageFetch.deleteAllRead(type))
-        .catch(err => observableError(observer, err))
-        .concatMap(x => MessageModel.deleteAllRead(type))
-        .forEach(x => observer.next(null))
-        .then(() => observer.complete())
-    })
+  deleteAllRead(type: string): Observable<MessageData[]> {
+    return MessageFetch.deleteAllRead(type)
+      .concatMap(x => MessageModel.deleteAllRead(type))
   }
 }

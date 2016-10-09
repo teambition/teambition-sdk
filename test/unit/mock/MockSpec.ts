@@ -2,7 +2,7 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
-import { Backend } from '../index'
+import { Backend, parseObject, reParseQuery } from '../index'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -11,6 +11,21 @@ export default describe('mock test: ', () => {
   let httpBackend: Backend
   beforeEach(() => {
     httpBackend = new Backend()
+  })
+
+  it('parseObject should ok', () => {
+    const queryObj = {
+      b: 2,
+      a: 1,
+      d: 4,
+      c: 3
+    }
+    expect(parseObject(queryObj)).to.equal('a=1&b=2&c=3&d=4')
+  })
+
+  it('reParseQuery should ok', () => {
+    const uri = 'http://api.project.ci/users/me?b=2&a=1&d=4&c=3'
+    expect(reParseQuery(uri)).to.equal('http://api.project.ci/users/me?a=1&b=2&c=3&d=4')
   });
 
   ['get', 'post', 'put', 'delete'].forEach(method => {

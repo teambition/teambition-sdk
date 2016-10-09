@@ -1,67 +1,57 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
 import MemberFetch from '../fetchs/MemberFetch'
 import MemberModel from '../models/MemberModel'
 import { MemberData } from '../schemas/Member'
-import { makeColdSignal, errorHandler, observableError } from './utils'
+import { makeColdSignal } from './utils'
 
 export class MemberAPI {
 
   deleteMember(memberId: string): Observable<void> {
-    return Observable.fromPromise(MemberFetch.deleteMember(memberId))
+    return MemberFetch.deleteMember(memberId)
       .concatMap(x => MemberModel.delete(memberId))
   }
 
   getOrgMembers (organizationId: string, page = 1, count = 30): Observable<MemberData[]> {
-    return makeColdSignal<MemberData[]>(observer => {
+    return makeColdSignal<MemberData[]>(() => {
       const get = MemberModel.getOrgMembers(organizationId, page)
       if (get) {
         return get
       }
-      return Observable
-        .fromPromise(MemberFetch.getOrgMembers(organizationId, {
-          page,
-          count
-        }))
-        .catch(err => errorHandler(observer, err))
+      return MemberFetch.getOrgMembers(organizationId, { page, count })
         .concatMap(x => MemberModel.saveOrgMembers(organizationId, x, page, count))
     })
   }
 
   getAllOrgMembers (organizationId: string): Observable<MemberData[]> {
-    return makeColdSignal<MemberData[]>(observer => {
+    return makeColdSignal<MemberData[]>(() => {
       const cache = MemberModel.getAllOrgMembers(organizationId)
       if (cache) {
         return cache
       }
-      return Observable.fromPromise(MemberFetch.getAllOrgMembers(organizationId))
-        .catch(err => errorHandler(observer, err))
+      return MemberFetch.getAllOrgMembers(organizationId)
         .concatMap(r => MemberModel.saveAllOrgMembers(organizationId, r))
     })
   }
 
   getProjectMembers(projectId: string, page = 1, count = 30): Observable<MemberData[]> {
-    return makeColdSignal<MemberData[]>(observer => {
+    return makeColdSignal<MemberData[]>(() => {
       const get = MemberModel.getProjectMembers(projectId, page)
       if (get) {
         return get
       }
-      return Observable
-        .fromPromise(MemberFetch.getProjectMembers(projectId, { page, count }))
-        .catch(err => errorHandler(observer, err))
+      return MemberFetch.getProjectMembers(projectId, { page, count })
         .concatMap(x => MemberModel.saveProjectMembers(projectId, x, page, count))
     })
   }
 
   getAllProjectMembers(projectId: string): Observable<MemberData[]> {
-    return makeColdSignal<MemberData[]>(observer => {
+    return makeColdSignal<MemberData[]>(() => {
       const cache = MemberModel.getAllProjectMembers(projectId)
       if (cache) {
         return cache
       }
-      return Observable.fromPromise(MemberFetch.getAllProjectMembers(projectId))
-        .catch(err => errorHandler(observer, err))
+      return MemberFetch.getAllProjectMembers(projectId)
         .concatMap(r => MemberModel.saveAllProjectMembers(projectId, r))
     })
   }
@@ -77,12 +67,7 @@ export class MemberAPI {
    * 比如项目加人时可调用，组织加人时也可以调用
    */
   addMembers(_projectId: string, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]> {
-    return Observable.create((observer: Observer<MemberData | MemberData[]>) => {
-      Observable.fromPromise(MemberFetch.addProjectMembers(_projectId, <string[]>emails))
-        .catch((err: any) => observableError(observer, err))
-        .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
-        .forEach(r => observer.next(r))
-        .then(() => observer.complete())
-    })
+    return MemberFetch.addProjectMembers(_projectId, <string[]>emails)
+      .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
   }
 }

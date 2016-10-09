@@ -238,7 +238,7 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  getOrgMyCreatedMaxId(organizationId: string): string {
+  getOrgMyCreatedMaxId(organizationId: string): number {
     const collection = <MaxIdCollection<TaskData>>this._collections.get(`organization:tasks:created/${organizationId}`)
     if (collection) {
       return collection.maxId
@@ -272,7 +272,7 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  getOrgMyInvolvesMaxId(organizationId: string): string {
+  getOrgMyInvolvesMaxId(organizationId: string): number {
     const collection = <MaxIdCollection<TaskData>>this._collections.get(`organization:tasks:involves/${organizationId}`)
     if (collection) {
       return collection.maxId

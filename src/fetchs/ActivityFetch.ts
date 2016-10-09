@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { ActivityData } from '../schemas/Activity'
 
@@ -12,11 +13,11 @@ export interface ActivitySaveData {
 }
 
 export class ActivityFetch extends BaseFetch {
-  fetchAll(_boundToObjectType: string, _boundToObjectId: string, query?: any): Promise<ActivityData[]> {
+  fetchAll(_boundToObjectType: string, _boundToObjectId: string, query?: any): Observable<ActivityData[]> {
     return this.fetch.get(`${_boundToObjectType}/${_boundToObjectId}/activities`, query)
   }
 
-  add(data: ActivitySaveData): Promise<ActivityData> {
+  add(data: ActivitySaveData): Observable<ActivityData> {
     const query = this.checkQuery({
       content: data.content,
       attachments: data.attachments,

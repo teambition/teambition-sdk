@@ -11,7 +11,7 @@ import {
 import ReportModel from '../models/ReportModel'
 import { TaskData } from '../schemas/Task'
 import { SubtaskData } from '../schemas/Subtask'
-import { makeColdSignal, errorHandler } from './utils'
+import { makeColdSignal } from './utils'
 
 export class ReportAPI {
   getAccomplished (
@@ -42,15 +42,12 @@ export class ReportAPI {
     taskType: TaskType,
     option: GetReportAccomplishedOption
   ): Observable<(TaskData | SubtaskData)[]> {
-    return makeColdSignal<any>(observer => {
+    return makeColdSignal<any>(() => {
       const cache = ReportModel.getData(projectId, option.page, 'accomplished', taskType, option.queryType, option.isWeekSearch)
       if (cache) {
         return cache
       }
-      return Observable.fromPromise<any>(
-        ReportFetch.getAccomplished(projectId, taskType, option)
-      )
-        .catch(err => errorHandler(observer, err))
+      return ReportFetch.getAccomplished(projectId, taskType, option)
         .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'accomplished', taskType, option.queryType, option.isWeekSearch))
     })
   }
@@ -83,15 +80,12 @@ export class ReportAPI {
     taskType: TaskType,
     option: GetReportInprogressOption
   ): Observable<(TaskData | SubtaskData)[]> {
-    return makeColdSignal<any>(observer => {
+    return makeColdSignal<any>(() => {
       const cache = ReportModel.getData(projectId, option.page, 'progress', taskType, option.queryType)
       if (cache) {
         return cache
       }
-      return Observable.fromPromise<any>(
-        ReportFetch.getInprogress(projectId, taskType, option)
-      )
-        .catch(err => errorHandler(observer, err))
+      return ReportFetch.getInprogress(projectId, taskType, option)
         .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'progress', taskType, option.queryType))
     })
   }
@@ -100,27 +94,23 @@ export class ReportAPI {
     projectId: string,
     option: GetReportNotStartOption
   ): Observable<TaskData[]> {
-    return makeColdSignal<any>(observer => {
+    return makeColdSignal<any>(() => {
       const cache = ReportModel.getData(projectId, option.page, 'notstart', 'task')
       if (cache) {
         return cache
       }
-      return Observable.fromPromise<any>(
-        ReportFetch.getNotStart(projectId, option)
-      )
-        .catch(err => errorHandler(observer, err))
+      return ReportFetch.getNotStart(projectId, option)
         .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'notstart', 'task'))
     })
   }
 
   getUnassigned(projectId: string, option: GetUnassignedOption): Observable<TaskData[]> {
-    return makeColdSignal<any[]>(observer => {
+    return makeColdSignal<any[]>(() => {
       const cache = ReportModel.getData(projectId, option.page, 'unassigned')
       if (cache) {
         return cache
       }
-      return Observable.fromPromise(ReportFetch.getUnassigned(projectId, option))
-        .catch(err => errorHandler(observer, err))
+      return ReportFetch.getUnassigned(projectId, option)
         .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'unassigned', 'task'))
     })
   }

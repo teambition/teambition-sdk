@@ -11,7 +11,7 @@ export interface FetchResult {
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
 
-export const parseObject = (query: any) => {
+export function parseObject (query: any): string {
   let _query: any
   try {
     _query = JSON.parse(query)
@@ -25,8 +25,24 @@ export const parseObject = (query: any) => {
     return ''
   }
   return Object.keys(_query)
+    .sort()
     .map(key => `${key}=${_query[key]}`)
     .join('&')
+}
+
+export function reParseQuery(uri: string): string {
+  const queryPos = uri.indexOf('?')
+  if (queryPos !== -1) {
+    const query = uri.substr(queryPos + 1)
+    const url = uri.substring(0, queryPos)
+    const queryObject = Object.create(null)
+    query.split('&').forEach(param => {
+      const params = param.split('=')
+      queryObject[params[0]] = params[1]
+    })
+    return url + '?' + parseObject(queryObject)
+  }
+  return uri
 }
 
 const context = typeof window !== 'undefined' ? window : global
@@ -52,11 +68,11 @@ export function mockFetch() {
       }
       const dataPath = options.body ? parseObject(options.body) : ''
       if (uri.indexOf('?') === -1) {
-        uri = options.body ? `${uri}?${dataPath}` : uri
+        uri = (options.body && dataPath !== '') ? `${uri}?${dataPath}` : uri
       } else {
-        uri = options.body ? `${uri}&${dataPath}` : uri
+        uri = (options.body && dataPath !== '') ? `${uri}&${dataPath}` : uri
       }
-      const fetchIndex = uri + method
+      const fetchIndex = reParseQuery(uri) + method
       const results = fetchStack.get(fetchIndex)
       if (!results) {
         /* istanbul ignore if */

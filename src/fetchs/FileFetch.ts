@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { FileData } from '../schemas/File'
 import { FavoriteResponse, UndoFavoriteResponse } from '../teambition'
@@ -51,7 +52,7 @@ export interface UpdateFileInvolvesResponse {
 }
 
 export class FileFetch extends BaseFetch {
-  create(_parentId: string, fileRes: FileRes | FileRes []): Promise<FileData[]> {
+  create(_parentId: string, fileRes: FileRes | FileRes []): Observable<FileData[]> {
     const postBody = {
       _parentId: _parentId,
       works: fileRes instanceof Array ? fileRes : [ fileRes ]
@@ -59,49 +60,53 @@ export class FileFetch extends BaseFetch {
     return this.fetch.post(`works`, postBody)
   }
 
-  get(FileId: string, query?: any): Promise<FileData> {
+  get(FileId: string, query?: any): Observable<FileData> {
     return this.fetch.get(`works/${FileId}`, query)
   }
 
-  update(FileId: string, options: UpdateFileOptions): Promise<UpdateFileResponse> {
+  update(FileId: string, options: UpdateFileOptions): Observable<UpdateFileResponse> {
     return this.fetch.put(`works/${FileId}`, options)
   }
 
-  delete(FileId: string): Promise<void> {
+  delete(FileId: string): Observable<void> {
     return this.fetch.delete<void>(`works/${FileId}`)
   }
 
-  archive(FileId: string): Promise<ArchiveFileResponse> {
+  archive(FileId: string): Observable<ArchiveFileResponse> {
     return this.fetch.post(`works/${FileId}/archive`)
   }
 
-  unarchive(FileId: string): Promise<ArchiveFileResponse> {
+  unarchive(FileId: string): Observable<ArchiveFileResponse> {
     return this.fetch.delete(`works/${FileId}/archive`)
   }
 
-  favorite(FileId: string): Promise<FavoriteResponse> {
+  favorite(FileId: string): Observable<FavoriteResponse> {
     return this.fetch.post(`works/${FileId}/favorite`)
   }
 
-  undoFavourite(FileId: string): Promise<UndoFavoriteResponse> {
+  undoFavourite(FileId: string): Observable<UndoFavoriteResponse> {
     return this.fetch.delete(`works/${FileId}/favorite`)
   }
 
-  fork(FileId: string, _parentId: string): Promise<FileData> {
+  fork(FileId: string, _parentId: string): Observable<FileData> {
     return this.fetch.put(`works/${FileId}/fork`, {
       _parentId
     })
   }
 
-  getFiles(projectId: string, parentId: string, query?: any): Promise<FileData[]> {
+  getFiles(projectId: string, parentId: string, query?: any): Observable<FileData[]> {
     return this.fetch.get(`projects/${projectId}/collections/${parentId}/works`, query)
   }
 
-  move(FileId: string, _parentId: string): Promise<MoveFileResponse> {
+  move(FileId: string, _parentId: string): Observable<MoveFileResponse> {
     return this.fetch.put(`works/${FileId}/move`, {_parentId})
   }
 
-  updateInvolves(FileId: string, memberIds: string[], type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'): Promise<UpdateFileInvolvesResponse> {
+  updateInvolves(
+    FileId: string,
+    memberIds: string[],
+    type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
+  ): Observable<UpdateFileInvolvesResponse> {
     const putData = Object.create(null)
     putData[type] = memberIds
     return this.fetch.put(`works/${FileId}/involveMembers`, putData)

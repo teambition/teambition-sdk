@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { MessageData } from '../schemas/Message'
 
@@ -27,35 +28,35 @@ export interface SnoozeResponse {
 }
 
 export class MessageFetch extends BaseFetch {
-  getMessages(query?: GetMessageOptions): Promise<MessageData[]> {
+  getMessages(query?: GetMessageOptions): Observable<MessageData[]> {
     return this.fetch.get(`messages`, query)
   }
 
-  read(_id: string): Promise<ReadResponse> {
+  read(_id: string): Observable<ReadResponse> {
     return this.fetch.put(`messages/${_id}`, {
       isRead: true,
       unreadActivitiesCount: 0
     })
   }
 
-  markAllAsRead(type: string): Promise<{}> {
+  markAllAsRead(type: string): Observable<{}> {
     return this.fetch.put(`messages/markallread`, {
       type: type
     })
   }
 
-  snooze(_id: string, date: string): Promise<SnoozeResponse> {
+  snooze(_id: string, date: string): Observable<SnoozeResponse> {
     return this.fetch.put(`messages/${_id}/later`, {
       isLater: true,
       reminderDate: date
     })
   }
 
-  delete(_id: string): Promise<{}> {
+  delete(_id: string): Observable<{}> {
     return this.fetch.delete(`messages/${_id}`)
   }
 
-  deleteAllRead(type: string): Promise<{}> {
+  deleteAllRead(type: string): Observable<{}> {
     return this.fetch.delete(`messages?type=${type}`)
   }
 }

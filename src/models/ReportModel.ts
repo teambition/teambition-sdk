@@ -13,7 +13,7 @@ export class ReportModel extends Model {
 
   storeData (
     projectId: string,
-    data: TaskData[] | SubtaskData[],
+    data: (TaskData | SubtaskData)[],
     page: number,
     status: TaskStatus,
     schema?: 'task' | 'subtask',

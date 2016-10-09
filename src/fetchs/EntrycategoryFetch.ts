@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { EntrycategoryData } from '../schemas/Entrycategory'
 
@@ -19,13 +20,13 @@ export interface UpdateEntrycategoryResponse {
 }
 
 export class EntrycategoryFetch extends BaseFetch {
-  create(entrycategory: CreateEntrycategoryOptions): Promise<EntrycategoryData> {
+  create(entrycategory: CreateEntrycategoryOptions): Observable<EntrycategoryData> {
     return this.fetch.post(`entrycategories`, entrycategory)
   }
 
   get(_entrycategoryId: string, query: {
     _projectId: string
-  }): Promise<EntrycategoryData> {
+  }): Observable<EntrycategoryData> {
     return this.fetch.get(`entrycategories/${_entrycategoryId}`, query)
   }
 
@@ -33,15 +34,15 @@ export class EntrycategoryFetch extends BaseFetch {
     _projectId: string
     page?: number
     count?: number
-  }): Promise<EntrycategoryData[]> {
+  }): Observable<EntrycategoryData[]> {
     return this.fetch.get(`entrycategories`, query)
   }
 
-  update(_entrycategoryId: string, entrycategory: UpdateEntrycategoryOptions): Promise<any> {
+  update(_entrycategoryId: string, entrycategory: UpdateEntrycategoryOptions): Observable<any> {
     return this.fetch.put(`entrycategories/${_entrycategoryId}`, entrycategory)
   }
 
-  delete(_entrycategoryId: string): Promise<void> {
+  delete(_entrycategoryId: string): Observable<void> {
     return this.fetch.delete<void>(`entrycategories/${_entrycategoryId}`)
   }
 }

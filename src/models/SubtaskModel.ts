@@ -149,7 +149,7 @@ export class SubtaskModel extends BaseModel {
     return null
   }
 
-  getOrgMyCreatedMaxId(organizationId: string): string {
+  getOrgMyCreatedMaxId(organizationId: string): number {
     const dbIndex = `organization:subtasks:created/${organizationId}`
     const collection: MaxIdCollection<SubtaskData> = <MaxIdCollection<SubtaskData>>this._collections.get(dbIndex)
     if (collection) {

@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { PostData } from '../schemas/Post'
 import { visibility } from '../teambition'
@@ -64,6 +65,13 @@ export interface ArchivePostResponse {
   _projectId: string
 }
 
+export interface UnArchivePostResponse {
+  isArchived: boolean
+  updated: string
+  _id: string
+  _projectId: string
+}
+
 export interface UpdateInvolvesResponse {
   _id: string
   involveMembers: string[]
@@ -83,11 +91,11 @@ export interface UpdateTagsResponse {
 }
 
 export class PostFetch extends BaseFetch {
-  create(post: CreatePostOptions): Promise<PostData> {
+  create(post: CreatePostOptions): Observable<PostData> {
     return this.fetch.post(`posts`, post)
   }
 
-  get(_postId: string, query?: any): Promise<PostData> {
+  get(_postId: string, query?: any): Observable<PostData> {
     return this.fetch.get(`posts/${_postId}`, query)
   }
 
@@ -95,46 +103,41 @@ export class PostFetch extends BaseFetch {
     page: number
     count: number
     fields?: string
-  }): Promise<PostData[]> {
+  }): Observable<PostData[]> {
     return this.fetch.get(`projects/${_projectId}/posts`, query)
   }
 
-  update(postId: string, post: UpdatePostOptions): Promise<any> {
+  update(postId: string, post: UpdatePostOptions): Observable<any> {
     return this.fetch.put(`posts/${postId}`, post)
   }
 
-  delete(postId: string): Promise<void> {
+  delete(postId: string): Observable<void> {
     return this.fetch.delete<void>(`posts/${postId}`)
   }
 
-  archive(postId: string): Promise<ArchivePostResponse> {
+  archive(postId: string): Observable<ArchivePostResponse> {
     return this.fetch.post(`posts/${postId}/archive`)
   }
 
-  favorite(postId: string): Promise<PostFavoriteResponse> {
+  favorite(postId: string): Observable<PostFavoriteResponse> {
     return this.fetch.post(`posts/${postId}/favorite`)
   }
 
-  unarchive(postId: string): Promise<{
-    isArchived: boolean
-    updated: string
-    _id: string
-    _projectId: string
-  }> {
+  unarchive(postId: string): Observable<UnArchivePostResponse> {
     return this.fetch.delete(`posts/${postId}/archive`)
   }
 
-  updateInvolves(postId: string, members: UpdateInvolves): Promise<UpdateInvolvesResponse> {
+  updateInvolves(postId: string, members: UpdateInvolves): Observable<UpdateInvolvesResponse> {
     return this.fetch.put(`posts/${postId}/involveMembers`, members)
   }
 
-  updatePin(postId: string, pin: boolean): Promise<UpdatePinResponse> {
+  updatePin(postId: string, pin: boolean): Observable<UpdatePinResponse> {
     return this.fetch.put(`posts/${postId}/pin`, {
       pin: pin
     })
   }
 
-  updateTags(postId: string, tagIds: string[]): Promise<UpdateTagsResponse> {
+  updateTags(postId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
     return this.fetch.put(`posts/${postId}/tagIds`, {
       tagIds: tagIds
     })

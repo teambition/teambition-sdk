@@ -1,4 +1,5 @@
 'use strict'
+import { Observable } from 'rxjs/Observable'
 import { Fetch } from '../utils/Fetch'
 import { forEach } from '../utils/index'
 
@@ -25,7 +26,7 @@ export default class BaseFetch {
 }
 
 const _allowedMethod = ['get', 'post', 'put', 'delete']
-const _requestCache = new Map<string, Promise<any>>()
+const _requestCache = new Map<string, Observable<any>>()
 
 _allowedMethod.forEach(httpMethod => {
   BaseFetch.fetch.middleware(<any>httpMethod, args => {
@@ -34,7 +35,7 @@ _allowedMethod.forEach(httpMethod => {
     if (cache) {
       return cache
     } else {
-      let result: Promise<any>
+      let result: Observable<any>
       const now = Date.now()
       if (httpMethod === 'get') {
         if (args.queryOrBody) {
@@ -46,7 +47,7 @@ _allowedMethod.forEach(httpMethod => {
         }
       }
       result = args.originFn(args.url, args.queryOrBody)
-        .then(r => {
+        .map(r => {
           _requestCache.delete(namespace)
           if (httpMethod === 'get' && args.queryOrBody) {
             if (r instanceof Array) {
@@ -61,8 +62,10 @@ _allowedMethod.forEach(httpMethod => {
         })
         .catch(e => {
           _requestCache.delete(namespace)
-          throw e
+          return Observable.throw(e)
         })
+        .publishReplay(1)
+        .refCount()
       _requestCache.set(namespace, result)
       return result
     }

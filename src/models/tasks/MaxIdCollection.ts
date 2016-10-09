@@ -6,7 +6,7 @@ import Collection from '../BaseCollection'
 import { ISchema, Schema } from '../../schemas/schema'
 
 export default class MaxIdCollection<T extends ISchema> extends Collection<SubtaskData | TaskData> {
-  public maxId: string
+  public maxId: number
 
  maxAddPage(page: number, data: Schema<T>[]): Observable<any[]> {
     const result = super.addPage(page, <any[]>data)

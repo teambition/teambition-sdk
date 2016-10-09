@@ -117,7 +117,7 @@ function handler(socketMessage: MessageResult) {
     switch (type) {
       case 'project':
         let projectid = data
-        return Observable.fromPromise(ProjectFetch.getOne(projectid))
+        return ProjectFetch.getOne(projectid)
           .concatMap(project => ProjectModel.addOne(project))
           .take(1)
     }
