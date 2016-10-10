@@ -6,6 +6,7 @@
   "jsnext:main": "dist/es6/app.js",
   "typings": "dist/cjs/app.d.ts",
   "scripts": {
+    "version": "ts-node tools/tasks/version.ts && git add .",
     "test": "npm run lint && npm run cover",
     "e2e": "mocha-phantomjs test/e2e/index.html",
     "commit": "npm run lint && git-cz",
