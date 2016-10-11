@@ -25,7 +25,11 @@ export class FeedbackModel extends Model {
     let cache: Collection<FeedbackData> = this._collections.get(dbIndex)
     if (!cache) {
       cache = new Collection(this._schemaName, (data: FeedbackData) => {
-        return data.boundToObjectType === 'project' && data._boundToObjectId === projectId
+        const created = new Date(data.created)
+        return data.boundToObjectType === 'project' &&
+          data._boundToObjectId === projectId &&
+          created >= new Date(from) &&
+          created < new Date(to)
       }, dbIndex, count)
       this._collections.set(dbIndex, cache)
     }
