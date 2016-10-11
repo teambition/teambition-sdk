@@ -1,5 +1,5 @@
 'use strict'
-import { apihost, Backend, SocketMock, SubscribeAPI, clone } from '../index'
+import { apihost, Backend, SocketMock, SocketClient, SubscribeAPI, clone } from '../index'
 import { flush, expectDeepEqual } from '../utils'
 import { orgsSubscribe } from '../../mock/orgsSubscribe'
 
@@ -12,7 +12,7 @@ export default describe('Organization Subscribe Socket:', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock()
+    Socket = new SocketMock(SocketClient)
     SubscribeApi = new SubscribeAPI()
 
     httpBackend.whenGET(`${apihost}subscribers/report?_organizationId=mock`)

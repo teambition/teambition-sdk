@@ -57,16 +57,14 @@ declare const global: any
 
 const ctx = typeof global === 'undefined' ? window : global
 
-if (!ctx['teambition']) {
-  ctx['teambition'] = Object.create(null)
+export interface SDK {
+  readonly version: '0.5.0'
+  readonly socket: Client
 }
 
-const teambition = ctx['teambition']
-
-const sdk = teambition.sdk = Object.create(null)
-
-sdk.version = '0.5.0'
-
-sdk.socket = new Client()
+const sdk = {
+  version: '0.5.0',
+  socket: new Client()
+}
 
 export const SocketClient: Client = sdk.socket

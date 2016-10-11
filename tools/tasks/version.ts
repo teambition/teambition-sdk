@@ -5,6 +5,6 @@ const version = require('../../package.json').version
 
 const replace = fs
   .readFileSync('src/app.ts', 'utf-8')
-  .replace(/sdk\.version = '[\d\.]+'/, `sdk.version = '${version}'`)
+  .replace(/version: '[\d\.]+'/g, `version: '${version}'`)
 
 fs.writeFileSync('src/app.ts', replace)

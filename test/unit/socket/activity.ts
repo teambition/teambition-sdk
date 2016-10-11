@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { apihost, ActivityAPI, Backend, SocketMock } from '../index'
+import { apihost, ActivityAPI, Backend, SocketMock, SocketClient } from '../index'
 import { flush, expectDeepEqual } from '../utils'
 import { activities } from '../../mock/activities'
 
@@ -18,7 +18,7 @@ export default describe('activity socket test', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock()
+    Socket = new SocketMock(SocketClient)
     ActivityApi = new ActivityAPI()
 
     httpBackend.whenGET(`${apihost}${_boundToObjectType}/${_boundToObjectId}/activities`)

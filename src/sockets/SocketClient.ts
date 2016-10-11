@@ -1,5 +1,12 @@
 'use strict'
+/**
+ * bundle socket 的时候，这个文件是 tsc 的一个 entry
+ * import 一下需要的 Rx 操作符
+ */
+import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/toPromise'
+import 'rxjs/add/operator/concatMap'
+import 'rxjs/add/operator/take'
 import { Subject } from 'rxjs/Subject'
 import UserFetch from '../fetchs/UserFetch'
 import SocketFetch from '../fetchs/SocketFetch'

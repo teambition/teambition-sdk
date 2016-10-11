@@ -29,11 +29,10 @@ export class SocketMock {
   onmessage: (e: RequestEvent) => Promise<any>
 
   private _ctx = typeof global === 'undefined' ? window : global
-  private _sdk = this._ctx['teambition'].sdk
   private _id = 1
 
-  constructor() {
-    this._sdk.socket.initClient(this)
+  constructor(SocketClient: any) {
+    SocketClient.initClient(this)
   }
 
   emit(

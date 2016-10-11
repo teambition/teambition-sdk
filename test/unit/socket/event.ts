@@ -6,6 +6,7 @@ import {
   apihost,
   EventAPI,
   SocketMock,
+  SocketClient,
   Backend,
   clone,
   concat,
@@ -27,7 +28,7 @@ export default describe('socket event test: ', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock()
+    Socket = new SocketMock(SocketClient)
     EventApi = new EventAPI()
 
     httpBackend.whenGET(`${apihost}events/${event._id}`)
