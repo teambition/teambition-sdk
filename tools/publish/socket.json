@@ -3,7 +3,6 @@
   "version": "{{version}}",
   "description": "Front-End SDK for Teambition",
   "main": "./SocketApp.js",
-  "browser": "./socket.bundle.js",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/teambition/teambition-sdk.git"
