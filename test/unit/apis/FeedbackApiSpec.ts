@@ -207,4 +207,59 @@ export default describe('FeedbackAPI Spec: ', () => {
         expectDeepEqual(r[0], mockFeedback)
       })
   })
+
+  it('create feedback and all feedbacks collections should ok', function* () {
+    const mockFeedback = clone(projectFeedbacks[0])
+    mockFeedback._id = 'mockFeedbackid'
+    mockFeedback.content.comment = 'mock feedback post'
+
+    const lastYearFrom = new Date(2014, 1, 1).toISOString()
+    const lastYearTo = new Date(2014, 12, 30).toISOString()
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=1&from=${lastYearFrom}&to=${lastYearTo}`)
+      .respond([])
+
+    httpBackend.whenPOST(`${apihost}projects/${projectId}/feedbacks`, {
+      content: 'mock feedback post'
+    })
+      .respond(JSON.stringify(mockFeedback))
+
+    const signal = FeedbackApi.getProjectFeedback(projectId, {
+      count: 1,
+      page: 1,
+      from: from,
+      to: to
+    })
+      .publish()
+      .refCount()
+
+    const signal1 = FeedbackApi.getProjectFeedback(projectId, {
+      count: 1,
+      page: 1,
+      from: lastYearFrom,
+      to: lastYearTo
+    })
+      .publish()
+      .refCount()
+
+    yield [
+      signal.take(1),
+      signal1.take(1)
+    ]
+
+    yield FeedbackApi.create(projectId, {
+      content: 'mock feedback post'
+    })
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r.length).to.equal(2)
+        expectDeepEqual(r[0], mockFeedback)
+      })
+
+    yield signal1.take(1)
+      .do(r => {
+        expect(r.length).to.equal(0)
+      })
+  })
 })
