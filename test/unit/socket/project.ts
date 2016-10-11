@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { apihost, ProjectAPI, Backend, SocketMock } from '../index'
+import { apihost, ProjectAPI, Backend, SocketMock, SocketClient } from '../index'
 import { flush, expectDeepEqual } from '../utils'
 import { projects } from '../../mock/projects'
 import { homeActivities } from '../../mock/homeActivities'
@@ -19,7 +19,7 @@ export default describe('project socket test', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock()
+    Socket = new SocketMock(SocketClient)
     Project = new ProjectAPI()
 
     httpBackend.whenGET(`${apihost}projects/${projectId}`)

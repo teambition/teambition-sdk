@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { apihost, PreferenceAPI, SocketMock, Backend, clone } from '../index'
+import { apihost, PreferenceAPI, SocketMock, SocketClient, Backend, clone } from '../index'
 import { flush } from '../utils'
 import { preference} from '../../mock/preference'
 
@@ -16,7 +16,7 @@ export default describe('socket preference test: ', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock()
+    Socket = new SocketMock(SocketClient)
     PreferenceApi = new PreferenceAPI()
 
     httpBackend.whenGET(`${apihost}preferences`)

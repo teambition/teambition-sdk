@@ -2,6 +2,7 @@
 import * as chai from 'chai'
 import {
   SocketMock,
+  SocketClient,
   Backend,
   MemberAPI,
   apihost
@@ -21,7 +22,7 @@ export default describe('socket member test', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock()
+    Socket = new SocketMock(SocketClient)
     MemberApi = new MemberAPI
   })
 

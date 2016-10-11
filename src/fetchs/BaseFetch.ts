@@ -60,7 +60,7 @@ _allowedMethod.forEach(httpMethod => {
           }
           return r
         })
-        .catch(e => {
+        ._catch(e => {
           _requestCache.delete(namespace)
           return Observable.throw(e)
         })

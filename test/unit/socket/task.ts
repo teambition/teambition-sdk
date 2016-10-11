@@ -5,6 +5,7 @@ import {
   apihost,
   TaskAPI,
   SocketMock,
+  SocketClient,
   Backend,
   clone
 } from '../index'
@@ -24,7 +25,7 @@ export default describe('socket task test: ', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock()
+    Socket = new SocketMock(SocketClient)
     TaskApi = new TaskAPI()
 
     httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)
