@@ -5,7 +5,6 @@ machine:
 dependencies:
   override:
     - npm install
-    - npm run typings
     - npm link
     - npm link teambition-sdk
 
