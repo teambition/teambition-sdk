@@ -8,7 +8,6 @@ cache:
 
 install:
   - npm install
-  - typings install
 
 before_script:
   - npm link

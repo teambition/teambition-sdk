@@ -5,7 +5,10 @@
     "inlineSourceMap": true,
     "outDir": ".tmp",
     "module": "commonjs",
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
   "exclude": [
     "node_modules",
