@@ -18,7 +18,9 @@ function flushSideEffect() {
   BaseModel.DataBase.flush()
 }
 
-export class Testable { }
+export class Testable {
+  UseXMLHTTPRequest = true
+}
 
 Testable.prototype.flushSideEffect = flushSideEffect
 
