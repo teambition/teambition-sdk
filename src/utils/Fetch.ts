@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
 import { assign, forEach, parseHeaders } from './index'
+import { testable } from '../testable'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
 
@@ -132,7 +133,7 @@ export class Fetch {
         options.body = typeof body === 'object' ? JSON.stringify(body) : body
       }
 
-      if (typeof window !== 'undefined') {
+      if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
         return Observable.ajax({
           url: this._apiHost + url,
           body, method,
