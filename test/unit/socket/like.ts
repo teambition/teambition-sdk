@@ -30,7 +30,7 @@ export default describe('like socket', () => {
     signal.skip(1)
       .take(1)
       .subscribe(r => {
-        expect(r.likesCount).to.equal(like.likesCount + 1)
+        expect(r.likesGroup.length).to.equal(like.likesGroup.length + 1)
         done()
       })
 

@@ -73,7 +73,6 @@ export default describe('LikeAPI test: ', () => {
 
     yield signal.take(1)
       .do(r => {
-        expect(r.likesCount).to.equal(like.likesCount + 1)
         expect(r.likesGroup).to.deep.equal(like.likesGroup.concat({
           _id: 'mockmember',
           name: 'mockmember',
@@ -87,7 +86,6 @@ export default describe('LikeAPI test: ', () => {
 
     httpBackend.whenDELETE(`${apihost}tasks/mocktask/like`)
       .respond({
-        likesCount: like.likesCount - 1,
         isLike: false,
         likesGroup: clone(like).likesGroup.slice(1)
       })
@@ -98,7 +96,7 @@ export default describe('LikeAPI test: ', () => {
 
     yield signal.take(1)
       ._do(r => {
-        expect(r.likesCount).to.equal(like.likesCount - 1)
+        expect(r.likesGroup.length).to.equal(like.likesGroup.length - 1)
       })
   })
 })
