@@ -92,3 +92,5 @@ export class TagAPI {
       .concatMap(r => TagModel.relatedTag(_objectId, r))
   }
 }
+
+export default new TagAPI

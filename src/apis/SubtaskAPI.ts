@@ -156,3 +156,5 @@ export class SubtaskAPI {
     return request.concatMap(subtask => SubtaskModel.update<SubtaskData>(_subtaskId, subtask))
   }
 }
+
+export default new SubtaskAPI

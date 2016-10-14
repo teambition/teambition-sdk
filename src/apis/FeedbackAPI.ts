@@ -39,3 +39,5 @@ export class FeedbackAPI {
       .concatMap(r => FeedbackModel.update(feedbackId, r))
   }
 }
+
+export default new FeedbackAPI

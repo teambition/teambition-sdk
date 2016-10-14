@@ -142,3 +142,5 @@ export class EventAPI {
     return signal._switch()
   }
 }
+
+export default new EventAPI
