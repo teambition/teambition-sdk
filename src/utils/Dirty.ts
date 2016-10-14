@@ -44,8 +44,7 @@ export class Dirty {
       data._boundToObjectId = id
       data._boundToObjectType = type
       data._id = `${id}:like`
-      return LikeModel.storeOne(data._id, data)
-        .take(1)
+      return LikeModel.update(data._id, data)
     }
     return null
   }
