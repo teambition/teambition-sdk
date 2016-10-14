@@ -33,3 +33,5 @@ export class LikeAPI {
       .concatMap(r => LikeModel.update(`${objectId}:like`, r))
   }
 }
+
+export default new LikeAPI

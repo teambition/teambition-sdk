@@ -59,3 +59,5 @@ export class TasklistAPI {
       .concatMap(x => TasklistModel.update(_tasklistId, x))
   }
 }
+
+export default new TasklistAPI

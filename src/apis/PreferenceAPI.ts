@@ -23,3 +23,5 @@ export class PreferenceAPI {
       .concatMap(data => PreferenceModel.update(data))
   }
 }
+
+export default new PreferenceAPI

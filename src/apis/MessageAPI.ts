@@ -49,3 +49,5 @@ export class MessageAPI {
       .concatMap(x => MessageModel.deleteAllRead(type))
   }
 }
+
+export default new MessageAPI

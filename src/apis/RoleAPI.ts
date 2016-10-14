@@ -40,3 +40,5 @@ export class RoleAPI {
     })
   }
 }
+
+export default new RoleAPI
