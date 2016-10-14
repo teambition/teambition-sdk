@@ -115,3 +115,5 @@ export class ReportAPI {
     })
   }
 }
+
+export default new ReportAPI

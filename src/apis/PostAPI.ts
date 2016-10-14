@@ -160,3 +160,5 @@ export class PostAPI {
       .concatMap(post => PostModel.addOne(post).take(1))
   }
 }
+
+export default new PostAPI

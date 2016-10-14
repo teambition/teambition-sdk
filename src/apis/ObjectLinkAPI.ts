@@ -27,3 +27,5 @@ export class ObjectLinkAPI {
       .concatMap(r => ObjectLinkModel.delete(_id))
   }
 }
+
+export default new ObjectLinkAPI

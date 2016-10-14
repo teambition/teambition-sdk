@@ -153,3 +153,5 @@ export class EventAPI {
       .concatMap(event => EventModel.addOne(event).take(1))
   }
 }
+
+export default new EventAPI

@@ -35,3 +35,5 @@ export class UserAPI {
       .concatMap(x => UserModel.update(x))
   }
 }
+
+export default new UserAPI
