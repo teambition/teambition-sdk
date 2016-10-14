@@ -112,3 +112,5 @@ export class FileAPI {
     })
   }
 }
+
+export default new FileAPI

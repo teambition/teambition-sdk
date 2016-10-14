@@ -23,3 +23,5 @@ export class SubscribeAPI {
       .concatMap(r => SubscribeModel.update(r._id, r))
   }
 }
+
+export default new SubscribeAPI

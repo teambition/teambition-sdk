@@ -35,3 +35,5 @@ export class ActivityAPI {
       .concatMap(a => ActivityModel.addOne(a).take(1))
   }
 }
+
+export default new ActivityAPI

@@ -29,3 +29,5 @@ export class OrganizationAPI {
     })
   }
 }
+
+export default new OrganizationAPI

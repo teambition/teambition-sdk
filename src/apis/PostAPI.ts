@@ -113,3 +113,5 @@ export class PostAPI {
       .concatMap(r => PostModel.update(postId, r))
   }
 }
+
+export default new PostAPI

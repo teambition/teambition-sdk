@@ -56,3 +56,5 @@ export class EntrycategoryAPI {
   }
 
 }
+
+export default new EntrycategoryAPI
