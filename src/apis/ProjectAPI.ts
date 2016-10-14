@@ -230,3 +230,5 @@ export class ProjectAPI {
   }
 
 }
+
+export default new ProjectAPI

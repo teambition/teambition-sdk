@@ -9,6 +9,7 @@ if (typeof global !== 'undefined') {
 
 export const apihost = BaseFetch.fetch.getAPIHost()
 
+export * from '../../src/apis/index'
 export * from '../../src/app'
 export * from '../../src/utils/index'
 export { default as BaseFetch } from '../../src/fetchs/BaseFetch'

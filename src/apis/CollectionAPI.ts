@@ -64,3 +64,5 @@ export class CollectionAPI {
       .concatMap(r => CollectionModel.update(collectionId, r))
   }
 }
+
+export default new CollectionAPI

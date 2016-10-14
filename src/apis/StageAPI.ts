@@ -51,3 +51,5 @@ export class StageAPI {
       .concatMap(r => StageModel.updateOrders(_tasklistId, r.stageIds).map(() => r))
   }
 }
+
+export default new StageAPI

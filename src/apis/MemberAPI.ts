@@ -82,3 +82,5 @@ export class MemberAPI {
       .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
   }
 }
+
+export default new MemberAPI

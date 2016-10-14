@@ -331,3 +331,5 @@ export class TaskAPI {
     return request.concatMap(r => TaskModel.update(_taskId, r))
   }
 }
+
+export default new TaskAPI
