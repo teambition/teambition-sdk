@@ -32,12 +32,12 @@ export default describe('post api test: ', () => {
     const projectId = posts[0]._projectId
 
     beforeEach(() => {
-      httpBackend.whenGET(`${apihost}projects/${projectId}/posts?page=1&count=20`)
+      httpBackend.whenGET(`${apihost}projects/${projectId}/posts?page=1&count=20&type=all`)
         .respond(JSON.stringify(posts))
     })
 
-    it ('get should ok', done => {
-      PostApi.getProjectPosts(projectId, {
+    it ('get all posts should ok', done => {
+      PostApi.getAllProjectPosts(projectId, {
         page: 1,
         count: 20
       }).subscribe(results => {
@@ -46,17 +46,16 @@ export default describe('post api test: ', () => {
         })
         done()
       })
-
     })
 
-    it('get from cache should ok', function* () {
-      yield PostApi.getProjectPosts(projectId, {
+    it('get all posts from cache should ok', function* () {
+      yield PostApi.getAllProjectPosts(projectId, {
         page: 1,
         count: 20
       })
         .take(1)
 
-      yield PostApi.getProjectPosts(projectId, {
+      yield PostApi.getAllProjectPosts(projectId, {
         page: 1,
         count: 20
       })
@@ -70,6 +69,85 @@ export default describe('post api test: ', () => {
 
     })
 
+    it('get my posts should ok', done => {
+      const userId = posts[0]._creatorId
+      const myposts = posts.filter(post => {
+        return post._creatorId === userId
+      })
+      httpBackend.whenGET(`${apihost}projects/${projectId}/posts?page=1&count=20&type=my`)
+        .respond(JSON.stringify(myposts))
+
+      PostApi.getMyProjectPosts(userId, projectId, {
+        page: 1,
+        count: 20
+      }).subscribe(results => {
+        forEach(results, (post, index) => {
+          expectDeepEqual(post, myposts[index])
+        })
+        done()
+      })
+    })
+
+    it('get my posts from cache should ok', function* () {
+      const userId = posts[0]._creatorId
+      const myposts = posts.filter(post => {
+        return post._creatorId === userId
+      })
+      httpBackend.whenGET(`${apihost}projects/${projectId}/posts?page=1&count=20&type=my`)
+        .respond(JSON.stringify(myposts))
+
+      yield PostApi.getMyProjectPosts(userId, projectId, {
+        page: 1,
+        count: 20
+      })
+        .take(1)
+
+      yield PostApi.getMyProjectPosts(userId, projectId, {
+        page: 1,
+        count: 20
+      })
+        .take(1)
+        .do(results => {
+          forEach(results, (post, index) => {
+            expectDeepEqual(post, myposts[index])
+          })
+          expect(spy).to.be.calledOnce
+        })
+    })
+
+    it('add new post to my posts should ok', function* () {
+      const userId = posts[0]._creatorId
+      const myposts = posts.filter(post => {
+        return post._creatorId === userId
+      })
+      httpBackend.whenGET(`${apihost}projects/${projectId}/posts?page=1&count=20&type=my`)
+        .respond(JSON.stringify(myposts))
+
+      const mockPost = clone(posts[0])
+      const mockId = 'postmockid'
+      mockPost._id = mockId
+      mockPost._creatorId = userId
+
+      httpBackend.whenGET(`${apihost}posts/${mockId}`)
+        .respond(JSON.stringify(mockPost))
+
+      const signal = PostApi.getMyProjectPosts(userId, projectId, {
+        page: 1,
+        count: 20
+      })
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+
+      yield PostApi.get(mockId).take(1)
+
+      yield signal.take(1)
+        .do(results => {
+          expect(results.length).to.equal(myposts.length + 1)
+        })
+    })
+
     it('add new post should ok', function* () {
       const mockPost = clone(posts[0])
       const mockId = 'postmockid'
@@ -78,7 +156,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenGET(`${apihost}posts/${mockId}`)
         .respond(JSON.stringify(mockPost))
 
-      const signal = PostApi.getProjectPosts(projectId, {
+      const signal = PostApi.getAllProjectPosts(projectId, {
         page: 1,
         count: 20
       })
@@ -102,7 +180,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenDELETE(`${apihost}posts/${deleteId}`)
         .respond({})
 
-      const signal = PostApi.getProjectPosts(projectId, {
+      const signal = PostApi.getAllProjectPosts(projectId, {
         page: 1,
         count: 20
       })
@@ -133,7 +211,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenPOST(`${apihost}posts/${archiveId}/archive`)
         .respond(JSON.stringify(mockResponse))
 
-      const signal = PostApi.getProjectPosts(projectId, {
+      const signal = PostApi.getAllProjectPosts(projectId, {
         page: 1,
         count: 20
       })

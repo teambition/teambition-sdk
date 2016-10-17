@@ -16,10 +16,11 @@ import {
 import { makeColdSignal } from './utils'
 
 export class PostAPI {
-  getProjectPosts(projectId: string, query?: {
+  getAllProjectPosts(projectId: string, query?: {
     page: number
     count: number
     fields?: string
+    [index: string]: any
   }): Observable<PostData[]> {
     return makeColdSignal<PostData[]>(() => {
       const page = query && query.page ? query.page : 1
@@ -27,8 +28,25 @@ export class PostAPI {
       if (get) {
         return get
       }
-      return PostFetch.getProjectPosts(projectId, query)
+      return PostFetch.getProjectPosts(projectId, 'all', query)
         .concatMap(posts => PostModel.addPosts(projectId, posts, page))
+    })
+  }
+
+  getMyProjectPosts(userId: string, projectId: string, query?: {
+    page: number
+    count: number
+    fields?: string
+    [index: string]: any
+  }): Observable<PostData[]> {
+    return makeColdSignal<PostData[]>(() => {
+      const page = query && query.page ? query.page : 1
+      const get = PostModel.getMyPosts(projectId, page)
+      if (get) {
+        return get
+      }
+      return PostFetch.getProjectPosts(projectId, 'my', query)
+        .concatMap(posts => PostModel.addMyPosts(userId, projectId, posts, page))
     })
   }
 
