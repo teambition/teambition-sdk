@@ -4,6 +4,8 @@ import BaseFetch from './BaseFetch'
 import { PostData } from '../schemas/Post'
 import { visibility } from '../teambition'
 
+export type ProjectPostType = 'all' | 'my'
+
 export interface CreatePostOptions {
   _projectId: string
   title: string
@@ -99,11 +101,14 @@ export class PostFetch extends BaseFetch {
     return this.fetch.get(`posts/${_postId}`, query)
   }
 
-  getProjectPosts(_projectId: string, query?: {
+  getProjectPosts(_projectId: string, type: ProjectPostType, query?: {
     page: number
     count: number
     fields?: string
   }): Observable<PostData[]> {
+    if (type) {
+      query['type'] = type
+    }
     return this.fetch.get(`projects/${_projectId}/posts`, query)
   }
 

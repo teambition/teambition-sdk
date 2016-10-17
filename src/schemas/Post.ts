@@ -1,5 +1,6 @@
 'use strict'
 import { schemaName, Schema, ISchema } from './schema'
+import { ExecutorOrCreator, PostSource } from '../teambition'
 
 export interface PostData extends ISchema {
   _id: string
@@ -7,6 +8,7 @@ export interface PostData extends ISchema {
   _creatorId: string
   title: string
   content: string
+  creator: ExecutorOrCreator
   attachments: string[]
   involveMembers: string[]
   postMode: 'txt' | 'html'
@@ -18,6 +20,7 @@ export interface PostData extends ISchema {
   tagIds: string[]
   isFavorite: boolean
   isLike: boolean
+  source: PostSource
 }
 
 @schemaName('Post')
@@ -27,6 +30,7 @@ export default class Post extends Schema<PostData> implements PostData {
   _creatorId: string = undefined
   title: string = undefined
   content: string = undefined
+  creator: ExecutorOrCreator = undefined
   attachments: string[] = undefined
   involveMembers: string[] = undefined
   postMode: 'txt' | 'html' = undefined
@@ -38,4 +42,5 @@ export default class Post extends Schema<PostData> implements PostData {
   tagIds: string[] = undefined
   isFavorite: boolean = undefined
   isLike: boolean = undefined
+  source: PostSource = undefined
 }

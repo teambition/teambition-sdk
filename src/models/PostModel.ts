@@ -41,6 +41,30 @@ export class PostModel extends BaseModel {
     }
     return null
   }
+
+  addMyPosts(userId: string, projectId: string, posts: PostData[], page: number): Observable<PostData[]> {
+    const dbIndex = `project:my:posts/${projectId}`
+    const result = datasToSchemas<PostData>(posts, Post)
+
+    let collection = this._collections.get(dbIndex)
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: PostData) => {
+        return data._projectId === projectId &&
+          !data.isArchived &&
+          data._creatorId === userId
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getMyPosts(projectId: string, page: number): Observable<PostData[]> {
+    const collection = this._collections.get(`project:my:posts/${projectId}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
 }
 
 export default new PostModel()
