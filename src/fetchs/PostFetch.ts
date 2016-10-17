@@ -107,6 +107,9 @@ export class PostFetch extends BaseFetch {
     fields?: string
   }): Observable<PostData[]> {
     if (type) {
+      if (!query) {
+        query = Object.create(null)
+      }
       query['type'] = type
     }
     return this.fetch.get(`projects/${_projectId}/posts`, query)
