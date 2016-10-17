@@ -108,3 +108,5 @@ export interface UndoFavoriteResponse {
   refType: string
   isFavorite: boolean
 }
+
+export type PostSource = 'shimo' | 'yiqixie' | 'teambition'
