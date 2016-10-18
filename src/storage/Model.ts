@@ -90,7 +90,7 @@ export default class Model<T extends ISchema> {
    */
   update(patch: any): Observable<T> {
     return Observable.create((observer: Observer<T>) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (!patch || typeof patch !== 'object') {
           return observer.error(new Error(`A patch should be Object, patch: ${patch}, type: ${typeof patch}`))
         }
@@ -179,6 +179,7 @@ export default class Model<T extends ISchema> {
         observer.next(result)
         observer.complete()
       })
+      return () => clearTimeout(timer)
     })
   }
 
