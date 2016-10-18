@@ -4,11 +4,11 @@ import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
 import { Observable } from 'rxjs'
 import { MemberSchema } from '../index'
-import { MemberAPI, Backend, apihost, clone, BaseFetch } from '../index'
+import { MemberAPI, Backend, apihost, clone, BaseFetch, uuid, Utils } from '../index'
 import { members } from '../../mock/members'
 import { projectMembers } from '../../mock/projectMembers'
 import { organizations } from '../../mock/organizations'
-import { notInclude, flush } from '../utils'
+import { notInclude, flush, expectDeepEqual } from '../utils'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -36,6 +36,107 @@ export default describe('member api test', () => {
 
   afterEach(() => {
     BaseFetch.fetch.get['restore']()
+  })
+
+  it('should get one', function* () {
+
+    const member = <MemberSchema>{
+      _id: uuid(),
+      _memberId: uuid()
+    }
+    const memberId = member._memberId
+
+    httpBackend
+      .whenGET(`${apihost}members/${memberId}`)
+      .respond(JSON.stringify(member))
+
+    const signal = Member.getOne(memberId)
+
+    yield signal.take(1)
+
+    yield signal.take(1)
+      .do(data => {
+        expectDeepEqual(data, member)
+        expect(spy.calledOnce).to.be.true
+      })
+  })
+
+  it('should get one project member', function* () {
+
+    const mockMember = projectMembers[0]
+    const count = 5
+    const projectId = uuid()
+    const members = <MemberSchema[]>[]
+    for (let i = 0; i < count; i ++) {
+      members.push(<any>Utils.assign(Utils.clone(mockMember), {
+        _id: uuid(),
+        _memberId: uuid(),
+        _boundToObjectId: projectId,
+        boundToObjectType: 'project'
+      }))
+    }
+    const member = members[0]
+    const memberId = member._memberId
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
+      .respond(JSON.stringify(members))
+
+    const signalOne = Member.getProjectMembers(projectId)
+    const signalTwo = Member.getOne(memberId)
+
+    yield signalOne.take(1)
+    yield signalTwo.take(1)
+
+    yield signalOne.take(1)
+      .do(members => {
+        expect(members.length).to.be.equal(count)
+        expectDeepEqual(members[0], member)
+      })
+
+    yield signalTwo.take(1)
+      .do(data => {
+        expectDeepEqual(data, member)
+        expect(spy.calledOnce).to.be.true
+      })
+  })
+
+  it('should get one organization member', function* () {
+
+    const mockMember = projectMembers[0]
+    const count = 5
+    const organizationId = uuid()
+    const members = <MemberSchema[]>[]
+    for (let i = 0; i < count; i ++) {
+      members.push(<any>Utils.assign(Utils.clone(mockMember), {
+        _id: uuid(),
+        _memberId: uuid(),
+        _boundToObjectId: organizationId,
+        boundToObjectType: 'organization'
+      }))
+    }
+    const member = members[0]
+    const memberId = member._memberId
+
+    httpBackend.whenGET(`${apihost}V2/organizations/${organizationId}/members?page=1&count=30`)
+      .respond(JSON.stringify(members))
+
+    const signalOne = Member.getOrgMembers(organizationId)
+    const signalTwo = Member.getOne(memberId)
+
+    yield signalOne.take(1)
+    yield signalTwo.take(1)
+
+    yield signalOne.take(1)
+      .do(members => {
+        expect(members.length).to.be.equal(count)
+        expectDeepEqual(members[0], member)
+      })
+
+    yield signalTwo.take(1)
+      .do(data => {
+        expectDeepEqual(data, member)
+        expect(spy.calledOnce).to.be.true
+      })
   })
 
   it('get organization members should ok', function* () {

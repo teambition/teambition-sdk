@@ -14,6 +14,11 @@ export interface GetMembersOptions {
 const MAX_PROJECT_MEMBER_COUNT = 1000
 
 export class MemberFetch extends BaseFetch {
+
+  getOne(memberId: string, query?: any): Observable<MemberData> {
+    return this.fetch.get(`members/${memberId}`, query)
+  }
+
   deleteMember(memberId: string): Observable<void> {
     return this.fetch.delete<void>(`members/${memberId}`)
   }

@@ -7,6 +7,17 @@ import { makeColdSignal } from './utils'
 
 export class MemberAPI {
 
+  getOne(memberId: string, query?: any): Observable<MemberData> {
+    return makeColdSignal<MemberData>(() => {
+      const cache = MemberModel.getOne(memberId)
+      if (cache && MemberModel.checkSchema(memberId)) {
+        return cache
+      }
+      return MemberFetch.getOne(memberId, query)
+        .concatMap(member => MemberModel.addOne(member))
+    })
+  }
+
   deleteMember(memberId: string): Observable<void> {
     return MemberFetch.deleteMember(memberId)
       .concatMap(x => MemberModel.delete(memberId))
