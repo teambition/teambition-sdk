@@ -37,7 +37,7 @@ export default class DataBase {
       return Observable.throw(new Error(`unionFlag not exist in data: ${data}`))
     }
     return Observable.create((observer: Observer<Observable<T>>) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (typeof data !== 'object' || data === null) {
           return observer.error(new Error(`Can not store an none object data`))
         }
@@ -69,6 +69,7 @@ export default class DataBase {
         }
         observer.next(signal)
       })
+      return () => clearTimeout(timer)
     })
       .concatMap((x: Observable<T>) => x)
   }
@@ -85,7 +86,7 @@ export default class DataBase {
       return Observable.throw(new Error(`Collection index not exist, data: ${Collection}`))
     }
     return Observable.create((observer: Observer<Observable<(T | Schema<T>)[]>>) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (!data) {
           return observer.complete()
         }
@@ -112,6 +113,7 @@ export default class DataBase {
         }
         observer.next(collection.get())
       })
+      return () => clearTimeout(timer)
     })
       .concatMap((x: Observable<T[]>) => x)
   }
@@ -130,7 +132,7 @@ export default class DataBase {
 
   delete(index: string): Observable<void> {
     return Observable.create((observer: Observer<Observable<void>>) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         const cache: Model<any> | Collection<any> = DataBase.data.get(index)
         let signal: Observable<any> = Observable.of(null)
         if (cache) {
@@ -172,13 +174,14 @@ export default class DataBase {
         observer.next(signal)
         observer.complete()
       })
+      return () => clearTimeout(timer)
     })
       .concatMap((x: Observable<void>) => x)
   }
 
   updateOne <T>(index: string, patch: any): Observable<T> {
     return Observable.create((observer: Observer<T>) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         const model: Model<T> = DataBase.data.get(index)
         if (!model) {
           const err = new Error(`Patch target not exist: ${index}`)
@@ -205,6 +208,7 @@ export default class DataBase {
             observer.complete()
           })
       })
+      return () => clearTimeout(timer)
     })
   }
 
@@ -217,7 +221,7 @@ export default class DataBase {
    */
   updateCollection<T>(index: string, patch: (T & Schema<T>)[]): Observable<T[]> {
     return Observable.create((observer: Observer<(Schema<T> | T)[]>) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (!(patch instanceof Array)) {
           return observer.error(new TypeError(`Patch must be Array: ${index}`))
         }
@@ -240,6 +244,7 @@ export default class DataBase {
             observer.complete()
           })
       })
+      return () => clearTimeout(timer)
     })
   }
 
