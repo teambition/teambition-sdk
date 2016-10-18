@@ -21,6 +21,7 @@ export interface PostData extends ISchema {
   isFavorite: boolean
   isLike: boolean
   source: PostSource
+  lastCommentedAt: string | null
 }
 
 @schemaName('Post')
@@ -43,4 +44,5 @@ export default class Post extends Schema<PostData> implements PostData {
   isFavorite: boolean = undefined
   isLike: boolean = undefined
   source: PostSource = undefined
+  lastCommentedAt: string | null = null
 }
