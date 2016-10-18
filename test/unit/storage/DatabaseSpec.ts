@@ -957,4 +957,12 @@ export default describe('database test: ', () => {
     })
   })
 
+  it('delete a not exist data should respond false', done => {
+    Storage.delete('test')
+      .subscribe(r => {
+        expect(r).to.be.false
+        done()
+      })
+  })
+
 })
