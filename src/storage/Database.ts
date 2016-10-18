@@ -134,7 +134,7 @@ export default class DataBase {
     return Observable.create((observer: Observer<Observable<void>>) => {
       const timer = setTimeout(() => {
         const cache: Model<any> | Collection<any> = DataBase.data.get(index)
-        let signal: Observable<any> = Observable.of(null)
+        let signal: Observable<any> = Observable.of(false)
         if (cache) {
           if (cache instanceof Model) {
             this._deleteParents(cache)
@@ -168,9 +168,9 @@ export default class DataBase {
               model.removeFromCollection(index)
             })
           }
+          cache.destroy()
+          DataBase.data.delete(index)
         }
-        cache.destroy()
-        DataBase.data.delete(index)
         observer.next(signal)
         observer.complete()
       })
