@@ -113,6 +113,10 @@ export class MemberModel extends BaseModel {
     }
   }
 
+  getOne(memberId: string): Observable<MemberData> {
+    return this._get<MemberData>(memberId)
+  }
+
   addOne(member: MemberData): Observable<MemberData> {
     const result = dataToSchema<MemberData>(member, Member)
     return this._save(result, '_memberId')

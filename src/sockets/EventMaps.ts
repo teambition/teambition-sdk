@@ -22,6 +22,7 @@ import ProjectModel from '../models/ProjectModel'
 import SubscribeModel from '../models/SubscribeModel'
 import FeedbackModel from '../models/FeedbackModel'
 import ProjectFetch from '../fetchs/ProjectFetch'
+import MemberFetch from '../fetchs/MemberFetch'
 import { MessageResult, eventParser } from './EventParser'
 import { forEach } from '../utils/index'
 
@@ -120,6 +121,10 @@ function handler(socketMessage: MessageResult) {
         return ProjectFetch.getOne(projectid)
           .concatMap(project => ProjectModel.addOne(project))
           .take(1)
+      case 'member':
+        return MemberFetch.getOne(data)
+          .concatMap(member => MemberModel.addOne(member))
+          .take(1)
     }
     return Observable.of(null)
   } else if (method === 'remove') {
@@ -127,6 +132,8 @@ function handler(socketMessage: MessageResult) {
       case 'project':
         const projectId = data
         return ProjectModel.delete(projectId)
+      case 'member':
+        return MemberModel.delete(data)
     }
   }
   return Observable.of(null)
