@@ -6,22 +6,24 @@ export interface PostData extends ISchema {
   _id: string
   _projectId: string
   _creatorId: string
-  title: string
-  content: string
-  creator: ExecutorOrCreator
   attachments: string[]
-  involveMembers: string[]
-  postMode: 'txt' | 'html'
-  isArchived: boolean
-  visiable: string
-  pin: boolean
+  attachmentsCount?: number
+  commentsCount?: number
+  content: string
   created: string
-  updated: string
-  tagIds: string[]
+  creator: ExecutorOrCreator
+  html: string
+  involveMembers: string[]
+  isArchived: boolean
   isFavorite: boolean
-  isLike: boolean
-  source: PostSource
   lastCommentedAt: string | null
+  pin: boolean
+  postMode: 'txt' | 'html'
+  source: PostSource
+  tagIds: string[]
+  title: string
+  updated: string
+  visible: string
 }
 
 @schemaName('Post')
@@ -36,13 +38,13 @@ export default class Post extends Schema<PostData> implements PostData {
   involveMembers: string[] = undefined
   postMode: 'txt' | 'html' = undefined
   isArchived: boolean = undefined
-  visiable: string = undefined
+  visible: string = undefined
+  html: string = undefined
   pin: boolean = undefined
   created: string = undefined
   updated: string = undefined
   tagIds: string[] = undefined
   isFavorite: boolean = undefined
-  isLike: boolean = undefined
   source: PostSource = undefined
   lastCommentedAt: string | null = null
 }
