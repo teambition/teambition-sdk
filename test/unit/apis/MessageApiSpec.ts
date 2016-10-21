@@ -45,7 +45,7 @@ export default describe('MessageAPI test: ', () => {
 
   describe('get messages test: ', () => {
     beforeEach(() => {
-      httpBackend.whenGET(`${apihost}messages?type=normal&sort=normal&count=10&page=1`)
+      httpBackend.whenGET(`${apihost}v2/messages?type=normal&sort=normal&count=10&page=1`)
         .respond(JSON.stringify(messages))
     })
 

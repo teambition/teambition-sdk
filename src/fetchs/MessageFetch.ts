@@ -29,7 +29,7 @@ export interface SnoozeResponse {
 
 export class MessageFetch extends BaseFetch {
   getMessages(query?: GetMessageOptions): Observable<MessageData[]> {
-    return this.fetch.get(`messages`, query)
+    return this.fetch.get(`v2/messages`, query)
   }
 
   read(_id: string): Observable<ReadResponse> {
