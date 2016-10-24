@@ -78,7 +78,7 @@ export default class DataBase {
     index: string,
     data: (Schema<T> | T)[],
     schemaName?: string,
-    condition?: (data: T) => boolean,
+    condition?: (data: T) => boolean | Observable<boolean>,
     unionFlag?: string
   ): Observable<T[]> {
     /* istanbul ignore if */
