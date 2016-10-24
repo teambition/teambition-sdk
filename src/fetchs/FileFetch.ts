@@ -64,6 +64,10 @@ export class FileFetch extends BaseFetch {
     return this.fetch.get(`works/${FileId}`, query)
   }
 
+  getByTagId(tagId: string, query?: any): Observable<FileData[]> {
+    return this.fetch.get(`tags/${tagId}/works`, query)
+  }
+
   update(FileId: string, options: UpdateFileOptions): Observable<UpdateFileResponse> {
     return this.fetch.put(`works/${FileId}`, options)
   }

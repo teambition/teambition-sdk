@@ -57,7 +57,7 @@ export class TaskModel extends BaseModel {
 
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return data._executorId === userId &&
-             data.dueDate &&
+             Boolean(data.dueDate) &&
              !data.isDone &&
              !data.isArchived
     })
@@ -332,6 +332,29 @@ export class TaskModel extends BaseModel {
 
   getProjectDoneTasks(_projectId: string, page: number): Observable<TaskData[]> {
     const collection = this._collections.get(`project:tasks:done/${_projectId}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  addByTagId(tagId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
+    const dbIndex = `tag:tasks/${tagId}`
+    const result = datasToSchemas(tasks, Task)
+    let collection = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: TaskData) => {
+        return !data.isArchived && data.tagIds && data.tagIds.indexOf(tagId) !== -1
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getByTagId(tagId: string, page: number): Observable<TaskData[]> {
+    const dbIndex = `tag:tasks/${tagId}`
+    let collection = this._collections.get(dbIndex)
     if (collection) {
       return collection.get(page)
     }

@@ -53,6 +53,29 @@ export class FileModel extends BaseModel {
     }
     return null
   }
+
+  addByTagId(tagId: string, files: FileData[], page: number): Observable<FileData[]> {
+    const dbIndex = `tag:files/${tagId}`
+    const result = datasToSchemas(files, File)
+    let collection = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: FileData) => {
+        return !data.isArchived && data.tagIds && data.tagIds.indexOf(tagId) !== -1
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getByTagId(tagId: string, page: number): Observable<FileData[]> {
+    const dbIndex = `tag:files/${tagId}`
+    let collection = this._collections.get(dbIndex)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
 }
 
 export default new FileModel()
