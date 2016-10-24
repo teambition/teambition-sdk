@@ -66,7 +66,7 @@ export default class Model {
     namespace: string,
     data: Schema<T>[],
     schemaName?: string,
-    condition?: (data: T) => boolean,
+    condition?: (data: T) => boolean | Observable<boolean>,
     unionFlag?: string
   ): Observable<T[]> {
     return Model.DataBase.storeCollection(namespace, data, schemaName, condition, unionFlag)

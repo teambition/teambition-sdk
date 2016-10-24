@@ -19,7 +19,7 @@ export default class Collection <T extends ISchema> {
     public index: string,
     _data: (T & Schema<T>)[] | T[],
     public schemaName?: string,
-    public condition?: (data: T) => boolean,
+    public condition?: (data: T) => boolean | Observable<boolean>,
     private _unionFlag = '_id'
   ) {
     const result: ((T & Schema<T>) | T)[] = []
@@ -148,8 +148,20 @@ export default class Collection <T extends ISchema> {
           .take(1)
           .forEach(data => {
             if (data) {
-              observer.next(this.condition(data))
-              observer.complete()
+              const result = this.condition(data)
+              if (typeof result === 'boolean') {
+                observer.next(result)
+                observer.complete()
+              } else if (result instanceof Observable) {
+                result.take(1)
+                  .forEach(val => observer.next(val))
+                  .then(() => observer.complete())
+              } else {
+                observer.error(new TypeError(
+                  `invalid return type of condition Fn,
+                  collection: ${this.index}, return value: ${result}`
+                ))
+              }
             } else {
               observer.next(false)
               observer.complete()
