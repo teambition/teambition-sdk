@@ -1,7 +1,6 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Model from './BaseModel'
-import DataBase from '../storage/Database'
 import TagSchema, { TagData } from '../schemas/Tag'
 import { dataToSchema, datasToSchemas } from '../utils/index'
 import TaskSchema from '../schemas/Task'
@@ -44,23 +43,6 @@ export class TagModel extends Model {
 
   getOne(_id: string): Observable<TagData> {
     return this._get<TagData>(_id)
-  }
-
-  addByObject(objectId: string, objectType: TagsObjectType, tags: TagData[]): Observable<TagData[]> {
-    const result = datasToSchemas<TagData>(tags, TagSchema)
-    // 如果有很多集合都需要这样处理，底层就应该考虑重构啦！
-    return this._saveCollection(`${objectType}:tags/${objectId}`, result, this._schemaName, (data: TagData) => {
-      const object = DataBase.data.get(objectId)
-      let tagIds: string[]
-      if (object && object.data) {
-        tagIds = object.data.tagIds
-      }
-      return data.isArchived && object && tagIds && tagIds.indexOf(data._id) !== -1
-    })
-  }
-
-  getByObject(objectId: string, objectType: TagsObjectType): Observable<TagData[]> {
-    return this._get<TagData[]>(`${objectType}:tags/${objectId}`)
   }
 
   addByProjectId(projectId: string, tags: TagData[]): Observable<TagData[]> {
