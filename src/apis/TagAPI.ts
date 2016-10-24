@@ -50,21 +50,6 @@ export class TagAPI {
       .concatMap(r => TagModel.update(_id, r))
   }
 
-  /**
-   * 无法解决同步的问题，先不实现这个接口，有更简单自然的用法
-   */
-  // getByObject(_objectId: string, objectType: TagsObjectType, query?: any): Observable<TagData[]> {
-  //   return makeColdSignal<TagData[]>(observer => {
-  //     const cache = TagModel.getByObject(_objectId, objectType)
-  //     if (cache) {
-  //       return cache
-  //     }
-  //     return Observable.fromPromise(TagFetch.getByObject(_objectId, objectType, query))
-  //       .catch(err => errorHandler(observer, err))
-  //       .concatMap(r => TagModel.addByObject(_objectId, objectType, r))
-  //   })
-  // }
-
   getByProjectId(_projectId: string, query?: any): Observable<TagData[]> {
     return makeColdSignal<TagData[]>(() => {
       const cache = TagModel.getByProjectId(_projectId)
