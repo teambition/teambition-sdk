@@ -165,6 +165,10 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`organizations/${organizationId}/tasks/me/involves`, query)
   }
 
+  getByTagId(tagId: string, query?: any): Observable<TaskData[]> {
+    return this.fetch.get(`tags/${tagId}/tasks`, query)
+  }
+
   create(createTaskData: CreateTaskOptions): Observable<TaskData> {
     return this.fetch.post(`tasks`, createTaskData)
   }

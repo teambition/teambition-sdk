@@ -85,7 +85,7 @@ export default describe('Dirty APIs Spec', () => {
 
     yield getTasks$.take(1)
       .do(r => {
-        expect(r.likesGroup).to.be.undefined
+        expect(r['likesGroup']).to.be.undefined
       })
   })
 })

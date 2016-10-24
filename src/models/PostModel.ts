@@ -65,6 +65,29 @@ export class PostModel extends BaseModel {
     }
     return null
   }
+
+  addByTagId(tagId: string, posts: PostData[], page: number): Observable<PostData[]> {
+    const dbIndex = `tag:posts/${tagId}`
+    const result = datasToSchemas(posts, Post)
+    let collection = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: PostData) => {
+        return !data.isArchived && data.tagIds && data.tagIds.indexOf(tagId) !== -1
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getByTagId(tagId: string, page: number): Observable<PostData[]> {
+    const dbIndex = `tag:posts/${tagId}`
+    let collection = this._collections.get(dbIndex)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
 }
 
 export default new PostModel()

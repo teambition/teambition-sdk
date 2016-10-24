@@ -13,7 +13,7 @@ export interface EntryData extends ISchema {
   amount: number
   status: string
   involveMembers: string[]
-  visiable: visibility
+  visible: visibility
   tagIds: string[]
   created: string
   updated: string
@@ -32,7 +32,7 @@ export default class EntrySchema extends Schema<EntryData> implements EntryData 
   amount: number = undefined
   status: string = undefined
   involveMembers: string[] = undefined
-  visiable: visibility = undefined
+  visible: visibility = undefined
   tagIds: string[] = undefined
   created: string = undefined
   updated: string = undefined

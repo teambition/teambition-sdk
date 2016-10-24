@@ -5,6 +5,7 @@ import Model from './BaseModel'
 import { EventData } from '../schemas/Event'
 import { setSchema } from '../schemas/schema'
 import { RecurrenceEvent } from './events/RecurrenceEvent'
+import Collection from './BaseCollection'
 import { forEach } from '../utils'
 
 export interface GeneratorResult {
@@ -70,6 +71,29 @@ export class EventModel extends Model {
 
   getMyEvents(userId: string, endDate: Date): Observable<EventData[]> {
     return this._get<EventData[]>(`my:events/${userId}`)
+  }
+
+  addByTagId(tagId: string, events: EventData[], page: number): Observable<EventData[]> {
+    const dbIndex = `tag:events/${tagId}`
+    const result = this._genEventResult(events)
+    let collection = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: EventData) => {
+        return !data.isArchived && data.tagIds && data.tagIds.indexOf(tagId) !== -1
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getByTagId(tagId: string, page: number): Observable<EventData[]> {
+    const dbIndex = `tag:events:/${tagId}`
+    let collection = this._collections.get(dbIndex)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
   }
 
   private _genEventResult(events: EventData[]): RecurrenceEvent[] {

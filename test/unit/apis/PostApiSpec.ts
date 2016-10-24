@@ -235,6 +235,199 @@ export default describe('post api test: ', () => {
 
   })
 
+  describe('get posts by tagId', () => {
+    const mockTagId = 'mocktagid'
+    const mockPosts = clone(posts).map(post => {
+      post.tagIds = [mockTagId]
+      return post
+    })
+
+    beforeEach(() => {
+      httpBackend.whenGET(`${apihost}tags/${mockTagId}/posts`, {
+        page: 1,
+        count: 500
+      })
+        .respond(JSON.stringify(mockPosts))
+    })
+
+    it('get should ok', done => {
+      PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+        .subscribe(r => {
+          forEach(r, (post, index) => {
+            expectDeepEqual(post, mockPosts[index])
+          })
+          done()
+        })
+    })
+
+    it('get from cache should ok', function* () {
+      yield PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+        .take(1)
+
+      yield PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+        .take(1)
+        .do(r => {
+          forEach(r, (post, index) => {
+            expectDeepEqual(post, mockPosts[index])
+          })
+          expect(spy).to.be.calledOnce
+        })
+    })
+
+    it('add new posts should ok', function* () {
+      const mockPostId = 'mockpostid'
+      const mockPost = clone(posts[0])
+      mockPost._id = mockPostId
+      mockPost.tagIds = [mockTagId]
+
+      httpBackend.whenGET(`${apihost}posts/${mockPostId}`)
+        .respond(JSON.stringify(mockPost))
+
+      const signal = PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+
+      yield signal.take(1)
+
+      yield PostApi.get(mockPostId).take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(mockPosts.length + 1)
+          expectDeepEqual(r[0], mockPost)
+        })
+    })
+
+    it('update tags should ok', function* () {
+      const postId = posts[0]._id
+
+      httpBackend.whenPUT(`${apihost}posts/${postId}/tagIds`, {
+        tagIds: ['othertag']
+      })
+        .respond({
+          _id: postId,
+          tagIds: ['othertag'],
+          updated: new Date().toISOString()
+        })
+
+      const signal = PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+
+      yield signal.take(1)
+
+      yield PostApi.updateTags(postId, ['othertag'])
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(mockPosts.length - 1)
+          expect(notInclude(r, mockPosts[0]))
+        })
+    })
+
+    it('delete post should ok', function* () {
+      const postId = posts[0]._id
+
+      httpBackend.whenDELETE(`${apihost}posts/${postId}`)
+        .respond({})
+
+      const signal = PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+
+      yield signal.take(1)
+
+      yield PostApi.delete(postId)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(mockPosts.length - 1)
+          expect(notInclude(r, mockPosts[0])).to.be.true
+        })
+    })
+
+    it('archive should ok', function* () {
+      const postId = posts[0]._id
+
+      httpBackend.whenPOST(`${apihost}posts/${postId}/archive`)
+        .respond({
+          _id: postId,
+          isArchived: true,
+          updated: new Date().toISOString()
+        })
+
+      const signal = PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+
+      yield signal.take(1)
+
+      yield PostApi.archive(postId)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(mockPosts.length - 1)
+          expect(notInclude(r, mockPosts[0]))
+        })
+    })
+
+    it('unarchive should ok', function* () {
+      const mockPostId = 'mockpostid'
+      const mockPost = clone(posts[0])
+      mockPost._id = mockPostId
+      mockPost.tagIds = [mockTagId]
+      mockPost.isArchived = true
+
+      httpBackend.whenGET(`${apihost}posts/${mockPostId}`)
+        .respond(JSON.stringify(mockPost))
+
+      httpBackend.whenDELETE(`${apihost}posts/${mockPostId}/archive`)
+        .respond({
+          _id: mockPostId,
+          isArchived: false,
+          updated: new Date().toISOString()
+        })
+
+      const signal = PostApi.getByTagId(mockTagId, {
+        page: 1,
+        count: 500
+      })
+
+      yield signal.take(1)
+
+      yield PostApi.get(mockPostId).take(1)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(mockPosts.length)
+          expect(notInclude(r, mockPost)).to.be.true
+        })
+
+      yield PostApi.unarchive(mockPostId)
+
+      yield signal.take(1)
+        .do(r => {
+          expect(r.length).to.equal(mockPosts.length + 1)
+          delete mockPost.isArchived
+          delete mockPost.updated
+          expectDeepEqual(mockPost, r[0])
+        })
+    })
+  })
+
   it('favorite a post should ok', function* () {
     const favoriteId = posts[0]._id
 

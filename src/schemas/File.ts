@@ -17,7 +17,7 @@ export interface FileData extends ISchema {
   _creatorId: string
   creator: ExecutorOrCreator
   tagIds: string[]
-  visiable: visibility
+  visible: visibility
   downloadUrl: string
   thumbnail: string
   thumbnailUrl: string
@@ -39,10 +39,7 @@ export interface FileData extends ISchema {
   creatorName?: string
   creatorAvatar?: string
   isFavorite?: boolean
-  isLike?: boolean
-  likedPeople?: string
   likesCount?: number
-  likesGroup?: ExecutorOrCreator[]
   linked?: ObjectLinkData[]
 }
 
@@ -61,7 +58,7 @@ export default class File extends Schema<FileData> implements FileData {
   _creatorId: string = undefined
   creator: ExecutorOrCreator = undefined
   tagIds: string[] = undefined
-  visiable: visibility = undefined
+  visible: visibility = undefined
   downloadUrl: string = undefined
   thumbnail: string = undefined
   thumbnailUrl: string = undefined

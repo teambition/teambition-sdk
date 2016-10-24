@@ -124,6 +124,10 @@ export class EventFetch extends BaseFetch {
     return this.fetch.get(`events/${eventId}`, query)
   }
 
+   getByTagId(tagId: string, query?: any): Observable<EventData[]> {
+    return this.fetch.get(`tags/${tagId}/events`, query)
+  }
+
   update(eventId: string, query: UpdateEventOptions): Observable<any> {
     return this.fetch.put(`events/${eventId}`, query)
   }
