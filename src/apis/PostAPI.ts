@@ -9,6 +9,7 @@ import {
   UpdateInvolves,
   ArchivePostResponse,
   UnArchivePostResponse,
+  UpdatePostOptions,
   UpdateInvolvesResponse,
   UpdatePinResponse,
   UpdateTagsResponse
@@ -119,10 +120,15 @@ export class PostAPI {
       .concatMap(result => PostModel.update(postId, result))
   }
 
+  update(postId: string, post: UpdatePostOptions): Observable<any> {
+    return PostFetch.update(postId, post)
+      .concatMap(result => PostModel.update(postId, result))
+  }
+
   /**
    * cold signal
    */
-  updatInvolves(postId: string, involves: UpdateInvolves): Observable<UpdateInvolvesResponse> {
+  updateInvolves(postId: string, involves: UpdateInvolves): Observable<UpdateInvolvesResponse> {
     return PostFetch.updateInvolves(postId, involves)
       .concatMap(result => PostModel.update(postId, result))
   }

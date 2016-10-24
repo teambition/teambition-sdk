@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import * as sinon from 'sinon'
-import { Backend, PostAPI, apihost, forEach, clone, BaseFetch } from '../index'
+import { Backend, PostAPI, apihost, forEach, clone, BaseFetch, uuid } from '../index'
 import { posts } from '../../mock/posts'
 import { expectDeepEqual, flush, notInclude } from '../utils'
 
@@ -515,6 +515,44 @@ export default describe('post api test: ', () => {
       })
   })
 
+  it('should update one', function* () {
+
+    const post = clone(posts[0])
+    const postId = post._id = uuid()
+    const patch = {title: uuid()}
+    const response = {
+      _id: postId,
+      title: patch.title,
+      updated: new Date().toISOString()
+    }
+
+    httpBackend
+      .whenGET(`${apihost}posts/${postId}`)
+      .respond(JSON.stringify(post))
+
+    httpBackend
+      .whenPUT(`${apihost}posts/${postId}`, patch)
+      .respond(JSON.stringify(response))
+
+    const signal = PostApi.get(postId)
+
+    yield signal.take(1)
+      .do(result => {
+        expectDeepEqual(result, post)
+      })
+
+    yield PostApi.update(postId, patch)
+      .do(result => {
+        expectDeepEqual(result, response)
+      })
+
+    yield signal.take(1)
+      .do(result => {
+        expect(result.title).to.be.equal(patch.title)
+        expect(spy.callCount).to.be.equal(1)
+      })
+  })
+
   it('update involves should ok', function* () {
     const testPost = clone(posts[0])
     const testPostId = testPost._id
@@ -540,7 +578,7 @@ export default describe('post api test: ', () => {
 
     yield signal.take(1)
 
-    yield PostApi.updatInvolves(testPostId, {
+    yield PostApi.updateInvolves(testPostId, {
       involveMembers: mockInvolves
     })
       .do(r => {
