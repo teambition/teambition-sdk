@@ -115,6 +115,10 @@ export class PostFetch extends BaseFetch {
     return this.fetch.get(`projects/${_projectId}/posts`, query)
   }
 
+  getByTagId(tagId: string, query?: any): Observable<PostData[]> {
+    return this.fetch.get(`tags/${tagId}/posts`, query)
+  }
+
   update(postId: string, post: UpdatePostOptions): Observable<any> {
     return this.fetch.put(`posts/${postId}`, post)
   }

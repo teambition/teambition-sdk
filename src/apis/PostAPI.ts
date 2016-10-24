@@ -50,6 +50,18 @@ export class PostAPI {
     })
   }
 
+  getByTagId(tagId: string, query?: any): Observable<PostData[]> {
+    return makeColdSignal<PostData[]>(() => {
+      const page = query && query.page ? query.page : 1
+      const cache = PostModel.getByTagId(tagId, page)
+      if (cache) {
+        return cache
+      }
+      return PostFetch.getByTagId(tagId, query)
+        .concatMap(r => PostModel.addByTagId(tagId, r, page))
+    })
+  }
+
   create(post: CreatePostOptions): Observable<PostData> {
     return PostFetch.create(post)
       .concatMap(post => PostModel.addOne(post).take(1))
