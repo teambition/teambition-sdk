@@ -4,6 +4,7 @@ import { datasToSchemas, dataToSchema } from '../utils/index'
 import BaseModel from './BaseModel'
 import { PostData, default as Post } from '../schemas/Post'
 import Collection from './BaseCollection'
+import { PostId, TagId, ProjectId, UserId } from '../teambition'
 
 export class PostModel extends BaseModel {
   private _schemaName = 'Post'
@@ -13,14 +14,14 @@ export class PostModel extends BaseModel {
     return this._save(result)
   }
 
-  getOne(postId: string): Observable<PostData> {
-    return this._get<PostData>(postId)
+  getOne(postId: PostId): Observable<PostData> {
+    return this._get<PostData>(<any>postId)
   }
 
   /**
    * _collections 索引为 `project:posts/${projectId}`
    */
-  addPosts(projectId: string, posts: PostData[], page: number): Observable<PostData[]> {
+  addPosts(projectId: ProjectId, posts: PostData[], page: number): Observable<PostData[]> {
     const dbIndex = `project:posts/${projectId}`
     const result = datasToSchemas<PostData>(posts, Post)
 
@@ -34,7 +35,7 @@ export class PostModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getPosts(projectId: string, page: number): Observable<PostData[]> {
+  getPosts(projectId: ProjectId, page: number): Observable<PostData[]> {
     const collection = this._collections.get(`project:posts/${projectId}`)
     if (collection) {
       return collection.get(page)
@@ -42,7 +43,7 @@ export class PostModel extends BaseModel {
     return null
   }
 
-  addMyPosts(userId: string, projectId: string, posts: PostData[], page: number): Observable<PostData[]> {
+  addMyPosts(userId: UserId, projectId: ProjectId, posts: PostData[], page: number): Observable<PostData[]> {
     const dbIndex = `project:my:posts/${projectId}`
     const result = datasToSchemas<PostData>(posts, Post)
 
@@ -51,14 +52,14 @@ export class PostModel extends BaseModel {
       collection = new Collection(this._schemaName, (data: PostData) => {
         return data._projectId === projectId &&
           !data.isArchived &&
-          data._creatorId === userId
+          (<any>data._creatorId) === userId
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
     return collection.addPage(page, result)
   }
 
-  getMyPosts(projectId: string, page: number): Observable<PostData[]> {
+  getMyPosts(projectId: ProjectId, page: number): Observable<PostData[]> {
     const collection = this._collections.get(`project:my:posts/${projectId}`)
     if (collection) {
       return collection.get(page)
@@ -66,7 +67,7 @@ export class PostModel extends BaseModel {
     return null
   }
 
-  addByTagId(tagId: string, posts: PostData[], page: number): Observable<PostData[]> {
+  addByTagId(tagId: TagId, posts: PostData[], page: number): Observable<PostData[]> {
     const dbIndex = `tag:posts/${tagId}`
     const result = datasToSchemas(posts, Post)
     let collection = this._collections.get(dbIndex)
@@ -80,7 +81,7 @@ export class PostModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getByTagId(tagId: string, page: number): Observable<PostData[]> {
+  getByTagId(tagId: TagId, page: number): Observable<PostData[]> {
     const dbIndex = `tag:posts/${tagId}`
     let collection = this._collections.get(dbIndex)
     if (collection) {
@@ -90,4 +91,4 @@ export class PostModel extends BaseModel {
   }
 }
 
-export default new PostModel()
+export default new PostModel

@@ -2,10 +2,11 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { TasklistData } from '../schemas/Tasklist'
+import { TasklistId, ProjectId } from '../teambition'
 
 export interface CreateTasklistOptions {
   title: string
-  _projectId: string
+  _projectId: ProjectId
   description?: string
   _templateId?: string
 }
@@ -17,15 +18,21 @@ export interface UpdateTasklistOptions {
 }
 
 export interface ArchiveTasklistResponse {
-  _id: string
-  _projectId: string
+  _id: TasklistId
+  _projectId: ProjectId
   isArchived: boolean
   updated: string
 }
 
+export interface MoveTasklistResponse {
+  _id: TasklistId
+  _projectId: ProjectId
+  updated: string
+}
+
 export interface UnarchiveTasklistResponse {
-  _id: string
-  _projectId: string
+  _id: TasklistId
+  _projectId: ProjectId
   isArchived: boolean
   updated: string
 }
@@ -35,37 +42,33 @@ export class TasklistFetch extends BaseFetch {
     return this.fetch.post(`tasklists`, createOptions)
   }
 
-  getTasklists(_projectId: string, query?: any): Observable<TasklistData[]> {
+  getTasklists(_projectId: ProjectId, query?: any): Observable<TasklistData[]> {
     return this.fetch.get(`projects/${_projectId}/tasklists`, query)
   }
 
-  get(_id: string, query?: any): Observable<TasklistData> {
+  get(_id: TasklistId, query?: any): Observable<TasklistData> {
     return this.fetch.get(`tasklists/${_id}`, query)
   }
 
-  update(_id: string, updateData: UpdateTasklistOptions): Observable<UpdateTasklistOptions> {
+  update(_id: TasklistId, updateData: UpdateTasklistOptions): Observable<UpdateTasklistOptions> {
     return this.fetch.put(`tasklists/${_id}`, updateData)
   }
 
-  delete(_id: string): Observable<{}> {
+  delete(_id: TasklistId): Observable<{}> {
     return this.fetch.delete(`tasklists/${_id}`)
   }
 
-  archive(_id: string): Observable<ArchiveTasklistResponse> {
+  archive(_id: TasklistId): Observable<ArchiveTasklistResponse> {
     return this.fetch.post(`tasklists/${_id}/archive`)
   }
 
-  move(_id: string): Observable<{
-    _id: string
-    _projectId: string
-    updated: string
-  }> {
+  move(_id: TasklistId): Observable<MoveTasklistResponse> {
     return this.fetch.put(`tasklists/${_id}/move`)
   }
 
-  unarchive(_id: string): Observable<UnarchiveTasklistResponse> {
+  unarchive(_id: TasklistId): Observable<UnarchiveTasklistResponse> {
     return this.fetch.delete(`tasklists/${_id}/archive`)
   }
 }
 
-export default new TasklistFetch()
+export default new TasklistFetch

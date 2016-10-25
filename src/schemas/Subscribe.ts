@@ -1,14 +1,20 @@
 import { ISchema, Schema, schemaName } from './schema'
+import {
+  SubscribeId,
+  OrganizationId,
+  IdOfMember,
+  ProjectId
+} from '../teambition'
 
 export type SubscribeType = 'report' | 'canlender'
 
 export interface SubscribeData extends ISchema {
-  _id: string
-  _userId: string
+  _id: SubscribeId
+  _userId: IdOfMember
   type: SubscribeType
   body: {
     projects: {
-      _id: string
+      _id: ProjectId
       name: string
       logo: string
       py: string
@@ -16,13 +22,13 @@ export interface SubscribeData extends ISchema {
       created: string
     }[]
     users: {
-      _id: string
+      _id: IdOfMember
       avatarUrl: string
       name: string
       pinyin: string
       py: string
     }[]
-    _boundToObjectId: string
+    _boundToObjectId: ProjectId | OrganizationId
   }
   updated: string
   created: string
@@ -31,12 +37,12 @@ export interface SubscribeData extends ISchema {
 
 @schemaName('Subscribe')
 export default class SubscribeSchema extends Schema<SubscribeData> implements SubscribeData {
-  _id: string = undefined
-  _userId: string = undefined
+  _id: SubscribeId = undefined
+  _userId: IdOfMember = undefined
   type: SubscribeType = undefined
   body: {
     projects: {
-      _id: string
+      _id: ProjectId
       name: string
       logo: string
       py: string
@@ -44,13 +50,13 @@ export default class SubscribeSchema extends Schema<SubscribeData> implements Su
       created: string
     }[]
     users: {
-      _id: string
+      _id: IdOfMember
       avatarUrl: string
       name: string
       pinyin: string
       py: string
     }[]
-    _boundToObjectId: string
+    _boundToObjectId: ProjectId | OrganizationId
   } = undefined
   updated: string = undefined
   created: string = undefined

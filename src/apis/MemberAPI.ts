@@ -4,13 +4,14 @@ import MemberFetch from '../fetchs/MemberFetch'
 import MemberModel from '../models/MemberModel'
 import { MemberData } from '../schemas/Member'
 import { makeColdSignal } from './utils'
+import { MemberId, ProjectId, OrganizationId } from '../teambition'
 
 export class MemberAPI {
 
-  getOne(memberId: string, query?: any): Observable<MemberData> {
+  getOne(memberId: MemberId, query?: any): Observable<MemberData> {
     return makeColdSignal<MemberData>(() => {
       const cache = MemberModel.getOne(memberId)
-      if (cache && MemberModel.checkSchema(memberId)) {
+      if (cache && MemberModel.checkSchema(<any>memberId)) {
         return cache
       }
       return MemberFetch.getOne(memberId, query)
@@ -18,12 +19,12 @@ export class MemberAPI {
     })
   }
 
-  deleteMember(memberId: string): Observable<void> {
+  deleteMember(memberId: MemberId): Observable<void> {
     return MemberFetch.deleteMember(memberId)
-      .concatMap(x => MemberModel.delete(memberId))
+      .concatMap(x => MemberModel.delete(<any>memberId))
   }
 
-  getOrgMembers (organizationId: string, page = 1, count = 30): Observable<MemberData[]> {
+  getOrgMembers (organizationId: OrganizationId, page = 1, count = 30): Observable<MemberData[]> {
     return makeColdSignal<MemberData[]>(() => {
       const get = MemberModel.getOrgMembers(organizationId, page)
       if (get) {
@@ -34,7 +35,7 @@ export class MemberAPI {
     })
   }
 
-  getAllOrgMembers (organizationId: string): Observable<MemberData[]> {
+  getAllOrgMembers (organizationId: OrganizationId): Observable<MemberData[]> {
     return makeColdSignal<MemberData[]>(() => {
       const cache = MemberModel.getAllOrgMembers(organizationId)
       if (cache) {
@@ -45,7 +46,7 @@ export class MemberAPI {
     })
   }
 
-  getProjectMembers(projectId: string, page = 1, count = 30): Observable<MemberData[]> {
+  getProjectMembers(projectId: ProjectId, page = 1, count = 30): Observable<MemberData[]> {
     return makeColdSignal<MemberData[]>(() => {
       const get = MemberModel.getProjectMembers(projectId, page)
       if (get) {
@@ -56,7 +57,7 @@ export class MemberAPI {
     })
   }
 
-  getAllProjectMembers(projectId: string): Observable<MemberData[]> {
+  getAllProjectMembers(projectId: ProjectId): Observable<MemberData[]> {
     return makeColdSignal<MemberData[]>(() => {
       const cache = MemberModel.getAllProjectMembers(projectId)
       if (cache) {
@@ -67,17 +68,17 @@ export class MemberAPI {
     })
   }
 
-  addMembers(_projectId: string, emails: string): Observable<MemberData>
+  addMembers(_projectId: ProjectId, emails: string): Observable<MemberData>
 
-  addMembers(_projectId: string, emails: string[]): Observable<MemberData[]>
+  addMembers(_projectId: ProjectId, emails: string[]): Observable<MemberData[]>
 
-  addMembers(_projectId: string, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]>
+  addMembers(_projectId: ProjectId, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]>
 
   /**
    * 设计时是考虑到可以增加任意类型的 member
    * 比如项目加人时可调用，组织加人时也可以调用
    */
-  addMembers(_projectId: string, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]> {
+  addMembers(_projectId: ProjectId, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]> {
     return MemberFetch.addProjectMembers(_projectId, <string[]>emails)
       .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
   }

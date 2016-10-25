@@ -1,28 +1,39 @@
 'use strict'
 import { Schema, ISchema, schemaName, child, bloodyParent } from './schema'
 import Subtask from './Subtask'
-import { ExecutorOrCreator, visibility } from '../teambition'
+import {
+  ExecutorOrCreator,
+  visibility,
+  TagId,
+  TaskId,
+  StageId,
+  IdOfMember,
+  TasklistId,
+  ProjectId
+} from '../teambition'
+
+export type Priority = 0 | 1 | 2
 
 export interface TaskData extends ISchema {
-  _id: string
+  _id: TaskId
   content: string
   note: string
   accomplished: string
   startDate?: string
   dueDate: string
-  priority: number
+  priority: Priority
   isDone: boolean
   isArchived: boolean
   created: string
   updated: string
   visible: visibility
-  _stageId: string
-  _creatorId: string
-  _tasklistId: string
-  _projectId: string
-  _executorId: string
-  involveMembers: string[]
-  tagIds?: string []
+  _stageId: StageId
+  _creatorId: IdOfMember
+  _tasklistId: TasklistId
+  _projectId: ProjectId
+  _executorId: IdOfMember
+  involveMembers: IdOfMember[]
+  tagIds: TagId []
   recurrence?: string
   pos?: number
   _sourceId?: string
@@ -39,46 +50,46 @@ export interface TaskData extends ISchema {
   executor?: ExecutorOrCreator
   stage?: {
     name: string
-    _id: string
+    _id: StageId
   }
   tasklist?: {
     title: string
-    _id: string
+    _id: TasklistId
   }
   isFavorite?: boolean
 }
 
 @schemaName('Task')
 export default class Task extends Schema<TaskData> implements TaskData {
-  _id: string = undefined
+  _id: TaskId = undefined
   content: string = undefined
   note: string = undefined
   accomplished: string = undefined
   dueDate: string = undefined
-  priority: number = undefined
+  priority: Priority = undefined
   isDone: boolean = undefined
   isArchived: boolean = undefined
   created: string = undefined
   updated: string = undefined
   visible: visibility = undefined
-  @bloodyParent('Stage') _stageId: string = undefined
-  _creatorId: string = undefined
-  _tasklistId: string = undefined
-  _projectId: string = undefined
-  _executorId: string = undefined
-  involveMembers: string[] = undefined
-  tagIds: string[] = undefined
+  @bloodyParent('Stage') _stageId: StageId = undefined
+  _creatorId: IdOfMember = undefined
+  _tasklistId: TasklistId = undefined
+  _projectId: ProjectId = undefined
+  _executorId: IdOfMember = undefined
+  involveMembers: IdOfMember[] = undefined
+  tagIds: TagId[] = undefined
   @child('Array', 'Subtask') subtasks?: Subtask[]
   @child('Object', 'Project') project?: {
-    _id: string
+    _id: ProjectId
     name: string
   }
   @child('Object', 'Stage') stage?: {
     name: string
-    _id: string
+    _id: StageId
   }
   @child('Object', 'Tasklist') tasklist?: {
     title: string
-    _id: string
+    _id: TasklistId
   }
 }

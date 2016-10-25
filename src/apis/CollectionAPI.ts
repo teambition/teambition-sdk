@@ -10,6 +10,7 @@ import {
   UnarchiveCollectionResponse
 } from '../fetchs/CollectionFetch'
 import { makeColdSignal } from './utils'
+import { CollectionId } from '../teambition'
 
 export class CollectionAPI {
   create(collection: CreateCollectionOptions): Observable<TBCollectionData> {
@@ -17,7 +18,7 @@ export class CollectionAPI {
       .concatMap(collection => CollectionModel.addOne(collection).take(1))
   }
 
-  get(collectionId: string, query?: any): Observable<TBCollectionData> {
+  get(collectionId: CollectionId, query?: any): Observable<TBCollectionData> {
     return makeColdSignal<TBCollectionData>(() => {
       const cache = CollectionModel.getOne(collectionId)
       if (cache) {
@@ -28,22 +29,22 @@ export class CollectionAPI {
     })
   }
 
-  update(collectionId: string, info: UpdateCollectionOptions): Observable<TBCollectionData> {
+  update(collectionId: CollectionId, info: UpdateCollectionOptions): Observable<TBCollectionData> {
     return CollectionFetch.update(collectionId, info)
-      .concatMap(r => CollectionModel.update<TBCollectionData>(collectionId, r))
+      .concatMap(r => CollectionModel.update<TBCollectionData>(<any>collectionId, r))
   }
 
-  delete(collectionId: string): Observable<void> {
+  delete(collectionId: CollectionId): Observable<void> {
     return CollectionFetch.delete(collectionId)
-      .concatMap(r => CollectionModel.delete(collectionId))
+      .concatMap(r => CollectionModel.delete(<any>collectionId))
   }
 
-  archive(collectionId: string): Observable<ArchiveCollectionResponse> {
+  archive(collectionId: CollectionId): Observable<ArchiveCollectionResponse> {
     return CollectionFetch.archive(collectionId)
-      .concatMap(r => CollectionModel.update(collectionId, r))
+      .concatMap(r => CollectionModel.update(<any>collectionId, r))
   }
 
-  getByParent(parentId: string, query?: any): Observable<TBCollectionData[]> {
+  getByParent(parentId: CollectionId, query?: any): Observable<TBCollectionData[]> {
     return makeColdSignal<TBCollectionData[]>(() => {
       const cache = CollectionModel.getCollections(parentId)
       if (cache) {
@@ -54,13 +55,13 @@ export class CollectionAPI {
     })
   }
 
-  move(collectionId: string, parentId: string): Observable<TBCollectionData> {
+  move(collectionId: CollectionId, parentId: CollectionId): Observable<TBCollectionData> {
     return CollectionFetch.move(collectionId, parentId)
-      .concatMap(r => CollectionModel.update<TBCollectionData>(collectionId, r))
+      .concatMap(r => CollectionModel.update<TBCollectionData>(<any>collectionId, r))
   }
 
-  unarchive(collectionId: string): Observable<UnarchiveCollectionResponse> {
+  unarchive(collectionId: CollectionId): Observable<UnarchiveCollectionResponse> {
     return CollectionFetch.unarchive(collectionId)
-      .concatMap(r => CollectionModel.update(collectionId, r))
+      .concatMap(r => CollectionModel.update(<any>collectionId, r))
   }
 }

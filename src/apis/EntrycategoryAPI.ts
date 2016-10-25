@@ -9,10 +9,11 @@ import {
   UpdateEntrycategoryResponse
 } from '../fetchs/EntrycategoryFetch'
 import { makeColdSignal } from './utils'
+import { ProjectId, EntryCategoryId } from '../teambition'
 
 export class EntrycategoryAPI {
   getEntrycategories(query: {
-    _projectId: string
+    _projectId: ProjectId
     page?: number
     count?: number
   }): Observable<EntrycategoryData[]> {
@@ -32,13 +33,13 @@ export class EntrycategoryAPI {
       .concatMap(entrycategory => EntrycategoryModel.addOne(entrycategory).take(1))
   }
 
-  update(_entrycategoryId: string, data: UpdateEntrycategoryOptions): Observable<UpdateEntrycategoryResponse> {
+  update(_entrycategoryId: EntryCategoryId, data: UpdateEntrycategoryOptions): Observable<UpdateEntrycategoryResponse> {
     return EntrycategoryFetch.update(_entrycategoryId, data)
-      .concatMap(entrycategory => EntrycategoryModel.update(_entrycategoryId, entrycategory))
+      .concatMap(entrycategory => EntrycategoryModel.update(<any>_entrycategoryId, entrycategory))
   }
 
-  get(_entrycategoryId: string, query: {
-    _projectId: string
+  get(_entrycategoryId: EntryCategoryId, query: {
+    _projectId: ProjectId
   }): Observable<EntrycategoryData> {
     return makeColdSignal<EntrycategoryData>(() => {
       const get = EntrycategoryModel.getOne(_entrycategoryId)
@@ -50,9 +51,9 @@ export class EntrycategoryAPI {
     })
   }
 
-  delete(entrycategoryId: string): Observable<void> {
+  delete(entrycategoryId: EntryCategoryId): Observable<void> {
     return EntrycategoryFetch.delete(entrycategoryId)
-      .concatMap(x => EntrycategoryModel.delete(entrycategoryId))
+      .concatMap(x => EntrycategoryModel.delete(<any>entrycategoryId))
   }
 
 }

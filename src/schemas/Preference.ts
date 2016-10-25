@@ -1,24 +1,27 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
+import {
+  TasklistId,
+  PreferenceId,
+  UserId,
+  ProjectId
+} from '../teambition'
 
 export interface PreferenceData extends ISchema {
-  _id: string
-  _userId: string
+  _id: PreferenceId
+  _userId: UserId
   language: string
-  showProjects?: string[]
+  showProjects?: ProjectId[]
   starProjects?: {
-    [index: string]: string
+    [index: string]: ProjectId
   }
-  taskSort: {
-    [index: string]: string[]
-  }
-  tasklist: {
-    [index: string]: string[]
+  tasklist?: {
+    [index: string]: TasklistId[]
   }
   tips: any
   notification: any
   openWindowMode: string
-  postMode: string
+  postMode: 'html' | 'markdown'
   quickCreateTask: boolean
   quickReply: boolean
   hasNew: boolean
@@ -29,19 +32,13 @@ export interface PreferenceData extends ISchema {
 
 @schemaName('Preference')
 export default class Preference extends Schema<PreferenceData> implements PreferenceData {
-  _id: string = undefined
-  _userId: string = undefined
+  _id: PreferenceId = undefined
+  _userId: UserId = undefined
   language: string = undefined
-  taskSort: {
-    [index: string]: string[]
-  } = undefined
-  tasklist: {
-    [index: string]: string[]
-  } = undefined
   tips: any = undefined
   notification: any = undefined
   openWindowMode: string = undefined
-  postMode: string = undefined
+  postMode: 'html' | 'markdown' = undefined
   quickCreateTask: boolean = undefined
   quickReply: boolean = undefined
   hasNew: boolean = undefined

@@ -8,6 +8,7 @@ import ActivityModel from '../models/ActivityModel'
 import { ActivityData } from '../schemas/Activity'
 import { ActivitySaveData, default as ActivityFetch } from '../fetchs/ActivityFetch'
 import { makeColdSignal } from './utils'
+import { DetailObjectTypes, DetailObjectId } from '../teambition'
 
 export interface GetActivitiesOptions {
   lang?: string
@@ -18,7 +19,11 @@ export interface GetActivitiesOptions {
 
 export class ActivityAPI {
 
-  getActivities(_boundToObjectType: string, _boundToObjectId: string, query?: GetActivitiesOptions): Observable<ActivityData[]> {
+  getActivities(
+    _boundToObjectType: DetailObjectTypes,
+    _boundToObjectId: DetailObjectId,
+    query?: GetActivitiesOptions
+  ): Observable<ActivityData[]> {
     return makeColdSignal<ActivityData[]>(() => {
       const page = (query && query.page) ? query.page : 1
       const get = ActivityModel.getActivities(_boundToObjectId, page)

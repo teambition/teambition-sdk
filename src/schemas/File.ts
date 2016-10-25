@@ -1,10 +1,18 @@
 'use strict'
 import { Schema, schemaName, ISchema, child } from './schema'
 import { ObjectLinkData } from '../schemas/ObjectLink'
-import { visibility, ExecutorOrCreator } from '../teambition'
+import {
+  FileId,
+  CollectionId,
+  TagId,
+  ProjectId,
+  IdOfMember,
+  visibility,
+  ExecutorOrCreator
+} from '../teambition'
 
 export interface FileData extends ISchema {
-  _id: string
+  _id: FileId
   fileName: string
   fileType: string
   fileSize: number
@@ -12,18 +20,17 @@ export interface FileData extends ISchema {
   fileCategory: string
   imageWidth: number
   imageHeight: number
-  _parentId: string
-  _projectId: string
-  _creatorId: string
+  _parentId: CollectionId
+  _projectId: ProjectId
+  _creatorId: IdOfMember
   creator: ExecutorOrCreator
-  tagIds: string[]
+  tagIds: TagId[]
   visible: visibility
   downloadUrl: string
   thumbnail: string
   thumbnailUrl: string
   description: string
   source: string
-  folder?: string
   involveMembers: string[]
   created: string
   updated: string
@@ -45,7 +52,7 @@ export interface FileData extends ISchema {
 
 @schemaName('File')
 export default class File extends Schema<FileData> implements FileData {
-  _id: string = undefined
+  _id: FileId = undefined
   fileName: string = undefined
   fileType: string = undefined
   fileSize: number = undefined
@@ -53,11 +60,11 @@ export default class File extends Schema<FileData> implements FileData {
   fileCategory: string = undefined
   imageWidth: number = undefined
   imageHeight: number = undefined
-  _parentId: string = undefined
-  _projectId: string = undefined
-  _creatorId: string = undefined
+  _parentId: CollectionId = undefined
+  _projectId: ProjectId = undefined
+  _creatorId: IdOfMember = undefined
   creator: ExecutorOrCreator = undefined
-  tagIds: string[] = undefined
+  tagIds: TagId[] = undefined
   visible: visibility = undefined
   downloadUrl: string = undefined
   thumbnail: string = undefined

@@ -1,8 +1,19 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Fetch from './BaseFetch'
-import { TaskData } from '../schemas/Task'
-import { visibility, ExecutorOrCreator, FavoriteResponse } from '../teambition'
+import { TaskData, Priority } from '../schemas/Task'
+import {
+  visibility,
+  ExecutorOrCreator,
+  TaskId,
+  SubtaskId,
+  IdOfMember,
+  TasklistId,
+  StageId,
+  TagId,
+  ProjectId,
+  OrganizationId
+} from '../teambition'
 
 export interface TasksMeOptions {
   count?: number
@@ -23,14 +34,14 @@ export interface OrgsTasksMeOptions {
 
 export interface CreateTaskOptions {
   content: string
-  _tasklistId: string
-  _stageId?: string
-  _executorId?: string
-  involveMembers?: string[]
+  _tasklistId: TasklistId
+  _stageId?: StageId
+  _executorId?: IdOfMember
+  involveMembers?: IdOfMember[]
   dueDate?: string
-  priority?: '0' | '1' | '2'
+  priority?: Priority
   recurrence?: string
-  tagIds?: string[]
+  tagIds?: TagId[]
 }
 
 export interface GetOrgsTasksCreatedOptions {
@@ -39,44 +50,44 @@ export interface GetOrgsTasksCreatedOptions {
 }
 
 export interface UpdateTaskOptions {
-  _executorId?: string
-  _projectId?: string
-  _tasklistId?: string
-  tagsId?: string[]
-  _stageId?: string
-  involveMembers?: string[]
+  _executorId?: IdOfMember
+  _projectId?: ProjectId
+  _tasklistId?: TasklistId
+  tagsId?: TagId[]
+  _stageId?: StageId
+  involveMembers?: IdOfMember[]
   isDone?: boolean
-  priority?: number
+  priority?: Priority
   dueDate?: string
   note?: string
   content?: string
   recurrence?: string[]
-  tasklist?: string
+  tasklist?: TasklistId
 }
 
 export interface ForkTaskOptions {
-  _stageId: string
+  _stageId: StageId
   doLink?: boolean
   doLinked?: boolean
 }
 
 export interface ImportTaskOptions {
-  _stageId?: string
+  _stageId?: StageId
   tasks: TaskData[]
-  involveMembers?: string[]
-  _executorId?: string
+  involveMembers?: IdOfMember[]
+  _executorId?: IdOfMember
   dueDate?: string
   visiable?: visibility
 }
 
 export interface MoveTaskOptions {
-  _stageId: string
+  _stageId: StageId
   withTags?: boolean
 }
 
 export interface GetStageTasksOptions {
   isDone?: boolean
-  _executorId?: string
+  _executorId?: IdOfMember
   dueDate?: string
   accomplished?: string
   all?: boolean
@@ -84,8 +95,20 @@ export interface GetStageTasksOptions {
   page?: number
 }
 
+export interface BatchUpdateVisibilityResponse {
+  _stageId: StageId
+  updated: string
+  visible: string
+}
+
+export interface BatchUpdateExecutorResponse {
+  _stageId: StageId
+  updated: string
+  _executorId: string
+}
+
 export interface BatchUpdateDuedateResponse {
-  _stageId: string
+  _stageId: StageId
   dueDate: string
   updated: string
 }
@@ -93,52 +116,56 @@ export interface BatchUpdateDuedateResponse {
 export interface ArchiveTaskResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: TaskId
+  _projectId: ProjectId
 }
 
 export interface UpdateNoteResponse {
-  _id: string
+  _id: TaskId
   updated: string
   note: string
 }
 
 export interface UpdateTagsResponse {
-  _id: string
-  tagIds: string[]
+  _id: TaskId
+  tagIds: TagId[]
   updated: string
 }
 
 export interface UpdateStatusResponse {
-  _id: string
+  _id: TaskId
   updated: string
   isDone: boolean
 }
 
 export interface UpdateContentResponse {
-  _id: string
+  _id: TaskId
   content: string
   updated: string
 }
 
 export interface UpdateDueDateResponse {
-  _id: string
+  _id: TaskId
   updated: string
   dueDate: string
 }
 
 export interface UpdateExecutorResponse {
-  _executorId: string
-  _id: string
+  _executorId: IdOfMember
+  _id: TaskId
   executor: ExecutorOrCreator
-  involveMembers?: string[]
+  involveMembers?: IdOfMember[]
   updated: string
 }
 
 export interface UpdateInvolveMembersResponse {
-  _id: string
-  involveMembers: string[]
+  _id: TaskId
+  involveMembers: IdOfMember[]
   updated: string
+}
+
+export interface UpdateSubtaskIdsResponse {
+  subtaskIds: SubtaskId[]
 }
 
 export class TaskFetch extends Fetch {
@@ -146,16 +173,16 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`v2/tasks/me`, option)
   }
 
-  getOrgsTasksMe(organizationId: string, option: OrgsTasksMeOptions): Observable<TaskData[]> {
+  getOrgsTasksMe(organizationId: OrganizationId, option: OrgsTasksMeOptions): Observable<TaskData[]> {
     return this.fetch.get(`organizations/${organizationId}/tasks/me`, option)
   }
 
-  getOrgsTasksCreated(organizationId: string, options: GetOrgsTasksCreatedOptions): Observable<TaskData[]> {
+  getOrgsTasksCreated(organizationId: OrganizationId, options: GetOrgsTasksCreatedOptions): Observable<TaskData[]> {
     const query = this.checkQuery(options)
     return this.fetch.get(`organizations/${organizationId}/tasks/me/created`, query)
   }
 
-  getOrgsTasksInvolves(organizationId: string, option: {
+  getOrgsTasksInvolves(organizationId: OrganizationId, option: {
     page?: number
     maxId?: number
   } = {
@@ -165,7 +192,7 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`organizations/${organizationId}/tasks/me/involves`, query)
   }
 
-  getByTagId(tagId: string, query?: any): Observable<TaskData[]> {
+  getByTagId(tagId: TagId, query?: any): Observable<TaskData[]> {
     return this.fetch.get(`tags/${tagId}/tasks`, query)
   }
 
@@ -173,86 +200,77 @@ export class TaskFetch extends Fetch {
     return this.fetch.post(`tasks`, createTaskData)
   }
 
-  get(_taskId: string): Observable<TaskData>
+  get(_taskId: TaskId): Observable<TaskData>
 
-  get(_taskId: string, detailType: string): Observable<TaskData>
+  get(_taskId: TaskId, detailType: string): Observable<TaskData>
 
-  get(_taskId: string, detailType?: string): Observable<TaskData> {
+  get(_taskId: TaskId, detailType?: string): Observable<TaskData> {
     return this.fetch.get(`tasks/${_taskId}`, detailType ? {
       detailType: detailType
     } : null)
   }
 
-  getStageTasks(stageId: string, query?: any): Observable<TaskData[]> {
+  getStageTasks(stageId: StageId, query?: any): Observable<TaskData[]> {
     return this.fetch.get(`stages/${stageId}/tasks`, query)
   }
 
-  getStageDoneTasks(stageId: string, query: any = {}): Observable<TaskData[]> {
+  getStageDoneTasks(stageId: StageId, query: any = {}): Observable<TaskData[]> {
     query.isDone = true
     return this.fetch.get(`stages/${stageId}/tasks`, query)
   }
 
-  getProjectTasks(_id: string, query?: any): Observable<TaskData[]> {
+  getProjectTasks(_id: ProjectId, query?: any): Observable<TaskData[]> {
     return this.fetch.get(`projects/${_id}/tasks`, query)
   }
 
-  getProjectDoneTasks(_id: string, query: any = {}): Observable<TaskData[]> {
+  getProjectDoneTasks(_id: ProjectId, query: any = {}): Observable<TaskData[]> {
     query.isDone = true
     return this.fetch.get(`projects/${_id}/tasks`, query)
   }
 
-  update<T extends UpdateTaskOptions>(_taskId: string, updateData: T): Observable<T> {
+  update<T extends UpdateTaskOptions>(_taskId: TaskId, updateData: T): Observable<T> {
     return this.fetch.put(`tasks/${_taskId}`, updateData)
   }
 
-  delete(_taskId: string): Observable<{}> {
+  delete(_taskId: TaskId): Observable<{}> {
     return this.fetch.delete(`tasks/${_taskId}`)
   }
 
-  archive(_taskId: string): Observable<ArchiveTaskResponse> {
+  archive(_taskId: TaskId): Observable<ArchiveTaskResponse> {
     return this.fetch.post(`tasks/${_taskId}/archive`)
   }
 
-  batchUpdateDuedate(stageId: string, dueDate: string): Observable<BatchUpdateDuedateResponse> {
+  batchUpdateDuedate(stageId: StageId, dueDate: string): Observable<BatchUpdateDuedateResponse> {
     return this.fetch.put(`stages/${stageId}/tasks/dueDate`, {
       dueDate: dueDate
     })
   }
 
-  batchUpdateExecutor(stageId: string, _executorId: string): Observable<{
-    _stageId: string
-    updated: string
-    _executorId: string
-  }> {
+  batchUpdateExecutor(stageId: StageId, _executorId: IdOfMember): Observable<BatchUpdateExecutorResponse> {
     return this.fetch.put(`stages/${stageId}/tasks/executor`)
   }
 
-  batchUpdateVisibility(stageId: string, visible: 'members' | 'involves'): Observable<{
-    _stageId: string
-    updated: string
-    visible: string
-  }> {
+  batchUpdateVisibility(
+    stageId: StageId,
+    visible: 'members' | 'involves'
+  ): Observable<BatchUpdateVisibilityResponse> {
     return this.fetch.put(`stages/${stageId}/tasks/visible`)
   }
 
-  favorite(_taskId: string): Observable<FavoriteResponse> {
-    return this.fetch.post(`tasks/${_taskId}/favorite`)
-  }
-
-  fork(_taskId: string, forkData: ForkTaskOptions): Observable<TaskData> {
+  fork(_taskId: TaskId, forkData: ForkTaskOptions): Observable<TaskData> {
     return this.fetch.put(`tasks/${_taskId}/fork`, forkData)
   }
 
-  getByStage(_stageId: string, options?: {
+  getByStage(_stageId: StageId, options?: {
     count: number
     page: number
   }): Observable<TaskData[]> {
     return this.fetch.get(`stages/${_stageId}/tasks`, options)
   }
 
-  getByTasklist(_tasklistId: string, options: {
+  getByTasklist(_tasklistId: TasklistId, options: {
     isDone?: boolean
-    _executorId?: string
+    _executorId?: IdOfMember
     dueDate?: string
     accomplished?: string
     all?: boolean
@@ -263,7 +281,7 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`tasklists/${_tasklistId}/tasks`, options)
   }
 
-  importTasks(_tasklistId: string, importData: ImportTaskOptions) {
+  importTasks(_tasklistId: TasklistId, importData: ImportTaskOptions) {
     return this.fetch.post(`tasklists/${_tasklistId}/import_tasks`, importData)
   }
 
@@ -278,35 +296,35 @@ export class TaskFetch extends Fetch {
     } : null)
   }
 
-  move(_taskId: string, moveOption: MoveTaskOptions): Observable<TaskData> {
+  move(_taskId: TaskId, moveOption: MoveTaskOptions): Observable<TaskData> {
     return this.fetch.put(`tasks/${_taskId}/move`, moveOption)
   }
 
-  unarchive(_taskId: string, _stageId: string): Observable<ArchiveTaskResponse> {
+  unarchive(_taskId: TaskId, _stageId: StageId): Observable<ArchiveTaskResponse> {
     return this.fetch.delete(`tasks/${_taskId}/archive?_stageId=${_stageId}`)
   }
 
-  updateContent(_taskId: string, content: string): Observable<UpdateContentResponse> {
+  updateContent(_taskId: TaskId, content: string): Observable<UpdateContentResponse> {
     return this.fetch.put(`tasks/${_taskId}/content`, {
       content: content
     })
   }
 
-  updateDueDate(_taskId: string, dueDate: string): Observable<UpdateDueDateResponse> {
+  updateDueDate(_taskId: TaskId, dueDate: string): Observable<UpdateDueDateResponse> {
     return this.fetch.put(`tasks/${_taskId}/dueDate`, {
       dueDate: dueDate
     })
   }
 
-  updateExecutor(_taskId: string, _executorId: string): Observable<UpdateExecutorResponse> {
+  updateExecutor(_taskId: TaskId, _executorId: IdOfMember): Observable<UpdateExecutorResponse> {
     return this.fetch.put(`tasks/${_taskId}/_executorId`, {
       _executorId: _executorId
     })
   }
 
   updateInvolvemembers(
-    _taskId: string,
-    memberIds: string[],
+    _taskId: TaskId,
+    memberIds: IdOfMember[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateInvolveMembersResponse> {
     const putData: any = Object.create(null)
@@ -314,27 +332,25 @@ export class TaskFetch extends Fetch {
     return this.fetch.put(`tasks/${_taskId}/involveMembers`, putData)
   }
 
-  updateNote(_taskId: string, note: string): Observable<UpdateNoteResponse> {
+  updateNote(_taskId: TaskId, note: string): Observable<UpdateNoteResponse> {
     return this.fetch.put(`tasks/${_taskId}/note`, {
       note: note
     })
   }
 
-  updateStatus(_taskId: string, status: boolean): Observable<UpdateStatusResponse> {
+  updateStatus(_taskId: TaskId, status: boolean): Observable<UpdateStatusResponse> {
     return this.fetch.put(`tasks/${_taskId}/isDone`, {
       isDone: status
     })
   }
 
-  updateSubtaskIds(_taskId: string, subtaskIds: string[]): Observable<{
-    subtaskIds: string[]
-  }> {
+  updateSubtaskIds(_taskId: TaskId, subtaskIds: SubtaskId[]): Observable<UpdateSubtaskIdsResponse> {
     return this.fetch.put(`tasks/${_taskId}/subtaskIds`, {
       subtaskIds: subtaskIds
     })
   }
 
-  updateTags(_taskId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
+  updateTags(_taskId: TaskId, tagIds: TagId[]): Observable<UpdateTagsResponse> {
     return this.fetch.put(`tasks/${_taskId}/tagIds`, {
       tagIds: tagIds
     })
@@ -342,4 +358,4 @@ export class TaskFetch extends Fetch {
 
 }
 
-export default new TaskFetch()
+export default new TaskFetch

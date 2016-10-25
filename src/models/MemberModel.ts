@@ -4,12 +4,13 @@ import BaseModel from './BaseModel'
 import Collection from './BaseCollection'
 import { datasToSchemas, forEach, dataToSchema } from '../utils/index'
 import { default as Member, MemberData } from '../schemas/Member'
+import { MemberId, ProjectId, OrganizationId } from '../teambition'
 
 export class MemberModel extends BaseModel {
 
   private _schemaName = 'Member'
 
-  saveProjectMembers(projectId: string, members: MemberData[], page: number, count: number): Observable<MemberData[]> {
+  saveProjectMembers(projectId: ProjectId, members: MemberData[], page: number, count: number): Observable<MemberData[]> {
     const result = datasToSchemas<MemberData>(members, Member)
     const dbIndex = `project:members/${projectId}`
 
@@ -24,7 +25,7 @@ export class MemberModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  saveAllProjectMembers(projectId: string, members: MemberData[]): Observable<MemberData[]> {
+  saveAllProjectMembers(projectId: ProjectId, members: MemberData[]): Observable<MemberData[]> {
     const result = datasToSchemas(members, Member)
     const dbIndex = `project:members:all/${projectId}`
 
@@ -33,11 +34,11 @@ export class MemberModel extends BaseModel {
     }, '_memberId')
   }
 
-  getAllProjectMembers(projectId: string): Observable<MemberData[]> {
+  getAllProjectMembers(projectId: ProjectId): Observable<MemberData[]> {
     return this._get<MemberData[]>(`project:members:all/${projectId}`)
   }
 
-  getProjectMembers(projectId: string, page: number): Observable<MemberData[]> {
+  getProjectMembers(projectId: ProjectId, page: number): Observable<MemberData[]> {
     const collection = this._collections.get(`project:members/${projectId}`)
     if (collection) {
       return collection.get(page)
@@ -45,7 +46,7 @@ export class MemberModel extends BaseModel {
     return null
   }
 
-  saveOrgMembers(organizationId: string, members: MemberData[], page: number, count: number): Observable<MemberData[]> {
+  saveOrgMembers(organizationId: OrganizationId, members: MemberData[], page: number, count: number): Observable<MemberData[]> {
     const result = datasToSchemas<MemberData>(members, Member)
     const dbIndex = `organization:members/${organizationId}`
 
@@ -60,7 +61,7 @@ export class MemberModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  saveAllOrgMembers(organizationId: string, members: MemberData[]): Observable<MemberData[]> {
+  saveAllOrgMembers(organizationId: OrganizationId, members: MemberData[]): Observable<MemberData[]> {
     const result = datasToSchemas(members, Member)
     const dbIndex = `organization:all:members/${organizationId}`
 
@@ -69,7 +70,7 @@ export class MemberModel extends BaseModel {
     }, '_memberId')
   }
 
-  getOrgMembers(organizationId: string, page: number): Observable<MemberData[]> {
+  getOrgMembers(organizationId: OrganizationId, page: number): Observable<MemberData[]> {
     const collection = this._collections.get(`organization:members/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -77,17 +78,17 @@ export class MemberModel extends BaseModel {
     return null
   }
 
-  getAllOrgMembers(organizationId: string): Observable<MemberData[]> {
+  getAllOrgMembers(organizationId: OrganizationId): Observable<MemberData[]> {
     return this._get<MemberData[]>(`organization:all:members/${organizationId}`)
   }
 
-  addProjectMembers(projectId: string, members: MemberData): Observable<MemberData>
+  addProjectMembers(projectId: ProjectId, members: MemberData): Observable<MemberData>
 
-  addProjectMembers(projectId: string, members: MemberData[]): Observable<MemberData[]>
+  addProjectMembers(projectId: ProjectId, members: MemberData[]): Observable<MemberData[]>
 
-  addProjectMembers(projectId: string, members: MemberData | MemberData[]): Observable<MemberData | MemberData[]>
+  addProjectMembers(projectId: ProjectId, members: MemberData | MemberData[]): Observable<MemberData | MemberData[]>
 
-  addProjectMembers(projectId: string, members: MemberData | MemberData[]): Observable<MemberData | MemberData[]> {
+  addProjectMembers(projectId: ProjectId, members: MemberData | MemberData[]): Observable<MemberData | MemberData[]> {
     const dbIndex = `project:members/${projectId}`
     if (members instanceof Array) {
       let collection = this._collections.get(dbIndex)
@@ -113,8 +114,8 @@ export class MemberModel extends BaseModel {
     }
   }
 
-  getOne(memberId: string): Observable<MemberData> {
-    return this._get<MemberData>(memberId)
+  getOne(memberId: MemberId): Observable<MemberData> | null {
+    return this._get<MemberData>(<any>memberId)
   }
 
   addOne(member: MemberData): Observable<MemberData> {
@@ -123,4 +124,4 @@ export class MemberModel extends BaseModel {
   }
 }
 
-export default new MemberModel()
+export default new MemberModel

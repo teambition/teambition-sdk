@@ -4,6 +4,7 @@ import Model from './BaseModel'
 import Collection from './BaseCollection'
 import FeedbackSchema, { FeedbackData } from '../schemas/Feedback'
 import { dataToSchema, datasToSchemas } from '../utils'
+import { FeedbackId, ProjectId } from '../teambition'
 
 export class FeedbackModel extends Model {
 
@@ -14,11 +15,11 @@ export class FeedbackModel extends Model {
     return this._save(result)
   }
 
-  getOne(feedbackId: string): Observable<FeedbackData> {
-    return this._get<FeedbackData>(feedbackId)
+  getOne(feedbackId: FeedbackId): Observable<FeedbackData> {
+    return this._get<FeedbackData>(<any>feedbackId)
   }
 
-  addProjectFeedbacks(projectId: string, feedbacks: FeedbackData[], page = 1, count = 100, from: string, to: string): Observable<FeedbackData[]> {
+  addProjectFeedbacks(projectId: ProjectId, feedbacks: FeedbackData[], page = 1, count = 100, from: string, to: string): Observable<FeedbackData[]> {
     const result = datasToSchemas(feedbacks, FeedbackSchema)
     const dbIndex = `project:feedbacks:${from}:${to}/${projectId}`
 
@@ -36,7 +37,7 @@ export class FeedbackModel extends Model {
     return cache.addPage(page, result)
   }
 
-  getProjectFeedbacks(projectId: string, page: number, from: string, to: string) {
+  getProjectFeedbacks(projectId: ProjectId, page: number, from: string, to: string) {
     const collection = this._collections.get(`project:feedbacks:${from}:${to}/${projectId}`)
     if (collection) {
       return collection.get(page)
@@ -45,4 +46,4 @@ export class FeedbackModel extends Model {
   }
 }
 
-export default new FeedbackModel()
+export default new FeedbackModel

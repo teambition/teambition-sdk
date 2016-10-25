@@ -5,19 +5,20 @@ import { visibility } from '../teambition'
 import { EventData } from '../schemas/Event'
 import { ActivityData } from '../schemas/Activity'
 import { LikeData } from '../schemas/Like'
+import { EventId, ProjectId, TagId, IdOfMember } from '../teambition'
 
 export interface CreateEventOptions {
-  _projectId: string
+  _projectId: ProjectId
   title: string
   startDate: string
   endDate: string
   location?: string
-  involveMembers?: string[]
+  involveMembers?: IdOfMember[]
   content?: string
   recurrence?: string[]
   reminders?: string[]
   visiable?: visibility
-  tagIds?: string[]
+  tagIds?: TagId[]
 }
 
 export interface UpdateEventOptions {
@@ -34,29 +35,16 @@ export interface UpdateEventOptions {
 export interface ArchiveEventResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: EventId
+  _projectId: ProjectId
 }
 
 export interface CommentBody {
   action: 'comment'
-  _creatorId: string
+  _creatorId: IdOfMember
   attachments: string[]
   mentions: any
   timestamp: number
-}
-
-export interface FavoriteEventResponse {
-  _creatorId: string
-  _id: string
-  _refId: string
-  created: string
-  data: EventData
-  isFavorite: boolean
-  isUpdated: boolean
-  isVisible: boolean
-  refType: 'task' | 'event' | 'post' | 'file'
-  updated: string
 }
 
 export interface LikeRepeatEventResponse {
@@ -68,12 +56,12 @@ export interface LikeRepeatEventResponse {
 export interface UnarchiveEventResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: EventId
+  _projectId: ProjectId
 }
 
 export interface UpdateEventContentResponse {
-  _id: string
+  _id: EventId
   content: string
   updated: string
 }
@@ -88,8 +76,8 @@ export type UpdateEventInvolvesOptions = {
 }
 
 export interface UpdateEventInvolvesResponse {
-  _id: string
-  involveMembers: string[]
+  _id: EventId
+  involveMembers: IdOfMember[]
   updated: string
 }
 
@@ -99,13 +87,13 @@ export interface EventReminder {
 }
 
 export interface UpdateEventReminderResponse {
-  _id: string
+  _id: EventId
   reminders: EventReminder[]
 }
 
 export interface UpdateEventTagsResponse {
-  tagIds: string[]
-  _id: string
+  tagIds: TagId[]
+  _id: EventId
   updated: string
 }
 
@@ -120,7 +108,7 @@ export class EventFetch extends BaseFetch {
     return this.fetch.post(`events`, options)
   }
 
-  get(eventId: string, query?: any): Observable<EventData> {
+  get(eventId: EventId, query?: any): Observable<EventData> {
     return this.fetch.get(`events/${eventId}`, query)
   }
 
@@ -128,33 +116,33 @@ export class EventFetch extends BaseFetch {
     return this.fetch.get(`tags/${tagId}/events`, query)
   }
 
-  update(eventId: string, query: UpdateEventOptions): Observable<any> {
+  update(eventId: EventId, query: UpdateEventOptions): Observable<any> {
     return this.fetch.put(`events/${eventId}`, query)
   }
 
-  delete(eventId: string): Observable<void> {
+  delete(eventId: EventId): Observable<void> {
     return this.fetch.delete<void>(`events/${eventId}`)
   }
 
-  archive(eventId: string, occurrenceDate: number): Observable<ArchiveEventResponse> {
+  archive(eventId: EventId, occurrenceDate: number): Observable<ArchiveEventResponse> {
     return this.fetch.post(`events/${eventId}/archive`, {
       occurrenceDate: occurrenceDate
     })
   }
 
-  commentsRepeatEvent(eventId: string, commentBody: CommentBody): Observable<CommentRepeatResponse> {
+  commentsRepeatEvent(eventId: EventId, commentBody: CommentBody): Observable<CommentRepeatResponse> {
     return this.fetch.post(`events/${eventId}/comments_repeat_event`, commentBody)
   }
 
-  likeRepeatEvent(eventId: string, occurrenceDate: number): Observable<LikeRepeatEventResponse> {
+  likeRepeatEvent(eventId: EventId, occurrenceDate: number): Observable<LikeRepeatEventResponse> {
     return this.fetch.post(`events/${eventId}/like_repeat_event`, { occurrenceDate })
   }
 
-  unarchive(eventId: string): Observable<UnarchiveEventResponse> {
+  unarchive(eventId: EventId): Observable<UnarchiveEventResponse> {
     return this.fetch.delete(`events/${eventId}/archive`)
   }
 
-  updateContent(eventId: string, content: string, occurrenceDate?: number): Observable<UpdateEventContentResponse> {
+  updateContent(eventId: EventId, content: string, occurrenceDate?: number): Observable<UpdateEventContentResponse> {
     const body: {
       content: string
       occurrenceDate?: number
@@ -167,11 +155,11 @@ export class EventFetch extends BaseFetch {
     return this.fetch.put(`events/${eventId}/content`, body)
   }
 
-  updateInvolvemembers(eventId: string, options: UpdateEventInvolvesOptions): Observable<UpdateEventInvolvesResponse> {
+  updateInvolvemembers(eventId: EventId, options: UpdateEventInvolvesOptions): Observable<UpdateEventInvolvesResponse> {
     return this.fetch.put(`events/${eventId}/involveMembers`, options)
   }
 
-  updateReminders(eventId: string, reminders: EventReminder[], occurrenceDate?: number): Observable<UpdateEventReminderResponse> {
+  updateReminders(eventId: EventId, reminders: EventReminder[], occurrenceDate?: number): Observable<UpdateEventReminderResponse> {
     const body: {
       reminders: EventReminder[]
       occurrenceDate?: number
@@ -184,9 +172,9 @@ export class EventFetch extends BaseFetch {
     return this.fetch.put(`events/${eventId}/reminders`, body)
   }
 
-  updateTags(eventId: string, tagIds: string[], occurrenceDate?: number): Observable<UpdateEventTagsResponse> {
+  updateTags(eventId: EventId, tagIds: TagId[], occurrenceDate?: number): Observable<UpdateEventTagsResponse> {
     const body: {
-      tagIds: string[]
+      tagIds: TagId[]
       occurrenceDate?: number
     } = {
       tagIds
@@ -197,7 +185,7 @@ export class EventFetch extends BaseFetch {
     return this.fetch.put(`events/${eventId}/tagIds`, body)
   }
 
-  getProjectEvents(projectId: string, startDate: Date, endDate: Date | 'feature'): Observable<EventData[]> {
+  getProjectEvents(projectId: ProjectId, startDate: Date, endDate: Date | 'feature'): Observable<EventData[]> {
     let query: string
     if (endDate instanceof Date) {
       query = `&endDate=${endDate.toISOString()}`
@@ -217,4 +205,4 @@ export class EventFetch extends BaseFetch {
   }
 }
 
-export default new EventFetch()
+export default new EventFetch

@@ -3,10 +3,11 @@ import { Observable } from 'rxjs/Observable'
 import Model from './BaseModel'
 import { PreferenceData, default as Preference } from '../schemas/Preference'
 import { dataToSchema } from '../utils/index'
+import { PreferenceId } from '../teambition'
 
 export class PreferenceModel extends Model {
 
-  public preferenceId: string
+  public preferenceId: PreferenceId
 
   constructor() {
     super()
@@ -22,16 +23,16 @@ export class PreferenceModel extends Model {
   }
 
   get(): Observable<PreferenceData> {
-    return this._get<PreferenceData>(this.preferenceId)
+    return this._get<PreferenceData>(<any>this.preferenceId)
   }
 
   update(patch: any): Observable<any> {
     if (!this.preferenceId) {
       return Observable.throw(new Error('Preference not exist'))
     }
-    return super.update(this.preferenceId, patch)
+    return super.update(<any>this.preferenceId, patch)
   }
 
 }
 
-export default new PreferenceModel()
+export default new PreferenceModel

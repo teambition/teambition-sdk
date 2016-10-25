@@ -5,6 +5,7 @@ import RoleFetch from '../fetchs/RoleFetch'
 import { DefaultRoleData } from '../schemas/DefaultRole'
 import RoleModel from '../models/RoleModel'
 import { makeColdSignal } from './utils'
+import { CustomRoleId, OrganizationId } from '../teambition'
 
 export class RoleAPI {
   getDefaultRoles(): Observable<DefaultRoleData[]> {
@@ -18,7 +19,7 @@ export class RoleAPI {
     })
   }
 
-  getCustomRoles(organizationId: string): Observable<CustomRoleData[]> {
+  getCustomRoles(organizationId: OrganizationId): Observable<CustomRoleData[]> {
     return makeColdSignal<CustomRoleData[]>(() => {
       const cache = RoleModel.getRoles(organizationId)
       if (cache) {
@@ -29,7 +30,7 @@ export class RoleAPI {
     })
   }
 
-  getOne(roleId: string): Observable<CustomRoleData> {
+  getOne(roleId: CustomRoleId): Observable<CustomRoleData> {
     return makeColdSignal<CustomRoleData>(() => {
       const cache = RoleModel.getOne(roleId)
       if (cache) {

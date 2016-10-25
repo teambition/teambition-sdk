@@ -6,6 +6,12 @@ import MaxIdCollection from './tasks/MaxIdCollection'
 import { SubtaskData, default as Subtask } from '../schemas/Subtask'
 import { datasToSchemas, dataToSchema } from '../utils/index'
 import { OrganizationData } from '../schemas/Organization'
+import {
+  TaskId,
+  SubtaskId,
+  IdOfMember,
+  OrganizationId
+} from '../teambition'
 
 export class SubtaskModel extends BaseModel {
 
@@ -16,28 +22,33 @@ export class SubtaskModel extends BaseModel {
     return this._save(result)
   }
 
-  getOne(_subtaskId: string): Observable<SubtaskData> {
-    return this._get<SubtaskData>(_subtaskId)
+  getOne(_subtaskId: SubtaskId): Observable<SubtaskData> {
+    return this._get<SubtaskData>(<any>_subtaskId)
   }
 
   /**
    * 不分页不用 Collection
    */
-  addToTask(_taskId: string, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
+  addToTask(_taskId: TaskId, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
     const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
     return this._saveCollection(`task:subtasks/${_taskId}`, result, this._schemaName, (data: SubtaskData) => {
       return data._taskId === _taskId
     })
   }
 
-  getFromTask(_taskId: string): Observable<SubtaskData[]> {
+  getFromTask(_taskId: TaskId): Observable<SubtaskData[]> {
     return this._get<SubtaskData[]>(`task:subtasks/${_taskId}`)
   }
 
   /**
    * _collections 索引是 `organization:subtasks/${organization._id}`
    */
-  addOrgMySubtasks(userId: string, organization: OrganizationData, tasks: SubtaskData[], page: number): Observable<SubtaskData[]> {
+  addOrgMySubtasks(
+    userId: IdOfMember,
+    organization: OrganizationData,
+    tasks: SubtaskData[],
+    page: number
+  ): Observable<SubtaskData[]> {
     const result = datasToSchemas<SubtaskData>(tasks, Subtask)
     const dbIndex = `organization:subtasks/${organization._id}`
 
@@ -55,7 +66,7 @@ export class SubtaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrgMySubtasks(organizationId: string, page: number): Observable<SubtaskData[]> {
+  getOrgMySubtasks(organizationId: OrganizationId, page: number): Observable<SubtaskData[]> {
     const collection = this._collections.get(`organization:subtasks/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -66,7 +77,12 @@ export class SubtaskModel extends BaseModel {
   /**
    * _collections 的索引是 `organization:subtasks:due/${organization._id}`
    */
-  addOrgMyDueSubtasks(userId: string, organization: OrganizationData, subtasks: SubtaskData[], page: number): Observable<SubtaskData[]> {
+  addOrgMyDueSubtasks(
+    userId: IdOfMember,
+    organization: OrganizationData,
+    subtasks: SubtaskData[],
+    page: number
+  ): Observable<SubtaskData[]> {
     const dbIndex = `organization:subtasks:due/${organization._id}`
     const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
 
@@ -84,7 +100,7 @@ export class SubtaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrgMyDueSubtasks(organizationId: string, page: number): Observable<SubtaskData[]> {
+  getOrgMyDueSubtasks(organizationId: OrganizationId, page: number): Observable<SubtaskData[]> | null {
     const collection = this._collections.get(`organization:subtasks:due/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -95,7 +111,12 @@ export class SubtaskModel extends BaseModel {
   /**
    * _collections 的索引是 `organization:subtasks:done/${organization._id}`
    */
-  addOrgMyDoneSubtasks(userId: string, organization: OrganizationData, tasks: SubtaskData[], page: number): Observable<SubtaskData[]> {
+  addOrgMyDoneSubtasks(
+    userId: IdOfMember,
+    organization: OrganizationData,
+    tasks: SubtaskData[],
+    page: number
+  ): Observable<SubtaskData[]> | null {
     const result = datasToSchemas<SubtaskData>(tasks, Subtask)
     const dbIndex = `organization:subtasks:done/${organization._id}`
 
@@ -110,7 +131,7 @@ export class SubtaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrgMyDoneSubtasks(organizationId: string, page: number): Observable<SubtaskData[]> {
+  getOrgMyDoneSubtasks(organizationId: OrganizationId, page: number): Observable<SubtaskData[]> {
     const collection = this._collections.get(`organization:subtasks:done/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -122,7 +143,7 @@ export class SubtaskModel extends BaseModel {
    * _collections 的索引是 `organization:subtasks:created/${organization._id}`
    */
   addOrgMyCreatedSubtasks(
-    userId: string,
+    userId: IdOfMember,
     organization: OrganizationData,
     tasks: SubtaskData[],
     page: number
@@ -141,7 +162,7 @@ export class SubtaskModel extends BaseModel {
     return collection.maxAddPage(page, result)
   }
 
-  getOrgMyCreatedSubtasks(organizationId: string, page: number): Observable<SubtaskData[]> {
+  getOrgMyCreatedSubtasks(organizationId: OrganizationId, page: number): Observable<SubtaskData[]> | null {
     const collection = this._collections.get(`organization:subtasks:created/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -149,7 +170,7 @@ export class SubtaskModel extends BaseModel {
     return null
   }
 
-  getOrgMyCreatedMaxId(organizationId: string): number {
+  getOrgMyCreatedMaxId(organizationId: OrganizationId): number | undefined {
     const dbIndex = `organization:subtasks:created/${organizationId}`
     const collection: MaxIdCollection<SubtaskData> = <MaxIdCollection<SubtaskData>>this._collections.get(dbIndex)
     if (collection) {
@@ -159,4 +180,4 @@ export class SubtaskModel extends BaseModel {
   }
 }
 
-export default new SubtaskModel()
+export default new SubtaskModel

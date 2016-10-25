@@ -15,4 +15,4 @@ export class LikeModel extends Model {
   }
 }
 
-export default new LikeModel()
+export default new LikeModel
