@@ -3,14 +3,15 @@ import { Observable } from 'rxjs/Observable'
 import Organization, { OrganizationData } from '../schemas/Organization'
 import Model from './BaseModel'
 import { datasToSchemas, dataToSchema } from '../utils/index'
+import { OrganizationId } from '../teambition'
 
 export class OrganizationModel extends Model {
   getAll(): Observable<Array<OrganizationData>> {
     return this._get<OrganizationData[]>('organization')
   }
 
-  getOne(id: string): Observable<OrganizationData> {
-    return this._get<OrganizationData>(id)
+  getOne(id: OrganizationId): Observable<OrganizationData> {
+    return this._get<OrganizationData>(<any>id)
   }
 
   saveAll(organizations: OrganizationData[]): Observable<OrganizationData[]> {
@@ -24,4 +25,4 @@ export class OrganizationModel extends Model {
   }
 }
 
-export default new OrganizationModel()
+export default new OrganizationModel

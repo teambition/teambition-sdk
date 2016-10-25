@@ -6,7 +6,6 @@ import {
   default as PostFetch,
   CreatePostOptions,
   MovePostResponse,
-  PostFavoriteResponse,
   UpdateInvolves,
   ArchivePostResponse,
   UnArchivePostResponse,
@@ -16,9 +15,10 @@ import {
   UpdateTagsResponse
 } from '../fetchs/PostFetch'
 import { makeColdSignal } from './utils'
+import { PostId, ProjectId, UserId, TagId } from '../teambition'
 
 export class PostAPI {
-  getAllProjectPosts(projectId: string, query?: {
+  getAllProjectPosts(projectId: ProjectId, query?: {
     page: number
     count: number
     fields?: string
@@ -35,7 +35,7 @@ export class PostAPI {
     })
   }
 
-  getMyProjectPosts(userId: string, projectId: string, query?: {
+  getMyProjectPosts(userId: UserId, projectId: ProjectId, query?: {
     page: number
     count: number
     fields?: string
@@ -52,7 +52,7 @@ export class PostAPI {
     })
   }
 
-  getByTagId(tagId: string, query?: any): Observable<PostData[]> {
+  getByTagId(tagId: TagId, query?: any): Observable<PostData[]> {
     return makeColdSignal<PostData[]>(() => {
       const page = query && query.page ? query.page : 1
       const cache = PostModel.getByTagId(tagId, page)
@@ -69,10 +69,10 @@ export class PostAPI {
       .concatMap(post => PostModel.addOne(post).take(1))
   }
 
-  get(postId: string, query?: any): Observable<PostData> {
+  get(postId: PostId, query?: any): Observable<PostData> {
     return makeColdSignal<PostData>(() => {
       const get = PostModel.getOne(postId)
-      if (get && PostModel.checkSchema(postId)) {
+      if (get && PostModel.checkSchema(<string>postId)) {
         return get
       }
       return PostFetch.get(postId, query)
@@ -83,79 +83,62 @@ export class PostAPI {
   /**
    * cold signal
    */
-  delete(postId: string): Observable<void> {
+  delete(postId: PostId): Observable<void> {
     return PostFetch.delete(postId)
-      .concatMap(x => PostModel.delete(postId))
+      .concatMap(x => PostModel.delete(<string>postId))
   }
 
   /**
    * cold signal
    */
-  archive(postId: string): Observable<ArchivePostResponse> {
+  archive(postId: PostId): Observable<ArchivePostResponse> {
     return PostFetch.archive(postId)
-      .concatMap(post => PostModel.update(postId, post))
+      .concatMap(post => PostModel.update(<string>postId, post))
   }
 
   /**
    * cold signal
    */
-  favorite(postId: string): Observable<PostFavoriteResponse> {
-    return PostFetch.favorite(postId)
-      .concatMap(result => {
-        return PostModel.update(postId, {
-          isFavorite: result.isFavorite,
-          content: result.data.content,
-          title: result.data.title,
-          updated: result.data.updated,
-          created: result.data.created
-        })
-          .map(() => result)
-      })
-  }
-
-  /**
-   * cold signal
-   */
-  unarchive(postId: string): Observable<UnArchivePostResponse> {
+  unarchive(postId: PostId): Observable<UnArchivePostResponse> {
     return PostFetch.unarchive(postId)
-      .concatMap(result => PostModel.update(postId, result))
+      .concatMap(result => PostModel.update(<string>postId, result))
   }
 
-  update(postId: string, post: UpdatePostOptions): Observable<any> {
+  update(postId: PostId, post: UpdatePostOptions): Observable<string> {
     return PostFetch.update(postId, post)
-      .concatMap(result => PostModel.update(postId, result))
+      .concatMap(result => PostModel.update(<string>postId, result))
   }
 
   /**
    * cold signal
    */
-  updateInvolves(postId: string, involves: UpdateInvolves): Observable<UpdateInvolvesResponse> {
+  updateInvolves(postId: PostId, involves: UpdateInvolves): Observable<UpdateInvolvesResponse> {
     return PostFetch.updateInvolves(postId, involves)
-      .concatMap(result => PostModel.update(postId, result))
+      .concatMap(result => PostModel.update(<string>postId, result))
   }
 
   /**
    * cold signal
    */
-  updatePin(postId: string, pin: boolean): Observable<UpdatePinResponse> {
+  updatePin(postId: PostId, pin: boolean): Observable<UpdatePinResponse> {
     return PostFetch.updatePin(postId, pin)
-      .concatMap(post => PostModel.update(postId, post))
+      .concatMap(post => PostModel.update(<string>postId, post))
   }
 
   /**
    * cold signal
    */
-  updateTags(postId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
+  updateTags(postId: PostId, tagIds: TagId[]): Observable<UpdateTagsResponse> {
     return PostFetch.updateTags(postId, tagIds)
-      .concatMap(r => PostModel.update(postId, r))
+      .concatMap(r => PostModel.update(<string>postId, r))
   }
 
-  move(postId: string, projectId: string): Observable<MovePostResponse> {
+  move(postId: PostId, projectId: PostId): Observable<MovePostResponse> {
     return PostFetch.move(postId, projectId)
-      .concatMap(post => PostModel.update(postId, post))
+      .concatMap(post => PostModel.update(<string>postId, post))
   }
 
-  fork(postId: string, projectId: string): Observable<PostData> {
+  fork(postId: PostId, projectId: ProjectId): Observable<PostData> {
     return PostFetch.fork(postId, projectId)
       .concatMap(post => PostModel.addOne(post).take(1))
   }

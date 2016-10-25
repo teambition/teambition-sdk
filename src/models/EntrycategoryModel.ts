@@ -4,6 +4,7 @@ import Model from './BaseModel'
 import Collection from './BaseCollection'
 import { EntrycategoryData, default as Entrycategory } from '../schemas/Entrycategory'
 import { datasToSchemas, dataToSchema } from '../utils/index'
+import { EntryCategoryId, ProjectId } from '../teambition'
 
 export class EntrycategoryModel extends Model {
   private _schemaName = 'Entrycategory'
@@ -13,7 +14,7 @@ export class EntrycategoryModel extends Model {
     return this._save(result)
   }
 
-  addEntrycategories(projectId: string, entrycategories: EntrycategoryData[], page: number): Observable<EntrycategoryData[]> {
+  addEntrycategories(projectId: ProjectId, entrycategories: EntrycategoryData[], page: number): Observable<EntrycategoryData[]> {
     const dbIndex = `project:entrycategories/${projectId}`
     const result = datasToSchemas<EntrycategoryData>(entrycategories, Entrycategory)
 
@@ -27,11 +28,11 @@ export class EntrycategoryModel extends Model {
     return collection.addPage(page, result)
   }
 
-  getOne(_id: string): Observable<EntrycategoryData> {
-    return this._get<EntrycategoryData>(_id)
+  getOne(_id: EntryCategoryId): Observable<EntrycategoryData> {
+    return this._get<EntrycategoryData>(<any>_id)
   }
 
-  getEntrycategories(projectId: string, page: number): Observable<EntrycategoryData[]> {
+  getEntrycategories(projectId: ProjectId, page: number): Observable<EntrycategoryData[]> {
     const collection = this._collections.get(`project:entrycategories/${projectId}`)
     if (collection) {
       return collection.get(page)
@@ -40,4 +41,4 @@ export class EntrycategoryModel extends Model {
   }
 }
 
-export default new EntrycategoryModel()
+export default new EntrycategoryModel

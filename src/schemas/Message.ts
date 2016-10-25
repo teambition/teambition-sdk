@@ -1,10 +1,22 @@
 'use strict'
 import { Schema, schemaName, ISchema, child } from './schema'
+import {
+  MessageId,
+  UserId,
+  IdOfMember,
+  ProjectId,
+  OrganizationId,
+  ActivityId,
+  DetailObjectId,
+  DetailObjectTypes
+} from '../teambition'
+
+export type MessageType = 'object' | 'system'
 
 export interface MessageData extends ISchema {
-  _id: string
-  _userId: string
-  type: string
+  _id: MessageId
+  _userId: UserId
+  type: MessageType
   updated: string
   created: string
   isArchived: boolean
@@ -19,37 +31,37 @@ export interface MessageData extends ISchema {
   unreadActivitiesCount: number
   boundToObjectUpdated: string
   creator: {
-    _id: string
+    _id: IdOfMember
     name: string
     avatarUrl: string
     email?: string
   }
   title: string
   subtitle: string
-  _latestActivityId?: string
+  _latestActivityId?: ActivityId
   latestActivityAction?: string
-  _projectId?: string
+  _projectId?: ProjectId
   project?: {
-    _id: string
+    _id: ProjectId
     name: string
     logo: string
   }
-  _organizationId?: string
+  _organizationId?: OrganizationId
   organization?: {
-    _id: string
+    _id: OrganizationId
     name: string
     logo: string
   }
-  _objectId: string
-  objectType: string
+  _objectId: DetailObjectId | ProjectId
+  objectType: DetailObjectTypes | 'activity' | 'room'
   mentions?: any  // deprecated
 }
 
 @schemaName('Message')
 export default class Message extends Schema<MessageData> implements MessageData {
-  _id: string = undefined
-  _userId: string = undefined
-  type: string = undefined
+  _id: MessageId = undefined
+  _userId: UserId = undefined
+  type: MessageType = undefined
   updated: string = undefined
   created: string = undefined
   isArchived: boolean = undefined
@@ -60,22 +72,22 @@ export default class Message extends Schema<MessageData> implements MessageData 
   unreadActivitiesCount: number = undefined
   boundToObjectUpdated: string = undefined
   creator: {
-    _id: string
+    _id: IdOfMember
     name: string
     avatarUrl: string
   } = undefined
   title: string = undefined
   subtitle: string = undefined
   @child('Object', 'Project') project?: {
-    _id: string
+    _id: ProjectId
     name: string
     logo: string
   }
   @child('Object', 'Organization') organization?: {
-    _id: string
+    _id: OrganizationId
     name: string
     logo: string
   }
-  _objectId: string = undefined
-  objectType: string = undefined
+  _objectId: DetailObjectId | ProjectId = undefined
+  objectType: DetailObjectTypes | 'activity' | 'room' = undefined
 }

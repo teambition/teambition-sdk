@@ -7,6 +7,7 @@ import { setSchema } from '../schemas/schema'
 import { RecurrenceEvent } from './events/RecurrenceEvent'
 import Collection from './BaseCollection'
 import { forEach } from '../utils'
+import { EventId, ProjectId, UserId, TagId } from '../teambition'
 
 export interface GeneratorResult {
   value: EventData
@@ -16,7 +17,7 @@ export interface GeneratorResult {
 export class EventModel extends Model {
   private _schemaName = 'Event'
 
-  private _recurrenceEventAlias = new Map<string, string>()
+  private _recurrenceEventAlias = new Map<string, EventId>()
 
   constructor() {
     super()
@@ -28,13 +29,13 @@ export class EventModel extends Model {
   addOne(event: EventData): Observable<RecurrenceEvent> {
     const result = setSchema<any>( new RecurrenceEvent(event), event )
     if (event._sourceId && event._sourceId !== event._id) {
-      this._recurrenceEventAlias.set(event._sourceId + event.startDate, event._id)
+      this._recurrenceEventAlias.set(event._sourceId + event.startDate, <any>event._id)
     }
     return this._save<RecurrenceEvent>(result)
   }
 
-  get(eventId: string): Observable<RecurrenceEvent> {
-    return this._get<RecurrenceEvent>(eventId)
+  get(eventId: EventId): Observable<RecurrenceEvent> {
+    return this._get<RecurrenceEvent>(<any>eventId)
   }
 
   getByAlias(aliasId: string): Observable<RecurrenceEvent> {
@@ -42,10 +43,15 @@ export class EventModel extends Model {
     if (!id) {
       return Observable.throw(new Error(`no valid alias, aliasId: ${aliasId}, alias: ${this._recurrenceEventAlias}`))
     }
-    return this._get<RecurrenceEvent>(id)
+    return this._get<RecurrenceEvent>(<any>id)
   }
 
-  addProjectEvents(projectId: string, events: EventData[], startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<RecurrenceEvent[]> {
+  addProjectEvents(
+    projectId: ProjectId,
+    events: EventData[],
+    startDate: Date,
+    endDate: Date | 'feature' = 'feature'
+  ): Observable<RecurrenceEvent[]> {
     const result = this._genEventResult(events)
     const dbIndex = `project:events/${projectId}/${startDate.valueOf()}/${endDate.valueOf()}`
     return this._saveCollection<any>(dbIndex, result, this._schemaName, (data: RecurrenceEvent) => {
@@ -55,25 +61,29 @@ export class EventModel extends Model {
     })
   }
 
-  getProjectEvents(projectId: string, startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<RecurrenceEvent[]> {
+  getProjectEvents(
+    projectId: ProjectId,
+    startDate: Date,
+    endDate: Date | 'feature' = 'feature'
+  ): Observable<RecurrenceEvent[]> | null {
     return this._get<RecurrenceEvent[]>(`project:events/${projectId}/${startDate.valueOf()}/${endDate.valueOf()}`)
   }
 
-  addMyEvents(userId: string, endDate: Date, events: EventData[]): Observable<EventData[]> {
+  addMyEvents(userId: UserId, endDate: Date, events: EventData[]): Observable<EventData[]> {
     const result = this._genEventResult(events)
     return this._saveCollection<any>(`my:events/${userId}`, result, this._schemaName, (data: RecurrenceEvent) => {
       return !data.isArchived &&
              data.involveMembers &&
-             data.involveMembers.indexOf(userId) !== -1 &&
+             data.involveMembers.indexOf(<any>userId) !== -1 &&
              data.isBetween(endDate, 'feature')
     })
   }
 
-  getMyEvents(userId: string, endDate: Date): Observable<EventData[]> {
+  getMyEvents(userId: UserId, endDate: Date): Observable<EventData[]> | null {
     return this._get<EventData[]>(`my:events/${userId}`)
   }
 
-  addByTagId(tagId: string, events: EventData[], page: number): Observable<EventData[]> {
+  addByTagId(tagId: TagId, events: EventData[], page: number): Observable<EventData[]> {
     const dbIndex = `tag:events/${tagId}`
     const result = this._genEventResult(events)
     let collection = this._collections.get(dbIndex)
@@ -87,7 +97,7 @@ export class EventModel extends Model {
     return collection.addPage(page, result)
   }
 
-  getByTagId(tagId: string, page: number): Observable<EventData[]> {
+  getByTagId(tagId: TagId, page: number): Observable<EventData[]> | null {
     const dbIndex = `tag:events:/${tagId}`
     let collection = this._collections.get(dbIndex)
     if (collection) {
@@ -110,4 +120,4 @@ export class EventModel extends Model {
 
 }
 
-export default new EventModel()
+export default new EventModel

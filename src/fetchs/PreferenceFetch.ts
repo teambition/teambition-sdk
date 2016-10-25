@@ -2,6 +2,7 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { PreferenceData } from '../schemas/Preference'
+import { PreferenceId } from '../teambition'
 
 export class PreferenceFetch extends BaseFetch {
 
@@ -9,9 +10,9 @@ export class PreferenceFetch extends BaseFetch {
     return this.fetch.get(`preferences`)
   }
 
-  update(_id: string, patch: any): Observable<any> {
+  update(_id: PreferenceId, patch: any): Observable<any> {
     return this.fetch.put(`preferences/${_id}`, patch)
   }
 }
 
-export default new PreferenceFetch()
+export default new PreferenceFetch

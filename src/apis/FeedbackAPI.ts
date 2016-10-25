@@ -10,15 +10,16 @@ import {
 } from '../fetchs/FeedbackFetch'
 import FeedbackModel from '../models/FeedbackModel'
 import { makeColdSignal } from './utils'
+import { ProjectId, FeedbackId } from '../teambition'
 
 export class FeedbackAPI {
 
-  create(_projectId: string, option: CreateProjectFeedbackOption): Observable<FeedbackData> {
+  create(_projectId: ProjectId, option: CreateProjectFeedbackOption): Observable<FeedbackData> {
     return FeedbackFetch.createProjectFeedback(_projectId, option)
       .concatMap(r => FeedbackModel.addOne(r).take(1))
   }
 
-  getProjectFeedback(projectId: string, query: GetProjectFeedbackQuerys): Observable<FeedbackData[]> {
+  getProjectFeedback(projectId: ProjectId, query: GetProjectFeedbackQuerys): Observable<FeedbackData[]> {
     return makeColdSignal<FeedbackData[]>(() => {
       const cache = FeedbackModel.getProjectFeedbacks(projectId, query.page, query.from, query.to)
       if (cache) {
@@ -29,14 +30,18 @@ export class FeedbackAPI {
     })
   }
 
-  deleteProjectFeedback(_projectId: string, feedbackId: string): Observable<void> {
+  deleteProjectFeedback(_projectId: ProjectId, feedbackId: FeedbackId): Observable<void> {
     return FeedbackFetch.deleteProjectFeedback(_projectId, feedbackId)
-      .concatMap(r => FeedbackModel.delete(feedbackId))
+      .concatMap(r => FeedbackModel.delete(<string>feedbackId))
   }
 
-  updateProjectFeedback(_projectId: string, feedbackId: string, options: UpdateProjectFeedbackOptions): Observable<UpdateProjectFeedbackResponse> {
+  updateProjectFeedback(
+    _projectId: ProjectId,
+    feedbackId: FeedbackId,
+    options: UpdateProjectFeedbackOptions
+  ): Observable<UpdateProjectFeedbackResponse> {
     return FeedbackFetch.updateProjectFeedback(_projectId, feedbackId, options)
-      .concatMap(r => FeedbackModel.update(feedbackId, r))
+      .concatMap(r => FeedbackModel.update(<string>feedbackId, r))
   }
 }
 

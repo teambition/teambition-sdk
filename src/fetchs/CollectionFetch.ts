@@ -3,32 +3,33 @@ import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { TBCollectionData } from '../schemas/Collection'
 import { assign } from '../utils/index'
+import { CollectionId, DefaultColors, ProjectId } from '../teambition'
 
 export interface CreateCollectionOptions {
   title: string
-  _parentId: string
+  _parentId: CollectionId
   description?: string
-  color?: string
+  color?: DefaultColors
 }
 
 export interface UpdateCollectionOptions {
   title?: string
   description?: string
-  color?: string
+  color?: DefaultColors
 }
 
 export interface UnarchiveCollectionResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: CollectionId
+  _projectId: ProjectId
 }
 
 export interface ArchiveCollectionResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: CollectionId
+  _projectId: ProjectId
 }
 
 export class CollectionFetch extends BaseFetch {
@@ -36,37 +37,37 @@ export class CollectionFetch extends BaseFetch {
     return this.fetch.post(`collections`, collection)
   }
 
-  get(collectionId: string, query?: any): Observable<TBCollectionData> {
+  get(collectionId: CollectionId, query?: any): Observable<TBCollectionData> {
     return this.fetch.get(`collections/${collectionId}`, query)
   }
 
-  update(collectionId: string, info: UpdateCollectionOptions): Observable<any> {
+  update(collectionId: CollectionId, info: UpdateCollectionOptions): Observable<any> {
     return this.fetch.put(`collections/${collectionId}`, info)
   }
 
-  delete(collectionId: string): Observable<void> {
+  delete(collectionId: CollectionId): Observable<void> {
     return this.fetch.delete<void>(`collections/${collectionId}`)
   }
 
-  archive(collectionId: string): Observable<ArchiveCollectionResponse> {
+  archive(collectionId: CollectionId): Observable<ArchiveCollectionResponse> {
     return this.fetch.post(`collections/${collectionId}/archive`)
   }
 
-  getByParent(parentId: string, query?: any): Observable<TBCollectionData[]> {
+  getByParent(parentId: CollectionId, query?: any): Observable<TBCollectionData[]> {
     return this.fetch.get(`collections`, assign({
       _parentId: parentId
     }, query))
   }
 
-  move(collectionId: string, parentId: string): Observable<TBCollectionData> {
+  move(collectionId: CollectionId, parentId: CollectionId): Observable<TBCollectionData> {
     return this.fetch.put(`collections/${collectionId}/move`, {
       _parentId: parentId
     })
   }
 
-  unarchive(collectionId: string): Observable<UnarchiveCollectionResponse> {
+  unarchive(collectionId: CollectionId): Observable<UnarchiveCollectionResponse> {
     return this.fetch.delete(`collections/${collectionId}/archive`)
   }
 }
 
-export default new CollectionFetch()
+export default new CollectionFetch

@@ -7,48 +7,54 @@ import { EventData } from '../schemas/Event'
 import { PostData } from '../schemas/Post'
 import { FileData } from '../schemas/File'
 import { EntryData } from '../schemas/Entry'
+import {
+  DefaultColors,
+  DetailObjectType,
+  DetailObjectId,
+  TagId,
+  ProjectId,
+  IdOfMember
+} from '../teambition'
 
-export type TagColor = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
-export type TagsObjectType = 'task' | 'event' | 'post' | 'work' | 'entry'
 export type ObjectSchema = EntryData | FileData | PostData | EventData | TaskData
 
 export interface CreateTagOptions {
-  _projectId: string
-  color?: TagColor
+  _projectId: ProjectId
+  color?: DefaultColors
 }
 
 export interface UpdateTagOptions {
   name?: string
-  color?: TagColor
+  color?: DefaultColors
 }
 
 export interface UpdateTagResponse {
-  _id: string
-  _projectId: string
+  _id: TagId
+  _projectId: ProjectId
   name: string
-  _creatorId: string
+  _creatorId: IdOfMember
   updated: string
   created: string
   isArchived: boolean
-  color: TagColor
+  color: DefaultColors
 }
 
 export interface RelateTagResponse {
-  tagIds: string[]
+  tagIds: TagId[]
 }
 
 export interface ArchiveTagResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: TagId
+  _projectId: ProjectId
 }
 
 export interface UnarchiveTagResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: TagId
+  _projectId: ProjectId
 }
 
 export class TagFetch extends BaseFetch {
@@ -56,41 +62,41 @@ export class TagFetch extends BaseFetch {
     return this.fetch.post(`tags`, options)
   }
 
-  get(_id: string, query?: any): Observable<TagData> {
+  get(_id: TagId, query?: any): Observable<TagData> {
     return this.fetch.get(`tags/${_id}`, query)
   }
 
-  update(_id: string, option: UpdateTagOptions): Observable<UpdateTagResponse> {
+  update(_id: TagId, option: UpdateTagOptions): Observable<UpdateTagResponse> {
     return this.fetch.put(`tags/${_id}`, option)
   }
 
-  delete(_id: string): Observable<void> {
+  delete(_id: TagId): Observable<void> {
     return this.fetch.delete<void>(`tags/${_id}`)
   }
 
-  archive(_id: string): Observable<ArchiveTagResponse> {
+  archive(_id: TagId): Observable<ArchiveTagResponse> {
     return this.fetch.post(`tags/${_id}/archive`)
   }
 
-  getByObject(_objectId: string, objectType: TagsObjectType, query?: any): Observable<TagData[]> {
+  unarchive(_id: TagId): Observable<UnarchiveTagResponse> {
+    return this.fetch.delete(`tags/${_id}/archive`)
+  }
+
+  getByObject(_objectId: DetailObjectId, objectType: DetailObjectType, query?: any): Observable<TagData[]> {
     return this.fetch.get(`tags/${objectType}s/${_objectId}/tags`, query)
   }
 
-  getByProjectId(_projectId: string, query?: any): Observable<TagData[]> {
+  getByProjectId(_projectId: ProjectId, query?: any): Observable<TagData[]> {
     return this.fetch.get(`projects/${_projectId}/tags`, query)
   }
 
-  getRelated<T extends ObjectSchema>(_tagId: string, objectType: TagsObjectType, query?: any): Observable<T[]> {
+  getRelated<T extends ObjectSchema>(_tagId: TagId, objectType: DetailObjectType, query?: any): Observable<T[]> {
     return this.fetch.get(`tags/${_tagId}/${objectType}s`)
   }
 
-  relateTag(_objectId: string, objectType: TagsObjectType, tagId: string): Observable<RelateTagResponse> {
+  relateTag(_objectId: DetailObjectId, objectType: DetailObjectType, tagId: TagId): Observable<RelateTagResponse> {
     return this.fetch.put(`${objectType}s/${_objectId}/tags/${tagId}`)
-  }
-
-  unarchive(_id: string): Observable<UnarchiveTagResponse> {
-    return this.fetch.delete(`tags/${_id}/archive`)
   }
 }
 
-export default new TagFetch()
+export default new TagFetch

@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
-import UserMe from '../schemas/UserMe'
+import { UserMe } from '../schemas/UserMe'
 
 export class UserFetch extends BaseFetch {
 
@@ -27,4 +27,4 @@ export class UserFetch extends BaseFetch {
   }
 }
 
-export default new UserFetch()
+export default new UserFetch

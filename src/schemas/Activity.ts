@@ -1,7 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 import File from './File'
-import { ExecutorOrCreator } from '../teambition'
+import { ExecutorOrCreator, ActivityId, DetailObjectTypes, DetailObjectId } from '../teambition'
 
 export interface Locales {
   en: {
@@ -22,26 +22,26 @@ export interface Locales {
 }
 
 export interface Voice {
-  source: string,
-  fileType: 'amr',
-  fileCategory: string,
-  fileName: string,
-  thumbnailUrl: string,
-  previewUrl: string,
-  mimeType: string,
-  downloadUrl: string,
-  fileSize: number,
-  duration: number,
-  fileKey: string,
+  source: string
+  fileType: 'amr'
+  fileCategory: string
+  fileName: string
+  thumbnailUrl: string
+  previewUrl: string
+  mimeType: string
+  downloadUrl: string
+  fileSize: number
+  duration: number
+  fileKey: string
   thumbnail: string
 }
 
 export interface ActivityData extends ISchema {
-  _boundToObjectId: string
+  _boundToObjectId: DetailObjectId
   _creatorId: string
-  _id: string
+  _id: ActivityId
   action: string
-  boundToObjectType: string
+  boundToObjectType: DetailObjectTypes
   content: {
     comment?: string
     content?: string
@@ -105,11 +105,11 @@ export interface ActivityData extends ISchema {
 
 @schemaName('Activity')
 export default class Activity extends Schema<ActivityData> implements ActivityData {
-  _boundToObjectId: string = undefined
+  _boundToObjectId: DetailObjectId = undefined
   _creatorId: string = undefined
-  _id: string = undefined
+  _id: ActivityId = undefined
   action: string = undefined
-  boundToObjectType: string = undefined
+  boundToObjectType: DetailObjectTypes = undefined
   content: {
     comment?: string
     content?: string

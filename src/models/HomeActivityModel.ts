@@ -4,6 +4,7 @@ import BaseModel from './BaseModel'
 import Collection from './BaseCollection'
 import { HomeActivityData, default as HomeActivity } from '../schemas/HomeActivity'
 import { datasToSchemas, dataToSchema } from '../utils/index'
+import { ProjectId } from '../teambition'
 
 export class HomeActivityModel extends BaseModel {
 
@@ -14,7 +15,7 @@ export class HomeActivityModel extends BaseModel {
     return this._save(result)
   }
 
-  add(_projectId: string, activities: HomeActivityData[], page: number): Observable<HomeActivityData[]> {
+  add(_projectId: ProjectId, activities: HomeActivityData[], page: number): Observable<HomeActivityData[]> {
     const dbIndex = `homeActivities/${_projectId}`
     const result = datasToSchemas<HomeActivityData>(activities, HomeActivity)
     let collection = this._collections.get(dbIndex)
@@ -31,7 +32,7 @@ export class HomeActivityModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  get(_projectId: string, page: number): Observable<HomeActivityData[]> {
+  get(_projectId: ProjectId, page: number): Observable<HomeActivityData[]> {
     const dbIndex = `homeActivities/${_projectId}`
     const collection = this._collections.get(dbIndex)
     if (collection) {
@@ -41,4 +42,4 @@ export class HomeActivityModel extends BaseModel {
   }
 }
 
-export default new HomeActivityModel()
+export default new HomeActivityModel

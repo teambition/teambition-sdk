@@ -2,6 +2,7 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { FeedbackData } from '../schemas/Feedback'
+import { FeedbackId, ProjectId, IdOfMember } from '../teambition'
 
 export interface GetProjectFeedbackQuerys {
   // ISOString
@@ -10,7 +11,7 @@ export interface GetProjectFeedbackQuerys {
   to: string
   count?: number
   page?: number
-  _creatorIds?: string[]
+  _creatorIds?: IdOfMember[]
   [index: string]: any
 }
 
@@ -29,21 +30,25 @@ export interface UpdateProjectFeedbackResponse {
 }
 
 export class FeedbackFetch extends BaseFetch {
-  getProjectFeedback(projectId: string, query: GetProjectFeedbackQuerys): Observable<FeedbackData[]> {
+  getProjectFeedback(projectId: ProjectId, query: GetProjectFeedbackQuerys): Observable<FeedbackData[]> {
     return this.fetch.get(`projects/${projectId}/feedbacks`, query)
   }
 
-  createProjectFeedback(_projectId: string, options: CreateProjectFeedbackOption): Observable<FeedbackData> {
+  createProjectFeedback(_projectId: ProjectId, options: CreateProjectFeedbackOption): Observable<FeedbackData> {
     return this.fetch.post(`projects/${_projectId}/feedbacks`, options)
   }
 
-  deleteProjectFeedback(_projectId: string, feedbackId: string): Observable<void> {
+  deleteProjectFeedback(_projectId: ProjectId, feedbackId: FeedbackId): Observable<void> {
     return this.fetch.delete<void>(`projects/${_projectId}/feedbacks/${feedbackId}`)
   }
 
-  updateProjectFeedback(_projectId: string, feedbackId: string, options: UpdateProjectFeedbackOptions): Observable<UpdateProjectFeedbackResponse> {
+  updateProjectFeedback(
+    _projectId: ProjectId,
+    feedbackId: FeedbackId,
+    options: UpdateProjectFeedbackOptions
+  ): Observable<UpdateProjectFeedbackResponse> {
     return this.fetch.put(`projects/${_projectId}/feedbacks/${feedbackId}`, options)
   }
 }
 
-export default new FeedbackFetch()
+export default new FeedbackFetch

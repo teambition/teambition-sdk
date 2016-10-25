@@ -3,10 +3,11 @@ import { Observable } from 'rxjs/Observable'
 import Model from './BaseModel'
 import { default as User, UserMe } from '../schemas/UserMe'
 import { dataToSchema } from '../utils/index'
+import { UserId } from '../teambition'
 
 export class UserModel extends Model {
 
-  public userId: string
+  public userId: UserId
 
   constructor() {
     super()
@@ -24,13 +25,13 @@ export class UserModel extends Model {
     if (!this.userId) {
       return void 0
     }
-    return this._get<UserMe>(this.userId)
+    return this._get<UserMe>(<any>this.userId)
   }
 
   update(patch: any): Observable<any> {
-    return super.update(this.userId, patch)
+    return super.update(<any>this.userId, patch)
   }
 
 }
 
-export default new UserModel()
+export default new UserModel

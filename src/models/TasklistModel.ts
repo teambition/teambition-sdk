@@ -3,18 +3,19 @@ import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import { TasklistData, default as Tasklist } from '../schemas/Tasklist'
 import { datasToSchemas, dataToSchema } from '../utils/index'
+import { TasklistId, ProjectId } from '../teambition'
 
 export class TasklistModel extends BaseModel {
   private _schemaName = 'Tasklist'
 
-  addTasklists(_projectId: string, tasklists: TasklistData[]): Observable<TasklistData[]> {
+  addTasklists(_projectId: ProjectId, tasklists: TasklistData[]): Observable<TasklistData[]> {
     const result = datasToSchemas<TasklistData>(tasklists, Tasklist)
     return this._saveCollection(`project:tasklists/${_projectId}`, result, this._schemaName, (data: TasklistData) => {
       return !data.isArchived && data._projectId === _projectId
     })
   }
 
-  getTasklists(_projectId: string): Observable<TasklistData[]> {
+  getTasklists(_projectId: ProjectId): Observable<TasklistData[]> {
     return this._get<TasklistData[]>(`project:tasklists/${_projectId}`)
   }
 
@@ -23,9 +24,9 @@ export class TasklistModel extends BaseModel {
     return this._save<TasklistData>(result)
   }
 
-  getOne(tasklistId: string): Observable<TasklistData> {
-    return this._get<TasklistData>(tasklistId)
+  getOne(tasklistId: TasklistId): Observable<TasklistData> {
+    return this._get<TasklistData>(<any>tasklistId)
   }
 }
 
-export default new TasklistModel()
+export default new TasklistModel

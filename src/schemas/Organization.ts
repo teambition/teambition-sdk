@@ -1,10 +1,16 @@
 'use strict'
 import { Schema, ISchema, schemaName } from './schema'
+import {
+  OrganizationId,
+  ProjectId,
+  RoleId,
+  IdOfMember
+} from '../teambition'
 
 export interface OrganizationData extends ISchema {
-  _id: string
+  _id: OrganizationId
   name: string
-  _creatorId: string
+  _creatorId: IdOfMember
   logo: string
   description: string
   category: string
@@ -15,7 +21,7 @@ export interface OrganizationData extends ISchema {
     name: string
     pos: number
   }[]
-  projectIds: string[]
+  projectIds: ProjectId[]
   created: string
   background: string
   plan: {
@@ -28,15 +34,15 @@ export interface OrganizationData extends ISchema {
     membersCount: number
     days: number
   }
-  _defaultRoleId: string
-  _roleId: number
+  _defaultRoleId: RoleId | null
+  _roleId: RoleId
 }
 
 @schemaName('Organization')
 export default class Organization extends Schema<OrganizationData> implements OrganizationData {
-  _id: string = undefined
+  _id: OrganizationId = undefined
   name: string = undefined
-  _creatorId: string = undefined
+  _creatorId: IdOfMember = undefined
   logo: string = undefined
   description: string = undefined
   category: string = undefined
@@ -47,7 +53,7 @@ export default class Organization extends Schema<OrganizationData> implements Or
     name: string
     pos: number
   }[] = undefined
-  projectIds: string[] = undefined
+  projectIds: ProjectId[] = undefined
   created: string = undefined
   background: string = undefined
   plan: {
@@ -60,6 +66,6 @@ export default class Organization extends Schema<OrganizationData> implements Or
     membersCount: number
     days: number
   } = undefined
-  _defaultRoleId: string = undefined
-  _roleId: number = undefined
+  _defaultRoleId: RoleId | null = undefined
+  _roleId: RoleId = undefined
 }

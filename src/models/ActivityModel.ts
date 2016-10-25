@@ -4,6 +4,7 @@ import BaseModel from './BaseModel'
 import Collection from './BaseCollection'
 import { ActivityData, default as Activity } from '../schemas/Activity'
 import { datasToSchemas, dataToSchema } from '../utils/index'
+import { DetailObjectId } from '../teambition'
 
 export class ActivityModel extends BaseModel {
 
@@ -17,7 +18,7 @@ export class ActivityModel extends BaseModel {
   /**
    * 索引为 `activities/${_boundToObjectId}`
    */
-  addToObject(_boundToObjectId: string, activities: ActivityData[], page: number): Observable<ActivityData[]> {
+  addToObject(_boundToObjectId: DetailObjectId, activities: ActivityData[], page: number): Observable<ActivityData[]> {
     const dbIndex = `activities/${_boundToObjectId}`
     const name = dbIndex
     const result = datasToSchemas<ActivityData>(activities, Activity)
@@ -31,7 +32,7 @@ export class ActivityModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getActivities(_boundToObjectId: string, page: number): Observable<ActivityData[]> {
+  getActivities(_boundToObjectId: DetailObjectId, page: number): Observable<ActivityData[]> {
     const collection = this._collections.get(`activities/${_boundToObjectId}`)
     if (collection) {
       return collection.get(page)
@@ -40,4 +41,4 @@ export class ActivityModel extends BaseModel {
   }
 }
 
-export default new ActivityModel()
+export default new ActivityModel

@@ -22,12 +22,21 @@ import {
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 import { assign, isObject } from '../utils/index'
+import {
+  TaskId,
+  TasklistId,
+  StageId,
+  ProjectId,
+  TagId,
+  UserId,
+  IdOfMember
+} from '../teambition'
 
 export type detailType = 'complete'
 
 export class TaskAPI {
 
-  getTasklistUndone(_tasklistId: string, query?: any): Observable<TaskData[]> {
+  getTasklistUndone(_tasklistId: TasklistId, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getTasklistTasksUndone(_tasklistId)
       if (get) {
@@ -44,7 +53,7 @@ export class TaskAPI {
     })
   }
 
-  getMyDueTasks(_userId: string, query?: any): Observable<TaskData[]> {
+  getMyDueTasks(_userId: UserId, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getMyDueTasks()
       if (get) {
@@ -65,7 +74,7 @@ export class TaskAPI {
     })
   }
 
-  getMyTasks(_userId: string, query?: any): Observable<TaskData[]> {
+  getMyTasks(_userId: UserId, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getMyTasks()
       if (get) {
@@ -86,7 +95,7 @@ export class TaskAPI {
     })
   }
 
-  getTasklistDone(_tasklistId: string, page = 1, query?: any): Observable<TaskData[]> {
+  getTasklistDone(_tasklistId: TasklistId, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getTasklistTasksDone(_tasklistId, page)
       if (get) {
@@ -105,7 +114,7 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyDueTasks(userId: string, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
+  getOrgMyDueTasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getOrganizationMyDueTasks(organization._id, page)
       if (get) {
@@ -125,7 +134,7 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyTasks(userId: string, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
+  getOrgMyTasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getOrganizationMyTasks(organization._id, page)
       if (get) {
@@ -145,7 +154,7 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyDoneTasks(userId: string, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
+  getOrgMyDoneTasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getOrganizationMyDoneTasks(organization._id, page)
       if (get) {
@@ -164,7 +173,7 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyCreatedTasks(userId: string, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
+  getOrgMyCreatedTasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getOrganizationMyCreatedTasks(organization._id, page)
       if (get) {
@@ -181,7 +190,7 @@ export class TaskAPI {
     })
   }
 
-  getOrgMyInvolvesTasks(userId: string, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
+  getOrgMyInvolvesTasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getOrgInvolvesTasks(organization._id, page)
       if (get) {
@@ -198,7 +207,7 @@ export class TaskAPI {
     })
   }
 
-  getProjectTasks(_projectId: string, query?: {
+  getProjectTasks(_projectId: ProjectId, query?: {
     page?: number
     count?: number
     fileds?: string
@@ -214,7 +223,7 @@ export class TaskAPI {
     })
   }
 
-  getProjectDoneTasks(_projectId: string, query?: {
+  getProjectDoneTasks(_projectId: ProjectId, query?: {
     page?: number
     count?: number
     fileds?: string
@@ -230,7 +239,7 @@ export class TaskAPI {
     })
   }
 
-  getStageTasks(stageId: string, query?: GetStageTasksOptions): Observable<TaskData[]> {
+  getStageTasks(stageId: StageId, query?: GetStageTasksOptions): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getStageTasks(stageId)
       if (get) {
@@ -241,7 +250,7 @@ export class TaskAPI {
     })
   }
 
-  getStageDoneTasks(stageId: string, query?: GetStageTasksOptions): Observable<TaskData[]> {
+  getStageDoneTasks(stageId: StageId, query?: GetStageTasksOptions): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const page = query && query.page || 1
       const get = TaskModel.getStageDoneTasks(stageId, page)
@@ -253,10 +262,10 @@ export class TaskAPI {
     })
   }
 
-  get(_id: string, detailType?: detailType): Observable<TaskData> {
+  get(_id: TaskId, detailType?: detailType): Observable<TaskData> {
     return makeColdSignal<TaskData>(() => {
       const get = TaskModel.getOne(_id)
-      if (get && TaskModel.checkSchema(_id)) {
+      if (get && TaskModel.checkSchema(<string>_id)) {
         return get
       }
       return TaskFetch.get(_id, detailType)
@@ -269,66 +278,66 @@ export class TaskAPI {
       .concatMap(task => TaskModel.addOne(task).take(1))
   }
 
-  fork(_taskId: string, options: ForkTaskOptions): Observable<TaskData> {
+  fork(_taskId: TaskId, options: ForkTaskOptions): Observable<TaskData> {
     return TaskFetch.fork(_taskId, options)
       .concatMap(task => TaskModel.addOne(task).take(1))
   }
 
-  delete(_taskId: string): Observable<void> {
+  delete(_taskId: TaskId): Observable<void> {
     return TaskFetch.delete(_taskId)
-      .concatMap(x => TaskModel.delete(_taskId))
+      .concatMap(x => TaskModel.delete(<string>_taskId))
   }
 
-  move(_taskId: string, options: MoveTaskOptions): Observable<TaskData> {
+  move(_taskId: TaskId, options: MoveTaskOptions): Observable<TaskData> {
     return this._updateFromRequest(_taskId, TaskFetch.move(_taskId, options))
   }
 
-  updateContent(_taskId: string, content: string): Observable<UpdateContentResponse> {
+  updateContent(_taskId: TaskId, content: string): Observable<UpdateContentResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateContent(_taskId, content))
   }
 
-  updateDueDate(_taskId: string, dueDate: string): Observable<UpdateDueDateResponse> {
+  updateDueDate(_taskId: TaskId, dueDate: string): Observable<UpdateDueDateResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateDueDate(_taskId, dueDate))
   }
 
-  updateExecutor(_taskId: string, _executorId: string): Observable<UpdateExecutorResponse> {
+  updateExecutor(_taskId: TaskId, _executorId: IdOfMember): Observable<UpdateExecutorResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateExecutor(_taskId, _executorId))
   }
 
   updateInvolvemembers(
-    _taskId: string,
-    memberIds: string[],
+    _taskId: TaskId,
+    memberIds: IdOfMember[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateInvolveMembersResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateInvolvemembers(_taskId, memberIds, type))
   }
 
-  updateNote(_taskId: string, note: string): Observable<UpdateNoteResponse> {
+  updateNote(_taskId: TaskId, note: string): Observable<UpdateNoteResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateNote(_taskId, note))
   }
 
-  updateStatus(_taskId: string, status: boolean): Observable<UpdateStatusResponse> {
+  updateStatus(_taskId: TaskId, status: boolean): Observable<UpdateStatusResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateStatus(_taskId, status))
   }
 
-  update<T extends UpdateTaskOptions>(_taskId: string, patch: T): Observable<T> {
+  update<T extends UpdateTaskOptions>(_taskId: TaskId, patch: T): Observable<T> {
     return this._updateFromRequest(_taskId, TaskFetch.update(_taskId, patch))
   }
 
-  archive(taskId: string): Observable<ArchiveTaskResponse> {
+  archive(taskId: TaskId): Observable<ArchiveTaskResponse> {
     return this._updateFromRequest(taskId, TaskFetch.archive(taskId))
   }
 
-  unarchive(taskId: string, stageId: string): Observable<ArchiveTaskResponse> {
+  unarchive(taskId: TaskId, stageId: StageId): Observable<ArchiveTaskResponse> {
     return this._updateFromRequest(taskId, TaskFetch.unarchive(taskId, stageId))
   }
 
-  updateTags(taskId: string, tags: string[]): Observable<UpdateTagsResponse> {
+  updateTags(taskId: TaskId, tags: TagId[]): Observable<UpdateTagsResponse> {
     return this._updateFromRequest(taskId, TaskFetch.updateTags(taskId, tags))
   }
 
-  private _updateFromRequest<T>(_taskId: string, request: Observable<T>): Observable<T> {
-    return request.concatMap(r => TaskModel.update(_taskId, r))
+  private _updateFromRequest<T>(_taskId: TaskId, request: Observable<T>): Observable<T> {
+    return request.concatMap(r => TaskModel.update(<string>_taskId, r))
   }
 }
 

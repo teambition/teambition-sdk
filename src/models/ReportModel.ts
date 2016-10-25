@@ -5,6 +5,7 @@ import Collection from './BaseCollection'
 import TaskSchema, { TaskData } from '../schemas/Task'
 import SubtaskSchema, { SubtaskData } from '../schemas/Subtask'
 import { datasToSchemas } from '../utils'
+import { ProjectId } from '../teambition'
 
 export type TaskStatus = 'accomplished' | 'progress' | 'notstart' | 'unassigned'
 export type TaskType = 'all' | 'delay' | 'ontime'
@@ -12,7 +13,7 @@ export type TaskType = 'all' | 'delay' | 'ontime'
 export class ReportModel extends Model {
 
   storeData (
-    projectId: string,
+    projectId: ProjectId,
     data: (TaskData | SubtaskData)[],
     page: number,
     status: TaskStatus,
@@ -100,7 +101,7 @@ export class ReportModel extends Model {
   }
 
   getData(
-    projectId: string,
+    projectId: ProjectId,
     page: number,
     status: TaskStatus,
     schema?: 'task',
@@ -109,7 +110,7 @@ export class ReportModel extends Model {
   ): Observable<TaskData[]>
 
   getData(
-    projectId: string,
+    projectId: ProjectId,
     page: number,
     status: TaskStatus,
     schema?: 'subtask',
@@ -118,7 +119,7 @@ export class ReportModel extends Model {
   ): Observable<SubtaskData[]>
 
   getData(
-    projectId: string,
+    projectId: ProjectId,
     page: number,
     status: TaskStatus,
     schema?: 'task' | 'subtask',
@@ -127,7 +128,7 @@ export class ReportModel extends Model {
   ): Observable<(TaskData | SubtaskData)[]>
 
   getData(
-    projectId: string,
+    projectId: ProjectId,
     page: number,
     status: TaskStatus,
     schema?: 'task' | 'subtask',
@@ -158,7 +159,7 @@ export class ReportModel extends Model {
    * 需要分页
    */
   private storeAccomplishedAllTasks(
-    projectId: string,
+    projectId: ProjectId,
     data: TaskData[],
     page: number
   ): Observable<TaskData[]> {
@@ -181,7 +182,7 @@ export class ReportModel extends Model {
    * 存储本周已完成的任务
    * 不需要分页
    */
-  private storeThisWeekAccomplishedAllTasks(projectId: string, data: TaskData[]): Observable<TaskData[]> {
+  private storeThisWeekAccomplishedAllTasks(projectId: ProjectId, data: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     return this._saveCollection(`project:report:accomplished:thisweek:all:tasks/${projectId}`, result, 'Task', data => {
       return data.isDone &&
@@ -206,7 +207,7 @@ export class ReportModel extends Model {
    *   & 有开始时间 & 开始时间在今天以前
    * )
    */
-  private storeProgressOntimeTasks(projectId: string, data: TaskData[], page: number): Observable<TaskData[]> {
+  private storeProgressOntimeTasks(projectId: ProjectId, data: TaskData[], page: number): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     const dbIndex = `project:report:progress:ontime:tasks/${projectId}`
     let collection = this._collections.get(dbIndex)
@@ -251,7 +252,7 @@ export class ReportModel extends Model {
    *   | 没有开始时间
    * )
    */
-  private storeNotStartTasks(projectId: string, data: TaskData[], page: number): Observable<TaskData[]> {
+  private storeNotStartTasks(projectId: ProjectId, data: TaskData[], page: number): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     const dbIndex = `project:report:notstart:all:tasks/${projectId}`
     const now = Date.now()
@@ -288,7 +289,7 @@ export class ReportModel extends Model {
     return collection.addPage(page, result)
   }
 
-  private storeNotStartSubtasks(projectId: string, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
+  private storeNotStartSubtasks(projectId: ProjectId, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
     const result = datasToSchemas(data, SubtaskSchema)
     const dbIndex = `project:report:notstart:all:subtasks/${projectId}`
     const now = Date.now()
@@ -319,7 +320,7 @@ export class ReportModel extends Model {
    * & 有截止日期
    * & 截止日期在今天之前
    */
-  private storeProgressDelayTasks(projectId: string, data: TaskData[], page: number): Observable<TaskData[]> {
+  private storeProgressDelayTasks(projectId: ProjectId, data: TaskData[], page: number): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     const dbIndex = `project:report:progress:delay:tasks/${projectId}`
     let collection = this._collections.get(dbIndex)
@@ -336,7 +337,7 @@ export class ReportModel extends Model {
     return collection.addPage(page, result)
   }
 
-  private storeProgressAllTasks(projectId: string, data: TaskData[], page: number): Observable<TaskData[]> {
+  private storeProgressAllTasks(projectId: ProjectId, data: TaskData[], page: number): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     const dbIndex = `project:report:progress:all:tasks/${projectId}`
     let collection = this._collections.get(dbIndex)
@@ -352,7 +353,7 @@ export class ReportModel extends Model {
     return collection.addPage(page, result)
   }
 
-  private storeProgressAllSubtasks(projectId: string, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
+  private storeProgressAllSubtasks(projectId: ProjectId, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
     const result = datasToSchemas(data, SubtaskSchema)
     const dbIndex = `project:report:progress:all:subtasks/${projectId}`
     let collection = this._collections.get(dbIndex)
@@ -381,7 +382,7 @@ export class ReportModel extends Model {
    * & _projectId 字段匹配
    */
   private storeAccomplishedDelayTasks(
-    projectId: string,
+    projectId: ProjectId,
     data: TaskData[],
     page: number
   ): Observable<TaskData[]> {
@@ -402,7 +403,7 @@ export class ReportModel extends Model {
     return collection.addPage(page, result)
   }
 
-  private storeAccomplishedDelaySubtasks(projectId: string, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
+  private storeAccomplishedDelaySubtasks(projectId: ProjectId, data: SubtaskData[], page: number): Observable<SubtaskData[]> {
     const result = datasToSchemas(data, SubtaskSchema)
     const dbIndex = `project:report:accomplished:delay:subtasks/${projectId}`
     let collection = this._collections.get(dbIndex)
@@ -429,7 +430,7 @@ export class ReportModel extends Model {
    * & 截止时间小于被完成时间
    * & _projectId 字段匹配
    */
-  private storeThisweekAccomplishedDelayTasks(projectId: string, data: TaskData[]): Observable<TaskData[]> {
+  private storeThisweekAccomplishedDelayTasks(projectId: ProjectId, data: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     return this._saveCollection(`project:report:accomplished:thisweek:delay:tasks/${projectId}`, result, 'Task', data => {
       return data.isDone &&
@@ -441,7 +442,7 @@ export class ReportModel extends Model {
     })
   }
 
-  private storeThisweekAccomplishedDelaySubtasks(projectId: string, data: SubtaskData[]): Observable<SubtaskData[]> {
+  private storeThisweekAccomplishedDelaySubtasks(projectId: ProjectId, data: SubtaskData[]): Observable<SubtaskData[]> {
     const result = datasToSchemas(data, SubtaskSchema)
     return this._saveCollection(`project:report:accomplished:thisweek:delay:subtasks/${projectId}`, result, 'Subtask', data => {
       return data.isDone &&
@@ -467,7 +468,7 @@ export class ReportModel extends Model {
    * )
    */
   private storeAccomplishedOntimeTasks(
-    projectId: string,
+    projectId: ProjectId,
     data: TaskData[],
     page: number
   ): Observable<TaskData[]> {
@@ -498,7 +499,7 @@ export class ReportModel extends Model {
   }
 
   private storeAccomplishedOntimeSubtasks(
-    projectId: string,
+    projectId: ProjectId,
     data: SubtaskData[],
     page: number
   ): Observable<SubtaskData[]> {
@@ -537,7 +538,7 @@ export class ReportModel extends Model {
    * | 完成时间小于截止时间
    * )
    */
-  private storeThisweekAccomplishedOntimeTasks(projectId: string, data: TaskData[]): Observable<TaskData[]> {
+  private storeThisweekAccomplishedOntimeTasks(projectId: ProjectId, data: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     return this._saveCollection(`project:report:accomplished:thisweek:ontime:tasks/${projectId}`, result, 'Task', data => {
       return data.isDone &&
@@ -557,7 +558,7 @@ export class ReportModel extends Model {
     })
   }
 
-  private storeThisweekAccomplishedOntimeSubtasks(projectId: string, data: SubtaskData[]): Observable<SubtaskData[]> {
+  private storeThisweekAccomplishedOntimeSubtasks(projectId: ProjectId, data: SubtaskData[]): Observable<SubtaskData[]> {
     const result = datasToSchemas(data, SubtaskSchema)
     return this._saveCollection(`project:report:accomplished:thisweek:ontime:subtasks/${projectId}`, result, 'Subtask', data => {
       return data.isDone &&
@@ -573,7 +574,7 @@ export class ReportModel extends Model {
    * 需要分页
    */
   private storeAccomplishedAllSubtasks(
-    projectId: string,
+    projectId: ProjectId,
     data: SubtaskData[],
     page: number
   ): Observable<SubtaskData[]> {
@@ -593,7 +594,7 @@ export class ReportModel extends Model {
    * 存储本周已完成的子任务
    * 不需要分页
    */
-  private storeThisweekAccomplishedAllSubtasks(projectId: string, data: SubtaskData[]): Observable<SubtaskData[]> {
+  private storeThisweekAccomplishedAllSubtasks(projectId: ProjectId, data: SubtaskData[]): Observable<SubtaskData[]> {
     const result = datasToSchemas(data, SubtaskSchema)
     return this._saveCollection(`project:report:accomplished:thisweek:all:subtasks/${projectId}`, result, 'Subtask', data => {
       return data.isDone &&
@@ -602,7 +603,7 @@ export class ReportModel extends Model {
     })
   }
 
-  private storeUnassignedTasks(projectId: string, data: TaskData[], page: number): Observable<TaskData[]> {
+  private storeUnassignedTasks(projectId: ProjectId, data: TaskData[], page: number): Observable<TaskData[]> {
     const result = datasToSchemas(data, TaskSchema)
     const dbIndex = `project:report:unassigned:all:tasks/${projectId}`
     let collection: Collection<TaskData> = this._collections.get(dbIndex)
@@ -617,4 +618,4 @@ export class ReportModel extends Model {
   }
 }
 
-export default new ReportModel()
+export default new ReportModel
