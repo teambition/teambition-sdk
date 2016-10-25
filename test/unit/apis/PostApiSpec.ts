@@ -515,6 +515,45 @@ export default describe('post api test: ', () => {
       })
   })
 
+  it('should fork one to another project', function* () {
+
+    const post = posts[0]
+    const postId = post._id
+    const misaki = clone(post)
+    misaki._id = uuid()
+    const projectId = misaki._projectId = uuid()
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/posts?type=all`)
+      .respond(JSON.stringify([]))
+
+    httpBackend
+      .whenPUT(`${apihost}posts/${postId}/fork`, {
+        _projectId: projectId
+      })
+      .respond(JSON.stringify(misaki))
+
+    const signal = PostApi.getAllProjectPosts(projectId)
+      .publish()
+      .refCount()
+
+    yield signal.take(1)
+      .do(data => {
+        expect(data.length).to.be.equal(0)
+      })
+
+    yield PostApi.fork(postId, projectId)
+      .do(data => {
+        expectDeepEqual(data, misaki)
+      })
+
+    yield signal.take(1)
+      .do(data => {
+        expect(data.length).to.be.equal(1)
+        expectDeepEqual(data[0], misaki)
+        expect(spy.callCount).to.be.equal(1)
+      })
+  })
+
   it('should move one to another project', function* () {
 
     const post = clone(posts[0])

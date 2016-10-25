@@ -154,4 +154,9 @@ export class PostAPI {
     return PostFetch.move(postId, projectId)
       .concatMap(post => PostModel.update(postId, post))
   }
+
+  fork(postId: string, projectId: string): Observable<PostData> {
+    return PostFetch.fork(postId, projectId)
+      .concatMap(post => PostModel.addOne(post).take(1))
+  }
 }
