@@ -169,6 +169,12 @@ export class PostFetch extends BaseFetch {
       _projectId: projectId
     })
   }
+
+  fork(postId: string, projectId: string): Observable<PostData> {
+    return this.fetch.put(`posts/${postId}/fork`, {
+      _projectId: projectId
+    })
+  }
 }
 
 export default new PostFetch()
