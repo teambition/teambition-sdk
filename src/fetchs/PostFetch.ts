@@ -92,6 +92,15 @@ export interface UpdateTagsResponse {
   updated: string
 }
 
+export interface MovePostResponse {
+  _id: string
+  _projectId: string
+  attachments: string[]
+  involveMembers: string[]
+  tagIds: string[]
+  updated: string
+}
+
 export class PostFetch extends BaseFetch {
   create(post: CreatePostOptions): Observable<PostData> {
     return this.fetch.post(`posts`, post)
@@ -152,6 +161,12 @@ export class PostFetch extends BaseFetch {
   updateTags(postId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
     return this.fetch.put(`posts/${postId}/tagIds`, {
       tagIds: tagIds
+    })
+  }
+
+  move(postId: string, projectId: string): Observable<MovePostResponse> {
+    return this.fetch.put(`posts/${postId}/move`, {
+      _projectId: projectId
     })
   }
 }
