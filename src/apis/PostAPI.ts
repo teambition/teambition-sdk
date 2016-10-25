@@ -5,6 +5,7 @@ import PostModel from '../models/PostModel'
 import {
   default as PostFetch,
   CreatePostOptions,
+  MovePostResponse,
   PostFavoriteResponse,
   UpdateInvolves,
   ArchivePostResponse,
@@ -147,5 +148,10 @@ export class PostAPI {
   updateTags(postId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
     return PostFetch.updateTags(postId, tagIds)
       .concatMap(r => PostModel.update(postId, r))
+  }
+
+  move(postId: string, projectId: string): Observable<MovePostResponse> {
+    return PostFetch.move(postId, projectId)
+      .concatMap(post => PostModel.update(postId, post))
   }
 }

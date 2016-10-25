@@ -515,6 +515,69 @@ export default describe('post api test: ', () => {
       })
   })
 
+  it('should move one to another project', function* () {
+
+    const post = clone(posts[0])
+    const postId = post._id
+    const projectId = post._projectId
+    const misaki = clone(post)
+    const newProjectId = misaki._projectId = uuid()
+    const newUpdated = misaki.updated = new Date().toISOString()
+
+    httpBackend.whenGET(`${apihost}projects/${projectId}/posts?type=all`)
+      .respond(JSON.stringify(posts))
+
+    httpBackend.whenGET(`${apihost}projects/${newProjectId}/posts?type=all`)
+      .respond(JSON.stringify([]))
+
+    httpBackend
+      .whenPUT(`${apihost}posts/${postId}/move`, {
+        _projectId: newProjectId
+      })
+      .respond({
+        _id: postId,
+        _projectId: newProjectId,
+        updated: newUpdated
+      })
+
+    const signalOne = PostApi.getAllProjectPosts(projectId)
+      .publish()
+      .refCount()
+
+    const signalTwo = PostApi.getAllProjectPosts(newProjectId)
+      .publish()
+      .refCount()
+
+    yield signalOne.take(1)
+      .do(data => {
+        expect(data.length).to.be.equal(posts.length)
+        expectDeepEqual(data[0], post)
+      })
+
+    yield signalTwo.take(1)
+      .do(data => {
+        expect(data.length).to.be.equal(0)
+      })
+
+    yield PostApi.move(postId, newProjectId)
+      .do(data => {
+        expect(data._id).to.be.equal(postId)
+        expect(data._projectId).to.be.equal(newProjectId)
+      })
+
+    yield signalOne.take(1)
+      .do(data => {
+        expect(data.length).to.be.equal(posts.length - 1)
+      })
+
+    yield signalTwo.take(1)
+      .do(data => {
+        expect(data.length).to.be.equal(1)
+        expectDeepEqual(data[0], misaki)
+        expect(spy.callCount).to.be.equal(2)
+      })
+  })
+
   it('should update one', function* () {
 
     const post = clone(posts[0])
