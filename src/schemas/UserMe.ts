@@ -1,5 +1,6 @@
 'use strict'
 import { ISchema, Schema, schemaName } from './schema'
+import { UserId } from '../teambition'
 
 export interface UserEmail {
   email: string
@@ -17,8 +18,16 @@ export interface PaymentPlan {
   objectType: 'free' | 'organization' | 'professional' | 'user'
 }
 
+export interface StrikerToken extends String {
+  kind: 'StrikerToken'
+}
+
+export interface SnapperToken extends String {
+  kind: 'SnapperToken'
+}
+
 export interface UserMe extends ISchema {
-  _id: string
+  _id: UserId
   email: string
   name: string
   avatarUrl: string
@@ -83,11 +92,11 @@ export interface UserMe extends ISchema {
     city: string
   }
   aliens?: any[]
-  strikerAuth: string
+  strikerAuth: StrikerToken
   phoneForLogin?: string
   enabledGoogleTwoFactor?: boolean
   emails: UserEmail[]
-  snapperToken: string
+  snapperToken: SnapperToken
   badge: number
   normal?: number
   ated: number
@@ -105,7 +114,7 @@ export interface UserMe extends ISchema {
 
 @schemaName('UserMe')
 export default class User extends Schema<UserMe> implements UserMe {
-  _id: string = undefined
+  _id: UserId = undefined
   email: string = undefined
   name: string = undefined
   avatarUrl: string = undefined
@@ -126,9 +135,9 @@ export default class User extends Schema<UserMe> implements UserMe {
     region: string
     city: string
   } = undefined
-  strikerAuth: string = undefined
+  strikerAuth: StrikerToken = undefined
   emails: UserEmail[] = undefined
-  snapperToken: string = undefined
+  snapperToken: SnapperToken = undefined
   badge: number = undefined
   ated: number = undefined
   later: number = undefined

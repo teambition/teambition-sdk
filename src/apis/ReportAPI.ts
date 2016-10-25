@@ -12,22 +12,23 @@ import ReportModel from '../models/ReportModel'
 import { TaskData } from '../schemas/Task'
 import { SubtaskData } from '../schemas/Subtask'
 import { makeColdSignal } from './utils'
+import { ProjectId } from '../teambition'
 
 export class ReportAPI {
   getAccomplished (
-    projectId: string,
+    projectId: ProjectId,
     taskType: 'subtask',
     option: GetReportAccomplishedOption
   ): Observable<SubtaskData[]>
 
   getAccomplished (
-    projectId: string,
+    projectId: ProjectId,
     taskType: 'task',
     option: GetReportAccomplishedOption
   ): Observable<TaskData[]>
 
   getAccomplished (
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportAccomplishedOption
   ): Observable<(TaskData | SubtaskData)[]>
@@ -38,7 +39,7 @@ export class ReportAPI {
    * 并且传入的 option.isWeekSearch 为 true 和 false 时返回的流也不一样
    */
   getAccomplished (
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportAccomplishedOption
   ): Observable<(TaskData | SubtaskData)[]> {
@@ -53,13 +54,13 @@ export class ReportAPI {
   }
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: 'task',
     option: GetReportInprogressOption
   ): Observable<TaskData[]>
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: 'subtask',
     option: {
       queryType: 'all'
@@ -70,13 +71,13 @@ export class ReportAPI {
   ): Observable<SubtaskData[]>
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportInprogressOption
   ): Observable<(TaskData | SubtaskData)[]>
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportInprogressOption
   ): Observable<(TaskData | SubtaskData)[]> {
@@ -91,7 +92,7 @@ export class ReportAPI {
   }
 
   getNotStart(
-    projectId: string,
+    projectId: ProjectId,
     option: GetReportNotStartOption
   ): Observable<TaskData[]> {
     return makeColdSignal<any>(() => {
@@ -104,7 +105,7 @@ export class ReportAPI {
     })
   }
 
-  getUnassigned(projectId: string, option: GetUnassignedOption): Observable<TaskData[]> {
+  getUnassigned(projectId: ProjectId, option: GetUnassignedOption): Observable<TaskData[]> {
     return makeColdSignal<any[]>(() => {
       const cache = ReportModel.getData(projectId, option.page, 'unassigned')
       if (cache) {

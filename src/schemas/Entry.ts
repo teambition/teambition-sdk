@@ -1,12 +1,19 @@
 'use strict'
 import { Schema, ISchema, schemaName } from './schema'
 import { visibility } from '../teambition'
+import {
+  EntryId,
+  EntryCategoryId,
+  ProjectId,
+  IdOfMember,
+  TagId
+} from '../teambition'
 
 export interface EntryData extends ISchema {
-  _id: string
-  _projectId: string
-  _creatorId: string
-  _entryCategoryId: string
+  _id: EntryId
+  _projectId: ProjectId
+  _creatorId: IdOfMember
+  _entryCategoryId: EntryCategoryId
   type: number
   content: string
   note: string
@@ -14,7 +21,7 @@ export interface EntryData extends ISchema {
   status: string
   involveMembers: string[]
   visible: visibility
-  tagIds: string[]
+  tagIds: TagId[]
   created: string
   updated: string
   isArchived: boolean
@@ -22,10 +29,10 @@ export interface EntryData extends ISchema {
 
 @schemaName('Entry')
 export default class EntrySchema extends Schema<EntryData> implements EntryData {
-  _id: string = undefined
-  _projectId: string = undefined
-  _creatorId: string = undefined
-  _entryCategoryId: string = undefined
+  _id: EntryId = undefined
+  _projectId: ProjectId = undefined
+  _creatorId: IdOfMember = undefined
+  _entryCategoryId: EntryCategoryId = undefined
   type: number = undefined
   content: string = undefined
   note: string = undefined
@@ -33,7 +40,7 @@ export default class EntrySchema extends Schema<EntryData> implements EntryData 
   status: string = undefined
   involveMembers: string[] = undefined
   visible: visibility = undefined
-  tagIds: string[] = undefined
+  tagIds: TagId[] = undefined
   created: string = undefined
   updated: string = undefined
   isArchived: boolean = undefined

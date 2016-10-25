@@ -4,6 +4,7 @@ import ObjectLinkFetch, { CreateObjectLinkOptions } from '../fetchs/ObjectLinkFe
 import { ObjectLinkData, parentType } from '../schemas/ObjectLink'
 import ObjectLinkModel from '../models/ObjectLinkModel'
 import { makeColdSignal } from './utils'
+import { ObjectLinkId, DetailObjectId } from '../teambition'
 
 export class ObjectLinkAPI {
   create(option: CreateObjectLinkOptions): Observable<ObjectLinkData> {
@@ -11,7 +12,7 @@ export class ObjectLinkAPI {
       .concatMap(r => ObjectLinkModel.addOne(r).take(1))
   }
 
-  get(_parentId: string, parentType: parentType, querys?: any): Observable<ObjectLinkData[]> {
+  get(_parentId: DetailObjectId, parentType: parentType, querys?: any): Observable<ObjectLinkData[]> {
     return makeColdSignal<ObjectLinkData[]>(() => {
       const cache = ObjectLinkModel.getObjectLinks(_parentId)
       if (cache) {
@@ -22,9 +23,9 @@ export class ObjectLinkAPI {
     })
   }
 
-  delete(_id: string): Observable<void> {
+  delete(_id: ObjectLinkId): Observable<void> {
     return ObjectLinkFetch.delete(_id)
-      .concatMap(r => ObjectLinkModel.delete(_id))
+      .concatMap(r => ObjectLinkModel.delete(<string>_id))
   }
 }
 

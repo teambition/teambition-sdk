@@ -14,7 +14,7 @@ export interface TburlSchema {
 }
 
 export interface ProjectInviteSchema {
-  projectId: string
+  projectId: ProjectId
   invitorId: string
   signCode: string
 }
@@ -22,7 +22,7 @@ export interface ProjectInviteSchema {
 export interface ExecutorOrCreator {
   name: string
   avatarUrl: string
-  _id: string
+  _id: IdOfMember
 }
 
 export interface InviteLinkSchema {
@@ -41,7 +41,7 @@ export interface CreatedInProjectSchema {
 }
 
 export interface RecommendMemberSchema {
-  _id: string
+  _id: IdOfMember
   email: string
   avatarUrl: string
   name: string
@@ -92,8 +92,8 @@ export interface ReportAnalysisSchema {
 
 export interface FavoriteResponse {
   _id: string
-  _creatorId: string
-  _refId: string
+  _creatorId: IdOfMember
+  _refId: DetailObjectId
   refType: string
   isFavorite: boolean
   isUpdated: boolean
@@ -104,9 +104,119 @@ export interface FavoriteResponse {
 }
 
 export interface UndoFavoriteResponse {
-  _refId: string
-  refType: string
+  _refId: DetailObjectId
+  refType: DetailObjectType
   isFavorite: boolean
 }
 
 export type PostSource = 'shimo' | 'yiqixie' | 'teambition'
+export type DetailObjectType = 'task' | 'event' | 'post' | 'work' | 'entry'
+export type DetailObjectTypes = 'posts' | 'works' | 'events' | 'tasks' | 'entries'
+
+export interface ActivityId extends String {
+  kind: 'ActivityId'
+}
+
+export interface ApplicationId extends String {
+  kind: 'ApplicationId'
+}
+
+export interface CollectionId extends String {
+  kind: 'CollectionId'
+}
+
+export interface EntryId extends String {
+  kind: 'EntryId'
+}
+
+export interface EntryCategoryId extends String {
+  kind: 'EntryCategoryId'
+}
+
+export interface EventId extends String {
+  kind: 'EventId'
+}
+
+export interface FeedbackId extends String {
+  kind: 'FeedbackId'
+}
+
+export interface FileId extends String {
+  kind: 'FileId'
+}
+
+export interface HomeActivityId extends String {
+  kind: 'HomeActivityId'
+}
+
+export interface IdOfMember extends String {
+  kind: 'IdOfMember'
+}
+
+export interface MemberId extends String {
+  kind: 'MemberId'
+}
+
+export interface MessageId extends String {
+  kind: 'MessageId'
+}
+
+export interface ObjectLinkId extends String {
+  kind: 'ObjectLinkId'
+}
+
+export interface OrganizationId extends String {
+  kind: 'OrganizationId'
+}
+
+export interface PreferenceId extends String {
+  kind: 'PreferenceId'
+}
+
+export interface PostId extends String {
+  kind: 'PostId'
+}
+
+export interface ProjectId extends String {
+  kind: 'ProjectId'
+}
+
+export type DefaultRoleId = -1 | 0 | 1 | 2
+
+export interface CustomRoleId extends String {
+  kind: 'CustomRoleId'
+}
+
+export type RoleId = DefaultRoleId | CustomRoleId
+
+export interface StageId extends String {
+  kind: 'StageId'
+}
+
+export interface SubscribeId extends String {
+  kind: 'SubscribeId'
+}
+
+export interface SubtaskId extends String {
+  kind: 'SubtaskId'
+}
+
+export interface TagId extends String {
+  kind: 'TagId'
+}
+
+export interface TaskId extends String {
+  kind: 'TaskId'
+}
+
+export interface TasklistId extends String {
+  kind: 'TasklistId'
+}
+
+export interface UserId extends String {
+  kind: 'UserId'
+}
+
+export type DetailObjectId = TaskId | PostId | EventId | FileId
+
+export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'

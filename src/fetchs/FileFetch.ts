@@ -2,7 +2,15 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { FileData } from '../schemas/File'
-import { FavoriteResponse, UndoFavoriteResponse } from '../teambition'
+import {
+  FavoriteResponse,
+  UndoFavoriteResponse,
+  FileId,
+  CollectionId,
+  ProjectId,
+  TagId,
+  IdOfMember
+} from '../teambition'
 
 export interface FileRes {
   fileName: string
@@ -13,7 +21,7 @@ export interface FileRes {
 }
 
 export interface FileCreateOptions {
-  _parentId?: string
+  _parentId?: CollectionId
   works: FileRes[]
 }
 
@@ -23,7 +31,7 @@ export interface UpdateFileOptions {
 }
 
 export interface UpdateFileResponse {
-  _id: string
+  _id: FileId
   fileName?: string
   description?: string
   updated: string
@@ -32,27 +40,27 @@ export interface UpdateFileResponse {
 export interface ArchiveFileResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: FileId
+  _projectId: ProjectId
 }
 
 export interface MoveFileResponse {
   _id: string
-  _parentId: string
-  _projectId: string
-  tagIds: string[]
-  involveMembers: string[]
+  _parentId: CollectionId
+  _projectId: ProjectId
+  tagIds: TagId[]
+  involveMembers: IdOfMember[]
   updated: string
 }
 
 export interface UpdateFileInvolvesResponse {
-  _id: string
-  involveMembers: string[]
+  _id: FileId
+  involveMembers: IdOfMember[]
   updated: string
 }
 
 export class FileFetch extends BaseFetch {
-  create(_parentId: string, fileRes: FileRes | FileRes []): Observable<FileData[]> {
+  create(_parentId: CollectionId, fileRes: FileRes | FileRes []): Observable<FileData[]> {
     const postBody = {
       _parentId: _parentId,
       works: fileRes instanceof Array ? fileRes : [ fileRes ]
@@ -60,55 +68,55 @@ export class FileFetch extends BaseFetch {
     return this.fetch.post(`works`, postBody)
   }
 
-  get(FileId: string, query?: any): Observable<FileData> {
+  get(FileId: FileId, query?: any): Observable<FileData> {
     return this.fetch.get(`works/${FileId}`, query)
   }
 
-  getByTagId(tagId: string, query?: any): Observable<FileData[]> {
+  getByTagId(tagId: TagId, query?: any): Observable<FileData[]> {
     return this.fetch.get(`tags/${tagId}/works`, query)
   }
 
-  update(FileId: string, options: UpdateFileOptions): Observable<UpdateFileResponse> {
+  update(FileId: FileId, options: UpdateFileOptions): Observable<UpdateFileResponse> {
     return this.fetch.put(`works/${FileId}`, options)
   }
 
-  delete(FileId: string): Observable<void> {
+  delete(FileId: FileId): Observable<void> {
     return this.fetch.delete<void>(`works/${FileId}`)
   }
 
-  archive(FileId: string): Observable<ArchiveFileResponse> {
+  archive(FileId: FileId): Observable<ArchiveFileResponse> {
     return this.fetch.post(`works/${FileId}/archive`)
   }
 
-  unarchive(FileId: string): Observable<ArchiveFileResponse> {
+  unarchive(FileId: FileId): Observable<ArchiveFileResponse> {
     return this.fetch.delete(`works/${FileId}/archive`)
   }
 
-  favorite(FileId: string): Observable<FavoriteResponse> {
+  favorite(FileId: FileId): Observable<FavoriteResponse> {
     return this.fetch.post(`works/${FileId}/favorite`)
   }
 
-  undoFavourite(FileId: string): Observable<UndoFavoriteResponse> {
+  undoFavourite(FileId: FileId): Observable<UndoFavoriteResponse> {
     return this.fetch.delete(`works/${FileId}/favorite`)
   }
 
-  fork(FileId: string, _parentId: string): Observable<FileData> {
+  fork(FileId: FileId, _parentId: CollectionId): Observable<FileData> {
     return this.fetch.put(`works/${FileId}/fork`, {
       _parentId
     })
   }
 
-  getFiles(projectId: string, parentId: string, query?: any): Observable<FileData[]> {
+  getFiles(projectId: ProjectId, parentId: CollectionId, query?: any): Observable<FileData[]> {
     return this.fetch.get(`projects/${projectId}/collections/${parentId}/works`, query)
   }
 
-  move(FileId: string, _parentId: string): Observable<MoveFileResponse> {
+  move(FileId: FileId, _parentId: CollectionId): Observable<MoveFileResponse> {
     return this.fetch.put(`works/${FileId}/move`, {_parentId})
   }
 
   updateInvolves(
-    FileId: string,
-    memberIds: string[],
+    FileId: FileId,
+    memberIds: IdOfMember[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateFileInvolvesResponse> {
     const putData = Object.create(null)
@@ -117,4 +125,4 @@ export class FileFetch extends BaseFetch {
   }
 }
 
-export default new FileFetch()
+export default new FileFetch

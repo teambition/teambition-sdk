@@ -1,10 +1,12 @@
+'use strict'
 import { Schema, ISchema, schemaName } from './schema'
+import { TagId, IdOfMember, ProjectId, DefaultColors } from '../teambition'
 
 export interface TagData extends ISchema {
-  _creatorId: string
-  _id: string
-  _projectId: string
-  color: string
+  _creatorId: IdOfMember
+  _id: TagId
+  _projectId: ProjectId
+  color: DefaultColors
   created: string
   isArchived: boolean
   name: string
@@ -17,10 +19,10 @@ export interface TagData extends ISchema {
 
 @schemaName('Tag')
 export default class TagSchema extends Schema<TagData> implements TagData {
-  _creatorId: string = undefined
-  _id: string = undefined
-  _projectId: string = undefined
-  color: string = undefined
+  _creatorId: IdOfMember = undefined
+  _id: TagId = undefined
+  _projectId: ProjectId = undefined
+  color: DefaultColors = undefined
   created: string = undefined
   isArchived: boolean = undefined
   name: string = undefined

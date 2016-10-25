@@ -4,6 +4,12 @@ import BaseModel from './BaseModel'
 import { FileData, default as File } from '../schemas/File'
 import { dataToSchema, datasToSchemas } from '../utils/index'
 import Collection from './BaseCollection'
+import {
+  FileId,
+  ProjectId,
+  TagId,
+  CollectionId
+} from '../teambition'
 
 export class FileModel extends BaseModel {
   private _schemaName = 'File'
@@ -13,13 +19,13 @@ export class FileModel extends BaseModel {
     return this._save(result)
   }
 
-  getOne(fileId: string): Observable<FileData> {
-    return this._get<FileData>(fileId)
+  getOne(fileId: FileId): Observable<FileData> {
+    return this._get<FileData>(<any>fileId)
   }
 
   addFiles(
-    projectId: string,
-    parentId: string,
+    projectId: ProjectId,
+    parentId: CollectionId,
     files: FileData[],
     page: number
   ): Observable<FileData[]> {
@@ -42,8 +48,8 @@ export class FileModel extends BaseModel {
   }
 
   getFiles(
-    projectId: string,
-    parentId: string,
+    projectId: ProjectId,
+    parentId: CollectionId,
     page: number
   ): Observable<FileData[]> {
     const dbIndex = `project:folder:files/${projectId}/${parentId}`
@@ -54,7 +60,7 @@ export class FileModel extends BaseModel {
     return null
   }
 
-  addByTagId(tagId: string, files: FileData[], page: number): Observable<FileData[]> {
+  addByTagId(tagId: TagId, files: FileData[], page: number): Observable<FileData[]> {
     const dbIndex = `tag:files/${tagId}`
     const result = datasToSchemas(files, File)
     let collection = this._collections.get(dbIndex)
@@ -68,7 +74,7 @@ export class FileModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getByTagId(tagId: string, page: number): Observable<FileData[]> {
+  getByTagId(tagId: TagId, page: number): Observable<FileData[]> {
     const dbIndex = `tag:files/${tagId}`
     let collection = this._collections.get(dbIndex)
     if (collection) {
@@ -78,4 +84,4 @@ export class FileModel extends BaseModel {
   }
 }
 
-export default new FileModel()
+export default new FileModel

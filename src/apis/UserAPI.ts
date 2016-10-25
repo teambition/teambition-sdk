@@ -18,19 +18,19 @@ export class UserAPI {
     })
   }
 
-  update(patch: any): Observable<any> {
+  update(patch: any): Observable<string> {
     return UserFetch.update(patch)
       .concatMap(x => UserModel.update(x))
   }
 
-  addEmail(email: string): Observable<any> {
+  addEmail(email: string): Observable<string> {
     return UserFetch.addEmail(email)
       .concatMap(x => UserModel.update({
         emails: x
       }))
   }
 
-  bindPhone(phone: string, vcode: string): Observable<any> {
+  bindPhone(phone: string, vcode: string): Observable<string> {
     return UserFetch.bindPhone(phone, vcode)
       .concatMap(x => UserModel.update(x))
   }

@@ -9,6 +9,7 @@ import TasklistFetch, {
 import TasklistModel from '../models/TasklistModel'
 import { TasklistData } from '../schemas/Tasklist'
 import { makeColdSignal } from './utils'
+import { ProjectId, TasklistId } from '../teambition'
 
 export class TasklistAPI {
 
@@ -17,7 +18,7 @@ export class TasklistAPI {
       .concatMap(r => TasklistModel.addOne(r).take(1))
   }
 
-  getTasklists(_projectId: string, query?: any): Observable<TasklistData[]> {
+  getTasklists(_projectId: ProjectId, query?: any): Observable<TasklistData[]> {
     return makeColdSignal<TasklistData[]>(() => {
       const get = TasklistModel.getTasklists(_projectId)
       if (get) {
@@ -28,10 +29,10 @@ export class TasklistAPI {
     })
   }
 
-  getOne(_tasklistId: string, query?: any): Observable<TasklistData> {
+  getOne(_tasklistId: TasklistId, query?: any): Observable<TasklistData> {
     return makeColdSignal<TasklistData>(() => {
       const get = TasklistModel.getOne(_tasklistId)
-      if (get && TasklistModel.checkSchema(_tasklistId)) {
+      if (get && TasklistModel.checkSchema(<string>_tasklistId)) {
         return get
       }
       return TasklistFetch.get(_tasklistId, query)
@@ -39,24 +40,24 @@ export class TasklistAPI {
     })
   }
 
-  update(_tasklistId: string, patch: UpdateTasklistOptions): Observable<UpdateTasklistOptions> {
+  update(_tasklistId: TasklistId, patch: UpdateTasklistOptions): Observable<UpdateTasklistOptions> {
     return TasklistFetch.update(_tasklistId, patch)
-      .concatMap(tasklist => TasklistModel.update(_tasklistId, tasklist))
+      .concatMap(tasklist => TasklistModel.update(<string>_tasklistId, tasklist))
   }
 
-  delete(_tasklistId: string): Observable<void> {
+  delete(_tasklistId: TasklistId): Observable<void> {
     return TasklistFetch.delete(_tasklistId)
-      .concatMap(x => TasklistModel.delete(_tasklistId))
+      .concatMap(x => TasklistModel.delete(<string>_tasklistId))
   }
 
-  archive(_tasklistId: string): Observable<ArchiveTasklistResponse> {
+  archive(_tasklistId: TasklistId): Observable<ArchiveTasklistResponse> {
     return TasklistFetch.archive(_tasklistId)
-      .concatMap(tasklist => TasklistModel.update(_tasklistId, tasklist))
+      .concatMap(tasklist => TasklistModel.update(<string>_tasklistId, tasklist))
   }
 
-  unArchive(_tasklistId: string): Observable<UnarchiveTasklistResponse> {
+  unArchive(_tasklistId: TasklistId): Observable<UnarchiveTasklistResponse> {
     return TasklistFetch.unarchive(_tasklistId)
-      .concatMap(x => TasklistModel.update(_tasklistId, x))
+      .concatMap(x => TasklistModel.update(<string>_tasklistId, x))
   }
 }
 

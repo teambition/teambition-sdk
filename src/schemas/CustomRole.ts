@@ -1,12 +1,12 @@
 'use strict'
-import { schemaName, ISchema } from './schema'
-import DefaultRoleSchema from './DefaultRole'
+import { schemaName, ISchema, Schema } from './schema'
+import { CustomRoleId, OrganizationId } from '../teambition'
 
 export interface CustomRoleData extends ISchema {
-  _id: string
+  _id: CustomRoleId
   name: string
   _creatorId: string
-  _organizationId: string
+  _organizationId: OrganizationId
   // ISO Date String
   updated: string
   // ISO Date String
@@ -15,10 +15,12 @@ export interface CustomRoleData extends ISchema {
 }
 
 @schemaName('Role')
-export default class CustomRoleSchema extends DefaultRoleSchema implements CustomRoleData {
-  _id: string = undefined
+export default class CustomRoleSchema extends Schema<CustomRoleData> implements CustomRoleData {
+  _id: CustomRoleId = undefined
   _creatorId: string = undefined
-  _organizationId: string = undefined
+  _organizationId: OrganizationId = undefined
+  name: string = undefined
+  permissions: string[]
   updated: string = undefined
   created: string = undefined
 }

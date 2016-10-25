@@ -1,18 +1,26 @@
 'use strict'
 import { Schema, schemaName, ISchema, bloodyParent } from './schema'
-import { ExecutorOrCreator } from '../teambition'
+import {
+  ExecutorOrCreator,
+  ProjectId,
+  IdOfMember,
+  OrganizationId,
+  RoleId,
+  CollectionId,
+  ApplicationId
+} from '../teambition'
 
 export interface ProjectData extends ISchema {
-  _id: string
+  _id: ProjectId
   name: string
-  _creatorId: string
+  _creatorId: IdOfMember
   logo: string
   py: string
   pinyin: string
   description: string
   category: string
-  _organizationId: string
-  navigation: {
+  _organizationId: OrganizationId
+  navigation?: {
     tasks: number
     posts: number
     events: number
@@ -35,24 +43,24 @@ export interface ProjectData extends ISchema {
     description: string
     logo: string
     isPublic: boolean
-    _id: string
+    _id: OrganizationId
     isExpired: boolean
   }
   unreadCount?: number
   unreadMessageCount?: number
-  _defaultRoleId: string
+  _defaultRoleId: RoleId | null
   creator: ExecutorOrCreator
   pushStatus: boolean
   canQuit: boolean
   canDelete: boolean
   canArchive: boolean
   canTransfer: boolean
-  _roleId: number
-  _rootCollectionId: string
-  _defaultCollectionId: string
-  _orgRoleId: number
+  _roleId: RoleId | null
+  _rootCollectionId: CollectionId
+  _defaultCollectionId: CollectionId
+  _orgRoleId: RoleId | null
   applications?: {
-    _id: string
+    _id: ApplicationId
     name: string
     type?: number
     order?: number
@@ -61,15 +69,15 @@ export interface ProjectData extends ISchema {
 
 @schemaName('Project')
 export default class ProjectSchema extends Schema<ProjectData> implements ProjectData {
-  _id: string = undefined
+  _id: ProjectId = undefined
   name: string = undefined
-  _creatorId: string = undefined
+  _creatorId: IdOfMember = undefined
   logo: string = undefined
   py: string = undefined
   pinyin: string = undefined
   description: string = undefined
   category: string = undefined
-  @bloodyParent('Organization') _organizationId: string = undefined
+  @bloodyParent('Organization') _organizationId: OrganizationId = undefined
   navigation: {
     tasks: number
     posts: number
@@ -81,7 +89,7 @@ export default class ProjectSchema extends Schema<ProjectData> implements Projec
     review: number
   } = undefined
   visibility: string = undefined
-  isPublic: boolean
+  isPublic: boolean = undefined
   created: string = undefined
   updated: string = undefined
   isArchived: boolean = undefined
@@ -93,23 +101,23 @@ export default class ProjectSchema extends Schema<ProjectData> implements Projec
     description: string
     logo: string
     isPublic: boolean
-    _id: string
+    _id: OrganizationId
     isExpired: boolean
   } = undefined
-  _defaultRoleId: string = undefined
+  _defaultRoleId: RoleId | null = undefined
   creator: ExecutorOrCreator = undefined
   pushStatus: boolean = undefined
   canQuit: boolean = undefined
   canDelete: boolean = undefined
   canArchive: boolean = undefined
   canTransfer: boolean = undefined
-  _roleId: number = undefined
+  _roleId: RoleId | null = undefined
   link: {
     created: string
     expiration: string
   } = undefined
-  _rootCollectionId: string = undefined
-  _defaultCollectionId: string = undefined
+  _rootCollectionId: CollectionId = undefined
+  _defaultCollectionId: CollectionId = undefined
   shortLink: string = undefined
-  _orgRoleId: number = undefined
+  _orgRoleId: RoleId | null = undefined
 }

@@ -2,19 +2,26 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { PostData } from '../schemas/Post'
-import { visibility } from '../teambition'
+import {
+  visibility,
+  PostId,
+  ProjectId,
+  TagId,
+  FileId,
+  IdOfMember
+} from '../teambition'
 
 export type ProjectPostType = 'all' | 'my'
 
 export interface CreatePostOptions {
-  _projectId: string
+  _projectId: ProjectId
   title: string
   content: string
   postMode?: 'html' | 'txt'
   visiable?: visibility
-  attachments?: string[]
-  involveMembers?: string[]
-  tagIds?: string[]
+  attachments?: FileId[]
+  involveMembers?: IdOfMember[]
+  tagIds?: TagId[]
 }
 
 export interface UpdatePostOptions {
@@ -22,73 +29,46 @@ export interface UpdatePostOptions {
   content?: string
   postMode?: 'html' | 'txt'
   pin?: boolean
-  attachments?: string[]
-  involveMembers?: string[]
-}
-
-export interface PostFavoriteResponse {
-  isFavorite: boolean
-  isUpdated: boolean
-  isVisible: boolean
-  refType: 'post'
-  created: string
-  updated: string
-  creator: {
-    _id: string
-    name: string
-    avatarUrl: string
-  }
-  project: {
-    _id: string
-    name: string
-  }
-  data: {
-    created: string
-    updated: string
-    content: string
-    title: string
-  }
-  _refId: string
-  _creatorId: string
-  _id: string
+  attachments?: FileId[]
+  involveMembers?: IdOfMember[]
 }
 
 export type UpdateInvolves = {
-  involveMembers: string[]
+  involveMembers: IdOfMember[]
 } | {
-  addInvolvers?: string[]
-  delInvolvers?: string[]
+  addInvolvers?: IdOfMember[]
+  delInvolvers?: IdOfMember[]
 }
 
 export interface ArchivePostResponse {
-  isArchived: boolean,
+  isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: PostId
+  _projectId: ProjectId
 }
 
 export interface UnArchivePostResponse {
   isArchived: boolean
   updated: string
-  _id: string
-  _projectId: string
+  _id: PostId
+  _projectId: ProjectId
 }
 
 export interface UpdateInvolvesResponse {
-  _id: string
-  involveMembers: string[]
+  _id: PostId
+  involveMembers: IdOfMember[]
   updated: string
 }
 
 export interface UpdatePinResponse {
-  _id: string
+  _id: PostId
   pin: boolean
   updated: string
 }
 
 export interface UpdateTagsResponse {
-  _id: string
-  tagIds: string[]
+  _id: PostId
+  tagIds: TagId[]
   updated: string
 }
 
@@ -106,11 +86,11 @@ export class PostFetch extends BaseFetch {
     return this.fetch.post(`posts`, post)
   }
 
-  get(_postId: string, query?: any): Observable<PostData> {
+  get(_postId: PostId, query?: any): Observable<PostData> {
     return this.fetch.get(`posts/${_postId}`, query)
   }
 
-  getProjectPosts(_projectId: string, type: ProjectPostType, query?: {
+  getProjectPosts(_projectId: ProjectId, type: ProjectPostType, query?: {
     page: number
     count: number
     fields?: string
@@ -124,57 +104,53 @@ export class PostFetch extends BaseFetch {
     return this.fetch.get(`projects/${_projectId}/posts`, query)
   }
 
-  getByTagId(tagId: string, query?: any): Observable<PostData[]> {
+  getByTagId(tagId: TagId, query?: any): Observable<PostData[]> {
     return this.fetch.get(`tags/${tagId}/posts`, query)
   }
 
-  update(postId: string, post: UpdatePostOptions): Observable<any> {
+  update(postId: PostId, post: UpdatePostOptions): Observable<any> {
     return this.fetch.put(`posts/${postId}`, post)
   }
 
-  delete(postId: string): Observable<void> {
+  delete(postId: PostId): Observable<void> {
     return this.fetch.delete<void>(`posts/${postId}`)
   }
 
-  archive(postId: string): Observable<ArchivePostResponse> {
+  archive(postId: PostId): Observable<ArchivePostResponse> {
     return this.fetch.post(`posts/${postId}/archive`)
   }
 
-  favorite(postId: string): Observable<PostFavoriteResponse> {
-    return this.fetch.post(`posts/${postId}/favorite`)
-  }
-
-  unarchive(postId: string): Observable<UnArchivePostResponse> {
+  unarchive(postId: PostId): Observable<UnArchivePostResponse> {
     return this.fetch.delete(`posts/${postId}/archive`)
   }
 
-  updateInvolves(postId: string, members: UpdateInvolves): Observable<UpdateInvolvesResponse> {
+  updateInvolves(postId: PostId, members: UpdateInvolves): Observable<UpdateInvolvesResponse> {
     return this.fetch.put(`posts/${postId}/involveMembers`, members)
   }
 
-  updatePin(postId: string, pin: boolean): Observable<UpdatePinResponse> {
+  updatePin(postId: PostId, pin: boolean): Observable<UpdatePinResponse> {
     return this.fetch.put(`posts/${postId}/pin`, {
       pin: pin
     })
   }
 
-  updateTags(postId: string, tagIds: string[]): Observable<UpdateTagsResponse> {
+  updateTags(postId: PostId, tagIds: TagId[]): Observable<UpdateTagsResponse> {
     return this.fetch.put(`posts/${postId}/tagIds`, {
       tagIds: tagIds
     })
   }
 
-  move(postId: string, projectId: string): Observable<MovePostResponse> {
+  move(postId: PostId, projectId: PostId): Observable<MovePostResponse> {
     return this.fetch.put(`posts/${postId}/move`, {
       _projectId: projectId
     })
   }
 
-  fork(postId: string, projectId: string): Observable<PostData> {
+  fork(postId: PostId, projectId: ProjectId): Observable<PostData> {
     return this.fetch.put(`posts/${postId}/fork`, {
       _projectId: projectId
     })
   }
 }
 
-export default new PostFetch()
+export default new PostFetch
