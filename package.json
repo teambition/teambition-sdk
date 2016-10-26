@@ -64,22 +64,22 @@
     "chai": "^3.4.1",
     "commitizen": "^2.8.6",
     "cz-teambition-web-commit": "github:teambition/cz-teambition-web-commit",
-    "engine.io-client": "^1.7.0",
+    "engine.io-client": "^1.7.2",
     "fetch-mock": "^5.5.0",
     "google-closure-compiler-js": "^20160916.0.0",
     "jsonrpc-lite": "^1.2.1",
-    "moment": "^2.15.0",
-    "nyc": "^8.3.0",
+    "moment": "^2.15.2",
+    "nyc": "^8.3.2",
     "rollup": "^0.36.1",
     "rollup-plugin-alias": "^1.2.0",
-    "rollup-plugin-commonjs": "^5.0.4",
+    "rollup-plugin-commonjs": "^5.0.5",
     "rollup-plugin-node-resolve": "^2.0.0",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
     "tman": "^1.6.0",
-    "ts-node": "^1.4.1",
+    "ts-node": "^1.6.0",
     "tslint": "^3.15.1",
-    "typescript": "^2.0.3"
+    "typescript": "^2.0.6"
   },
   "config": {
     "commitizen": {
