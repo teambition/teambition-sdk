@@ -12,7 +12,7 @@ export default describe('activity socket test', () => {
   let ActivityApi: ActivityAPI
 
   const _boundToObjectId = activities[0]._boundToObjectId
-  const _boundToObjectType = 'tasks'
+  const _boundToObjectType: any = 'tasks'
 
   beforeEach(() => {
     flush()

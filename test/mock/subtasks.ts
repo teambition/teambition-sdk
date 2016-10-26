@@ -1,4 +1,4 @@
-export const subtasks = [
+export const subtasks: any = [
   {
     _id: '574558046df7654b428e1029',
     _projectId: '56988fb705ead4ae7bb8dcfe',

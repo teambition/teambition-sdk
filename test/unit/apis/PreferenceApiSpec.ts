@@ -53,7 +53,7 @@ export default describe('Preferences API test', () => {
 
     yield signal.take(1)
 
-    yield PreferenceApi.update(preferenceId, {
+    yield PreferenceApi.update(<any>preferenceId, {
       language: 'zh'
     })
       .do(r => {

@@ -72,7 +72,7 @@ export default describe('Stage API Test', () => {
 
     yield signal.take(1)
 
-    yield Stage.create(stageCrateInfo)
+    yield Stage.create(<any>stageCrateInfo)
 
     yield signal.take(1)
       .do(data => {
@@ -160,7 +160,7 @@ export default describe('Stage API Test', () => {
 
     yield signal.take(1)
 
-    yield Stage.updateStageIds(tasklistId, stageIds)
+    yield Stage.updateStageIds(tasklistId, <any>stageIds)
       .do(r => {
         expect(r).to.deep.equal({
           stageIds: stageIds
@@ -171,7 +171,7 @@ export default describe('Stage API Test', () => {
       .do(data => {
         const _stageIds: string[] = []
         forEach(data, stage => {
-          _stageIds.push(stage._id)
+          _stageIds.push(<any>stage._id)
         })
         expect(_stageIds).to.deep.equal(stageIds)
       })

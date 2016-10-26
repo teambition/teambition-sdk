@@ -1,4 +1,4 @@
-export const members = [
+export const members: any = [
   {
     _id: '55c0496b266e692f55d50239',
     _userId: '55c0496b266e692f55d50239',

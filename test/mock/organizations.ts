@@ -1,4 +1,4 @@
-export const organizations = [
+export const organizations: any = [
   {
     _id: '56988e7d05ead4ae7bb8dcf5',
     name: '德拉诺治安委员会',

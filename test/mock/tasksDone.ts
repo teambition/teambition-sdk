@@ -1,4 +1,4 @@
-export const tasksDone = [
+export const tasksDone: any = [
   {
     _id: '573c0615841059b6b09f5a33',
     _creatorId: '56986d43542ce1a2798c8cfb',
