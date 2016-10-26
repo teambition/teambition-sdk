@@ -31,7 +31,7 @@ export default describe('Organization Subscribe Socket:', () => {
       }
     ])
 
-    const signal = SubscribeApi.getOrgsSubscribe('mock')
+    const signal = SubscribeApi.getOrgsSubscribe(<any>'mock')
       .publish()
       .refCount()
 

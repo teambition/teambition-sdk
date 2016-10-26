@@ -1,4 +1,4 @@
-export const orgsSubscribe = {
+export const orgsSubscribe: any = {
   '_id': '56ea594eccdac1a1940f5d34',
   '_userId': '55c1cf622d81b84d4e1d5338',
   'type': 'report',

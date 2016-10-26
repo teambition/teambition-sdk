@@ -34,7 +34,7 @@ export default describe('Dirty APIs Spec', () => {
     httpBackend.whenGET(`${apihost}v2/tasks/me?count=500&page=1&hasDueDate=false&isDone=false`)
       .respond(JSON.stringify(tasksOneDayMe))
 
-    const getTasks$ = TaskApi.get(mockTask._id)
+    const getTasks$ = TaskApi.get(<any>mockTask._id)
 
     const loading$ = getTasks$
       .toLoading()
@@ -43,7 +43,7 @@ export default describe('Dirty APIs Spec', () => {
     getTasks$.subscribe()
 
     loading$.concatMap(() => {
-      return TaskApi.getMyTasks(userId)
+      return TaskApi.getMyTasks(<any>userId)
     })
       .subscribe(r => {
         expect(r[0].subtaskCount).to.deep.equal(mockTask.subtaskCount)
@@ -58,7 +58,7 @@ export default describe('Dirty APIs Spec', () => {
     httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)
       .respond(JSON.stringify(mockTask))
 
-    const getTasks$ = TaskApi.get(mockTask._id)
+    const getTasks$ = TaskApi.get(<any>mockTask._id)
 
     yield Socket.emit('change', 'task', mockTask._id, {
       executor: null,
@@ -79,7 +79,7 @@ export default describe('Dirty APIs Spec', () => {
     httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)
       .respond(JSON.stringify(mockTask))
 
-    const getTasks$ = TaskApi.get(mockTask._id)
+    const getTasks$ = TaskApi.get(<any>mockTask._id)
 
     yield Socket.emit('change', 'task', mockTask._id, like, getTasks$.take(1))
 

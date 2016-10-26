@@ -34,7 +34,7 @@ const expect = chai.expect
 chai.use(SinonChai)
 
 export default describe('Report API Test: ', () => {
-  const projectId = thisweekAccomplishedTasks[0]._projectId
+  const projectId: any = thisweekAccomplishedTasks[0]._projectId
 
   let TaskApi: TaskAPI
   let SubtaskApi: SubtaskAPI
@@ -115,7 +115,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -454,7 +454,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -874,7 +874,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -1301,7 +1301,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -1711,7 +1711,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -1917,7 +1917,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -2127,7 +2127,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -2517,7 +2517,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mocktask').take(1)
+      yield TaskApi.get(<any>'mocktask').take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -2713,7 +2713,7 @@ export default describe('Report API Test: ', () => {
 
       yield signal.take(1)
 
-      yield TaskApi.get('mockunassignedtask').take(1)
+      yield TaskApi.get(<any>'mockunassignedtask').take(1)
 
       yield signal.take(1)
         .do(r => {

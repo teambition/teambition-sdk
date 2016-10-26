@@ -38,7 +38,7 @@ export default describe('FeedbackAPI Spec: ', () => {
   })
 
   it('get projectFeedbacks should ok', done => {
-    FeedbackApi.getProjectFeedback(projectId, {
+    FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from, to
@@ -50,7 +50,7 @@ export default describe('FeedbackAPI Spec: ', () => {
   })
 
   it('get projectFeedbacks from cache should ok', function* () {
-    const signal = FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from: from,
@@ -70,7 +70,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=2&from=${from}&to=${to}`)
       .respond(JSON.stringify(projectFeedbacks.slice(1)))
 
-    const signal = FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from, to
@@ -80,7 +80,7 @@ export default describe('FeedbackAPI Spec: ', () => {
 
     yield signal.take(1)
 
-    yield FeedbackApi.getProjectFeedback(projectId, {
+    yield FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 2,
       from, to
@@ -96,7 +96,7 @@ export default describe('FeedbackAPI Spec: ', () => {
 
   it('get feedback in another day should ok', function* () {
 
-    yield FeedbackApi.getProjectFeedback(projectId, {
+    yield FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from, to
@@ -107,7 +107,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=1&from=${from}&to=${to}`)
       .respond(JSON.stringify(projectFeedbacks.slice(0, 1)))
 
-    yield FeedbackApi.getProjectFeedback(projectId, {
+    yield FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from, to
@@ -130,7 +130,7 @@ export default describe('FeedbackAPI Spec: ', () => {
         }
       })
 
-    const signal = FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from: from,
@@ -141,7 +141,7 @@ export default describe('FeedbackAPI Spec: ', () => {
 
     yield signal.take(1)
 
-    yield FeedbackApi.updateProjectFeedback(projectId, feedbackId, {
+    yield FeedbackApi.updateProjectFeedback(<any>projectId, <any>feedbackId, {
       comment: 'mock update feedback'
     })
 
@@ -157,7 +157,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     httpBackend.whenDELETE(`${apihost}projects/${projectId}/feedbacks/${feedbackId}`)
       .respond({})
 
-    const signal = FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from: from,
@@ -173,7 +173,7 @@ export default describe('FeedbackAPI Spec: ', () => {
         expect(r).to.deep.equal([])
       })
 
-    yield FeedbackApi.deleteProjectFeedback(projectId, feedbackId)
+    yield FeedbackApi.deleteProjectFeedback(<any>projectId, <any>feedbackId)
   })
 
   it('create should ok', function* () {
@@ -186,7 +186,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     })
       .respond(JSON.stringify(mockFeedback))
 
-    const signal = FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from: from,
@@ -197,7 +197,7 @@ export default describe('FeedbackAPI Spec: ', () => {
 
     yield signal.take(1)
 
-    yield FeedbackApi.create(projectId, {
+    yield FeedbackApi.create(<any>projectId, {
       content: 'mock feedback post'
     })
 
@@ -224,7 +224,7 @@ export default describe('FeedbackAPI Spec: ', () => {
     })
       .respond(JSON.stringify(mockFeedback))
 
-    const signal = FeedbackApi.getProjectFeedback(projectId, {
+    const signal = FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from: from,
@@ -233,7 +233,7 @@ export default describe('FeedbackAPI Spec: ', () => {
       .publish()
       .refCount()
 
-    const signal1 = FeedbackApi.getProjectFeedback(projectId, {
+    const signal1 = FeedbackApi.getProjectFeedback(<any>projectId, {
       count: 1,
       page: 1,
       from: lastYearFrom,
@@ -247,7 +247,7 @@ export default describe('FeedbackAPI Spec: ', () => {
       signal1.take(1)
     ]
 
-    yield FeedbackApi.create(projectId, {
+    yield FeedbackApi.create(<any>projectId, {
       content: 'mock feedback post'
     })
 

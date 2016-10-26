@@ -1,4 +1,4 @@
-export const activities = [
+export const activities: any = <any>[
   {
     _id: '57455faa6df7654b428e1975',
     _creatorId: '56986d43542ce1a2798c8cfb',

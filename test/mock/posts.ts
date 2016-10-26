@@ -1,4 +1,4 @@
-export const posts = [
+export const posts: any = [
   {
     _id: "5772316b0cf6e25b5be02bf7",
     postMode: "html",

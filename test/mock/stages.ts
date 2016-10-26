@@ -1,4 +1,4 @@
-export const stages = [
+export const stages: any = [
   {
     _id: '56989110644284a37be3ba7c',
     name: '地狱火城墙',
