@@ -1,4 +1,6 @@
-export const entrycategories = [
+import { EntrycategoryData } from '../../src/schemas/Entrycategory'
+
+export const entrycategories: EntrycategoryData[] = <any>[
   {
     "_id": "54a36808634c711945dfeb5b",
     "_projectId": "5260e37505143e877400012e",

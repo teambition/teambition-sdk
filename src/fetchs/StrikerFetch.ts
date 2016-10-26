@@ -28,7 +28,7 @@ export class StrikerFetch {
       .concatMap<Response>(userme => {
         return fetch(`${this._strikerApiHost}/upload`, {
           headers: {
-            'Authorization': userme.strikerAuth
+            'Authorization': <any>userme.strikerAuth
           },
           method: 'post',
           body: formData
@@ -46,4 +46,4 @@ export class StrikerFetch {
   }
 }
 
-export default new StrikerFetch()
+export default new StrikerFetch

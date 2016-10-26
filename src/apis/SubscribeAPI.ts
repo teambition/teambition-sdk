@@ -4,10 +4,11 @@ import SubscribeModel from '../models/SubscribeModel'
 import SubscribeFetch, { UpdateOrgsSubscribeResponse } from '../fetchs/SubscribeFetch'
 import { SubscribeData } from '../schemas/Subscribe'
 import { makeColdSignal } from './utils'
+import { OrganizationId, ProjectId } from '../teambition'
 
 export class SubscribeAPI {
 
-  getOrgsSubscribe(_organizationId: string, query?: any): Observable<SubscribeData> {
+  getOrgsSubscribe(_organizationId: OrganizationId, query?: any): Observable<SubscribeData> {
     return makeColdSignal<SubscribeData>(() => {
       const cache = SubscribeModel.getOne(_organizationId)
       if (cache) {
@@ -18,8 +19,12 @@ export class SubscribeAPI {
     })
   }
 
-  updateOrgsSubscribe(_organizationId: string, $add?: string[], $del?: string[]): Observable<UpdateOrgsSubscribeResponse> {
+  updateOrgsSubscribe(
+    _organizationId: OrganizationId,
+    $add?: ProjectId[],
+    $del?: ProjectId[]
+  ): Observable<UpdateOrgsSubscribeResponse> {
     return SubscribeFetch.updateOrgsSubscribe(_organizationId, $add, $del)
-      .concatMap(r => SubscribeModel.update(r._id, r))
+      .concatMap(r => SubscribeModel.update(<any>r._id, r))
   }
 }

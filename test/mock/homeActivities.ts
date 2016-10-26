@@ -1,4 +1,4 @@
-export const homeActivities = [
+export const homeActivities: any = [
   {
     '_id': '57bfdd20714a526f35a1b7c2',
     '_creatorId': '569ee653f87e2d3e6ece85b8',

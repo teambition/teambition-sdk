@@ -37,7 +37,7 @@ export default describe('ObjectLink API test:', () => {
   })
 
   it('get objectLinks should ok', done => {
-    ObjectLink.get(parentId, <any>parentType)
+    ObjectLink.get(<any>parentId, <any>parentType)
       .subscribe(r => {
         forEach(r, (val, index) => {
           expectDeepEqual(val, objectLinks[index])
@@ -61,13 +61,13 @@ export default describe('ObjectLink API test:', () => {
     httpBackend.whenPOST(`${apihost}objectlinks`, createOptions)
       .respond(JSON.stringify(mockObjectLink))
 
-    const signal = ObjectLink.get(parentId, <any>parentType)
+    const signal = ObjectLink.get(<any>parentId, <any>parentType)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield ObjectLink.create(createOptions)
+    yield ObjectLink.create(<any>createOptions)
 
     yield signal.take(1)
       .do(r => {
@@ -81,13 +81,13 @@ export default describe('ObjectLink API test:', () => {
     httpBackend.whenDELETE(`${apihost}objectlinks/${objectlinkId}`)
       .respond({})
 
-    const signal = ObjectLink.get(parentId, <any>parentType)
+    const signal = ObjectLink.get(<any>parentId, <any>parentType)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield ObjectLink.delete(objectlinkId)
+    yield ObjectLink.delete(<any>objectlinkId)
 
     yield signal.take(1)
       .do(r => {

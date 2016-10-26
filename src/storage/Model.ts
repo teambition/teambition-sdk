@@ -12,7 +12,7 @@ import {
   capitalizeFirstLetter
 } from '../utils/index'
 import { ISchema, Schema, ChildMap } from '../schemas/schema'
-import * as Schemas from '../schemas/index'
+import * as Schemas from '../schemas/schemaFactory'
 
 export default class Model<T extends ISchema> {
   public collections: string[] = []

@@ -33,7 +33,7 @@ export default describe('common api test: ', () => {
     httpBackend.whenGET(`${apihost}tasks/mock`)
       .error('Unauthorize', 401)
 
-    TaskApi.get('mock')
+    TaskApi.get(<any>'mock')
       .retry(2)
       .subscribe({
         error: () => {
@@ -55,7 +55,7 @@ export default describe('common api test: ', () => {
         _id: 'xxx'
       })
 
-    TaskApi.get('mock')
+    TaskApi.get(<any>'mock')
       .retry(2)
       .subscribe(r => {
         expect(r._id).to.equal('xxx')
@@ -76,7 +76,7 @@ export default describe('common api test: ', () => {
         _id: 'xxx'
       }])
 
-    TaskApi.getTasklistUndone('tasklistId')
+    TaskApi.getTasklistUndone(<any>'tasklistId')
       .retry(2)
       .subscribe({
         next: (v: any[]) => {
@@ -91,10 +91,10 @@ export default describe('common api test: ', () => {
     httpBackend.whenGET(`${apihost}tasklists/tasklistId/tasks?isDone=false`)
       .respond([])
 
-    yield TaskApi.getTasklistUndone('tasklistId')
+    yield TaskApi.getTasklistUndone(<any>'tasklistId')
       .take(1)
 
-    yield TaskApi.getTasklistUndone('tasklistId')
+    yield TaskApi.getTasklistUndone(<any>'tasklistId')
       .take(1)
 
     expect(spy).to.be.calledTwice

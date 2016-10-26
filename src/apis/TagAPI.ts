@@ -6,12 +6,12 @@ import TagFetch, {
   UpdateTagOptions,
   UpdateTagResponse,
   ArchiveTagResponse,
-  TagsObjectType,
   ObjectSchema,
   RelateTagResponse
 } from '../fetchs/TagFetch'
 import { TagData } from '../schemas/Tag'
 import { makeColdSignal } from './utils'
+import { TagId, ProjectId, DetailObjectId, DetailObjectType } from '../teambition'
 
 export class TagAPI {
   create(options: CreateTagOptions): Observable<TagData> {
@@ -19,7 +19,7 @@ export class TagAPI {
       .concatMap(r => TagModel.addOne(r).take(1))
   }
 
-  get(_id: string, query?: any): Observable<TagData> {
+  get(_id: TagId, query?: any): Observable<TagData> {
     return makeColdSignal<TagData>(() => {
       const cache = TagModel.getOne(_id)
       if (cache) {
@@ -30,27 +30,27 @@ export class TagAPI {
     })
   }
 
-  update(_id: string, options: UpdateTagOptions): Observable<UpdateTagResponse> {
+  update(_id: TagId, options: UpdateTagOptions): Observable<UpdateTagResponse> {
     return TagFetch.update(_id, options)
-      .concatMap(r => TagModel.update(_id, r))
+      .concatMap(r => TagModel.update(<any>_id, r))
   }
 
-  delete(_id: string): Observable<void> {
+  delete(_id: TagId): Observable<void> {
     return TagFetch.delete(_id)
-      .concatMap(() => TagModel.delete(_id))
+      .concatMap(() => TagModel.delete(<any>_id))
   }
 
-  archive(_id: string): Observable<ArchiveTagResponse> {
+  archive(_id: TagId): Observable<ArchiveTagResponse> {
     return TagFetch.archive(_id)
-      .concatMap(r => TagModel.update(_id, r))
+      .concatMap(r => TagModel.update(<any>_id, r))
   }
 
-  unarchive(_id: string): Observable<ArchiveTagResponse> {
+  unarchive(_id: TagId): Observable<ArchiveTagResponse> {
     return TagFetch.unarchive(_id)
-      .concatMap(r => TagModel.update(_id, r))
+      .concatMap(r => TagModel.update(<any>_id, r))
   }
 
-  getByProjectId(_projectId: string, query?: any): Observable<TagData[]> {
+  getByProjectId(_projectId: ProjectId, query?: any): Observable<TagData[]> {
     return makeColdSignal<TagData[]>(() => {
       const cache = TagModel.getByProjectId(_projectId)
       if (cache) {
@@ -61,7 +61,11 @@ export class TagAPI {
     })
   }
 
-  getRelated<T extends ObjectSchema>(_tagId: string, objectType: TagsObjectType, query?: any): Observable<T[]> {
+  getRelated<T extends ObjectSchema>(
+    _tagId: TagId,
+    objectType: DetailObjectType,
+    query?: any
+  ): Observable<T[]> {
     return makeColdSignal<T[]>(() => {
       const cache = TagModel.getRelated<T>(_tagId, objectType)
       if (cache) {
@@ -72,7 +76,11 @@ export class TagAPI {
     })
   }
 
-  relateTag(_objectId: string, objectType: TagsObjectType, tagId: string): Observable<RelateTagResponse> {
+  relateTag(
+    _objectId: DetailObjectId,
+    objectType: DetailObjectType,
+    tagId: TagId
+  ): Observable<RelateTagResponse> {
     return TagFetch.relateTag(_objectId, objectType, tagId)
       .concatMap(r => TagModel.relatedTag(_objectId, r))
   }

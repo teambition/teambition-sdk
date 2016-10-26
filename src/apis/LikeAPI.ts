@@ -1,13 +1,14 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import LikeFetch, { ObjectType } from '../fetchs/LikeFetch'
+import LikeFetch from '../fetchs/LikeFetch'
 import LikeModel from '../models/LikeModel'
 import { LikeData } from '../schemas/Like'
 import { makeColdSignal } from './utils'
+import { DetailObjectType, DetailObjectId } from '../teambition'
 
 export class LikeAPI {
 
-  getLike(objectType: ObjectType, objectId: string): Observable<LikeData> {
+  getLike(objectType: DetailObjectType, objectId: DetailObjectId): Observable<LikeData> {
     return makeColdSignal<LikeData>(() => {
       const cache = LikeModel.get(`${objectId}:like`)
       if (cache) {
@@ -23,12 +24,12 @@ export class LikeAPI {
     })
   }
 
-  like(objectType: ObjectType, objectId: string): Observable<LikeData> {
+  like(objectType: DetailObjectType, objectId: DetailObjectId): Observable<LikeData> {
     return LikeFetch.like(objectType, objectId)
       .concatMap(r => LikeModel.update(`${objectId}:like`, r))
   }
 
-  unlike(objectType: ObjectType, objectId: string): Observable<LikeData> {
+  unlike(objectType: DetailObjectType, objectId: DetailObjectId): Observable<LikeData> {
     return LikeFetch.unlike(objectType, objectId)
       .concatMap(r => LikeModel.update(`${objectId}:like`, r))
   }

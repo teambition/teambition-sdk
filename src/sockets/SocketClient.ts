@@ -114,7 +114,7 @@ export class SocketClient {
     this._client
       .connect(this._socketUrl, {
         path: '/websocket',
-        token: this._me.snapperToken
+        token: <any>this._me.snapperToken
       })
     return Promise.resolve()
   }

@@ -1,4 +1,4 @@
-export const tasksUndone = [
+export const tasksUndone: any = [
   {
     _id: '569dc0cb0fafba0857158d84',
     _creatorId: '56986d43542ce1a2798c8cfb',

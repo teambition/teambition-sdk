@@ -3,6 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { TaskData } from '../schemas/Task'
 import { SubtaskData } from '../schemas/Subtask'
+import { ProjectId } from '../teambition'
 
 export type TaskType = 'task' | 'subtask'
 export type GetReportAccomplishedQueryType = 'delay' | 'ontime' | 'all'
@@ -34,18 +35,18 @@ export interface GetUnassignedOption {
 }
 
 export class ReportFetch extends BaseFetch {
-  getAccomplished(projectId: string, taskType: 'task', option: GetReportAccomplishedOption): Observable<(TaskData[])>
+  getAccomplished(projectId: ProjectId, taskType: 'task', option: GetReportAccomplishedOption): Observable<(TaskData[])>
 
-  getAccomplished(projectId: string, taskType: 'subtask', option: GetReportAccomplishedOption): Observable<(SubtaskData[])>
+  getAccomplished(projectId: ProjectId, taskType: 'subtask', option: GetReportAccomplishedOption): Observable<(SubtaskData[])>
 
   getAccomplished(
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportAccomplishedOption
   ): Observable<(TaskData | SubtaskData)[]>
 
   getAccomplished(
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportAccomplishedOption
   ): Observable<(TaskData | SubtaskData)[]> {
@@ -54,25 +55,25 @@ export class ReportFetch extends BaseFetch {
   }
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: 'task',
     option: GetReportInprogressOption
   ): Observable<TaskData[]>
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: 'subtask',
     option: GetReportInprogressOption
   ): Observable<SubtaskData[]>
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportInprogressOption
   ): Observable<(TaskData | SubtaskData)[]>
 
   getInprogress(
-    projectId: string,
+    projectId: ProjectId,
     taskType: TaskType,
     option: GetReportInprogressOption
   ): Observable<(TaskData | SubtaskData)[]> {
@@ -81,15 +82,15 @@ export class ReportFetch extends BaseFetch {
   }
 
   getNotStart(
-    projectId: string,
+    projectId: ProjectId,
     option: GetReportNotStartOption
   ): Observable<TaskData[]> {
     return this.fetch.get(`projects/${projectId}/report-not-started`, option)
   }
 
-  getUnassigned(projectId: string, option: GetUnassignedOption): Observable<TaskData[]> {
+  getUnassigned(projectId: ProjectId, option: GetUnassignedOption): Observable<TaskData[]> {
     return this.fetch.get(`projects/${projectId}/report-unassigned`, option)
   }
 }
 
-export default new ReportFetch()
+export default new ReportFetch

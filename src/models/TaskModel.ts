@@ -6,6 +6,15 @@ import MaxIdCollection from './tasks/MaxIdCollection'
 import { TaskData, default as Task } from '../schemas/Task'
 import { datasToSchemas, dataToSchema } from '../utils/index'
 import { OrganizationData } from '../schemas/Organization'
+import {
+  OrganizationId,
+  TasklistId,
+  ProjectId,
+  StageId,
+  TagId,
+  UserId,
+  TaskId
+} from '../teambition'
 
 export class TaskModel extends BaseModel {
   private _schemaName = 'Task'
@@ -13,21 +22,21 @@ export class TaskModel extends BaseModel {
   /**
    * 不分页不用 Collection
    */
-  addTasklistTasksUndone(_tasklistId: string, tasks: TaskData[]): Observable<TaskData[]> {
+  addTasklistTasksUndone(_tasklistId: TasklistId, tasks: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     return this._saveCollection(`tasklist:tasks:undone/${_tasklistId}`, result, this._schemaName, (data: TaskData) => {
       return data._tasklistId === _tasklistId && !data.isDone && !data.isArchived
     })
   }
 
-  getTasklistTasksUndone(_tasklistId: string): Observable<TaskData[]> {
+  getTasklistTasksUndone(_tasklistId: TasklistId): Observable<TaskData[]> {
     return this._get<TaskData[]>(`tasklist:tasks:undone/${_tasklistId}`)
   }
 
   /**
    * _collections 的索引是 '_tasklistId'
    */
-  addTasklistTasksDone(_tasklistId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addTasklistTasksDone(_tasklistId: TasklistId, tasks: TaskData[], page: number): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `tasklist:tasks:done/${_tasklistId}`
 
@@ -43,7 +52,7 @@ export class TaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getTasklistTasksDone(_tasklistId: string, page: number): Observable<TaskData[]> {
+  getTasklistTasksDone(_tasklistId: TasklistId, page: number): Observable<TaskData[]> | null {
     const collection = this._collections.get(`tasklist:tasks:done/${_tasklistId}`)
     if (collection) {
       return collection.get(page)
@@ -51,46 +60,49 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  addMyDueTasks(userId: string, tasks: TaskData[]): Observable<TaskData[]> {
+  addMyDueTasks(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `tasks:me/hasdueDate`
 
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
-      return data._executorId === userId &&
+      return (<any>data._executorId) === userId &&
              Boolean(data.dueDate) &&
              !data.isDone &&
              !data.isArchived
     })
   }
 
-  getMyDueTasks(): Observable<TaskData[]> {
+  getMyDueTasks(): Observable<TaskData[]> | null {
     const dbIndex = `tasks:me/hasdueDate`
-
     return this._get<TaskData[]>(dbIndex)
   }
 
-  addMyTasks(userId: string, tasks: TaskData[]): Observable<TaskData[]> {
+  addMyTasks(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `tasks:me/noDueDate`
 
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
-      return data._executorId === userId &&
+      return (<any>data._executorId) === userId &&
              !data.dueDate &&
              !data.isDone &&
              !data.isArchived
     })
   }
 
-  getMyTasks(): Observable<TaskData[]> {
+  getMyTasks(): Observable<TaskData[]> | null {
     const dbIndex = `tasks:me/noDueDate`
-
     return this._get<TaskData[]>(dbIndex)
   }
 
   /**
    * _collections 的索引是 `organization:tasks:due/${organization._id}`
    */
-  addOrganizationMyDueTasks(userId: string, organization: OrganizationData, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addOrganizationMyDueTasks(
+    userId: UserId,
+    organization: OrganizationData,
+    tasks: TaskData[],
+    page: number
+  ): Observable<TaskData[]> {
     const dbIndex = `organization:tasks:due/${organization._id}`
     const result = datasToSchemas<TaskData>(tasks, Task)
 
@@ -101,7 +113,7 @@ export class TaskModel extends BaseModel {
         return organization.projectIds instanceof Array &&
                organization.projectIds.indexOf(data._projectId) !== -1 &&
                !!data.dueDate &&
-               data._executorId === userId &&
+               (<any>data._executorId) === userId &&
                !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
@@ -109,7 +121,10 @@ export class TaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrganizationMyDueTasks(organizationId: string, page: number): Observable<TaskData[]> {
+  getOrganizationMyDueTasks(
+    organizationId: OrganizationId,
+    page: number
+  ): Observable<TaskData[]> | null {
     const collection = this._collections.get(`organization:tasks:due/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -117,7 +132,7 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  addStageTasks(stageId: string, tasks: TaskData[]): Observable<TaskData[]> {
+  addStageTasks(stageId: StageId, tasks: TaskData[]): Observable<TaskData[]> {
     const dbIndex = `stage:tasks:undone/${stageId}`
     const result = datasToSchemas<TaskData>(tasks, Task)
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
@@ -125,7 +140,7 @@ export class TaskModel extends BaseModel {
     })
   }
 
-  addStageDoneTasks(stageId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addStageDoneTasks(stageId: StageId, tasks: TaskData[], page: number): Observable<TaskData[]> {
     const dbIndex = `stage:tasks:done/${stageId}`
     const result = datasToSchemas<TaskData>(tasks, Task)
     let collection: Collection<TaskData> = this._collections.get(dbIndex)
@@ -144,11 +159,11 @@ export class TaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getStageTasks(stageId: string): Observable<TaskData[]> {
+  getStageTasks(stageId: StageId): Observable<TaskData[]> | null {
     return this._get<TaskData[]>(`stage:tasks:undone/${stageId}`)
   }
 
-  getStageDoneTasks(stageId: string, page: number): Observable<TaskData[]> {
+  getStageDoneTasks(stageId: StageId, page: number): Observable<TaskData[]> | null {
     const dbIndex = `stage:tasks:done/${stageId}`
     const collection = this._collections.get(dbIndex)
     return collection ? collection.get(page) : null
@@ -157,7 +172,12 @@ export class TaskModel extends BaseModel {
   /**
    * _collections 的索引是 `organization:tasks/${organization._id}`
    */
-  addOrganizationMyTasks(userId: string, organization: OrganizationData, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addOrganizationMyTasks(
+    userId: UserId,
+    organization: OrganizationData,
+    tasks: TaskData[],
+    page: number
+  ): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `organization:tasks/${organization._id}`
 
@@ -168,7 +188,7 @@ export class TaskModel extends BaseModel {
         return organization.projectIds instanceof Array &&
                organization.projectIds.indexOf(data._projectId) !== -1 &&
                !data.dueDate &&
-               data._executorId === userId &&
+               (<any>data._executorId) === userId &&
                !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
@@ -176,7 +196,7 @@ export class TaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getOrganizationMyTasks(organizationId: string, page: number): Observable<TaskData[]> {
+  getOrganizationMyTasks(organizationId: OrganizationId, page: number): Observable<TaskData[]> | null {
     const collection = this._collections.get(`organization:tasks/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -187,7 +207,12 @@ export class TaskModel extends BaseModel {
   /**
    * _collections 的索引是 `organization:tasks:done/${organization._id}`
    */
-  addOrganizationMyDoneTasks(userId: string, organization: OrganizationData, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addOrganizationMyDoneTasks(
+    userId: UserId,
+    organization: OrganizationData,
+    tasks: TaskData[],
+    page: number
+  ): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `organization:tasks:done/${organization._id}`
 
@@ -197,14 +222,15 @@ export class TaskModel extends BaseModel {
       collection = new Collection(this._schemaName, (data: Task) => {
         return organization.projectIds instanceof Array &&
                organization.projectIds.indexOf(data._projectId) !== -1 &&
-               data.isDone && data._executorId === userId
+               data.isDone &&
+               (<any>data._executorId) === userId
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
     return collection.addPage(page, result)
   }
 
-  getOrganizationMyDoneTasks(organizationId: string, page: number): Observable<TaskData[]> {
+  getOrganizationMyDoneTasks(organizationId: OrganizationId, page: number): Observable<TaskData[]> | null {
     const collection = this._collections.get(`organization:tasks:done/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -215,7 +241,12 @@ export class TaskModel extends BaseModel {
   /**
    * _collections 的索引是 `organization:tasks:created/${organization._id}`
    */
-  addOrganizationMyCreatedTasks(userId: string, organization: OrganizationData, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addOrganizationMyCreatedTasks(
+    userId: UserId,
+    organization: OrganizationData,
+    tasks: TaskData[],
+    page: number
+  ): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `organization:tasks:created/${organization._id}`
 
@@ -223,14 +254,14 @@ export class TaskModel extends BaseModel {
 
     if (!collection) {
       collection = new MaxIdCollection(this._schemaName, (data: TaskData) => {
-        return data._creatorId === userId && !data.isArchived
+        return (<any>data._creatorId) === userId && !data.isArchived
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
     return collection.maxAddPage(page, result)
   }
 
-  getOrganizationMyCreatedTasks(organizationId: string, page: number): Observable<TaskData[]> {
+  getOrganizationMyCreatedTasks(organizationId: OrganizationId, page: number): Observable<TaskData[]> | null {
     const collection = this._collections.get(`organization:tasks:created/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -238,7 +269,7 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  getOrgMyCreatedMaxId(organizationId: string): number {
+  getOrgMyCreatedMaxId(organizationId: OrganizationId): number | undefined {
     const collection = <MaxIdCollection<TaskData>>this._collections.get(`organization:tasks:created/${organizationId}`)
     if (collection) {
       return collection.maxId
@@ -249,7 +280,12 @@ export class TaskModel extends BaseModel {
   /**
    * _collections 的索引是 `organization:tasks:involves/${organization._id}`
    */
-  addOrgMyInvolvesTasks(userId: string, organization: OrganizationData, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addOrgMyInvolvesTasks(
+    userId: UserId,
+    organization: OrganizationData,
+    tasks: TaskData[],
+    page: number
+  ): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `organization:tasks:involves/${organization._id}`
 
@@ -257,14 +293,14 @@ export class TaskModel extends BaseModel {
 
     if (!collection) {
       collection = new MaxIdCollection(this._schemaName, (data: TaskData) => {
-        return data.involveMembers && data.involveMembers.indexOf(userId) !== -1 && !data.isArchived
+        return data.involveMembers && data.involveMembers.indexOf(<any>userId) !== -1 && !data.isArchived
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
     return collection.maxAddPage(page, result)
   }
 
-  getOrgInvolvesTasks(organizationId: string, page: number): Observable<TaskData[]> {
+  getOrgInvolvesTasks(organizationId: OrganizationId, page: number): Observable<TaskData[]> | null {
     const collection = this._collections.get(`organization:tasks:involves/${organizationId}`)
     if (collection) {
       return collection.get(page)
@@ -272,7 +308,7 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  getOrgMyInvolvesMaxId(organizationId: string): number {
+  getOrgMyInvolvesMaxId(organizationId: OrganizationId): number | undefined {
     const collection = <MaxIdCollection<TaskData>>this._collections.get(`organization:tasks:involves/${organizationId}`)
     if (collection) {
       return collection.maxId
@@ -283,7 +319,7 @@ export class TaskModel extends BaseModel {
   /**
    * _collections 索引为 `project:tasks/${_projectId}`
    */
-  addProjectTasks(_projectId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addProjectTasks(_projectId: ProjectId, tasks: TaskData[], page: number): Observable<TaskData[]> {
     const dbIndex = `project:tasks/${_projectId}`
     const result = datasToSchemas<TaskData>(tasks, Task)
 
@@ -304,7 +340,7 @@ export class TaskModel extends BaseModel {
   /**
    * _collections 索引为 `project:tasks:done/${_projectId}`
    */
-  addProjectDoneTasks(_projectId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addProjectDoneTasks(_projectId: ProjectId, tasks: TaskData[], page: number): Observable<TaskData[]> {
     const dbIndex = `project:tasks:done/${_projectId}`
     const result = datasToSchemas<TaskData>(tasks, Task)
 
@@ -322,7 +358,7 @@ export class TaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getProjectTasks(_projectId: string, page: number): Observable<TaskData[]> {
+  getProjectTasks(_projectId: ProjectId, page: number): Observable<TaskData[]> | null {
     const collection = this._collections.get(`project:tasks/${_projectId}`)
     if (collection) {
       return collection.get(page)
@@ -330,7 +366,7 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  getProjectDoneTasks(_projectId: string, page: number): Observable<TaskData[]> {
+  getProjectDoneTasks(_projectId: ProjectId, page: number): Observable<TaskData[]> | null {
     const collection = this._collections.get(`project:tasks:done/${_projectId}`)
     if (collection) {
       return collection.get(page)
@@ -338,7 +374,7 @@ export class TaskModel extends BaseModel {
     return null
   }
 
-  addByTagId(tagId: string, tasks: TaskData[], page: number): Observable<TaskData[]> {
+  addByTagId(tagId: TagId, tasks: TaskData[], page: number): Observable<TaskData[]> {
     const dbIndex = `tag:tasks/${tagId}`
     const result = datasToSchemas(tasks, Task)
     let collection = this._collections.get(dbIndex)
@@ -352,7 +388,7 @@ export class TaskModel extends BaseModel {
     return collection.addPage(page, result)
   }
 
-  getByTagId(tagId: string, page: number): Observable<TaskData[]> {
+  getByTagId(tagId: TagId, page: number): Observable<TaskData[]> | null {
     const dbIndex = `tag:tasks/${tagId}`
     let collection = this._collections.get(dbIndex)
     if (collection) {
@@ -366,10 +402,9 @@ export class TaskModel extends BaseModel {
     return this._save(result)
   }
 
-  getOne(_id: string): Observable<TaskData> {
-    return this._get<TaskData>(_id)
+  getOne(_id: TaskId): Observable<TaskData> | null {
+    return this._get<TaskData>(<any>_id)
   }
-
 }
 
-export default new TaskModel()
+export default new TaskModel

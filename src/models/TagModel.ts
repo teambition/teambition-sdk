@@ -8,7 +8,8 @@ import PostSchema from '../schemas/Post'
 import EventSchema from '../schemas/Event'
 import FileSchema from '../schemas/File'
 import EntrySchema from '../schemas/Entry'
-import { ObjectSchema, TagsObjectType } from '../fetchs/TagFetch'
+import { ObjectSchema } from '../fetchs/TagFetch'
+import { TagId, ProjectId, DetailObjectId, DetailObjectType } from '../teambition'
 
 export class TagModel extends Model {
   private _schemaMap: any = {
@@ -41,22 +42,22 @@ export class TagModel extends Model {
     return this._save(result)
   }
 
-  getOne(_id: string): Observable<TagData> {
-    return this._get<TagData>(_id)
+  getOne(_id: TagId): Observable<TagData> {
+    return this._get<TagData>(<any>_id)
   }
 
-  addByProjectId(projectId: string, tags: TagData[]): Observable<TagData[]> {
+  addByProjectId(projectId: ProjectId, tags: TagData[]): Observable<TagData[]> {
     const result = datasToSchemas<TagData>(tags, TagSchema)
     return this._saveCollection(`project:tags/${projectId}`, result, this._schemaName, (data: TagData) => {
       return data._projectId === projectId && !data.isArchived
     })
   }
 
-  getByProjectId(projectId: string): Observable<TagData[]> {
+  getByProjectId(projectId: ProjectId): Observable<TagData[]> {
     return this._get<TagData[]>(`project:tags/${projectId}`)
   }
 
-  addRelated<T extends ObjectSchema>(_tagId: string, objectType: TagsObjectType, datas: T[]): Observable<T[]> {
+  addRelated<T extends ObjectSchema>(_tagId: TagId, objectType: DetailObjectType, datas: T[]): Observable<T[]> {
     const DSchema = this._schemaMap[objectType]
     if (!DSchema || !DSchema.schema) {
       return Observable.throw(new Error('objectType is invalid'))
@@ -67,13 +68,13 @@ export class TagModel extends Model {
     })
   }
 
-  getRelated<T>(_tagId: string, objectType: TagsObjectType): Observable<T[]> {
+  getRelated<T>(_tagId: TagId, objectType: DetailObjectType): Observable<T[]> {
     return this._get<T[]>(`tags:${objectType}/${_tagId}`)
   }
 
-  relatedTag<T>(objectId: string, patch: T): Observable<T> {
-    return this.update(objectId, patch)
+  relatedTag<T>(objectId: DetailObjectId, patch: T): Observable<T> {
+    return this.update(<any>objectId, patch)
   }
 }
 
-export default new TagModel()
+export default new TagModel

@@ -1,4 +1,4 @@
-export const projectFeedbacks = [
+export const projectFeedbacks: any = [
   {
     '_id': '57a99022d581acff36f96b50',
     'boundToObjectType': 'project',

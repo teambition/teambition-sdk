@@ -69,7 +69,7 @@ export default describe('socket event test: ', () => {
   })
 
   describe('my events socket: ', () => {
-    const userId = myEvents[0]._creatorId
+    const userId: any = myEvents[0]._creatorId
     const today = new Date(2016, 8, 4)
 
     let signal: Observable<EventSchema[]>

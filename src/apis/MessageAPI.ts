@@ -5,16 +5,18 @@ import MessageModel from '../models/MessageModel'
 import {
   default as MessageFetch,
   GetMessageOptions,
+  GetMessageType,
   ReadResponse,
   SnoozeResponse
 } from '../fetchs/MessageFetch'
 import { makeColdSignal } from './utils'
+import { MessageId } from '../teambition'
 
 export class MessageAPI {
   getMessages(query?: GetMessageOptions): Observable<MessageData[]> {
     return makeColdSignal<MessageData[]>(() => {
       const page = query && query.page ? query.page : 1
-      const type = query && query.type ? query.type : 'all'
+      const type: GetMessageType = query && query.type ? query.type : 'all'
       const get = MessageModel.getMessages(type, page)
       if (get) {
         return get
@@ -24,27 +26,27 @@ export class MessageAPI {
     })
   }
 
-  read(messageId: string): Observable<ReadResponse> {
+  read(messageId: MessageId): Observable<ReadResponse> {
     return MessageFetch.read(messageId)
-      .concatMap(message => MessageModel.update(messageId, message))
+      .concatMap(message => MessageModel.update(<any>messageId, message))
   }
 
-  markAllAsRead(type: string): Observable<MessageData[]> {
+  markAllAsRead(type: GetMessageType): Observable<MessageData[]> {
     return MessageFetch.markAllAsRead(type)
       .concatMap(x => MessageModel.markAllAsRead(type))
   }
 
-  snooze(messageId: string, date: string): Observable<SnoozeResponse> {
+  snooze(messageId: MessageId, date: string): Observable<SnoozeResponse> {
     return MessageFetch.snooze(messageId, date)
-      .concatMap(message => MessageModel.update(messageId, message))
+      .concatMap(message => MessageModel.update(<any>messageId, message))
   }
 
-  delete(messageId: string): Observable<void> {
+  delete(messageId: MessageId): Observable<void> {
     return MessageFetch.delete(messageId)
-      .concatMap(x => MessageModel.delete(messageId))
+      .concatMap(x => MessageModel.delete(<any>messageId))
   }
 
-  deleteAllRead(type: string): Observable<MessageData[]> {
+  deleteAllRead(type: GetMessageType): Observable<MessageData[]> {
     return MessageFetch.deleteAllRead(type)
       .concatMap(x => MessageModel.deleteAllRead(type))
   }

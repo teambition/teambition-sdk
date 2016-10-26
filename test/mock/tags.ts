@@ -1,4 +1,4 @@
-export const tags = [
+export const tags: any = [
   {
     _id: '569de6a3ac2948b07374bed0',
     _projectId: '56988fb705ead4ae7bb8dcfe',

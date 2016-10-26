@@ -1,4 +1,6 @@
-export const mockPureFile = {
+import { FileData } from '../../src/schemas/File'
+
+export const mockPureFile: FileData = <any>{
   fileKey: '110l4ceb23a6dcbf19f9d378e81de59f24d6',
   fileName: 'AVATAR.png',
   fileType: 'png',
@@ -13,7 +15,7 @@ export const mockPureFile = {
   previewUrl: ''
 }
 
-export const mockFile = {
+export const mockFile: FileData = <any>{
   _id: '57e3af6d9d9a319d5d842278',
   fileName: 'AVATAR.png',
   pinyin: 'avatarpng',

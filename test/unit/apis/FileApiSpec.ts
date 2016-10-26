@@ -22,8 +22,8 @@ export default describe('FileAPI test: ', () => {
   let spy: Sinon.SinonSpy
 
   const pureFile = Utils.clone(mockPureFile)
-  const projectId = uuid()
-  const parentId = uuid()
+  const projectId = <any>uuid()
+  const parentId = <any>uuid()
   const count = 30
   const total = 80
   const toIds = (...data) => [].concat(...data.map(array => array.map(one => one._id)))
@@ -41,7 +41,7 @@ export default describe('FileAPI test: ', () => {
     })
     files = Array(total).fill(null).map(() => {
       const misaki = Utils.clone(file)
-      misaki._id = uuid()
+      misaki._id = <any>uuid()
       return misaki
     })
     filesInPageOne = Utils.clone(files.slice(0, count))
@@ -323,79 +323,11 @@ export default describe('FileAPI test: ', () => {
       })
   })
 
-  it('should favorite one file', function* () {
-    file.isFavorite = false
-    const fileId = file._id
-    const response = {
-      isFavorite: true
-    }
-
-    httpBackend.whenGET(`${apihost}works/${file._id}`)
-      .empty()
-      .respond(JSON.stringify(file))
-
-    httpBackend.whenPOST(`${apihost}works/${fileId}/favorite`)
-      .respond(JSON.stringify(response))
-
-    const signal = File.get(fileId)
-      .publish()
-      .refCount()
-
-    // get one
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isFavorite).to.be.false
-      })
-
-    yield File.favorite(fileId)
-
-    // cache
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isFavorite).to.be.true
-        expectDeepEqual(data, Utils.assign(file, response))
-      })
-  })
-
-  it('should undo favorite', function* () {
-    file.isFavorite = true
-    const fileId = file._id
-    const response = {
-      isFavorite: false
-    }
-
-    httpBackend.whenGET(`${apihost}works/${file._id}`)
-      .empty()
-      .respond(JSON.stringify(file))
-
-    httpBackend.whenDELETE(`${apihost}works/${fileId}/favorite`)
-      .respond(JSON.stringify(response))
-
-    const signal = File.get(fileId)
-      .publish()
-      .refCount()
-
-    // get one
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isFavorite).to.be.true
-      })
-
-    yield File.undoFavorite(fileId)
-
-    // cache
-    yield signal.take(1)
-      .do(data => {
-        expect(data.isFavorite).to.be.false
-        expectDeepEqual(data, Utils.assign(file, response))
-      })
-  })
-
   it('should fork one then added to collection', function* () {
     const file = files[0]
     const fileId = file._id
     const misaki = Utils.clone(file)
-    misaki._id = uuid()
+    misaki._id = <any>uuid()
 
     const signal = File.getFiles(projectId, parentId)
       .publish()
@@ -442,7 +374,7 @@ export default describe('FileAPI test: ', () => {
       .publish()
       .refCount()
 
-    const anotherSignal = File.getFiles(projectId, anotherParentId)
+    const anotherSignal = File.getFiles(projectId, <any>anotherParentId)
       .publish()
       .refCount()
 
@@ -456,7 +388,7 @@ export default describe('FileAPI test: ', () => {
         expect(data.length).to.be.equal(0)
       })
 
-    yield File.move(fileId, anotherParentId)
+    yield File.move(fileId, <any>anotherParentId)
 
     yield signal.take(1)
       .do(data => {
@@ -473,7 +405,7 @@ export default describe('FileAPI test: ', () => {
 
   it('should update followers', function* () {
     const fileId = file._id
-    const followers = Array(10).fill(null).map(() => uuid())
+    const followers = <any>Array(10).fill(null).map(() => uuid())
     const patch = {
       involveMembers: Utils.clone(followers)
     }

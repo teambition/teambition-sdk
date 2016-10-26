@@ -71,7 +71,7 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
       result.startDate = startDate
       result.endDate = this._genNewEnd(startDateObj)
       // mock 出来的日程 _id 为原始 _id + startDate 的 ISOString
-      result._id = result._id + '&' + startDateObj.toISOString()
+      result._id = <any>(result._id + '&' + startDateObj.toISOString())
       this.setStart(startDateObj)
     }
     return {
@@ -111,7 +111,7 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
     if (startVal === timeVal) {
       const result = clone(this)
       const startDateObject = new Date(startDate)
-      result._id = this._id + '&' + startDateObject.toISOString()
+      result._id = <any>(this._id + '&' + startDateObject.toISOString())
       result.startDate = startDateObject.toISOString()
       result.endDate = this._genNewEnd(startDateObject)
       return result

@@ -75,7 +75,7 @@ export default describe('entrycategory api test: ', () => {
     it('add new entrycategory should ok', function* () {
       const mockPost = clone(entrycategories[0])
       const mockId = 'entrycategorymockid'
-      mockPost._id = mockId
+      mockPost._id = <any>mockId
 
       httpBackend.whenGET(`${apihost}entrycategories/${mockId}?_projectId=${projectId}`)
         .respond(JSON.stringify(mockPost))
@@ -90,7 +90,7 @@ export default describe('entrycategory api test: ', () => {
 
       yield signal.take(1)
 
-      yield EntrycategoryApi.get(mockId, {
+      yield EntrycategoryApi.get(<any>mockId, {
         _projectId: projectId
       })
         .take(1)

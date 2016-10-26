@@ -4,6 +4,7 @@ import PreferenceFetch from '../fetchs/PreferenceFetch'
 import PreferenceModel from '../models/PreferenceModel'
 import { PreferenceData } from '../schemas/Preference'
 import { makeColdSignal } from './utils'
+import { PreferenceId } from '../teambition'
 
 export class PreferenceAPI {
 
@@ -18,7 +19,7 @@ export class PreferenceAPI {
     })
   }
 
-  update (preferenceId: string, patch: any): Observable<PreferenceData> {
+  update (preferenceId: PreferenceId, patch: any): Observable<PreferenceData> {
     return PreferenceFetch.update(preferenceId, patch)
       .concatMap(data => PreferenceModel.update(data))
   }

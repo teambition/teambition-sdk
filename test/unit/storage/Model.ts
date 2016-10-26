@@ -4,7 +4,7 @@ import Model from '../../../src/storage/Model'
 import Data from '../../../src/storage/Map'
 import { dataToSchema, forEach, clone } from '../index'
 import { modelMock } from '../../mock/modelMock'
-import * as Schemas from '../../../src/schemas/index'
+import * as Schemas from '../../../src/schemas/schemaFactory'
 import { expectDeepEqual, notInclude } from '../utils'
 
 const expect = chai.expect

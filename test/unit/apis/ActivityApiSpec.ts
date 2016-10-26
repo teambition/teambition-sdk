@@ -45,7 +45,7 @@ export default describe('ActivityAPI test: ', () => {
     })
 
     it('get should ok', done => {
-      Activity.getActivities(_boundToObjectType, _boundToObjectId)
+      Activity.getActivities(<any>_boundToObjectType, <any>_boundToObjectId)
         .subscribe(data => {
           forEach(data, (activity, pos) => {
             expectDeepEqual(activity, activities[pos])
@@ -70,15 +70,15 @@ export default describe('ActivityAPI test: ', () => {
       })
         .respond(JSON.stringify(mockActivity))
 
-      const signal = Activity.getActivities(_boundToObjectType, _boundToObjectId)
+      const signal = Activity.getActivities(<any>_boundToObjectType, <any>_boundToObjectId)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield Activity.addActivity(commentData)
+      yield Activity.addActivity(<any>commentData)
 
-      yield Activity.getActivities(_boundToObjectType, _boundToObjectId)
+      yield Activity.getActivities(<any>_boundToObjectType, <any>_boundToObjectId)
         .take(1)
         .do(data => {
           expect(data.length).to.equal(activities.length + 1)
@@ -88,10 +88,10 @@ export default describe('ActivityAPI test: ', () => {
     })
 
     it('get activities from cache should ok', function* () {
-      yield Activity.getActivities(_boundToObjectType, _boundToObjectId)
+      yield Activity.getActivities(<any>_boundToObjectType, <any>_boundToObjectId)
         .take(1)
 
-      yield Activity.getActivities(_boundToObjectType, _boundToObjectId)
+      yield Activity.getActivities(<any>_boundToObjectType, <any>_boundToObjectId)
         .take(1)
         .do(data => {
           forEach(data, (activity, pos) => {
@@ -117,7 +117,7 @@ export default describe('ActivityAPI test: ', () => {
     })
       .respond(JSON.stringify(mockActivity))
 
-    Activity.addActivity(commentData)
+    Activity.addActivity(<any>commentData)
       .subscribe(data => {
         expectDeepEqual(data, mockActivity)
         done()

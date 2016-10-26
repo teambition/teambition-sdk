@@ -162,7 +162,7 @@ export default describe('Tag API test:', () => {
         _projectId: projectId
       })
 
-    yield TagApi.get('mocktag')
+    yield TagApi.get(<any>'mocktag')
       .take(1)
 
     const signal = TagApi.getByProjectId(projectId)
@@ -171,7 +171,7 @@ export default describe('Tag API test:', () => {
 
     yield signal.take(1)
 
-    yield TagApi.unarchive('mocktag')
+    yield TagApi.unarchive(<any>'mocktag')
 
     yield signal.take(1)
       .do(r => {
@@ -213,7 +213,7 @@ export default describe('Tag API test:', () => {
         updated: new Date().toISOString()
       })
 
-    yield TaskApi.get(mockTask._id)
+    yield TaskApi.get(<any>mockTask._id)
       .take(1)
 
     const signal = TagApi.getRelated(tag._id, 'task')
@@ -222,7 +222,7 @@ export default describe('Tag API test:', () => {
 
     yield signal.take(1)
 
-    yield TagApi.relateTag(mockTask._id, 'task', tag._id)
+    yield TagApi.relateTag(<any>mockTask._id, 'task', tag._id)
 
     yield signal.take(1)
       .do(r => {

@@ -1,4 +1,5 @@
-export const collections = [
+import { TBCollectionData } from '../../src/schemas/Collection'
+export const collections: TBCollectionData[] = <any>[
   {
     _id: '56988fb705ead4ae7bb8dd00',
     _parentId: '56988fb705ead4ae7bb8dcff',

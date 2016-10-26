@@ -1,10 +1,16 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Fetch from './BaseFetch'
-import Task from '../schemas/Task'
+import { TaskData } from '../schemas/Task'
 import { SubtaskData } from '../schemas/Subtask'
 import MySubtask from '../schemas/MySubtask'
 import { OrgsTasksMeOptions } from './TaskFetch'
+import {
+  TaskId,
+  SubtaskId,
+  OrganizationId,
+  IdOfMember
+} from '../teambition'
 
 export interface GetMySubtasksOptions {
   count?: number
@@ -19,8 +25,32 @@ export interface GetMySubtasksOptions {
 export interface SubtaskUpdateOptions {
   content?: string
   isDone?: boolean
-  _executorId?: string
+  _executorId?: IdOfMember
   dueDate?: string
+}
+
+export interface UpdateSubtaskDuedateResponse {
+  _id: SubtaskId
+  dueDate: string
+  updated: string
+}
+
+export interface UpdateSubtaskContentResponse {
+  _id: SubtaskId
+  content: string
+  updated: string
+}
+
+export interface UpdateSubtaskExecutorResponse {
+  _id: SubtaskId
+  _executorId: IdOfMember
+  updated: string
+}
+
+export interface UpdateSubtaskStatusResponse {
+  _id: SubtaskId
+  isDone: boolean
+  updated: string
 }
 
 export class SubtaskFetch extends Fetch {
@@ -28,11 +58,14 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.get(`v2/tasks/me/subtasks`, options)
   }
 
-  getOrgsSubtasksMe(organizationId: string, option: OrgsTasksMeOptions): Observable<SubtaskData[]> {
+  getOrgsSubtasksMe(
+    organizationId: OrganizationId,
+    option: OrgsTasksMeOptions
+  ): Observable<SubtaskData[]> {
     return this.fetch.get(`organizations/${organizationId}/subtasks/me`, option)
   }
 
-  getOrgsSubtasksCreated(organizationId: string, query: {
+  getOrgsSubtasksCreated(organizationId: OrganizationId, query: {
     page: number,
     maxId?: number
   } = {
@@ -44,14 +77,14 @@ export class SubtaskFetch extends Fetch {
 
   create(subtaskData: {
     content: string
-    _taskId: string
-    _executorId?: string
+    _taskId: TaskId
+    _executorId?: IdOfMember
   }): Observable<SubtaskData> {
     return this.fetch.post(`subtasks`, subtaskData)
   }
 
-  getOne(_subTaskId: string, query?: {
-    _taskId?: string
+  getOne(_subTaskId: SubtaskId, query?: {
+    _taskId?: TaskId
     withExecutor?: boolean
   }): Observable<SubtaskData> {
     this.checkQuery(query)
@@ -61,56 +94,44 @@ export class SubtaskFetch extends Fetch {
     return this.fetch.get(`subtasks/${_subTaskId}`, query)
   }
 
-  getFromTask(_taskId: string, query?: any): Observable<SubtaskData[]> {
+  getFromTask(_taskId: TaskId, query?: any): Observable<SubtaskData[]> {
     return this.fetch.get(`tasks/${_taskId}/subtasks`, query)
   }
 
-  update<T extends SubtaskUpdateOptions>(_subTaskId: string, subtaskData: T): Observable<T> {
+  update<T extends SubtaskUpdateOptions>(_subTaskId: SubtaskId, subtaskData: T): Observable<T> {
     return this.fetch.put(`subtasks/${_subTaskId}`, subtaskData)
   }
 
-  delete(_subTaskId: string): Observable<{}> {
+  delete(_subTaskId: SubtaskId): Observable<{}> {
     return this.fetch.delete(`subtasks/${_subTaskId}`)
   }
 
-  transform(_subTaskId: string, doLink = false, doLinked = false): Observable<Task> {
+  transform(_subTaskId: SubtaskId, doLink = false, doLinked = false): Observable<TaskData> {
     return this.fetch.put(`subtasks/${_subTaskId}/transform`, {
       doLink: doLink,
       doLinked: doLinked
     })
   }
 
-  updateContent(_subTaskId: string, content: string): Observable<{
-    _id: string
-    content: string
-  }> {
+  updateContent(_subTaskId: SubtaskId, content: string): Observable<UpdateSubtaskContentResponse> {
     return this.fetch.put(`subtasks/${_subTaskId}/content`, {
       content: content
     })
   }
 
-  updateDuedate(_subTaskId: string, dueDate: string): Observable<{
-    _id: string
-    dueDate: string
-  }> {
+  updateDuedate(_subTaskId: SubtaskId, dueDate: string): Observable<UpdateSubtaskDuedateResponse> {
     return this.fetch.put(`subtasks/${_subTaskId}/dueDate`, {
       dueDate: dueDate
     })
   }
 
-  updateExecutor(_subTaskId: string, _executorId: string): Observable<{
-    _id: string
-    _executorId: string
-  }> {
+  updateExecutor(_subTaskId: SubtaskId, _executorId: IdOfMember): Observable<UpdateSubtaskExecutorResponse> {
     return this.fetch.put(`subtasks/${_subTaskId}/_executorId`, {
       _executorId: _executorId
     })
   }
 
-  updateStatus(_subTaskId: string, isDone: boolean): Observable<{
-    _id: string
-    isDone: boolean
-  }> {
+  updateStatus(_subTaskId: SubtaskId, isDone: boolean): Observable<UpdateSubtaskStatusResponse> {
     return this.fetch.put(`subtasks/${_subTaskId}/isDone`, {
       isDone: isDone
     })
@@ -118,4 +139,4 @@ export class SubtaskFetch extends Fetch {
 
 }
 
-export default new SubtaskFetch()
+export default new SubtaskFetch

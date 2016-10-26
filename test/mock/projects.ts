@@ -1,4 +1,4 @@
-export const projects = [
+export const projects: any = [
   {
     _id: '56986d45df12a51d4d01302e',
     name: 'Discover Teambition',

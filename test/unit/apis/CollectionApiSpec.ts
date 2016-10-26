@@ -68,7 +68,7 @@ export default describe('Collection API test', () => {
 
   it('create collection should ok', function* () {
     const mockCollection = clone(collections[0])
-    mockCollection._id = 'testcollection'
+    mockCollection._id = <any>'testcollection'
     mockCollection._parentId = parentId
 
     httpBackend.whenPOST(`${apihost}collections`, {
@@ -213,8 +213,8 @@ export default describe('Collection API test', () => {
     }
 
     forEach(mockcollections, (collection, index) => {
-      collection._id = collection._id + index
-      collection._parentId = 'mockparentid'
+      collection._id = <any>(<any>collection._id + index)
+      collection._parentId = <any>'mockparentid'
     })
 
     httpBackend.whenGET(`${apihost}collections?_parentId=mockparentid`)
@@ -231,13 +231,13 @@ export default describe('Collection API test', () => {
 
     yield signal.take(1)
 
-    const signal2 = collectionAPI.getByParent('mockparentid')
+    const signal2 = collectionAPI.getByParent(<any>'mockparentid')
       .publish()
       .refCount()
 
     yield signal2.take(1)
 
-    yield collectionAPI.move(collections[0]._id, 'mockparentid')
+    yield collectionAPI.move(collections[0]._id, <any>'mockparentid')
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })
@@ -261,7 +261,7 @@ export default describe('Collection API test', () => {
 
   it('unarchive test should ok', function* () {
     const mockCollection = clone(collections[0])
-    mockCollection._id = 'mockcollectionid'
+    mockCollection._id = <any>'mockcollectionid'
     mockCollection.isArchived = true
     const mockResponse = {
       _id: 'mockcollectionid',
@@ -281,13 +281,13 @@ export default describe('Collection API test', () => {
 
     yield signal.take(1)
 
-    const signal2 = collectionAPI.get('mockcollectionid')
+    const signal2 = collectionAPI.get(<any>'mockcollectionid')
       .publish()
       .refCount()
 
     yield signal2.take(1)
 
-    yield collectionAPI.unarchive('mockcollectionid')
+    yield collectionAPI.unarchive(<any>'mockcollectionid')
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })

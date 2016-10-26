@@ -1,4 +1,4 @@
-export const projectTasks = [
+export const projectTasks: any = [
   {
     _id: '56c2b8a7a2cb36bd1a1d2e9e',
     _creatorId: '56986d43542ce1a2798c8cfb',

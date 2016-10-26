@@ -1,17 +1,18 @@
 'use strict'
 import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import { StageData } from '../schemas/Stage'
+import { TasklistId, StageId, ProjectId, IdOfMember } from '../teambition'
 
 export interface TasklistData extends ISchema {
-  _id: string
+  _id: TasklistId
   title: string
-  _projectId: string
-  _creatorId: string
+  _projectId: ProjectId
+  _creatorId: IdOfMember
   description: string
   isArchived: boolean
   created: string
   updated: string
-  stageIds: string[]
+  stageIds: StageId[]
   doneCount: number
   undoneCount: number
   expiredCount: number
@@ -22,15 +23,15 @@ export interface TasklistData extends ISchema {
 
 @schemaName('Tasklist')
 export default class Tasklist extends Schema<TasklistData> implements TasklistData {
-  _id: string = undefined
+  _id: TasklistId = undefined
   title: string = undefined
-  @bloodyParent('Project')_projectId: string = undefined
-  _creatorId: string = undefined
+  @bloodyParent('Project')_projectId: ProjectId = undefined
+  _creatorId: IdOfMember = undefined
   description: string = undefined
   isArchived: boolean = undefined
   created: string = undefined
   updated: string = undefined
-  stageIds: string[] = undefined
+  stageIds: StageId[] = undefined
   doneCount: number = undefined
   undoneCount: number = undefined
   expiredCount: number = undefined

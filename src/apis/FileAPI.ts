@@ -10,21 +10,26 @@ import FileFetch, {
   MoveFileResponse,
   UpdateFileInvolvesResponse
 } from '../fetchs/FileFetch'
-import { FavoriteResponse, UndoFavoriteResponse } from '../teambition'
+import {
+  CollectionId,
+  FileId,
+  ProjectId,
+  IdOfMember
+} from '../teambition'
 import { makeColdSignal } from './utils'
 
 export class FileAPI {
 
-  create(file: File, parentId: string): Observable<FileData> {
+  create(file: File, parentId: CollectionId): Observable<FileData> {
     return StrikerFetch.upload(file)
       .concatMap(res => FileFetch.create(parentId, <any>res))
       .concatMap(files => FileModel.addOne(files[0]).take(1))
   }
 
-  get(fileId: string, query?: any): Observable<FileData> {
+  get(fileId: FileId, query?: any): Observable<FileData> {
     return makeColdSignal<FileData>(() => {
       const cache = FileModel.getOne(fileId)
-      if (cache && FileModel.checkSchema(fileId)) {
+      if (cache && FileModel.checkSchema(<any>fileId)) {
         return cache
       }
       return FileFetch.get(fileId, query)
@@ -32,71 +37,48 @@ export class FileAPI {
     })
   }
 
-  update(fileId: string, patch: UpdateFileOptions): Observable<UpdateFileResponse> {
+  update(fileId: FileId, patch: UpdateFileOptions): Observable<UpdateFileResponse> {
     return FileFetch.update(fileId, patch)
-      .concatMap(data => FileModel.update(fileId, data))
+      .concatMap(data => FileModel.update(<any>fileId, data))
   }
 
-  delete(fileId: string): Observable<void> {
+  delete(fileId: FileId): Observable<void> {
     return FileFetch.delete(fileId)
-      .concatMap(() => FileModel.delete(fileId))
+      .concatMap(() => FileModel.delete(<any>fileId))
   }
 
-  archive(fileId: string): Observable<ArchiveFileResponse> {
+  archive(fileId: FileId): Observable<ArchiveFileResponse> {
     return FileFetch.archive(fileId)
-      .concatMap(data => FileModel.update(fileId, data))
+      .concatMap(data => FileModel.update(<any>fileId, data))
   }
 
-  unarchive(fileId: string): Observable<ArchiveFileResponse> {
+  unarchive(fileId: FileId): Observable<ArchiveFileResponse> {
     return FileFetch.unarchive(fileId)
-      .concatMap(data => FileModel.update(fileId, data))
+      .concatMap(data => FileModel.update(<any>fileId, data))
   }
 
-  favorite(fileId: string): Observable<FavoriteResponse> {
-    return FileFetch.favorite(fileId)
-      .concatMap(data => {
-        return FileModel.update(fileId, {
-            isFavorite: data.isFavorite
-          })
-          .map(() => data)
-      })
-  }
-
-  /**
-   * @see http://english.stackexchange.com/questions/231617/is-unfavorite-a-legit-english-verb
-   */
-  undoFavorite(fileId: string): Observable<UndoFavoriteResponse> {
-    return FileFetch.undoFavourite(fileId)
-      .concatMap(data => {
-        return FileModel.update(fileId, {
-            isFavorite: data.isFavorite
-          })
-          .map(() => data)
-      })
-  }
-
-  fork(fileId: string, _parentId: string): Observable<FileData> {
+  fork(fileId: FileId, _parentId: CollectionId): Observable<FileData> {
     return FileFetch.fork(fileId, _parentId)
       .concatMap(file => FileModel.addOne(file).take(1))
   }
 
-  move(fileId: string, _parentId: string): Observable<MoveFileResponse> {
+  move(fileId: FileId, _parentId: CollectionId): Observable<MoveFileResponse> {
     return FileFetch.move(fileId, _parentId)
-      .concatMap(data => FileModel.update(fileId, data))
+      .concatMap(data => FileModel.update(<any>fileId, data))
   }
 
   updateInvolves(
-    fileId: string,
-    memberIds: string[],
+    fileId: FileId,
+    memberIds: IdOfMember[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateFileInvolvesResponse> {
     return FileFetch.updateInvolves( fileId, memberIds, type )
-      .concatMap(data => FileModel.update(fileId, data))
+      .concatMap(data => FileModel.update(<any>fileId, data))
   }
 
   getFiles(
-    projectId: string,
-    parentId: string,
+    projectId: ProjectId,
+    parentId: CollectionId,
     query?: any
   ): Observable<FileData[]> {
     return makeColdSignal<FileData[]>(() => {
