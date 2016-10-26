@@ -1,6 +1,6 @@
 import * as moment from 'moment'
 import { clone } from '../unit/index'
-export const thisweekAccomplishedTasks = [
+export const thisweekAccomplishedTasks: any = [
   {
     '_id': '573c3502dc7658916f7b140c',
     'content': '上海南站南广场3',
@@ -432,7 +432,7 @@ export const thisweekAccomplishedTasks = [
   return r
 })
 
-export const thisweekAccomplishedSubtasks = [
+export const thisweekAccomplishedSubtasks: any = [
   {
     '_id': '57bd4a7a7de62a4c318387bc',
     'content': '131313131',
@@ -685,7 +685,7 @@ export const thisweekAccomplishedSubtasks = [
   return r
 })
 
-export const beforeThisweekAccomplishedTasks = [
+export const beforeThisweekAccomplishedTasks: any = [
   {
     '_id': '57455f2eefb0858c38c9e116',
     'content': 'fuck 子任务',
@@ -1261,7 +1261,7 @@ export const beforeThisweekAccomplishedTasks = [
   return r
 })
 
-export const beforeThisweekAccomplishedSubtasks = [
+export const beforeThisweekAccomplishedSubtasks: any = [
   {
     '_id': '573c345cdc7658916f7b111e',
     'content': 'as long as you love me 19',
@@ -2560,7 +2560,7 @@ export const beforeThisweekAccomplishedSubtasks = [
   }
 ]
 
-export const accomplishedDelayTasks = [
+export const accomplishedDelayTasks: any = [
   {
     '_id': '569dc098443d43a60a1c4032',
     'content': '我是马尔嘎你死，我是不朽的，嘿嘿嘿',
@@ -3828,12 +3828,12 @@ export const accomplishedDelayTasks = [
   }
 ]
 
-export const accomplishedDelaySubtasks = clone(beforeThisweekAccomplishedSubtasks).map(r => {
+export const accomplishedDelaySubtasks: any = clone(beforeThisweekAccomplishedSubtasks).map(r => {
   r.dueDate = moment(r.updated).subtract(1, 'day').toISOString()
   return r
 })
 
-export const accomplishedOntimeTasks = [
+export const accomplishedOntimeTasks: any = [
   {
     '_id': '5698a09d78eaa265030f9c73',
     'content': '卡卡罗特',
@@ -5043,7 +5043,7 @@ export const accomplishedOntimeTasks = [
   }
 ]
 
-export const accomplishedOntimeSubtasks = [
+export const accomplishedOntimeSubtasks: any = [
   {
     '_id': '57455f2eefb0858c38c9e116',
     '_projectId': '56988fb705ead4ae7bb8dcfe',
@@ -5616,7 +5616,7 @@ export const accomplishedOntimeSubtasks = [
   }
 ]
 
-export const inprogressDelayTasks = [
+export const inprogressDelayTasks: any = [
   {
     '_id': '569dc1260fafba0857158d94',
     'content': '加尔鲁屎，地狱咆哮德',
@@ -6916,7 +6916,7 @@ export const inprogressDelayTasks = [
   return r
 })
 
-export const inprogressOntimeTasks = clone(inprogressDelayTasks).map((r, index) => {
+export const inprogressOntimeTasks: any = clone(inprogressDelayTasks).map((r, index) => {
   if (index < 10) {
     r.dueDate = null
     r.startDate = moment().subtract(1, 'day').toISOString()
@@ -6930,7 +6930,7 @@ export const inprogressOntimeTasks = clone(inprogressDelayTasks).map((r, index) 
   return r
 })
 
-export const inprogressAllTasks = [
+export const inprogressAllTasks: any = [
   {
     '_id': '569dc1260fafba0857158d94',
     'content': '加尔鲁屎，地狱咆哮德',
@@ -8225,7 +8225,7 @@ export const inprogressAllTasks = [
   }
 ]
 
-export const inprogressSubtasks = [
+export const inprogressSubtasks: any = [
   {
     '_id': '56a8a2bb1fc624581b1311a2',
     '_projectId': '56988fb705ead4ae7bb8dcfe',
@@ -8803,7 +8803,7 @@ export const inprogressSubtasks = [
   return r
 })
 
-export const notStartTasks = [
+export const notStartTasks: any = [
   {
     '_id': '56a9d170c3a61f8d31169520',
     'content': '1',
@@ -9917,7 +9917,7 @@ export const notStartTasks = [
   }
 ]
 
-export const unassignTasks = clone(notStartTasks).map(r => {
+export const unassignTasks: any = clone(notStartTasks).map(r => {
   r._executorId = null
   return r
 })

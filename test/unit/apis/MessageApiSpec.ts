@@ -50,7 +50,7 @@ export default describe('MessageAPI test: ', () => {
     })
 
     it('get messages should ok', done => {
-      Message.getMessages(getMessagesQuery)
+      Message.getMessages(<any>getMessagesQuery)
         .subscribe(data => {
           forEach(data, (message, index) => {
             ['_id', 'name', 'logo'].forEach(k => {
@@ -62,10 +62,10 @@ export default describe('MessageAPI test: ', () => {
     })
 
     it('get messages from cache should ok', function* () {
-      yield Message.getMessages(getMessagesQuery)
+      yield Message.getMessages(<any>getMessagesQuery)
         .take(1)
 
-      Message.getMessages(getMessagesQuery)
+      Message.getMessages(<any>getMessagesQuery)
         .do(results => {
           forEach(results, (message, index) => {
             ['_id', 'name', 'logo'].forEach(k => {
@@ -89,12 +89,12 @@ export default describe('MessageAPI test: ', () => {
       })
         .respond(JSON.stringify(mockResponse))
 
-      yield Message.getMessages(getMessagesQuery)
+      yield Message.getMessages(<any>getMessagesQuery)
         .take(1)
 
-      yield Message.read(_messageId)
+      yield Message.read(<any>_messageId)
 
-      yield Message.getMessages(getMessagesQuery)
+      yield Message.getMessages(<any>getMessagesQuery)
         .take(1)
         .do(data => {
           expect(data[0].isRead).to.equal(mockResponse.isRead)
@@ -107,13 +107,13 @@ export default describe('MessageAPI test: ', () => {
       })
         .respond(JSON.stringify({}))
 
-      const signal = Message.getMessages(getMessagesQuery)
+      const signal = Message.getMessages(<any>getMessagesQuery)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield Message.markAllAsRead(_messageType)
+      yield Message.markAllAsRead(<any>_messageType)
 
       yield signal.take(1)
         .do(messages => {
@@ -141,13 +141,13 @@ export default describe('MessageAPI test: ', () => {
       })
         .respond(JSON.stringify(mockResponse))
 
-      const signal = Message.getMessages(getMessagesQuery)
+      const signal = Message.getMessages(<any>getMessagesQuery)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield Message.snooze(_messageId, reminderDate)
+      yield Message.snooze(<any>_messageId, reminderDate)
         .do(r => {
           expect(r).to.deep.equal(mockResponse)
         })
@@ -163,7 +163,7 @@ export default describe('MessageAPI test: ', () => {
       httpBackend.whenDELETE(`${apihost}messages?type=${_messageType}`)
         .respond(JSON.stringify({}))
 
-      const signal = Message.getMessages(getMessagesQuery)
+      const signal = Message.getMessages(<any>getMessagesQuery)
         .publish()
         .refCount()
 
@@ -174,20 +174,20 @@ export default describe('MessageAPI test: ', () => {
           expect(messages.length).to.equal(0)
         })
 
-      yield Message.deleteAllRead(_messageType)
+      yield Message.deleteAllRead(<any>_messageType)
     })
 
     it('delete a message should ok', function* () {
       httpBackend.whenDELETE(`${apihost}messages/${_messageId}`)
         .respond(JSON.stringify({}))
 
-      const signal = Message.getMessages(getMessagesQuery)
+      const signal = Message.getMessages(<any>getMessagesQuery)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield Message.delete(_messageId)
+      yield Message.delete(<any>_messageId)
 
       yield signal.take(1)
         .do(results => {

@@ -1,4 +1,4 @@
-export const stageTasksDone = [
+export const stageTasksDone: any = [
   {
     '_id': '57ba6f45e166627169620ded',
     '_creatorId': '56986d43542ce1a2798c8cfb',

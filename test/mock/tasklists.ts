@@ -1,4 +1,4 @@
-export const tasklists = [
+export const tasklists: any = [
   {
     _id: '56c2c2f0b54938e05b6b2238',
     title: '上海南站',

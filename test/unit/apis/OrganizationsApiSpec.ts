@@ -40,7 +40,7 @@ export default describe('Organizations API test', () => {
 
     OrganizationApi.getOrgs()
       .concatMap(x => {
-        return OrganizationApi.getOne(id)
+        return OrganizationApi.getOne(<any>id)
       })
       .subscribe(data => {
         expectDeepEqual(data, organizations[0])

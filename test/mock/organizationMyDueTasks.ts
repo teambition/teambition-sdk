@@ -1,4 +1,4 @@
-export const organizationMyDueTasks = [
+export const organizationMyDueTasks: any = [
   {
     _id: '569dc1260fafba0857158d94',
     _creatorId: '56986d43542ce1a2798c8cfb',

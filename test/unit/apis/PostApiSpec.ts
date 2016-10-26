@@ -37,7 +37,7 @@ export default describe('post api test: ', () => {
     })
 
     it ('get all posts should ok', done => {
-      PostApi.getAllProjectPosts(projectId, {
+      PostApi.getAllProjectPosts(<any>projectId, {
         page: 1,
         count: 20
       }).subscribe(results => {
@@ -49,13 +49,13 @@ export default describe('post api test: ', () => {
     })
 
     it('get all posts from cache should ok', function* () {
-      yield PostApi.getAllProjectPosts(projectId, {
+      yield PostApi.getAllProjectPosts(<any>projectId, {
         page: 1,
         count: 20
       })
         .take(1)
 
-      yield PostApi.getAllProjectPosts(projectId, {
+      yield PostApi.getAllProjectPosts(<any>projectId, {
         page: 1,
         count: 20
       })
@@ -77,7 +77,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenGET(`${apihost}projects/${projectId}/posts?page=1&count=20&type=my`)
         .respond(JSON.stringify(myposts))
 
-      PostApi.getMyProjectPosts(userId, projectId, {
+      PostApi.getMyProjectPosts(<any>userId, <any>projectId, {
         page: 1,
         count: 20
       }).subscribe(results => {
@@ -96,13 +96,13 @@ export default describe('post api test: ', () => {
       httpBackend.whenGET(`${apihost}projects/${projectId}/posts?page=1&count=20&type=my`)
         .respond(JSON.stringify(myposts))
 
-      yield PostApi.getMyProjectPosts(userId, projectId, {
+      yield PostApi.getMyProjectPosts(<any>userId, <any>projectId, {
         page: 1,
         count: 20
       })
         .take(1)
 
-      yield PostApi.getMyProjectPosts(userId, projectId, {
+      yield PostApi.getMyProjectPosts(<any>userId, <any>projectId, {
         page: 1,
         count: 20
       })
@@ -131,7 +131,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenGET(`${apihost}posts/${mockId}`)
         .respond(JSON.stringify(mockPost))
 
-      const signal = PostApi.getMyProjectPosts(userId, projectId, {
+      const signal = PostApi.getMyProjectPosts(<any>userId, <any>projectId, {
         page: 1,
         count: 20
       })
@@ -140,7 +140,7 @@ export default describe('post api test: ', () => {
 
       yield signal.take(1)
 
-      yield PostApi.get(mockId).take(1)
+      yield PostApi.get(<any>mockId).take(1)
 
       yield signal.take(1)
         .do(results => {
@@ -156,7 +156,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenGET(`${apihost}posts/${mockId}`)
         .respond(JSON.stringify(mockPost))
 
-      const signal = PostApi.getAllProjectPosts(projectId, {
+      const signal = PostApi.getAllProjectPosts(<any>projectId, {
         page: 1,
         count: 20
       })
@@ -165,7 +165,7 @@ export default describe('post api test: ', () => {
 
       yield signal.take(1)
 
-      yield PostApi.get(mockId).take(1)
+      yield PostApi.get(<any>mockId).take(1)
 
       yield signal.take(1)
         .do(results => {
@@ -180,7 +180,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenDELETE(`${apihost}posts/${deleteId}`)
         .respond({})
 
-      const signal = PostApi.getAllProjectPosts(projectId, {
+      const signal = PostApi.getAllProjectPosts(<any>projectId, {
         page: 1,
         count: 20
       })
@@ -189,7 +189,7 @@ export default describe('post api test: ', () => {
 
       yield signal.take(1)
 
-      yield PostApi.delete(deleteId)
+      yield PostApi.delete(<any>deleteId)
 
       yield signal.take(1)
         .do(results => {
@@ -211,7 +211,7 @@ export default describe('post api test: ', () => {
       httpBackend.whenPOST(`${apihost}posts/${archiveId}/archive`)
         .respond(JSON.stringify(mockResponse))
 
-      const signal = PostApi.getAllProjectPosts(projectId, {
+      const signal = PostApi.getAllProjectPosts(<any>projectId, {
         page: 1,
         count: 20
       })
@@ -220,7 +220,7 @@ export default describe('post api test: ', () => {
 
       yield signal.take(1)
 
-      yield PostApi.archive(archiveId)
+      yield PostApi.archive(<any>archiveId)
         .do(r => {
           expect(r).to.deep.equal(mockResponse)
         })
@@ -251,7 +251,7 @@ export default describe('post api test: ', () => {
     })
 
     it('get should ok', done => {
-      PostApi.getByTagId(mockTagId, {
+      PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
@@ -264,13 +264,13 @@ export default describe('post api test: ', () => {
     })
 
     it('get from cache should ok', function* () {
-      yield PostApi.getByTagId(mockTagId, {
+      yield PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
         .take(1)
 
-      yield PostApi.getByTagId(mockTagId, {
+      yield PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
@@ -292,14 +292,14 @@ export default describe('post api test: ', () => {
       httpBackend.whenGET(`${apihost}posts/${mockPostId}`)
         .respond(JSON.stringify(mockPost))
 
-      const signal = PostApi.getByTagId(mockTagId, {
+      const signal = PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
 
       yield signal.take(1)
 
-      yield PostApi.get(mockPostId).take(1)
+      yield PostApi.get(<any>mockPostId).take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -320,14 +320,14 @@ export default describe('post api test: ', () => {
           updated: new Date().toISOString()
         })
 
-      const signal = PostApi.getByTagId(mockTagId, {
+      const signal = PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
 
       yield signal.take(1)
 
-      yield PostApi.updateTags(postId, ['othertag'])
+      yield PostApi.updateTags(<any>postId, <any>['othertag'])
 
       yield signal.take(1)
         .do(r => {
@@ -342,14 +342,14 @@ export default describe('post api test: ', () => {
       httpBackend.whenDELETE(`${apihost}posts/${postId}`)
         .respond({})
 
-      const signal = PostApi.getByTagId(mockTagId, {
+      const signal = PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
 
       yield signal.take(1)
 
-      yield PostApi.delete(postId)
+      yield PostApi.delete(<any>postId)
 
       yield signal.take(1)
         .do(r => {
@@ -368,14 +368,14 @@ export default describe('post api test: ', () => {
           updated: new Date().toISOString()
         })
 
-      const signal = PostApi.getByTagId(mockTagId, {
+      const signal = PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
 
       yield signal.take(1)
 
-      yield PostApi.archive(postId)
+      yield PostApi.archive(<any>postId)
 
       yield signal.take(1)
         .do(r => {
@@ -401,14 +401,14 @@ export default describe('post api test: ', () => {
           updated: new Date().toISOString()
         })
 
-      const signal = PostApi.getByTagId(mockTagId, {
+      const signal = PostApi.getByTagId(<any>mockTagId, {
         page: 1,
         count: 500
       })
 
       yield signal.take(1)
 
-      yield PostApi.get(mockPostId).take(1)
+      yield PostApi.get(<any>mockPostId).take(1)
 
       yield signal.take(1)
         .do(r => {
@@ -416,7 +416,7 @@ export default describe('post api test: ', () => {
           expect(notInclude(r, mockPost)).to.be.true
         })
 
-      yield PostApi.unarchive(mockPostId)
+      yield PostApi.unarchive(<any>mockPostId)
 
       yield signal.take(1)
         .do(r => {
@@ -426,59 +426,6 @@ export default describe('post api test: ', () => {
           expectDeepEqual(mockPost, r[0])
         })
     })
-  })
-
-  it('favorite a post should ok', function* () {
-    const favoriteId = posts[0]._id
-
-    const mockResponse = {
-      isFavorite: true,
-      isUpdated: true,
-      isVisible: true,
-      refType: 'post',
-      created: posts[0].created,
-      updated: new Date().toISOString(),
-      creator: {
-        _id: 'xxx',
-        name: 'xxxxx',
-        avatarUrl: 'xxxxxxx'
-      },
-      project: {
-        _id: posts[0]._projectId,
-        name: 'project',
-      },
-      data: {
-        created: posts[0].created,
-        updated: new Date().toISOString(),
-        content: posts[0].content,
-        title: posts[0].title
-      },
-      _refId: posts[0]._id,
-      _creatorId: posts[0]._creatorId,
-      _id: posts[0]._id
-    }
-
-    httpBackend.whenGET(`${apihost}posts/${favoriteId}`)
-      .respond(JSON.stringify(posts[0]))
-
-    httpBackend.whenPOST(`${apihost}posts/${favoriteId}/favorite`)
-      .respond(JSON.stringify(mockResponse))
-
-    const signal = PostApi.get(favoriteId)
-      .publish()
-      .refCount()
-
-    yield signal.take(1)
-
-    yield PostApi.favorite(favoriteId)
-      .do(r => {
-        expect(r).to.deep.equal(mockResponse)
-      })
-
-    yield signal.take(1)
-      .do(r => {
-        expect(r.isFavorite).to.be.true
-      })
   })
 
   it('unarchive post should ok', function* () {
@@ -498,13 +445,13 @@ export default describe('post api test: ', () => {
     httpBackend.whenGET(`${apihost}posts/${testPostId}`)
       .respond(JSON.stringify(testPost))
 
-    const signal = PostApi.get(testPostId)
+    const signal = PostApi.get(<any>testPostId)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield PostApi.unarchive(testPostId)
+    yield PostApi.unarchive(<any>testPostId)
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })
@@ -521,7 +468,7 @@ export default describe('post api test: ', () => {
     const postId = post._id
     const misaki = clone(post)
     misaki._id = uuid()
-    const projectId = misaki._projectId = uuid()
+    const projectId: any = misaki._projectId = uuid()
 
     httpBackend.whenGET(`${apihost}projects/${projectId}/posts?type=all`)
       .respond(JSON.stringify([]))
@@ -560,7 +507,7 @@ export default describe('post api test: ', () => {
     const postId = post._id
     const projectId = post._projectId
     const misaki = clone(post)
-    const newProjectId = misaki._projectId = uuid()
+    const newProjectId: any = misaki._projectId = uuid()
     const newUpdated = misaki.updated = new Date().toISOString()
 
     httpBackend.whenGET(`${apihost}projects/${projectId}/posts?type=all`)
@@ -636,14 +583,14 @@ export default describe('post api test: ', () => {
       .whenPUT(`${apihost}posts/${postId}`, patch)
       .respond(JSON.stringify(response))
 
-    const signal = PostApi.get(postId)
+    const signal = PostApi.get(<any>postId)
 
     yield signal.take(1)
       .do(result => {
         expectDeepEqual(result, post)
       })
 
-    yield PostApi.update(postId, patch)
+    yield PostApi.update(<any>postId, patch)
       .do(result => {
         expectDeepEqual(result, response)
       })
@@ -674,13 +621,13 @@ export default describe('post api test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    const signal = PostApi.get(testPostId)
+    const signal = PostApi.get(<any>testPostId)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield PostApi.updateInvolves(testPostId, {
+    yield PostApi.updateInvolves(<any>testPostId, {
       involveMembers: mockInvolves
     })
       .do(r => {
@@ -710,13 +657,13 @@ export default describe('post api test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    const signal = PostApi.get(testPostId)
+    const signal = PostApi.get(<any>testPostId)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield PostApi.updatePin(testPostId, true)
+    yield PostApi.updatePin(<any>testPostId, true)
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })
@@ -746,13 +693,13 @@ export default describe('post api test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    const signal = PostApi.get(testPostId)
+    const signal = PostApi.get(<any>testPostId)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield PostApi.updateTags(testPostId, mockTags)
+    yield PostApi.updateTags(<any>testPostId, <any>mockTags)
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })

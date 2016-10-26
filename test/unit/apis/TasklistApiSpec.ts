@@ -9,7 +9,7 @@ const expect = chai.expect
 export default describe('tasklist api test:', () => {
   let httpBackend: Backend
   let Tasklist: TasklistAPI
-  let projectId: string
+  let projectId: any
 
   beforeEach(() => {
     flush()
@@ -37,7 +37,7 @@ export default describe('tasklist api test:', () => {
     })
       .respond(JSON.stringify(mockTasklist))
 
-    Tasklist.create({
+    Tasklist.create(<any>{
       title: 'mocktasklist',
       _projectId: projectId
     })
@@ -210,7 +210,7 @@ export default describe('tasklist api test:', () => {
         expect(data.isArchived).to.be.false
       })
 
-    yield Tasklist.unArchive('unarchivetasklisttest')
+    yield Tasklist.unArchive(<any>'unarchivetasklisttest')
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })

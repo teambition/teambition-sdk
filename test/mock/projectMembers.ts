@@ -1,4 +1,4 @@
-export const projectMembers = [
+export const projectMembers: any = [
   {
     _id: '56986d43542ce1a2798c8cfb',
     _userId: '56986d43542ce1a2798c8cfb',

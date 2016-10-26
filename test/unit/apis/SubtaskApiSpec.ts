@@ -30,7 +30,7 @@ export default describe('Subtask API test: ', () => {
   const organizationId = organization._id
   const userId = organizationMySubtasks[0]._executorId
 
-  const subtaskId = 'mocksubtask'
+  const subtaskId: any = 'mocksubtask'
   const subtask = clone(subtasks[0])
 
   subtask._id = subtaskId
@@ -628,7 +628,7 @@ export default describe('Subtask API test: ', () => {
     httpBackend.whenPOST(`${apihost}subtasks`, createSubtaskData)
       .respond(JSON.stringify(result))
 
-    yield Subtask.create(createSubtaskData)
+    yield Subtask.create(<any>createSubtaskData)
       .do(data => {
         expectDeepEqual(data, result)
       })

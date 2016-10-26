@@ -97,7 +97,7 @@ export default describe('Task API test: ', () => {
           status: 401
         })
 
-      Task.getTasklistUndone('error')
+      Task.getTasklistUndone(<any>'error')
         .catch((err: Response) => {
           return err.text()
         })
@@ -214,7 +214,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.get('mocktaskundone').take(1)
+      yield Task.get(<any>'mocktaskundone').take(1)
 
       yield signal.take(1)
         .do(data => {
@@ -275,7 +275,7 @@ export default describe('Task API test: ', () => {
     it('add task to task done should ok', function* () {
       const signal = Task.getTasklistDone(tasklistId)
 
-      yield Task.get('mocktaskdone').take(1)
+      yield Task.get(<any>'mocktaskdone').take(1)
 
       signal.take(1)
         .do(data => {
@@ -1400,7 +1400,7 @@ export default describe('Task API test: ', () => {
 
     it('should move one to the undone task list of another stage', function* () {
       const _taskId = stageTasksUndone[0]._id
-      const _anotherStageId = 'mockstageid'
+      const _anotherStageId: any = 'mockstageid'
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/move`, {
           _stageId: _anotherStageId
@@ -1518,7 +1518,7 @@ export default describe('Task API test: ', () => {
 
     it('should move one to the done task list of another stage', function* () {
       const _taskId = stageDoneTask._id
-      const _anotherStageId = 'mockstageid'
+      const _anotherStageId: any = 'mockstageid'
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/move`, {
           _stageId: _anotherStageId
@@ -1625,7 +1625,7 @@ export default describe('Task API test: ', () => {
       _tasklistId: '56988fb7644284a37be3ba6f'
     }).respond(JSON.stringify(mockTask))
 
-    yield Task.create({
+    yield Task.create(<any>{
       content: 'create task test',
       _tasklistId: '56988fb7644284a37be3ba6f'
     }).do(data => {
@@ -1745,7 +1745,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.move(mockTaskGet._id, {
+      yield Task.move(mockTaskGet._id, <any>{
         _stageId: 'taskmoveteststage'
       })
 
@@ -1843,7 +1843,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.updateExecutor(mockTaskGet._id, 'test executor')
+      yield Task.updateExecutor(mockTaskGet._id, <any>'test executor')
         .do(r => {
           expect(r).to.deep.equal(mockResponse)
         })
@@ -1901,7 +1901,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'involveMembers')
+      yield Task.updateInvolvemembers(mockTaskGet._id, <any>['a', 'b'], 'involveMembers')
         .do(r => {
           expect(r).to.deep.equal(mockResponse)
         })
@@ -1929,7 +1929,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.updateInvolvemembers(mockTaskGet._id, ['a', 'b'], 'addInvolvers')
+      yield Task.updateInvolvemembers(mockTaskGet._id, <any>['a', 'b'], 'addInvolvers')
         .do(r => {
           expect(r).to.deep.equal(mockResponse)
         })
@@ -1980,7 +1980,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.updateInvolvemembers(mockTaskGet._id, ['56986d43542ce1a2798c8cfb'], 'delInvolvers')
+      yield Task.updateInvolvemembers(mockTaskGet._id, <any>['56986d43542ce1a2798c8cfb'], 'delInvolvers')
         .do(r => {
           expect(r).to.deep.equal(mockResponse)
         })
@@ -2125,7 +2125,7 @@ export default describe('Task API test: ', () => {
     })
 
     it('updateTags should ok', function* () {
-      const tags = concat(mockTaskGet.tagIds, ['mocktag1', 'mocktag2'])
+      const tags: any = concat(mockTaskGet.tagIds, ['mocktag1', 'mocktag2'])
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/tagIds`, {
         tagIds: tags
       })

@@ -1,4 +1,4 @@
-export const myEvents = [
+export const myEvents: any = [
   {
     _id: '579032e89cee05e759cb2e61',
     endDate: '2016-07-21T03:00:00.000Z',

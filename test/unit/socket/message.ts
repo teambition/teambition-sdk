@@ -12,7 +12,7 @@ export default describe('socket message test: ', () => {
   let MessageApi: MessageAPI
   const mockMessages = clone(messages)
   const _messageType = 'normal'
-  const getMessagesQuery = {
+  const getMessagesQuery: any = {
     type: _messageType,
     sort: 'normal',
     count: 10,

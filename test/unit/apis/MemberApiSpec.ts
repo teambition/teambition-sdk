@@ -41,8 +41,8 @@ export default describe('member api test', () => {
   it('should get one', function* () {
 
     const member = <MemberSchema>{
-      _id: uuid(),
-      _memberId: uuid()
+      _id: <any>uuid(),
+      _memberId: <any>uuid()
     }
     const memberId = member._memberId
 
@@ -81,7 +81,7 @@ export default describe('member api test', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
       .respond(JSON.stringify(members))
 
-    const signalOne = Member.getProjectMembers(projectId)
+    const signalOne = Member.getProjectMembers(<any>projectId)
     const signalTwo = Member.getOne(memberId)
 
     yield signalOne.take(1)
@@ -120,7 +120,7 @@ export default describe('member api test', () => {
     httpBackend.whenGET(`${apihost}V2/organizations/${organizationId}/members?page=1&count=30`)
       .respond(JSON.stringify(members))
 
-    const signalOne = Member.getOrgMembers(organizationId)
+    const signalOne = Member.getOrgMembers(<any>organizationId)
     const signalTwo = Member.getOne(memberId)
 
     yield signalOne.take(1)
@@ -146,7 +146,7 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=30`)
       .respond(members)
 
-    yield Member.getOrgMembers(id)
+    yield Member.getOrgMembers(<any>id)
       .take(1)
       .forEach(members => {
         expect(members).to.instanceof(Array)
@@ -161,13 +161,13 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=30`)
       .respond(members.slice(0, 30))
 
-    const stream = Member.getOrgMembers(id)
+    const stream = Member.getOrgMembers(<any>id)
       .publish()
       .refCount()
 
     yield stream.take(1)
 
-    yield Member.getOrgMembers(id)
+    yield Member.getOrgMembers(<any>id)
       .take(1)
       .forEach(members => {
         expect(members).to.instanceof(Array)
@@ -180,7 +180,7 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=2&count=30`)
       .respond(members.slice(30))
 
-    const stream = Member.getProjectMembers(member._boundToObjectId)
+    const stream = Member.getProjectMembers(<any>member._boundToObjectId)
       .publish()
       .refCount()
 
@@ -191,13 +191,13 @@ export default describe('member api test', () => {
         expect(r.length).to.equal(members.length)
       })
 
-    yield Member.getProjectMembers(member._boundToObjectId, 2)
+    yield Member.getProjectMembers(<any>member._boundToObjectId, 2)
       .take(1)
 
   })
 
   it ('getMembers from project should ok', function* () {
-    const stream = Member.getProjectMembers(member._boundToObjectId)
+    const stream = Member.getProjectMembers(<any>member._boundToObjectId)
       .publish()
       .refCount()
 
@@ -209,13 +209,13 @@ export default describe('member api test', () => {
   })
 
   it('get members from project cache should ok', function* () {
-    const stream = Member.getProjectMembers(member._boundToObjectId)
+    const stream = Member.getProjectMembers(<any>member._boundToObjectId)
       .publish()
       .refCount()
 
     yield stream.take(1)
 
-    yield Member.getProjectMembers(member._boundToObjectId)
+    yield Member.getProjectMembers(<any>member._boundToObjectId)
       .take(1)
       .forEach(data => {
         expect(data).to.be.instanceof(Array)
@@ -236,7 +236,7 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}V2/organizations/${id}/members?page=2&count=30`)
       .respond(members.slice(30))
 
-    const stream = Member.getOrgMembers(id)
+    const stream = Member.getOrgMembers(<any>id)
       .publish()
       .refCount()
 
@@ -247,7 +247,7 @@ export default describe('member api test', () => {
         expect(r.length).to.equal(members.length)
       })
 
-    yield Member.getOrgMembers(id, 2).take(1)
+    yield Member.getOrgMembers(<any>id, 2).take(1)
   })
 
   it('delete member from project should ok', function* () {
@@ -256,7 +256,7 @@ export default describe('member api test', () => {
       .whenDELETE(`${apihost}members/${member._memberId}`)
       .respond({})
 
-    const stream = Member.getProjectMembers(member._boundToObjectId)
+    const stream = Member.getProjectMembers(<any>member._boundToObjectId)
       .publish()
       .refCount()
 
@@ -268,7 +268,7 @@ export default describe('member api test', () => {
         expect(notInclude(data, member)).to.be.true
       })
 
-    yield Member.deleteMember(member._memberId)
+    yield Member.deleteMember(<any>member._memberId)
   })
 
   it('add members before getting members', function* () {
@@ -285,14 +285,14 @@ export default describe('member api test', () => {
       })
       .respond(JSON.stringify(projectMembers))
 
-    const stream = Member.addMembers(projectId, mockEmails)
+    const stream = Member.addMembers(<any>projectId, mockEmails)
       .publish()
       .refCount()
 
     yield stream.take(1)
 
-    yield Member.addMembers(projectId, mockEmails)
-      .forEach((members: MemberSchema[]) => {
+    yield Member.addMembers(<any>projectId, mockEmails)
+      .forEach((members: any) => {
         expect(members.length).to.be.equal(projectMembers.length)
       })
 
@@ -310,7 +310,7 @@ export default describe('member api test', () => {
     })
       .respond(JSON.stringify(projectMembers))
 
-    const stream = Member.getProjectMembers(projectId)
+    const stream = Member.getProjectMembers(<any>projectId)
       .publish()
       .refCount()
 
@@ -321,7 +321,7 @@ export default describe('member api test', () => {
         expect(r.length).to.equal(30 + projectMembers.length)
       })
 
-    yield Member.addMembers(projectId, mockEmails)
+    yield Member.addMembers(<any>projectId, mockEmails)
   })
 
   it('add project members multiple times', function* () {
@@ -348,7 +348,7 @@ export default describe('member api test', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/members?page=1&count=30`)
       .respond(JSON.stringify(members))
 
-    const stream = Member.getProjectMembers(projectId)
+    const stream = Member.getProjectMembers(<any>projectId)
       .publish()
       .refCount()
 
@@ -361,9 +361,9 @@ export default describe('member api test', () => {
 
     yield Observable.from(chunks.map(chunkProjectMembers => {
       const emails = chunkProjectMembers.map(member => member.email)
-      return Member.addMembers(projectId, emails)
+      return Member.addMembers(<any>projectId, emails)
     }))
-      .flatMap(r => r)
+      .mergeMap<any>(r => r)
       .mergeAll()
       .toArray()
       .forEach(r => {
@@ -392,7 +392,7 @@ export default describe('member api test', () => {
       .whenDELETE(`${apihost}members/${member._memberId}`)
       .respond({})
 
-    const stream = Member.getProjectMembers(projectId)
+    const stream = Member.getProjectMembers(<any>projectId)
       .publish()
       .refCount()
 
@@ -403,9 +403,9 @@ export default describe('member api test', () => {
         expect(r.length).to.equal(30 + projectMembers.length - 1)
       })
 
-    yield Member.deleteMember(member._memberId)
+    yield Member.deleteMember(<any>member._memberId)
 
-    yield Member.addMembers(projectId, mockEmails)
+    yield Member.addMembers(<any>projectId, mockEmails)
   })
 
   it('get all org members 50 should ok', function* () {
@@ -415,7 +415,7 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}V2/organizations/${id}/members?page=1&count=1000`)
       .respond(members)
 
-    yield Member.getAllOrgMembers(id)
+    yield Member.getAllOrgMembers(<any>id)
       .take(1)
       .forEach(r => {
         expect(r.length).to.equal(members.length)
@@ -448,7 +448,7 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}V2/organizations/${id}/members?page=3&count=1000`)
       .respond(JSON.stringify(page3))
 
-    const stream = Member.getAllOrgMembers(id)
+    const stream = Member.getAllOrgMembers(<any>id)
       .publish()
       .refCount()
 
@@ -466,7 +466,7 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=1&count=1000`)
       .respond(JSON.stringify(projectMembers))
 
-    yield Member.getAllProjectMembers(member._boundToObjectId)
+    yield Member.getAllProjectMembers(<any>member._boundToObjectId)
       .take(1)
       .forEach(r => {
         expect(r.length).to.equal(projectMembers.length)
@@ -499,7 +499,7 @@ export default describe('member api test', () => {
       .whenGET(`${apihost}projects/${member._boundToObjectId}/members?page=3&count=1000`)
       .respond(JSON.stringify(page3))
 
-    yield Member.getAllProjectMembers(member._boundToObjectId)
+    yield Member.getAllProjectMembers(<any>member._boundToObjectId)
       .take(1)
       .forEach(r => {
         expect(r.length).to.equal(mockMembers.length)

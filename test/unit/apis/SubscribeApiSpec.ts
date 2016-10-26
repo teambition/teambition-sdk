@@ -35,7 +35,7 @@ export default describe('SubscribeApiSpec: ', () => {
 
   it('get organization subscribe should ok', done => {
 
-    SubscribeApi.getOrgsSubscribe('mock')
+    SubscribeApi.getOrgsSubscribe(<any>'mock')
       .subscribe(r => {
         expectDeepEqual(r, orgsSubscribe)
         done()
@@ -43,10 +43,10 @@ export default describe('SubscribeApiSpec: ', () => {
   })
 
   it('get organization subscribe from cache should ok', function* () {
-    yield SubscribeApi.getOrgsSubscribe('mock')
+    yield SubscribeApi.getOrgsSubscribe(<any>'mock')
       .take(1)
 
-    yield SubscribeApi.getOrgsSubscribe('mock')
+    yield SubscribeApi.getOrgsSubscribe(<any>'mock')
       .take(1)
       .do(r => {
         expectDeepEqual(r, orgsSubscribe)
@@ -75,13 +75,13 @@ export default describe('SubscribeApiSpec: ', () => {
         }
       })
 
-    const signal = SubscribeApi.getOrgsSubscribe('mock')
+    const signal = SubscribeApi.getOrgsSubscribe(<any>'mock')
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield SubscribeApi.updateOrgsSubscribe('mock', ['mockprojectid'])
+    yield SubscribeApi.updateOrgsSubscribe(<any>'mock', <any>['mockprojectid'])
 
     yield signal.take(1)
       .do(r => {
@@ -104,13 +104,13 @@ export default describe('SubscribeApiSpec: ', () => {
         }
       })
 
-    const signal = SubscribeApi.getOrgsSubscribe('mock')
+    const signal = SubscribeApi.getOrgsSubscribe(<any>'mock')
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield SubscribeApi.updateOrgsSubscribe('mock', null, ['mockprojectid'])
+    yield SubscribeApi.updateOrgsSubscribe(<any>'mock', null, <any>['mockprojectid'])
 
     yield signal.take(1)
       .do(r => {

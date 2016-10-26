@@ -1,4 +1,4 @@
-export const roles = [
+export const roles: any = [
   {
     _id: '57a1805dc50bf3157277ae29',
     _creatorId: '56986d43542ce1a2798c8cfb',

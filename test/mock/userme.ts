@@ -1,4 +1,4 @@
-export const userMe = {
+export const userMe: any = {
   _id: '55c02018fd0360a44c93ff97',
   email: '123@123.com',
   name: '宝宝摔倒了',

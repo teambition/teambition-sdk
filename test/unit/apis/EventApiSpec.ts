@@ -45,7 +45,7 @@ export default describe('Event test:', () => {
   describe('Recurrence Event test :', () => {
     it('recurrence by day should ok', () => {
       const day = MockRecurrence.day
-      const Recurrence = new RecurrenceEvent(day)
+      const Recurrence = new RecurrenceEvent(<any>day)
       const next = Recurrence.next()
       // 相差一天
       expect(moment(next.value.startDate).valueOf()).to.equal(moment(day.startDate).add(1, 'day').valueOf())
@@ -56,7 +56,7 @@ export default describe('Event test:', () => {
 
     it('recurrence by week should ok', () => {
       const week = MockRecurrence.week
-      const Recurrence = new RecurrenceEvent(week)
+      const Recurrence = new RecurrenceEvent(<any>week)
       const next = Recurrence.next()
       // 相差一周
       expect(moment(next.value.startDate).valueOf()).to.equal(moment(week.startDate).add(1, 'week').valueOf())
@@ -67,7 +67,7 @@ export default describe('Event test:', () => {
 
     it('recurrence by month should ok', () => {
       const month = MockRecurrence.month
-      const Recurrence = new RecurrenceEvent(month)
+      const Recurrence = new RecurrenceEvent(<any>month)
       const next = Recurrence.next()
       // 相差一个月
       expect(moment(next.value.startDate).valueOf()).to.equal(moment(month.startDate).add(1, 'month').valueOf())
@@ -78,7 +78,7 @@ export default describe('Event test:', () => {
 
     it('recurrence by year should ok', () => {
       const year = MockRecurrence.year
-      const Recurrence = new RecurrenceEvent(year)
+      const Recurrence = new RecurrenceEvent(<any>year)
       const next = Recurrence.next()
       // 相差一年
       expect(moment(next.value.startDate).valueOf()).to.equal(moment(year.startDate).add(1, 'year').valueOf())
@@ -89,7 +89,7 @@ export default describe('Event test:', () => {
 
     it('recurrence by customer day should ok', () => {
       const customerday = MockRecurrence.customerday
-      const Recurrence = new RecurrenceEvent(customerday)
+      const Recurrence = new RecurrenceEvent(<any>customerday)
       const next = Recurrence.next()
       // 相差 3 天
       expect(moment(next.value.startDate).valueOf()).to.equal(moment(customerday.startDate).add(3, 'day').valueOf())
@@ -100,7 +100,7 @@ export default describe('Event test:', () => {
 
     it('recurrence by customer week should ok', () => {
       const customerweek = MockRecurrence.customerweek
-      const Recurrence = new RecurrenceEvent(customerweek)
+      const Recurrence = new RecurrenceEvent(<any>customerweek)
       const day1 = Recurrence.next()
       const day2 = Recurrence.next()
       const day3 = Recurrence.next()
@@ -118,7 +118,7 @@ export default describe('Event test:', () => {
 
     it('recurrence by customer month should ok', () => {
       const customermonth = MockRecurrence.customermonth
-      const Recurrence = new RecurrenceEvent(customermonth)
+      const Recurrence = new RecurrenceEvent(<any>customermonth)
 
       const day1 = Recurrence.next()
       const day2 = Recurrence.next()
@@ -144,7 +144,7 @@ export default describe('Event test:', () => {
 
     it('takeUntilTime should ok', () => {
       const day = MockRecurrence.day
-      const Recurrence = new RecurrenceEvent(day)
+      const Recurrence = new RecurrenceEvent(<any>day)
 
       const result = Recurrence.takeUntilTime(new Date(moment(day.startDate).add(5, 'day').add(1, 'hour')))
       expect(result.length).to.equal(6)
@@ -152,7 +152,7 @@ export default describe('Event test:', () => {
 
     it('takeByTime should ok', () => {
       const day = MockRecurrence.day
-      const Recurrence = new RecurrenceEvent(day)
+      const Recurrence = new RecurrenceEvent(<any>day)
 
       const result = Recurrence.takeByTime(new Date(moment(day.startDate).add(5, 'day')))
       expect(result.startDate).to.equal(moment(day.startDate).add(5, 'day').toISOString())
@@ -160,7 +160,7 @@ export default describe('Event test:', () => {
 
     it('is between should ok', () => {
       const day = MockRecurrence.day
-      const recurrence = new RecurrenceEvent(day)
+      const recurrence = new RecurrenceEvent(<any>day)
 
       expect(recurrence.isBetween(new Date(2015, 9, 1), new Date(2015, 12, 1))).to.be.false
       expect(recurrence.isBetween(new Date(2015, 9, 1), 'feature')).to.be.true
@@ -184,7 +184,7 @@ export default describe('Event test:', () => {
       httpBackend.whenPOST(`${apihost}events`, mockPost)
         .respond(JSON.stringify(MockRecurrence.day))
 
-      EventApi.create(mockPost)
+      EventApi.create(<any>mockPost)
         .subscribe(r => {
           expect(r.recurrence).to.deep.equal(MockRecurrence.day.recurrence)
           done()
@@ -197,7 +197,7 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${mockEvent._id}`)
         .respond(JSON.stringify(mockEvent))
 
-      EventApi.get(mockEvent._id)
+      EventApi.get(<any>mockEvent._id)
         .subscribe(r => {
           expectDeepEqual(mockEvent, r)
           done()
@@ -219,13 +219,13 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      const signal = EventApi.get(mockEvent._id)
+      const signal = EventApi.get(<any>mockEvent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.update(mockEvent._id, {
+      yield EventApi.update(<any>mockEvent._id, {
         title: 'new title'
       })
 
@@ -251,13 +251,13 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         }))
 
-      const signal = EventApi.get(mockEvent._id)
+      const signal = EventApi.get(<any>mockEvent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.update(mockEvent._id, {
+      yield EventApi.update(<any>mockEvent._id, {
         recurrence: ['RRULE:FREQ=WEEKLY;DTSTART=20160801T030000Z;INTERVAL=1']
       })
 
@@ -276,7 +276,7 @@ export default describe('Event test:', () => {
       httpBackend.whenDELETE(`${apihost}events/${eventId}`)
         .respond(null)
 
-      const signal = EventApi.get(eventId)
+      const signal = EventApi.get(<any>eventId)
         .publish()
         .refCount()
 
@@ -287,7 +287,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.delete(eventId)
+      yield EventApi.delete(<any>eventId)
     })
 
     it('archive event should ok', function* () {
@@ -306,13 +306,13 @@ export default describe('Event test:', () => {
           updated: new Date().toISOString()
         })
 
-      const signal = EventApi.get(mockevent._id)
+      const signal = EventApi.get(<any>mockevent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.archive(mockevent._id, now)
+      yield EventApi.archive(<any>mockevent._id, now)
 
       yield signal.take(1)
         .do(r => {
@@ -339,13 +339,13 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${mockReapeatEvent._id}`)
         .respond(JSON.stringify(mockReapeatEvent))
 
-      const signal = EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.commentRepeatResponse.new.startDate).toISOString())
+      const signal = EventApi.get(<any>(mockReapeatEvent._id + '&' + new Date(MockRecurrence.commentRepeatResponse.new.startDate).toISOString()))
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.commentsRepeatEvent(mockReapeatEvent._id, <any>comment)
+      yield EventApi.commentsRepeatEvent(<any>mockReapeatEvent._id, <any>comment)
 
       yield signal.take(1)
         .do(r => {
@@ -368,13 +368,13 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${mockReapeatEvent._id}`)
         .respond(JSON.stringify(mockReapeatEvent))
 
-      const signal = EventApi.get(mockReapeatEvent._id + '&' + new Date(MockRecurrence.likeRepeat.new.startDate).toISOString())
+      const signal = EventApi.get(<any>(mockReapeatEvent._id + '&' + new Date(MockRecurrence.likeRepeat.new.startDate).toISOString()))
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.likeRepeatEvent(mockReapeatEvent._id, now)
+      yield EventApi.likeRepeatEvent(<any>mockReapeatEvent._id, now)
 
       yield signal.take(1)
         .do(r => {
@@ -396,13 +396,13 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      const signal = EventApi.get(normalEvent._id)
+      const signal = EventApi.get(<any>normalEvent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.unarchive(normalEvent._id)
+      yield EventApi.unarchive(<any>normalEvent._id)
 
       yield signal.take(1)
         .do(r => {
@@ -425,13 +425,13 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      const signal = EventApi.get(normalEvent._id)
+      const signal = EventApi.get(<any>normalEvent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.updateContent(normalEvent._id, 'mock content')
+      yield EventApi.updateContent(<any>normalEvent._id, 'mock content')
 
       yield signal.take(1)
         .do(r => {
@@ -454,13 +454,13 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      const signal = EventApi.get(normalEvent._id)
+      const signal = EventApi.get(<any>normalEvent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.updateInvolvemembers(normalEvent._id, {
+      yield EventApi.updateInvolvemembers(<any>normalEvent._id, {
         addInvolvers: ['mockinvolve']
       })
 
@@ -489,13 +489,13 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      const signal = EventApi.get(normalEvent._id)
+      const signal = EventApi.get(<any>normalEvent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.updateReminders(normalEvent._id, <any>reminders)
+      yield EventApi.updateReminders(<any>normalEvent._id, <any>reminders)
 
       yield signal.take(1)
         .do(r => {
@@ -519,13 +519,13 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/${normalEvent._id}`)
         .respond(JSON.stringify(normalEvent))
 
-      const signal = EventApi.get(normalEvent._id)
+      const signal = EventApi.get(<any>normalEvent._id)
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield EventApi.updateTags(normalEvent._id, tags)
+      yield EventApi.updateTags(<any>normalEvent._id, <any>tags)
 
       yield signal.take(1)
         .do(r => {
@@ -649,7 +649,7 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}projects/${projectId}/events?startDate=${today.toISOString()}`)
         .respond(JSON.stringify(projectEvents))
 
-      signal = EventApi.getProjectEvents(projectId, today)
+      signal = EventApi.getProjectEvents(<any>projectId, today)
         .map(r => {
           const result: EventSchema[] = []
           r.forEach(event => {
@@ -691,7 +691,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.update(eventId, {
+      yield EventApi.update(<any>eventId, {
         title: 'new title'
       })
 
@@ -714,7 +714,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.update(eventId, {
+      yield EventApi.update(<any>eventId, {
         title: 'new title'
       })
 
@@ -731,7 +731,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.delete(eventId)
+      yield EventApi.delete(<any>eventId)
 
       yield signal.take(1)
         .do(r => {
@@ -747,7 +747,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.delete(eventId)
+      yield EventApi.delete(<any>eventId)
 
       yield signal.take(1)
         .do(r => {
@@ -773,7 +773,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.create(mockPost)
+      yield EventApi.create(<any>mockPost)
 
       yield signal.take(1)
         .do(r => {
@@ -802,7 +802,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.create(mockPost)
+      yield EventApi.create(<any>mockPost)
 
       yield signal.take(1)
         .do(r => {
@@ -871,7 +871,7 @@ export default describe('Event test:', () => {
       httpBackend.whenGET(`${apihost}events/me?endDate=${today.toISOString()}`)
         .respond(JSON.stringify(myEvents))
 
-      signal = EventApi.getMyEvents(userId, today)
+      signal = EventApi.getMyEvents(<any>userId, today)
         .map(r => {
           const result: EventSchema[] = []
           r.forEach(event => {
@@ -913,7 +913,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.update(eventId, {
+      yield EventApi.update(<any>eventId, {
         title: 'new title'
       })
 
@@ -936,7 +936,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.update(eventId, {
+      yield EventApi.update(<any>eventId, {
         title: 'new title'
       })
 
@@ -953,7 +953,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.delete(eventId)
+      yield EventApi.delete(<any>eventId)
 
       yield signal.take(1)
         .do(r => {
@@ -969,7 +969,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.delete(eventId)
+      yield EventApi.delete(<any>eventId)
 
       yield signal.take(1)
         .do(r => {
@@ -995,7 +995,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.create(mockPost)
+      yield EventApi.create(<any>mockPost)
 
       yield signal.take(1)
         .do(r => {
@@ -1024,7 +1024,7 @@ export default describe('Event test:', () => {
 
       yield signal.take(1)
 
-      yield EventApi.create(mockPost)
+      yield EventApi.create(<any>mockPost)
 
       yield signal.take(1)
         .do(r => {

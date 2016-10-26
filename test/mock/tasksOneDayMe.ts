@@ -1,4 +1,4 @@
-export const tasksOneDayMe = [
+export const tasksOneDayMe: any = [
   {
     '_id': '56de3e539ac909d03c59d0f0',
     '_creatorId': '55c02018fd0360a44c93ff97',

@@ -60,7 +60,7 @@ export default describe('role api spec: ', () => {
 
     yield signal.take(1)
 
-    yield RoleApi.getOne(mockAdd._id)
+    yield RoleApi.getOne(<any>mockAdd._id)
       .take(1)
 
     yield signal.take(1)

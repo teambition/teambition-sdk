@@ -23,7 +23,7 @@ export default describe('like socket', () => {
   })
 
   it('like change should ok', done => {
-    const signal = LikeApi.getLike('task', 'mocktask')
+    const signal = LikeApi.getLike('task', <any>'mocktask')
       .publish()
       .refCount()
 

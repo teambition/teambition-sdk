@@ -86,7 +86,7 @@ export default describe('Project API test: ', () => {
         }
       ]))
 
-    Project.getOrgs('test')
+    Project.getOrgs(<any>'test')
       .subscribe(r => {
         expect(r).to.be.instanceof(Array)
         done()
@@ -238,7 +238,7 @@ export default describe('Project API test: ', () => {
   })
 
   it('clear read count should ok', function* () {
-    const project = projects[0]
+    const project = <any>projects[0]
     const mockResponse = {
       _id: project._id,
       unreadCount: 0,
@@ -266,7 +266,7 @@ export default describe('Project API test: ', () => {
 
   it('project copy should ok', function* () {
     const length = projects.length
-    const project = projects[0]
+    const project = <any>projects[0]
 
     httpBackend.whenPOST(`${apihost}projects/${project._id}/copy`, {
       name: 'teambition project copy test'
@@ -294,7 +294,7 @@ export default describe('Project API test: ', () => {
   })
 
   it('join project should ok', function* () {
-    const projectId = '#03a9f4'
+    const projectId = <any>'#03a9f4'
     const mockProject = {
       _id: projectId,
       name: 'Blue Is the Warmest Colour'
@@ -323,7 +323,7 @@ export default describe('Project API test: ', () => {
   })
 
   it('quit project should ok', function* () {
-    const project = projects[0]
+    const project = <any>projects[0]
     const length = projects.length
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}/quit`)
@@ -359,13 +359,13 @@ export default describe('Project API test: ', () => {
     })
       .respond(JSON.stringify(mockResponse))
 
-    const signal = Project.getOne(project._id)
+    const signal = Project.getOne(<any>project._id)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield Project.setDefaultRole(project._id, project._roleId + 1)
+    yield Project.setDefaultRole(<any>project._id, <any>project._roleId + 1)
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })
@@ -390,13 +390,13 @@ export default describe('Project API test: ', () => {
     httpBackend.whenPUT(`${apihost}projects/${project._id}/star`)
       .respond(JSON.stringify(mockResponse))
 
-    const signal = Project.getOne(project._id)
+    const signal = Project.getOne(<any>project._id)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield Project.star(project._id)
+    yield Project.star(<any>project._id)
       .do(r => {
         expect(r).to.deep.equal(mockResponse)
       })
@@ -423,13 +423,13 @@ export default describe('Project API test: ', () => {
     httpBackend.whenDELETE(`${apihost}projects/${mockProject._id}/star`)
       .respond(JSON.stringify(mockResponse))
 
-    const signal = Project.getOne(mockProject._id)
+    const signal = Project.getOne(<any>mockProject._id)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield Project.unstar(mockProject._id)
+    yield Project.unstar(<any>mockProject._id)
 
     yield signal.take(1)
       .do(r => {
@@ -451,13 +451,13 @@ export default describe('Project API test: ', () => {
         _organizationId: 'test'
       }))
 
-    const signal = Project.getOne(project._id)
+    const signal = Project.getOne(<any>project._id)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield Project.transfer(project._id, 'test')
+    yield Project.transfer(<any>project._id, <any>'test')
       .do(r => {
         expect(r).to.deep.equal({
           _id: project._id,
@@ -476,7 +476,7 @@ export default describe('Project API test: ', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/report-summary`)
       .respond(JSON.stringify(reportSummary))
 
-    Project.getReportSummary(projectId)
+    Project.getReportSummary(<any>projectId)
       .subscribe(r => {
         expectDeepEqual(r, reportSummary)
         done()
@@ -488,10 +488,10 @@ export default describe('Project API test: ', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/report-summary`)
       .respond(JSON.stringify(reportSummary))
 
-    yield Project.getReportSummary(projectId)
+    yield Project.getReportSummary(<any>projectId)
       .take(1)
 
-    yield Project.getReportSummary(projectId)
+    yield Project.getReportSummary(<any>projectId)
       .take(1)
       .do(r => {
         expectDeepEqual(r, reportSummary)
@@ -507,7 +507,7 @@ export default describe('Project API test: ', () => {
     httpBackend.whenGET(`${apihost}projects/${projectId}/analysis-report?startDate=${startDate}&endDate=${endDate}&unit=week`)
       .respond(JSON.stringify(reportAnalysis))
 
-    Project.getAnalysisReport(projectId, startDate, endDate, 'week')
+    Project.getAnalysisReport(<any>projectId, startDate, endDate, 'week')
       .subscribe(r => {
         expectDeepEqual(r, reportAnalysis)
         done()
@@ -532,13 +532,13 @@ export default describe('Project API test: ', () => {
     })
 
     it('get should ok', function* () {
-      const signal = Project.getHomeActivities(projectId, {page: 1})
+      const signal = Project.getHomeActivities(<any>projectId, {page: 1})
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield Project.getHomeActivities(projectId, {page: 2})
+      yield Project.getHomeActivities(<any>projectId, {page: 2})
         .take(1)
         .do(r => {
           expect(toIds(r)).to.be.deep.equal(toIds(pageTwo))
@@ -551,7 +551,7 @@ export default describe('Project API test: ', () => {
     })
 
     it('get from cache should ok', function* () {
-      const signal = Project.getHomeActivities(projectId, {page: 1})
+      const signal = Project.getHomeActivities(<any>projectId, {page: 1})
         .publish()
         .refCount()
 

@@ -1,4 +1,4 @@
-export const preference = {
+export const preference: any = {
   _id: '55c02cb3076600a108f3751f',
   _userId: '55c02018fd0360a44c93ff97',
   language: 'en',

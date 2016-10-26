@@ -48,9 +48,9 @@ export default describe('socket member test', () => {
 
   it('should add new project member', function* () {
 
-    const projectId = uuid()
-    const memberId = uuid()
-    const member = <MemberSchema>{
+    const projectId: any = uuid()
+    const memberId: any = uuid()
+    const member = <any>{
       _id: uuid(),
       _memberId: memberId,
       _boundToObjectId: projectId,
@@ -84,10 +84,10 @@ export default describe('socket member test', () => {
   it('should remove project member', function* () {
 
     const count = 5
-    const projectId = uuid()
+    const projectId: any = uuid()
     const members = <MemberSchema[]>[]
     for (let i = 0; i < count; i ++) {
-      members.push(<MemberSchema>{
+      members.push(<any>{
         _id: uuid(),
         _memberId: uuid(),
         _boundToObjectId: projectId,
@@ -122,9 +122,9 @@ export default describe('socket member test', () => {
 
   it('should add new organization member', function* () {
 
-    const organizationId = uuid()
+    const organizationId: any = uuid()
     const memberId = uuid()
-    const member = <MemberSchema>{
+    const member = <any>{
       _id: uuid(),
       _memberId: memberId,
       _boundToObjectId: organizationId,
@@ -158,10 +158,10 @@ export default describe('socket member test', () => {
   it('should remove organization member', function* () {
 
     const count = 5
-    const organizationId = uuid()
+    const organizationId: any = uuid()
     const members = <MemberSchema[]>[]
     for (let i = 0; i < count; i ++) {
-      members.push(<MemberSchema>{
+      members.push(<any>{
         _id: uuid(),
         _memberId: uuid(),
         _boundToObjectId: organizationId,

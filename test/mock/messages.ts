@@ -1,4 +1,4 @@
-export const messages = [{
+export const messages: any = [{
   '_id': '5805d4f2493cd88cbfb0320d',
   '_userId': '568db88cab2e03e86d2db501',
   'type': 'object',
