@@ -114,107 +114,107 @@ export type DetailObjectType = 'task' | 'event' | 'post' | 'work' | 'entry'
 export type DetailObjectTypes = 'posts' | 'works' | 'events' | 'tasks' | 'entries'
 
 export interface ActivityId extends String {
-  kind: 'ActivityId'
+  kind?: 'ActivityId'
 }
 
 export interface ApplicationId extends String {
-  kind: 'ApplicationId'
+  kind?: 'ApplicationId'
 }
 
 export interface CollectionId extends String {
-  kind: 'CollectionId'
+  kind?: 'CollectionId'
 }
 
 export interface EntryId extends String {
-  kind: 'EntryId'
+  kind?: 'EntryId'
 }
 
 export interface EntryCategoryId extends String {
-  kind: 'EntryCategoryId'
+  kind?: 'EntryCategoryId'
 }
 
 export interface EventId extends String {
-  kind: 'EventId'
+  kind?: 'EventId'
 }
 
 export interface FeedbackId extends String {
-  kind: 'FeedbackId'
+  kind?: 'FeedbackId'
 }
 
 export interface FileId extends String {
-  kind: 'FileId'
+  kind?: 'FileId'
 }
 
 export interface HomeActivityId extends String {
-  kind: 'HomeActivityId'
+  kind?: 'HomeActivityId'
 }
 
 export interface IdOfMember extends String {
-  kind: 'IdOfMember'
+  kind?: 'IdOfMember'
 }
 
 export interface MemberId extends String {
-  kind: 'MemberId'
+  kind?: 'MemberId'
 }
 
 export interface MessageId extends String {
-  kind: 'MessageId'
+  kind?: 'MessageId'
 }
 
 export interface ObjectLinkId extends String {
-  kind: 'ObjectLinkId'
+  kind?: 'ObjectLinkId'
 }
 
 export interface OrganizationId extends String {
-  kind: 'OrganizationId'
+  kind?: 'OrganizationId'
 }
 
 export interface PreferenceId extends String {
-  kind: 'PreferenceId'
+  kind?: 'PreferenceId'
 }
 
 export interface PostId extends String {
-  kind: 'PostId'
+  kind?: 'PostId'
 }
 
 export interface ProjectId extends String {
-  kind: 'ProjectId'
+  kind?: 'ProjectId'
 }
 
 export type DefaultRoleId = -1 | 0 | 1 | 2
 
 export interface CustomRoleId extends String {
-  kind: 'CustomRoleId'
+  kind?: 'CustomRoleId'
 }
 
 export type RoleId = DefaultRoleId | CustomRoleId
 
 export interface StageId extends String {
-  kind: 'StageId'
+  kind?: 'StageId'
 }
 
 export interface SubscribeId extends String {
-  kind: 'SubscribeId'
+  kind?: 'SubscribeId'
 }
 
 export interface SubtaskId extends String {
-  kind: 'SubtaskId'
+  kind?: 'SubtaskId'
 }
 
 export interface TagId extends String {
-  kind: 'TagId'
+  kind?: 'TagId'
 }
 
 export interface TaskId extends String {
-  kind: 'TaskId'
+  kind?: 'TaskId'
 }
 
 export interface TasklistId extends String {
-  kind: 'TasklistId'
+  kind?: 'TasklistId'
 }
 
 export interface UserId extends String {
-  kind: 'UserId'
+  kind?: 'UserId'
 }
 
 export type DetailObjectId = TaskId | PostId | EventId | FileId
