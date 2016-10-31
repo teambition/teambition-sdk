@@ -215,6 +215,12 @@ export class EventFetch extends BaseFetch {
     }
     return this.fetch.get(`events/me`, query)
   }
+
+  fork(eventId: string, projectId: string): Observable<EventData> {
+    return this.fetch.put(`events/${eventId}/fork`, {
+      _projectId: projectId
+    })
+  }
 }
 
 export default new EventFetch()

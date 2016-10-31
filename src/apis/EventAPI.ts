@@ -141,4 +141,9 @@ export class EventAPI {
     })
     return signal._switch()
   }
+
+  fork(eventId: string, projectId: string): Observable<EventData> {
+    return EventFetch.fork(eventId, projectId)
+      .concatMap(event => EventModel.addOne(event).take(1))
+  }
 }

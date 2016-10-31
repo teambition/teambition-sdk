@@ -1,14 +1,17 @@
 'use strict'
 import * as chai from 'chai'
+import * as sinon from 'sinon'
 import * as moment from 'moment'
 import { Observable } from 'rxjs/Observable'
 import {
   apihost,
+  BaseFetch,
   Backend,
   EventAPI,
   RecurrenceEvent,
   clone,
   concat,
+  uuid,
   EventSchema
 } from '../index'
 import { flush, expectDeepEqual } from '../utils'
@@ -21,12 +24,22 @@ const expect = chai.expect
 export default describe('Event test:', () => {
   let httpBackend: Backend
   let EventApi: EventAPI
+  let spy: Sinon.SinonSpy
 
   beforeEach(() => {
     flush()
 
     httpBackend = new Backend()
     EventApi = new EventAPI()
+    spy = sinon.spy(BaseFetch.fetch, 'get')
+  })
+
+  afterEach(() => {
+    BaseFetch.fetch.get['restore']()
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   describe('Recurrence Event test :', () => {
@@ -517,6 +530,46 @@ export default describe('Event test:', () => {
       yield signal.take(1)
         .do(r => {
           expect(r.tagIds).to.deep.equal(tags)
+        })
+    })
+
+    it('should fork one to another project', function* () {
+
+      const event = projectEvents[0]
+      const eventId = event._id
+      const misaki = clone(event)
+      misaki._id = uuid()
+      const projectId = misaki._projectId = uuid()
+      const startDate = new Date()
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/events?startDate=${startDate.toISOString()}`)
+        .respond(JSON.stringify([]))
+
+      httpBackend
+        .whenPUT(`${apihost}events/${eventId}/fork`, {
+          _projectId: projectId
+        })
+        .respond(JSON.stringify(misaki))
+
+      const signal = EventApi.getProjectEvents(projectId, startDate)
+        .publish()
+        .refCount()
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(0)
+        })
+
+      yield EventApi.fork(eventId, projectId)
+        .do(data => {
+          expectDeepEqual(data, misaki)
+        })
+
+      yield signal.take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(1)
+          expectDeepEqual(data[0], misaki)
+          expect(spy.callCount).to.be.equal(1)
         })
     })
   })
