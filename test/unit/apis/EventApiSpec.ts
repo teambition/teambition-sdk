@@ -533,6 +533,70 @@ export default describe('Event test:', () => {
         })
     })
 
+    it('should move one to another project', function* () {
+
+      const event = clone(projectEvents[0])
+      const eventId = event._id
+      const projectId = event._projectId
+      const misaki = clone(event)
+      const newProjectId = misaki._projectId = uuid()
+      const newUpdated = misaki.updated = new Date().toISOString()
+      const startDate = new Date()
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/events?startDate=${startDate.toISOString()}`)
+        .respond(JSON.stringify(projectEvents))
+
+      httpBackend.whenGET(`${apihost}projects/${newProjectId}/events?startDate=${startDate.toISOString()}`)
+        .respond(JSON.stringify([]))
+
+      httpBackend
+        .whenPUT(`${apihost}events/${eventId}/move`, {
+          _projectId: newProjectId
+        })
+        .respond({
+          _id: eventId,
+          _projectId: newProjectId,
+          updated: newUpdated
+        })
+
+      const signalOne = EventApi.getProjectEvents(projectId, startDate)
+        .publish()
+        .refCount()
+
+      const signalTwo = EventApi.getProjectEvents(newProjectId, startDate)
+        .publish()
+        .refCount()
+
+      yield signalOne.take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(projectEvents.length)
+          expectDeepEqual(data[0], event)
+        })
+
+      yield signalTwo.take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(0)
+        })
+
+      yield EventApi.move(eventId, newProjectId)
+        .do(data => {
+          expect(data._id).to.be.equal(eventId)
+          expect(data._projectId).to.be.equal(newProjectId)
+        })
+
+      yield signalOne.take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(projectEvents.length - 1)
+        })
+
+      yield signalTwo.take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(1)
+          expectDeepEqual(data[0], misaki)
+          expect(spy.callCount).to.be.equal(2)
+        })
+    })
+
     it('should fork one to another project', function* () {
 
       const event = projectEvents[0]

@@ -115,6 +115,14 @@ export interface CommentRepeatResponse {
   comment: ActivityData
 }
 
+export interface MoveEventResponse {
+  _id: string
+  _projectId: string
+  tagIds: string[]
+  involveMembers: string[]
+  updated: string
+}
+
 export class EventFetch extends BaseFetch {
   create(options: CreateEventOptions): Observable<EventData> {
     return this.fetch.post(`events`, options)
@@ -214,6 +222,12 @@ export class EventFetch extends BaseFetch {
       query = { endDate: endDate.toISOString() }
     }
     return this.fetch.get(`events/me`, query)
+  }
+
+  move(eventId: string, projectId: string): Observable<MoveEventResponse> {
+    return this.fetch.put(`events/${eventId}/move`, {
+      _projectId: projectId
+    })
   }
 
   fork(eventId: string, projectId: string): Observable<EventData> {

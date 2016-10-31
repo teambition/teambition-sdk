@@ -16,7 +16,8 @@ import {
   UpdateEventInvolvesOptions,
   EventReminder,
   UpdateEventReminderResponse,
-  UpdateEventTagsResponse
+  UpdateEventTagsResponse,
+  MoveEventResponse
 } from '../fetchs/EventFetch'
 import EventModel from '../models/EventModel'
 import { TRecurrenceEvent } from '../models/events/RecurrenceEvent'
@@ -140,6 +141,11 @@ export class EventAPI {
       observer.next(dest)
     })
     return signal._switch()
+  }
+
+  move(eventId: string, projectId: string): Observable<MoveEventResponse> {
+    return EventFetch.move(eventId, projectId)
+      .concatMap(event => EventModel.update(eventId, event))
   }
 
   fork(eventId: string, projectId: string): Observable<EventData> {
