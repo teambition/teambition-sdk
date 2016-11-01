@@ -58,12 +58,12 @@ declare const global: any
 const ctx = typeof global === 'undefined' ? window : global
 
 export interface SDK {
-  readonly version: '0.5.2'
+  readonly version: '0.6.1'
   readonly socket: Client
 }
 
 const sdk = {
-  version: '0.5.2',
+  version: '0.6.1',
   socket: new Client()
 }
 
