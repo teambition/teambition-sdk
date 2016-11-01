@@ -239,13 +239,8 @@ export default describe('Project API test: ', () => {
 
   it('clear read count should ok', function* () {
     const project = <any>projects[0]
-    const mockResponse = {
-      _id: project._id,
-      unreadCount: 0,
-      updated: Date.now().toString()
-    }
     httpBackend.whenPUT(`${apihost}projects/${project._id}/unreadCount`)
-      .respond(JSON.stringify(mockResponse))
+      .respond(JSON.stringify({}))
 
     const signal = Project.getAll()
       .publish()
@@ -254,9 +249,6 @@ export default describe('Project API test: ', () => {
     yield signal.take(1)
 
     yield Project.clearUnreadCount(project._id)
-      .do(r => {
-        expect(r).to.deep.equal(mockResponse)
-      })
 
     yield signal.take(1)
       .do(r => {
