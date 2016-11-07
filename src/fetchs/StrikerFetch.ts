@@ -25,16 +25,16 @@ export class StrikerFetch {
       formData = file
     }
     return UserFetch.getUserMe()
-      .concatMap<Response>(userme => {
+      .concatMap(userme => {
         return fetch(`${this._strikerApiHost}/upload`, {
           headers: {
-            'Authorization': <any>userme.strikerAuth
+            'Authorization': <string>userme.strikerAuth
           },
           method: 'post',
           body: formData
         })
       })
-      .concatMap<FileRes>(resp => {
+      .concatMap(resp => {
         const status = resp.status
         if (status >= 200 && status < 400) {
           return resp.json()
