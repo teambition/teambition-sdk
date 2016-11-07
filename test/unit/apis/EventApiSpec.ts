@@ -240,6 +240,38 @@ export default describe('Event test:', () => {
         })
     })
 
+    it('should get one from cache', function* () {
+
+      const event = clone(projectEvents[0])
+      const eventId = event._id = uuid()
+      const projectId = event._projectId = uuid()
+      const startDate = new Date(event.startDate)
+      event.recurrence = null
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/events?startDate=${startDate.toISOString()}`)
+        .respond(JSON.stringify([event]))
+
+      yield EventApi.getProjectEvents(projectId, startDate)
+        .take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(1)
+          expect(data[0]._id).to.be.equal(eventId)
+          expect(data[0]._projectId).to.be.equal(projectId)
+          expect(data[0].startDate).to.be.equal(event.startDate)
+          expect(data[0].recurrence).to.be.null
+        })
+
+      yield EventApi.get(eventId)
+        .take(1)
+        .do(data => {
+          expect(data._id).to.be.equal(eventId)
+          expect(data._projectId).to.be.equal(projectId)
+          expect(data.startDate).to.be.equal(event.startDate)
+          expect(data.recurrence).to.be.null
+          expect(spy.callCount).to.be.equal(1)
+        })
+    })
+
     it('update title should ok', function* () {
       const mockEvent = clone(projectEvents[1])
 
