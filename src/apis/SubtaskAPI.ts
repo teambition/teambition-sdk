@@ -79,11 +79,11 @@ export class SubtaskAPI {
 
   transform(_subtaskId: SubtaskId, doLink = false, doLinked = false): Observable<TaskData> {
     return SubtaskFetch.transform(_subtaskId, doLink, doLinked)
-      .concatMap<TaskData>(x =>
+      .concatMap(x =>
         SubtaskModel.delete(<string>_subtaskId)
           .mapTo(x)
       )
-      .concatMap<TaskData>(x =>
+      .concatMap(x =>
         TaskModel.addOne(x)
           .take(1)
           .mapTo(x)
@@ -187,7 +187,7 @@ export class SubtaskAPI {
   }
 
   private _updateFromPromise<T>(_subtaskId: SubtaskId, request: Observable<T>): Observable<T> {
-    return request.concatMap<T>(subtask =>
+    return request.concatMap<T, T>(subtask =>
       SubtaskModel.update(<string>_subtaskId, subtask)
     )
   }

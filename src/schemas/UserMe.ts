@@ -19,11 +19,11 @@ export interface PaymentPlan {
 }
 
 export interface StrikerToken extends String {
-  kind: 'StrikerToken'
+  kind?: 'StrikerToken'
 }
 
 export interface SnapperToken extends String {
-  kind: 'SnapperToken'
+  kind?: 'SnapperToken'
 }
 
 export interface UserMe extends ISchema {

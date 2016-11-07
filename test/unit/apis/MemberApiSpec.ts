@@ -363,7 +363,7 @@ export default describe('member api test', () => {
       const emails = chunkProjectMembers.map(member => member.email)
       return Member.addMembers(<any>projectId, emails)
     }))
-      .mergeMap<any>(r => r)
+      .mergeMap<any, any>((r: any) => r)
       .mergeAll()
       .toArray()
       .forEach(r => {

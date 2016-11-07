@@ -42,7 +42,7 @@ export class MemberFetch extends BaseFetch {
     return this.getOrgMembers(organizationId, {
       page, count: MAX_PROJECT_MEMBER_COUNT
     })
-      .switchMap<MemberData[]>(r => {
+      .switchMap(r => {
         concat(result, r)
         if (r.length === MAX_PROJECT_MEMBER_COUNT) {
           page ++
@@ -64,7 +64,7 @@ export class MemberFetch extends BaseFetch {
     return this.getProjectMembers(projectId, {
       page, count: MAX_PROJECT_MEMBER_COUNT
     })
-      .switchMap<MemberData[]>(r => {
+      .switchMap(r => {
         concat(result, r)
         if (r.length === MAX_PROJECT_MEMBER_COUNT) {
           page ++
