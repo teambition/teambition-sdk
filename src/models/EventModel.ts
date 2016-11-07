@@ -40,9 +40,6 @@ export class EventModel extends Model {
 
   getByAlias(aliasId: string): Observable<RecurrenceEvent> {
     const id = this._recurrenceEventAlias.get(aliasId)
-    if (!id) {
-      return Observable.throw(new Error(`no valid alias, aliasId: ${aliasId}, alias: ${this._recurrenceEventAlias}`))
-    }
     return this._get<RecurrenceEvent>(<any>id)
   }
 

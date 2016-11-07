@@ -50,13 +50,13 @@ export class EventAPI {
           )
       }
       dest = dest.map((x: TRecurrenceEvent) => {
-        if (date) {
+        if (x && date) {
           const result = x.takeByTime(date)
           if (result) {
             return result
           } else {
             const result = EventModel.getByAlias(eventId + date.toISOString())
-            return observer.next(result)
+            return observer.next(result || Observable.of(null)) // 无效日期 result 为空
           }
         } else {
           return x
