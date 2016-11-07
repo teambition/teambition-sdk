@@ -15,13 +15,17 @@ export class PreferenceAPI {
         return get
       }
       return PreferenceFetch.getPreference()
-        .concatMap(data => PreferenceModel.set(data))
+        .concatMap(data =>
+          PreferenceModel.set(data)
+        )
     })
   }
 
   update (preferenceId: PreferenceId, patch: any): Observable<PreferenceData> {
     return PreferenceFetch.update(preferenceId, patch)
-      .concatMap(data => PreferenceModel.update(data))
+      .concatMap(data =>
+        PreferenceModel.update(data)
+      )
   }
 }
 

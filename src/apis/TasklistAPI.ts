@@ -15,7 +15,10 @@ export class TasklistAPI {
 
   create(option: CreateTasklistOptions): Observable<TasklistData> {
     return TasklistFetch.create(option)
-      .concatMap(r => TasklistModel.addOne(r).take(1))
+      .concatMap(r =>
+        TasklistModel.addOne(r)
+          .take(1)
+      )
   }
 
   getTasklists(_projectId: ProjectId, query?: any): Observable<TasklistData[]> {
@@ -25,7 +28,9 @@ export class TasklistAPI {
         return get
       }
       return TasklistFetch.getTasklists(_projectId, query)
-        .concatMap(tasklists => TasklistModel.addTasklists(_projectId, tasklists))
+        .concatMap(tasklists =>
+          TasklistModel.addTasklists(_projectId, tasklists)
+        )
     })
   }
 
@@ -36,28 +41,38 @@ export class TasklistAPI {
         return get
       }
       return TasklistFetch.get(_tasklistId, query)
-        .concatMap(tasklist => TasklistModel.addOne(tasklist))
+        .concatMap(tasklist =>
+          TasklistModel.addOne(tasklist)
+        )
     })
   }
 
   update(_tasklistId: TasklistId, patch: UpdateTasklistOptions): Observable<UpdateTasklistOptions> {
     return TasklistFetch.update(_tasklistId, patch)
-      .concatMap(tasklist => TasklistModel.update(<string>_tasklistId, tasklist))
+      .concatMap(tasklist =>
+        TasklistModel.update(<string>_tasklistId, tasklist)
+      )
   }
 
   delete(_tasklistId: TasklistId): Observable<void> {
     return TasklistFetch.delete(_tasklistId)
-      .concatMap(x => TasklistModel.delete(<string>_tasklistId))
+      .concatMap(x =>
+        TasklistModel.delete(<string>_tasklistId)
+      )
   }
 
   archive(_tasklistId: TasklistId): Observable<ArchiveTasklistResponse> {
     return TasklistFetch.archive(_tasklistId)
-      .concatMap(tasklist => TasklistModel.update(<string>_tasklistId, tasklist))
+      .concatMap(tasklist =>
+        TasklistModel.update(<string>_tasklistId, tasklist)
+      )
   }
 
   unArchive(_tasklistId: TasklistId): Observable<UnarchiveTasklistResponse> {
     return TasklistFetch.unarchive(_tasklistId)
-      .concatMap(x => TasklistModel.update(<string>_tasklistId, x))
+      .concatMap(x =>
+        TasklistModel.update(<string>_tasklistId, x)
+      )
   }
 }
 

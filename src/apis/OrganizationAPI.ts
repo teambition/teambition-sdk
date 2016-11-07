@@ -15,7 +15,9 @@ export class OrganizationAPI {
         return get
       }
       return OrganizationFetch.getOrgs()
-        .concatMap(x => OrganizationModel.saveAll(x))
+        .concatMap(x =>
+          OrganizationModel.saveAll(x)
+        )
     })
   }
 
@@ -26,7 +28,9 @@ export class OrganizationAPI {
         return get
       }
       return OrganizationFetch.getOne(organizationId)
-        .concatMap(x => OrganizationModel.addOne(x))
+        .concatMap(x =>
+          OrganizationModel.addOne(x)
+        )
     })
   }
 }

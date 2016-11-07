@@ -22,8 +22,13 @@ export class FileAPI {
 
   create(file: File, parentId: CollectionId): Observable<FileData> {
     return StrikerFetch.upload(file)
-      .concatMap(res => FileFetch.create(parentId, res))
-      .concatMap(files => FileModel.addOne(files[0]).take(1))
+      .concatMap(res =>
+        FileFetch.create(parentId, res)
+      )
+      .concatMap(files =>
+        FileModel.addOne(files[0])
+          .take(1)
+      )
   }
 
   get(fileId: FileId, query?: any): Observable<FileData> {
@@ -33,38 +38,53 @@ export class FileAPI {
         return cache
       }
       return FileFetch.get(fileId, query)
-        .concatMap(file => FileModel.addOne(file))
+        .concatMap(file =>
+          FileModel.addOne(file)
+        )
     })
   }
 
   update(fileId: FileId, patch: UpdateFileOptions): Observable<UpdateFileResponse> {
     return FileFetch.update(fileId, patch)
-      .concatMap(data => FileModel.update(<string>fileId, data))
+      .concatMap(data =>
+        FileModel.update(<string>fileId, data)
+      )
   }
 
   delete(fileId: FileId): Observable<void> {
     return FileFetch.delete(fileId)
-      .concatMap(() => FileModel.delete(<string>fileId))
+      .concatMap(() =>
+        FileModel.delete(<string>fileId)
+      )
   }
 
   archive(fileId: FileId): Observable<ArchiveFileResponse> {
     return FileFetch.archive(fileId)
-      .concatMap(data => FileModel.update(<string>fileId, data))
+      .concatMap(data =>
+        FileModel.update(<string>fileId, data)
+      )
   }
 
   unarchive(fileId: FileId): Observable<ArchiveFileResponse> {
     return FileFetch.unarchive(fileId)
-      .concatMap(data => FileModel.update(<string>fileId, data))
+      .concatMap(data =>
+        FileModel.update(<string>fileId, data)
+      )
   }
 
   fork(fileId: FileId, _parentId: CollectionId): Observable<FileData> {
     return FileFetch.fork(fileId, _parentId)
-      .concatMap(file => FileModel.addOne(file).take(1))
+      .concatMap(file =>
+        FileModel.addOne(file)
+          .take(1)
+      )
   }
 
   move(fileId: FileId, _parentId: CollectionId): Observable<MoveFileResponse> {
     return FileFetch.move(fileId, _parentId)
-      .concatMap(data => FileModel.update(<string>fileId, data))
+      .concatMap(data =>
+        FileModel.update(<string>fileId, data)
+      )
   }
 
   updateInvolves(
@@ -73,7 +93,9 @@ export class FileAPI {
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateFileInvolvesResponse> {
     return FileFetch.updateInvolves( fileId, memberIds, type )
-      .concatMap(data => FileModel.update(<string>fileId, data))
+      .concatMap(data =>
+        FileModel.update(<string>fileId, data)
+      )
   }
 
   getFiles(

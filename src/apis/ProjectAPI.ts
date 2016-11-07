@@ -56,7 +56,9 @@ export class ProjectAPI {
         return get
       }
       return ProjectFetch.getAll(querys)
-        .concatMap(projects => ProjectModel.addProjects(projects))
+        .concatMap(projects =>
+          ProjectModel.addProjects(projects)
+        )
     })
   }
 
@@ -67,7 +69,9 @@ export class ProjectAPI {
         return get
       }
       return ProjectFetch.getPersonal(querys)
-        .concatMap(projects => ProjectModel.addPersonalProjects(projects))
+        .concatMap(projects =>
+          ProjectModel.addPersonalProjects(projects)
+        )
     })
   }
 
@@ -78,7 +82,9 @@ export class ProjectAPI {
         return get
       }
       return ProjectFetch.getOrgs(_organizationId, querys)
-        .concatMap(projects => ProjectModel.addOrgsProjects(_organizationId, projects))
+        .concatMap(projects =>
+          ProjectModel.addOrgsProjects(_organizationId, projects)
+        )
     })
   }
 
@@ -89,7 +95,9 @@ export class ProjectAPI {
         return get
       }
       return ProjectFetch.getOne(_id, querys)
-        .concatMap(project => ProjectModel.addOne(project))
+        .concatMap(project =>
+          ProjectModel.addOne(project)
+        )
     })
   }
 
@@ -102,28 +110,39 @@ export class ProjectAPI {
       return ProjectFetch.getAll({
         isArchived: true
       })
-        .concatMap(projects => ProjectModel.addArchivesProjects(projects))
+        .concatMap(projects =>
+          ProjectModel.addArchivesProjects(projects)
+        )
     })
   }
 
   create(projectInfo: ProjectCreateOptions): Observable<ProjectData> {
     return ProjectFetch.create(projectInfo)
-      .concatMap(project => ProjectModel.addOne(project).take(1))
+      .concatMap(project =>
+        ProjectModel.addOne(project)
+          .take(1)
+      )
   }
 
   update(_id: ProjectId, updateInfo: ProjectUpdateOptions): Observable<string> {
     return ProjectFetch.update(_id, updateInfo)
-      .concatMap(project => ProjectModel.update(<string>_id, project))
+      .concatMap(project =>
+        ProjectModel.update(<string>_id, project)
+      )
   }
 
   delete(_id: ProjectId): Observable<void> {
     return ProjectFetch.delete(_id)
-      .concatMap(x => ProjectModel.delete(<string>_id))
+      .concatMap(x =>
+        ProjectModel.delete(<string>_id)
+      )
   }
 
   archive(_id: ProjectId): Observable<ArchiveProjectResponse> {
     return ProjectFetch.archive(_id)
-      .concatMap(x => ProjectModel.update(<string>_id, x))
+      .concatMap(x =>
+        ProjectModel.update(<string>_id, x)
+      )
   }
 
   clearUnreadCount(_id: ProjectId): Observable<{
@@ -137,7 +156,10 @@ export class ProjectAPI {
 
   copy(_id: ProjectId, copyInfo: ProjectCopyOptions): Observable<ProjectData> {
     return ProjectFetch.copy(_id, copyInfo)
-      .concatMap(project => ProjectModel.addOne(project).take(1))
+      .concatMap(project =>
+        ProjectModel.addOne(project)
+          .take(1)
+      )
   }
 
   createdInProject(_id: ProjectId, querys?: JSONObj): Observable<CreatedInProjectSchema> {
@@ -159,18 +181,25 @@ export class ProjectAPI {
         return cache
       }
       return ProjectFetch.getHomeActivities(_id, query)
-        .concatMap(activities => HomeActivityModel.add(_id, activities, page))
+        .concatMap(activities =>
+          HomeActivityModel.add(_id, activities, page)
+        )
     })
   }
 
   join(_id: ProjectId): Observable<ProjectData> {
     return ProjectFetch.join(_id)
-      .concatMap(x => this.getOne(_id).take(1))
+      .concatMap(x =>
+        this.getOne(_id)
+          .take(1)
+      )
   }
 
   quit(_id: ProjectId, _ownerId?: IdOfMember): Observable<void> {
     return ProjectFetch.quit(_id, _ownerId)
-      .concatMap(x => ProjectModel.delete(<string>_id))
+      .concatMap(x =>
+        ProjectModel.delete(<string>_id)
+      )
   }
 
   getRecommendMembers(_id: ProjectId, querys?: JSONObj): Observable<RecommendMemberSchema> {
@@ -187,17 +216,23 @@ export class ProjectAPI {
 
   setDefaultRole (_id: ProjectId, _roleId?: RoleId): Observable<SetDefaultRoleResponse> {
     return ProjectFetch.setDefaultRole(_id, _roleId)
-      .concatMap(x => ProjectModel.update(<string>_id, x))
+      .concatMap(x =>
+        ProjectModel.update(<string>_id, x)
+      )
   }
 
   star(_projectId: ProjectId): Observable<StarProjectResponse> {
     return ProjectFetch.star(_projectId)
-      .concatMap(x => ProjectModel.update(<string>_projectId, x))
+      .concatMap(x =>
+        ProjectModel.update(<string>_projectId, x)
+      )
   }
 
   unstar(_projectId: ProjectId): Observable<UnstarProjectResponse> {
     return ProjectFetch.unstar(_projectId)
-      .concatMap(x => ProjectModel.update(<string>_projectId, x))
+      .concatMap(x =>
+        ProjectModel.update(<string>_projectId, x)
+      )
   }
 
   getStatistic (_id: ProjectId, query?: {
@@ -209,12 +244,16 @@ export class ProjectAPI {
 
   transfer(_id: ProjectId, organizationId?: OrganizationId): Observable<TransferProjectResponse> {
     return ProjectFetch.transfer(_id, organizationId)
-      .concatMap(x => ProjectModel.update(<string>_id, x))
+      .concatMap(x =>
+        ProjectModel.update(<string>_id, x)
+      )
   }
 
   unarchive(_projectId: ProjectId): Observable<UnarchiveProjectResponse> {
     return ProjectFetch.unarchive(_projectId)
-      .concatMap(r => ProjectModel.update(<string>_projectId, r))
+      .concatMap(r =>
+        ProjectModel.update(<string>_projectId, r)
+      )
   }
 
   /**
@@ -227,7 +266,9 @@ export class ProjectAPI {
       let result = ProjectModel.getNonstandardSchema<ReportSummarySchema>(index)
       if (!result) {
         result = ProjectFetch.getReportSummary(_projectId)
-          .concatMap(r => ProjectModel.saveNonstandardSchema(index, r))
+          .concatMap(r =>
+            ProjectModel.saveNonstandardSchema(index, r)
+          )
       }
       return result.take(1)
     })

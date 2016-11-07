@@ -14,13 +14,17 @@ export class UserAPI {
         return get
       }
       return UserFetch.getUserMe()
-        .concatMap(userMe => UserModel.set(userMe))
+        .concatMap(userMe =>
+          UserModel.set(userMe)
+        )
     })
   }
 
   update(patch: any): Observable<string> {
     return UserFetch.update(patch)
-      .concatMap(x => UserModel.update(x))
+      .concatMap(x =>
+        UserModel.update(x)
+      )
   }
 
   addEmail(email: string): Observable<string> {
@@ -32,7 +36,9 @@ export class UserAPI {
 
   bindPhone(phone: string, vcode: string): Observable<string> {
     return UserFetch.bindPhone(phone, vcode)
-      .concatMap(x => UserModel.update(x))
+      .concatMap(x =>
+        UserModel.update(x)
+      )
   }
 }
 

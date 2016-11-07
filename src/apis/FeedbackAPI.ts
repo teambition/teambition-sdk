@@ -16,7 +16,10 @@ export class FeedbackAPI {
 
   create(_projectId: ProjectId, option: CreateProjectFeedbackOption): Observable<FeedbackData> {
     return FeedbackFetch.createProjectFeedback(_projectId, option)
-      .concatMap(r => FeedbackModel.addOne(r).take(1))
+      .concatMap(r =>
+        FeedbackModel.addOne(r)
+          .take(1)
+      )
   }
 
   getProjectFeedback(projectId: ProjectId, query: GetProjectFeedbackQuerys): Observable<FeedbackData[]> {
@@ -26,13 +29,17 @@ export class FeedbackAPI {
         return cache
       }
       return FeedbackFetch.getProjectFeedback(projectId, query)
-        .concatMap(r => FeedbackModel.addProjectFeedbacks(projectId, r, query.page, query.count, query.from, query.to))
+        .concatMap(r =>
+          FeedbackModel.addProjectFeedbacks(projectId, r, query.page, query.count, query.from, query.to)
+        )
     })
   }
 
   deleteProjectFeedback(_projectId: ProjectId, feedbackId: FeedbackId): Observable<void> {
     return FeedbackFetch.deleteProjectFeedback(_projectId, feedbackId)
-      .concatMap(r => FeedbackModel.delete(<string>feedbackId))
+      .concatMap(r =>
+        FeedbackModel.delete(<string>feedbackId)
+      )
   }
 
   updateProjectFeedback(
@@ -41,7 +48,9 @@ export class FeedbackAPI {
     options: UpdateProjectFeedbackOptions
   ): Observable<UpdateProjectFeedbackResponse> {
     return FeedbackFetch.updateProjectFeedback(_projectId, feedbackId, options)
-      .concatMap(r => FeedbackModel.update(<string>feedbackId, r))
+      .concatMap(r =>
+        FeedbackModel.update(<string>feedbackId, r)
+      )
   }
 }
 

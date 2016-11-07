@@ -27,7 +27,10 @@ import { EventId, UserId, ProjectId, TagId } from '../teambition'
 export class EventAPI {
   create(option: CreateEventOptions): Observable<EventData> {
     return EventFetch.create(option)
-      .concatMap(r => EventModel.addOne(r).take(1))
+      .concatMap(r =>
+        EventModel.addOne(r)
+          .take(1)
+      )
   }
 
   get(eventId: EventId, query?: any): Observable<TRecurrenceEvent> {
@@ -42,7 +45,9 @@ export class EventAPI {
       let dest: Observable<EventData | void | TRecurrenceEvent> = EventModel.get(eventId)
       if (!dest || !EventModel.checkSchema(<string>eventId)) {
         dest = EventFetch.get(eventId, query)
-          .concatMap(x => EventModel.addOne(x))
+          .concatMap(x =>
+            EventModel.addOne(x)
+          )
       }
       dest = dest.map((x: TRecurrenceEvent) => {
         if (date) {
@@ -64,54 +69,84 @@ export class EventAPI {
 
   update(eventId: EventId, query: UpdateEventOptions): Observable<string> {
     return EventFetch.update(eventId, query)
-      .concatMap(x => EventModel.update(<string>eventId, x))
+      .concatMap(x =>
+        EventModel.update(<string>eventId, x)
+      )
   }
 
   delete(eventId: EventId): Observable<void> {
     return EventFetch.delete(eventId)
-      .concatMap(x => EventModel.delete(<string>eventId))
+      .concatMap(x =>
+        EventModel.delete(<string>eventId)
+      )
   }
 
   archive(eventId: EventId, occurrenceDate: number): Observable<ArchiveEventResponse> {
     return EventFetch.archive(eventId, occurrenceDate)
-      .concatMap(x => EventModel.update(<string>eventId, x))
+      .concatMap(x =>
+        EventModel.update(<string>eventId, x)
+      )
   }
 
   commentsRepeatEvent(eventId: EventId, commentBody: CommentBody): Observable<CommentRepeatResponse> {
     return EventFetch.commentsRepeatEvent(eventId, commentBody)
-      .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
-      .concatMap((x: CommentRepeatResponse) => EventModel.update<EventData>(<string>eventId, x.repeat).map(() => x))
+      .concatMap(x =>
+        EventModel.addOne(x.new)
+          .take(1)
+          .mapTo(x)
+      )
+      .concatMap((x: CommentRepeatResponse) =>
+        EventModel.update<EventData>(<string>eventId, x.repeat)
+          .mapTo(x)
+      )
   }
 
   likeRepeatEvent(eventId: EventId, occurrenceDate: number): Observable<LikeRepeatEventResponse> {
     return EventFetch.likeRepeatEvent(eventId, occurrenceDate)
-      .concatMap(x => EventModel.addOne(x.new).take(1).map(() => x))
-      .concatMap((x: LikeRepeatEventResponse) => EventModel.update<EventData>(<string>eventId, x.repeat).map(() => x))
+      .concatMap(x =>
+        EventModel.addOne(x.new)
+          .take(1)
+          .mapTo(x)
+        )
+      .concatMap((x: LikeRepeatEventResponse) =>
+        EventModel.update<EventData>(<string>eventId, x.repeat)
+          .mapTo(x)
+      )
   }
 
   unarchive(eventId: EventId): Observable<UnarchiveEventResponse> {
     return EventFetch.unarchive(eventId)
-      .concatMap(x => EventModel.update(<string>eventId, x))
+      .concatMap(x =>
+        EventModel.update(<string>eventId, x)
+      )
   }
 
   updateContent(eventId: EventId, content: string, occurrenceDate?: number): Observable<UpdateEventContentResponse> {
     return EventFetch.updateContent(eventId, content, occurrenceDate)
-      .concatMap(x => EventModel.update(<string>eventId, x))
+      .concatMap(x =>
+        EventModel.update(<string>eventId, x)
+      )
   }
 
   updateInvolvemembers(eventId: EventId, options: UpdateEventInvolvesOptions): Observable<UpdateEventInvolvesResponse> {
     return EventFetch.updateInvolvemembers(eventId, options)
-      .concatMap(x => EventModel.update(<string>eventId, x))
+      .concatMap(x =>
+        EventModel.update(<string>eventId, x)
+      )
   }
 
   updateReminders(eventId: EventId, reminders: EventReminder[], occurrenceDate?: number): Observable<UpdateEventReminderResponse> {
     return EventFetch.updateReminders(eventId, reminders)
-      .concatMap(x => EventModel.update(<string>eventId, x))
+      .concatMap(x =>
+        EventModel.update(<string>eventId, x)
+      )
   }
 
   updateTags(eventId: EventId, tagIds: TagId[], occurrenceDate?: number): Observable<UpdateEventTagsResponse> {
     return EventFetch.updateTags(eventId, tagIds, occurrenceDate)
-      .concatMap(x => EventModel.update(<string>eventId, x))
+      .concatMap(x =>
+        EventModel.update(<string>eventId, x)
+      )
   }
 
   getProjectEvents(projectId: ProjectId, startDate: Date, endDate: Date | 'feature' = 'feature'): Observable<TRecurrenceEvent[]> {
@@ -122,7 +157,9 @@ export class EventAPI {
         dest = cache
       } else {
         dest = EventFetch.getProjectEvents(projectId, startDate, endDate)
-          .concatMap(r => EventModel.addProjectEvents(projectId, r, startDate, endDate))
+          .concatMap(r =>
+            EventModel.addProjectEvents(projectId, r, startDate, endDate)
+          )
       }
       observer.next(dest)
     })
@@ -137,7 +174,9 @@ export class EventAPI {
         dest = cache
       } else {
         dest = EventFetch.getMyEvents(endDate)
-          .concatMap(r => EventModel.addMyEvents(userId, endDate, r))
+          .concatMap(r =>
+            EventModel.addMyEvents(userId, endDate, r)
+          )
       }
       observer.next(dest)
     })
@@ -146,12 +185,17 @@ export class EventAPI {
 
   move(eventId: EventId, projectId: ProjectId): Observable<MoveEventResponse> {
     return EventFetch.move(eventId, projectId)
-      .concatMap(event => EventModel.update(<string>eventId, event))
+      .concatMap(event =>
+        EventModel.update(<string>eventId, event)
+      )
   }
 
   fork(eventId: EventId, projectId: ProjectId): Observable<EventData> {
     return EventFetch.fork(eventId, projectId)
-      .concatMap(event => EventModel.addOne(event).take(1))
+      .concatMap(event =>
+        EventModel.addOne(event)
+          .take(1)
+      )
   }
 }
 

@@ -15,7 +15,9 @@ export class RoleAPI {
         return cache
       }
       return RoleFetch.getDefaultRoles()
-        .concatMap(x => RoleModel.addDefault(x))
+        .concatMap(x =>
+          RoleModel.addDefault(x)
+        )
     })
   }
 
@@ -26,7 +28,9 @@ export class RoleAPI {
         return cache
       }
       return RoleFetch.getCustomRoles(organizationId)
-        .concatMap(x => RoleModel.addRoles(organizationId, x))
+        .concatMap(x =>
+          RoleModel.addRoles(organizationId, x)
+        )
     })
   }
 
@@ -37,7 +41,9 @@ export class RoleAPI {
         return cache
       }
       return RoleFetch.getOne(roleId)
-        .concatMap(x => RoleModel.addOne(x))
+        .concatMap(x =>
+          RoleModel.addOne(x)
+        )
     })
   }
 }

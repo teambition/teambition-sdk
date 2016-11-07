@@ -16,7 +16,10 @@ import { TagId, ProjectId, DetailObjectId, DetailObjectType } from '../teambitio
 export class TagAPI {
   create(options: CreateTagOptions): Observable<TagData> {
     return TagFetch.create(options)
-      .concatMap(r => TagModel.addOne(r).take(1))
+      .concatMap(r =>
+        TagModel.addOne(r)
+          .take(1)
+      )
   }
 
   get(_id: TagId, query?: any): Observable<TagData> {
@@ -26,28 +29,38 @@ export class TagAPI {
         return cache
       }
       return TagFetch.get(_id, query)
-        .concatMap(r => TagModel.addOne(r))
+        .concatMap(r =>
+          TagModel.addOne(r)
+        )
     })
   }
 
   update(_id: TagId, options: UpdateTagOptions): Observable<UpdateTagResponse> {
     return TagFetch.update(_id, options)
-      .concatMap(r => TagModel.update(<string>_id, r))
+      .concatMap(r =>
+        TagModel.update(<string>_id, r)
+      )
   }
 
   delete(_id: TagId): Observable<void> {
     return TagFetch.delete(_id)
-      .concatMap(() => TagModel.delete(<string>_id))
+      .concatMap(() =>
+        TagModel.delete(<string>_id)
+      )
   }
 
   archive(_id: TagId): Observable<ArchiveTagResponse> {
     return TagFetch.archive(_id)
-      .concatMap(r => TagModel.update(<string>_id, r))
+      .concatMap(r =>
+        TagModel.update(<string>_id, r)
+      )
   }
 
   unarchive(_id: TagId): Observable<ArchiveTagResponse> {
     return TagFetch.unarchive(_id)
-      .concatMap(r => TagModel.update(<string>_id, r))
+      .concatMap(r =>
+        TagModel.update(<string>_id, r)
+      )
   }
 
   getByProjectId(_projectId: ProjectId, query?: any): Observable<TagData[]> {
@@ -57,7 +70,9 @@ export class TagAPI {
         return cache
       }
       return TagFetch.getByProjectId(_projectId, query)
-        .concatMap(r => TagModel.addByProjectId(_projectId, r))
+        .concatMap(r =>
+          TagModel.addByProjectId(_projectId, r)
+        )
     })
   }
 
@@ -72,7 +87,9 @@ export class TagAPI {
         return cache
       }
       return TagFetch.getRelated<T>(_tagId, objectType, query)
-        .concatMap(r => TagModel.addRelated(_tagId, objectType, r))
+        .concatMap(r =>
+          TagModel.addRelated(_tagId, objectType, r)
+        )
     })
   }
 
@@ -82,7 +99,9 @@ export class TagAPI {
     tagId: TagId
   ): Observable<RelateTagResponse> {
     return TagFetch.relateTag(_objectId, objectType, tagId)
-      .concatMap(r => TagModel.relatedTag(_objectId, r))
+      .concatMap(r =>
+        TagModel.relatedTag(_objectId, r)
+      )
   }
 }
 

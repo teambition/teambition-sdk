@@ -49,7 +49,9 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getByTasklist(_tasklistId, _query)
-        .concatMap(tasks => TaskModel.addTasklistTasksUndone(_tasklistId, tasks))
+        .concatMap(tasks =>
+          TaskModel.addTasklistTasksUndone(_tasklistId, tasks)
+        )
     })
   }
 
@@ -70,7 +72,9 @@ export class TaskAPI {
       }
       return TaskFetch.getTasksMe(_query)
         .map(Dirty.handlerMytasksApi)
-        .concatMap(tasks => TaskModel.addMyDueTasks(_userId, tasks))
+        .concatMap(tasks =>
+          TaskModel.addMyDueTasks(_userId, tasks)
+        )
     })
   }
 
@@ -91,7 +95,9 @@ export class TaskAPI {
       }
       return TaskFetch.getTasksMe(_query)
         .map(Dirty.handlerMytasksApi)
-        .concatMap(tasks => TaskModel.addMyTasks(_userId, tasks))
+        .concatMap(tasks =>
+          TaskModel.addMyTasks(_userId, tasks)
+        )
     })
   }
 
@@ -110,7 +116,9 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getByTasklist(_tasklistId, _query)
-        .concatMap(tasks => TaskModel.addTasklistTasksDone(_tasklistId, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addTasklistTasksDone(_tasklistId, tasks, page)
+        )
     })
   }
 
@@ -130,7 +138,9 @@ export class TaskAPI {
       }
       return TaskFetch.getOrgsTasksMe(organization._id, _query)
         .map(Dirty.handlerMytasksApi)
-        .concatMap(tasks => TaskModel.addOrganizationMyDueTasks(userId, organization, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addOrganizationMyDueTasks(userId, organization, tasks, page)
+        )
     })
   }
 
@@ -150,7 +160,9 @@ export class TaskAPI {
       }
       return TaskFetch.getOrgsTasksMe(organization._id, _query)
         .map(Dirty.handlerMytasksApi)
-        .concatMap(tasks => TaskModel.addOrganizationMyTasks(userId, organization, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addOrganizationMyTasks(userId, organization, tasks, page)
+        )
     })
   }
 
@@ -169,7 +181,9 @@ export class TaskAPI {
       }
       return TaskFetch.getOrgsTasksMe(organization._id, _query)
         .map(Dirty.handlerMytasksApi)
-        .concatMap(tasks => TaskModel.addOrganizationMyDoneTasks(userId, organization, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addOrganizationMyDoneTasks(userId, organization, tasks, page)
+        )
     })
   }
 
@@ -186,7 +200,9 @@ export class TaskAPI {
       }
       return TaskFetch.getOrgsTasksCreated(organization._id, _query)
         .map(Dirty.handlerMytasksApi)
-        .concatMap(tasks => TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page)
+        )
     })
   }
 
@@ -203,7 +219,9 @@ export class TaskAPI {
       }
       return TaskFetch.getOrgsTasksInvolves(organization._id, _query)
         .map(Dirty.handlerMytasksApi)
-        .concatMap(tasks => TaskModel.addOrgMyInvolvesTasks(userId, organization, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addOrgMyInvolvesTasks(userId, organization, tasks, page)
+        )
     })
   }
 
@@ -219,7 +237,9 @@ export class TaskAPI {
         return get
       }
       return TaskFetch.getProjectTasks(_projectId, query)
-        .concatMap(tasks => TaskModel.addProjectTasks(_projectId, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addProjectTasks(_projectId, tasks, page)
+        )
     })
   }
 
@@ -235,7 +255,9 @@ export class TaskAPI {
         return get
       }
       return TaskFetch.getProjectDoneTasks(_projectId, query)
-        .concatMap(tasks => TaskModel.addProjectDoneTasks(_projectId, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addProjectDoneTasks(_projectId, tasks, page)
+        )
     })
   }
 
@@ -246,7 +268,9 @@ export class TaskAPI {
         return get
       }
       return TaskFetch.getStageTasks(stageId, query)
-        .concatMap(tasks => TaskModel.addStageTasks(stageId, tasks))
+        .concatMap(tasks =>
+          TaskModel.addStageTasks(stageId, tasks)
+        )
     })
   }
 
@@ -258,7 +282,9 @@ export class TaskAPI {
         return get
       }
       return TaskFetch.getStageDoneTasks(stageId, query)
-        .concatMap(tasks => TaskModel.addStageDoneTasks(stageId, tasks, page))
+        .concatMap(tasks =>
+          TaskModel.addStageDoneTasks(stageId, tasks, page)
+        )
     })
   }
 
@@ -269,23 +295,32 @@ export class TaskAPI {
         return get
       }
       return TaskFetch.get(_id, detailType)
-        .concatMap(task => TaskModel.addOne(task))
+        .concatMap(task =>
+          TaskModel.addOne(task)
+        )
     })
   }
 
   create(taskInfo: CreateTaskOptions): Observable<TaskData> {
     return TaskFetch.create(taskInfo)
-      .concatMap(task => TaskModel.addOne(task).take(1))
+      .concatMap(task =>
+        TaskModel.addOne(task).take(1)
+      )
   }
 
   fork(_taskId: TaskId, options: ForkTaskOptions): Observable<TaskData> {
     return TaskFetch.fork(_taskId, options)
-      .concatMap(task => TaskModel.addOne(task).take(1))
+      .concatMap(task =>
+        TaskModel.addOne(task)
+          .take(1)
+      )
   }
 
   delete(_taskId: TaskId): Observable<void> {
     return TaskFetch.delete(_taskId)
-      .concatMap(x => TaskModel.delete(<string>_taskId))
+      .concatMap(x =>
+        TaskModel.delete(<string>_taskId)
+      )
   }
 
   move(_taskId: TaskId, options: MoveTaskOptions): Observable<TaskData> {
@@ -337,7 +372,9 @@ export class TaskAPI {
   }
 
   private _updateFromRequest<T>(_taskId: TaskId, request: Observable<T>): Observable<T> {
-    return request.concatMap(r => TaskModel.update(<string>_taskId, r))
+    return request.concatMap(r =>
+      TaskModel.update(<string>_taskId, r)
+    )
   }
 }
 

@@ -26,7 +26,9 @@ export class SubtaskAPI {
         return get
       }
       return SubtaskFetch.getFromTask(_taskId, query)
-        .concatMap(subtasks => SubtaskModel.addToTask(_taskId, subtasks))
+        .concatMap(subtasks =>
+          SubtaskModel.addToTask(_taskId, subtasks)
+        )
     })
   }
 
@@ -43,7 +45,9 @@ export class SubtaskAPI {
         assign(_query, query)
       }
       return SubtaskFetch.getOne(_subtaskid, _query)
-        .concatMap(subtask => SubtaskModel.addOne(subtask))
+        .concatMap(subtask =>
+          SubtaskModel.addOne(subtask)
+        )
     })
   }
 
@@ -53,23 +57,37 @@ export class SubtaskAPI {
     _executorId?: IdOfMember
   }): Observable<SubtaskData> {
     return SubtaskFetch.create(subtaskData)
-      .concatMap(subtask => SubtaskModel.addOne(subtask).take(1))
+      .concatMap(subtask =>
+        SubtaskModel.addOne(subtask)
+          .take(1)
+      )
   }
 
   update(_subtaskId: SubtaskId, options: SubtaskUpdateOptions): Observable<SubtaskUpdateOptions> {
     return SubtaskFetch.update(_subtaskId, options)
-      .concatMap(subtask => SubtaskModel.update(<string>_subtaskId, subtask))
+      .concatMap(subtask =>
+        SubtaskModel.update(<string>_subtaskId, subtask)
+      )
   }
 
   delete(_subtaskid: SubtaskId): Observable<void> {
     return SubtaskFetch.delete(_subtaskid)
-      .concatMap(x => SubtaskModel.delete(<string>_subtaskid))
+      .concatMap(x =>
+        SubtaskModel.delete(<string>_subtaskid)
+      )
   }
 
   transform(_subtaskId: SubtaskId, doLink = false, doLinked = false): Observable<TaskData> {
     return SubtaskFetch.transform(_subtaskId, doLink, doLinked)
-      .concatMap<TaskData>(x => SubtaskModel.delete(<string>_subtaskId).map(() => x))
-      .concatMap<TaskData>(x => TaskModel.addOne(x).take(1).map(() => x))
+      .concatMap<TaskData>(x =>
+        SubtaskModel.delete(<string>_subtaskId)
+          .mapTo(x)
+      )
+      .concatMap<TaskData>(x =>
+        TaskModel.addOne(x)
+          .take(1)
+          .mapTo(x)
+        )
   }
 
   updateContent(_subtaskId: SubtaskId, content: string): Observable<UpdateSubtaskContentResponse> {
@@ -103,7 +121,9 @@ export class SubtaskAPI {
         assign(_query, query)
       }
       return SubtaskFetch.getOrgsSubtasksMe(organization._id, _query)
-        .concatMap(subtasks => SubtaskModel.addOrgMySubtasks(userId, organization, subtasks, page))
+        .concatMap(subtasks =>
+          SubtaskModel.addOrgMySubtasks(userId, organization, subtasks, page)
+        )
     })
   }
 
@@ -122,7 +142,9 @@ export class SubtaskAPI {
         assign(_query, query)
       }
       return SubtaskFetch.getOrgsSubtasksMe(organization._id, _query)
-        .concatMap(subtasks => SubtaskModel.addOrgMyDueSubtasks(userId, organization, subtasks, page))
+        .concatMap(subtasks =>
+          SubtaskModel.addOrgMyDueSubtasks(userId, organization, subtasks, page)
+        )
     })
   }
 
@@ -140,7 +162,9 @@ export class SubtaskAPI {
         assign(_query, query)
       }
       return SubtaskFetch.getOrgsSubtasksMe(organization._id, _query)
-        .concatMap(subtasks => SubtaskModel.addOrgMyDoneSubtasks(userId, organization, subtasks, page))
+        .concatMap(subtasks =>
+          SubtaskModel.addOrgMyDoneSubtasks(userId, organization, subtasks, page)
+        )
     })
   }
 
@@ -156,12 +180,16 @@ export class SubtaskAPI {
         assign(_query, query)
       }
       return SubtaskFetch.getOrgsSubtasksCreated(organization._id, _query)
-        .concatMap(subtasks => SubtaskModel.addOrgMyCreatedSubtasks(userId, organization, subtasks, page))
+        .concatMap(subtasks =>
+          SubtaskModel.addOrgMyCreatedSubtasks(userId, organization, subtasks, page)
+        )
     })
   }
 
   private _updateFromPromise<T>(_subtaskId: SubtaskId, request: Observable<T>): Observable<T> {
-    return request.concatMap<T>(subtask => SubtaskModel.update(<string>_subtaskId, subtask))
+    return request.concatMap<T>(subtask =>
+      SubtaskModel.update(<string>_subtaskId, subtask)
+    )
   }
 }
 

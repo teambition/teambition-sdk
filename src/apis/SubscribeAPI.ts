@@ -15,7 +15,9 @@ export class SubscribeAPI {
         return cache
       }
       return SubscribeFetch.getOrgsSubscribe(_organizationId, query)
-        .concatMap(r => SubscribeModel.addOne(_organizationId, r))
+        .concatMap(r =>
+          SubscribeModel.addOne(_organizationId, r)
+        )
     })
   }
 
@@ -25,7 +27,9 @@ export class SubscribeAPI {
     $del?: ProjectId[]
   ): Observable<UpdateOrgsSubscribeResponse> {
     return SubscribeFetch.updateOrgsSubscribe(_organizationId, $add, $del)
-      .concatMap(r => SubscribeModel.update(<string>r._id, r))
+      .concatMap(r =>
+        SubscribeModel.update(<string>r._id, r)
+      )
   }
 }
 
