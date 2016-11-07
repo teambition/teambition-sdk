@@ -158,4 +158,10 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
       throw new Error(`this is not a recurrence event: ${JSON.stringify(this.$$data)}`)
     }
   }
+
+  // 普通日程无`_isRecurrenceEvent`字段
+  checkSchema() {
+    this.$$keys.delete('_isRecurrenceEvent')
+    return !this.$$keys.size
+  }
 }
