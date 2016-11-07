@@ -44,13 +44,15 @@
     "dist/**"
   ],
   "homepage": "https://github.com/teambition/teambition-sdk#readme",
-  "dependencies": {
+  "peerDependencies": {
     "core-js": "^2.4.1",
-    "isomorphic-fetch": "^2.2.1",
-    "rrule": "github:teambition/rrule#v2.2.4",
     "rxjs": "^5.0.0-rc.2",
     "snapper-consumer": "^1.3.0",
-    "tslib": "^1.0.0",
+    "tslib": "^1.0.0"
+  },
+  "dependencies": {
+    "rrule": "github:teambition/rrule#v2.2.4",
+    "isomorphic-fetch": "^2.2.1",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {
@@ -63,6 +65,7 @@
     "@types/whatwg-fetch": "0.0.32",
     "chai": "^3.4.1",
     "commitizen": "^2.8.6",
+    "core-js": "^2.4.1",
     "cz-teambition-web-commit": "github:teambition/cz-teambition-web-commit",
     "engine.io-client": "^1.7.2",
     "fetch-mock": "^5.5.0",
@@ -74,10 +77,13 @@
     "rollup-plugin-alias": "^1.2.0",
     "rollup-plugin-commonjs": "^5.0.5",
     "rollup-plugin-node-resolve": "^2.0.0",
+    "rxjs": "^5.0.0-rc.2",
     "sinon": "^1.17.2",
     "sinon-chai": "^2.8.0",
+    "snapper-consumer": "^1.3.0",
     "tman": "^1.6.0",
     "ts-node": "^1.6.0",
+    "tslib": "^1.0.0",
     "tslint": "^3.15.1",
     "typescript": "^2.0.6"
   },
