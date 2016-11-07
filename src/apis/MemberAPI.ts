@@ -15,13 +15,17 @@ export class MemberAPI {
         return cache
       }
       return MemberFetch.getOne(memberId, query)
-        .concatMap(member => MemberModel.addOne(member))
+        .concatMap(member =>
+          MemberModel.addOne(member)
+        )
     })
   }
 
   deleteMember(memberId: MemberId): Observable<void> {
     return MemberFetch.deleteMember(memberId)
-      .concatMap(x => MemberModel.delete(<string>memberId))
+      .concatMap(x =>
+        MemberModel.delete(<string>memberId)
+      )
   }
 
   getOrgMembers (organizationId: OrganizationId, page = 1, count = 30): Observable<MemberData[]> {
@@ -31,7 +35,9 @@ export class MemberAPI {
         return get
       }
       return MemberFetch.getOrgMembers(organizationId, { page, count })
-        .concatMap(x => MemberModel.saveOrgMembers(organizationId, x, page, count))
+        .concatMap(x =>
+          MemberModel.saveOrgMembers(organizationId, x, page, count)
+        )
     })
   }
 
@@ -42,7 +48,9 @@ export class MemberAPI {
         return cache
       }
       return MemberFetch.getAllOrgMembers(organizationId)
-        .concatMap(r => MemberModel.saveAllOrgMembers(organizationId, r))
+        .concatMap(r =>
+          MemberModel.saveAllOrgMembers(organizationId, r)
+        )
     })
   }
 
@@ -53,7 +61,9 @@ export class MemberAPI {
         return get
       }
       return MemberFetch.getProjectMembers(projectId, { page, count })
-        .concatMap(x => MemberModel.saveProjectMembers(projectId, x, page, count))
+        .concatMap(x =>
+          MemberModel.saveProjectMembers(projectId, x, page, count)
+        )
     })
   }
 
@@ -64,7 +74,9 @@ export class MemberAPI {
         return cache
       }
       return MemberFetch.getAllProjectMembers(projectId)
-        .concatMap(r => MemberModel.saveAllProjectMembers(projectId, r))
+        .concatMap(r =>
+          MemberModel.saveAllProjectMembers(projectId, r)
+        )
     })
   }
 
@@ -80,7 +92,9 @@ export class MemberAPI {
    */
   addMembers(_projectId: ProjectId, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]> {
     return MemberFetch.addProjectMembers(_projectId, <string[]>emails)
-      .concatMap(r => MemberModel.addProjectMembers(_projectId, r))
+      .concatMap(r =>
+        MemberModel.addProjectMembers(_projectId, r)
+      )
   }
 }
 

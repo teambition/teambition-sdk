@@ -9,7 +9,10 @@ import { ObjectLinkId, DetailObjectId } from '../teambition'
 export class ObjectLinkAPI {
   create(option: CreateObjectLinkOptions): Observable<ObjectLinkData> {
     return ObjectLinkFetch.create(option)
-      .concatMap(r => ObjectLinkModel.addOne(r).take(1))
+      .concatMap(r =>
+        ObjectLinkModel.addOne(r)
+          .take(1)
+      )
   }
 
   get(_parentId: DetailObjectId, parentType: parentType, querys?: any): Observable<ObjectLinkData[]> {
@@ -19,13 +22,17 @@ export class ObjectLinkAPI {
         return cache
       }
       return ObjectLinkFetch.get(_parentId, parentType, querys)
-        .concatMap(r => ObjectLinkModel.addObjectLinks(_parentId, r))
+        .concatMap(r =>
+          ObjectLinkModel.addObjectLinks(_parentId, r)
+        )
     })
   }
 
   delete(_id: ObjectLinkId): Observable<void> {
     return ObjectLinkFetch.delete(_id)
-      .concatMap(r => ObjectLinkModel.delete(<string>_id))
+      .concatMap(r =>
+        ObjectLinkModel.delete(<string>_id)
+      )
   }
 }
 

@@ -15,7 +15,9 @@ export class StageAPI {
         return get
       }
       return StageFetch.get(_tasklistId)
-        .concatMap(stages => StageModel.addStages(_tasklistId, stages))
+        .concatMap(stages =>
+          StageModel.addStages(_tasklistId, stages)
+        )
     })
   }
 
@@ -26,30 +28,42 @@ export class StageAPI {
         return get
       }
       return StageFetch.get(_tasklistId, stageId)
-        .concatMap(stage => StageModel.addOne(stage))
+        .concatMap(stage =>
+          StageModel.addOne(stage)
+        )
     })
   }
 
   create(data: StageCreateData): Observable<StageData> {
     return StageFetch.create(data)
-      .concatMap(stage => StageModel.addOne(stage).take(1))
+      .concatMap(stage =>
+        StageModel.addOne(stage)
+          .take(1)
+      )
   }
 
   update(_stageId: StageId, data: StageUpdateData): Observable<StageUpdateData> {
     return StageFetch.update(_stageId, data)
-      .concatMap(stage => StageModel.update(<string>_stageId, stage))
+      .concatMap(stage =>
+        StageModel.update(<string>_stageId, stage)
+      )
   }
 
   delete(_stageId: StageId): Observable<void> {
     return StageFetch.delete(_stageId)
-      .concatMap(x => StageModel.delete(<string>_stageId))
+      .concatMap(x =>
+        StageModel.delete(<string>_stageId)
+      )
   }
 
   updateStageIds(_tasklistId: TasklistId, stageIds: StageId[]): Observable<{
     stageIds: StageId[]
   }> {
     return StageFetch.updateStageIds(_tasklistId, stageIds)
-      .concatMap(r => StageModel.updateOrders(_tasklistId, r.stageIds).map(() => r))
+      .concatMap(r =>
+        StageModel.updateOrders(_tasklistId, r.stageIds)
+          .map(() => r)
+      )
   }
 }
 

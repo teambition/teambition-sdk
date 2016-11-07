@@ -24,18 +24,25 @@ export class EntrycategoryAPI {
         return get
       }
       return EntrycategoryFetch.getEntrycategories(query)
-        .concatMap(posts => EntrycategoryModel.addEntrycategories(query._projectId, posts, page))
+        .concatMap(posts =>
+          EntrycategoryModel.addEntrycategories(query._projectId, posts, page)
+        )
     })
   }
 
   create(entrycategory: CreateEntrycategoryOptions): Observable<EntrycategoryData> {
     return EntrycategoryFetch.create(entrycategory)
-      .concatMap(entrycategory => EntrycategoryModel.addOne(entrycategory).take(1))
+      .concatMap(entrycategory =>
+        EntrycategoryModel.addOne(entrycategory)
+          .take(1)
+      )
   }
 
   update(_entrycategoryId: EntryCategoryId, data: UpdateEntrycategoryOptions): Observable<UpdateEntrycategoryResponse> {
     return EntrycategoryFetch.update(_entrycategoryId, data)
-      .concatMap(entrycategory => EntrycategoryModel.update(<string>_entrycategoryId, entrycategory))
+      .concatMap(entrycategory =>
+        EntrycategoryModel.update(<string>_entrycategoryId, entrycategory)
+      )
   }
 
   get(_entrycategoryId: EntryCategoryId, query: {
@@ -47,13 +54,17 @@ export class EntrycategoryAPI {
         return get
       }
       return EntrycategoryFetch.get(_entrycategoryId, query)
-        .concatMap(post => EntrycategoryModel.addOne(post))
+        .concatMap(post =>
+          EntrycategoryModel.addOne(post)
+        )
     })
   }
 
   delete(entrycategoryId: EntryCategoryId): Observable<void> {
     return EntrycategoryFetch.delete(entrycategoryId)
-      .concatMap(x => EntrycategoryModel.delete(<string>entrycategoryId))
+      .concatMap(x =>
+        EntrycategoryModel.delete(<string>entrycategoryId)
+      )
   }
 
 }

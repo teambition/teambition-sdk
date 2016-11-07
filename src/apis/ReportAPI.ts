@@ -49,7 +49,12 @@ export class ReportAPI {
         return cache
       }
       return ReportFetch.getAccomplished(projectId, taskType, option)
-        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'accomplished', taskType, option.queryType, option.isWeekSearch))
+        .concatMap(r =>
+          ReportModel.storeData(
+            projectId, r, option.page, 'accomplished',
+            taskType, option.queryType, option.isWeekSearch
+          )
+        )
     })
   }
 
@@ -87,7 +92,12 @@ export class ReportAPI {
         return cache
       }
       return ReportFetch.getInprogress(projectId, taskType, option)
-        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'progress', taskType, option.queryType))
+        .concatMap(r =>
+          ReportModel.storeData(
+            projectId, r, option.page, 'progress',
+            taskType, option.queryType
+          )
+        )
     })
   }
 
@@ -101,7 +111,12 @@ export class ReportAPI {
         return cache
       }
       return ReportFetch.getNotStart(projectId, option)
-        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'notstart', 'task'))
+        .concatMap(r =>
+          ReportModel.storeData(
+            projectId, r, option.page,
+            'notstart', 'task'
+          )
+        )
     })
   }
 
@@ -112,7 +127,12 @@ export class ReportAPI {
         return cache
       }
       return ReportFetch.getUnassigned(projectId, option)
-        .concatMap(r => ReportModel.storeData(projectId, r, option.page, 'unassigned', 'task'))
+        .concatMap(r =>
+          ReportModel.storeData(
+            projectId, r, option.page,
+            'unassigned', 'task'
+          )
+        )
     })
   }
 }

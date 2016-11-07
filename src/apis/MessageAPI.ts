@@ -22,33 +22,45 @@ export class MessageAPI {
         return get
       }
       return MessageFetch.getMessages(query)
-        .concatMap(messages => MessageModel.addMessages(type, messages, page))
+        .concatMap(messages =>
+          MessageModel.addMessages(type, messages, page)
+        )
     })
   }
 
   read(messageId: MessageId): Observable<ReadResponse> {
     return MessageFetch.read(messageId)
-      .concatMap(message => MessageModel.update(<string>messageId, message))
+      .concatMap(message =>
+        MessageModel.update(<string>messageId, message)
+      )
   }
 
   markAllAsRead(type: GetMessageType): Observable<MessageData[]> {
     return MessageFetch.markAllAsRead(type)
-      .concatMap(x => MessageModel.markAllAsRead(type))
+      .concatMap(x =>
+        MessageModel.markAllAsRead(type)
+      )
   }
 
   snooze(messageId: MessageId, date: string): Observable<SnoozeResponse> {
     return MessageFetch.snooze(messageId, date)
-      .concatMap(message => MessageModel.update(<string>messageId, message))
+      .concatMap(message =>
+        MessageModel.update(<string>messageId, message)
+      )
   }
 
   delete(messageId: MessageId): Observable<void> {
     return MessageFetch.delete(messageId)
-      .concatMap(x => MessageModel.delete(<string>messageId))
+      .concatMap(x =>
+        MessageModel.delete(<string>messageId)
+      )
   }
 
   deleteAllRead(type: GetMessageType): Observable<MessageData[]> {
     return MessageFetch.deleteAllRead(type)
-      .concatMap(x => MessageModel.deleteAllRead(type))
+      .concatMap(x =>
+        MessageModel.deleteAllRead(type)
+      )
   }
 }
 

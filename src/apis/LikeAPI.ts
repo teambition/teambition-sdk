@@ -26,12 +26,16 @@ export class LikeAPI {
 
   like(objectType: DetailObjectType, objectId: DetailObjectId): Observable<LikeData> {
     return LikeFetch.like(objectType, objectId)
-      .concatMap(r => LikeModel.update(`${objectId}:like`, r))
+      .concatMap(r =>
+        LikeModel.update(`${objectId}:like`, r)
+      )
   }
 
   unlike(objectType: DetailObjectType, objectId: DetailObjectId): Observable<LikeData> {
     return LikeFetch.unlike(objectType, objectId)
-      .concatMap(r => LikeModel.update(`${objectId}:like`, r))
+      .concatMap(r =>
+        LikeModel.update(`${objectId}:like`, r)
+      )
   }
 }
 

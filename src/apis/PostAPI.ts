@@ -31,7 +31,9 @@ export class PostAPI {
         return get
       }
       return PostFetch.getProjectPosts(projectId, 'all', query)
-        .concatMap(posts => PostModel.addPosts(projectId, posts, page))
+        .concatMap(posts =>
+          PostModel.addPosts(projectId, posts, page)
+        )
     })
   }
 
@@ -48,7 +50,9 @@ export class PostAPI {
         return get
       }
       return PostFetch.getProjectPosts(projectId, 'my', query)
-        .concatMap(posts => PostModel.addMyPosts(userId, projectId, posts, page))
+        .concatMap(posts =>
+          PostModel.addMyPosts(userId, projectId, posts, page)
+        )
     })
   }
 
@@ -60,13 +64,18 @@ export class PostAPI {
         return cache
       }
       return PostFetch.getByTagId(tagId, query)
-        .concatMap(r => PostModel.addByTagId(tagId, r, page))
+        .concatMap(r =>
+          PostModel.addByTagId(tagId, r, page)
+        )
     })
   }
 
   create(post: CreatePostOptions): Observable<PostData> {
     return PostFetch.create(post)
-      .concatMap(post => PostModel.addOne(post).take(1))
+      .concatMap(post =>
+        PostModel.addOne(post)
+          .take(1)
+      )
   }
 
   get(postId: PostId, query?: any): Observable<PostData> {
@@ -76,7 +85,9 @@ export class PostAPI {
         return get
       }
       return PostFetch.get(postId, query)
-        .concatMap(post => PostModel.addOne(post))
+        .concatMap(post =>
+          PostModel.addOne(post)
+        )
     })
   }
 
@@ -85,7 +96,9 @@ export class PostAPI {
    */
   delete(postId: PostId): Observable<void> {
     return PostFetch.delete(postId)
-      .concatMap(x => PostModel.delete(<string>postId))
+      .concatMap(x =>
+        PostModel.delete(<string>postId)
+      )
   }
 
   /**
@@ -93,7 +106,9 @@ export class PostAPI {
    */
   archive(postId: PostId): Observable<ArchivePostResponse> {
     return PostFetch.archive(postId)
-      .concatMap(post => PostModel.update(<string>postId, post))
+      .concatMap(post =>
+        PostModel.update(<string>postId, post)
+      )
   }
 
   /**
@@ -101,12 +116,16 @@ export class PostAPI {
    */
   unarchive(postId: PostId): Observable<UnArchivePostResponse> {
     return PostFetch.unarchive(postId)
-      .concatMap(result => PostModel.update(<string>postId, result))
+      .concatMap(result =>
+        PostModel.update(<string>postId, result)
+      )
   }
 
   update(postId: PostId, post: UpdatePostOptions): Observable<string> {
     return PostFetch.update(postId, post)
-      .concatMap(result => PostModel.update(<string>postId, result))
+      .concatMap(result =>
+        PostModel.update(<string>postId, result)
+      )
   }
 
   /**
@@ -114,7 +133,9 @@ export class PostAPI {
    */
   updateInvolves(postId: PostId, involves: UpdateInvolves): Observable<UpdateInvolvesResponse> {
     return PostFetch.updateInvolves(postId, involves)
-      .concatMap(result => PostModel.update(<string>postId, result))
+      .concatMap(result =>
+        PostModel.update(<string>postId, result)
+      )
   }
 
   /**
@@ -122,7 +143,9 @@ export class PostAPI {
    */
   updatePin(postId: PostId, pin: boolean): Observable<UpdatePinResponse> {
     return PostFetch.updatePin(postId, pin)
-      .concatMap(post => PostModel.update(<string>postId, post))
+      .concatMap(post =>
+        PostModel.update(<string>postId, post)
+      )
   }
 
   /**
@@ -130,17 +153,24 @@ export class PostAPI {
    */
   updateTags(postId: PostId, tagIds: TagId[]): Observable<UpdateTagsResponse> {
     return PostFetch.updateTags(postId, tagIds)
-      .concatMap(r => PostModel.update(<string>postId, r))
+      .concatMap(r =>
+        PostModel.update(<string>postId, r)
+      )
   }
 
   move(postId: PostId, projectId: PostId): Observable<MovePostResponse> {
     return PostFetch.move(postId, projectId)
-      .concatMap(post => PostModel.update(<string>postId, post))
+      .concatMap(post =>
+        PostModel.update(<string>postId, post)
+      )
   }
 
   fork(postId: PostId, projectId: ProjectId): Observable<PostData> {
     return PostFetch.fork(postId, projectId)
-      .concatMap(post => PostModel.addOne(post).take(1))
+      .concatMap(post =>
+        PostModel.addOne(post)
+          .take(1)
+      )
   }
 }
 
