@@ -22,7 +22,7 @@ import {
 import EventModel from '../models/EventModel'
 import { TRecurrenceEvent } from '../models/events/RecurrenceEvent'
 import { EventData } from '../schemas/Event'
-import { EventId, UserId, ProjectId, TagId } from '../teambition'
+import { EventId, ProjectId, TagId } from '../teambition'
 
 export class EventAPI {
   create(option: CreateEventOptions): Observable<EventData> {
@@ -164,23 +164,6 @@ export class EventAPI {
       observer.next(dest)
     })
       ._switch()
-  }
-
-  getMyEvents(userId: UserId, endDate: Date, query?: any): Observable<TRecurrenceEvent[]> {
-    const signal: Observable<Observable<TRecurrenceEvent[]>> = Observable.create((observer: Observer<Observable<EventData[]>>) => {
-      let dest: Observable<EventData[]>
-      const cache = EventModel.getMyEvents(userId, endDate)
-      if (cache) {
-        dest = cache
-      } else {
-        dest = EventFetch.getMyEvents(endDate)
-          .concatMap(r =>
-            EventModel.addMyEvents(userId, endDate, r)
-          )
-      }
-      observer.next(dest)
-    })
-    return signal._switch()
   }
 
   move(eventId: EventId, projectId: ProjectId): Observable<MoveEventResponse> {
