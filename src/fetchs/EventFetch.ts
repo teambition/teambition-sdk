@@ -32,6 +32,11 @@ export interface UpdateEventOptions {
   occurrenceDate?: string[]
 }
 
+export interface GetMyEventsOptions {
+  startDate?: Date
+  endDate?: Date
+}
+
 export interface ArchiveEventResponse {
   isArchived: boolean
   updated: string
@@ -203,11 +208,13 @@ export class EventFetch extends BaseFetch {
     return this.fetch.get(`projects/${projectId}/events?startDate=${startDate.toISOString()}${query}`)
   }
 
-  getMyEvents(endDate: Date, query?: any): Observable<EventData[]> {
-    if (query) {
-      query.endDate = endDate.toISOString()
-    } else {
-      query = { endDate: endDate.toISOString() }
+  getMyEvents(options?: GetMyEventsOptions): Observable<EventData[]> {
+    let query: any = {}
+    if (options.startDate) {
+      query.startDate = options.startDate.toISOString()
+    }
+    if (options.endDate) {
+      query.endDate = options.endDate.toISOString()
     }
     return this.fetch.get(`events/me`, query)
   }
