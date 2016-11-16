@@ -30,6 +30,10 @@ export interface EventData extends ISchema {
   objectlinksCount?: number
   mockId?: string
   likesCount?: number
+  project?: {
+    _id: ProjectId
+    name: string
+  }
 }
 
 @schemaName('Event')
