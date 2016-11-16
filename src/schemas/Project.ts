@@ -48,6 +48,7 @@ export interface ProjectData extends ISchema {
   }
   unreadCount?: number
   unreadMessageCount?: number
+  uniqueIdPrefix?: string
   _defaultRoleId: RoleId | null
   creator: ExecutorOrCreator
   pushStatus: boolean
