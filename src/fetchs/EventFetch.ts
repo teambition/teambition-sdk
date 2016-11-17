@@ -116,6 +116,13 @@ export interface MoveEventResponse {
   updated: string
 }
 
+export interface MyEventsCount {
+  month: string // YYYYMM
+  count: number
+}
+
+export type MyEventsCountResponse = MyEventsCount[]
+
 export class EventFetch extends BaseFetch {
   create(options: CreateEventOptions): Observable<EventData> {
     return this.fetch.post(`events`, options)
@@ -217,6 +224,13 @@ export class EventFetch extends BaseFetch {
       query.endDate = options.endDate.toISOString()
     }
     return this.fetch.get(`events/me`, query)
+  }
+
+  getMyEventsCount(endDate: Date): Observable<MyEventsCountResponse> {
+    let query: any = {
+      endDate: endDate.toISOString()
+    }
+    return this.fetch.get('events/me/count/group-by', query)
   }
 
   move(eventId: EventId, projectId: ProjectId): Observable<MoveEventResponse> {
