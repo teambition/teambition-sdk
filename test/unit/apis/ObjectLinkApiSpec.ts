@@ -12,7 +12,7 @@ chai.use(sinonChai)
 export default describe('ObjectLink API test:', () => {
   let ObjectLink: ObjectLinkAPI
   let httpBackend: Backend
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const parentId = objectLinks[0]._parentId
   const parentType = objectLinks[0].parentType

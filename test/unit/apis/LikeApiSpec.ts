@@ -12,7 +12,7 @@ chai.use(SinonChai)
 export default describe('LikeAPI test: ', () => {
   let httpBackend: Backend
   let LikeApi: LikeAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()

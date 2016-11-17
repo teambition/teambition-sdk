@@ -40,7 +40,7 @@ export default describe('Report API Test: ', () => {
   let SubtaskApi: SubtaskAPI
   let ReportApi: ReportAPI
   let httpBackend: Backend
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()

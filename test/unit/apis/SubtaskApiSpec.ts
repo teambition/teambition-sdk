@@ -24,7 +24,7 @@ chai.use(sinonChai)
 export default describe('Subtask API test: ', () => {
   let Subtask: SubtaskAPI
   let httpBackend: Backend
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const organization = organizations[0]
   const organizationId = organization._id

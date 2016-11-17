@@ -16,7 +16,7 @@ const expect = chai.expect
 export default describe('MessageAPI test: ', () => {
   let httpBackend: Backend
   let Message: MessageAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const _messageId = messages[0]._id
   const _messageType = 'normal'

@@ -24,7 +24,7 @@ const expect = chai.expect
 export default describe('Event test:', () => {
   let httpBackend: Backend
   let EventApi: EventAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()
