@@ -15,7 +15,7 @@ chai.use(SinonChai)
 export default describe('Project API test: ', () => {
   let httpBackend: Backend
   let Project: ProjectAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()

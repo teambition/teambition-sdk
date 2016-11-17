@@ -10,7 +10,7 @@ const expect = chai.expect
 export default describe('entrycategory api test: ', () => {
   let httpBackend: Backend
   let EntrycategoryApi: EntrycategoryAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()

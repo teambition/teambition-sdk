@@ -36,7 +36,7 @@ export default describe('Task API test: ', () => {
   let Task: TaskAPI
   let httpBackend: Backend
 
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const userId = organizationMyTasks[0]._executorId
 

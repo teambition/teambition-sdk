@@ -16,7 +16,7 @@ chai.use(sinonChai)
 export default describe('member api test', () => {
   let Member: MemberAPI
   let httpBackend: Backend
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const member = members[0]
 

@@ -17,7 +17,7 @@ const expect = chai.expect
 export default describe('ActivityAPI test: ', () => {
   let httpBackend: Backend
   let Activity: ActivityAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const _boundToObjectId = activities[0]._boundToObjectId
   const _boundToObjectType = 'tasks'

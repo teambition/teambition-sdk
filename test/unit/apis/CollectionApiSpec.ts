@@ -18,7 +18,7 @@ const expect = chai.expect
 export default describe('Collection API test', () => {
   let httpBackend: Backend
   let collectionAPI: CollectionAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const parentId = collections[0]._parentId
 

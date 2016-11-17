@@ -12,7 +12,7 @@ chai.use(SinonChai)
 export default describe('SubscribeApiSpec: ', () => {
   let httpBackend: Backend
   let SubscribeApi: SubscribeAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()

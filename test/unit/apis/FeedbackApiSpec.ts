@@ -12,7 +12,7 @@ chai.use(SinonChai)
 export default describe('FeedbackAPI Spec: ', () => {
   let httpBackend: Backend
   let FeedbackApi: FeedbackAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const projectId = projectFeedbacks[0]._boundToObjectId
   const from = new Date(2015, 1, 1).toISOString()

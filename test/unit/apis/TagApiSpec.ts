@@ -23,7 +23,7 @@ export default describe('Tag API test:', () => {
   let TagApi: TagAPI
   let httpBackend: Backend
 
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const projectId = tags[0]._projectId
 

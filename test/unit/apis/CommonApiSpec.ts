@@ -11,7 +11,7 @@ chai.use(SinonChai)
 export default describe('common api test: ', () => {
   let httpBackend: Backend
   let TaskApi: TaskAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()

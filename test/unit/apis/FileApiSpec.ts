@@ -19,7 +19,7 @@ export default describe('FileAPI test: ', () => {
 
   let httpBackend: Backend
   let File: FileAPI
-  let spy: Sinon.SinonSpy
+  let spy: sinon.SinonSpy
 
   const pureFile = Utils.clone(mockPureFile)
   const projectId = <any>uuid()
