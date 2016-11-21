@@ -10,6 +10,8 @@ import {
   ApplicationId
 } from '../teambition'
 
+export type ProjectVisibility = 'organization' | 'project' | 'private'
+
 export interface ProjectData extends ISchema {
   _id: ProjectId
   name: string
@@ -30,7 +32,7 @@ export interface ProjectData extends ISchema {
     home: number
     review: number
   }
-  visibility: string
+  visibility: ProjectVisibility
   isPublic: boolean
   created: string
   updated: string
@@ -89,7 +91,7 @@ export default class ProjectSchema extends Schema<ProjectData> implements Projec
     home: number
     review: number
   } = undefined
-  visibility: string = undefined
+  visibility: ProjectVisibility = undefined
   isPublic: boolean = undefined
   created: string = undefined
   updated: string = undefined
