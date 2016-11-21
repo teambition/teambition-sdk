@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import { datasToSchemas, dataToSchema } from '../utils/index'
 import { ProjectData, default as Project } from '../schemas/Project'
-import { ProjectId, OrganizationId } from '../teambition'
+import { ProjectId, OrganizationId, TaskId } from '../teambition'
 
 export class ProjectModel extends BaseModel {
 
@@ -12,21 +12,25 @@ export class ProjectModel extends BaseModel {
   addProjects(projects: ProjectData[]): Observable<ProjectData[]> {
     const result = datasToSchemas<ProjectData>(projects, Project)
     return this._saveCollection(`projects`, result, this._schemaName, (data: ProjectData) => {
-      return !data.isArchived
+      return !data.isArchived &&
+          data.visibility !== 'private'
     })
   }
 
   addArchivesProjects(projects: ProjectData[]): Observable<ProjectData[]> {
     const result = datasToSchemas<ProjectData>(projects, Project)
     return this._saveCollection(`archives:projects`, result, this._schemaName, data => {
-      return data.isArchived
+      return data.isArchived &&
+          data.visibility !== 'private'
     })
   }
 
   addPersonalProjects(projects: ProjectData[]): Observable<ProjectData[]> {
     const result = datasToSchemas<ProjectData>(projects, Project)
     return this._saveCollection(`projects/personal`, result, this._schemaName, (data: ProjectData) => {
-      return !data.isArchived && !data._organizationId
+      return !data.isArchived &&
+          !data._organizationId &&
+          data.visibility !== 'private'
     })
   }
 
@@ -62,6 +66,26 @@ export class ProjectModel extends BaseModel {
     return this._get<ProjectData[]>('archives:projects')
   }
 
+  getAliasIdOfPrivate(taskId: TaskId) {
+    return `project:private/${taskId}`
+  }
+
+  getPrivate(taskId: TaskId) {
+    const index = this.getAliasIdOfPrivate(taskId)
+    return this._get<ProjectData>(index)
+  }
+
+  addPrivate(taskId: TaskId, project: ProjectData) {
+    const flag = '$$aliasId'
+    const index = this.getAliasIdOfPrivate(taskId)
+    project[flag] = index
+    const result = dataToSchema(project, Project, flag)
+    return Observable.combineLatest(
+        this._save(result),
+        this.addOne(project)
+      )
+      .map(data => data[0])
+  }
 }
 
 export default new ProjectModel
