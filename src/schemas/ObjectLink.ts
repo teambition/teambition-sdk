@@ -8,7 +8,7 @@ import {
   DetailObjectId
 } from '../teambition'
 
-export type parentType = 'task' | 'post' | 'event' | 'work'
+export type parentType = 'task' | 'post' | 'event' | 'work' | 'collection'
 
 export interface ObjectLinkData extends ISchema {
   _id: ObjectLinkId
