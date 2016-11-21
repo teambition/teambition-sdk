@@ -2,6 +2,17 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { UserMe } from '../schemas/UserMe'
+import { UserId, TaskId } from '../teambition'
+
+export interface SimpleUser {
+  _id: UserId
+  avatarUrl: string
+  name: string
+  email?: string
+  title?: string
+  pinyin?: string
+  py?: string
+}
 
 export class UserFetch extends BaseFetch {
 
@@ -23,6 +34,12 @@ export class UserFetch extends BaseFetch {
     return this.fetch.put<void>('users/phone', {
       phone: phone,
       vcode: vcode
+    })
+  }
+
+  getRecentUsers(): Observable<SimpleUser[]> {
+    return this.fetch.get('rooms/recent-users', {
+      isWithInbox: true
     })
   }
 }
