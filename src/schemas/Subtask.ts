@@ -21,6 +21,7 @@ export interface SubtaskData extends ISchema {
   order: number
   executor: ExecutorOrCreator
   updated?: string
+  isInbox?: boolean
 }
 
 @schemaName('Subtask')
