@@ -14,6 +14,7 @@ import {
   ReportAnalysisSchema,
   OrganizationId,
   ProjectId,
+  TaskId,
   RoleId,
   UserId
 } from '../teambition'
@@ -105,6 +106,10 @@ export class ProjectFetch extends BaseFetch {
 
   getAll(querys?: any): Observable<ProjectData[]> {
     return this.fetch.get(`projects`, querys)
+  }
+
+  getPrivate(taskId: TaskId, query?: any): Observable<ProjectData> {
+    return this.fetch.get(`tasks/${taskId}/inbox/project`, query)
   }
 
   getPersonal(querys?: any): Observable<ProjectData[]> {
