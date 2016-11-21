@@ -7,7 +7,7 @@ import {
   TagId,
   TaskId,
   StageId,
-  IdOfMember,
+  UserId,
   TasklistId,
   ProjectId
 } from '../teambition'
@@ -28,11 +28,11 @@ export interface TaskData extends ISchema {
   updated: string
   visible: visibility
   _stageId: StageId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   _tasklistId: TasklistId
   _projectId: ProjectId
-  _executorId: IdOfMember
-  involveMembers: IdOfMember[]
+  _executorId: UserId
+  involveMembers: UserId[]
   tagIds: TagId []
   recurrence?: string
   pos?: number
@@ -78,11 +78,11 @@ export default class Task extends Schema<TaskData> implements TaskData {
   updated: string = undefined
   visible: visibility = undefined
   @bloodyParent('Stage') _stageId: StageId = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   _tasklistId: TasklistId = undefined
   _projectId: ProjectId = undefined
-  _executorId: IdOfMember = undefined
-  involveMembers: IdOfMember[] = undefined
+  _executorId: UserId = undefined
+  involveMembers: UserId[] = undefined
   tagIds: TagId[] = undefined
   @child('Array', 'Subtask') subtasks?: Subtask[]
   @child('Object', 'Project') project?: {

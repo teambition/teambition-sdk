@@ -9,7 +9,7 @@ import {
   TaskId,
   SubtaskId,
   OrganizationId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export interface GetMySubtasksOptions {
@@ -25,7 +25,7 @@ export interface GetMySubtasksOptions {
 export interface SubtaskUpdateOptions {
   content?: string
   isDone?: boolean
-  _executorId?: IdOfMember
+  _executorId?: UserId
   dueDate?: string
 }
 
@@ -43,7 +43,7 @@ export interface UpdateSubtaskContentResponse {
 
 export interface UpdateSubtaskExecutorResponse {
   _id: SubtaskId
-  _executorId: IdOfMember
+  _executorId: UserId
   updated: string
 }
 
@@ -78,7 +78,7 @@ export class SubtaskFetch extends Fetch {
   create(subtaskData: {
     content: string
     _taskId: TaskId
-    _executorId?: IdOfMember
+    _executorId?: UserId
   }): Observable<SubtaskData> {
     return this.fetch.post(`subtasks`, subtaskData)
   }
@@ -125,7 +125,7 @@ export class SubtaskFetch extends Fetch {
     })
   }
 
-  updateExecutor(_subTaskId: SubtaskId, _executorId: IdOfMember): Observable<UpdateSubtaskExecutorResponse> {
+  updateExecutor(_subTaskId: SubtaskId, _executorId: UserId): Observable<UpdateSubtaskExecutorResponse> {
     return this.fetch.put(`subtasks/${_subTaskId}/_executorId`, {
       _executorId: _executorId
     })

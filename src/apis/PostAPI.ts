@@ -158,7 +158,7 @@ export class PostAPI {
       )
   }
 
-  move(postId: PostId, projectId: PostId): Observable<MovePostResponse> {
+  move(postId: PostId, projectId: ProjectId): Observable<MovePostResponse> {
     return PostFetch.move(postId, projectId)
       .concatMap(post =>
         PostModel.update(<string>postId, post)

@@ -15,7 +15,7 @@ import {
   OrganizationId,
   ProjectId,
   RoleId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export interface ProjectCreateOptions {
@@ -170,7 +170,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.post(`v2/projects/${_id}/join`)
   }
 
-  quit(_id: ProjectId, _ownerId?: IdOfMember): Observable<{}> {
+  quit(_id: ProjectId, _ownerId?: UserId): Observable<{}> {
     return this.fetch.put(`projects/${_id}/quit`, _ownerId ? {
       _ownerId: _ownerId
     } : undefined)
@@ -180,7 +180,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get(`projects/${_id}/RecommendMemberSchemas`, querys)
   }
 
-  resendInvitation(_id: ProjectId, userId: IdOfMember): Observable<{}> {
+  resendInvitation(_id: ProjectId, userId: UserId): Observable<{}> {
     return this.fetch.put(`projects/${_id}/members/${userId}/resend`)
   }
 

@@ -22,7 +22,7 @@ export interface ProjectInviteSchema {
 export interface ExecutorOrCreator {
   name: string
   avatarUrl: string
-  _id: IdOfMember
+  _id: UserId
 }
 
 export interface InviteLinkSchema {
@@ -41,7 +41,7 @@ export interface CreatedInProjectSchema {
 }
 
 export interface RecommendMemberSchema {
-  _id: IdOfMember
+  _id: UserId
   email: string
   avatarUrl: string
   name: string
@@ -92,7 +92,7 @@ export interface ReportAnalysisSchema {
 
 export interface FavoriteResponse {
   _id: string
-  _creatorId: IdOfMember
+  _creatorId: UserId
   _refId: DetailObjectId
   refType: string
   isFavorite: boolean
@@ -147,10 +147,6 @@ export interface FileId extends String {
 
 export interface HomeActivityId extends String {
   kind?: 'HomeActivityId'
-}
-
-export interface IdOfMember extends String {
-  kind?: 'IdOfMember'
 }
 
 export interface MemberId extends String {

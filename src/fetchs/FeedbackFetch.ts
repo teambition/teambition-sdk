@@ -2,7 +2,7 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { FeedbackData } from '../schemas/Feedback'
-import { FeedbackId, ProjectId, IdOfMember } from '../teambition'
+import { FeedbackId, ProjectId, UserId } from '../teambition'
 
 export interface GetProjectFeedbackQuerys {
   // ISOString
@@ -11,7 +11,7 @@ export interface GetProjectFeedbackQuerys {
   to: string
   count?: number
   page?: number
-  _creatorIds?: IdOfMember[]
+  _creatorIds?: UserId[]
   [index: string]: any
 }
 

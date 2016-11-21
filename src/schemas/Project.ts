@@ -3,7 +3,7 @@ import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import {
   ExecutorOrCreator,
   ProjectId,
-  IdOfMember,
+  UserId,
   OrganizationId,
   RoleId,
   CollectionId,
@@ -13,7 +13,7 @@ import {
 export interface ProjectData extends ISchema {
   _id: ProjectId
   name: string
-  _creatorId: IdOfMember
+  _creatorId: UserId
   logo: string
   py: string
   pinyin: string
@@ -72,7 +72,7 @@ export interface ProjectData extends ISchema {
 export default class ProjectSchema extends Schema<ProjectData> implements ProjectData {
   _id: ProjectId = undefined
   name: string = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   logo: string = undefined
   py: string = undefined
   pinyin: string = undefined

@@ -67,7 +67,7 @@ export class EventAPI {
       ._switch()
   }
 
-  update(eventId: EventId, query: UpdateEventOptions): Observable<string> {
+  update(eventId: EventId, query: UpdateEventOptions): Observable<any> {
     return EventFetch.update(eventId, query)
       .concatMap(x =>
         EventModel.update(<string>eventId, x)

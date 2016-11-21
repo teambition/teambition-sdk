@@ -1,11 +1,11 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
-import { IdOfMember, ProjectId, EntryCategoryId } from '../teambition'
+import { UserId, ProjectId, EntryCategoryId } from '../teambition'
 
 export interface EntrycategoryData extends ISchema {
   _id: EntryCategoryId
   _projectId: ProjectId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   title: string
   type: number
   icon: string
@@ -19,7 +19,7 @@ export interface EntrycategoryData extends ISchema {
 export default class Entrycategory extends Schema<EntrycategoryData> implements EntrycategoryData {
   _id: EntryCategoryId = undefined
   _projectId: ProjectId = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   title: string = undefined
   type: number = undefined
   isDefault: boolean = undefined

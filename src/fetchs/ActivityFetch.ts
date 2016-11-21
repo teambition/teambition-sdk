@@ -5,18 +5,17 @@ import { ActivityData } from '../schemas/Activity'
 import {
   DetailObjectId,
   DetailObjectTypes,
-  ActivityId,
   FileId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export interface ActivitySaveData {
   content: string
-  _id: ActivityId
+  _id: DetailObjectId
   objectType: DetailObjectTypes
   attachments?: FileId[]
   voice?: FileId[]
-  mentions?: IdOfMember[]
+  mentions?: UserId[]
 }
 
 export class ActivityFetch extends BaseFetch {

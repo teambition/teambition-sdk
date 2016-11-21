@@ -13,7 +13,7 @@ import {
   DetailObjectId,
   TagId,
   ProjectId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export type ObjectSchema = EntryData | FileData | PostData | EventData | TaskData
@@ -32,7 +32,7 @@ export interface UpdateTagResponse {
   _id: TagId
   _projectId: ProjectId
   name: string
-  _creatorId: IdOfMember
+  _creatorId: UserId
   updated: string
   created: string
   isArchived: boolean

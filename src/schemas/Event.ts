@@ -1,17 +1,17 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
-import { visibility, EventId, IdOfMember, ProjectId, TagId } from '../teambition'
+import { visibility, EventId, UserId, ProjectId, TagId } from '../teambition'
 
 export interface EventData extends ISchema {
   _id: EventId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   title: string
   content: string
   location: string
   startDate: string
   endDate: string
   untilDate: string
-  involveMembers: string []
+  involveMembers: UserId[]
   _projectId: ProjectId
   _sourceId: EventId
   sourceDate: string
@@ -45,13 +45,13 @@ export default class Event extends Schema<EventData> implements EventData {
   location: string = undefined
   content: string = undefined
   title: string = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   tagIds: TagId[] = undefined
   updated: string = undefined
   created: string = undefined
   visible: visibility = undefined
   isArchived: boolean = undefined
-  involveMembers: string [] = undefined
+  involveMembers: UserId[] = undefined
   untilDate: string = undefined
   _sourceId: EventId = undefined
   sourceDate: string = undefined
