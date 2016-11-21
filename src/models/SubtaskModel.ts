@@ -40,6 +40,47 @@ export class SubtaskModel extends BaseModel {
     return this._get<SubtaskData[]>(`task:subtasks/${_taskId}`)
   }
 
+  addMySubtasksWithInbox(userId: UserId, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
+    const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
+    const dbIndex = `subtasks:me/withInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: SubtaskData) => {
+      return data._executorId === userId &&
+          !data.isDone
+    })
+  }
+
+  getMySubtasksWithInbox(): Observable<SubtaskData[]> {
+    const dbIndex = `subtasks:me/withInbox`
+    return this._get<SubtaskData[]>(dbIndex)
+  }
+
+  addMyDoneSubtasksWithInbox(userId: UserId, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
+    const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
+    const dbIndex = `subtasks:me:done/withInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: SubtaskData) => {
+      return data._executorId === userId &&
+          data.isDone
+    })
+  }
+
+  getMyDoneSubtasksWithInbox(): Observable<SubtaskData[]> {
+    const dbIndex = `subtasks:me:done/withInbox`
+    return this._get<SubtaskData[]>(dbIndex)
+  }
+
+  addMyCreatedSubtasksWithInbox(userId: UserId, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
+    const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
+    const dbIndex = `subtasks:me/createdAndWithInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: SubtaskData) => {
+      return data._creatorId === userId
+    })
+  }
+
+  getMyCreatedSubtasksWithInbox(): Observable<SubtaskData[]> {
+    const dbIndex = `subtasks:me/createdAndWithInbox`
+    return this._get<SubtaskData[]>(dbIndex)
+  }
+
   /**
    * _collections 索引是 `organization:subtasks/${organization._id}`
    */
