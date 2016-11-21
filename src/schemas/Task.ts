@@ -56,12 +56,13 @@ export interface TaskData extends ISchema {
     title: string
     _id: TasklistId
   }
-  isFavorite?: boolean,
+  isFavorite?: boolean
+  isInbox?: boolean
   project?: {
     _id: ProjectId
     name: string
-  },
-  uniqueId?: number,
+  }
+  uniqueId?: number
 }
 
 @schemaName('Task')
