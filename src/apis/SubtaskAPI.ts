@@ -106,6 +106,64 @@ export class SubtaskAPI {
     return this._updateFromPromise(_subTaskId, SubtaskFetch.updateStatus(_subTaskId, isDone))
   }
 
+  getMySubtasksWithInbox(userId: UserId, query?: any): Observable<SubtaskData[]> {
+    return makeColdSignal<SubtaskData[]>(() => {
+      const cache = SubtaskModel.getMySubtasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        count: 500,
+        isWithInbox: true,
+        isDone: false
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return SubtaskFetch.getMySubtasks(_query)
+        .concatMap(subtasks => SubtaskModel.addMySubtasksWithInbox(userId, subtasks))
+    })
+  }
+
+  getMyDoneSubtasksWithInbox(userId: UserId, query?: any): Observable<SubtaskData[]> {
+    return makeColdSignal<SubtaskData[]>(() => {
+      const cache = SubtaskModel.getMyDoneSubtasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isDone: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return SubtaskFetch.getMySubtasks(_query)
+        .concatMap(subtasks => SubtaskModel.addMyDoneSubtasksWithInbox(userId, subtasks))
+    })
+  }
+
+  getMyCreatedSubtasksWithInbox(userId: UserId, query?: any): Observable<SubtaskData[]> {
+    return makeColdSignal<SubtaskData[]>(() => {
+      const cache = SubtaskModel.getMyCreatedSubtasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isCreator: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return SubtaskFetch.getMySubtasks(_query)
+        .concatMap(subtasks => SubtaskModel.addMyCreatedSubtasksWithInbox(userId, subtasks))
+    })
+  }
+
   getOrgMySubtasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
     return makeColdSignal<SubtaskData[]>(() => {
       const get = SubtaskModel.getOrgMySubtasks(organization._id, page)
