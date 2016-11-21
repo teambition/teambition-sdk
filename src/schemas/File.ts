@@ -6,7 +6,7 @@ import {
   CollectionId,
   TagId,
   ProjectId,
-  IdOfMember,
+  UserId,
   visibility,
   ExecutorOrCreator
 } from '../teambition'
@@ -22,7 +22,7 @@ export interface FileData extends ISchema {
   imageHeight: number
   _parentId: CollectionId
   _projectId: ProjectId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   creator: ExecutorOrCreator
   tagIds: TagId[]
   visible: visibility
@@ -31,7 +31,7 @@ export interface FileData extends ISchema {
   thumbnailUrl: string
   description: string
   source: string
-  involveMembers: string[]
+  involveMembers: UserId[]
   created: string
   updated: string
   lastVersionTime: string
@@ -62,7 +62,7 @@ export default class File extends Schema<FileData> implements FileData {
   imageHeight: number = undefined
   _parentId: CollectionId = undefined
   _projectId: ProjectId = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   creator: ExecutorOrCreator = undefined
   tagIds: TagId[] = undefined
   visible: visibility = undefined
@@ -71,7 +71,7 @@ export default class File extends Schema<FileData> implements FileData {
   thumbnailUrl: string = undefined
   description: string = undefined
   source: string = undefined
-  involveMembers: string[] = undefined
+  involveMembers: UserId[] = undefined
   created: string = undefined
   updated: string = undefined
   lastVersionTime: string = undefined

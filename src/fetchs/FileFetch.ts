@@ -9,7 +9,7 @@ import {
   CollectionId,
   ProjectId,
   TagId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export interface FileRes {
@@ -49,13 +49,13 @@ export interface MoveFileResponse {
   _parentId: CollectionId
   _projectId: ProjectId
   tagIds: TagId[]
-  involveMembers: IdOfMember[]
+  involveMembers: UserId[]
   updated: string
 }
 
 export interface UpdateFileInvolvesResponse {
   _id: FileId
-  involveMembers: IdOfMember[]
+  involveMembers: UserId[]
   updated: string
 }
 
@@ -116,7 +116,7 @@ export class FileFetch extends BaseFetch {
 
   updateInvolves(
     FileId: FileId,
-    memberIds: IdOfMember[],
+    memberIds: UserId[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateFileInvolvesResponse> {
     const putData = Object.create(null)

@@ -28,8 +28,7 @@ import {
   StageId,
   ProjectId,
   TagId,
-  UserId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export type detailType = 'complete'
@@ -335,13 +334,13 @@ export class TaskAPI {
     return this._updateFromRequest(_taskId, TaskFetch.updateDueDate(_taskId, dueDate))
   }
 
-  updateExecutor(_taskId: TaskId, _executorId: IdOfMember): Observable<UpdateExecutorResponse> {
+  updateExecutor(_taskId: TaskId, _executorId: UserId): Observable<UpdateExecutorResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateExecutor(_taskId, _executorId))
   }
 
   updateInvolvemembers(
     _taskId: TaskId,
-    memberIds: IdOfMember[],
+    memberIds: UserId[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateInvolveMembersResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateInvolvemembers(_taskId, memberIds, type))

@@ -3,7 +3,6 @@ import { Schema, schemaName, ISchema, child } from './schema'
 import {
   MessageId,
   UserId,
-  IdOfMember,
   ProjectId,
   OrganizationId,
   ActivityId,
@@ -31,7 +30,7 @@ export interface MessageData extends ISchema {
   unreadActivitiesCount: number
   boundToObjectUpdated: string
   creator: {
-    _id: IdOfMember
+    _id: UserId
     name: string
     avatarUrl: string
     email?: string
@@ -72,7 +71,7 @@ export default class Message extends Schema<MessageData> implements MessageData 
   unreadActivitiesCount: number = undefined
   boundToObjectUpdated: string = undefined
   creator: {
-    _id: IdOfMember
+    _id: UserId
     name: string
     avatarUrl: string
   } = undefined

@@ -4,7 +4,7 @@ import {
   ExecutorOrCreator,
   PostSource,
   PostId,
-  IdOfMember,
+  UserId,
   TagId,
   ProjectId,
   FileId
@@ -13,7 +13,7 @@ import {
 export interface PostData extends ISchema {
   _id: PostId
   _projectId: ProjectId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   attachments: FileId[]
   attachmentsCount?: number
   commentsCount?: number
@@ -21,7 +21,7 @@ export interface PostData extends ISchema {
   created: string
   creator: ExecutorOrCreator
   html: string
-  involveMembers: IdOfMember[]
+  involveMembers: UserId[]
   isArchived: boolean
   isFavorite: boolean
   lastCommentedAt: string | null
@@ -38,12 +38,12 @@ export interface PostData extends ISchema {
 export default class Post extends Schema<PostData> implements PostData {
   _id: PostId = undefined
   _projectId: ProjectId = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   title: string = undefined
   content: string = undefined
   creator: ExecutorOrCreator = undefined
   attachments: FileId[] = undefined
-  involveMembers: IdOfMember[] = undefined
+  involveMembers: UserId[] = undefined
   postMode: 'txt' | 'html' = undefined
   isArchived: boolean = undefined
   visible: string = undefined

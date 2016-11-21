@@ -8,7 +8,7 @@ import {
   ProjectId,
   TagId,
   FileId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export type ProjectPostType = 'all' | 'my'
@@ -20,7 +20,7 @@ export interface CreatePostOptions {
   postMode?: 'html' | 'txt'
   visiable?: visibility
   attachments?: FileId[]
-  involveMembers?: IdOfMember[]
+  involveMembers?: UserId[]
   tagIds?: TagId[]
 }
 
@@ -30,14 +30,14 @@ export interface UpdatePostOptions {
   postMode?: 'html' | 'txt'
   pin?: boolean
   attachments?: FileId[]
-  involveMembers?: IdOfMember[]
+  involveMembers?: UserId[]
 }
 
 export type UpdateInvolves = {
-  involveMembers: IdOfMember[]
+  involveMembers: UserId[]
 } | {
-  addInvolvers?: IdOfMember[]
-  delInvolvers?: IdOfMember[]
+  addInvolvers?: UserId[]
+  delInvolvers?: UserId[]
 }
 
 export interface ArchivePostResponse {
@@ -56,7 +56,7 @@ export interface UnArchivePostResponse {
 
 export interface UpdateInvolvesResponse {
   _id: PostId
-  involveMembers: IdOfMember[]
+  involveMembers: UserId[]
   updated: string
 }
 
@@ -76,7 +76,7 @@ export interface MovePostResponse {
   _id: string
   _projectId: string
   attachments: string[]
-  involveMembers: string[]
+  involveMembers: UserId[]
   tagIds: string[]
   updated: string
 }
@@ -140,7 +140,7 @@ export class PostFetch extends BaseFetch {
     })
   }
 
-  move(postId: PostId, projectId: PostId): Observable<MovePostResponse> {
+  move(postId: PostId, projectId: ProjectId): Observable<MovePostResponse> {
     return this.fetch.put(`posts/${postId}/move`, {
       _projectId: projectId
     })
