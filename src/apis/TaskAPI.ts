@@ -101,6 +101,88 @@ export class TaskAPI {
     })
   }
 
+  getMyTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        count: 500,
+        page: 1,
+        isWithInbox: true,
+        isDone: false
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        .map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyTasksWithInbox(_userId, tasks))
+    })
+  }
+
+  getMyDoneTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyDoneTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isDone: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        .map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyDoneTasksWithInbox(_userId, tasks))
+    })
+  }
+
+  getMyCreatedTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyCreatedTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isCreator: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        .map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyCreatedTasksWithInbox(_userId, tasks))
+    })
+  }
+
+  getMyInvolvedTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyInvolvedTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isInvolved: true,
+        isDone: false
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        .map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyInvolvedTasksWithInbox(_userId, tasks))
+    })
+  }
+
   getTasklistDone(_tasklistId: TasklistId, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getTasklistTasksDone(_tasklistId, page)
