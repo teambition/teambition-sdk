@@ -26,6 +26,7 @@ import {
   ReportSummarySchema,
   ReportAnalysisSchema,
   ProjectId,
+  TaskId,
   OrganizationId,
   UserId,
   RoleId
@@ -59,6 +60,24 @@ export class ProjectAPI {
         .concatMap(projects =>
           ProjectModel.addProjects(projects)
         )
+    })
+  }
+
+  getPrivate(taskId: TaskId, projectId?: ProjectId, query?: any): Observable<ProjectData> {
+    return makeColdSignal<ProjectData>(() => {
+      if (projectId) {
+        const cache = ProjectModel.getOne(projectId)
+        if (cache && ProjectModel.checkSchema(<string>projectId)) {
+          return cache
+        }
+      }
+      const aliasId = ProjectModel.getAliasIdOfPrivate(taskId)
+      const cache = ProjectModel.getPrivate(taskId)
+      if (cache && ProjectModel.checkSchema(aliasId)) {
+        return cache
+      }
+      return ProjectFetch.getPrivate(taskId, query)
+        .concatMap(project => ProjectModel.addPrivate(taskId, project))
     })
   }
 
