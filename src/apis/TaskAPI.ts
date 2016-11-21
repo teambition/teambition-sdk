@@ -7,6 +7,7 @@ import Dirty from '../utils/Dirty'
 import {
   default as TaskFetch,
   CreateTaskOptions,
+  CreateFreeTaskOptions,
   MoveTaskOptions,
   UpdateTaskOptions,
   ForkTaskOptions,
@@ -305,6 +306,11 @@ export class TaskAPI {
       .concatMap(task =>
         TaskModel.addOne(task).take(1)
       )
+  }
+
+  createFree(data: CreateFreeTaskOptions): Observable<TaskData> {
+    return TaskFetch.createFree(data)
+      .concatMap(task => TaskModel.addOne(task).take(1))
   }
 
   fork(_taskId: TaskId, options: ForkTaskOptions): Observable<TaskData> {
