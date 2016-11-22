@@ -56,7 +56,12 @@ export interface TaskData extends ISchema {
     title: string
     _id: TasklistId
   }
-  isFavorite?: boolean
+  isFavorite?: boolean,
+  project?: {
+    _id: ProjectId
+    name: string
+  },
+  uniqueId?: number,
 }
 
 @schemaName('Task')
@@ -92,4 +97,17 @@ export default class Task extends Schema<TaskData> implements TaskData {
     title: string
     _id: TasklistId
   }
+}
+
+export interface TasksMeCount {
+  executedTasksDoneCount?: number,
+  executedTasksUndoneCount?: number,
+  createdTasksDoneCount?: number,
+  createdTasksUndoneCount?: number,
+  involvedTasksDoneCount?: number,
+  involvedTasksUndoneCount?: number,
+  createdSubtasksDoneCount?: number,
+  createdSubtasksUndoneCount?: number,
+  executedSubtasksDoneCount?: number,
+  executedSubtasksUndoneCount?: number
 }

@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Fetch from './BaseFetch'
-import { TaskData, Priority } from '../schemas/Task'
+import { TaskData, TasksMeCount, Priority } from '../schemas/Task'
 import {
   visibility,
   ExecutorOrCreator,
@@ -24,6 +24,10 @@ export interface TasksMeOptions {
   isCreator?: boolean
   isInvolved?: boolean
   isDone?: boolean
+}
+
+export interface TasksMeCountOptions {
+  type?: 'executed' | 'created' | 'involved'
 }
 
 export interface OrgsTasksMeOptions {
@@ -171,6 +175,10 @@ export interface UpdateSubtaskIdsResponse {
 export class TaskFetch extends Fetch {
   getTasksMe (option: TasksMeOptions): Observable<TaskData[]> {
     return this.fetch.get(`v2/tasks/me`, option)
+  }
+
+  getTasksMeCount(option: TasksMeCountOptions): Observable<TasksMeCount> {
+    return this.fetch.get(`v2/tasks/me/count`, option)
   }
 
   getOrgsTasksMe(organizationId: OrganizationId, option: OrgsTasksMeOptions): Observable<TaskData[]> {
