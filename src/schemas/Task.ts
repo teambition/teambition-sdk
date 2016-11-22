@@ -12,7 +12,7 @@ import {
   ProjectId
 } from '../teambition'
 
-export type Priority = 0 | 1 | 2
+export type TaskPriority = 0 | 1 | 2
 
 export interface TaskData extends ISchema {
   _id: TaskId
@@ -21,7 +21,7 @@ export interface TaskData extends ISchema {
   accomplished: string
   startDate?: string
   dueDate: string
-  priority: Priority
+  priority: TaskPriority
   isDone: boolean
   isArchived: boolean
   created: string
@@ -71,7 +71,7 @@ export default class Task extends Schema<TaskData> implements TaskData {
   note: string = undefined
   accomplished: string = undefined
   dueDate: string = undefined
-  priority: Priority = undefined
+  priority: TaskPriority = undefined
   isDone: boolean = undefined
   isArchived: boolean = undefined
   created: string = undefined

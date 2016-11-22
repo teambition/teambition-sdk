@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import Fetch from './BaseFetch'
-import { TaskData, TasksMeCount, Priority } from '../schemas/Task'
+import { TaskData, TasksMeCount, TaskPriority } from '../schemas/Task'
 import {
   visibility,
   ExecutorOrCreator,
@@ -43,7 +43,7 @@ export interface CreateTaskOptions {
   _executorId?: IdOfMember
   involveMembers?: IdOfMember[]
   dueDate?: string
-  priority?: Priority
+  priority?: TaskPriority
   recurrence?: string
   tagIds?: TagId[]
 }
@@ -61,7 +61,7 @@ export interface UpdateTaskOptions {
   _stageId?: StageId
   involveMembers?: IdOfMember[]
   isDone?: boolean
-  priority?: Priority
+  priority?: TaskPriority
   dueDate?: string
   note?: string
   content?: string
