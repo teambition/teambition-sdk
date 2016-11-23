@@ -1,5 +1,5 @@
 'use strict'
-import 'tslib'
+import 'ts-helpers'
 import 'core-js/es6/promise'
 import 'core-js/es6/set'
 import 'core-js/es6/map'
