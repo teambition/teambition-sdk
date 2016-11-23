@@ -55,7 +55,7 @@ export class SocketClient {
     this._client.onopen = this._onopen.bind(this)
     this._client['getToken'] = () => {
       if (this._me) {
-        return this._me.snapperToken
+        return this._me.snapperToken as string
       } else {
         return null
       }
