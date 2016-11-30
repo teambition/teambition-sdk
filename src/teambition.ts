@@ -213,6 +213,10 @@ export interface UserId extends String {
   kind?: 'UserId'
 }
 
+export interface GroupId extends String {
+  kind?: 'GroupId'
+}
+
 export type DetailObjectId = TaskId | PostId | EventId | FileId
 
 export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
