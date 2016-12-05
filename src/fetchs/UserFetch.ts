@@ -42,6 +42,12 @@ export class UserFetch extends BaseFetch {
       isWithInbox: true
     })
   }
+
+  getRecommendedUsers(): Observable<SimpleUser[]> {
+    return this.fetch.get('rooms/recommend-users', {
+      isWithInbox: true
+    })
+  }
 }
 
 export default new UserFetch
