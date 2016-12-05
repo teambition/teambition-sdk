@@ -34,7 +34,7 @@ export default describe('LikeAPI test: ', () => {
   })
 
   it('get like should ok', done => {
-    LikeApi.getLike('task', <any>'mocktask')
+    LikeApi.getLike('task', 'mocktask')
       .subscribe(r => {
         expectDeepEqual(like, r)
         done()
@@ -42,7 +42,7 @@ export default describe('LikeAPI test: ', () => {
   })
 
   it('get like from cache should ok', function* () {
-    const signal = LikeApi.getLike('task', <any>'mocktask')
+    const signal = LikeApi.getLike('task', 'mocktask')
 
     yield signal.take(1)
 
@@ -54,7 +54,7 @@ export default describe('LikeAPI test: ', () => {
   })
 
   it('like should ok', function* () {
-    const signal = LikeApi.getLike('task', <any>'mocktask')
+    const signal = LikeApi.getLike('task', 'mocktask')
 
     httpBackend.whenPOST(`${apihost}tasks/mocktask/like`)
       .respond({
@@ -69,7 +69,7 @@ export default describe('LikeAPI test: ', () => {
 
     yield signal.take(1)
 
-    yield LikeApi.like('task', <any>'mocktask')
+    yield LikeApi.like('task', 'mocktask')
 
     yield signal.take(1)
       .do(r => {
@@ -82,7 +82,7 @@ export default describe('LikeAPI test: ', () => {
   })
 
   it('unlike should ok', function* () {
-    const signal = LikeApi.getLike('task', <any>'mocktask')
+    const signal = LikeApi.getLike('task', 'mocktask')
 
     httpBackend.whenDELETE(`${apihost}tasks/mocktask/like`)
       .respond({
@@ -92,11 +92,21 @@ export default describe('LikeAPI test: ', () => {
 
     yield signal.take(1)
 
-    yield LikeApi.unlike('task', <any>'mocktask')
+    yield LikeApi.unlike('task', 'mocktask')
 
     yield signal.take(1)
       ._do(r => {
         expect(r.likesGroup.length).to.equal(like.likesGroup.length - 1)
       })
+  })
+
+  it('get entries like should ok', function* () {
+    httpBackend.whenGET(`${apihost}entries/mocktask/like?all=1`)
+      .respond(JSON.stringify(like))
+
+    yield LikeApi.getLike('entry', 'mocktask')
+      .take(1)
+      .do(r => expectDeepEqual(like, r))
+
   })
 })
