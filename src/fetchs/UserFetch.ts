@@ -48,6 +48,10 @@ export class UserFetch extends BaseFetch {
       isWithInbox: true
     })
   }
+
+  getFreeTaskFollowers(taskId: TaskId, query?: any): Observable<SimpleUser[]> {
+    return this.fetch.get(`tasks/${taskId}/inbox/involvers`, query)
+  }
 }
 
 export default new UserFetch
