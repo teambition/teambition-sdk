@@ -126,13 +126,6 @@ export class Fetch {
 
   private createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Observable<any> {
     return (url: string, body?: any): Observable<T> => {
-      const options = assign({
-        method: method
-      }, this._opts)
-      if (body) {
-        options.body = typeof body === 'object' ? JSON.stringify(body) : body
-      }
-
       if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
         return Observable.ajax({
           url: this._apiHost + url,
@@ -166,6 +159,12 @@ export class Fetch {
           })
       } else {
         return Observable.create((observer: Observer<any>) => {
+          const options = assign({
+            method: method
+          }, this._opts)
+          if (body) {
+            options.body = typeof body === 'object' ? JSON.stringify(body) : body
+          }
           fetch(this._apiHost + url, options)
             .then((response: Response): Promise<string> => {
               if (response.status >= 200 && response.status < 400) {
