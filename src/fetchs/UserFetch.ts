@@ -56,6 +56,12 @@ export class UserFetch extends BaseFetch {
   getRelatedProjectMembers(query?: any): Observable<SimpleUser[]> {
     return this.fetch.get('projects/members', query)
   }
+
+  search(keyword: string, query?: any): Observable<SimpleUser[]> {
+    query = query || {}
+    query.q = keyword
+    return this.fetch.get('members/search-related', query)
+  }
 }
 
 export default new UserFetch
