@@ -66,18 +66,32 @@ export class EventModel extends Model {
     return this._get<RecurrenceEvent[]>(`project:events/${projectId}/${startDate.valueOf()}/${endDate.valueOf()}`)
   }
 
-  addMyEvents(userId: UserId, endDate: Date, events: EventData[]): Observable<EventData[]> {
+  addMyEvents(userId: UserId, events: EventData[], page: number): Observable<EventData[]> {
+    const dbIndex = `my:events/${userId}`
     const result = this._genEventResult(events)
-    return this._saveCollection<any>(`my:events/${userId}`, result, this._schemaName, (data: RecurrenceEvent) => {
-      return !data.isArchived &&
-             data.involveMembers &&
-             data.involveMembers.indexOf(<any>userId) !== -1 &&
-             data.isBetween(endDate, 'feature')
-    })
+    let collection = this._collections.get(dbIndex)
+    if (!collection) {
+      collection = new Collection(
+        this._schemaName,
+        (data: RecurrenceEvent) => {
+          return !data.isArchived &&
+              data.involveMembers &&
+              data.involveMembers.indexOf(<any>userId) !== -1
+        },
+        dbIndex
+      )
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
   }
 
-  getMyEvents(userId: UserId, endDate: Date): Observable<EventData[]> | null {
-    return this._get<EventData[]>(`my:events/${userId}`)
+  getMyEvents(userId: UserId, page: number): Observable<EventData[]> {
+    const dbIndex = `my:events/${userId}`
+    const collection = this._collections.get(dbIndex)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
   }
 
   addByTagId(tagId: TagId, events: EventData[], page: number): Observable<EventData[]> {

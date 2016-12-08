@@ -22,7 +22,8 @@ import {
 import EventModel from '../models/EventModel'
 import { TRecurrenceEvent } from '../models/events/RecurrenceEvent'
 import { EventData } from '../schemas/Event'
-import { EventId, ProjectId, TagId } from '../teambition'
+import { EventId, ProjectId, TagId, UserId } from '../teambition'
+import { makeColdSignal } from './utils'
 
 export class EventAPI {
   create(option: CreateEventOptions): Observable<EventData> {
@@ -65,6 +66,20 @@ export class EventAPI {
       observer.next(<any>dest)
     })
       ._switch()
+  }
+
+  getMyEvents(userId: UserId, query?: any): Observable<EventData[]> {
+    return makeColdSignal<EventData[]>(() => {
+      const page: number = query && query.page || 1
+      const cache = EventModel.getMyEvents(userId, page)
+      if (cache) {
+        return cache
+      }
+      return EventFetch.getMyEvents(query)
+        .concatMap(events => {
+          return EventModel.addMyEvents(userId, events, page)
+        })
+    })
   }
 
   update(eventId: EventId, query: UpdateEventOptions): Observable<any> {
