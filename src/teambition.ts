@@ -221,7 +221,7 @@ export interface FavoriteId extends String {
   kind?: 'FavoriteId'
 }
 
-export type DetailObjectId = TaskId | PostId | EventId | FileId
+export type DetailObjectId = TaskId | PostId | EventId | FileId | EntryId
 
 export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
 
