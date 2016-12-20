@@ -15,7 +15,7 @@ import {
 export interface GetMySubtasksOptions {
   count?: number
   page?: number
-  hasDueDate?: string
+  hasDueDate?: boolean
   startDate?: string
   endDate?: string
   isCreator?: boolean
