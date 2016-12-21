@@ -1,6 +1,6 @@
 [![CircleCI](https://circleci.com/gh/teambition/teambition-sdk/tree/master.svg?style=svg)](https://circleci.com/gh/teambition/teambition-sdk/tree/master)
 [![Dependency Status](https://david-dm.org/teambition/teambition-sdk.svg)](https://david-dm.org/teambition/teambition-sdk)
-[![devDependency Status](https://david-dm.org/teambition/teambition-sdk.svg)](https://david-dm.org/teambition/teambition-sdk#info=devDependencies)
+[![devDependency Status](https://david-dm.org/teambition/teambition-sdk/dev-status.svg)](https://david-dm.org/teambition/teambition-sdk?type=dev)
 
 # isomorphic-sdk for Teambition APIs
 
