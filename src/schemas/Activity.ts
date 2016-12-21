@@ -1,7 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 import File from './File'
-import { ExecutorOrCreator, ActivityId, DetailObjectTypes, DetailObjectId } from '../teambition'
+import { UserId, ExecutorOrCreator, ActivityId, DetailObjectType, DetailObjectId } from '../teambition'
 
 export interface Locales {
   en: {
@@ -41,13 +41,16 @@ export interface ActivityData extends ISchema {
   _creatorId: string
   _id: ActivityId
   action: string
-  boundToObjectType: DetailObjectTypes
+  boundToObjectType: DetailObjectType
   content: {
     comment?: string
     content?: string
     attachments?: File[]
     voice?: Voice
-    mentionsArray?: string[]
+    mentionsArray?: {
+      _id: UserId
+      name: string
+    }[]
     mentions?: {
       [index: string]: string
     }
@@ -109,12 +112,15 @@ export default class Activity extends Schema<ActivityData> implements ActivityDa
   _creatorId: string = undefined
   _id: ActivityId = undefined
   action: string = undefined
-  boundToObjectType: DetailObjectTypes = undefined
+  boundToObjectType: DetailObjectType = undefined
   content: {
     comment?: string
     content?: string
     attachments?: File[]
-    mentionsArray?: string[]
+    mentionsArray?: {
+      _id: UserId
+      name: string
+    }[]
     voice?: Voice
     mentions?: {[index: string]: string}
     attachmentsName?: string
