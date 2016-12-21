@@ -5,8 +5,9 @@ import { ActivityData } from '../schemas/Activity'
 import {
   DetailObjectId,
   DetailObjectTypes,
-  FileId,
   UserId
+  ShareId,
+  FileId
 } from '../teambition'
 
 export interface ActivitySaveData {
@@ -35,6 +36,20 @@ export class ActivityFetch extends BaseFetch {
       mentions: data.mentions
     })
     return this.fetch.post(`${data.objectType}/${data._id}/activities`, query)
+  }
+
+  getByShareId(shareId: ShareId, query?: any): Observable<ActivityData[]> {
+    return this.fetch.get(`shares/${shareId}/activities`, query)
+  }
+
+  addByShareId(shareId: ShareId, data: ActivitySaveData): Observable<ActivityData> {
+    const query = this.checkQuery({
+      content: data.content,
+      attachments: data.attachments,
+      voice: data.voice,
+      mentions: data.mentions
+    })
+    return this.fetch.post(`shares/${shareId}/activities`, query)
   }
 }
 
