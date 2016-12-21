@@ -23,7 +23,7 @@
     "build_mock_cjs": "rm -rf dist/mock-cjs && tsc mock/index.ts -m commonjs --outDir dist/mock-cjs --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node",
     "build_all": "rm -rf dist && mkdir dist && mkdir dist/bundle && npm run build_es6 && npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_mock_cjs && npm run build_test && npm run build_e2e && npm run build_socket",
     "lint": "tslint ./src/**/*.ts ./mock/**/*.ts ./test/unit/**/*.ts",
-    "cover": "npm run build_test &&  nyc --reporter=html --exclude=node_modules --exclude=spec-js/test --exclude=spec-js/mock --exclude=spec-js/src/sockets/SocketClient.js tman --mocha spec-js/test/unit/app.js",
+    "cover": "npm run build_test && rm -rf ./coverage && nyc --reporter=html --reporter=lcov --exclude=node_modules --exclude=spec-js/test --exclude=spec-js/mock --exclude=spec-js/src/sockets/SocketClient.js tman --mocha spec-js/test/unit/app.js",
     "publish_all": "npm run build_all && npm publish && ts-node ./tools/tasks/publish.ts && cp -r ./dist/mock-cjs/** ./.tmp/mock && cp -r ./dist/socket/** ./.tmp/socket && npm publish .tmp/mock/ && npm publish .tmp/socket/"
   },
   "repository": {
@@ -66,6 +66,7 @@
     "chai": "^3.4.1",
     "commitizen": "^2.8.6",
     "core-js": "^2.4.1",
+    "coveralls": "^2.11.15",
     "cz-teambition-web-commit": "github:teambition/cz-teambition-web-commit",
     "engine.io-client": "^1.7.2",
     "fetch-mock": "^5.5.0",

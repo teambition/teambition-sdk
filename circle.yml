@@ -10,7 +10,7 @@ dependencies:
 
 test:
   post:
-    - cp ./.nyc_output/*.json $CIRCLE_ARTIFACTS
+    - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 
 notify:
   webhooks:
