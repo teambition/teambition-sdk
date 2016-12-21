@@ -27,10 +27,10 @@ export class PreferenceModel extends Model {
   }
 
   update(patch: any): Observable<any> {
-    if (!this.preferenceId) {
-      return Observable.throw(new Error('Preference not exist'))
+    if (this.preferenceId) {
+      return super.update(<any>this.preferenceId, patch)
     }
-    return super.update(<any>this.preferenceId, patch)
+    return Observable.of(patch)
   }
 
 }
