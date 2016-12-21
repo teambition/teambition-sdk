@@ -2,7 +2,7 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { UserMe } from '../schemas/UserMe'
-import { UserId, TaskId } from '../teambition'
+import { UserId, TaskId, DetailObjectTypes, DetailObjectId } from '../teambition'
 
 export interface SimpleUser {
   _id: UserId
@@ -61,6 +61,10 @@ export class UserFetch extends BaseFetch {
     query = query || {}
     query.q = keyword
     return this.fetch.get('members/search-related', query)
+  }
+
+  getGuestMembers(type: DetailObjectTypes, id: DetailObjectId, query?: any): Observable<SimpleUser[]> {
+    return this.fetch.get(`${type}/${id}/guestmembers`, query)
   }
 }
 
