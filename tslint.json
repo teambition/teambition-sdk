@@ -8,18 +8,10 @@
     "max-line-length": [true, 150],
     "no-consecutive-blank-lines": true,
     "no-trailing-whitespace": true,
-    "no-duplicate-key": true,
     "no-duplicate-variable": true,
-    "no-unreachable": true,
     "no-var-keyword": true,
     "no-empty": true,
     "no-unused-expression": true,
-    "no-unused-variable": [
-      true,
-      {
-        "ignore-pattern": "^(_.*)$"
-      }
-    ],
     "no-unused-new": true,
     "no-eval": true,
     "no-use-before-declare": true,
