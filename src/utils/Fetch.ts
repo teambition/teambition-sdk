@@ -2,7 +2,7 @@
 import 'isomorphic-fetch'
 import 'rxjs/add/observable/dom/ajax'
 import 'rxjs/add/operator/debounceTime'
-import { AjaxResponse } from 'rxjs/observable/dom/AjaxObservable'
+import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
@@ -143,19 +143,20 @@ export class Fetch {
               return resp
             }
           })
-          .catch((e: AjaxResponse) => {
+          .catch((e: AjaxError) => {
             const headers = e.xhr.getAllResponseHeaders()
+            const sdkError: HttpErrorMessage = {
+              error: new Response(new Blob([JSON.stringify(e.xhr.response)]), {
+                status: e.xhr.status,
+                statusText: e.xhr.statusText,
+                headers: headers.length ? new Headers(parseHeaders(headers)) : new Headers()
+              }),
+              method, url, body
+            }
             setTimeout(() => {
-              (<Subject<HttpErrorMessage>>HttpError$).next({
-                error: new Response(e.response, {
-                  status: e.status ? e.status : 500,
-                  statusText: e.responseText,
-                  headers: headers.length ? new Headers(parseHeaders(headers)) : new Headers()
-                }),
-                method, url, body
-              })
+              (<Subject<HttpErrorMessage>>HttpError$).next(sdkError)
             }, 10)
-            return Observable.throw(e)
+            return Observable.throw(sdkError)
           })
       } else {
         return Observable.create((observer: Observer<any>) => {
@@ -183,13 +184,14 @@ export class Fetch {
               observer.complete()
             })
             .catch((e: Response) => {
+              const sdkError: HttpErrorMessage = {
+                error: e,
+                method, url, body
+              }
               setTimeout(() => {
-                (<Subject<HttpErrorMessage>>HttpError$).next({
-                  error: e,
-                  method, url, body
-                })
+                (<Subject<HttpErrorMessage>>HttpError$).next(sdkError)
               }, 10)
-              observer.error(e)
+              observer.error(sdkError)
             })
         })
       }

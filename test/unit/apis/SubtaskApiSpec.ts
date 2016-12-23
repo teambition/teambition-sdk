@@ -8,7 +8,8 @@ import {
   Backend,
   forEach,
   clone,
-  BaseFetch
+  BaseFetch,
+  HttpErrorMessage
 } from '../index'
 import { organizations } from '../../mock/organizations'
 import { subtasks } from '../../mock/subtasks'
@@ -817,8 +818,8 @@ export default describe('Subtask API test: ', () => {
     yield signal.take(1)
 
     yield Subtask.updateDuedate(subtaskId, 'xxx')
-      .catch((err: Response) => {
-        return err.text()
+      .catch((res: HttpErrorMessage) => {
+        return res.error.text()
       })
       .do(r => {
         expect(r).to.equal('dueDate must be ISOString')

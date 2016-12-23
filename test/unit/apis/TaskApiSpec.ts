@@ -10,7 +10,8 @@ import {
   clone,
   OrganizationSchema,
   BaseFetch,
-  concat
+  concat,
+  HttpErrorMessage
 } from '../index'
 import { flush, expectDeepEqual, notInclude } from '../utils'
 import { tasksDone } from '../../mock/tasksDone'
@@ -98,8 +99,8 @@ export default describe('Task API test: ', () => {
         })
 
       Task.getTasklistUndone(<any>'error')
-        .catch((err: Response) => {
-          return err.text()
+        .catch((res: HttpErrorMessage) => {
+          return res.error.text()
         })
         .subscribe({
           next: r => {
@@ -1810,8 +1811,8 @@ export default describe('Task API test: ', () => {
       yield Task.get(mockTaskGet._id).take(1)
 
       yield Task.updateDueDate(mockTaskGet._id, '123')
-        .catch((err: Response) => {
-          return err.text()
+        .catch((res: HttpErrorMessage) => {
+          return res.error.text()
         })
         .do({
           next: r => {
