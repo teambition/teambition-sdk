@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs'
 import * as chai from 'chai'
-import { Fetch, forEach } from '../index'
+import { Fetch, HttpErrorMessage, forEach } from '../index'
 const fetchMock = require('fetch-mock')
 
 const expect = chai.expect
@@ -129,11 +129,12 @@ export default describe('utils/fetch', () => {
             expect(res).not.to.deep.equal(responseData.body)
             done()
           })
-          .catch((res: Response) => {
+          .catch((res: HttpErrorMessage) => {
+            console.log(res)
             if (fetchMock.lastOptions()) {
               expect(fetchMock.lastOptions().method).to.equal(httpMethod)
             }
-            expect(res.status).to.deep.equal(status)
+            expect(res.error.status).to.deep.equal(status)
             fetchMock.restore()
             done()
             return Observable.empty()
