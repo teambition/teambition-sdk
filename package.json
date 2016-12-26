@@ -73,6 +73,7 @@
     "google-closure-compiler-js": "^20161024.0.0",
     "jsonrpc-lite": "^1.2.1",
     "moment": "^2.16.0",
+    "node-watch": "^0.4.1",
     "nyc": "^10.0.0",
     "rollup": "^0.36.1",
     "rollup-plugin-alias": "^1.2.0",
