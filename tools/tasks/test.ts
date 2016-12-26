@@ -1,9 +1,9 @@
 'use strict'
 import * as path from 'path'
-import * as fs from 'fs'
 import * as Tman from 'tman'
 
-const cache: {[index: string]: any} = {}
+const watchFile = require('node-watch')
+
 const testDir = path.join(process.cwd(), 'spec-js/test/unit')
 
 for (let key of ['describe', 'suite', 'test', 'it', 'before', 'after', 'beforeEach', 'afterEach']) {
@@ -34,9 +34,7 @@ function excuteTest() {
   }, 200)
 }
 
-fs.watch(path.join(process.cwd(), 'spec-js'), <any>{
-  recursive: true
-}, event => {
+watchFile(path.join(process.cwd(), 'spec-js'), () => {
   excuteTest()
 })
 
