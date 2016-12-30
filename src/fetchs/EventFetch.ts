@@ -5,7 +5,8 @@ import { visibility } from '../teambition'
 import { EventData } from '../schemas/Event'
 import { ActivityData } from '../schemas/Activity'
 import { LikeData } from '../schemas/Like'
-import { EventId, ProjectId, TagId, UserId } from '../teambition'
+import { EventId, ProjectId, TagId, UserId, FileId } from '../teambition'
+import { FileRes } from './FileFetch'
 
 export interface CreateEventOptions {
   _projectId: ProjectId
@@ -45,11 +46,11 @@ export interface ArchiveEventResponse {
 }
 
 export interface CommentBody {
-  action: 'comment'
-  _creatorId: UserId
-  attachments: string[]
-  mentions: any
-  timestamp: number
+  occurrenceDate: number
+  content: string
+  attachments?: (FileId | FileRes)[]
+  voice?: FileId[]
+  mentions?: {[key: string]: string}
 }
 
 export interface LikeRepeatEventResponse {
