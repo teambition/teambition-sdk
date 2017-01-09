@@ -220,3 +220,7 @@ export interface UserId extends String {
 export type DetailObjectId = TaskId | PostId | EventId | FileId
 
 export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
+
+export interface TeamId extends String {
+  kind?: 'TeamId'
+}
