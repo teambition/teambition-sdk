@@ -1,4 +1,5 @@
 {
+  "rulesDirectory": "node_modules/tslint-eslint-rules/dist/rules",
   "rules": {
     "curly": true,
     "eofline": true,
@@ -9,6 +10,9 @@
     "no-consecutive-blank-lines": true,
     "no-trailing-whitespace": true,
     "no-duplicate-variable": true,
+    "no-console": [true, "log", "trace"],
+    "no-construct": true,
+    "no-debugger": true,
     "no-var-keyword": true,
     "no-empty": true,
     "no-unused-expression": true,
@@ -17,14 +21,18 @@
     "no-use-before-declare": true,
     "no-var-requires": false,
     "no-require-imports": false,
+    "no-shadowed-variable": true,
+    "object-curly-spacing": true,
     "one-line": [true,
       "check-else",
       "check-whitespace",
       "check-open-brace"],
+    "prefer-const": true,
     "quotemark": [true,
       "single",
       "avoid-escape"],
     "semicolon": [true, "never"],
+    "ter-prefer-arrow-callback": true,
     "typedef-whitespace": [true, {
       "call-signature": "nospace",
       "index-signature": "nospace",
@@ -38,6 +46,7 @@
       "check-decl",
       "check-operator",
       "check-separator",
-      "check-type"]
+      "check-type"],
+    "comment-format": [true, "check-space", "check-lowercase"]
   }
 }

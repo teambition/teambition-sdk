@@ -1,12 +1,13 @@
 'use strict'
-import 'isomorphic-fetch'
 import 'rxjs/add/observable/dom/ajax'
 import 'rxjs/add/operator/debounceTime'
+import 'rxjs/add/operator/catch'
+import 'rxjs/add/operator/map'
 import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
-import { assign, forEach, parseHeaders } from './index'
+import { forEach, parseHeaders } from './index'
 import { testable } from '../testable'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
@@ -17,8 +18,6 @@ export interface HttpErrorMessage {
   error: Response
   body?: any
 }
-
-const allowedHttpMethod = ['get', 'post', 'put', 'delete']
 
 export const HttpError$: Observable<HttpErrorMessage> = new Subject<HttpErrorMessage>()
 
@@ -32,7 +31,7 @@ export class Fetch {
     credentials: 'include'
   }
 
-  private _apiHost = 'https://www.teambition.com/api/'
+  private _apiHost = 'https://www.teambition.com/api'
 
   public getAPIHost(): string {
     return this._apiHost
@@ -43,7 +42,7 @@ export class Fetch {
   }
 
   public setHeaders(headers: any): void {
-    assign(this._opts.headers, headers)
+    this._opts = { ...this._opts.headers, headers }
   }
 
   public setToken(token: string): void {
@@ -52,7 +51,7 @@ export class Fetch {
   }
 
   public setOpts(opts: any): void {
-    assign(this._opts, opts)
+    this._opts = { ...this._opts, opts }
   }
 
   public restore(): void {
@@ -62,25 +61,6 @@ export class Fetch {
         'Content-Type': 'application/json'
       },
       credentials: 'include'
-    }
-  }
-
-  public middleware(method: AllowedHttpMethod, decorator: (args?: {
-    url: string
-    originFn: (url: string, queryOrBody?: any) => Observable<any>
-    queryOrBody?: any
-  }) => any): void {
-    if (allowedHttpMethod.indexOf(method) === -1) {
-      throw new Error(`method to decorator is not defined or not allowed: ${method}`)
-    }
-    const originMethod = this[method]
-    this[method] = function(url: string, queryOrBody: any) {
-      const calledArgs = {
-        url: url,
-        queryOrBody: queryOrBody,
-        originFn: originMethod.bind(this)
-      }
-      return decorator(calledArgs)
     }
   }
 
@@ -105,11 +85,11 @@ export class Fetch {
     if (typeof query !== 'object' || !query) {
       return url
     }
-    let result: string[] = []
+    const result: string[] = []
     forEach(query, (val: any, key: string) => {
       if (Array.isArray(val)) {
-        (<any[]>val).forEach(val => {
-          result.push(`${key}=${val}`)
+        (<any[]>val).forEach(_val => {
+          result.push(`${key}=${_val}`)
         })
       } else {
         result.push(`${key}=${val}`)
@@ -126,6 +106,7 @@ export class Fetch {
 
   private createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Observable<any> {
     return (url: string, body?: any): Observable<T> => {
+      /* istanbul ignore if */
       if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
         return Observable.ajax({
           url: this._apiHost + url,
@@ -160,9 +141,10 @@ export class Fetch {
           })
       } else {
         return Observable.create((observer: Observer<any>) => {
-          const options = assign({
+          const options = {
+            ... this._opts,
             method: method
-          }, this._opts)
+          }
           if (body) {
             options.body = typeof body === 'object' ? JSON.stringify(body) : body
           }

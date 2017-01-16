@@ -1,9 +1,9 @@
 'use strict'
-import Fetch from './BaseFetch'
+import { SDKFetch } from '../SDKFetch'
 
-export class SocketFetch extends Fetch {
+export class SocketFetch extends SDKFetch {
   join(room: string, consumerId: string): Promise<void> {
-    return this.fetch.post<void>(`${room}/subscribe`, {
+    return this.post<void>(`${room}/subscribe`, {
       consumerId: consumerId
     })
       .toPromise()
@@ -11,7 +11,7 @@ export class SocketFetch extends Fetch {
 
   leave(room: string, consumerId: string): Promise<void> {
     // http delete 不允许有 body， 但是这里就是有 body
-    return (<any>this.fetch.delete)(`${room}/subscribe`, {
+    return (<any>this.delete)(`${room}/subscribe`, {
       consumerId
     })
   }

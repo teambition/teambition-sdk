@@ -7,23 +7,21 @@ const alias = require('rollup-plugin-alias')
 const commonjs = require('rollup-plugin-commonjs')
 const compiler = require('google-closure-compiler-js').compile
 
-export function bundle (entry: string, output: string, name: string, ise2e?: boolean) {
-  let plugins: any[]
-  if (!ise2e) {
-    plugins = [
-      alias({
-        'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js'),
-        'engine.io-client': path.join(process.cwd(), 'node_modules/engine.io-client/engine.io.js')
-      }),
-      nodeResolve({
-        jsnext: false,
-        main: true
-      }),
-      commonjs({
-        exclude: [ 'dist/es6/**', 'dist/mock-es6/**' ]
-      })
-    ]
-  }
+export function bundle (entry: string, output: string, name: string) {
+  const plugins = [
+    alias({
+      'isomorphic-fetch': path.join(process.cwd(), 'node_modules/whatwg-fetch/fetch.js'),
+      'engine.io-client': path.join(process.cwd(), 'node_modules/engine.io-client/engine.io.js')
+    }),
+    nodeResolve({
+      jsnext: false,
+      main: true,
+      skip: ['lovefield']
+    }),
+    commonjs({
+      exclude: [ 'dist/es6/**', 'dist/mock-es6/**', 'node_modules/lovefield/**' ]
+    })
+  ]
   rollup.rollup({
     entry: entry,
     plugins: plugins
@@ -33,8 +31,9 @@ export function bundle (entry: string, output: string, name: string, ise2e?: boo
         format: 'umd',
         moduleName: name,
         globals: {
-          'teambition-sdk': 'tbsdk'
-        }
+          lovefield: 'lf'
+        },
+        external: [ 'lovefield' ]
       }).code
 
       return code

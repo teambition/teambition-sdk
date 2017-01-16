@@ -1,6 +1,7 @@
 'use strict'
-import { ISchema, Schema, schemaName } from './schema'
-import { UserId } from '../teambition'
+import { UserId } from 'teambition-types'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
 
 export interface UserEmail {
   email: string
@@ -26,12 +27,15 @@ export interface SnapperToken extends String {
   kind?: 'SnapperToken'
 }
 
-export interface UserMe extends ISchema {
+export interface UserMe {
   _id: UserId
   email: string
   name: string
   avatarUrl: string
   created: string
+  crossNotify: {
+    badge: number
+  }
   title: string
   birthday?: string
   location?: string
@@ -110,37 +114,128 @@ export interface UserMe extends ISchema {
   calLink?: string
   taskCalLink?: string
   joinedProjectsCount: number
+  region: string
 }
 
-@schemaName('UserMe')
-export default class User extends Schema<UserMe> implements UserMe {
-  _id: UserId = undefined
-  email: string = undefined
-  name: string = undefined
-  avatarUrl: string = undefined
-  created: string = undefined
-  title: string = undefined
-  phone: string = undefined
-  pinyin: string = undefined
-  py: string = undefined
-  plan: PaymentPlan = undefined
+const Schema: SchemaDef<UserMe> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  avatarUrl: {
+    type: RDBType.STRING
+  },
+  ated: {
+    type: RDBType.NUMBER
+  },
+  aliens: {
+    type: RDBType.OBJECT
+  },
+  badge: {
+    type: RDBType.NUMBER
+  },
+  birthday: {
+    type: RDBType.DATE_TIME
+  },
+  calLink: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  crossNotify: {
+    type: RDBType.OBJECT
+  },
+  email: {
+    type: RDBType.STRING
+  },
+  emails: {
+    type: RDBType.OBJECT
+  },
+  enabledGoogleTwoFactor: {
+    type: RDBType.BOOLEAN
+  },
+  hasAted: {
+    type: RDBType.BOOLEAN
+  },
+  hasLater: {
+    type: RDBType.BOOLEAN
+  },
+  hasNormal: {
+    type: RDBType.BOOLEAN
+  },
+  hasPrivate: {
+    type: RDBType.BOOLEAN
+  },
+  inbox: {
+    type: RDBType.NUMBER
+  },
+  isActive: {
+    type: RDBType.BOOLEAN
+  },
+  isNew: {
+    type: RDBType.BOOLEAN
+  },
+  joinedProjectsCount: {
+    type: RDBType.NUMBER
+  },
   lastEntered: {
-    web?: string
-    ios?: string
-    android?: string
-    third: string
-  } = undefined
+    type: RDBType.DATE_TIME
+  },
+  later: {
+    type: RDBType.NUMBER
+  },
+  location: {
+    type: RDBType.STRING
+  },
   locationByIP: {
-    country: string
-    region: string
-    city: string
-  } = undefined
-  strikerAuth: StrikerToken = undefined
-  emails: UserEmail[] = undefined
-  snapperToken: SnapperToken = undefined
-  badge: number = undefined
-  ated: number = undefined
-  later: number = undefined
-  inbox: number = undefined
-  joinedProjectsCount: number = undefined
+    type: RDBType.OBJECT
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  normal: {
+    type: RDBType.NUMBER
+  },
+  notification: {
+    type: RDBType.OBJECT
+  },
+  phone: {
+    type: RDBType.STRING
+  },
+  phoneForLogin: {
+    type: RDBType.STRING
+  },
+  pinyin: {
+    type: RDBType.STRING
+  },
+  plan: {
+    type: RDBType.OBJECT
+  },
+  private: {
+    type: RDBType.NUMBER
+  },
+  py: {
+    type: RDBType.STRING
+  },
+  region: {
+    type: RDBType.STRING
+  },
+  snapperToken: {
+    type: RDBType.STRING
+  },
+  strikerAuth: {
+    type: RDBType.STRING
+  },
+  taskCalLink: {
+    type: RDBType.STRING
+  },
+  title: {
+    type: RDBType.STRING
+  },
+  website: {
+    type: RDBType.STRING
+  }
 }
+
+export default schemas.push({ schema: Schema, name: 'User' })

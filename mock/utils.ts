@@ -33,7 +33,7 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
   } else if (typeof FormData !== 'undefined' && target instanceof FormData) {
     return
   } else if (typeof File !== 'undefined' && target instanceof File) {
-    for (let x in target) {
+    for (const x in target) {
       eachFunc(target[x], x)
     }
     return

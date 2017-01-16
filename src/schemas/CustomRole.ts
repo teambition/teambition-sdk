@@ -1,15 +1,13 @@
 'use strict'
 import { schemaName, ISchema, Schema } from './schema'
-import { CustomRoleId, OrganizationId } from '../teambition'
+import { CustomRoleId, OrganizationId } from 'teambition-types'
 
 export interface CustomRoleData extends ISchema {
   _id: CustomRoleId
   name: string
   _creatorId: string
   _organizationId: OrganizationId
-  // ISO Date String
   updated: string
-  // ISO Date String
   created: string
   permissions: string[]
 }

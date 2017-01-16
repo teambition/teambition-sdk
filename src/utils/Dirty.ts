@@ -4,12 +4,15 @@
  * 做一些很脏的事情
  */
 import { Observable } from 'rxjs/Observable'
+import { Database } from 'reactivedb'
 import { TaskData } from '../schemas/Task'
-import LikeModel from '../models/LikeModel'
 import { LikeData } from '../schemas/Like'
 import { forEach } from './index'
 
 export class Dirty {
+
+  constructor(private database: Database) { }
+
   /**
    * 处理任务列表中坏掉的 subtaskCount 字段
    */
@@ -39,17 +42,19 @@ export class Dirty {
    * 后端认为这种数据应该被 patch 到它的实体上
    * 而前端需要将点赞数据分开存储
    */
-  private _handlerLikeMessage(id: string, type: string, data: LikeData | any): Observable<LikeData> | null {
+  _handlerLikeMessage(id: string, type: string, data: LikeData | any) {
     if (data.likesGroup && data.likesGroup instanceof Array) {
       data._boundToObjectId = id
       data._boundToObjectType = type
       data._id = `${id}:like`
-      return LikeModel.update(data._id, data)
+      return this.database.update('Like', {
+        where: { _id: data._id }
+      }, data)
     }
     return null
   }
 
-  private _handlerTaskUpdateFromSocket(id: string, type: string, data: any): void {
+  _handlerTaskUpdateFromSocket(_id: string, _type: string, data: any): void {
     if (data &&
         !data._executorId &&
         typeof data.executor !== 'undefined') {
@@ -57,5 +62,3 @@ export class Dirty {
     }
   }
 }
-
-export default new Dirty()

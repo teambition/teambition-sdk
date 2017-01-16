@@ -46,19 +46,6 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
   return target
 }
 
-export const assign = <T, U>(target: T, patch: U): T & U => {
-  if (typeof target !== 'object' || !target) {
-    return void 0
-  }
-  if (typeof patch !== 'object' || !patch) {
-    return <any>target
-  }
-  forEach(patch, (val, key) => {
-    target[key] = patch[key]
-  })
-  return <T & U>target
-}
-
 export const clone = <T>(origin: T, old?: any): T => {
   old = old || origin
   /* istanbul ignore if */
@@ -138,23 +125,6 @@ export function capitalizeFirstLetter(str: string) {
 }
 
 /**
- * 对比第一个对象上有没有值与第二个上不同
- * @param first  assign(target, patch) 中的 patch
- * @param second assign(target, patch) 中的 target
- */
-export function diffEle (first: any, second: any): boolean {
-  let result = false
-  forEach(first, (val, key) => {
-    if (val !== second[key]) {
-      result = true
-      return false
-    }
-    return true
-  })
-  return result
-}
-
-/**
  * refer to https://github.com/github/fetch/blob/v1.0.0/fetch.js#L313
  * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
  * headers according to the format described here:
@@ -164,15 +134,11 @@ export function diffEle (first: any, second: any): boolean {
 export function parseHeaders(rawHeader: string) {
   const head = Object.create(null)
   const pairs = rawHeader.trim().split('\n')
-  pairs.forEach(function(header) {
+  pairs.forEach(header => {
     const split = header.trim().split(':')
     const key = split.shift().trim()
     const value = split.join(':').trim()
     head[key] = value
   })
   return head
-}
-
-export function isObject(obj: any): boolean {
-  return typeof obj === 'object'
 }

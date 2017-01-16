@@ -1,5 +1,4 @@
 'use strict'
-import { schemaName, Schema, ISchema } from './schema'
 import {
   ExecutorOrCreator,
   PostSource,
@@ -8,9 +7,11 @@ import {
   TagId,
   ProjectId,
   FileId
-} from '../teambition'
+} from 'teambition-types'
+import { SchemaDef, RDBType, Association } from 'reactivedb'
+import { schemas } from '../SDK'
 
-export interface PostData extends ISchema {
+export interface PostData {
   _id: PostId
   _projectId: ProjectId
   _creatorId: IdOfMember
@@ -32,27 +33,91 @@ export interface PostData extends ISchema {
   title: string
   updated: string
   visible: string
+  likesCount: number
+  objectlinksCount: number
+  shareStatus: number
 }
 
-@schemaName('Post')
-export default class Post extends Schema<PostData> implements PostData {
-  _id: PostId = undefined
-  _projectId: ProjectId = undefined
-  _creatorId: IdOfMember = undefined
-  title: string = undefined
-  content: string = undefined
-  creator: ExecutorOrCreator = undefined
-  attachments: FileId[] = undefined
-  involveMembers: IdOfMember[] = undefined
-  postMode: 'txt' | 'html' = undefined
-  isArchived: boolean = undefined
-  visible: string = undefined
-  html: string = undefined
-  pin: boolean = undefined
-  created: string = undefined
-  updated: string = undefined
-  tagIds: TagId[] = undefined
-  isFavorite: boolean = undefined
-  source: PostSource = undefined
-  lastCommentedAt: string | null = null
+const Schema: SchemaDef<PostData> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _projectId: {
+    type: RDBType.STRING
+  },
+  attachments: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  attachmentsCount: {
+    type: RDBType.NUMBER
+  },
+  commentsCount: {
+    type: RDBType.NUMBER
+  },
+  content: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  creator: {
+    type: Association.oneToOne,
+    virtual: {
+      name: 'Member',
+      where: memberTable => ({
+        _creatorId: memberTable._id
+      })
+    }
+  },
+  html: {
+    type: RDBType.STRING
+  },
+  involveMembers: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  isFavorite: {
+    type: RDBType.BOOLEAN
+  },
+  lastCommentedAt: {
+    type: RDBType.DATE_TIME
+  },
+  pin: {
+    type: RDBType.BOOLEAN
+  },
+  postMode: {
+    type: RDBType.STRING
+  },
+  source: {
+    type: RDBType.STRING
+  },
+  tagIds: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  title: {
+    type: RDBType.STRING
+  },
+  updated: {
+    type: RDBType.DATE_TIME
+  },
+  visible: {
+    type: RDBType.STRING
+  },
+  objectlinksCount: {
+    type: RDBType.NUMBER
+  },
+  likesCount: {
+    type: RDBType.NUMBER
+  },
+  shareStatus: {
+    type: RDBType.NUMBER
+  }
 }
+
+schemas.push({ schema: Schema, name: 'Post' })

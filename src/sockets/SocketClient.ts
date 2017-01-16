@@ -3,13 +3,15 @@
  * bundle socket 的时候，这个文件是 tsc 的一个 entry
  * import 一下需要的 Rx 操作符
  */
+import '../apis/users/get'
 import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/toPromise'
 import 'rxjs/add/operator/concatMap'
 import 'rxjs/add/operator/take'
 import { Subject } from 'rxjs/Subject'
-import UserFetch from '../fetchs/UserFetch'
-import SocketFetch from '../fetchs/SocketFetch'
+import { Database } from 'reactivedb'
+import { SDK } from '../SDK'
+import { SDKFetch } from '../SDKFetch'
 import { socketHandler } from './EventMaps'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
@@ -33,10 +35,14 @@ export class SocketClient {
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
 
-  constructor() {
-    this._getUserMeStream.subscribe(userMe => {
-      this._me = userMe
-    })
+  constructor(
+    private database: Database,
+    private fetch: SDKFetch
+  ) {
+    this._getUserMeStream
+      .subscribe(userMe => {
+        this._me = userMe
+      })
   }
 
   debug(): void {
@@ -91,7 +97,7 @@ export class SocketClient {
     if (this._leavedRoom.has(uri)) {
       return Promise.resolve()
     }
-    return SocketFetch.leave(uri, this._consumerId)
+    return this.fetch.leaveRoom(uri, this._consumerId)
       .then(() => {
         if (this._joinedRoom) {
           this._joinedRoom.delete(uri)
@@ -106,7 +112,7 @@ export class SocketClient {
   // override Consumer onopen
   private _onopen(): void {
     this._joinedRoom.forEach(r => {
-      SocketFetch.join(r, this._consumerId)
+      this.fetch.joinRoom(r, this._consumerId)
     })
   }
 
@@ -124,7 +130,7 @@ export class SocketClient {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
     }
-    return socketHandler(event)
+    return socketHandler(this.database, event)
       .toPromise()
       .then(null, (err: any) => ctx['console']['error'](err))
   }
@@ -148,7 +154,7 @@ export class SocketClient {
   }
 
   private _getToken() {
-    return UserFetch.getUserMe()
+    return this.fetch.getUserMe()
       .toPromise()
       .then(r => {
         this._getUserMeStream.next(r)
@@ -157,12 +163,69 @@ export class SocketClient {
 
   private _join (room: string, consumerId: string): Promise<any> {
     this._consumerId = consumerId
-    return SocketFetch.join(room, consumerId)
+    return this.fetch.joinRoom(room, consumerId)
       .then(() => {
         this._joinedRoom.add(room)
       })
       .catch(e => {
         console.error(e)
       })
+  }
+}
+
+export function leaveRoom (
+  this: SDKFetch,
+  room: string,
+  consumerId: string
+) {
+  return (<any>this.delete)(`${room}/subscribe`, {
+    consumerId
+  })
+    .toPromise()
+}
+
+export function joinRoom (
+  this: SDKFetch,
+  room: string,
+  consumerId: string
+) {
+  return this.post<void>(`${room}/subscribe`, {
+    consumerId: consumerId
+  })
+    .toPromise()
+}
+
+SDKFetch.prototype.leaveRoom = leaveRoom
+SDKFetch.prototype.joinRoom = joinRoom
+
+declare module '../SDKFetch' {
+  interface SDKFetch {
+    joinRoom: typeof joinRoom
+    leaveRoom: typeof leaveRoom
+  }
+}
+
+SDK.prototype.connectSocket = function(this: SDK, client: Consumer) {
+  const c = this.socketClient
+  c.initClient(client)
+  return c.connect()
+}
+
+Object.defineProperty(SDK.prototype, 'socketClient', {
+  get() {
+    if (!this._socketClient) {
+      (this as any)._socketClient = new SocketClient(this.database, this.fetch)
+    }
+    return (this as any)._socketClient
+  },
+  set(client: SocketClient) {
+    return this._socketClient = client
+  }
+})
+
+declare module '../SDK' {
+  interface SDK {
+    connectSocket(client: Consumer): void
+    socketClient: SocketClient
   }
 }

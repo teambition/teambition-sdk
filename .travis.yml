@@ -9,9 +9,5 @@ cache:
 install:
   - npm install
 
-before_script:
-  - npm link
-  - npm link teambition-sdk
-
 script:
   - "npm run build_all"

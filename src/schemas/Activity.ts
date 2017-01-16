@@ -1,7 +1,10 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
-import File from './File'
-import { ExecutorOrCreator, ActivityId, DetailObjectTypes, DetailObjectId } from '../teambition'
+import {
+  ExecutorOrCreator,
+  ActivityId,
+  DetailObjectTypes,
+  DetailObjectId
+} from 'teambition-types'
 
 export interface Locales {
   en: {
@@ -36,29 +39,29 @@ export interface Voice {
   thumbnail: string
 }
 
-export interface ActivityData extends ISchema {
+export interface ActivityData {
   _boundToObjectId: DetailObjectId
   _creatorId: string
   _id: ActivityId
   action: string
   boundToObjectType: DetailObjectTypes
   content: {
-    comment?: string
-    content?: string
-    attachments?: File[]
-    voice?: Voice
-    mentionsArray?: string[]
-    mentions?: {
+    comment: string
+    content: string
+    attachments: File[]
+    voice: Voice
+    mentionsArray: string[]
+    mentions: {
       [index: string]: string
     }
-    attachmentsName?: string
-    creator?: string
-    executor?: string
-    note?: string
-    subtask?: string
-    count?: string
-    dueDate?: string
-    linked?: {
+    attachmentsName: string
+    creator: string
+    executor: string
+    note: string
+    subtask: string
+    count: string
+    dueDate: string
+    linked: {
       _id: string
       _projectId: string
       _objectId: string
@@ -66,12 +69,12 @@ export interface ActivityData extends ISchema {
       title: string
       url: string
     }
-    linkedCollection?: {
+    linkedCollection: {
       _id: string
       title: string
       objectType: 'collection'
     }
-    uploadWorks?: {
+    uploadWorks: {
       _id: string
       fileName: string
       objectType: 'work'
@@ -81,7 +84,7 @@ export interface ActivityData extends ISchema {
       title: string
       objectType: 'collection'
     }
-    work?: {
+    work: {
       _id: string
       fileName: string
       objectType: 'work'
@@ -92,70 +95,13 @@ export interface ActivityData extends ISchema {
   rawAction: string
   rootId: string
   title: string
-  isComment?: boolean
-  icon?: string
-  creatorName?: string
-  creatorAvatar?: string
-  comment?: string
-  linked?: {
-    _id?: string
+  isComment: boolean
+  icon: string
+  creatorName: string
+  creatorAvatar: string
+  comment: string
+  linked: {
+    _id: string
   }
-  locales?: Locales
-}
-
-@schemaName('Activity')
-export default class Activity extends Schema<ActivityData> implements ActivityData {
-  _boundToObjectId: DetailObjectId = undefined
-  _creatorId: string = undefined
-  _id: ActivityId = undefined
-  action: string = undefined
-  boundToObjectType: DetailObjectTypes = undefined
-  content: {
-    comment?: string
-    content?: string
-    attachments?: File[]
-    mentionsArray?: string[]
-    voice?: Voice
-    mentions?: {[index: string]: string}
-    attachmentsName?: string
-    creator?: string
-    executor?: string
-    note?: string
-    dueDate?: string
-    subtask?: string
-    count?: string
-    linked?: {
-      _id: string
-      _projectId: string
-      _objectId: string
-      objectType: string
-      title: string
-      url: string
-    }
-    linkedCollection?: {
-      _id: string
-      title: string
-      objectType: 'collection'
-    }
-    uploadWorks?: {
-      _id: string
-      fileName: string
-      objectType: 'work'
-    }[]
-    collection: {
-      _id: string
-      title: string
-      objectType: 'collection'
-    }
-    work?: {
-      _id: string
-      fileName: string
-      objectType: 'work'
-    }
-  } = undefined
-  created: number = undefined
-  creator: ExecutorOrCreator = undefined
-  rawAction: string = undefined
-  rootId: string = undefined
-  title: string = undefined
+  locales: Locales
 }
