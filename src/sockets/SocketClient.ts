@@ -11,7 +11,7 @@ import { Subject } from 'rxjs/Subject'
 import UserFetch from '../fetchs/UserFetch'
 import SocketFetch from '../fetchs/SocketFetch'
 import { socketHandler } from './EventMaps'
-import Consumer, { RequestEvent } from 'snapper-consumer'
+import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 
 declare const global: any
@@ -119,7 +119,7 @@ export class SocketClient {
     return Promise.resolve()
   }
 
-  private _onmessage(event: RequestEvent) {
+  private _onmessage(event: Consumer.RequestEvent) {
     if (this._isDebug) {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
