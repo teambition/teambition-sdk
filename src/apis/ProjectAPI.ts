@@ -214,6 +214,17 @@ export class ProjectAPI {
       )
   }
 
+  joinByCode(
+    projectId: ProjectId,
+    signCode: string,
+    _invitorId: UserId
+  ): Observable<ProjectData> {
+    return ProjectFetch.joinByCode(projectId, signCode, _invitorId)
+      .switchMap(project => {
+        return ProjectModel.addOne(project).take(1)
+      })
+  }
+
   quit(_id: ProjectId, _ownerId?: UserId): Observable<void> {
     return ProjectFetch.quit(_id, _ownerId)
       .concatMap(x =>

@@ -175,6 +175,16 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.post(`v2/projects/${_id}/join`)
   }
 
+  joinByCode(
+    projectId: ProjectId,
+    signCode: string,
+    _invitorId: UserId
+  ): Observable<ProjectData> {
+    return this.fetch.post(`projects/${projectId}/joinByCode/${signCode}`, {
+      _invitorId
+    })
+  }
+
   quit(_id: ProjectId, _ownerId?: UserId): Observable<{}> {
     return this.fetch.put(`projects/${_id}/quit`, _ownerId ? {
       _ownerId: _ownerId
