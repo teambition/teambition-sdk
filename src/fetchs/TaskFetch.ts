@@ -361,7 +361,7 @@ export class TaskFetch extends Fetch {
   }
 
   updateStatus(_taskId: TaskId, status: boolean): Observable<UpdateStatusResponse> {
-    return this.fetch.put(`tasks/${_taskId}/isDone`, {
+    return this.fetch.put(`tasks/${_taskId}`, {
       isDone: status
     })
   }
