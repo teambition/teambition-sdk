@@ -10,6 +10,7 @@ dependencies:
 
 test:
   post:
+    - npm run build_cjs && npm run check_circular_dependencies
     - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 
 notify:
