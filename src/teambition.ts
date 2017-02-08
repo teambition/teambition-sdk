@@ -181,7 +181,12 @@ export interface ProjectId extends String {
   kind?: 'ProjectId'
 }
 
-export type DefaultRoleId = -1 | 0 | 1 | 2
+export type DefaultRoleId =
+  -2 | // forbidden
+  -1 | // guest
+   0 | // member
+   1 | // admin
+   2   // owner
 
 export interface CustomRoleId extends String {
   kind?: 'CustomRoleId'
