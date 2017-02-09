@@ -1,6 +1,18 @@
 declare module 'teambition-types' {
   export type visibility = 'project' | 'organization' | 'all' | 'members'
 
+  export interface CustomFields {
+    type: 'number' | 'dropDown' | 'multipleChoice' | 'date' | 'text'
+    _customfieldId: CustomeFieldId
+    values: string[]
+  }
+
+  export interface Reminder {
+    members: MemberId[]
+    date: string
+    type: 'startDate' | 'endDate'
+  }
+
   export interface LikeSchema {
     isLike: boolean
     likesCount: number
@@ -42,7 +54,7 @@ declare module 'teambition-types' {
   }
 
   export interface RecommendMemberSchema {
-    _id: IdOfMember
+    _id: UserId
     email: string
     avatarUrl: string
     name: string
@@ -93,7 +105,7 @@ declare module 'teambition-types' {
 
   export interface FavoriteResponse {
     _id: string
-    _creatorId: IdOfMember
+    _creatorId: UserId
     _refId: DetailObjectId
     refType: string
     isFavorite: boolean
@@ -148,10 +160,6 @@ declare module 'teambition-types' {
 
   export interface HomeActivityId extends String {
     kind?: 'HomeActivityId'
-  }
-
-  export interface IdOfMember extends String {
-    kind?: 'IdOfMember'
   }
 
   export interface MemberId extends String {
@@ -224,5 +232,24 @@ declare module 'teambition-types' {
 
   export interface TeamId extends String {
     kind?: 'TeamId'
+  }
+
+  export interface CustomeFieldId extends String {
+    kind?: 'CustomeFieldId'
+  }
+
+  export type TaskPriority = 0 | 1 | 2
+
+  export interface TasksMeCount {
+    executedTasksDoneCount: number
+    executedTasksUndoneCount: number
+    createdTasksDoneCount: number
+    createdTasksUndoneCount: number
+    involvedTasksDoneCount: number
+    involvedTasksUndoneCount: number
+    createdSubtasksDoneCount: number
+    createdSubtasksUndoneCount: number
+    executedSubtasksDoneCount: number
+    executedSubtasksUndoneCount: number
   }
 }

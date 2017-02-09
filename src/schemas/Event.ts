@@ -1,12 +1,24 @@
 'use strict'
-import { Schema, schemaName, ISchema } from './schema'
-import { visibility, EventId, IdOfMember, ProjectId, TagId } from '../teambition'
+import { SchemaDef, RDBType, Association } from 'reactivedb'
+import { schemas } from '../SDK'
+import {
+  visibility,
+  EventId,
+  UserId,
+  ProjectId,
+  TagId,
+  ExecutorOrCreator
+} from 'teambition-types'
 
-export interface EventData extends ISchema {
+export interface EventData {
   _id: EventId
-  _creatorId: IdOfMember
+  _creatorId: UserId
+  attachmentsCount: number
   title: string
+  creator: ExecutorOrCreator
+  involvers: any
   content: string
+  commentsCount: number
   location: string
   startDate: string
   endDate: string
@@ -16,7 +28,7 @@ export interface EventData extends ISchema {
   _sourceId: EventId
   sourceDate: string
   source?: string
-  // implements in Event Generator Class
+  shareStatus: number
   recurrence?: string[]
   reminders: string[]
   isArchived: boolean
@@ -28,7 +40,6 @@ export interface EventData extends ISchema {
   status?: string
   isFavorite?: boolean
   objectlinksCount?: number
-  mockId?: string
   likesCount?: number
   project?: {
     _id: ProjectId
@@ -36,24 +47,113 @@ export interface EventData extends ISchema {
   }
 }
 
-@schemaName('Event')
-export default class Event extends Schema<EventData> implements EventData {
-  _id: EventId = undefined
-  endDate: string = undefined
-  startDate: string = undefined
-  _projectId: ProjectId = undefined
-  location: string = undefined
-  content: string = undefined
-  title: string = undefined
-  _creatorId: IdOfMember = undefined
-  tagIds: TagId[] = undefined
-  updated: string = undefined
-  created: string = undefined
-  visible: visibility = undefined
-  isArchived: boolean = undefined
-  involveMembers: string [] = undefined
-  untilDate: string = undefined
-  _sourceId: EventId = undefined
-  sourceDate: string = undefined
-  reminders: string[] = undefined
+const schema: SchemaDef<EventData> = {
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _projectId: {
+    type: RDBType.STRING
+  },
+  _sourceId: {
+    type: RDBType.STRING
+  },
+  attachmentsCount: {
+    type: RDBType.NUMBER
+  },
+  commentsCount: {
+    type: RDBType.NUMBER
+  },
+  content: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  creator: {
+    type: Association.oneToOne,
+    virtual: {
+      name: 'Member',
+      where: memberTable => ({
+        _creatorId: memberTable._id
+      })
+    }
+  },
+  endDate: {
+    type: RDBType.DATE_TIME
+  },
+  involvers: {
+    type: RDBType.OBJECT
+  },
+  involveMembers: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  isDeleted: {
+    type: RDBType.BOOLEAN
+  },
+  isFavorite: {
+    type: RDBType.BOOLEAN
+  },
+  likesCount: {
+    type: RDBType.NUMBER
+  },
+  location: {
+    type: RDBType.STRING
+  },
+  objectlinksCount: {
+    type: RDBType.NUMBER
+  },
+  project: {
+    type: Association.oneToOne,
+    virtual: {
+      name: 'Project',
+      where: projectTable => ({
+        _projectId: projectTable._id
+      })
+    }
+  },
+  recurrence: {
+    type: RDBType.OBJECT
+  },
+  reminders: {
+    type: RDBType.OBJECT
+  },
+  shareStatus: {
+    type: RDBType.NUMBER
+  },
+  source: {
+    type: RDBType.STRING
+  },
+  sourceDate: {
+    type: RDBType.DATE_TIME
+  },
+  startDate: {
+    type: RDBType.DATE_TIME
+  },
+  status: {
+    type: RDBType.STRING
+  },
+  tagIds: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  title: {
+    type: RDBType.STRING
+  },
+  untilDate: {
+    type: RDBType.DATE_TIME
+  },
+  updated: {
+    type: RDBType.DATE_TIME
+  },
+  visible: {
+    type: RDBType.STRING
+  }
 }
+
+schemas.push({ schema, name: 'Event' })

@@ -3,7 +3,7 @@
  * bundle socket 的时候，这个文件是 tsc 的一个 entry
  * import 一下需要的 Rx 操作符
  */
-import '../apis/users/get'
+import '../apis/user/get'
 import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/toPromise'
 import 'rxjs/add/operator/concatMap'

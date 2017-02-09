@@ -1,2 +1,4 @@
-import './users'
-import './posts'
+import './event'
+import './post'
+import './task'
+import './user'

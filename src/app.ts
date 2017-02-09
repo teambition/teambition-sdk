@@ -9,7 +9,7 @@ export { eventParser } from './sockets/EventParser'
 
 // export apis
 import './sockets/SocketClient'
-import './apis/posts'
+import './apis'
 
 import './schemas'
 export * from './schemas'

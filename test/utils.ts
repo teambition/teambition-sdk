@@ -14,12 +14,51 @@ export function notInclude(collection: any[], ele: any) {
   return result
 }
 
+export function clone <T>(a: T): T {
+  return JSON.parse(JSON.stringify(a))
+}
+
+/**
+ * deep equal between a and b
+ * loose property compare
+ * a: {
+ *   foo: 1,
+ *   bar: 2
+ * }
+ * b: {
+ *   foo: 1,
+ *   bar: 2,
+ *   baz: 3
+ * }
+ * equals(a, b) // pass
+ */
 export function equals(a: any, b: any) {
+  const _a = clone(a)
+  const _b = clone(b)
+  forEach(_b, (_, key) => {
+    if (typeof a[key] === 'undefined') {
+      delete _b[key]
+    }
+  })
+  function deleteUndefined(obj: any) {
+    forEach(obj, (val, key) => {
+      if (typeof val === 'undefined') {
+        delete _a[key]
+      } else if (val && typeof val === 'object') {
+        deleteUndefined(val)
+      }
+    })
+  }
+  deleteUndefined(_a)
+  expect(_a).to.deep.equal(_b)
+}
+
+export function looseDeepEqual(a: any, b: any) {
   forEach(a, (val, key) => {
     if (val && typeof val === 'object') {
-      equals(val, b[key])
-    } else {
-      expect(val).to.equal(b[key])
+      looseDeepEqual(val, b[key])
+    } else if (val) {
+      expect(val).to.deep.equal(b[key])
     }
   })
 }

@@ -16,13 +16,15 @@ export type CacheValidate = 'request' | 'cache' | undefined
 
 export interface ApiResult<T, U extends CacheValidate> {
   request: Observable<T[]> | Observable<T>
-  query: QueryDescription
+  query: QueryDescription<T>
   tableName: string
   cacheValidate: U
-  assoFields?: {
-    [P in keyof T]?: string[]
-  }
+  assoFields?: AssoField<T>
   excludeFields?: string[]
+}
+
+export type AssoField<T> = {
+  [P in keyof T]?: AssoField<T[P]> | string[]
 }
 
 export interface CApiResult<T> {
@@ -35,7 +37,7 @@ export interface UDResult<T> {
   request: Observable<T>
   tableName: string
   method: 'update' | 'delete'
-  clause: ClauseDescription
+  clause: ClauseDescription<T>
 }
 
 export type CUDApiResult<T> = CApiResult<T> | UDResult<T>

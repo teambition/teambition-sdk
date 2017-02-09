@@ -1,6 +1,6 @@
 'use strict'
 import {
-  IdOfMember,
+  UserId,
   MemberId,
   ProjectId,
   OrganizationId,
@@ -11,8 +11,9 @@ import { schemas } from '../SDK'
 
 export interface MemberData {
   _boundToObjectId: ProjectId | OrganizationId
-  _id: IdOfMember
+  _id: UserId
   _memberId: MemberId
+  _userId: UserId
   _roleId: RoleId
   avatarUrl: string
   boundToObjectType: 'project' | 'organization'
@@ -47,6 +48,9 @@ const Schema: SchemaDef<MemberData> = {
     type: RDBType.STRING
   },
   _roleId: {
+    type: RDBType.STRING
+  },
+  _userId: {
     type: RDBType.STRING
   },
   avatarUrl: {

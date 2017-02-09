@@ -20,7 +20,7 @@ export interface ProjectData {
   _organizationId: OrganizationId | null
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
-  applications?: {
+  applications: {
     _id: ApplicationId
     name: string
     type?: number

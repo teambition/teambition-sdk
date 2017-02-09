@@ -3,7 +3,7 @@ import {
   OrganizationId,
   ProjectId,
   RoleId,
-  IdOfMember
+  UserId
 } from 'teambition-types'
 import { SchemaDef, RDBType } from 'reactivedb'
 import { schemas } from '../SDK'
@@ -11,7 +11,7 @@ import { schemas } from '../SDK'
 export interface OrganizationData {
   _id: OrganizationId
   name: string
-  _creatorId: IdOfMember
+  _creatorId: UserId
   logo: string
   description: string
   category: string

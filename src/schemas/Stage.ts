@@ -1,8 +1,9 @@
 'use strict'
-import { Schema, schemaName, ISchema, bloodyParent } from './schema'
-import { StageId, ProjectId, TasklistId } from '../teambition'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
+import { StageId, ProjectId, TasklistId } from 'teambition-types'
 
-export interface StageData extends ISchema {
+export interface StageData {
   _id: StageId
   _projectId: ProjectId
   _tasklistId: TasklistId
@@ -12,13 +13,29 @@ export interface StageData extends ISchema {
   isArchived: boolean
 }
 
-@schemaName('Stage')
-export default class Stage extends Schema<StageData> implements StageData {
-  _id: StageId = undefined
-  _projectId: ProjectId = undefined
-  @bloodyParent('Tasklist')_tasklistId: TasklistId = undefined
-  name: string = undefined
-  order: number = undefined
-  totalCount: number = undefined
-  isArchived: boolean = undefined
+const schema: SchemaDef<StageData> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _projectId: {
+    type: RDBType.STRING
+  },
+  _tasklistId: {
+    type: RDBType.STRING
+  },
+  isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  order: {
+    type: RDBType.NUMBER
+  },
+  totalCount: {
+    type: RDBType.NUMBER
+  }
 }
+
+schemas.push({ schema, name: 'Stage' })

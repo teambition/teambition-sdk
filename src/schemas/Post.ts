@@ -3,7 +3,7 @@ import {
   ExecutorOrCreator,
   PostSource,
   PostId,
-  IdOfMember,
+  UserId,
   TagId,
   ProjectId,
   FileId
@@ -14,7 +14,7 @@ import { schemas } from '../SDK'
 export interface PostData {
   _id: PostId
   _projectId: ProjectId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   attachments: FileId[]
   attachmentsCount?: number
   commentsCount?: number
@@ -22,7 +22,7 @@ export interface PostData {
   created: string
   creator: ExecutorOrCreator
   html: string
-  involveMembers: IdOfMember[]
+  involveMembers: UserId[]
   isArchived: boolean
   isFavorite: boolean
   lastCommentedAt: string | null
