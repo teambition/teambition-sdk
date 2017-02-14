@@ -5,6 +5,7 @@ import { schemas } from '../SDK'
 import {
   ExecutorOrCreator,
   visibility,
+  SubtaskId,
   TagId,
   TaskId,
   StageId,
@@ -21,11 +22,12 @@ export interface TaskData {
   content: string
   note: string
   accomplished: string
-  startDate?: string
+  startDate: string
   dueDate: string
   priority: TaskPriority
   isDone: boolean
   isArchived: boolean
+  isDeleted: boolean
   created: string
   updated: string
   visible: visibility
@@ -36,38 +38,42 @@ export interface TaskData {
   _executorId: UserId
   involveMembers: UserId[]
   tagIds: TagId []
-  recurrence?: string
-  pos?: number
-  _sourceId?: string
-  sourceDate?: string
-  subtasks?: Partial<SubtaskData>[]
+  recurrence: string
+  pos: number
+  _sourceId: string
+  sourceDate: string
+  subtasks: Partial<SubtaskData>[]
+  subtaskIds: SubtaskId[]
+  source: string
   customfields: CustomFields[]
   involvers: ExecutorOrCreator[]
-  commentsCount?: number
-  attachmentsCount?: number
-  likesCount?: number
-  objectlinksCount?: number
+  commentsCount: number
+  attachmentsCount: number
+  likesCount: number
+  objectlinksCount: number
   shareStatus: number
   reminder: Reminder
-  subtaskCount?: {
+  subtaskCount: {
     total: number
     done: number
   }
-  executor?: ExecutorOrCreator
-  stage?: {
+  executor: ExecutorOrCreator
+  stage: {
     name: string
     _id: StageId
   }
-  tasklist?: {
+  tasklist: {
     title: string
     _id: TasklistId
   }
-  isFavorite?: boolean,
-  project?: {
+  type: 'task'
+  isFavorite: boolean,
+  project: {
     _id: ProjectId
     name: string
   },
-  uniqueId?: number,
+  uniqueId: number
+  url: string
 }
 
 const schema: SchemaDef<TaskData> = {
@@ -132,6 +138,9 @@ const schema: SchemaDef<TaskData> = {
   isArchived: {
     type: RDBType.BOOLEAN
   },
+  isDeleted: {
+    type: RDBType.BOOLEAN
+  },
   isDone: {
     type: RDBType.BOOLEAN
   },
@@ -171,6 +180,9 @@ const schema: SchemaDef<TaskData> = {
   shareStatus: {
     type: RDBType.NUMBER
   },
+  source: {
+    type: RDBType.STRING
+  },
   sourceDate: {
     type: RDBType.DATE_TIME
   },
@@ -188,6 +200,9 @@ const schema: SchemaDef<TaskData> = {
   },
   subtaskCount: {
     type: RDBType.NUMBER
+  },
+  subtaskIds: {
+    type: RDBType.LITERAL_ARRAY
   },
   subtasks: {
     type: Association.oneToMany,
@@ -210,11 +225,17 @@ const schema: SchemaDef<TaskData> = {
       })
     }
   },
+  type: {
+    type: RDBType.STRING
+  },
   uniqueId: {
     type: RDBType.STRING
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  url: {
+    type: RDBType.STRING
   },
   visible: {
     type: RDBType.STRING

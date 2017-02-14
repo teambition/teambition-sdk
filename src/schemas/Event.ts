@@ -27,24 +27,26 @@ export interface EventData {
   _projectId: ProjectId
   _sourceId: EventId
   sourceDate: string
-  source?: string
+  source: string
   shareStatus: number
-  recurrence?: string[]
+  recurrence: string[]
   reminders: string[]
   isArchived: boolean
   visible: visibility
-  isDeleted?: boolean
+  isDeleted: boolean
   created: string
   updated: string
   tagIds: TagId[]
-  status?: string
-  isFavorite?: boolean
-  objectlinksCount?: number
-  likesCount?: number
-  project?: {
+  status: string
+  isFavorite: boolean
+  objectlinksCount: number
+  likesCount: number
+  project: {
     _id: ProjectId
     name: string
   }
+  type: 'event'
+  url: string
 }
 
 const schema: SchemaDef<EventData> = {
@@ -145,11 +147,17 @@ const schema: SchemaDef<EventData> = {
   title: {
     type: RDBType.STRING
   },
+  type: {
+    type: RDBType.STRING
+  },
   untilDate: {
     type: RDBType.DATE_TIME
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  url: {
+    type: RDBType.STRING
   },
   visible: {
     type: RDBType.STRING

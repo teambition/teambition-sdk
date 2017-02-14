@@ -44,7 +44,7 @@ export function getTask(
         }
       ]
     },
-    excludeFields: ['project']
+    excludeFields: ['project', 'isDeleted', 'source', 'subtaskIds', 'type', 'url']
   })
 }
 

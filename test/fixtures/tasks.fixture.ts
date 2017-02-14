@@ -57,9 +57,11 @@ export const task = {
     done: 0
   },
   reminder: {
-    members: [],
-    date: null,
-    type: 'unset'
+    members: [
+      '56986d43542ce1a2798c8cfb'
+    ],
+    date: '2017-02-14T02:38:15.960Z',
+    type: 'customize'
   },
   attachmentsCount: 0,
   executor: {

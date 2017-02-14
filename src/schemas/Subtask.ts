@@ -22,6 +22,7 @@ export interface SubtaskData {
   order: number
   executor: ExecutorOrCreator
   updated: string
+  type: 'subtask'
   project: {
     _id: ProjectId
     name: string
@@ -77,7 +78,7 @@ const schema: SchemaDef<SubtaskData> = {
     type: RDBType.DATE_TIME
   },
   project: {
-    type: Association.oneToMany,
+    type: Association.oneToOne,
     virtual: {
       name: 'Project',
       where: projectTable => ({
@@ -93,6 +94,9 @@ const schema: SchemaDef<SubtaskData> = {
         _taskId: Tasktable._id
       })
     }
+  },
+  type: {
+    type: RDBType.STRING
   }
 }
 

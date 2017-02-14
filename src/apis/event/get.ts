@@ -4,7 +4,7 @@ import { SDKFetch } from '../../SDKFetch'
 import { SDK } from '../../SDK'
 import { EventData } from '../../schemas/Event'
 import { EventGenerator } from './EventGenerator'
-import { replaceToken } from './utils'
+import { replaceToken } from '../utils'
 import { EventId } from 'teambition-types'
 
 export function getEventFetch(

@@ -1,4 +1,5 @@
 import './event'
+import './my'
 import './post'
 import './task'
 import './user'
