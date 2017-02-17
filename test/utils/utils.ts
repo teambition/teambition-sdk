@@ -1,4 +1,3 @@
-'use strict'
 import * as chai from 'chai'
 import { it, describe } from 'tman'
 import {

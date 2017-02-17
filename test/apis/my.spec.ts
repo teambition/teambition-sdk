@@ -53,5 +53,12 @@ describe('MyApi Spec', () => {
           expect(actual).to.deep.equal(expected)
         })
     })
+
+    it('should get my count', function* () {
+      mockResponse(Fixture.count)
+
+      const ret = yield sdk.getMyCount()
+      expect(ret).is.deep.equal(Fixture.count)
+    })
   })
 })

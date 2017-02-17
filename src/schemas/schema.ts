@@ -1,4 +1,3 @@
-'use strict'
 import { forEach, dropEle } from '../utils/helper'
 
 export const bloodyParentMap = new Map<string, string[]>()

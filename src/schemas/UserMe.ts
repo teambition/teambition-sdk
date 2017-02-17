@@ -1,4 +1,3 @@
-'use strict'
 import { UserId } from 'teambition-types'
 import { SchemaDef, RDBType } from 'reactivedb'
 import { schemas } from '../SDK'

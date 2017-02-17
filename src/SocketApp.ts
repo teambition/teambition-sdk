@@ -1,4 +1,3 @@
-'use strict'
 import 'tslib'
 import 'engine.io-client'
 import 'jsonrpc-lite'

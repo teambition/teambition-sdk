@@ -1,4 +1,3 @@
-'use strict'
 /**
  * bundle socket 的时候，这个文件是 tsc 的一个 entry
  * import 一下需要的 Rx 操作符

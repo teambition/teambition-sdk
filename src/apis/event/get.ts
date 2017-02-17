@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
 import { SDKFetch } from '../../SDKFetch'
-import { SDK } from '../../SDK'
+import { SDK, CacheStrategy } from '../../SDK'
 import { EventData } from '../../schemas/Event'
 import { EventGenerator } from './EventGenerator'
 import { replaceToken } from '../utils'
@@ -29,13 +29,13 @@ export function getEvent(
   query?: any
 ): QueryToken<IterableIterator<EventData>> {
   const token: QueryToken<any> = this.lift<EventData>({
-    cacheValidate: 'cache',
+    cacheValidate: CacheStrategy.Cache,
     tableName: 'Event',
     request: this.fetch.getEvent(eventId, query),
     query: {
       where: { _id: eventId }
     },
-    assoFields: {
+    assocFields: {
       creator: [ '_id', 'name', 'avatarUrl' ]
     },
     excludeFields: [ 'project' ]

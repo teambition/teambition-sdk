@@ -1,4 +1,3 @@
-'use strict'
 import { SDKFetch } from '../SDKFetch'
 
 export class SocketFetch extends SDKFetch {

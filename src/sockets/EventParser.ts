@@ -1,4 +1,3 @@
-'use strict'
 import { RequestEvent } from 'snapper-consumer'
 import { forEach } from '../utils/index'
 

@@ -1,4 +1,3 @@
-'use strict'
 import { schemaName, ISchema, Schema } from './schema'
 import { CustomRoleId, OrganizationId } from 'teambition-types'
 

@@ -6984,3 +6984,13 @@ export const myRecent = [
     }
     return r
   })
+
+
+export const count = {
+  organizationsCount: 1,
+  notesCount: 20,
+  reportCount: 10,
+  favoritesCount: 30,
+  tasksCount: 160,
+  subtasksCount: 19
+}

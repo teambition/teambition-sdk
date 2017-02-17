@@ -162,7 +162,7 @@ describe('PostApi Spec', () => {
   })
 
   describe('PostsAPI socket spec', () => {
-    it('new post should add cache', function* () {
+    it('should do response for socket::new', function* () {
       const [ fixture ] = projectPosts
 
       yield socket.emit('new', 'post', '', fixture)
@@ -172,7 +172,7 @@ describe('PostApi Spec', () => {
         .do((r) => equals(r, [ fixture ]))
     })
 
-    it('update post should change cache', function* () {
+    it('should do response for socket::change', function* () {
       const [ fixture ] = projectPosts
 
       yield sdk.database.insert('Post', fixture)
@@ -186,7 +186,7 @@ describe('PostApi Spec', () => {
         .do(([r]) => expect(r.content).to.equal('fixture'))
     })
 
-    it('delete post should delete cache', function* () {
+    it('should do response for socket::destory', function* () {
       const [ fixture ] = projectPosts
 
       yield sdk.database.insert('Post', fixture)

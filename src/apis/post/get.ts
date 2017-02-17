@@ -1,6 +1,6 @@
 import { QueryToken } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
-import { SDK } from '../../SDK'
+import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { PostData } from '../../schemas/Post'
 import { PostId } from 'teambition-types'
@@ -30,11 +30,11 @@ export function getPost (
   return this.lift<PostData>({
     request: this.fetch.getPost(postId, query),
     tableName: 'Post',
-    cacheValidate: 'cache',
+    cacheValidate: CacheStrategy.Cache,
     query: {
       where: { _id: postId }
     },
-    assoFields: {
+    assocFields: {
       creator: ['_id', 'name', 'avatarUrl']
     }
   })

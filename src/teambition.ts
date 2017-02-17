@@ -1,5 +1,5 @@
 declare module 'teambition-types' {
-  export type visibility = 'project' | 'organization' | 'all' | 'members'
+  export type Visibility = 'project' | 'organization' | 'all' | 'members'
 
   export interface CustomFields {
     type: 'number' | 'dropDown' | 'multipleChoice' | 'date' | 'text'
@@ -19,7 +19,7 @@ declare module 'teambition-types' {
     likesGroup: ExecutorOrCreator[]
   }
 
-  export interface TburlSchema {
+  export interface TbUrlSchema {
     statusCode: number
     isExist: boolean
     code: string

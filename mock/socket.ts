@@ -1,5 +1,3 @@
-'use strict'
-
 declare const global: any
 
 // copy from snapper-consumer.d.ts

@@ -1,4 +1,3 @@
-'use strict'
 import 'rxjs/add/observable/from'
 import 'rxjs/add/operator/mergeAll'
 import { Observable } from 'rxjs/Observable'

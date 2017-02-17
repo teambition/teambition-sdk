@@ -1,4 +1,3 @@
-'use strict'
 import { Schema, schemaName, ISchema, child } from './schema'
 import { ObjectLinkData } from '../schemas/ObjectLink'
 import {

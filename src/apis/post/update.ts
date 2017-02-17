@@ -2,7 +2,7 @@ import { FileId, UserId, PostId } from 'teambition-types'
 import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { PostData } from '../../schemas/Post'
+// import { PostData } from '../../schemas/Post'
 
 export interface UpdatePostOptions {
   title?: string

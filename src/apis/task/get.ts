@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
 import { SDKFetch } from '../../SDKFetch'
-import { SDK } from '../../SDK'
+import { SDK, CacheStrategy } from '../../SDK'
 import { TaskData } from '../../schemas/Task'
 import { TaskId } from 'teambition-types'
 
@@ -27,13 +27,13 @@ export function getTask(
   query?: any
 ): QueryToken<TaskData> {
   return this.lift<TaskData>({
-    cacheValidate: 'cache',
+    cacheValidate: CacheStrategy.Cache,
     tableName: 'Task',
     request: this.fetch.getTask(taskId, query),
     query: {
       where: { _id: taskId }
     },
-    assoFields: {
+    assocFields: {
       executor: [ '_id', 'name', 'avatarUrl' ],
       stage: ['_id', 'name'],
       tasklist: ['_id', 'title'],

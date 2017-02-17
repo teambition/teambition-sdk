@@ -1,6 +1,6 @@
 import { QueryToken } from 'reactivedb'
 
-export const replaceToken = <T, U>(token: QueryToken<any>, mapFn: (val: T) => U) => {
+export function replaceToken<T, U>(token: QueryToken<any>, mapFn: (val: T) => U) {
   const changes = token.changes
   const values = token.values
   const combine = token.combine

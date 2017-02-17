@@ -1,4 +1,3 @@
-'use strict'
 declare const global: any
 
 export interface FetchResult {

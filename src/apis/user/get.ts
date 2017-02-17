@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
-import { SDK } from '../../SDK'
+import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { UserMe } from '../../schemas/UserMe'
 
@@ -23,7 +23,7 @@ export function getUserMe (
 ): QueryToken<UserMe> {
   return this.lift({
     request: this.fetch.getUserMe(),
-    cacheValidate: 'request',
+    cacheValidate: CacheStrategy.Request,
     tableName: 'User',
     query: { }
   })

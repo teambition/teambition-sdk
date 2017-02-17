@@ -1,10 +1,9 @@
-'use strict'
 import { RDBType, Association, SchemaDef } from 'reactivedb'
 import { SubtaskData } from './Subtask'
 import { schemas } from '../SDK'
 import {
   ExecutorOrCreator,
-  visibility,
+  Visibility,
   SubtaskId,
   TagId,
   TaskId,
@@ -30,7 +29,7 @@ export interface TaskData {
   isDeleted: boolean
   created: string
   updated: string
-  visible: visibility
+  visible: Visibility
   _stageId: StageId
   _creatorId: UserId
   _tasklistId: TasklistId

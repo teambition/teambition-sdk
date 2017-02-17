@@ -1,9 +1,10 @@
 import { QueryToken } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
-import { SDK } from '../../SDK'
+import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId } from 'teambition-types'
 import { PostData } from '../../schemas/Post'
+import { pagination } from '../../utils'
 
 export type ProjectPostType = 'all' | 'my'
 
@@ -39,10 +40,10 @@ export function getAllProjectPosts (
   return this.lift<PostData>({
     request: this.fetch.getPosts(_projectId, query),
     query: {
-      limit: query.count,
-      skip: (query.count * (query.page - 1)),
+      ...pagination(query.count, query.page),
       where: {
-        _projectId, isArchived: false
+        _projectId,
+        isArchived: false
       },
       orderBy: [
         { fieldName: 'pin', orderBy: 'DESC' },
@@ -50,8 +51,8 @@ export function getAllProjectPosts (
       ]
     },
     tableName: 'Post',
-    cacheValidate: 'request',
-    assoFields: {
+    cacheValidate: CacheStrategy.Request,
+    assocFields: {
       creator: ['_id', 'name', 'avatarUrl']
     }
   })

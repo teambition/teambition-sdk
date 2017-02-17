@@ -1,8 +1,9 @@
 import { QueryToken } from 'reactivedb'
-import { SDK } from '../../SDK'
+import { SDK, CacheStrategy } from '../../SDK'
 import { ProjectId, UserId } from 'teambition-types'
 import { PostData } from '../../schemas/Post'
 import { GetPostsQuery } from './getProjects'
+import { pagination } from '../../utils'
 
 export function getMyProjectPosts (
   this: SDK,
@@ -13,20 +14,20 @@ export function getMyProjectPosts (
   return this.lift<PostData>({
     request: this.fetch.getPosts(_projectId, query),
     query: {
-      limit: query.count,
-      skip: (query.count * (query.page - 1)),
       where: {
-        _projectId, isArchived: false,
+        _projectId,
+        isArchived: false,
         _creatorId: userId
       },
       orderBy: [
         { fieldName: 'pin', orderBy: 'DESC' },
         { fieldName: 'created', orderBy: 'DESC' }
-      ]
+      ],
+      ...pagination(query.count, query.page)
     },
     tableName: 'Post',
-    cacheValidate: 'request',
-    assoFields: {
+    cacheValidate: CacheStrategy.Request,
+    assocFields: {
       creator: ['_id', 'name', 'avatarUrl']
     }
   })

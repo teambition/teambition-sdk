@@ -1,4 +1,3 @@
-'use strict'
 import { SchemaDef, RDBType, Association } from 'reactivedb'
 import { schemas } from '../SDK'
 import { StageData } from '../schemas/Stage'

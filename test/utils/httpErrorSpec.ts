@@ -1,7 +1,8 @@
-'use strict'
 import * as chai from 'chai'
-import { describe, it, beforeEach } from 'tman'
-import { Fetch, Backend, HttpError$ } from '../index'
+import { Subject } from 'rxjs/Subject'
+import { describe, it, beforeEach, afterEach } from 'tman'
+
+import { Fetch, Backend, HttpErrorMessage } from '../index'
 
 const expect = chai.expect
 
@@ -9,11 +10,17 @@ export default describe('HttpError$ test: ', () => {
   let httpBackend: Backend
   let mockFetch: Fetch
   let apiHost: string
+  let error$: Subject<HttpErrorMessage>
 
   beforeEach(() => {
+    error$ = new Subject<HttpErrorMessage>()
     httpBackend = new Backend()
-    mockFetch = new Fetch()
+    mockFetch = new Fetch(error$)
     apiHost = mockFetch.getAPIHost()
+  })
+
+  afterEach(() => {
+    httpBackend.restore()
   })
 
   it('handler error should ok', done => {
@@ -22,7 +29,7 @@ export default describe('HttpError$ test: ', () => {
         status: 400
       })
 
-    HttpError$.map(r => {
+    error$.map(r => {
       return r.error.statusText
     })
       .take(1)
@@ -46,7 +53,7 @@ export default describe('HttpError$ test: ', () => {
         status: 400
       })
 
-    HttpError$.skip(1)
+    error$.skip(1)
       .take(1)
       .map(r => r.error.statusText)
       .subscribe(r => {
@@ -55,7 +62,6 @@ export default describe('HttpError$ test: ', () => {
       })
 
     mockFetch.get('users/me').subscribe()
-
     mockFetch.get('users/me').subscribe()
   })
 })

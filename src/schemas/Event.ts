@@ -1,8 +1,7 @@
-'use strict'
 import { SchemaDef, RDBType, Association } from 'reactivedb'
 import { schemas } from '../SDK'
 import {
-  visibility,
+  Visibility,
   EventId,
   UserId,
   ProjectId,
@@ -32,7 +31,7 @@ export interface EventData {
   recurrence: string[]
   reminders: string[]
   isArchived: boolean
-  visible: visibility
+  visible: Visibility
   isDeleted: boolean
   created: string
   updated: string

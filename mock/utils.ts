@@ -1,4 +1,3 @@
-'use strict'
 /* istanbul ignore next */
 export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 

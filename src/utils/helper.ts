@@ -1,5 +1,3 @@
-'use strict'
-
 export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 
 export function forEach<T> (
@@ -141,4 +139,11 @@ export function parseHeaders(rawHeader: string) {
     head[key] = value
   })
   return head
+}
+
+export function pagination(count: number, page: number) {
+  return {
+    limit: count,
+    skip: (count * (page - 1)),
+  }
 }

@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
 import { SDKFetch } from '../../SDKFetch'
-import { SDK } from '../../SDK'
+import { SDK, CacheStrategy } from '../../SDK'
 import { TaskData, EventData, SubtaskData } from '../../schemas'
 import { UserId } from 'teambition-types'
 
@@ -49,7 +49,7 @@ export function getMyRecent(
     .refCount()
   const dueDate = new Date(query.dueDate).valueOf()
   const taskToken = this.lift<RecentData>({
-    cacheValidate: 'request',
+    cacheValidate: CacheStrategy.Request,
     tableName: 'Task',
     request: request.map(v => v.filter(t => t.type === 'task')),
     query: {
@@ -67,7 +67,7 @@ export function getMyRecent(
         ],
       }
     },
-    assoFields: {
+    assocFields: {
       project: [ '_id', 'isArchived', 'name' ]
     },
     excludeFields: [
@@ -107,11 +107,11 @@ export function getMyRecent(
   }
 
   const eventToken = this.lift<RecentData>({
-    cacheValidate: 'request',
+    cacheValidate: CacheStrategy.Request,
     tableName: 'Event',
     request: request.map(v => v.filter(t => t.type === 'event')),
     query: eventQuery,
-    assoFields: {
+    assocFields: {
       project: ['_id', 'name', 'isArchived']
     },
     excludeFields: [
@@ -127,7 +127,7 @@ export function getMyRecent(
   })
 
   const subtaskToken = this.lift<RecentData>({
-    cacheValidate: 'request',
+    cacheValidate: CacheStrategy.Request,
     tableName: 'Subtask',
     request: request.map(v => v.filter(s => s.type === 'subtask')),
     query: {
@@ -138,7 +138,7 @@ export function getMyRecent(
         }
       }
     },
-    assoFields: {
+    assocFields: {
       project: ['_id', 'name', 'isArchived'],
       task: ['_id', 'content']
     },

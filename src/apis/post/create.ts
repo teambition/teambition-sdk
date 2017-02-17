@@ -2,14 +2,14 @@ import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { PostData } from '../../schemas/Post'
-import { ProjectId, visibility, FileId, UserId, TagId } from 'teambition-types'
+import { ProjectId, Visibility, FileId, UserId, TagId } from 'teambition-types'
 
 export interface CreatePostOptions {
   _projectId: ProjectId
   title: string
   content: string
   postMode?: 'html' | 'txt'
-  visiable?: visibility
+  visiable?: Visibility
   attachments?: FileId[]
   involveMembers?: UserId[]
   tagIds?: TagId[]

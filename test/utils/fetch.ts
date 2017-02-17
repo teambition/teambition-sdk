@@ -1,8 +1,9 @@
-'use strict'
 import { Observable } from 'rxjs'
 import { expect } from 'chai'
-import { Fetch, HttpErrorMessage, forEach } from '../index'
 import { describe, it, beforeEach } from 'tman'
+
+import { Fetch, HttpErrorMessage, forEach } from '../index'
+
 const fetchMock = require('fetch-mock')
 
 export default describe('utils/fetch', () => {

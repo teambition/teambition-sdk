@@ -1,4 +1,3 @@
-'use strict'
 import { Schema, ISchema, schemaName } from './schema'
 import { DefaultRoleId } from '../teambition'
 

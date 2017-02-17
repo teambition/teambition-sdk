@@ -1,4 +1,3 @@
-'use strict'
 import { ISchema, Schema, schemaName } from './schema'
 import { CollectionId } from '../teambition'
 

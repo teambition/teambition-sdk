@@ -1,4 +1,3 @@
-'use strict'
 import 'rxjs/add/observable/dom/ajax'
 import 'rxjs/add/operator/debounceTime'
 import 'rxjs/add/operator/catch'
@@ -22,6 +21,16 @@ export interface HttpErrorMessage {
 export const HttpError$: Observable<HttpErrorMessage> = new Subject<HttpErrorMessage>()
 
 export class Fetch {
+
+  private errorAdapter$: Subject<HttpErrorMessage>
+
+  constructor(errorAdapter$?: Subject<HttpErrorMessage>) {
+    if (errorAdapter$) {
+      this.errorAdapter$ = errorAdapter$
+    } else {
+      this.errorAdapter$ = HttpError$ as Subject<HttpErrorMessage>
+    }
+  }
 
   private _opts: any = {
     headers: {
@@ -134,8 +143,9 @@ export class Fetch {
               }),
               method, url, body
             }
+
             setTimeout(() => {
-              (<Subject<HttpErrorMessage>>HttpError$).next(sdkError)
+              this.errorAdapter$.next(sdkError)
             }, 10)
             return Observable.throw(sdkError)
           })
@@ -170,8 +180,9 @@ export class Fetch {
                 error: e,
                 method, url, body
               }
+
               setTimeout(() => {
-                (<Subject<HttpErrorMessage>>HttpError$).next(sdkError)
+                this.errorAdapter$.next(sdkError)
               }, 10)
               observer.error(sdkError)
             })
