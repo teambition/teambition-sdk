@@ -1,0 +1,26 @@
+{
+  "name": "teambition-sdk-schema-cli",
+  "version": "0.0.1",
+  "description": "teambition sdk schema cli",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node --project cli.tsconfig.json entry.ts"
+  },
+  "keywords": [
+    "cli",
+    "teambition",
+    "teambition-sdk"
+  ],
+  "author": "Saviio",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "inquirer": "^3.0.1",
+    "request": "^2.79.0",
+    "ts-node": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.17.31",
+    "@types/inquirer": "0.0.32"
+  }
+}
