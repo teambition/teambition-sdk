@@ -1,4 +1,3 @@
-'use strict'
 import { Schema, ISchema, schemaName, bloodyParentWithProperty } from './schema'
 import {
   ExecutorOrCreator,

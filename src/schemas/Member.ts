@@ -1,18 +1,21 @@
-'use strict'
-import { Schema, schemaName, ISchema } from './schema'
 import {
-  IdOfMember,
+  UserId,
   MemberId,
   ProjectId,
   OrganizationId,
   RoleId
-} from '../teambition'
+} from 'teambition-types'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
 
-export interface MemberData extends ISchema {
-  _id: IdOfMember
+export interface MemberSchema {
   _boundToObjectId: ProjectId | OrganizationId
-  boundToObjectType: 'project' | 'organization'
+  _id: UserId
+  _memberId: MemberId
+  _userId: UserId
   _roleId: RoleId
+  avatarUrl: string
+  boundToObjectType: 'project' | 'organization'
   visited: string
   joined: string
   pushStatus: boolean
@@ -20,7 +23,6 @@ export interface MemberData extends ISchema {
   nicknamePy: string
   nicknamePinyin: string
   hasVisited: boolean
-  _memberId: MemberId
   phone: string
   location: string
   website: string
@@ -28,35 +30,85 @@ export interface MemberData extends ISchema {
   isActive: boolean
   email: string
   name: string
-  avatarUrl: string
   title: string
   pinyin: string
   py: string
 }
 
-@schemaName('Member')
-export default class Member extends Schema<MemberData> implements MemberData {
-  _id: IdOfMember = undefined
-  _boundToObjectId: ProjectId | OrganizationId = undefined
-  boundToObjectType: 'project' | 'organization' = undefined
-  _roleId: RoleId = undefined
-  visited: string = undefined
-  joined: string = undefined
-  pushStatus: boolean = undefined
-  nickname: string = undefined
-  nicknamePy: string = undefined
-  nicknamePinyin: string = undefined
-  hasVisited: boolean = undefined
-  _memberId: MemberId = undefined
-  phone: string = undefined
-  location: string = undefined
-  website: string = undefined
-  latestActived: string = undefined
-  isActive: boolean = undefined
-  email: string = undefined
-  name: string = undefined
-  avatarUrl: string = undefined
-  title: string = undefined
-  pinyin: string = undefined
-  py: string = undefined
+const Schema: SchemaDef<MemberSchema> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _boundToObjectId: {
+    type: RDBType.STRING
+  },
+  _memberId: {
+    type: RDBType.STRING
+  },
+  _roleId: {
+    type: RDBType.STRING
+  },
+  _userId: {
+    type: RDBType.STRING
+  },
+  avatarUrl: {
+    type: RDBType.STRING
+  },
+  boundToObjectType: {
+    type: RDBType.STRING
+  },
+  visited: {
+    type: RDBType.DATE_TIME
+  },
+  joined: {
+    type: RDBType.DATE_TIME
+  },
+  pushStatus: {
+    type: RDBType.STRING
+  },
+  nickname: {
+    type: RDBType.STRING
+  },
+  nicknamePy: {
+    type: RDBType.STRING
+  },
+  nicknamePinyin: {
+    type: RDBType.STRING
+  },
+  hasVisited: {
+    type: RDBType.BOOLEAN
+  },
+  phone: {
+    type: RDBType.STRING
+  },
+  location: {
+    type: RDBType.STRING
+  },
+  website: {
+    type: RDBType.STRING
+  },
+  latestActived: {
+    type: RDBType.DATE_TIME
+  },
+  isActive: {
+    type: RDBType.BOOLEAN
+  },
+  email: {
+    type: RDBType.STRING
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  title: {
+    type: RDBType.STRING
+  },
+  pinyin: {
+    type: RDBType.STRING
+  },
+  py: {
+    type: RDBType.STRING
+  }
 }
+
+schemas.push({ schema: Schema, name: 'Member' })

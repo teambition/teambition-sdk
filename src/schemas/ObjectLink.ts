@@ -1,43 +1,65 @@
-'use strict'
-import { ISchema, Schema, schemaName, bloodyParentWithProperty } from './schema'
+import { SchemaDef, Association, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
 import {
   ExecutorOrCreator,
   ObjectLinkId,
-  ProjectId,
-  IdOfMember,
+  UserId,
   DetailObjectId
-} from '../teambition'
+} from 'teambition-types'
 
-export type parentType = 'task' | 'post' | 'event' | 'work'
+export type ParentType = 'task' | 'post' | 'event' | 'work'
 
-export interface ObjectLinkData extends ISchema {
+export interface ObjectLinkSchema {
   _id: ObjectLinkId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   _parentId: DetailObjectId
-  parentType: parentType
-  linkedType: parentType
+  parentType: ParentType
+  linkedType: ParentType
   _linkedId: DetailObjectId
   created: string
   creator: ExecutorOrCreator
   title: string
   data: any
-  project?: {
-    _id: ProjectId
-    name: string
-    logo: string
+}
+
+const schema: SchemaDef<ObjectLinkSchema> = {
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _linkedId: {
+    type: RDBType.STRING
+  },
+  _parentId: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  creator: {
+    type: Association.oneToOne,
+    virtual: {
+      name: 'Member',
+      where: memberTable => ({
+        _creatorId: memberTable._id
+      })
+    }
+  },
+  data: {
+    type: RDBType.OBJECT
+  },
+  linkedType: {
+    type: RDBType.STRING
+  },
+  parentType: {
+    type: RDBType.STRING
+  },
+  title: {
+    type: RDBType.STRING
   }
 }
 
-@schemaName('ObjectLink')
-export default class ObjectLinkSchema extends Schema<ObjectLinkData> implements ObjectLinkData {
-  _id: ObjectLinkId = undefined
-  _creatorId: IdOfMember = undefined
-  @bloodyParentWithProperty('parentType') _parentId: DetailObjectId = undefined
-  parentType: parentType = undefined
-  linkedType: parentType = undefined
-  _linkedId: DetailObjectId = undefined
-  created: string = undefined
-  creator: ExecutorOrCreator = undefined
-  title: string = undefined
-  data: any = undefined
-}
+schemas.push({ schema, name: 'ObjectLink' })

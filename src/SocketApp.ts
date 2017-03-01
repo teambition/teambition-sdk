@@ -1,4 +1,4 @@
-'use strict'
+import 'tslib'
 import 'engine.io-client'
 import 'jsonrpc-lite'
 import { SocketClient } from './sockets/SocketClient'

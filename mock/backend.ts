@@ -1,4 +1,3 @@
-'use strict'
 import { HttpResponse } from './response'
 import { fetchStack, restore, mockFetch } from './mock'
 

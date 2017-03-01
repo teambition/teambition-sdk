@@ -104,7 +104,8 @@ class TaskView extends Backbone.View {
 
 ```ts
 import 'rxjs/add/operator/distinctUntilKeyChanged'
-import { TasksAPI } from 'teambition-sdk'
+import 'teambition-sdk/apis/task'
+import { SDK } from 'teambition-sdk/SDK'
 import { Component, Input } from '@angular/core'
 
 @Component({
@@ -118,7 +119,7 @@ export default class TaskView {
 
   @Input('taskId') taskId: string
 
-  private task$ = this.TaskAPI.get(this.taskId)
+  private task$ = this.SDK.getTask(this.taskId)
     .publishReplay(1)
     .refCount()
 
@@ -128,10 +129,6 @@ export default class TaskView {
       total: task.subtasks.length,
       done: task.subtasks.filter(x => x.isDone).length
     }))
-
-  constructor(
-    private TasksAPI: TasksAPI
-  ) { }
 }
 ```
 
@@ -142,7 +139,10 @@ export default class TaskView {
 ```ts
 import 'rxjs/add/operator/distinctUntilKeyChanged'
 import 'rxjs/add/operator/distinctUntilChanged'
-import { PermissionAPI, TasksAPI, ProjectAPI } from 'teambition-sdk'
+import 'teambition-sdk/apis/permission'
+import 'teambition-sdk/apis/task'
+import 'teambition-sdk/apis/project'
+import { SDK } from 'teambition-sdk'
 import { Component, Input } from '@angular/core'
 import * as moment from 'moment'
 import { errorHandler } from '../errorHandler'
@@ -160,7 +160,7 @@ export default class TaskView {
 
   @Input('taskId') taskId: string
 
-  private task$ = this.TaskAPI.get(this.taskId)
+  private task$ = SDK.getTask(this.taskId)
     .catch(err => errorHandler(err))
     .publishReplay(1)
     .refCount()
@@ -177,7 +177,7 @@ export default class TaskView {
 
   private project$ = this.task$
     .distinctUntilKeyChanged('_projectId')
-    .switchMap(task => this.ProjectAPI.get(task._projectId))
+    .switchMap(task => SDK.getProject(task._projectId))
     .catch(err => errorHandler(err))
     .publishReplay(1)
     .refCount()
@@ -191,18 +191,12 @@ export default class TaskView {
       return this.project$
         .distinctUntilKeyChanged('_defaultRoleId')
         .switchMap(project => {
-          return this.PermissionAPI.getPermission(task, project)
+          return SDK.getPermission(task, project)
         })
     })
     .catch(err => errorHandler(err))
     .publishReplay(1)
     .refCount()
-
-  constructor(
-    private TasksAPI: TasksAPI,
-    private PermissionAPI: PermissionAPI
-  ) { }
-}
 ```
 
 在这种场景下，关于 task 的任何变更 (tasklist 变更，executor 变更，stage 变更等等，权限变化) 都能让相关的数据自动更新，从而简化 View 层的逻辑。

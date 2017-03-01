@@ -1,18 +1,28 @@
-'use strict'
-import { Schema, ISchema, schemaName, bloodyParentWithProperty } from './schema'
-import { ExecutorOrCreator, DetailObjectType, DetailObjectId } from '../teambition'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
+import { ExecutorOrCreator } from 'teambition-types'
 
-export interface LikeData extends ISchema {
+export interface LikeSchema {
   _id: string
-  _boundToObjectId: DetailObjectId
-  _boundToObjectType: DetailObjectType
+  isLike: boolean
+  likesCount: number
   likesGroup: ExecutorOrCreator[]
 }
 
-@schemaName('Like')
-export default class LikeSchema extends Schema<LikeData> implements LikeData {
-  _id: string = undefined
-  @bloodyParentWithProperty('_boundToObjectType') _boundToObjectId: DetailObjectId = undefined
-  _boundToObjectType: DetailObjectType = undefined
-  likesGroup: ExecutorOrCreator[] = undefined
+const schema: SchemaDef<LikeSchema> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  isLike: {
+    type: RDBType.BOOLEAN
+  },
+  likesCount: {
+    type: RDBType.NUMBER
+  },
+  likesGroup: {
+    type: RDBType.OBJECT
+  }
 }
+
+schemas.push({ name: 'Like', schema })

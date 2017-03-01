@@ -34,3 +34,4 @@ jsconfig.json
 coverage
 dist
 spec-js
+yarn.lock

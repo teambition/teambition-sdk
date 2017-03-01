@@ -1,4 +1,3 @@
-'use strict'
 import { fetchStack, parseObject, reParseQuery } from './mock'
 
 export class HttpResponse {

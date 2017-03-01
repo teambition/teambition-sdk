@@ -1,13 +1,13 @@
-'use strict'
-import { Schema, schemaName, ISchema } from './schema'
 import {
   TasklistId,
   PreferenceId,
   UserId,
   ProjectId
-} from '../teambition'
+} from 'teambition-types'
+import { RDBType, SchemaDef } from 'reactivedb'
+import { schemas } from '../SDK'
 
-export interface PreferenceData extends ISchema {
+export interface PreferenceSchema {
   _id: PreferenceId
   _userId: UserId
   language: string
@@ -30,19 +30,56 @@ export interface PreferenceData extends ISchema {
   isUsePanel: boolean
 }
 
-@schemaName('Preference')
-export default class Preference extends Schema<PreferenceData> implements PreferenceData {
-  _id: PreferenceId = undefined
-  _userId: UserId = undefined
-  language: string = undefined
-  tips: any = undefined
-  notification: any = undefined
-  openWindowMode: string = undefined
-  postMode: 'html' | 'markdown' = undefined
-  quickCreateTask: boolean = undefined
-  quickReply: boolean = undefined
-  hasNew: boolean = undefined
-  switcherOn: boolean = undefined
-  memberBarMode: string = undefined
-  isUsePanel: boolean = undefined
+const Schema: SchemaDef<PreferenceSchema> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _userId: {
+    type: RDBType.STRING
+  },
+  hasNew: {
+    type: RDBType.BOOLEAN
+  },
+  isUsePanel: {
+    type: RDBType.BOOLEAN
+  },
+  language: {
+    type: RDBType.STRING
+  },
+  memberBarMode: {
+    type: RDBType.STRING
+  },
+  notification: {
+    type: RDBType.OBJECT
+  },
+  openWindowMode: {
+    type: RDBType.STRING
+  },
+  postMode: {
+    type: RDBType.STRING
+  },
+  quickCreateTask: {
+    type: RDBType.STRING
+  },
+  quickReply: {
+    type: RDBType.STRING
+  },
+  showProjects: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  starProjects: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  switcherOn: {
+    type: RDBType.BOOLEAN
+  },
+  tasklist: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  tips: {
+    type: RDBType.OBJECT
+  }
 }
+
+schemas.push({ name: 'Preference', schema: Schema })
