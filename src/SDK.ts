@@ -7,7 +7,8 @@ import {
   QueryDescription,
   QueryToken,
   SchemaDef,
-  ClauseDescription
+  ClauseDescription,
+  ExecutorResult
 } from 'reactivedb'
 
 import { forEach } from './utils'
@@ -145,16 +146,16 @@ export class SDK {
 
   handleCUDAResult<T>(result: CUDApiResult<T>) {
     const { request, method, tableName } = result as CUDApiResult<T>
-    let destination: Observable<T[]> | Observable<T>
+    let destination: Observable<ExecutorResult> | Observable<T | T[]>
 
     return request
       .concatMap(v => {
         switch (method) {
           case 'create':
-            destination = this.database.insert<T>(tableName, v)
+            destination = this.database.upsert<T>(tableName, v)
             break
           case 'update':
-            destination = this.database.update(tableName, (result as UDResult<T>).clause, v)
+            destination = this.database.upsert(tableName, v)
             break
           case 'delete':
             destination = this.database.delete<T>(tableName, (result as UDResult<T>).clause)
@@ -162,7 +163,7 @@ export class SDK {
           default:
             throw new Error()
         }
-        return destination.mapTo<T | T[], T>(v)
+        return destination.mapTo<ExecutorResult | T | T[], T>(v)
       })
   }
 

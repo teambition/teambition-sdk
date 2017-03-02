@@ -34,6 +34,7 @@ describe('UserApi Spec', () => {
     it('update should update cache', function* () {
       const newName = 'test user update'
       mockResponse({
+        _id: userMe._id,
         name: newName
       })
 
@@ -63,6 +64,7 @@ describe('UserApi Spec', () => {
       yield sdk.database.insert('User', userMe)
 
       mockResponse({
+        _id: userMe._id,
         emails: newEmail
       })
 
