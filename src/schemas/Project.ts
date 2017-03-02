@@ -1,124 +1,201 @@
-'use strict'
-import { Schema, schemaName, ISchema, bloodyParent } from './schema'
 import {
   ExecutorOrCreator,
   ProjectId,
-  IdOfMember,
+  UserId,
   OrganizationId,
   RoleId,
   CollectionId,
   ApplicationId
-} from '../teambition'
+} from 'teambition-types'
+import { RDBType, SchemaDef, Association } from 'reactivedb'
+import { schemas } from '../SDK'
 
-export interface ProjectData extends ISchema {
-  _id: ProjectId
-  name: string
-  _creatorId: IdOfMember
-  logo: string
-  py: string
-  pinyin: string
-  description: string
-  category: string
-  _organizationId: OrganizationId
-  navigation?: {
-    tasks: number
-    posts: number
-    events: number
-    files: number
-    tags: number
-    bookkeeping: number
-    home: number
-    review: number
-  }
-  visibility: string
-  isPublic: boolean
-  created: string
-  updated: string
-  isArchived: boolean
-  isStar: boolean
-  hasRight: number
-  hasOrgRight: number
-  organization: {
-    name: string
-    description: string
-    logo: string
-    isPublic: boolean
-    _id: OrganizationId
-    isExpired: boolean
-  }
-  unreadCount?: number
-  unreadMessageCount?: number
-  uniqueIdPrefix?: string
+export interface ProjectSchema {
+  _creatorId: UserId
+  _defaultCollectionId: CollectionId
   _defaultRoleId: RoleId | null
-  creator: ExecutorOrCreator
-  pushStatus: boolean
-  canQuit: boolean
-  canDelete: boolean
-  canArchive: boolean
-  canTransfer: boolean
+  _id: ProjectId
+  _orgRoleId: RoleId | null
+  _organizationId: OrganizationId | null
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
-  _defaultCollectionId: CollectionId
-  _orgRoleId: RoleId | null
-  applications?: {
+  applications: {
     _id: ApplicationId
     name: string
     type?: number
     order?: number
   }[]
+  category: string
+  created: string
+  creator: ExecutorOrCreator
+  description: string
+  eventsCount: number
+  hasOrgRight: number
+  hasRight: number
+  inviteLink: string
+  isArchived: boolean
+  isPublic: boolean
+  isStar: boolean
+  logo: string
+  membersCount: number
+  name: string
+  organization: {
+    _id: OrganizationId
+    description: string
+    isExpired: boolean
+    isPublic: boolean
+    logo: string
+    name: string
+    plan: {
+      days: number
+      expired: string
+      membersCount: number
+      objectType: string
+      paidCount: number
+      status: string
+    }
+  }
+  pinyin: string
+  postsCount: number
+  pushStatus: boolean
+  py: string
+  shortLink: string
+  starsCount: number
+  tagsCount: number
+  tasksCount: number
+  uniqueIdPrefix: string
+  unreadCount: number
+  updated: string
+  visibility: string
+  worksCount: number
 }
 
-@schemaName('Project')
-export default class ProjectSchema extends Schema<ProjectData> implements ProjectData {
-  _id: ProjectId = undefined
-  name: string = undefined
-  _creatorId: IdOfMember = undefined
-  logo: string = undefined
-  py: string = undefined
-  pinyin: string = undefined
-  description: string = undefined
-  category: string = undefined
-  @bloodyParent('Organization') _organizationId: OrganizationId = undefined
-  navigation: {
-    tasks: number
-    posts: number
-    events: number
-    files: number
-    tags: number
-    bookkeeping: number
-    home: number
-    review: number
-  } = undefined
-  visibility: string = undefined
-  isPublic: boolean = undefined
-  created: string = undefined
-  updated: string = undefined
-  isArchived: boolean = undefined
-  isStar: boolean = undefined
-  hasRight: number = undefined
-  hasOrgRight: number = undefined
+const Schema: SchemaDef<ProjectSchema> = {
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _defaultCollectionId: {
+    type: RDBType.STRING
+  },
+  _defaultRoleId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _organizationId: {
+    type: RDBType.STRING
+  },
+  _orgRoleId: {
+    type: RDBType.STRING
+  },
+  _roleId: {
+    type: RDBType.STRING
+  },
+  _rootCollectionId: {
+    type: RDBType.STRING
+  },
+  // can not join
+  applications: {
+    type: RDBType.OBJECT
+  },
+  category: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  creator: {
+    type: Association.oneToOne,
+    virtual: {
+      name: 'Member',
+      where: memberTable => ({
+        _creatorId: memberTable._id
+      })
+    }
+  },
+  description: {
+    type: RDBType.STRING
+  },
+  eventsCount: {
+    type: RDBType.NUMBER
+  },
+  hasOrgRight: {
+    type: RDBType.NUMBER
+  },
+  hasRight: {
+    type: RDBType.NUMBER
+  },
+  inviteLink: {
+    type: RDBType.STRING
+  },
+  isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  isPublic: {
+    type: RDBType.BOOLEAN
+  },
+  isStar: {
+    type: RDBType.BOOLEAN
+  },
+  logo: {
+    type: RDBType.STRING
+  },
+  membersCount: {
+    type: RDBType.NUMBER
+  },
+  name: {
+    type: RDBType.STRING
+  },
   organization: {
-    name: string
-    description: string
-    logo: string
-    isPublic: boolean
-    _id: OrganizationId
-    isExpired: boolean
-  } = undefined
-  _defaultRoleId: RoleId | null = undefined
-  creator: ExecutorOrCreator = undefined
-  pushStatus: boolean = undefined
-  canQuit: boolean = undefined
-  canDelete: boolean = undefined
-  canArchive: boolean = undefined
-  canTransfer: boolean = undefined
-  _roleId: RoleId | null = undefined
-  link: {
-    created: string
-    expiration: string
-  } = undefined
-  _rootCollectionId: CollectionId = undefined
-  _defaultCollectionId: CollectionId = undefined
-  shortLink: string = undefined
-  _orgRoleId: RoleId | null = undefined
+    type: Association.oneToOne,
+    virtual: {
+      name: 'Organization',
+      where: organizationTable => ({
+        _organizationId: organizationTable._id
+      })
+    }
+  },
+  pinyin: {
+    type: RDBType.STRING
+  },
+  postsCount: {
+    type: RDBType.NUMBER
+  },
+  pushStatus: {
+    type: RDBType.BOOLEAN
+  },
+  py: {
+    type: RDBType.STRING
+  },
+  shortLink: {
+    type: RDBType.STRING
+  },
+  starsCount: {
+    type: RDBType.NUMBER
+  },
+  tagsCount: {
+    type: RDBType.NUMBER
+  },
+  tasksCount: {
+    type: RDBType.NUMBER
+  },
+  uniqueIdPrefix: {
+    type: RDBType.STRING
+  },
+  unreadCount: {
+    type: RDBType.NUMBER
+  },
+  updated: {
+    type: RDBType.DATE_TIME
+  },
+  visibility: {
+    type: RDBType.STRING
+  },
+  worksCount: {
+    type: RDBType.NUMBER
+  }
 }
+
+schemas.push({ name: 'Project', schema: Schema })

@@ -1,5 +1,3 @@
-'use strict'
-
 import Member from './Member'
 import { ISchema } from './schema'
 import { IdOfMember } from '../teambition'

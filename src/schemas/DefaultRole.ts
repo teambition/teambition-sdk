@@ -1,18 +1,26 @@
-'use strict'
-import { Schema, ISchema, schemaName } from './schema'
-import { DefaultRoleId } from '../teambition'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
+import { DefaultRoleId } from 'teambition-types'
 
 export type DefaultRoleName = 'guest' | 'member' | 'admin' | 'owner'
 
-export interface DefaultRoleData extends ISchema {
+export interface DefaultRoleSchema {
   _id: DefaultRoleId
   name: DefaultRoleName
   permissions: string []
 }
 
-@schemaName('Role')
-export default class DefaultRoleSchema extends Schema<DefaultRoleData> implements DefaultRoleData {
-  _id: DefaultRoleId = undefined
-  name: DefaultRoleName = undefined
-  permissions: string [] = undefined
+const schema: SchemaDef<DefaultRoleSchema> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  permissions: {
+    type: RDBType.LITERAL_ARRAY
+  }
 }
+
+schemas.push({ schema, name: 'DefaultRole' })

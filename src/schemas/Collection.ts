@@ -1,8 +1,8 @@
-'use strict'
-import { ISchema, Schema, schemaName } from './schema'
-import { CollectionId } from '../teambition'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
+import { CollectionId } from 'teambition-types'
 
-export interface TBCollectionData extends ISchema {
+export interface CollectionSchema {
   _id: CollectionId
   title: string
   _projectId: string
@@ -15,16 +15,38 @@ export interface TBCollectionData extends ISchema {
   updated: string
 }
 
-@schemaName('TBCollection')
-export default class TBCollection extends Schema<TBCollectionData> implements TBCollectionData {
-  _id: CollectionId = undefined
-  title: string = undefined
-  _projectId: string = undefined
-  _creatorId: string = undefined
-  _parentId: CollectionId = undefined
-  collectionType: string = undefined
-  description: string = undefined
-  isArchived: boolean = undefined
-  created: string = undefined
-  updated: string = undefined
+const schema: SchemaDef<CollectionSchema> = {
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _parentId: {
+    type: RDBType.STRING
+  },
+  _projectId: {
+    type: RDBType.STRING
+  },
+  collectionType: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  description: {
+    type: RDBType.STRING
+  },
+  isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  title: {
+    type: RDBType.STRING
+  },
+  updated: {
+    type: RDBType.STRING
+  }
 }
+
+schemas.push({ schema, name: 'Collection' })

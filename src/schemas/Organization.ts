@@ -1,16 +1,16 @@
-'use strict'
-import { Schema, ISchema, schemaName } from './schema'
 import {
   OrganizationId,
   ProjectId,
   RoleId,
-  IdOfMember
-} from '../teambition'
+  UserId
+} from 'teambition-types'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
 
-export interface OrganizationData extends ISchema {
+export interface OrganizationSchema {
   _id: OrganizationId
   name: string
-  _creatorId: IdOfMember
+  _creatorId: UserId
   logo: string
   description: string
   category: string
@@ -38,34 +38,56 @@ export interface OrganizationData extends ISchema {
   _roleId: RoleId
 }
 
-@schemaName('Organization')
-export default class Organization extends Schema<OrganizationData> implements OrganizationData {
-  _id: OrganizationId = undefined
-  name: string = undefined
-  _creatorId: IdOfMember = undefined
-  logo: string = undefined
-  description: string = undefined
-  category: string = undefined
-  pinyin: string = undefined
-  py: string = undefined
-  isPublic: boolean = undefined
+const Schema: SchemaDef<OrganizationSchema> = {
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _defaultRoleId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _roleId: {
+    type: RDBType.STRING
+  },
+  background: {
+    type: RDBType.STRING
+  },
+  category: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  description: {
+    type: RDBType.STRING
+  },
   dividers: {
-    name: string
-    pos: number
-  }[] = undefined
-  projectIds: ProjectId[] = undefined
-  created: string = undefined
-  background: string = undefined
+    type: RDBType.OBJECT
+  },
+  isPublic: {
+    type: RDBType.BOOLEAN
+  },
+  logo: {
+    type: RDBType.STRING
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  pinyin: {
+    type: RDBType.STRING
+  },
   plan: {
-    lastPaidTime?: string
-    firstPaidTime?: string
-    updated?: string
-    created?: string
-    expired: string
-    free?: boolean
-    membersCount: number
-    days: number
-  } = undefined
-  _defaultRoleId: RoleId | null = undefined
-  _roleId: RoleId = undefined
+    type: RDBType.OBJECT
+  },
+  projectIds: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  py: {
+    type: RDBType.STRING
+  }
 }
+
+export default schemas.push({ name: 'Organization', schema: Schema })

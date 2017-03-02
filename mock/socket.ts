@@ -1,7 +1,3 @@
-'use strict'
-
-declare const global: any
-
 // copy from snapper-consumer.d.ts
 export interface RequestObject {
   id: number
@@ -28,11 +24,10 @@ export interface ToPromiseObject {
 export class SocketMock {
   onmessage: (e: RequestEvent) => Promise<any>
 
-  private _ctx = typeof global === 'undefined' ? window : global
   private _id = 1
 
   constructor(SocketClient: any) {
-    SocketClient.initClient(this)
+    SocketClient.initClient(this, {})
   }
 
   emit(

@@ -1,26 +1,40 @@
-'use strict'
-import { schemaName, ISchema, Schema } from './schema'
-import { CustomRoleId, OrganizationId } from '../teambition'
+import { SchemaDef, RDBType } from 'reactivedb'
+import { schemas } from '../SDK'
+import { CustomRoleId, OrganizationId } from 'teambition-types'
 
-export interface CustomRoleData extends ISchema {
+export interface CustomRoleSchema {
   _id: CustomRoleId
   name: string
   _creatorId: string
   _organizationId: OrganizationId
-  // ISO Date String
   updated: string
-  // ISO Date String
   created: string
   permissions: string[]
 }
 
-@schemaName('Role')
-export default class CustomRoleSchema extends Schema<CustomRoleData> implements CustomRoleData {
-  _id: CustomRoleId = undefined
-  _creatorId: string = undefined
-  _organizationId: OrganizationId = undefined
-  name: string = undefined
-  permissions: string[]
-  updated: string = undefined
-  created: string = undefined
+const schema: SchemaDef<CustomRoleSchema> = {
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _organizationId: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  permissions: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  updated: {
+    type: RDBType.DATE_TIME
+  }
 }
+
+schemas.push({ schema, name: 'CustomRole' })

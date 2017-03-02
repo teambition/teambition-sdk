@@ -1,4 +1,3 @@
-'use strict'
 import { forEach, dropEle } from '../utils/helper'
 
 export const bloodyParentMap = new Map<string, string[]>()
@@ -114,7 +113,7 @@ export class Schema <T> {
       }
       Object.defineProperty(this, bloodyParent.key, {
         set(val: string) {
-          const unionFlag = this[this.$$unionFlag]
+          const _unionFlag = this[this.$$unionFlag]
           if (!val) {
             return
           }
@@ -123,7 +122,7 @@ export class Schema <T> {
           }
           const newArr = bloodyParentMap.get(val)
           if (!newArr) {
-            bloodyParentMap.set(val, [ unionFlag ])
+            bloodyParentMap.set(val, [ _unionFlag ])
           } else if (newArr.indexOf(val) === -1) {
             newArr.push(val)
           }
