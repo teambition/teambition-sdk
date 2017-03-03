@@ -21,7 +21,8 @@ export function getMyProjectPosts (
       },
       orderBy: [
         { fieldName: 'pin', orderBy: 'DESC' },
-        { fieldName: 'created', orderBy: 'DESC' }
+        { fieldName: 'created', orderBy: 'DESC' },
+        { fieldName: 'lastCommentedAt', orderBy: 'DESC' }
       ],
       ...pagination(query.count, query.page)
     },
