@@ -47,7 +47,8 @@ export function getAllProjectPosts (
       },
       orderBy: [
         { fieldName: 'pin', orderBy: 'DESC' },
-        { fieldName: 'created', orderBy: 'DESC' }
+        { fieldName: 'created', orderBy: 'DESC' },
+        { fieldName: 'lastCommentedAt', orderBy: 'DESC' }
       ]
     },
     tableName: 'Post',
