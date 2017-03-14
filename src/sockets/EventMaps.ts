@@ -5,6 +5,7 @@ import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { MessageResult, eventParser } from './EventParser'
 import { forEach, capitalizeFirstLetter } from '../utils/index'
+import { Logger, Level } from 'reactivedb'
 import Dirty from '../utils/Dirty'
 
 const methodMap: any = {
@@ -13,6 +14,24 @@ const methodMap: any = {
   'destroy': 'delete',
   'remove': 'delete'
 }
+
+const envify = () => {
+  const env = (process && process.env && process.env.NODE_ENV) || 'production'
+  switch (env) {
+    case 'production':
+      return Level.error
+    case 'development':
+      return Level.debug
+    default:
+      return Level.error
+  }
+}
+
+const SDKLogger = Logger.get('teambition-sdk', (name, _, message) => {
+  return `${name}: at ${new Date().toLocaleString()} \r\n    ` + message
+})
+
+SDKLogger.setLevel(envify())
 
 /**
  * refresh 事件需要逐个单独处理
@@ -28,36 +47,33 @@ const handler = (db: Database, socketMessage: MessageResult) => {
   }
   const m = db[methodMap[method]]
   const arg1 = capitalizeFirstLetter(type)
-  let existTable = false
-  // ensure table is defined
+
   try {
+    // ensure table is defined
     db.get(arg1)
-    existTable = true
   } catch (err) {
-    console.warn(`Not existTable: ${arg1}`)
-  }
-  if (existTable) {
-    switch (socketMessage.method) {
-      case 'new':
-        return m.call(db, arg1, socketMessage.data)
-      case 'change':
-        const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, db)
-        if (dirtyStream) {
-          return dirtyStream
-        }
-        return m.call(db, arg1, {
-          where: { _id: socketMessage.id }
-        }, socketMessage.data)
-      case 'destroy':
-      case 'remove':
-        return m.call(db, arg1, {
-          where: { _id: socketMessage.id || socketMessage.data }
-        })
-      default:
-        return Observable.of(null)
-    }
-  } else {
+    SDKLogger.warn(`Not existTable: ${arg1}`)
     return Observable.of(null)
+  }
+
+  switch (socketMessage.method) {
+    case 'new':
+      return m.call(db, arg1, socketMessage.data)
+    case 'change':
+      const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, db)
+      if (dirtyStream) {
+        return dirtyStream
+      }
+      return m.call(db, arg1, {
+        where: { _id: socketMessage.id }
+      }, socketMessage.data)
+    case 'destroy':
+    case 'remove':
+      return m.call(db, arg1, {
+        where: { _id: socketMessage.id || socketMessage.data }
+      })
+    default:
+      return Observable.of(null)
   }
 }
 
