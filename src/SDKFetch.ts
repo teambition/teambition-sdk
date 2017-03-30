@@ -38,6 +38,6 @@ export class SDKFetch extends Fetch {
   }
 
   getUserMe() {
-    return this.get<UserMe>('/users/me')
+    return this.get<UserMe>('users/me')
   }
 }

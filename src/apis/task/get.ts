@@ -10,7 +10,7 @@ export function getTaskFetch(
   taskId: TaskId,
   query?: any
 ): Observable<TaskSchema> {
-  return this.get<TaskSchema>(`/events/${taskId}`, query)
+  return this.get<TaskSchema>(`events/${taskId}`, query)
 }
 
 SDKFetch.prototype.getTask = getTaskFetch

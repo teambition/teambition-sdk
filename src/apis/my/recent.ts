@@ -31,7 +31,7 @@ export function getMyRecentFetch(
   this: SDKFetch,
   query: MyRecentQuery
 ): Observable<RecentData[]> {
-  return this.get<RecentData[]>(`/users/recent`, query)
+  return this.get<RecentData[]>(`users/recent`, query)
 }
 
 SDKFetch.prototype.getMyRecent = getMyRecentFetch

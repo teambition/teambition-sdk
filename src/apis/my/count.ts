@@ -14,7 +14,7 @@ export interface MyCountData {
 export function getMyCountFetch(
   this: SDKFetch
 ): Observable<MyCountData> {
-  return this.get<MyCountData>(`/users/me/count`)
+  return this.get<MyCountData>(`users/me/count`)
 }
 
 SDKFetch.prototype.getMyCount = getMyCountFetch

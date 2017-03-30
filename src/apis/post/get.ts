@@ -10,7 +10,7 @@ export function getPostFetch(
   postId: PostId,
   query?: any
 ): Observable<PostSchema> {
-  return this.get<PostSchema>(`/posts/${postId}`, query)
+  return this.get<PostSchema>(`posts/${postId}`, query)
 }
 
 SDKFetch.prototype.getPost = getPostFetch

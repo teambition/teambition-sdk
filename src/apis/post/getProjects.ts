@@ -21,7 +21,7 @@ export function getPostsFetch<T extends ProjectPostType>(
   _projectId: ProjectId,
   query: GetPostsQuery<T>
 ): Observable<PostSchema[]> {
-  return this.get(`/projects/${_projectId}/posts`, query)
+  return this.get(`projects/${_projectId}/posts`, query)
 }
 
 SDKFetch.prototype.getPosts = getPostsFetch
