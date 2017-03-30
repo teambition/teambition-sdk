@@ -6,7 +6,7 @@ export function addEmailFetch (
   this: SDKFetch,
   email: string
 ): Observable<any> {
-  return this.post('/users/email', { email })
+  return this.post('users/email', { email })
 }
 
 SDKFetch.prototype.addEmail = addEmailFetch

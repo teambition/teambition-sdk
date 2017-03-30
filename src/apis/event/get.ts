@@ -11,7 +11,7 @@ export function getEventFetch(
   eventId: EventId,
   query?: any
 ): Observable<EventSchema[]> {
-  return this.get<EventSchema[]>(`/events/${eventId}`, query)
+  return this.get<EventSchema[]>(`events/${eventId}`, query)
 }
 
 SDKFetch.prototype.getEvent = getEventFetch

@@ -9,14 +9,16 @@ const expect = chai.expect
 export default describe('HttpError$ test: ', () => {
   let httpBackend: Backend
   let mockFetch: Fetch
-  let apiHost: string
+  let url: string
   let error$: Subject<HttpErrorMessage>
+
+  const path = 'users/me'
 
   beforeEach(() => {
     error$ = new Subject<HttpErrorMessage>()
     httpBackend = new Backend()
     mockFetch = new Fetch(error$)
-    apiHost = mockFetch.getAPIHost()
+    url = `${mockFetch.getAPIHost()}/${path}`
   })
 
   afterEach(() => {
@@ -24,7 +26,7 @@ export default describe('HttpError$ test: ', () => {
   })
 
   it('handler error should ok', done => {
-    httpBackend.whenGET(`${apiHost}users/me`)
+    httpBackend.whenGET(url)
       .error('Bad Request', {
         status: 400
       })
@@ -38,17 +40,17 @@ export default describe('HttpError$ test: ', () => {
         done()
       })
 
-    mockFetch.get('users/me').subscribe()
+    mockFetch.get(path).subscribe()
   })
 
   it('handler sequence error should ok', done => {
 
-    httpBackend.whenGET(`${apiHost}users/me`)
+    httpBackend.whenGET(url)
       .error('Bad Request', {
         status: 400
       })
 
-    httpBackend.whenGET(`${apiHost}users/me`)
+    httpBackend.whenGET(url)
       .error('Bad Request', {
         status: 400
       })
@@ -61,7 +63,7 @@ export default describe('HttpError$ test: ', () => {
         done()
       })
 
-    mockFetch.get('users/me').subscribe()
-    mockFetch.get('users/me').subscribe()
+    mockFetch.get(path).subscribe()
+    mockFetch.get(path).subscribe()
   })
 })

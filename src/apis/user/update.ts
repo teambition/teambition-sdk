@@ -6,7 +6,7 @@ export function updateUserFetch<T> (
   this: SDKFetch,
   patch: T
 ): Observable<T> {
-  return this.put('/users', patch)
+  return this.put('users', patch)
 }
 
 SDKFetch.prototype.updateUser = updateUserFetch

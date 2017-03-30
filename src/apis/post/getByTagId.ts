@@ -12,7 +12,7 @@ export function getByTagIdFetch(this: SDKFetch, tagId: TagId, query?: {
   fields?: string
   [index: string]: any
 }): Observable<PostSchema[]> {
-  return this.get(`/tags/${tagId}/posts`, query)
+  return this.get(`tags/${tagId}/posts`, query)
 }
 
 SDKFetch.prototype.getPostsByTagId = getByTagIdFetch

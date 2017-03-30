@@ -16,7 +16,7 @@ export interface CreatePostOptions {
 }
 
 export function createPostFetch(this: SDKFetch, options: CreatePostOptions): Observable<PostSchema> {
-  return this.post('/posts', options)
+  return this.post('posts', options)
 }
 
 SDKFetch.prototype.createPost = createPostFetch

@@ -7,7 +7,7 @@ export function deletePostFetch (
   this: SDKFetch,
   _postId: PostId
 ) {
-  return this.delete(`/posts/delete/${_postId}`)
+  return this.delete(`posts/delete/${_postId}`)
 }
 
 SDKFetch.prototype.deletePost = deletePostFetch

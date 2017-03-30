@@ -117,13 +117,13 @@ export class Fetch {
     return url + _query
   }
 
-  protected createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Observable<any> {
-    return (url: string, body?: any): Observable<T> => {
+  protected createMethod<T>(method: AllowedHttpMethod): (path: string, body?: any) => Observable<any> {
+    return (path: string, body?: any): Observable<T> => {
+      const url = `${this._apiHost}/${path}`
       /* istanbul ignore if */
       if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
         return Observable.ajax({
-          url: this._apiHost + url,
-          body, method,
+          url, body, method,
           headers: this._opts.headers,
           withCredentials: this._opts.credentials === 'include',
           responseType: this._opts.responseType || 'json',
@@ -162,7 +162,7 @@ export class Fetch {
           if (body) {
             options.body = typeof body === 'object' ? JSON.stringify(body) : body
           }
-          fetch(this._apiHost + url, options)
+          fetch(url, options)
             .then((response: Response): Promise<string> => {
               if (response.status >= 200 && response.status < 400) {
                 return response.text()
