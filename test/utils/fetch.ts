@@ -9,21 +9,22 @@ const fetchMock = require('fetch-mock')
 export default describe('utils/fetch', () => {
 
   let fetchInstance: Fetch
+  let url: string
   const path = 'test'
 
   beforeEach(() => {
     fetchInstance = new Fetch()
+    url = `${fetchInstance.getAPIHost()}/${path}`
   })
 
   it('should configure api host', () => {
     expect(fetchInstance.getAPIHost()).to.equal('https://www.teambition.com/api')
-    const url = 'https://www.example.com'
-    fetchInstance.setAPIHost(url)
-    expect(fetchInstance.getAPIHost()).to.equal(url)
+    const myUrl = 'https://www.example.com'
+    fetchInstance.setAPIHost(myUrl)
+    expect(fetchInstance.getAPIHost()).to.equal(myUrl)
   })
 
   it('should call isomophic fetch with the correct arguments', done => {
-    const url = `${fetchInstance.getAPIHost()}${path}`
     const data = { test: 'test' }
     fetchMock.mock(url, data)
     fetchInstance.get(path)
@@ -73,8 +74,6 @@ export default describe('utils/fetch', () => {
 
   it('should set token', done => {
     const token = 'test_token'
-    const apiHost = 'https://www.teambition.com/api'
-    const url = `${apiHost}${path}`
     fetchInstance.setToken(token)
     fetchMock.mock(url, {})
     fetchInstance.get(path)
@@ -95,7 +94,6 @@ export default describe('utils/fetch', () => {
 
   ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
     it(`should define ${httpMethod}`, done => {
-      const url = `${fetchInstance.getAPIHost()}${path}`
       const responseData = { test: 'test' }
       const body = { body: 'body' }
       fetchMock.mock(url, JSON.stringify(responseData), {
@@ -117,7 +115,6 @@ export default describe('utils/fetch', () => {
   ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
     [400, 401, 403, 404, 500].forEach(status => {
       it(`should handle ${status} status for ${httpMethod}`, done => {
-        const url = `${fetchInstance.getAPIHost()}${path}`
         const responseData = { body: { test: 'test' }, method: httpMethod, status }
         const body = { body: 'body' }
         fetchMock.mock(url, responseData )
