@@ -7,7 +7,7 @@ import {
   CollectionId,
   ApplicationId
 } from 'teambition-types'
-import { RDBType, SchemaDef, Association } from 'reactivedb'
+import { RDBType, SchemaDef, Relationship } from 'reactivedb'
 import { schemas } from '../SDK'
 
 export interface ProjectSchema {
@@ -107,10 +107,10 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.DATE_TIME
   },
   creator: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: memberTable => ({
+      where: (memberTable: any) => ({
         _creatorId: memberTable._id
       })
     }
@@ -149,10 +149,10 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.STRING
   },
   organization: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Organization',
-      where: organizationTable => ({
+      where: (organizationTable: any) => ({
         _organizationId: organizationTable._id
       })
     }

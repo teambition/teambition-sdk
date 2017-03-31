@@ -178,6 +178,7 @@ describe('PostApi Spec', () => {
       yield sdk.database.insert('Post', fixture)
 
       yield socket.emit('change', 'post', fixture._id, {
+        _id: fixture._id,
         content: 'fixture'
       })
 

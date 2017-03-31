@@ -1,4 +1,4 @@
-import { SchemaDef, Association, RDBType } from 'reactivedb'
+import { SchemaDef, Relationship, RDBType } from 'reactivedb'
 import { schemas } from '../SDK'
 import {
   ExecutorOrCreator,
@@ -40,10 +40,10 @@ const schema: SchemaDef<ObjectLinkSchema> = {
     type: RDBType.DATE_TIME
   },
   creator: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: memberTable => ({
+      where: (memberTable: any) => ({
         _creatorId: memberTable._id
       })
     }

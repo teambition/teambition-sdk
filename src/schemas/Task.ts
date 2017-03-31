@@ -1,4 +1,4 @@
-import { RDBType, Association, SchemaDef } from 'reactivedb'
+import { RDBType, Relationship, SchemaDef } from 'reactivedb'
 import { SubtaskSchema } from './Subtask'
 import { schemas } from '../SDK'
 import {
@@ -120,10 +120,10 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.DATE_TIME
   },
   executor: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: memberTable => ({
+      where: (memberTable: any) => ({
         _executorId: memberTable._id
       })
     }
@@ -162,10 +162,10 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.NUMBER
   },
   project: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Project',
-      where: projectTable => ({
+      where: (projectTable: any) => ({
         _projectId: projectTable._id
       })
     }
@@ -186,10 +186,10 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.DATE_TIME
   },
   stage: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Stage',
-      where: stageTable => ({
+      where: (stageTable: any) => ({
         _stageId: stageTable._id
       })
     }
@@ -204,10 +204,10 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.LITERAL_ARRAY
   },
   subtasks: {
-    type: Association.oneToMany,
+    type: Relationship.oneToMany,
     virtual: {
       name: 'Subtask',
-      where: subtaskTable => ({
+      where: (subtaskTable: any) => ({
         _id: (subtaskTable as any)._taskId
       })
     }
@@ -216,10 +216,10 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.LITERAL_ARRAY
   },
   tasklist: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Tasklist',
-      where: tasklistTable => ({
+      where: (tasklistTable: any) => ({
         _tasklistId: tasklistTable._id
       })
     }

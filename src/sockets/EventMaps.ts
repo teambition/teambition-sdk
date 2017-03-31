@@ -9,8 +9,8 @@ import { Logger, Level } from 'reactivedb'
 import Dirty from '../utils/Dirty'
 
 const methodMap: any = {
-  'change': 'update',
-  'new': 'insert',
+  'change': 'upsert',
+  'new': 'upsert',
   'destroy': 'delete',
   'remove': 'delete'
 }
@@ -64,9 +64,7 @@ const handler = (db: Database, socketMessage: MessageResult) => {
       if (dirtyStream) {
         return dirtyStream
       }
-      return m.call(db, arg1, {
-        where: { _id: socketMessage.id }
-      }, socketMessage.data)
+      return m.call(db, arg1, socketMessage.data)
     case 'destroy':
     case 'remove':
       return m.call(db, arg1, {

@@ -7,7 +7,7 @@ import {
   ProjectId,
   FileId
 } from 'teambition-types'
-import { SchemaDef, RDBType, Association } from 'reactivedb'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb'
 import { schemas } from '../SDK'
 
 export interface PostSchema {
@@ -64,10 +64,10 @@ const Schema: SchemaDef<PostSchema> = {
     type: RDBType.DATE_TIME
   },
   creator: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: memberTable => ({
+      where: (memberTable: any) => ({
         _creatorId: memberTable._id
       })
     }

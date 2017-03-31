@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType, Association } from 'reactivedb'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb'
 import { schemas } from '../SDK'
 import {
   ExecutorOrCreator,
@@ -59,10 +59,10 @@ const schema: SchemaDef<SubtaskSchema> = {
     type: RDBType.DATE_TIME
   },
   executor: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: memberTable => ({
+      where: (memberTable: any) => ({
         _executorId: memberTable._id
       })
     }
@@ -77,19 +77,19 @@ const schema: SchemaDef<SubtaskSchema> = {
     type: RDBType.DATE_TIME
   },
   project: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Project',
-      where: projectTable => ({
+      where: (projectTable: any) => ({
         _projectId: projectTable._id
       })
     }
   },
   task: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Task',
-      where: Tasktable => ({
+      where: (Tasktable: any) => ({
         _taskId: Tasktable._id
       })
     }

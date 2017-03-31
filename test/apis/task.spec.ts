@@ -53,6 +53,7 @@ describe('TaskApi Spec', () => {
       yield sdk.database.insert('Task', fixture)
 
       yield socket.emit('change', 'task', fixture._id, {
+        _id: fixture._id,
         content: 'fixture'
       })
 
