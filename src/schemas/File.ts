@@ -1,4 +1,4 @@
-import { SchemaDef, Association, RDBType } from 'reactivedb'
+import { SchemaDef, Relationship, RDBType } from 'reactivedb'
 import { schemas } from '../SDK'
 import { ObjectLinkSchema } from './ObjectLink'
 import {
@@ -74,10 +74,10 @@ const schema: SchemaDef<FileSchema> = {
     type: RDBType.DATE_TIME
   },
   creator: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: memberTable => ({
+      where: (memberTable: any) => ({
         _creatorId: memberTable._id
       })
     }
@@ -122,11 +122,11 @@ const schema: SchemaDef<FileSchema> = {
     type: RDBType.DATE_TIME
   },
   linked: {
-    type: Association.oneToMany,
+    type: Relationship.oneToMany,
     virtual: {
       name: 'ObjectLink',
-      where: objectLinkTable => ({
-        _id: (objectLinkTable as any)._parentId
+      where: (objectLinkTable: any) => ({
+        _id: objectLinkTable._parentId
       })
     }
   },

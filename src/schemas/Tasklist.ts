@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType, Association } from 'reactivedb'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb'
 import { schemas } from '../SDK'
 import { StageSchema } from '../schemas/Stage'
 import { TasklistId, StageId, ProjectId, UserId } from 'teambition-types'
@@ -45,7 +45,7 @@ const schema: SchemaDef<TasklistSchema> = {
     type: RDBType.NUMBER
   },
   hasStages: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Stage',
       where: (stageTable: any) => ({

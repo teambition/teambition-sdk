@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType, Association } from 'reactivedb'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb'
 import { schemas } from '../SDK'
 import {
   Visibility,
@@ -75,10 +75,10 @@ const schema: SchemaDef<EventSchema> = {
     type: RDBType.DATE_TIME
   },
   creator: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: memberTable => ({
+      where: (memberTable: any) => ({
         _creatorId: memberTable._id
       })
     }
@@ -111,10 +111,10 @@ const schema: SchemaDef<EventSchema> = {
     type: RDBType.NUMBER
   },
   project: {
-    type: Association.oneToOne,
+    type: Relationship.oneToOne,
     virtual: {
       name: 'Project',
-      where: projectTable => ({
+      where: (projectTable: any) => ({
         _projectId: projectTable._id
       })
     }

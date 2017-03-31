@@ -4,10 +4,10 @@ import 'rxjs/add/operator/mapTo'
 import { Observable } from 'rxjs/Observable'
 import {
   Database,
-  QueryDescription,
+  Query,
   QueryToken,
   SchemaDef,
-  ClauseDescription,
+  Clause,
   ExecutorResult
 } from 'reactivedb'
 
@@ -23,7 +23,7 @@ export enum CacheStrategy {
 
 export interface ApiResult<T, U extends CacheStrategy> {
   request: Observable<T[]> | Observable<T>
-  query: QueryDescription<T>
+  query: Query<T>
   tableName: string
   cacheValidate: U
   assocFields?: AssocField<T>
@@ -44,7 +44,7 @@ export interface UDResult<T> {
   request: Observable<T>
   tableName: string
   method: 'update' | 'delete'
-  clause: ClauseDescription<T>
+  clause: Clause<T>
 }
 
 export type CUDApiResult<T> = CApiResult<T> | UDResult<T>
@@ -114,9 +114,9 @@ export class SDK {
       case CacheStrategy.Request:
         if (!requestCache) {
           const selectMeta$ = request
-            .concatMap<T | T[], T>(v => this.database.insert(tableName, v))
+            .concatMap<T | T[], T>(v => this.database.upsert(tableName, v))
             .do(() => this.requestMap.set(sq, true))
-            .concatMap(() => this.database.get<T>(tableName, q).selectMeta$)
+            .concatMap(() => this.database.get<T>(tableName, q).selector$)
           return new QueryToken<T[]>(<any>selectMeta$)
         } else {
           return this.database.get<T>(tableName, q)
@@ -129,11 +129,11 @@ export class SDK {
             if (cache.length) {
               return this.database
                 .get<T>(tableName, q)
-                .selectMeta$
+                .selector$
             } else {
               return request.concatMap<T | T[], T>(val => {
-                return this.database.insert(tableName, val)
-                  .concatMap(() => this.database.get<T>(tableName, q).selectMeta$)
+                return this.database.upsert(tableName, val)
+                  .concatMap(() => this.database.get<T>(tableName, q).selector$)
               })
             }
           })

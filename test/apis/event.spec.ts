@@ -31,6 +31,7 @@ describe('EventApi Spec', () => {
           const result = r.next().value
           equals(result, fixture)
         })
+
     })
 
     it('should get recurrnece event', function* () {
@@ -127,6 +128,7 @@ describe('EventApi Spec', () => {
       yield sdk.database.insert('Event', fixture)
 
       yield socket.emit('change', 'event', fixture._id, {
+        _id: fixture._id,
         content: 'fixture'
       })
 

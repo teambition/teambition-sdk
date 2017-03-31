@@ -3,7 +3,7 @@
  * 做一些很脏的事情
  */
 import { Observable } from 'rxjs/Observable'
-import { Database } from 'reactivedb'
+import { Database, ExecutorResult } from 'reactivedb'
 import { TaskSchema } from '../schemas/Task'
 import { LikeSchema } from '../schemas/Like'
 import { forEach } from './index'
@@ -39,14 +39,12 @@ export class Dirty {
    * 后端认为这种数据应该被 patch 到它的实体上
    * 而前端需要将点赞数据分开存储
    */
-  _handlerLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database) {
+  _handlerLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database): Observable<ExecutorResult> {
     if (data.likesGroup && data.likesGroup instanceof Array) {
       data._boundToObjectId = id
       data._boundToObjectType = type
       data._id = `${id}:like`
-      return database.update('Like', {
-        where: { _id: data._id }
-      }, data)
+      return database.upsert('Like', data)
     }
     return null
   }

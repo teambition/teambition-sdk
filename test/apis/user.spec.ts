@@ -85,6 +85,7 @@ describe('UserApi Spec', () => {
       yield sdk.database.insert('User', userMe)
 
       yield socket.emit('change', 'user', userMe._id, {
+        _id: userMe._id,
         name: newName
       })
 
