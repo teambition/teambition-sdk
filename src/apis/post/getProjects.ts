@@ -1,10 +1,10 @@
-import { QueryToken } from 'reactivedb'
+import { QueryToken, OrderDescription } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
-import { pagination } from '../../utils'
+import { pagination, omit } from '../../utils'
 
 export type ProjectPostType = 'all' | 'my'
 
@@ -13,6 +13,7 @@ export interface GetPostsQuery<T extends ProjectPostType> {
   type: T
   count: number
   fields?: string
+  orderBy?: OrderDescription[]
   [index: string]: any
 }
 
@@ -37,20 +38,20 @@ export function getAllProjectPosts (
   _projectId: ProjectId,
   query?: GetPostsQuery<'all'>
 ): QueryToken<PostSchema> {
-  return this.lift<PostSchema>({
-    request: this.fetch.getPosts(_projectId, query),
-    query: {
-      ...pagination(query.count, query.page),
-      where: {
-        _projectId,
-        isArchived: false
-      },
-      orderBy: [
-        { fieldName: 'pin', orderBy: 'DESC' },
-        { fieldName: 'created', orderBy: 'DESC' },
-        { fieldName: 'lastCommentedAt', orderBy: 'DESC' }
-      ]
+  const rdbQuery: any = {
+    where: {
+      _projectId,
+      isArchived: false,
     },
+    ...pagination(query.count, query.page)
+  }
+  if (query.orderBy) {
+    rdbQuery.orderBy = query.orderBy
+  }
+  const urlQuery = omit(query, 'orderBy')
+  return this.lift<PostSchema>({
+    request: this.fetch.getPosts(_projectId, urlQuery),
+    query: rdbQuery,
     tableName: 'Post',
     cacheValidate: CacheStrategy.Request,
     assocFields: {
