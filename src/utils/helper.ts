@@ -147,3 +147,14 @@ export function pagination(count: number, page: number) {
     skip: (count * (page - 1)),
   }
 }
+
+export function omit(o: any, ...properties: string[]) {
+  if (typeof o !== 'object' || o === null) {
+    return o
+  }
+  const obj = { ...o }
+  properties.forEach(p => {
+    delete obj[p]
+  })
+  return obj
+}

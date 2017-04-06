@@ -1826,7 +1826,7 @@ export const projectPosts = [
   }
 ]
 
-export const myPorjectPosts = [
+export const myProjectPosts = [
   {
     _id: '58046e55f269088a418f8afa',
     postMode: 'html',

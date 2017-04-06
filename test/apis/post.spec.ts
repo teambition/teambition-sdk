@@ -1,18 +1,25 @@
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, PostSchema, SocketMock } from '../index'
-import { projectPosts, myPorjectPosts, tagPosts } from '../fixtures/posts.fixture'
+import { projectPosts, myProjectPosts, tagPosts } from '../fixtures/posts.fixture'
 import { mock, restore, equals } from '../utils'
+import { shuffle } from 'lodash'
 
 describe('PostApi Spec', () => {
   let sdk: SDK
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
   let socket: SocketMock
+  let defaultOrderBy
 
   beforeEach(() => {
     sdk = createSdk()
     mockResponse = mock(sdk)
     socket = new SocketMock(sdk.socketClient)
+    defaultOrderBy = [
+      { fieldName: 'pin', orderBy: 'DESC' },
+      { fieldName: 'created', orderBy: 'DESC' },
+      { fieldName: 'lastCommentedAt', orderBy: 'DESC' }
+    ]
   })
 
   afterEach(() => {
@@ -65,8 +72,27 @@ describe('PostApi Spec', () => {
 
     })
 
-    it('getMyPosts should response correct data', function* () {
-      const fixture = myPorjectPosts.slice(0, 20)
+    it('getAllProjects should response ordered data', function* () {
+      const projectId = projectPosts[0]._projectId
+      const fixture = projectPosts.slice(0, 20)
+      const unordered = shuffle(fixture)
+
+      mockResponse(unordered)
+
+      yield sdk.getAllProjectPosts(projectId, {
+        type: 'all',
+        page: 1,
+        count: 20,
+        orderBy: defaultOrderBy
+      })
+        .values()
+        .do(r => {
+          expect(r).to.deep.equal(fixture)
+        })
+    })
+
+    it('getMyProjectPosts should response correct data', function* () {
+      const fixture = myProjectPosts.slice(0, 20)
       const userId = fixture[0]._creatorId
       const projectId = fixture[0]._projectId
 
@@ -82,7 +108,7 @@ describe('PostApi Spec', () => {
           expect(r).to.deep.equal(fixture)
         })
 
-      const fixture2 = myPorjectPosts.slice(20)
+      const fixture2 = myProjectPosts.slice(20)
 
       mockResponse(fixture2)
 
@@ -95,6 +121,26 @@ describe('PostApi Spec', () => {
         .do(r => expect(r).to.deep.equal(fixture2))
     })
 
+    it('getMyProjectPosts should response ordered data', function* () {
+      const fixture = myProjectPosts.slice(0, 20)
+      const userId = fixture[0]._creatorId
+      const projectId = fixture[0]._projectId
+      const unordered = shuffle(fixture)
+
+      mockResponse(unordered)
+
+      yield sdk.getMyProjectPosts(userId, projectId, {
+        type: 'my',
+        page: 1,
+        count: 20,
+        orderBy: defaultOrderBy
+      })
+        .values()
+        .do(r => {
+          expect(r).to.deep.equal(fixture)
+        })
+    })
+
     it('getPostsByTagId should response correct data', function* () {
       const fixture = '569de6be18bfe350733e2443'
 
@@ -103,6 +149,21 @@ describe('PostApi Spec', () => {
       yield sdk.getPostsByTagId(fixture, {
         page: 1,
         count: 500
+      })
+        .values()
+        .do(r => expect(r).to.deep.equal(tagPosts))
+    })
+
+    it('getPostsByTagId should response ordered data', function* () {
+      const fixture = '569de6be18bfe350733e2443'
+      const unordered = shuffle(tagPosts)
+
+      mockResponse(unordered)
+
+      yield sdk.getPostsByTagId(fixture, {
+        page: 1,
+        count: 500,
+        orderBy: defaultOrderBy
       })
         .values()
         .do(r => expect(r).to.deep.equal(tagPosts))
@@ -128,7 +189,7 @@ describe('PostApi Spec', () => {
     })
 
     it('updatePost should update cache in ReactiveDB', function* () {
-      const [ placeholder ] = myPorjectPosts
+      const [ placeholder ] = myProjectPosts
 
       yield sdk.database.insert('Post', placeholder)
 

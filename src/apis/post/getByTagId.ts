@@ -1,10 +1,10 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken } from 'reactivedb'
+import { QueryToken, OrderDescription } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TagId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
 import { SDKFetch } from '../../SDKFetch'
-import { pagination } from '../../utils'
+import { pagination, omit } from '../../utils'
 
 export function getByTagIdFetch(this: SDKFetch, tagId: TagId, query?: {
   page: number
@@ -27,20 +27,26 @@ export function getByTagId (this: SDK, tagId: TagId, query?: {
   page: number
   count: number
   fields?: string
+  orderBy?: OrderDescription[]
   [index: string]: any
 }): QueryToken<PostSchema> {
   query = query || <any>{ }
-  return this.lift<PostSchema>({
-    request: this.fetch.getPostsByTagId(tagId, query),
-    query: {
-      ...pagination(query.count, query.page),
-      where: {
-        isArchived: false,
-        tagIds: {
-          $has: tagId
-        }
+  const rdbQuery: any = {
+    ...pagination(query.count, query.page),
+    where: {
+      isArchived: false,
+      tagIds: {
+        $has: tagId
       }
-    },
+    }
+  }
+  if (query.orderBy) {
+    rdbQuery.orderBy = query.orderBy
+  }
+  const urlQuery = omit(query, 'orderBy')
+  return this.lift<PostSchema>({
+    request: this.fetch.getPostsByTagId(tagId, urlQuery),
+    query: rdbQuery,
     tableName: 'Post',
     cacheValidate: CacheStrategy.Request,
     assocFields: {

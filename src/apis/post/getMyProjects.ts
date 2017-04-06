@@ -3,7 +3,7 @@ import { SDK, CacheStrategy } from '../../SDK'
 import { ProjectId, UserId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
 import { GetPostsQuery } from './getProjects'
-import { pagination } from '../../utils'
+import { pagination, omit } from '../../utils'
 
 export function getMyProjectPosts (
   this: SDK,
@@ -11,21 +11,21 @@ export function getMyProjectPosts (
   _projectId: ProjectId,
   query?: GetPostsQuery<'my'>
 ): QueryToken<PostSchema> {
-  return this.lift<PostSchema>({
-    request: this.fetch.getPosts(_projectId, query),
-    query: {
-      where: {
-        _projectId,
-        isArchived: false,
-        _creatorId: userId
-      },
-      orderBy: [
-        { fieldName: 'pin', orderBy: 'DESC' },
-        { fieldName: 'created', orderBy: 'DESC' },
-        { fieldName: 'lastCommentedAt', orderBy: 'DESC' }
-      ],
-      ...pagination(query.count, query.page)
+  const rdbQuery: any = {
+    where: {
+      _projectId,
+      isArchived: false,
+      _creatorId: userId
     },
+    ...pagination(query.count, query.page)
+  }
+  if (query.orderBy) {
+    rdbQuery.orderBy = query.orderBy
+  }
+  const urlQuery = omit(query, 'orderBy')
+  return this.lift<PostSchema>({
+    request: this.fetch.getPosts(_projectId, urlQuery),
+    query: rdbQuery,
     tableName: 'Post',
     cacheValidate: CacheStrategy.Request,
     assocFields: {

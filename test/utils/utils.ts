@@ -7,7 +7,8 @@ import {
   concat,
   dropEle,
   capitalizeFirstLetter,
-  parseHeaders
+  parseHeaders,
+  omit
 } from '../index'
 
 const expect = chai.expect
@@ -245,6 +246,16 @@ export default describe('utils test', () => {
       'Connection': 'keep-alive',
       'Api-Server-IP': '10.75.0.71'
     })
+  })
+
+  it('omit should ok', () => {
+    const omitProps = (x) => omit(x, 'x', 'y')
+    expect(omitProps(0)).to.equal(0)
+    expect(omitProps(undefined)).to.be.undefined
+    expect(omitProps(null)).to.be.null
+    expect(omitProps({ x: 1 })).to.deep.equal({})
+    expect(omitProps({ z: 3 })).to.deep.equal({ z: 3 })
+    expect(omitProps({ x: 1, y: 2, z: 3 })).to.deep.equal({ z: 3 })
   })
 
 })
