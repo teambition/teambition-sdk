@@ -6,7 +6,6 @@ import {
   Database,
   Query,
   QueryToken,
-  SchemaDef,
   Clause,
   ExecutorResult
 } from 'reactivedb'
@@ -14,6 +13,7 @@ import {
 import { forEach } from './utils'
 import { SDKFetch } from './SDKFetch'
 import { SocketClient } from './sockets/SocketClient'
+import { SchemaColl } from './utils/internalTypes'
 
 export enum CacheStrategy {
   Request = 200,
@@ -49,7 +49,7 @@ export interface UDResult<T> {
 
 export type CUDApiResult<T> = CApiResult<T> | UDResult<T>
 
-export const schemas: { schema: SchemaDef<any>, name: string }[] = []
+export const schemas: SchemaColl = []
 
 export class SDK {
   fetch = new SDKFetch
@@ -65,7 +65,7 @@ export class SDK {
       this.fields.set(d.name, Object.keys(d.schema).filter(k => !d.schema[k].virtual))
     })
     database.connect()
-    this.socketClient = new SocketClient(database, this.fetch)
+    this.socketClient = new SocketClient(database, this.fetch, schemas)
   }
 
   lift<T>(result: ApiResult<T, CacheStrategy.Cache>): QueryToken<T>

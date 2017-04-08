@@ -3,7 +3,7 @@
  * 做一些很脏的事情
  */
 import { Observable } from 'rxjs/Observable'
-import { Database, ExecutorResult } from 'reactivedb'
+import { Database, ExecutorResult, SchemaDef } from 'reactivedb'
 import { TaskSchema } from '../schemas/Task'
 import { LikeSchema } from '../schemas/Like'
 import { forEach } from './index'
@@ -55,6 +55,17 @@ export class Dirty {
         typeof data.executor !== 'undefined') {
       delete data.executor
     }
+  }
+
+  getPKNameinSchema(schema: SchemaDef<any>): string {
+    let pkName = ''
+
+    const [next, stop] = [true, false]
+    forEach(schema, (v, k) => {
+      return (!v.primaryKey && next) || ((pkName = k) && stop)
+    })
+
+    return pkName
   }
 }
 
