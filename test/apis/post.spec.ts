@@ -239,7 +239,8 @@ describe('PostApi Spec', () => {
       yield sdk.database.insert('Post', fixture)
 
       yield socket.emit('change', 'post', fixture._id, {
-        _id: fixture._id,
+        // 这边不提供主键信息，以确定当 socket 消息的 d 部分不
+        // 包含主键信息时，前端依然可以顺利操作。
         content: 'fixture'
       })
 

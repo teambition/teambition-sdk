@@ -12,10 +12,19 @@ import { SDKFetch } from '../SDKFetch'
 import { socketHandler } from './EventMaps'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
+import Dirty from '../utils/Dirty'
+import { SchemaColl } from '../utils/internalTypes'
 
 declare const global: any
 
 const ctx = typeof global === 'undefined' ? window : global
+
+function collectPKNames(schemas: SchemaColl = []) {
+  return schemas.reduce((dict, { schema, name }) => {
+    dict[name] = Dirty.getPKNameinSchema(schema)
+    return dict
+  }, {})
+}
 
 export class SocketClient {
   private _isDebug = false
@@ -31,10 +40,15 @@ export class SocketClient {
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
 
+  private _tabNameToPKName: { [key: string]: string } = {}
+
   constructor(
     private database: Database,
-    private fetch: SDKFetch
-  ) { }
+    private fetch: SDKFetch,
+    schemas?: SchemaColl
+  ) {
+    this._tabNameToPKName = collectPKNames(schemas)
+  }
 
   destroy() {
     this._getUserMeStream.complete()
@@ -139,7 +153,7 @@ export class SocketClient {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
     }
-    return socketHandler(this.database, event)
+    return socketHandler(this.database, event, this._tabNameToPKName)
       .toPromise()
       .then(null, (err: any) => ctx['console']['error'](err))
   }

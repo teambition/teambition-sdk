@@ -37,7 +37,11 @@ SDKLogger.setLevel(envify())
  * refresh 事件需要逐个单独处理
  * destroy 事件没有 data
  */
-const handler = (db: Database, socketMessage: MessageResult) => {
+const handler = (
+  db: Database,
+  socketMessage: MessageResult,
+  tabNameToPKName: { [key: string]: string } = {}
+) => {
   const method = socketMessage.method
   let type = socketMessage.type
   if (type.charAt(type.length - 1) === 's' &&
@@ -47,6 +51,7 @@ const handler = (db: Database, socketMessage: MessageResult) => {
   }
   const m = db[methodMap[method]]
   const arg1 = capitalizeFirstLetter(type)
+  const pkName = tabNameToPKName[arg1]
 
   try {
     // ensure table is defined
@@ -64,22 +69,29 @@ const handler = (db: Database, socketMessage: MessageResult) => {
       if (dirtyStream) {
         return dirtyStream
       }
-      return m.call(db, arg1, socketMessage.data)
+      return m.call(db, arg1, {
+        ...socketMessage.data,
+        [pkName]: socketMessage.id
+      })
     case 'destroy':
     case 'remove':
       return m.call(db, arg1, {
-        where: { _id: socketMessage.id || socketMessage.data }
+        where: { [pkName]: socketMessage.id || socketMessage.data }
       })
     default:
       return Observable.of(null)
   }
 }
 
-export function socketHandler (db: Database, event: RequestEvent): Observable<any> {
+export function socketHandler (
+  db: Database,
+  event: RequestEvent,
+  tabNameToPKName?: { [key: string]: string }
+): Observable<any> {
   const signals: Observable<any>[] = []
   const socketMessages = eventParser(event)
   forEach(socketMessages, socketMessage => {
-    signals.push(handler(db, socketMessage))
+    signals.push(handler(db, socketMessage, tabNameToPKName))
   })
   return Observable.from(signals)
     .mergeAll()
