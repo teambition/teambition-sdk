@@ -53,11 +53,8 @@ const handler = (
   const arg1 = capitalizeFirstLetter(type)
   const pkName = tabNameToPKName[arg1]
 
-  try {
-    // ensure table is defined
-    db.get(arg1)
-  } catch (err) {
-    SDKLogger.warn(`Not existTable: ${arg1}`)
+  if (!pkName) {
+    SDKLogger.warn(`Non-existent table: ${arg1}`)
     return Observable.of(null)
   }
 
