@@ -11,3 +11,4 @@ export * from './utils/httpErrorSpec'
 export * from './mock/MockSpec'
 
 import './apis'
+import './sockets'
