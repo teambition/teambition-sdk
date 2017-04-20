@@ -7,6 +7,7 @@ import 'rxjs/add/operator/toPromise'
 import 'rxjs/add/operator/concatMap'
 import 'rxjs/add/operator/take'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
 import { socketHandler } from './EventMaps'
@@ -35,16 +36,17 @@ export class SocketClient {
 
   private _consumerId: string
 
-  private _getUserMeStream =  new ReplaySubject<UserMe>(1)
+  private _getUserMeStream = new ReplaySubject<UserMe>(1)
 
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
 
   private _tabNameToPKName: { [key: string]: string } = {}
 
+  private database: Database
   constructor(
-    private database: Database,
     private fetch: SDKFetch,
+    private net: Net,
     schemas?: SchemaColl
   ) {
     this._tabNameToPKName = collectPKNames(schemas)
@@ -78,6 +80,13 @@ export class SocketClient {
         return u.snapperToken as string
       }
     })
+  }
+
+  initReactiveDB(database: Database) {
+    this.database = database
+    if (this._client) {
+      this._client.onmessage = this._onmessage.bind(this)
+    }
   }
 
   async connect(): Promise<void> {
@@ -153,7 +162,7 @@ export class SocketClient {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
     }
-    return socketHandler(this.database, event, this._tabNameToPKName)
+    return socketHandler(this.net, event, this._tabNameToPKName, this.database)
       .toPromise()
       .then(null, (err: any) => ctx['console']['error'](err))
   }
@@ -166,7 +175,7 @@ export class SocketClient {
       })
   }
 
-  private _join (room: string, consumerId: string): Promise<any> {
+  private _join(room: string, consumerId: string): Promise<any> {
     this._consumerId = consumerId
     return this.fetch.joinRoom(room, consumerId)
       .then(() => {
@@ -178,7 +187,7 @@ export class SocketClient {
   }
 }
 
-export function leaveRoom (
+export function leaveRoom(
   this: SDKFetch,
   room: string,
   consumerId: string
@@ -189,7 +198,7 @@ export function leaveRoom (
     .toPromise()
 }
 
-export function joinRoom (
+export function joinRoom(
   this: SDKFetch,
   room: string,
   consumerId: string

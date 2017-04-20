@@ -12,3 +12,4 @@ export * from './mock/MockSpec'
 
 import './apis'
 import './sockets'
+import './async-rdb'

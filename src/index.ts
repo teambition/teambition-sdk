@@ -16,5 +16,6 @@ export * from './schemas'
 
 export { SDK } from './SDK'
 export { SDKFetch } from './SDKFetch'
+export { Net, CacheStrategy } from './Net'
 
 // export const SocketClient: Client = sdk.socket
