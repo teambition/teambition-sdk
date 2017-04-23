@@ -3,6 +3,7 @@ import 'rxjs/add/operator/mergeAll'
 import { Observable } from 'rxjs/Observable'
 import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
+import { Net } from '../Net'
 import { MessageResult, eventParser } from './EventParser'
 import { forEach, capitalizeFirstLetter } from '../utils/index'
 import { Logger, Level } from 'reactivedb'
@@ -38,26 +39,32 @@ SDKLogger.setLevel(envify())
  * destroy 事件没有 data
  */
 const handler = (
-  db: Database,
+  net: Net,
   socketMessage: MessageResult,
-  tabNameToPKName: { [key: string]: string } = {}
+  tabNameToPKName: { [key: string]: string } = {},
+  db?: Database
 ) => {
   const method = socketMessage.method
   let type = socketMessage.type
   if (type.charAt(type.length - 1) === 's' &&
-      type !== 'activities' &&
-      type !== 'homeActivities') {
+    type !== 'activities' &&
+    type !== 'homeActivities') {
     type = type.substring(0, type.length - 1)
   }
-  const m = db[methodMap[method]]
   const arg1 = capitalizeFirstLetter(type)
   const pkName = tabNameToPKName[arg1]
+
+  if (!db) {
+    net.bufferSocketPush(arg1, socketMessage, pkName, type)
+    return Observable.of(null)
+  }
 
   if (!pkName) {
     SDKLogger.warn(`Non-existent table: ${arg1}`)
     return Observable.of(null)
   }
 
+  const m = db[methodMap[method]]
   switch (socketMessage.method) {
     case 'new':
       return m.call(db, arg1, socketMessage.data)
@@ -80,15 +87,16 @@ const handler = (
   }
 }
 
-export function socketHandler (
-  db: Database,
+export function socketHandler(
+  net: Net,
   event: RequestEvent,
-  tabNameToPKName?: { [key: string]: string }
+  tabNameToPKName?: { [key: string]: string },
+  db?: Database
 ): Observable<any> {
   const signals: Observable<any>[] = []
   const socketMessages = eventParser(event)
   forEach(socketMessages, socketMessage => {
-    signals.push(handler(db, socketMessage, tabNameToPKName))
+    signals.push(handler(net, socketMessage, tabNameToPKName, db))
   })
   return Observable.from(signals)
     .mergeAll()
