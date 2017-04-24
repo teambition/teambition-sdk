@@ -67,6 +67,16 @@ export class Dirty {
 
     return pkName
   }
+
+  prefixWithColonIfItIsMissing(eventStr: string) {
+    if (!eventStr.length) {
+      return ':'
+    }
+    if (eventStr.charAt(0) !== ':') {
+      return ':' + eventStr
+    }
+    return eventStr
+  }
 }
 
 export default new Dirty
