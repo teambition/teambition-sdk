@@ -1,5 +1,6 @@
 import { RequestEvent } from 'snapper-consumer'
 import { forEach } from '../utils/index'
+import Dirty from '../utils/Dirty'
 
 export interface MessageResult {
   // new change destroy refresh ...
@@ -28,7 +29,8 @@ export function eventParser(event: RequestEvent) {
         } catch (e) {
           return console.error(e)
         }
-        const methodAndData: MessageResult = parser(result.e)
+        const eventStr = Dirty.prefixWithColonIfItIsMissing(result.e)
+        const methodAndData: MessageResult = parser(eventStr)
         methodAndData.data = result.d
         methodAndDatas.push(methodAndData)
       })
