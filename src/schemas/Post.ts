@@ -10,6 +10,8 @@ import {
 import { SchemaDef, RDBType, Relationship } from 'reactivedb'
 import { schemas } from '../SDK'
 
+export type PostModeOptions = 'md' | 'html'
+
 export interface PostSchema {
   _id: PostId
   _projectId: ProjectId
@@ -26,7 +28,7 @@ export interface PostSchema {
   isFavorite: boolean
   lastCommentedAt: string | null
   pin: boolean
-  postMode: 'txt' | 'html'
+  postMode: PostModeOptions
   source: PostSource
   tagIds: TagId[]
   title: string
