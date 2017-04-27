@@ -1,5 +1,5 @@
 import { ApplicationId } from 'teambition-types'
-import { RDBType, SchemaDef } from 'reactivedb'
+import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { schemas } from '../SDK'
 
 export interface ApplicationSchema {

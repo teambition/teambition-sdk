@@ -7,7 +7,7 @@ import {
   ProjectId,
   FileId
 } from 'teambition-types'
-import { SchemaDef, RDBType, Relationship } from 'reactivedb'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemas } from '../SDK'
 
 export type PostModeOptions = 'md' | 'html'

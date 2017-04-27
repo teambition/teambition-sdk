@@ -6,7 +6,7 @@ import { Database } from 'reactivedb'
 import { Net } from '../Net'
 import { MessageResult, eventParser } from './EventParser'
 import { forEach, capitalizeFirstLetter } from '../utils/index'
-import { Logger, Level } from 'reactivedb'
+import { Logger, Level } from 'reactivedb/shared'
 import Dirty from '../utils/Dirty'
 
 const methodMap: any = {
