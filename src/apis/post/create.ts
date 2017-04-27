@@ -1,14 +1,14 @@
 import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { PostSchema } from '../../schemas/Post'
+import { PostModeOptions, PostSchema } from '../../schemas/Post'
 import { ProjectId, Visibility, FileId, UserId, TagId } from 'teambition-types'
 
 export interface CreatePostOptions {
   _projectId: ProjectId
   title: string
   content: string
-  postMode?: 'html' | 'txt'
+  postMode?: PostModeOptions
   visiable?: Visibility
   attachments?: FileId[]
   involveMembers?: UserId[]
