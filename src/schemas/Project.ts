@@ -7,7 +7,7 @@ import {
   CollectionId,
   ApplicationId
 } from 'teambition-types'
-import { RDBType, SchemaDef, Relationship } from 'reactivedb'
+import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
 import { schemas } from '../SDK'
 
 export interface ProjectSchema {

@@ -1,4 +1,4 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb'
+import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import { SubtaskSchema } from './Subtask'
 import { schemas } from '../SDK'
 import {

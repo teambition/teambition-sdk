@@ -1,4 +1,4 @@
-import { SchemaDef, Relationship, RDBType } from 'reactivedb'
+import { SchemaDef, Relationship, RDBType } from 'reactivedb/interface'
 import { schemas } from '../SDK'
 import { ObjectLinkSchema } from './ObjectLink'
 import {

@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType } from 'reactivedb'
+import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemas } from '../SDK'
 import { StageId, ProjectId, TasklistId } from 'teambition-types'
 

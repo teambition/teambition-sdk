@@ -1,5 +1,5 @@
 import { UserId } from 'teambition-types'
-import { SchemaDef, RDBType } from 'reactivedb'
+import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemas } from '../SDK'
 
 export interface UserEmail {

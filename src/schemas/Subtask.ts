@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType, Relationship } from 'reactivedb'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemas } from '../SDK'
 import {
   ExecutorOrCreator,
