@@ -15,8 +15,7 @@ export function bundle (entry: string, output: string, name: string) {
     }),
     nodeResolve({
       jsnext: false,
-      main: true,
-      skip: ['lovefield']
+      main: true
     }),
     commonjs({
       exclude: [ 'dist/es6/**', 'dist/mock-es6/**', 'node_modules/lovefield/**' ]
@@ -44,7 +43,7 @@ export function bundle (entry: string, output: string, name: string) {
     .then(() => {
       const source = fs.readFileSync(path.resolve(process.cwd(), output), 'utf8')
       const compilerFlags = {
-        jsCode: [{src: source}],
+        jsCode: [{ src: source }],
         compilationLevel: 'ADVANCED',
         languageIn: 'ES5',
         createSourceMap: true,
@@ -54,16 +53,18 @@ export function bundle (entry: string, output: string, name: string) {
       const code = result.compiledCode
       fs.writeFileSync(minPath, code, 'utf8')
       fs.writeFileSync(`${minPath}.map`, result.sourceMap, 'utf8')
-      console.log(blue(minPath) + ' ' + getSize(code))
+      console.info(blue(minPath) + ' ' + getSize(code))
     })
     .catch(e => console.error(e.stack))
 }
 
 export function write (dest: string, code: string) {
-  return new Promise(function (resolve, reject) {
-    fs.writeFile(dest, code, function (err) {
-      if (err) return reject(err)
-      console.log(blue(dest) + ' ' + getSize(code))
+  return new Promise((resolve, reject) => {
+    fs.writeFile(dest, code, (err) => {
+      if (err) {
+        return reject(err)
+      }
+      console.info(blue(dest) + ' ' + getSize(code))
       resolve()
     })
   })
