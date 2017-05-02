@@ -1,7 +1,7 @@
 declare const global: any
 
 export interface FetchResult {
-  wait: number | Promise<any>
+  wait: number | Promise<any> | undefined
   response: {
     data: any
     responseInit: ResponseInit
@@ -53,10 +53,10 @@ export function restore() {
 }
 
 export function mockFetch() {
-  context['fetch'] = (uri: string, options?: {
+  context['fetch'] = (uri: string, options: {
     method?: any,
     body?: any
-  }): any => {
+  } = {}): any => {
     const method = options.method ? options.method.toLowerCase() : ''
     if (method !== 'options') {
       if (method === 'get') {
@@ -76,7 +76,7 @@ export function mockFetch() {
       if (!results) {
         /* istanbul ignore if */
         const definedUri: string[] = []
-        fetchStack.forEach((val, key) => {
+        fetchStack.forEach((_, key) => {
           definedUri.push(key)
         })
         const error = new TypeError(
@@ -91,11 +91,11 @@ export function mockFetch() {
       }
       let result: FetchResult
       if (results.length > 1) {
-        result = results.shift()
+        result = results.shift()!
       } else {
         result = results[0]
       }
-      // console.log(uri + method + dataPath, fetchStack)
+      // console.info(uri + method + dataPath, fetchStack)
       const wait = result.wait
       if (!wait || wait < 0) {
         return Promise.resolve(new Response(result.response.data, result.response.responseInit))

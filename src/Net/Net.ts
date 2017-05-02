@@ -1,3 +1,4 @@
+import 'rxjs/add/operator/concatAll'
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { forEach } from '../utils'
@@ -10,11 +11,10 @@ import {
 } from 'reactivedb'
 
 import Dirty from '../utils/Dirty'
+import { SDKLogger } from '../utils/Logger'
 
 import { QueryToken, SelectorMeta } from 'reactivedb/proxy'
 import { ProxySelector } from 'reactivedb/proxy'
-
-const ctx = typeof global === 'undefined' ? window : global
 
 export enum CacheStrategy {
   Request = 200,
@@ -53,7 +53,7 @@ export type CUDApiResult<T> = CApiResult<T> | UDResult<T>
 export class Net {
   constructor(
     schemas: { schema: SchemaDef<any>, name: string }[],
-    public database: Database = undefined,
+    public database?: Database,
     public fields = new Map<string, string[]>(),
     private requestMap = new Map<string, boolean>(),
     private CUDBuffer: Object[] = [],
@@ -110,7 +110,10 @@ export class Net {
   }
 
   handleApiResult<T>(result: ApiResult<T, CacheStrategy>) {
-    if (!this.database) { return this.bufferResponse(result) }
+    if (!this.database) {
+      return this.bufferResponse(result)
+    }
+    const database = this.database!
     const {
       request,
       q,
@@ -124,9 +127,9 @@ export class Net {
       case CacheStrategy.Request:
         if (!requestCache) {
           const selectMeta$ = request
-            .concatMap<T | T[], T>(v => this.database.upsert(tableName, v))
+            .concatMap<T | T[], T>(v => database.upsert(tableName, v))
             .do(() => this.requestMap.set(sq, true))
-            .concatMap(() => this.database.get<T>(tableName, q).selector$)
+            .concatMap(() => database.get<T>(tableName, q).selector$)
           return new QueryToken<T[]>(<any>selectMeta$)
         } else {
           return this.database.get<T>(tableName, q)
@@ -137,13 +140,13 @@ export class Net {
           .values()
           .concatMap<T[], any>((cache: T[]) => {
             if (cache.length) {
-              return this.database
+              return database
                 .get<T>(tableName, q)
                 .selector$
             } else {
               return request.concatMap<T | T[], T>(val => {
-                return this.database.upsert(tableName, val)
-                  .concatMap(() => this.database.get<T>(tableName, q).selector$)
+                return database.upsert(tableName, val)
+                  .concatMap(() => database.get<T>(tableName, q).selector$)
               })
             }
           })
@@ -155,7 +158,11 @@ export class Net {
   }
 
   handleCUDAResult<T>(result: CUDApiResult<T>) {
-    if (!this.database) { return this.bufferCUDResponse(result) }
+    if (!this.database) {
+      return this.bufferCUDResponse(result)
+    }
+
+    const database = this.database!
 
     const { request, method, tableName } = result as CUDApiResult<T>
     let destination: Observable<ExecutorResult> | Observable<T | T[]>
@@ -163,13 +170,13 @@ export class Net {
       .concatMap(v => {
         switch (method) {
           case 'create':
-            destination = this.database.upsert<T>(tableName, v)
+            destination = database.upsert<T>(tableName, v)
             break
           case 'update':
-            destination = this.database.upsert(tableName, v)
+            destination = database.upsert(tableName, v)
             break
           case 'delete':
-            destination = this.database.delete<T>(tableName, (result as UDResult<T>).clause)
+            destination = database.delete<T>(tableName, (result as UDResult<T>).clause)
             break
           default:
             throw new Error()
@@ -179,8 +186,10 @@ export class Net {
   }
 
   public persist<T>(database: Database) {
-    if (!this.database) { this.database = database }
-    const asyncQueue: Promise<void>[] = []
+    if (!this.database) {
+      this.database = database
+    }
+    const asyncQueue: Observable<any>[] = []
     forEach(this.realSelectorInfoBuffer, (v: any, idx) => {
       const q = v.q
       const sq = JSON.stringify(v.q)
@@ -192,77 +201,80 @@ export class Net {
           .concatMap<T | T[], T>(val => database.upsert(tableName, val))
           .do(() => this.requestMap.set(sq, true))
           .concatMap(() => database.get<T>(tableName, q).selector$)
-          .toPromise()
-          .then((result: SelectorMeta<T>) => proxySelector.next(result))
+          .do({
+            next(selector) {
+              proxySelector.next(selector)
+            }
+          })
         asyncQueue.push(p)
       } else if (v.type === CacheStrategy.Cache) {
         const p = (request as Observable<T[]> | Observable<T>)
           .concatMap<T | T[], T>(val => database.upsert(tableName, val))
           .concatMap(() => database.get<T>(tableName, q).selector$)
-          .toPromise()
-          .then((result: SelectorMeta<T>) => proxySelector.next(result))
+          .do({
+            next(selector) {
+              proxySelector.next(selector)
+            }
+          })
         asyncQueue.push(p)
       }
     })
 
-    this.realSelectorInfoBuffer = []
-    this.proxySelectorBuffer = []
+    this.realSelectorInfoBuffer.length = 0
+    this.proxySelectorBuffer.length = 0
 
     forEach(this.CUDBuffer, (v: any) => {
       const p = database[v.method](v.tableName, v.value)
-        .toPromise()
-        .then(null, (err: any) => ctx['console']['error'](err))
       asyncQueue.push(p)
     })
 
     forEach(this.socketCUDBuffer, (v: any) => {
-      const db = this.database
       const socketMessage = v.socketMessage
       const type = v.type
       const arg = v.arg
       const pkName = v.pkName
       if (socketMessage.method === 'destroy' || socketMessage.method === 'remove') {
-        const p = db.delete(arg, {
+        const p = database.delete(arg, {
           where: { [pkName]: socketMessage.id || socketMessage.data }
         })
-          .toPromise()
-          .then(null, (err: any) => ctx['console']['error'](err))
         asyncQueue.push(p)
       } else if (socketMessage.method === 'new') {
-        const p = db.upsert(arg, socketMessage.data)
-          .toPromise()
-          .then(null, (err: any) => ctx['console']['error'](err))
+        const p = database.upsert(arg, socketMessage.data)
         asyncQueue.push(p)
       } else if (socketMessage.method === 'change') {
-        const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, db)
-        if (dirtyStream) {
+        const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, database)
+        if (dirtyStream !== null) {
           const p = dirtyStream
-            .toPromise()
-            .then(null, (err: any) => ctx['console']['error'](err))
           asyncQueue.push(p)
         } else {
-          const p = db.upsert(arg, {
+          const p = database.upsert(arg, {
             ...socketMessage.data,
             [pkName]: socketMessage.id
           })
-            .toPromise()
-            .then(null, (err: any) => ctx['console']['error'](err))
           asyncQueue.push(p)
         }
       }
     })
-    this.socketCUDBuffer = []
+    this.socketCUDBuffer.length = 0
+
     return Observable.from(asyncQueue)
+      .concatAll()
+      .do({
+        error: async (err: Observable<Error>) => {
+          const errObj = await err.toPromise()
+          SDKLogger.error(errObj.message)
+        }
+      })
   }
 
   public bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
 
     const {
-    request,
+      request,
       q,
       cacheValidate,
       tableName
-  } = this.getInfoFromResult(result)
+    } = this.getInfoFromResult(result)
 
     const proxySelector = new ProxySelector<T>(request, q, tableName)
     const proxySelector$ = new BehaviorSubject(proxySelector)

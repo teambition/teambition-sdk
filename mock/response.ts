@@ -51,7 +51,7 @@ export class HttpResponse {
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [ result ])
     } else {
-      fetchStack.get(this.namespace).push(result)
+      fetchStack.get(this.namespace)!.push(result)
     }
   }
 
@@ -64,7 +64,7 @@ export class HttpResponse {
     if (!fetchStack.has(this.namespace)) {
       fetchStack.set(this.namespace, [result])
     } else {
-      fetchStack.get(this.namespace).push(result)
+      fetchStack.get(this.namespace)!.push(result)
     }
   }
 }

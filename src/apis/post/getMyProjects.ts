@@ -11,16 +11,21 @@ export function getMyProjectPosts (
   _projectId: ProjectId,
   query?: GetPostsQuery<'my'>
 ): QueryToken<PostSchema> {
+  const defaultQuery: Partial<GetPostsQuery<'my'>> = {
+    count: 500,
+    page: 1
+  }
+  const q = query ? { ...defaultQuery, ...query } : defaultQuery
   const rdbQuery: any = {
     where: {
       _projectId,
       isArchived: false,
       _creatorId: userId
     },
-    ...pagination(query.count, query.page)
+    ...pagination(q.count!, q.page!)
   }
-  if (query.orderBy) {
-    rdbQuery.orderBy = query.orderBy
+  if (q.orderBy) {
+    rdbQuery.orderBy = q.orderBy
   }
   const urlQuery = omit(query, 'orderBy')
   return this.lift<PostSchema>({

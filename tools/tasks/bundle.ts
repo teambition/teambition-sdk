@@ -25,7 +25,7 @@ export function bundle (entry: string, output: string, name: string) {
     entry: entry,
     plugins: plugins
   })
-    .then(bundle => {
+    .then((bundle: any) => {
       const code = bundle.generate({
         format: 'umd',
         moduleName: name,
@@ -37,7 +37,7 @@ export function bundle (entry: string, output: string, name: string) {
 
       return code
     })
-    .then(code => {
+    .then((code: string) => {
       return write(path.resolve(process.cwd(), output), code)
     })
     .then(() => {
@@ -49,13 +49,13 @@ export function bundle (entry: string, output: string, name: string) {
         createSourceMap: true,
       }
       const result: any = compiler(compilerFlags)
-      const minPath = `dist/bundle/${output.split('/').pop().split('.')[0]}.min.js`
+      const minPath = `dist/bundle/${output.split('/').pop()!.split('.')[0]}.min.js`
       const code = result.compiledCode
       fs.writeFileSync(minPath, code, 'utf8')
       fs.writeFileSync(`${minPath}.map`, result.sourceMap, 'utf8')
       console.info(blue(minPath) + ' ' + getSize(code))
     })
-    .catch(e => console.error(e.stack))
+    .catch((e: Error) => console.error(e.stack))
 }
 
 export function write (dest: string, code: string) {

@@ -10,8 +10,11 @@
     "typeRoots": [
       "node_modules/@types"
     ],
+    "strict": true,
+    "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true
+    "noImplicitReturns": true,
+    "suppressImplicitAnyIndexErrors": true
   },
   "exclude": [
     "node_modules",

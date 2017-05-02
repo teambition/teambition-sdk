@@ -22,7 +22,7 @@ export class Dirty {
 
   handlerSocketMessage(id: string, type: string, data: any, db: Database): Observable<any> | null {
     const methods = [ '_handlerLikeMessage', '_handlerTaskUpdateFromSocket' ]
-    let signal: Observable<any> | null
+    let signal: Observable<any> | null = null
     forEach(methods, method => {
       const result = this[method](id, type, data, db)
       if (result) {
@@ -39,7 +39,7 @@ export class Dirty {
    * 后端认为这种数据应该被 patch 到它的实体上
    * 而前端需要将点赞数据分开存储
    */
-  _handlerLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database): Observable<ExecutorResult> {
+  _handlerLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database): Observable<ExecutorResult> | null {
     if (data.likesGroup && data.likesGroup instanceof Array) {
       data._boundToObjectId = id
       data._boundToObjectType = type

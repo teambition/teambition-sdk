@@ -46,7 +46,7 @@ export default describe('utils/fetch', () => {
 
   it('should serialize array to query string', () => {
     const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
-    const parts = []
+    const parts: string[] = []
     forEach(query, (value, key) => {
       if (!Array.isArray(value)) {
         value = <any>[value]
@@ -60,7 +60,7 @@ export default describe('utils/fetch', () => {
 
   it('should serialize query with queryUrl to query string', () => {
     const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
-    const parts = []
+    const parts: string[] = []
     forEach(query, (value, key) => {
       if (!Array.isArray(value)) {
         value = <any>[value]

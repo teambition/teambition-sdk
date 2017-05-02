@@ -19,7 +19,7 @@ export class SDKFetch extends Fetch {
     const uri = this._buildQuery(url, query)
     let _uri: string
     if (SDKFetch.FetchStack.has(uri)) {
-      return SDKFetch.FetchStack.get(uri)
+      return SDKFetch.FetchStack.get(uri)!
     }
     if (query) {
       _uri = `${uri}&_=${ now }`

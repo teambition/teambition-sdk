@@ -116,7 +116,7 @@ export function getMyRecent(
     }
   }
 
-  let eventToken: QueryToken<any>= this.lift<RecentData>({
+  let eventToken: QueryToken<any> = this.lift<RecentData>({
     cacheValidate: CacheStrategy.Request,
     tableName: 'Event',
     request: request.map(v => v.filter(t => t.type === 'event')),

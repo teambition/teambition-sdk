@@ -46,7 +46,7 @@ export class EventGenerator implements IterableIterator<EventSchema> {
   }
 
   takeUntil(endDate: Date) {
-    if(!this.isRecurrence) {
+    if (!this.isRecurrence) {
       return [ clone(this.event) ]
     }
     const result: EventSchema[] = []

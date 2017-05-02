@@ -19,7 +19,7 @@ export function createSdkWithoutRDB() {
 }
 
 export function loadRDB(sdk: SDK) {
-  const database = new Database(DataStoreType.MEMORY, false, 'teambition-sdk', 1)
+  const database = new Database(DataStoreType.MEMORY, false, `teambition-sdk-test`, 1)
   return sdk.initReactiveDB(database)
 }
 

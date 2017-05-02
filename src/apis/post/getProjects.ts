@@ -1,4 +1,4 @@
-import { QueryToken, OrderDescription } from 'reactivedb'
+import { QueryToken, OrderDescription, Query } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
@@ -38,15 +38,20 @@ export function getAllProjectPosts (
   _projectId: ProjectId,
   query?: GetPostsQuery<'all'>
 ): QueryToken<PostSchema> {
-  const rdbQuery: any = {
+  const defaultQuery: Partial<GetPostsQuery<'all'>> = {
+    count: 500,
+    page: 1
+  }
+  const q = query ? { ...defaultQuery, ...query } : defaultQuery
+  const rdbQuery: Query<any> = {
     where: {
       _projectId,
       isArchived: false,
     },
-    ...pagination(query.count, query.page)
+    ...pagination(q.count!, q.page!)
   }
-  if (query.orderBy) {
-    rdbQuery.orderBy = query.orderBy
+  if (q.orderBy) {
+    rdbQuery.orderBy = q.orderBy
   }
   const urlQuery = omit(query, 'orderBy')
   return this.lift<PostSchema>({
