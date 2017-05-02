@@ -22,14 +22,12 @@ export function runTman() {
 function watch (paths: string[]) {
   return Observable.from(paths)
     .map(p => path.join(process.cwd(), p))
-    .mergeMap(path => {
-      return Observable.create((observer: Observer<string>) => {
-        fileWatcher(path, (evt: any) => {
-          observer.next(evt)
-        })
-        return () => fileWatcher.close()
+    .flatMap(path => Observable.create((observer: Observer<string>) => {
+      fileWatcher(path, { recursive: true }, (_: any, fileName: string) => {
+        observer.next(fileName)
       })
-    })
+      return () => fileWatcher.close()
+    }))
     .debounceTime(300)
 }
 
@@ -41,8 +39,7 @@ watch(['spec-js'])
   })
 
 process.on('uncaughtException', (err: any) => {
-  console.log(`Caught exception: ${err.stack}`);
+  console.info(`Caught exception: ${err.stack}`)
 })
 
-console.log('\x1b[1m\x1b[34mwatch start\x1b[39m\x1b[22m')
-
+console.info('\x1b[1m\x1b[34mwatch start\x1b[39m\x1b[22m')

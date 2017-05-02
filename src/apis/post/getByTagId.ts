@@ -30,9 +30,13 @@ export function getByTagId (this: SDK, tagId: TagId, query?: {
   orderBy?: OrderDescription[]
   [index: string]: any
 }): QueryToken<PostSchema> {
-  query = query || <any>{ }
+  const defaultQuery: Partial<typeof query> = {
+    page: 1,
+    count: 500
+  }
+  const q = query ? { ...defaultQuery, ...query } : defaultQuery
   const rdbQuery: any = {
-    ...pagination(query.count, query.page),
+    ...pagination(q.count!, q.page!),
     where: {
       isArchived: false,
       tagIds: {
@@ -40,8 +44,8 @@ export function getByTagId (this: SDK, tagId: TagId, query?: {
       }
     }
   }
-  if (query.orderBy) {
-    rdbQuery.orderBy = query.orderBy
+  if (q.orderBy) {
+    rdbQuery.orderBy = q.orderBy
   }
   const urlQuery = omit(query, 'orderBy')
   return this.lift<PostSchema>({

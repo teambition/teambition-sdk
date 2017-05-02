@@ -6,6 +6,10 @@
   version "3.5.1"
   resolved "http://registry.npm.taobao.org/@types/chai/download/@types/chai-3.5.1.tgz#9bd77fe12503ae00648b0945b38eab666adffe2e"
 
+"@types/lodash@^4.14.63":
+  version "4.14.63"
+  resolved "http://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.63.tgz#5ac475f55bfdc62bc88c4239dbc482f2f3bead93"
+
 "@types/lovefield@^2.0.32":
   version "2.0.32"
   resolved "http://registry.npm.taobao.org/@types/lovefield/download/@types/lovefield-2.0.32.tgz#61680e2bd678abf6cd261a7b487d2a2481f7cb95"
@@ -2413,9 +2417,9 @@ type-detect@^4.0.0:
   version "4.0.3"
   resolved "http://registry.npm.taobao.org/type-detect/download/type-detect-4.0.3.tgz#0e3f2670b44099b0b46c284d136a7ef49c74c2ea"
 
-typescript@^2.3.1:
-  version "2.3.1"
-  resolved "http://registry.npm.taobao.org/typescript/download/typescript-2.3.1.tgz#e3361fb395c6c3f9c69faeeabc9503f8bdecaea1"
+typescript@^2.3.2:
+  version "2.3.2"
+  resolved "http://registry.npm.taobao.org/typescript/download/typescript-2.3.2.tgz#f0f045e196f69a72f06b25fd3bd39d01c3ce9984"
 
 uglify-js@^2.6:
   version "2.8.22"

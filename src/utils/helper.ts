@@ -48,11 +48,11 @@ export const clone = <T>(origin: T, old?: any): T => {
   old = old || origin
   /* istanbul ignore if */
   if (origin === null) {
-    return null
+    return null as any
   }
   /* istanbul ignore if */
   if (!origin || typeof origin !== 'object') {
-    return void 0
+    return void 0 as any
   }
   let target: any
   if (origin instanceof Array) {
@@ -114,7 +114,10 @@ export function dropEle<T>(ele: T, arr: T[]): T[] {
   return arr
 }
 
-export function capitalizeFirstLetter(str: string) {
+export function capitalizeFirstLetter(str?: string | null) {
+  if (!str) {
+    return null
+  }
   const upper = str[0].toUpperCase()
   if (str[0] === upper) {
     return str
@@ -134,7 +137,7 @@ export function parseHeaders(rawHeader: string) {
   const pairs = rawHeader.trim().split('\n')
   pairs.forEach(header => {
     const split = header.trim().split(':')
-    const key = split.shift().trim()
+    const key = split.shift()!.trim()
     const value = split.join(':').trim()
     head[key] = value
   })

@@ -12,7 +12,6 @@ import { SDKFetch } from './SDKFetch'
 import { SocketClient } from './sockets/SocketClient'
 import { SchemaColl } from './utils/internalTypes'
 
-
 export enum CacheStrategy {
   Request = 200,
   Cache,
@@ -32,7 +31,7 @@ export class SDK {
     this.socketClient = new SocketClient(this.fetch, this.net, schemas)
   }
 
-  initReactiveDB (db: Database): Observable<Promise<void>> {
+  initReactiveDB (db: Database): Observable<void[]> {
     this.database = db
     forEach(schemas, d => {
       this.database.defineSchema(d.name, d.schema)

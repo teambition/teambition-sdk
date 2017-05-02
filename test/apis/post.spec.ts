@@ -9,7 +9,7 @@ describe('PostApi Spec', () => {
   let sdk: SDK
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
   let socket: SocketMock
-  let defaultOrderBy
+  let defaultOrderBy: any
 
   beforeEach(() => {
     sdk = createSdk()

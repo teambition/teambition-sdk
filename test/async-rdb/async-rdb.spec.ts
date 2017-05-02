@@ -1,5 +1,6 @@
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
+import { Subscription } from 'rxjs'
 import {
   createSdkWithoutRDB,
   loadRDB,
@@ -25,15 +26,17 @@ describe('Async load reactivedb Spec', () => {
 
   const userId = myRecent[0]['_executorId']
 
-
   beforeEach(() => {
     sdk = createSdkWithoutRDB()
     socket = new SocketMock(sdk.socketClient)
     mockResponse = mock(sdk)
   })
 
-  afterEach(() => {
+  afterEach(function* () {
     restore(sdk)
+    if (sdk.database) {
+      yield sdk.database.dispose()
+    }
   })
 
   describe('No reactivedb request spec', () => {
@@ -82,7 +85,7 @@ describe('Async load reactivedb Spec', () => {
   })
   describe('ReactiveDB async load in', () => {
 
-    it('getMyRecent should response correct data when reactivedb async load in', function* () {
+    it('getMyRecent should response correct data when reactivedb async load in', done => {
       mockResponse(myRecent)
 
       const token = sdk.getMyRecent(userId, {
@@ -90,11 +93,11 @@ describe('Async load reactivedb Spec', () => {
         startDate: '2016-12-31T16:00:00.000Z'
       })
 
-      loadRDB(sdk)
+      let subscription: Subscription
 
-      yield token.values()
-        .do(r => {
-          const compareFn = (x, y) => {
+      token.values()
+        .subscribe(r => {
+          const compareFn = (x: any, y: any) => {
             return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
               + new Date(x.created).valueOf() - new Date(y.created).valueOf()
           }
@@ -120,7 +123,11 @@ describe('Async load reactivedb Spec', () => {
             .sort(compareFn)
 
           expect(actual).to.deep.equal(expected)
+          subscription.unsubscribe()
+          done()
         })
+
+       subscription = loadRDB(sdk).subscribe()
     })
 
     it('response cache should work when reactivedb async load in', function* () {
@@ -162,11 +169,13 @@ describe('Async load reactivedb Spec', () => {
 
     describe('Socket spec when reactivedb async load in', () => {
       it('socket::destroy should work when reactivedb load in', function* () {
-        const [fixture] = projectPosts
+        const [ fixture ] = projectPosts
 
         mockResponse(fixture)
+
         yield sdk.getPost(fixture._id)
           .values()
+
         yield socket.emit('destroy', 'post', fixture._id)
 
         yield loadRDB(sdk)
