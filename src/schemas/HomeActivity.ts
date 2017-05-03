@@ -1,7 +1,6 @@
-import { Schema, schemaName, ISchema } from './schema'
-import { ExecutorOrCreator } from '../teambition'
+import { ExecutorOrCreator, ProjectId } from 'teambition-types'
 
-export interface HomeActivityData extends ISchema {
+export interface HomeActivitySchema {
   _id: string
   _creatorId: string
   action: string
@@ -114,34 +113,11 @@ export interface HomeActivityData extends ISchema {
     // 创建者名字（必有）
     creator: string
   }
-  rootId: string              // project#:_projectId
+  rootId: ProjectId              // project#:_projectId
   created: string
   _boundToObjectId: string
   boundToObjectType: string
   rawAction: string           // deprecated
   creator: ExecutorOrCreator
   title: string
-}
-
-@schemaName('HomeActivity')
-export default class HomeActivity extends Schema<HomeActivityData> implements HomeActivityData {
-  _id: string = undefined
-  _creatorId: string = undefined
-  action: string = undefined
-  content: {
-    objectType: string
-    objects: any[]
-    creator: string
-    addNames?: string
-    projectName?: string
-  } = undefined
-  rootId: string = undefined
-  created: string = undefined
-  _boundToObjectId: string = undefined
-  boundToObjectType: string = undefined
-  rawAction: string = undefined
-  creator: ExecutorOrCreator = undefined
-  title: string = undefined
-  likes: string[] = undefined
-  isLike: boolean = undefined
 }
