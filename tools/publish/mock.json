@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/teambition/teambition-sdk/issues"
   },
-  "homepage": "https://github.com/teambition/teambition-sdk#readme"
+  "homepage": "https://github.com/teambition/teambition-sdk#readme",
+  "peerDependencies": {
+    "core-js": "^2.4.1"
+  }
 }
