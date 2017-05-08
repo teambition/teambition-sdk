@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
+import { forEach } from '../../utils'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TaskSchema, EventSchema, SubtaskSchema } from '../../schemas'
@@ -80,10 +81,11 @@ export function getMyRecent(
     ]
   })
 
-  taskToken = taskToken.map((task: TaskSchema) => {
-    task.type = 'task'
-    return task
-  })
+  taskToken = taskToken.map(task$ => task$
+    .do(tasks => forEach(tasks, task => {
+      task.type = 'task'
+    })
+  ))
 
   const eventQuery = {
     where: {
@@ -136,7 +138,7 @@ export function getMyRecent(
     ]
   })
 
-  eventToken = eventToken.map((e: EventSchema) => new EventGenerator(e))
+  eventToken = eventToken.map(e$ => e$.map(events => events.map(e => new EventGenerator(e))))
 
   let subtaskToken = this.lift<RecentData>({
     cacheValidate: CacheStrategy.Request,
@@ -157,10 +159,11 @@ export function getMyRecent(
     excludeFields: [ 'order' ]
   })
 
-  subtaskToken = subtaskToken.map((subtask: SubtaskSchema) => {
-    subtask.type = 'subtask'
-    return subtask
-  })
+  subtaskToken = subtaskToken.map(task$ => task$
+    .do(subtasks => forEach(subtasks, subtask => {
+      subtask.type = 'subtask'
+    })
+  ))
 
   return <any>taskToken.combine(eventToken, subtaskToken)
 }

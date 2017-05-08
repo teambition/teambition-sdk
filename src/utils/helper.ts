@@ -44,6 +44,8 @@ export function forEach (target: any, eachFunc: (val: any, key: any) => any, inv
   return target
 }
 
+export const identity = <T>(r: T) => r
+
 export const clone = <T>(origin: T, old?: any): T => {
   old = old || origin
   /* istanbul ignore if */

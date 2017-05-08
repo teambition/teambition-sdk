@@ -2,11 +2,11 @@
 # yarn lockfile v1
 
 
-"@types/chai@*", "@types/chai@^3.5.1":
+"@types/chai@*", "@types/chai@^3.5.2":
   version "3.5.2"
   resolved "https://registry.npmjs.org/@types/chai/-/chai-3.5.2.tgz#c11cd2817d3a401b7ba0f5a420f35c56139b1c1e"
 
-"@types/lodash@^4.14.63":
+"@types/lodash@^4.14.64":
   version "4.14.64"
   resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.64.tgz#979cf3a3d4a368670840bf9b3e448dc33ffe84ee"
 
@@ -14,7 +14,7 @@
   version "2.0.32"
   resolved "https://registry.npmjs.org/@types/lovefield/-/lovefield-2.0.32.tgz#61680e2bd678abf6cd261a7b487d2a2481f7cb95"
 
-"@types/node@^7.0.14":
+"@types/node@^7.0.18":
   version "7.0.18"
   resolved "https://registry.npmjs.org/@types/node/-/node-7.0.18.tgz#cd67f27d3dc0cfb746f0bdd5e086c4c5d55be173"
 
@@ -1519,7 +1519,7 @@ node-source-walk@^3.0.0, node-source-walk@^3.2.0:
   dependencies:
     babylon "^6.17.0"
 
-node-watch@^0.5.2:
+node-watch@^0.5.4:
   version "0.5.4"
   resolved "https://registry.npmjs.org/node-watch/-/node-watch-0.5.4.tgz#bdad41b23d23444e895c797d73ad5d49e3833309"
 
@@ -1548,7 +1548,7 @@ number-is-nan@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
 
-nyc@^10.2.0:
+nyc@^10.3.2:
   version "10.3.2"
   resolved "https://registry.npmjs.org/nyc/-/nyc-10.3.2.tgz#f27f4d91f2a9db36c24f574ff5c6efff0233de46"
   dependencies:
@@ -1809,9 +1809,9 @@ rc@^1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-reactivedb@~0.9.5:
-  version "0.9.5"
-  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.9.5.tgz#c4ad11515cb71394df8ddfd36083100493ae30dc"
+reactivedb@~0.9.6:
+  version "0.9.6"
+  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.9.6.tgz#8db0560e332602ff3a2fd82d3d7db07275feaa16"
   dependencies:
     "@types/lovefield" "^2.0.32"
     lovefield "2.1.12"
@@ -2001,11 +2001,11 @@ rollup@^0.41.6:
   dependencies:
     source-map-support "^0.4.0"
 
-"rrule@github:teambition/rrule#v2.2.4":
-  version "2.2.0-dev"
-  resolved "https://codeload.github.com/teambition/rrule/tar.gz/db1d069f4bffbdaa7e759eeb04c1f9d21a900425"
+rrule@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.npmjs.org/rrule/-/rrule-2.2.0.tgz#f346c523bf73707dafe562c222650467b49f6d5c"
 
-rxjs@^5.2.0:
+rxjs@^5.4.0:
   version "5.4.0"
   resolved "https://registry.npmjs.org/rxjs/-/rxjs-5.4.0.tgz#a7db14ab157f9d7aac6a56e655e7a3860d39bf26"
   dependencies:
@@ -2042,11 +2042,11 @@ signal-exit@^3.0.0, signal-exit@^3.0.1, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-sinon-chai@^2.9.0:
+sinon-chai@^2.10.0:
   version "2.10.0"
   resolved "https://registry.npmjs.org/sinon-chai/-/sinon-chai-2.10.0.tgz#6ab3008bb8cae9929e744d766574b4cf35f34b5b"
 
-sinon@^2.1.0:
+sinon@^2.2.0:
   version "2.2.0"
   resolved "https://registry.npmjs.org/sinon/-/sinon-2.2.0.tgz#3b1b42ff5defcbf51a52a62aca6d61171b9fd262"
   dependencies:
@@ -2067,7 +2067,7 @@ slide@^1.1.5:
   version "1.1.6"
   resolved "https://registry.npmjs.org/slide/-/slide-1.1.6.tgz#56eb027d65b4d2dce6cb2e2d32c4d4afc9e1d707"
 
-snapper-consumer@^1.3.4:
+snapper-consumer@^1.3.5:
   version "1.3.5"
   resolved "https://registry.npmjs.org/snapper-consumer/-/snapper-consumer-1.3.5.tgz#78a969573cd75b014fb5855a759d543d20f094dd"
   dependencies:
@@ -2263,7 +2263,7 @@ thunks@^4.7.6:
   version "4.7.6"
   resolved "https://registry.npmjs.org/thunks/-/thunks-4.7.6.tgz#ca0c35221957d969e79bbcc718ac1ae119521a41"
 
-tman@^1.6.6:
+tman@^1.6.7:
   version "1.6.7"
   resolved "https://registry.npmjs.org/tman/-/tman-1.6.7.tgz#c2ced2294bf46879897c5e6bb3ba49b6c748fc5b"
   dependencies:
@@ -2291,7 +2291,7 @@ trim-right@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/trim-right/-/trim-right-1.0.1.tgz#cb2e1203067e0c8de1f614094b9fe45704ea6003"
 
-ts-node@^3.0.2:
+ts-node@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/ts-node/-/ts-node-3.0.4.tgz#a1475ebf24fd4e2ee2fba8b1aa1605b977bde506"
   dependencies:
@@ -2313,7 +2313,7 @@ tsconfig@^6.0.0:
     strip-bom "^3.0.0"
     strip-json-comments "^2.0.0"
 
-tslib@^1.0.0, tslib@^1.6.0, tslib@^1.6.1:
+tslib@^1.0.0, tslib@^1.6.0, tslib@^1.7.1:
   version "1.7.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.7.1.tgz#bc8004164691923a79fe8378bbeb3da2017538ec"
 
@@ -2325,7 +2325,7 @@ tslint-eslint-rules@^4.0.0:
     tslib "^1.0.0"
     tsutils "^1.4.0"
 
-tslint@^5.1.0:
+tslint@^5.2.0:
   version "5.2.0"
   resolved "https://registry.npmjs.org/tslint/-/tslint-5.2.0.tgz#16a2addf20cb748385f544e9a0edab086bc34114"
   dependencies:

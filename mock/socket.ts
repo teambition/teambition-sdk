@@ -15,7 +15,7 @@ export interface RequestEvent {
 export type SocketEventType = 'activity' | 'message' | 'project' | 'task' | 'subtask' |
                               'post' | 'work' | 'tasklist' | 'stage' |
                               'collection' | 'tag' | 'user' | 'preference' | 'member' |
-                              'event' | 'subscriber' | 'feedback' | 'homeActivity'
+                              'event' | 'subscriber' | 'feedback' | 'homeActivity' | 'works'
 
 export interface ToPromiseObject {
   toPromise: () => Promise<any>
