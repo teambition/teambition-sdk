@@ -182,6 +182,42 @@ export interface UpdateSubtaskIdsResponse {
   subtaskIds: SubtaskId[]
 }
 
+export interface UpdateFavoriteResponse {
+    _id?: string,
+    _creatorId?: string,
+    _refId?: string,
+    data?: {
+      created?: string,
+      updated?: string,
+      content?: string,
+      note?: string,
+      isDone?: boolean,
+      startDate?: string,
+      dueDate?: string,
+      executor?: {
+        _id?: string,
+        name?: string,
+        avatarUrl?: string
+      },
+      project?: {
+      _id?: string,
+      name?: string
+      },
+      creator?: {
+      _id?: string,
+      name?: string,
+      avatarUrl?: string
+      }
+    },
+    updated?: string,
+    created?: string,
+    refType?: string,
+    isFavorite?: boolean,
+    isVisible?: boolean,
+    isUpdated?: boolean,
+    status?: string
+}
+
 export class TaskFetch extends Fetch {
   getTasksMe (option: TasksMeOptions): Observable<TaskData[]> {
     return this.fetch.get(`v2/tasks/me`, option)
@@ -260,6 +296,15 @@ export class TaskFetch extends Fetch {
 
   archive(_taskId: TaskId): Observable<ArchiveTaskResponse> {
     return this.fetch.post(`tasks/${_taskId}/archive`)
+  }
+
+  favorite(_taskId: TaskId): Observable<UpdateFavoriteResponse> {
+    return this.fetch.post(`tasks/${_taskId}/favorite`)
+      .map(resp => resp.data)
+  }
+
+  unfavorite(_taskId: TaskId): Observable<UpdateFavoriteResponse> {
+    return this.fetch.delete(`tasks/${_taskId}/favorite?`)
   }
 
   batchUpdateDuedate(stageId: StageId, dueDate: string): Observable<BatchUpdateDuedateResponse> {
