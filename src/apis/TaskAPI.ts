@@ -19,7 +19,8 @@ import {
   UpdateContentResponse,
   UpdateDueDateResponse,
   UpdateInvolveMembersResponse,
-  UpdateExecutorResponse
+  UpdateExecutorResponse,
+  UpdateFavoriteResponse
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 import { assign, isObject } from '../utils/index'
@@ -452,6 +453,14 @@ export class TaskAPI {
 
   unarchive(taskId: TaskId, stageId: StageId): Observable<ArchiveTaskResponse> {
     return this._updateFromRequest(taskId, TaskFetch.unarchive(taskId, stageId))
+  }
+
+  favorite(taskId: TaskId): Observable<UpdateFavoriteResponse> {
+    return this._updateFromRequest(taskId, TaskFetch.favorite(taskId))
+  }
+
+  unfavorite(taskId: TaskId): Observable<UpdateFavoriteResponse> {
+    return this._updateFromRequest(taskId, TaskFetch.unfavorite(taskId))
   }
 
   updateTags(taskId: TaskId, tags: TagId[]): Observable<UpdateTagsResponse> {
