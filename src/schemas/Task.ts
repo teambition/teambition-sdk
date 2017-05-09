@@ -43,6 +43,10 @@ export interface TaskData extends ISchema {
   attachmentsCount?: number
   likesCount?: number
   objectlinksCount?: number
+  // 新版子任务新增字段
+  ancestorIds?: string[]
+  ancestors?: any
+  parent?: any
   subtaskCount?: {
     total: number
     done: number
