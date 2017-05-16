@@ -47,7 +47,7 @@ export interface TaskData extends ISchema {
   ancestorIds?: string[]
   ancestors?: any
   parent?: any
-  subtaskCount?: {
+  subtaskCount: {
     total: number
     done: number
   }
@@ -89,6 +89,10 @@ export default class Task extends Schema<TaskData> implements TaskData {
   _executorId: UserId = undefined
   involveMembers: UserId[] = undefined
   tagIds: TagId[] = undefined
+  subtaskCount: {
+    total: number
+    done: number
+  } = undefined
   @child('Array', 'Subtask') subtasks?: Subtask[]
   @child('Object', 'Project') project?: {
     _id: ProjectId
