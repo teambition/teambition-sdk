@@ -20,6 +20,7 @@ const ctx = typeof global === 'undefined' ? window : global
 
 export class SocketClient {
   private _isDebug = false
+  private _debug = false
 
   private _client: Consumer
 
@@ -123,6 +124,10 @@ export class SocketClient {
     if (this._isDebug) {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
+    }
+    // 调试模式
+    if (this._debug) {
+      ctx['console']['log'](event.data.params)
     }
     return socketHandler(event)
       .toPromise()

@@ -22,6 +22,7 @@ import ProjectModel from '../models/ProjectModel'
 import SubscribeModel from '../models/SubscribeModel'
 import FeedbackModel from '../models/FeedbackModel'
 import ProjectFetch from '../fetchs/ProjectFetch'
+import TaskFetch from '../fetchs/TaskFetch'
 import MemberFetch from '../fetchs/MemberFetch'
 import { MessageResult, eventParser } from './EventParser'
 import { forEach } from '../utils/index'
@@ -115,6 +116,7 @@ function handler(socketMessage: MessageResult) {
     }
   }
   if (method === 'refresh') {
+    console.log(data, type)
     switch (type) {
       case 'project':
         let projectid = data
@@ -124,6 +126,11 @@ function handler(socketMessage: MessageResult) {
       case 'member':
         return MemberFetch.getOne(data)
           .concatMap(member => MemberModel.addOne(member))
+          .take(1)
+      case 'task':
+        let taskId = data
+        return TaskFetch.get(taskId)
+          .concatMap(task => TaskModel.addOne(task))
           .take(1)
     }
     return Observable.of(null)
