@@ -303,6 +303,10 @@ export class TaskFetch extends Fetch {
       .map(resp => resp.data)
   }
 
+  getSubtasks(_taskId: TaskId, query: any = {}): Observable<TaskData[]> {
+    return this.fetch.get(`tasks?_ancestorId=${_taskId}`, query)
+  }
+
   unfavorite(_taskId: TaskId): Observable<UpdateFavoriteResponse> {
     return this.fetch.delete(`tasks/${_taskId}/favorite?`)
   }
@@ -406,7 +410,7 @@ export class TaskFetch extends Fetch {
   }
 
   updateStatus(_taskId: TaskId, status: boolean): Observable<UpdateStatusResponse> {
-    return this.fetch.put(`tasks/${_taskId}`, {
+    return this.fetch.put(`tasks/${_taskId}/isDone`, {
       isDone: status
     })
   }
