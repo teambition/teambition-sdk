@@ -1,5 +1,5 @@
-[![CircleCI](https://circleci.com/gh/teambition/teambition-sdk/tree/master.svg?style=svg)](https://circleci.com/gh/teambition/teambition-sdk/tree/master)
-[![Coverage Status](https://coveralls.io/repos/github/teambition/teambition-sdk/badge.svg?branch=master)](https://coveralls.io/github/teambition/teambition-sdk?branch=master)
+[![CircleCI](https://circleci.com/gh/teambition/teambition-sdk/tree/release.svg?style=svg)](https://circleci.com/gh/teambition/teambition-sdk/tree/release)
+[![Coverage Status](https://coveralls.io/repos/github/teambition/teambition-sdk/badge.svg?branch=release)](https://coveralls.io/github/teambition/teambition-sdk?branch=release)
 [![Dependency Status](https://david-dm.org/teambition/teambition-sdk.svg)](https://david-dm.org/teambition/teambition-sdk)
 [![devDependency Status](https://david-dm.org/teambition/teambition-sdk/dev-status.svg)](https://david-dm.org/teambition/teambition-sdk?type=dev)
 
