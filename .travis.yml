@@ -2,12 +2,5 @@ language: node_js
 node_js:
   - "6"
 
-cache:
-  directories:
-  - node_modules # NPM packages
-
-install:
-  - npm install
-
 script:
   - "npm run build_all"

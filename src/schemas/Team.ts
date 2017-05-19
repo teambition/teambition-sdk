@@ -1,21 +1,16 @@
-import Member from './Member'
-import { ISchema } from './schema'
-import { IdOfMember } from '../teambition'
-import { OrganizationId } from '../teambition'
-import { Schema } from './schema'
-import { TeamId } from '../teambition'
-import { schemaName } from './schema'
+import { MemberSchema } from './Member'
+import { TeamId, UserId, OrganizationId } from 'teambition-types'
 
-export interface TeamData extends ISchema {
-  _creatorId: IdOfMember
+export interface TeamSchema {
+  _creatorId: UserId
   _id: TeamId
   _organizationId: OrganizationId
   _parentId?: TeamId | null
   created: string
-  hasMembers: Member[]
+  hasMembers: MemberSchema[]
   membersCount: number
   name: string
-  parent?: TeamData | null
+  parent?: TeamSchema | null
   pinyin: string
   pos: number
   projectsCount: number

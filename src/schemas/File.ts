@@ -35,16 +35,18 @@ export interface FileSchema {
   created: string
   updated: string
   lastVersionTime: string
+  lastUploaderId: UserId
   isArchived: boolean
   previewUrl: string
-  attachmentsCount?: number
-  commentsCount?: number
-  objectlinksCount?: number
-  pinyin?: string
-  py?: string
-  class?: string
-  isFavorite?: boolean
-  linked?: ObjectLinkSchema[]
+  shareStatus: number
+  attachmentsCount: number
+  commentsCount: number
+  objectlinksCount: number
+  pinyin: string
+  py: string
+  class: string
+  isFavorite: boolean
+  linked: ObjectLinkSchema[]
 }
 
 const schema: SchemaDef<FileSchema> = {
@@ -118,6 +120,9 @@ const schema: SchemaDef<FileSchema> = {
   isFavorite: {
     type: RDBType.BOOLEAN
   },
+  lastUploaderId: {
+    type: RDBType.STRING
+  },
   lastVersionTime: {
     type: RDBType.DATE_TIME
   },
@@ -141,6 +146,9 @@ const schema: SchemaDef<FileSchema> = {
   },
   py: {
     type: RDBType.STRING
+  },
+  shareStatus: {
+    type: RDBType.NUMBER
   },
   source: {
     type: RDBType.STRING

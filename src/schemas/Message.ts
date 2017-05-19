@@ -1,18 +1,16 @@
-import { Schema, schemaName, ISchema, child } from './schema'
 import {
   MessageId,
   UserId,
-  IdOfMember,
   ProjectId,
   OrganizationId,
   ActivityId,
   DetailObjectId,
   DetailObjectTypes
-} from '../teambition'
+} from 'teambition-types'
 
 export type MessageType = 'object' | 'system'
 
-export interface MessageData extends ISchema {
+export interface MessageSchema {
   _id: MessageId
   _userId: UserId
   type: MessageType
@@ -30,7 +28,7 @@ export interface MessageData extends ISchema {
   unreadActivitiesCount: number
   boundToObjectUpdated: string
   creator: {
-    _id: IdOfMember
+    _id: UserId
     name: string
     avatarUrl: string
     email?: string
@@ -54,39 +52,4 @@ export interface MessageData extends ISchema {
   _objectId: DetailObjectId | ProjectId
   objectType: DetailObjectTypes | 'activity' | 'room'
   mentions?: any  // deprecated
-}
-
-@schemaName('Message')
-export default class Message extends Schema<MessageData> implements MessageData {
-  _id: MessageId = undefined
-  _userId: UserId = undefined
-  type: MessageType = undefined
-  updated: string = undefined
-  created: string = undefined
-  isArchived: boolean = undefined
-  isMute: boolean = undefined
-  isAted: boolean = undefined
-  isLater: boolean = undefined
-  isRead: boolean = undefined
-  unreadActivitiesCount: number = undefined
-  boundToObjectUpdated: string = undefined
-  creator: {
-    _id: IdOfMember
-    name: string
-    avatarUrl: string
-  } = undefined
-  title: string = undefined
-  subtitle: string = undefined
-  @child('Object', 'Project') project?: {
-    _id: ProjectId
-    name: string
-    logo: string
-  }
-  @child('Object', 'Organization') organization?: {
-    _id: OrganizationId
-    name: string
-    logo: string
-  }
-  _objectId: DetailObjectId | ProjectId = undefined
-  objectType: DetailObjectTypes | 'activity' | 'room' = undefined
 }

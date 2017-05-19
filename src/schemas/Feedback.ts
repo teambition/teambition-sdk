@@ -1,15 +1,14 @@
-import { Schema, ISchema, schemaName, bloodyParentWithProperty } from './schema'
 import {
   ExecutorOrCreator,
   FeedbackId,
-  IdOfMember,
+  UserId,
   FileId,
   ProjectId
-} from '../teambition'
+} from 'teambition-types'
 
-export interface FeedbackData extends ISchema {
+export interface FeedbackSchema {
   _id: FeedbackId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   content: {
     attachments?: FileId[]
     comment: string
@@ -22,21 +21,4 @@ export interface FeedbackData extends ISchema {
   created: string
   updated: string
   creator?: ExecutorOrCreator
-}
-
-@schemaName('Feedback')
-export default class FeedbackSchema extends Schema<FeedbackData> implements FeedbackData {
-  _id: FeedbackId = undefined
-  _creatorId: IdOfMember = undefined
-  content: {
-    attachments?: FileId[]
-    comment: string
-    mentions?: {
-      [index: string]: string
-    }
-  } = undefined
-  @bloodyParentWithProperty('boundToObjectType') _boundToObjectId: ProjectId = undefined
-  boundToObjectType: 'project' = undefined
-  created: string = undefined
-  updated: string = undefined
 }

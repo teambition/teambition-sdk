@@ -1,25 +1,32 @@
+import 'rxjs/add/observable/forkJoin'
+import 'rxjs/add/operator/concat'
 import 'rxjs/add/operator/concatAll'
+import 'rxjs/add/operator/repeat'
+import 'rxjs/add/operator/switch'
+import 'rxjs/add/operator/do'
+import 'rxjs/add/operator/filter'
+import 'rxjs/add/operator/finally'
+import 'rxjs/add/operator/concatMapTo'
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+
 import { forEach } from '../utils'
 import {
   Database,
   SchemaDef,
   Query,
-  Clause,
+  Predicate,
   ExecutorResult
 } from 'reactivedb'
 
 import Dirty from '../utils/Dirty'
 import { SDKLogger } from '../utils/Logger'
 
-import { QueryToken, SelectorMeta } from 'reactivedb/proxy'
-import { ProxySelector } from 'reactivedb/proxy'
+import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 
 export enum CacheStrategy {
   Request = 200,
-  Cache,
-  Pass
+  Cache
 }
 
 export interface ApiResult<T, U extends CacheStrategy> {
@@ -27,8 +34,10 @@ export interface ApiResult<T, U extends CacheStrategy> {
   query: Query<T>
   tableName: string
   cacheValidate: U
+  required?: (keyof T)[]
   assocFields?: AssocField<T>
   excludeFields?: string[]
+  padding?: (missedId: string) => Observable<T>
 }
 
 export type AssocField<T> = {
@@ -45,32 +54,68 @@ export interface UDResult<T> {
   request: Observable<T>
   tableName: string
   method: 'update' | 'delete'
-  clause: Clause<T>
+  clause: Predicate<T>
 }
 
 export type CUDApiResult<T> = CApiResult<T> | UDResult<T>
 
 export class Net {
+
+  public fields = new Map<string, string[]>()
+  public database: Database | undefined
+
+  private requestMap = new Map<string, boolean>()
+  private primaryKeys = new Map<string, string>()
+  private CUDBuffer: Object[] = []
+  private socketCUDBuffer: Object[] = []
+  private proxySelectorBuffer: BehaviorSubject<SelectorMeta<any>>[] = []
+  private realSelectorInfoBuffer: ApiResult<any, CacheStrategy>[] = [] // use to construct real selector
+  private requestResultLength = new Map<string, number>()
+
+  private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
+    const fn = (stream$: Observable<T[]>) => stream$
+      .switchMap(data => {
+        if (!data.length) {
+          return Observable.of(data)
+        }
+        return Observable.forkJoin(
+          Observable.from(data)
+            .mergeMap(v => {
+              if (
+                result.required &&
+                result.required.some(k => typeof v[k] === 'undefined') &&
+                typeof result.padding === 'function'
+              ) {
+                return result.padding(v[this.primaryKeys.get(result.tableName)!])
+                  .do(r => Object.assign(v, r))
+              }
+              return Observable.of(v)
+            })
+          )
+          .mapTo(data)
+      })
+    fn.toString = () => 'SDK_VALIDATE'
+    return fn
+  }
+
   constructor(
-    schemas: { schema: SchemaDef<any>, name: string }[],
-    public database?: Database,
-    public fields = new Map<string, string[]>(),
-    private requestMap = new Map<string, boolean>(),
-    private CUDBuffer: Object[] = [],
-    private socketCUDBuffer: Object[] = [],
-    private proxySelectorBuffer: BehaviorSubject<SelectorMeta<any>>[] = [],
-    private realSelectorInfoBuffer: Object[] = [] // use to construct real selector
+    schemas: { schema: SchemaDef<any>, name: string }[]
   ) {
     forEach(schemas, d => {
       this.fields.set(d.name, Object.keys(d.schema).filter(k => !d.schema[k].virtual))
+      forEach(d.schema, (val, key) => {
+        if (val.primaryKey) {
+          this.primaryKeys.set(d.name, key)
+          return false
+        }
+        return true
+      })
     })
   }
 
   lift<T>(result: ApiResult<T, CacheStrategy.Cache>): QueryToken<T>
 
   lift<T>(result: ApiResult<T, CacheStrategy.Request>): QueryToken<T>
-
-  lift<T>(result: ApiResult<T, CacheStrategy.Pass>): Observable<T> | Observable<T[]>
 
   lift<T>(result: CUDApiResult<T>): Observable<T>
 
@@ -82,79 +127,13 @@ export class Net {
     }
   }
 
-  private getInfoFromResult<T>(result: ApiResult<T, CacheStrategy>) {
-    const {
-      query,
-      tableName,
-      cacheValidate,
-      request,
-      assocFields,
-      excludeFields
-    } = result as ApiResult<T, CacheStrategy>
-    const preDefinedFields = this.fields.get(tableName)
-    if (!preDefinedFields) {
-      throw new Error(`table: ${tableName} is not defined`)
-    }
-    const fields: string[] = []
-    if (assocFields) {
-      fields.push(assocFields as any)
-    }
-    const set = new Set(excludeFields)
-    forEach(this.fields.get(tableName), f => {
-      if (!set.has(f)) {
-        fields.push(f)
-      }
-    })
-    const q: Query<T> = { ...query, fields }
-    return { request, q, cacheValidate, tableName }
-  }
-
-  handleApiResult<T>(result: ApiResult<T, CacheStrategy>) {
-    if (!this.database) {
+  handleApiResult<T>(result: ApiResult<T, CacheStrategy>): QueryToken<T> | Observable<T> | Observable<T[]> {
+    const database = this.database
+    if (!database) {
       return this.bufferResponse(result)
     }
-    const database = this.database!
-    const {
-      request,
-      q,
-      cacheValidate,
-      tableName
-    } = this.getInfoFromResult(result)
 
-    const sq = JSON.stringify(q)
-    const requestCache = this.requestMap.get(sq)
-    switch (cacheValidate) {
-      case CacheStrategy.Request:
-        if (!requestCache) {
-          const selectMeta$ = request
-            .concatMap<T | T[], T>(v => database.upsert(tableName, v))
-            .do(() => this.requestMap.set(sq, true))
-            .concatMap(() => database.get<T>(tableName, q).selector$)
-          return new QueryToken<T[]>(<any>selectMeta$)
-        } else {
-          return this.database.get<T>(tableName, q)
-        }
-      case CacheStrategy.Cache:
-        const selectMeta$ = this.database
-          .get<T>(tableName, q)
-          .values()
-          .concatMap<T[], any>((cache: T[]) => {
-            if (cache.length) {
-              return database
-                .get<T>(tableName, q)
-                .selector$
-            } else {
-              return request.concatMap<T | T[], T>(val => {
-                return database.upsert(tableName, val)
-                  .concatMap(() => database.get<T>(tableName, q).selector$)
-              })
-            }
-          })
-        return new QueryToken(selectMeta$)
-      case CacheStrategy.Pass:
-      default:
-        return request
-    }
+    return this.handleRequestCache(result)
   }
 
   handleCUDAResult<T>(result: CUDApiResult<T>) {
@@ -185,39 +164,22 @@ export class Net {
       })
   }
 
-  public persist<T>(database: Database) {
+  persist(database: Database) {
     if (!this.database) {
       this.database = database
     }
     const asyncQueue: Observable<any>[] = []
-    forEach(this.realSelectorInfoBuffer, (v: any, idx) => {
-      const q = v.q
-      const sq = JSON.stringify(v.q)
-      const request = v.request
-      const tableName = v.tableName
-      const proxySelector = this.proxySelectorBuffer[idx]
-      if (v.type === CacheStrategy.Request) {
-        const p = (request as Observable<T[]> | Observable<T>)
-          .concatMap<T | T[], T>(val => database.upsert(tableName, val))
-          .do(() => this.requestMap.set(sq, true))
-          .concatMap(() => database.get<T>(tableName, q).selector$)
-          .do({
-            next(selector) {
-              proxySelector.next(selector)
-            }
-          })
-        asyncQueue.push(p)
-      } else if (v.type === CacheStrategy.Cache) {
-        const p = (request as Observable<T[]> | Observable<T>)
-          .concatMap<T | T[], T>(val => database.upsert(tableName, val))
-          .concatMap(() => database.get<T>(tableName, q).selector$)
-          .do({
-            next(selector) {
-              proxySelector.next(selector)
-            }
-          })
-        asyncQueue.push(p)
-      }
+    forEach(this.realSelectorInfoBuffer, (v, idx) => {
+      const cacheControl$ = this.proxySelectorBuffer[idx]
+      const token = this.handleRequestCache(v)
+      const selector$ = token.selector$
+      asyncQueue.push(
+        selector$.do({
+          next(selector) {
+            cacheControl$.next(selector)
+          }
+        })
+      )
     })
 
     this.realSelectorInfoBuffer.length = 0
@@ -267,24 +229,20 @@ export class Net {
       })
   }
 
-  public bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
+  bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
 
-    const {
-      request,
-      q,
-      cacheValidate,
-      tableName
-    } = this.getInfoFromResult(result)
-
+    const { request, q, tableName } = this.getInfoFromResult(result)
     const proxySelector = new ProxySelector<T>(request, q, tableName)
-    const proxySelector$ = new BehaviorSubject(proxySelector)
+    const cacheControl$: BehaviorSubject<SelectorMeta<T>> = new BehaviorSubject(proxySelector)
+    this.realSelectorInfoBuffer.push(result)
 
-    this.realSelectorInfoBuffer.push({ request, q, tableName, type: cacheValidate })
-    this.proxySelectorBuffer.push(proxySelector$)
-    return new QueryToken(proxySelector$)
+    this.proxySelectorBuffer.push(cacheControl$)
+
+    return new QueryToken(cacheControl$)
+      .map(this.validate(result))
   }
 
-  public bufferCUDResponse<T>(result: CUDApiResult<T>) {
+  bufferCUDResponse<T>(result: CUDApiResult<T>) {
     const { request, method, tableName } = result as CUDApiResult<T>
     return request.do((v: T | T[]) => {
       this.CUDBuffer.push({
@@ -295,7 +253,7 @@ export class Net {
     })
   }
 
-  public bufferSocketPush(
+  bufferSocketPush(
     arg: string,
     socketMessage: Object,
     pkName: string,
@@ -303,6 +261,78 @@ export class Net {
   ) {
     this.socketCUDBuffer.push({ arg, socketMessage, pkName, type })
     return Observable.of(null)
+  }
+
+  private handleRequestCache<T>(result: ApiResult<T, CacheStrategy>) {
+    const database = this.database!
+    const {
+      request,
+      q,
+      cacheValidate,
+      tableName
+    } = this.getInfoFromResult(result)
+
+    const sq = JSON.stringify(q)
+    const requestCache = this.requestMap.get(sq)
+    let token: QueryToken<T>
+    switch (cacheValidate) {
+      case CacheStrategy.Request:
+        if (!requestCache) {
+          const selector$ = request
+            .do<T | T[]>(r => {
+              if (Array.isArray(r)) {
+                this.requestResultLength.set(sq, r.length)
+              }
+            })
+            .concatMap(v => database
+              .upsert(tableName, v)
+              .mapTo(Array.isArray(v) ? v : [v])
+            )
+            .do(() => this.requestMap.set(sq, true))
+            .concatMap(() => database.get(tableName, q).selector$)
+          token = new QueryToken(selector$).map(this.validate(result))
+          break
+        } else {
+          token = database.get<T>(tableName, q)
+            .map(this.validate(result))
+          break
+        }
+      case CacheStrategy.Cache:
+        const selector$ = request
+          .concatMap((r: T | T[]) => database.upsert(tableName, r))
+          .concatMap(() => database.get(tableName, q).selector$)
+        return new QueryToken(selector$)
+      default:
+        throw new TypeError('unreachable code path')
+    }
+    return token
+  }
+
+  private getInfoFromResult<T>(result: ApiResult<T, CacheStrategy>) {
+    const {
+      query,
+      tableName,
+      cacheValidate,
+      request,
+      assocFields,
+      excludeFields
+    } = result as ApiResult<T, CacheStrategy>
+    const preDefinedFields = this.fields.get(tableName)
+    if (!preDefinedFields) {
+      throw new TypeError(`table: ${tableName} is not defined`)
+    }
+    const fields: string[] = []
+    if (assocFields) {
+      fields.push(assocFields as any)
+    }
+    const set = new Set(excludeFields)
+    forEach(this.fields.get(tableName), f => {
+      if (!set.has(f)) {
+        fields.push(f)
+      }
+    })
+    const q: Query<T> = { ...query, fields }
+    return { request, q, cacheValidate, tableName }
   }
 
 }

@@ -1,3 +1,4 @@
+import 'rxjs/add/operator/toArray'
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
 import { SDKFetch } from '../../SDKFetch'
@@ -26,8 +27,8 @@ export function getEvent(
   this: SDK,
   eventId: EventId,
   query?: any
-): QueryToken<IterableIterator<EventSchema>> {
-  const token: QueryToken<any> = this.lift<EventSchema>({
+): QueryToken<EventGenerator> {
+  const token: QueryToken<EventSchema> = this.lift<EventSchema>({
     cacheValidate: CacheStrategy.Cache,
     tableName: 'Event',
     request: this.fetch.getEvent(eventId, query),
@@ -40,7 +41,7 @@ export function getEvent(
     excludeFields: [ 'project' ]
   })
 
-  return token.map((e: EventSchema) => new EventGenerator(e))
+  return token.map(e$ => e$.map(events => events.map(e => new EventGenerator(e))))
 }
 
 SDK.prototype.getEvent = getEvent

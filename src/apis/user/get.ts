@@ -7,7 +7,7 @@ export function getUserMe (
 ): QueryToken<UserMe> {
   return this.lift({
     request: this.fetch.getUserMe(),
-    cacheValidate: CacheStrategy.Request,
+    cacheValidate: CacheStrategy.Cache,
     tableName: 'User',
     query: { }
   })

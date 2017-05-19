@@ -1,8 +1,18 @@
 machine:
+  environment:
+    PATH: "${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin"
   node:
     version: 6
 
+dependencies:
+  override:
+    - yarn
+  cache_directories:
+    - ~/.cache/yarn
+
 test:
+  override:
+    - yarn test
   post:
     - npm run build_cjs && npm run check_circular_dependencies
     - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js

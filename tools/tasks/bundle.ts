@@ -45,17 +45,17 @@ export function bundle (entry: string, output: string, name: string) {
       const compilerFlags = {
         jsCode: [{ src: source }],
         compilationLevel: 'ADVANCED',
-        languageIn: 'ES5',
-        createSourceMap: true,
+        languageIn: 'ECMASCRIPT6',
+        createSourceMap: true
       }
       const result: any = compiler(compilerFlags)
-      const minPath = `dist/bundle/${output.split('/').pop()!.split('.')[0]}.min.js`
+      const minPath = `dist/bundle/${output.split('/').pop()!.split('.')[1]}.min.js`
       const code = result.compiledCode
       fs.writeFileSync(minPath, code, 'utf8')
       fs.writeFileSync(`${minPath}.map`, result.sourceMap, 'utf8')
       console.info(blue(minPath) + ' ' + getSize(code))
     })
-    .catch((e: Error) => console.error(e.stack))
+    .catch((e: Error) => console.error(e))
 }
 
 export function write (dest: string, code: string) {

@@ -12,23 +12,17 @@ import { SDKFetch } from './SDKFetch'
 import { SocketClient } from './sockets/SocketClient'
 import { SchemaColl } from './utils/internalTypes'
 
-export enum CacheStrategy {
-  Request = 200,
-  Cache,
-  Pass
-}
-
 export const schemas: SchemaColl = []
 
-export class SDK {
-  public net: Net
-  fetch = new SDKFetch
-  socketClient: SocketClient
-  public database: Database
+export { CacheStrategy } from './Net'
 
-  constructor() {
-    this.net = new Net(schemas)
-    this.socketClient = new SocketClient(this.fetch, this.net, schemas)
+export class SDK {
+  net = new Net(schemas)
+  fetch = new SDKFetch
+  socketClient: SocketClient = new SocketClient(this.fetch, this.net, schemas)
+  database: Database
+  lift: typeof Net.prototype.lift = (ApiResult: any): any => {
+    return this.net.lift(ApiResult)
   }
 
   initReactiveDB (db: Database): Observable<void[]> {
@@ -40,10 +34,6 @@ export class SDK {
 
     this.socketClient.initReactiveDB(this.database)
     return this.net.persist(this.database)
-  }
-
-  get lift(): typeof Net.prototype.lift {
-    return this.net.lift.bind(this.net)
   }
 
 }
