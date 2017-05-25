@@ -225,11 +225,22 @@ export interface ShareId extends String {
   kind?: 'ShareId'
 }
 
+export interface CustomFieldId extends String {
+  kind?: 'CustomfieldId'
+}
+
+export type CustomFieldType = 'text' | 'date' | 'number' | 'multipleChoice' | 'dropDown'
+
 export type CommentMode = 'no_comment' | 'isolated_comment' | 'public_comment'
 
 export type DetailObjectId = TaskId | PostId | EventId | FileId | EntryId
 
 export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
+
+export type CustomFieldChoice = {
+  value: string,
+  _id: string
+}
 
 export interface TeamId extends String {
   kind?: 'TeamId'
