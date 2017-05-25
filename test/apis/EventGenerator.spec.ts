@@ -19,7 +19,14 @@ describe('EventGenerator spec', () => {
     expect(eventGenerator).to.be.instanceof(EventGenerator)
   })
 
-  it('should get next event', () => {
+  it('should get next event for a normal event', () => {
+    const egenOfNormal = new EventGenerator(normalEvent as any)
+    const { done, value } = egenOfNormal.next()
+    expect(done).to.true
+    expect(value).to.deep.equal(normalEvent)
+  })
+
+  it('should get next event for a recurrent event', () => {
     const nextEvent = eventGenerator.next()
     const expected = clone(recurrenceByMonth);
     ['_id', 'startDate', 'endDate']
@@ -27,15 +34,39 @@ describe('EventGenerator spec', () => {
         delete nextEvent.value[f]
         delete expected[f]
       })
+    expect(nextEvent.done).to.false
     expect(nextEvent.value).to.deep.equal(expected)
   })
 
   it('next and next should return correct value', () => {
     eventGenerator.next()
     const nextEvent = eventGenerator.next()
+    expect(nextEvent.done).to.false
     expect(nextEvent.value.startDate).to.deep.equal(Moment(recurrenceByMonth.startDate).add(1, 'month').toISOString())
     const nextEvent1 = eventGenerator.next()
+    expect(nextEvent.done).to.false
     expect(nextEvent1.value.startDate).to.deep.equal(Moment(recurrenceByMonth.startDate).add(2, 'month').toISOString())
+  })
+
+  it('next, ... will come to { done: true } for a recurrent event that has an end', () => {
+    const egen = new EventGenerator(recurrenceHasEnd as any)
+    const until = new Date(recurrenceHasEnd.untilDate)
+    let next = egen.next()
+    let nextnext = egen.next()
+    let nstart: string
+    let nnstart: string
+    for (; ; next = nextnext, nextnext = egen.next()) {
+      nstart = next.value.startDate
+      nnstart = nextnext.value.startDate
+      if (!nnstart) {
+        expect(next.done).to.true
+      }
+      if (new Date(nnstart).valueOf() === until.valueOf()) {
+        expect(nextnext.done).to.true
+        return
+      }
+      expect(next.done).to.false
+    }
   })
 
   it('takeUntil an out range Date should return empty array', () => {

@@ -97,7 +97,7 @@ export const recurrenceHasEnd = {
   ],
   _projectId: '56988fb705ead4ae7bb8dcfe',
   _creatorId: '56986d43542ce1a2798c8cfb',
-  untilDate: '2016-12-12T08:00:00.000Z',
+  untilDate: '2016-12-29T08:00:00.000Z',
   tagIds: [
     '56b16f4d8c2f109f7aeb0d52',
     '578c950607bb039102f9e377'
