@@ -116,7 +116,6 @@ function handler(socketMessage: MessageResult) {
     }
   }
   if (method === 'refresh') {
-    console.log(data, type)
     switch (type) {
       case 'project':
         let projectid = data

@@ -25,6 +25,7 @@ export interface TaskData extends ISchema {
   isDone: boolean
   isArchived: boolean
   created: string
+  customfields?: any[]
   updated: string
   visible: visibility
   _stageId: StageId
@@ -82,6 +83,7 @@ export default class Task extends Schema<TaskData> implements TaskData {
   created: string = undefined
   updated: string = undefined
   visible: visibility = undefined
+  customfields: any[] = undefined
   @bloodyParent('Stage') _stageId: StageId = undefined
   _creatorId: UserId = undefined
   _tasklistId: TasklistId = undefined
