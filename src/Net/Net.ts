@@ -87,6 +87,10 @@ export class Net {
                 typeof result.padding === 'function'
               ) {
                 return result.padding(v[this.primaryKeys.get(result.tableName)!])
+                  .concatMap(r => this.database!
+                    .upsert(result.tableName, r)
+                    .mapTo(r)
+                  )
                   .do(r => Object.assign(v, r))
               }
               return Observable.of(v)
