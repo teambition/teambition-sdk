@@ -1,3 +1,6 @@
+import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
+import { schemas } from '../SDK'
+import { MemberSchema } from '.'
 import {
   ExecutorOrCreator,
   ActivityId,
@@ -38,7 +41,22 @@ export interface Voice {
   thumbnail: string
 }
 
-export interface ActivityData {
+export interface Share {
+  isShareObject: boolean
+  obj_id: string
+  url: string
+  type: string
+  _type: string
+  imgUrl: string
+  title: string
+  fileName: string
+  fileType: string
+  thumbnail: string
+  mobileShareLink: string
+  description: string
+}
+
+export interface ActivitySchema {
   _boundToObjectId: DetailObjectId
   _creatorId: string
   _id: ActivityId
@@ -53,6 +71,7 @@ export interface ActivityData {
     mentions: {
       [index: string]: string
     }
+    share: Share
     attachmentsName: string
     creator: string
     executor: string
@@ -92,7 +111,6 @@ export interface ActivityData {
   created: number
   creator: ExecutorOrCreator
   rawAction: string
-  rootId: string
   title: string
   isComment: boolean
   icon: string
@@ -104,3 +122,66 @@ export interface ActivityData {
   }
   locales: Locales
 }
+
+const schema: SchemaDef<ActivitySchema> = {
+  _boundToObjectId: {
+    type: RDBType.STRING
+  },
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  action: {
+    type: RDBType.STRING
+  },
+  boundToObjectType: {
+    type: RDBType.STRING
+  },
+  content: {
+    type: RDBType.OBJECT
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  creator: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'Member',
+      where: (memberTable: MemberSchema) => ({
+        _creatorId: memberTable._id
+      })
+    }
+  },
+  rawAction: {
+    type: RDBType.STRING
+  },
+  title: {
+    type: RDBType.STRING
+  },
+  isComment: {
+    type: RDBType.BOOLEAN
+  },
+  icon: {
+    type: RDBType.STRING
+  },
+  creatorName: {
+    type: RDBType.STRING
+  },
+  creatorAvatar: {
+    type: RDBType.STRING
+  },
+  comment: {
+    type: RDBType.STRING
+  },
+  linked: {
+    type: RDBType.OBJECT
+  },
+  locales: {
+    type: RDBType.OBJECT
+  }
+}
+
+schemas.push({ schema, name: 'Activity' })
