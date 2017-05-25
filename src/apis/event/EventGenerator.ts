@@ -38,7 +38,7 @@ export class EventGenerator implements IterableIterator<EventSchema> {
     target.startDate = this.startDate.toISOString()
     target.endDate = new Date(startDateVal + this.interval).toISOString()
     const result = {
-      done: !!afterDate,
+      done: !afterDate,
       value: target
     }
     this.startDate = afterDate
