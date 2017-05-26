@@ -75,7 +75,7 @@ const Schema: SchemaDef<PreferenceSchema> = {
     type: RDBType.BOOLEAN
   },
   tasklist: {
-    type: RDBType.LITERAL_ARRAY
+    type: RDBType.OBJECT
   },
   tips: {
     type: RDBType.OBJECT
