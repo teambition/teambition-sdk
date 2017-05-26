@@ -1,12 +1,6 @@
 import 'rxjs/add/observable/forkJoin'
-import 'rxjs/add/operator/concat'
 import 'rxjs/add/operator/concatAll'
-import 'rxjs/add/operator/repeat'
-import 'rxjs/add/operator/switch'
 import 'rxjs/add/operator/do'
-import 'rxjs/add/operator/filter'
-import 'rxjs/add/operator/finally'
-import 'rxjs/add/operator/concatMapTo'
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 
@@ -87,6 +81,10 @@ export class Net {
                 typeof result.padding === 'function'
               ) {
                 return result.padding(v[this.primaryKeys.get(result.tableName)!])
+                  .concatMap(r => this.database!
+                    .upsert(result.tableName, r)
+                    .mapTo(r)
+                  )
                   .do(r => Object.assign(v, r))
               }
               return Observable.of(v)
