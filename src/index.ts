@@ -1,9 +1,9 @@
 /// <reference path="./teambition.ts" />
 import 'tslib'
 
-import { forEach, clone, uuid, concat, dropEle } from './utils/index'
+import { forEach, clone, uuid, concat, dropEle, pagination } from './utils/index'
 
-export const Utils = { forEach, clone, uuid, concat, dropEle }
+export const Utils = { forEach, clone, uuid, concat, dropEle, pagination }
 export * from './utils/Fetch'
 export { eventParser } from './sockets/EventParser'
 
