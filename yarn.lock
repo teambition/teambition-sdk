@@ -2,11 +2,7 @@
 # yarn lockfile v1
 
 
-"@types/chai@*":
-  version "3.5.2"
-  resolved "https://registry.npmjs.org/@types/chai/-/chai-3.5.2.tgz#c11cd2817d3a401b7ba0f5a420f35c56139b1c1e"
-
-"@types/chai@^4.0.0":
+"@types/chai@*", "@types/chai@^4.0.0":
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/chai/-/chai-4.0.0.tgz#4c9adabd2d04265769e6d9e847e86cc404dc7dcd"
 
@@ -1920,8 +1916,8 @@ rc@^1.1.6:
     strip-json-comments "~2.0.1"
 
 reactivedb@~0.9.6:
-  version "0.9.6"
-  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.9.6.tgz#8db0560e332602ff3a2fd82d3d7db07275feaa16"
+  version "0.9.8"
+  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.9.8.tgz#349907435386d11b5a30328f3913893bb74c8e17"
   dependencies:
     "@types/lovefield" "^2.0.32"
     lovefield "2.1.12"

@@ -2,8 +2,8 @@ import 'rxjs/add/observable/forkJoin'
 import 'rxjs/add/operator/concatAll'
 import 'rxjs/add/operator/do'
 import { Observable } from 'rxjs/Observable'
+import { QueryToken, SelectorMeta, ProxySelector, JoinMode } from 'reactivedb/proxy'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 import {
   Database,
   SchemaDef,
@@ -316,18 +316,18 @@ export class Net {
               .mapTo(Array.isArray(v) ? v : [v])
             )
             .do(() => this.requestMap.set(sq, true))
-            .concatMap(() => database.get(tableName, q).selector$)
+            .concatMap(() => database.get(tableName, q, JoinMode.explicit).selector$)
           token = new QueryToken(selector$).map(this.validate(result))
           break
         } else {
-          token = database.get<T>(tableName, q)
+          token = database.get<T>(tableName, q, JoinMode.explicit)
             .map(this.validate(result))
           break
         }
       case CacheStrategy.Cache:
         const selector$ = request
           .concatMap((r: T | T[]) => database.upsert(tableName, r))
-          .concatMap(() => database.get(tableName, q).selector$)
+          .concatMap(() => database.get(tableName, q, JoinMode.explicit).selector$)
         return new QueryToken(selector$)
       default:
         throw new TypeError('unreachable code path')
