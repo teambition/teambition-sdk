@@ -1,10 +1,8 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
-import { SubtaskSchema } from './Subtask'
 import { schemas } from '../SDK'
 import {
   ExecutorOrCreator,
   Visibility,
-  SubtaskId,
   TagId,
   TaskId,
   StageId,
@@ -18,6 +16,7 @@ import {
 
 export interface TaskSchema {
   _id: TaskId
+  ancestorIds: TaskId[]
   content: string
   note: string
   accomplished: string
@@ -35,14 +34,13 @@ export interface TaskSchema {
   _tasklistId: TasklistId
   _projectId: ProjectId
   _executorId: UserId
+  _taskId: TaskId
   involveMembers: UserId[]
   tagIds: TagId []
   recurrence: string
   pos: number
   _sourceId: string
   sourceDate: string
-  subtasks: Partial<SubtaskSchema>[]
-  subtaskIds: SubtaskId[]
   source: string
   customfields: CustomFields[]
   involvers: ExecutorOrCreator[]
@@ -66,7 +64,14 @@ export interface TaskSchema {
     _id: TasklistId
   }
   type: 'task'
-  isFavorite: boolean,
+  isFavorite: boolean
+  parent: {
+    _id: TaskId
+    content: string
+    _creatorId: UserId
+    _executorId: UserId
+    isDone: boolean
+  }
   project: {
     _id: ProjectId
     name: string
@@ -95,11 +100,17 @@ const schema: SchemaDef<TaskSchema> = {
   _stageId: {
     type: RDBType.STRING
   },
+  _taskId: {
+    type: RDBType.STRING
+  },
   _tasklistId: {
     type: RDBType.STRING
   },
   accomplished: {
     type: RDBType.DATE_TIME
+  },
+  ancestorIds: {
+    type: RDBType.LITERAL_ARRAY
   },
   attachmentsCount: {
     type: RDBType.NUMBER
@@ -155,6 +166,15 @@ const schema: SchemaDef<TaskSchema> = {
   objectlinksCount: {
     type: RDBType.NUMBER
   },
+  parent: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'Task',
+      where: (taskTable: any) => ({
+        _taskId: taskTable._id
+      })
+    }
+  },
   pos: {
     type: RDBType.NUMBER
   },
@@ -199,18 +219,6 @@ const schema: SchemaDef<TaskSchema> = {
   },
   subtaskCount: {
     type: RDBType.NUMBER
-  },
-  subtaskIds: {
-    type: RDBType.LITERAL_ARRAY
-  },
-  subtasks: {
-    type: Relationship.oneToMany,
-    virtual: {
-      name: 'Subtask',
-      where: (subtaskTable: any) => ({
-        _id: (subtaskTable as any)._taskId
-      })
-    }
   },
   tagIds: {
     type: RDBType.LITERAL_ARRAY

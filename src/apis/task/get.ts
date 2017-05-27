@@ -37,14 +37,9 @@ export function getTask(
       executor: [ '_id', 'name', 'avatarUrl' ],
       stage: ['_id', 'name'],
       tasklist: ['_id', 'title'],
-      subtasks: [
-        '_id', '_projectId', '_creatorId', 'content', 'isDone', '_executorId',
-        '_taskId', 'dueDate', 'order', 'created', 'updated', {
-          executor: [ '_id', 'name', 'avatarUrl' ]
-        }
-      ]
+      parent: ['_id', '_creatorId', '_executorId', 'content', 'isDone']
     },
-    excludeFields: ['project', 'isDeleted', 'source', 'subtaskIds', 'type', 'url']
+    excludeFields: ['project', 'ancestors', 'isDeleted', 'source', 'subtaskIds', 'type', 'url', 'recurrence']
   })
 }
 

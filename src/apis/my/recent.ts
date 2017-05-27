@@ -3,7 +3,7 @@ import { QueryToken } from 'reactivedb'
 import { forEach } from '../../utils'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
-import { TaskSchema, EventSchema, SubtaskSchema } from '../../schemas'
+import { TaskSchema, EventSchema } from '../../schemas'
 import { UserId } from 'teambition-types'
 import { EventGenerator } from '../event/EventGenerator'
 
@@ -15,18 +15,14 @@ export interface RecentEventData extends EventSchema {
   type: 'event'
 }
 
-export interface RecentSubtaskData extends SubtaskSchema {
-  type: 'subtask'
-}
-
 export interface MyRecentQuery {
   dueDate: string
   startDate?: string
 }
 
-export type RecentData = RecentEventData | RecentSubtaskData | RecentTaskData
+export type RecentData = RecentEventData | RecentTaskData
 
-export type RecentResult = EventGenerator | RecentSubtaskData | RecentTaskData
+export type RecentResult = EventGenerator | RecentTaskData
 
 export function getMyRecentFetch(
   this: SDKFetch,
@@ -73,11 +69,13 @@ export function getMyRecent(
       }
     },
     assocFields: {
-      project: [ '_id', 'isArchived', 'name' ]
+      project: [ '_id', 'isArchived', 'name' ],
+      parent: ['_id', 'content', '_creatorId', '_executorId', 'isDone'],
+      executor: ['_id', 'name', 'avatarUrl']
     },
     excludeFields: [
-      'subtask', 'executor', 'stage', 'tasklist', 'attachmentsCount',
-      'commentsCount', 'involvers', 'likesCount', 'shareStatus', 'subtaskCount'
+      'stage', 'tasklist', 'attachmentsCount',
+      'commentsCount', 'involvers', 'likesCount', 'shareStatus'
     ]
   })
 
@@ -139,33 +137,7 @@ export function getMyRecent(
   })
 
   eventToken = eventToken.map(e$ => e$.map(events => events.map(e => new EventGenerator(e))))
-
-  let subtaskToken = this.lift<RecentData>({
-    cacheValidate: CacheStrategy.Request,
-    tableName: 'Subtask',
-    request: request.map(v => v.filter(s => s.type === 'subtask')),
-    query: {
-      where: {
-        _executorId: userId,
-        dueDate: {
-          $lte: dueDate
-        }
-      }
-    },
-    assocFields: {
-      project: ['_id', 'name', 'isArchived'],
-      task: ['_id', 'content']
-    },
-    excludeFields: [ 'order' ]
-  })
-
-  subtaskToken = subtaskToken.map(task$ => task$
-    .do(subtasks => forEach(subtasks, subtask => {
-      subtask.type = 'subtask'
-    })
-  ))
-
-  return <any>taskToken.combine(eventToken, subtaskToken)
+  return <any>taskToken.combine(eventToken)
 }
 
 SDK.prototype.getMyRecent = getMyRecent

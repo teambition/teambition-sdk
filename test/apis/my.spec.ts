@@ -26,13 +26,13 @@ describe('MyApi Spec', () => {
       mockResponse(Fixture.myRecent)
 
       const token = sdk.getMyRecent(userId, {
-        dueDate: '2017-02-13T03:38:54.252Z',
+        dueDate: '2017-05-13T03:38:54.252Z',
         startDate: '2016-12-31T16:00:00.000Z'
       })
 
       yield token.values()
         .do(r => {
-          const compareFn = (x, y) => {
+          const compareFn = (x: TaskSchema, y: TaskSchema) => {
             return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
              + new Date(x.created).valueOf() - new Date(y.created).valueOf()
           }
@@ -47,6 +47,7 @@ describe('MyApi Spec', () => {
               if (!(_r as TaskSchema).uniqueId) {
                 delete (_r as TaskSchema).uniqueId
               }
+              delete (_r as any).subtaskIds
             }
             if (_r instanceof EventGenerator) {
               return _r.next().value
@@ -55,7 +56,10 @@ describe('MyApi Spec', () => {
           })
           .sort(compareFn)
 
-          expect(actual).to.deep.equal(expected)
+          expected.forEach((v) => {
+            const [ item ] = actual.filter(f => f._id === v._id)
+            expect(v).to.deep.equal(item)
+          })
         })
     })
 

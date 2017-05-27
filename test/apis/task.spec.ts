@@ -9,6 +9,8 @@ describe('TaskApi Spec', () => {
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
   let socket: SocketMock
 
+  delete Fixture.task.ancestors
+
   beforeEach(() => {
     sdk = createSdk()
     mockResponse = mock(sdk)

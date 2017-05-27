@@ -89,7 +89,7 @@ describe('Async load reactivedb Spec', () => {
       mockResponse(myFixture.myRecent)
 
       const token = sdk.getMyRecent(userId, {
-        dueDate: '2017-02-13T03:38:54.252Z',
+        dueDate: '2017-05-13T03:38:54.252Z',
         startDate: '2016-12-31T16:00:00.000Z'
       })
 
