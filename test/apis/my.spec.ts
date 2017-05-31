@@ -36,7 +36,7 @@ describe('MyApi Spec', () => {
             return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
              + new Date(x.created).valueOf() - new Date(y.created).valueOf()
           }
-          const expected = Fixture.myRecent.sort(compareFn)
+          const expected = Fixture.norm(Fixture.myRecent).sort(compareFn)
           const actual = r.map(_r => {
             if (_r.type === 'task') {
               if (!(_r as TaskSchema).recurrence) {
@@ -49,9 +49,7 @@ describe('MyApi Spec', () => {
               }
             }
             if (_r instanceof EventGenerator) {
-              const dist = _r.next().value
-              dist._id = dist._sourceId
-              return dist
+              return _r.next().value
             }
             return _r
           })

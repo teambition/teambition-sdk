@@ -4,6 +4,7 @@ import * as Moment from 'moment'
 import {
   recurrenceByMonth,
   recurrenceHasEnd,
+  recurrenceStartAtAnExcludedDate,
   normalEvent
 } from '../fixtures/events.fixture'
 import { EventGenerator } from '../../src/apis/event/EventGenerator'
@@ -67,6 +68,17 @@ describe('EventGenerator spec', () => {
       }
       expect(next.done).to.false
     }
+  })
+
+  it('next should start correctly when the recurrence starts at an excluded date', () => {
+    const egen = new EventGenerator(recurrenceStartAtAnExcludedDate as any)
+    const actual = egen.next().value
+    delete actual['_id']
+    const expected = clone(recurrenceStartAtAnExcludedDate)
+    delete expected['_id']
+    expected.startDate = '2017-06-07T09:00:00.000Z'
+    expected.endDate = '2017-06-07T10:00:00.000Z'
+    expect(actual).to.deep.equal(expected)
   })
 
   it('takeUntil an out range Date should return empty array', () => {

@@ -32,11 +32,13 @@ export class EventGenerator implements IterableIterator<EventSchema> {
       return { value: clone(this.event), done: true }
     }
     const target = clone(this.event)
-    const startDateVal = this.startDate.valueOf()
-    const afterDate = this.rrule.after(this.startDate)
+    const startDate = this.rrule.after(this.startDate, true)
+    const startDateVal = startDate.valueOf()
+    const endDate = new Date(startDateVal + this.interval)
+    const afterDate = this.rrule.after(endDate, true)
     target._id = `${target._id}_${startDateVal}`
-    target.startDate = this.startDate.toISOString()
-    target.endDate = new Date(startDateVal + this.interval).toISOString()
+    target.startDate = startDate.toISOString()
+    target.endDate = endDate.toISOString()
     const result = {
       done: !afterDate,
       value: target

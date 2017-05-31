@@ -132,6 +132,32 @@ export const recurrenceHasEnd = {
   isFavorite: false
 }
 
+export const recurrenceStartAtAnExcludedDate = {
+  _id: '592e8be1540a55e5d9200d9e',
+  endDate: '2017-05-31T10:00:00.000Z',
+  startDate: '2017-05-31T09:00:00.000Z',
+  _projectId: '574bdf1c09bf88bd4f1dbb02',
+  location: '',
+  content: '',
+  title: 'weekly',
+  _creatorId: '55c02018fd0360a44c93ff97',
+  tagIds: [],
+  updated: '2017-05-31T09:25:05.245Z',
+  created: '2017-05-31T09:24:49.043Z',
+  visible: 'members',
+  isArchived: false,
+  involveMembers: ['55c02018fd0360a44c93ff97'],
+  status: '',
+  untilDate: null,
+  _sourceId: '592e8be1540a55e5d9200d9e',
+  sourceDate: '2017-05-31T09:00:00.000Z',
+  recurrence: ['RRULE:FREQ=WEEKLY;DTSTART=20170531T090000Z;INTERVAL=1', 'EXDATE:20170531T090000Z'],
+  reminders: [],
+  objectlinksCount: 0,
+  isFavorite: false,
+  shareStatus: 0
+}
+
 export const projectEvents = [
   {
     _id: '579033c828bb08a462fe352c',
