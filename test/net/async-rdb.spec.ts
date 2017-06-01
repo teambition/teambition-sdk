@@ -14,7 +14,7 @@ import { projectPosts } from '../fixtures/posts.fixture'
 import like from '../fixtures/like.fixture'
 import userMe from '../fixtures/user.fixture'
 import { task } from '../fixtures/tasks.fixture'
-import { myRecent } from '../fixtures/my.fixture'
+import * as myFixture from '../fixtures/my.fixture'
 import { EventGenerator } from '../../src/apis/event/EventGenerator'
 
 import { mock, restore, equals } from '../utils'
@@ -24,7 +24,7 @@ describe('Async load reactivedb Spec', () => {
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
   let socket: SocketMock
 
-  const userId = myRecent[0]['_executorId']
+  const userId = myFixture.myRecent[0]['_executorId']
 
   beforeEach(() => {
     sdk = createSdkWithoutRDB()
@@ -86,7 +86,7 @@ describe('Async load reactivedb Spec', () => {
   describe('ReactiveDB async load in', () => {
 
     it('getMyRecent should response correct data when reactivedb async load in', done => {
-      mockResponse(myRecent)
+      mockResponse(myFixture.myRecent)
 
       const token = sdk.getMyRecent(userId, {
         dueDate: '2017-02-13T03:38:54.252Z',
@@ -101,7 +101,7 @@ describe('Async load reactivedb Spec', () => {
             return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
               + new Date(x.created).valueOf() - new Date(y.created).valueOf()
           }
-          const expected = myRecent.sort(compareFn)
+          const expected = myFixture.norm(myFixture.myRecent).sort(compareFn)
           const actual = r.map(_r => {
             if (_r.type === 'task') {
               if (!(_r as TaskSchema).recurrence) {
@@ -114,9 +114,7 @@ describe('Async load reactivedb Spec', () => {
               }
             }
             if (_r instanceof EventGenerator) {
-              const dist = _r.next().value
-              dist._id = dist._sourceId
-              return dist
+              return _r.next().value
             }
             return _r
           })

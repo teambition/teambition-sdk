@@ -1,3 +1,19 @@
+import { EventSchema } from '../index'
+import { EventGenerator } from '../../src/apis/event/EventGenerator'
+
+export function norm(myRecent: any[]): any[] {
+  const transFns: any[] = [firstOfARecurrentEvent]
+  return myRecent.map((x) => transFns.reduce((y, f) => f(y), x))
+}
+
+function firstOfARecurrentEvent(recent: any): any | EventSchema {
+  if (!recent.recurrence || !recent.recurrence.length || recent.type === 'task') {
+    return recent
+  }
+  const egen = new EventGenerator(recent)
+  return egen.next().value
+}
+
 export const myRecent = [
   {
     _id: '5698933d78eaa265030f9c37',
