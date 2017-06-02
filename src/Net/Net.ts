@@ -3,8 +3,7 @@ import 'rxjs/add/operator/concatAll'
 import 'rxjs/add/operator/do'
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-
-import { forEach } from '../utils'
+import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 import {
   Database,
   SchemaDef,
@@ -13,10 +12,9 @@ import {
   ExecutorResult
 } from 'reactivedb'
 
+import { forEach } from '../utils'
 import Dirty from '../utils/Dirty'
 import { SDKLogger } from '../utils/Logger'
-
-import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 
 export enum CacheStrategy {
   Request = 200,
@@ -53,17 +51,42 @@ export interface UDResult<T> {
 
 export type CUDApiResult<T> = CApiResult<T> | UDResult<T>
 
+export type CUDBufferObject = {
+  kind: 'CUD'
+  tableName: string
+  method: string
+  value: any
+}
+
+export type SocketMessage = {
+  id: string
+  method: string
+  data: any
+}
+
+export type SocketCUDBufferObject = {
+  kind: 'SocketCUD'
+  arg: string
+  socketMessage: SocketMessage
+  pkName: string
+  type: any
+}
+
+export type SelectorBufferObject = {
+  kind: 'Selector'
+  realSelectorInfo: ApiResult<any, CacheStrategy>
+  proxySelector: BehaviorSubject<SelectorMeta<any>>
+}
+
+export type BufferObject = CUDBufferObject | SocketCUDBufferObject | SelectorBufferObject
+
 export class Net {
 
   public fields = new Map<string, string[]>()
   public database: Database | undefined
-
   private requestMap = new Map<string, boolean>()
   private primaryKeys = new Map<string, string>()
-  private CUDBuffer: Object[] = []
-  private socketCUDBuffer: Object[] = []
-  private proxySelectorBuffer: BehaviorSubject<SelectorMeta<any>>[] = []
-  private realSelectorInfoBuffer: ApiResult<any, CacheStrategy>[] = [] // use to construct real selector
+  private persistedDataBuffer: BufferObject[] = []
   private requestResultLength = new Map<string, number>()
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
@@ -167,55 +190,51 @@ export class Net {
       this.database = database
     }
     const asyncQueue: Observable<any>[] = []
-    forEach(this.realSelectorInfoBuffer, (v, idx) => {
-      const cacheControl$ = this.proxySelectorBuffer[idx]
-      const token = this.handleRequestCache(v)
-      const selector$ = token.selector$
-      asyncQueue.push(
-        selector$.do({
-          next(selector) {
-            cacheControl$.next(selector)
-          }
-        })
-      )
-    })
-
-    this.realSelectorInfoBuffer.length = 0
-    this.proxySelectorBuffer.length = 0
-
-    forEach(this.CUDBuffer, (v: any) => {
-      const p = database[v.method](v.tableName, v.value)
-      asyncQueue.push(p)
-    })
-
-    forEach(this.socketCUDBuffer, (v: any) => {
-      const socketMessage = v.socketMessage
-      const type = v.type
-      const arg = v.arg
-      const pkName = v.pkName
-      if (socketMessage.method === 'destroy' || socketMessage.method === 'remove') {
-        const p = database.delete(arg, {
-          where: { [pkName]: socketMessage.id || socketMessage.data }
-        })
+    forEach(this.persistedDataBuffer, (v: BufferObject) => {
+      if (v.kind === 'CUD') {
+        const p = database[(v as CUDBufferObject).method](v.tableName, v.value)
         asyncQueue.push(p)
-      } else if (socketMessage.method === 'new') {
-        const p = database.upsert(arg, socketMessage.data)
-        asyncQueue.push(p)
-      } else if (socketMessage.method === 'change') {
-        const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, database)
-        if (dirtyStream !== null) {
-          const p = dirtyStream
-          asyncQueue.push(p)
-        } else {
-          const p = database.upsert(arg, {
-            ...socketMessage.data,
-            [pkName]: socketMessage.id
+      } else if (v.kind === 'SocketCUD') {
+        const socketMessage = v.socketMessage
+        const type = v.type
+        const arg = v.arg
+        const pkName = v.pkName
+        if (socketMessage.method === 'destroy' || socketMessage.method === 'remove') {
+          const p = database.delete(arg, {
+            where: { [pkName]: socketMessage.id || socketMessage.data }
           })
           asyncQueue.push(p)
+        } else if (socketMessage.method === 'new') {
+          const p = database.upsert(arg, socketMessage.data)
+          asyncQueue.push(p)
+        } else if (socketMessage.method === 'change') {
+          const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, database)
+          if (dirtyStream !== null) {
+            const p = dirtyStream
+            asyncQueue.push(p)
+          } else {
+            const p = database.upsert(arg, {
+              ...socketMessage.data,
+              [pkName]: socketMessage.id
+            })
+            asyncQueue.push(p)
+          }
         }
+      } else if (v.kind === 'Selector') {
+        const cacheControl$ = v.proxySelector
+        const token = this.handleRequestCache(v.realSelectorInfo)
+        const selector$ = token.selector$
+        asyncQueue.push(
+          selector$.do({
+            next(selector) {
+              cacheControl$.next(selector)
+            }
+          })
+        )
       }
     })
-    this.socketCUDBuffer.length = 0
+
+    this.persistedDataBuffer.length = 0
 
     return Observable.from(asyncQueue)
       .concatAll()
@@ -232,9 +251,12 @@ export class Net {
     const { request, q, tableName } = this.getInfoFromResult(result)
     const proxySelector = new ProxySelector<T>(request, q, tableName)
     const cacheControl$: BehaviorSubject<SelectorMeta<T>> = new BehaviorSubject(proxySelector)
-    this.realSelectorInfoBuffer.push(result)
 
-    this.proxySelectorBuffer.push(cacheControl$)
+    this.persistedDataBuffer.push({
+      kind: 'Selector',
+      realSelectorInfo: result,
+      proxySelector: cacheControl$
+    })
 
     return new QueryToken(cacheControl$)
       .map(this.validate(result))
@@ -243,7 +265,8 @@ export class Net {
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
     const { request, method, tableName } = result as CUDApiResult<T>
     return request.do((v: T | T[]) => {
-      this.CUDBuffer.push({
+      this.persistedDataBuffer.push({
+        kind: 'CUD',
         tableName,
         method: ((method === 'create' || method === 'update') ? 'upsert' : method),
         value: method === 'delete' ? (result as UDResult<T>).clause : v
@@ -253,11 +276,17 @@ export class Net {
 
   bufferSocketPush(
     arg: string,
-    socketMessage: Object,
+    socketMessage: SocketMessage,
     pkName: string,
     type: any
   ) {
-    this.socketCUDBuffer.push({ arg, socketMessage, pkName, type })
+    this.persistedDataBuffer.push({
+      kind: 'SocketCUD',
+      arg,
+      socketMessage,
+      pkName,
+      type
+    })
     return Observable.of(null)
   }
 
