@@ -5,6 +5,8 @@
 
 # isomorphic-sdk for Teambition APIs
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/teambition/teambition-sdk.svg)](https://greenkeeper.io/)
+
 ## 设计理念
 
 SDK 主要解决的是数据同步的问题。通俗点讲，就是在前端使用数据模型模拟出数据库的增删改查等操作。
