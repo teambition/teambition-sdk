@@ -6,16 +6,20 @@ machine:
 
 dependencies:
   override:
+    - yarn global add greenkeeper-lockfile@1
     - yarn
   cache_directories:
     - ~/.cache/yarn
 
 test:
+  before:
+    - greenkeeper-lockfile-update
   override:
     - yarn test
   post:
     - npm run build_cjs && npm run check_circular_dependencies
     - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+    - greenkeeper-lockfile-upload
 
 notify:
   webhooks:
