@@ -59,12 +59,12 @@ export const assign = <T, U>(target: T, patch: U): T & U => {
   return <T & U>target
 }
 
-export const clone = <T>(origin: T, old?: any): T => {
-  old = old || origin
+export const clone = <T>(origin: T, oldSet = new WeakSet<any>()): T => {
   /* istanbul ignore if */
   if (origin === null) {
     return null
   }
+  oldSet.add(origin)
   /* istanbul ignore if */
   if (!origin || typeof origin !== 'object') {
     return void 0
@@ -78,8 +78,8 @@ export const clone = <T>(origin: T, old?: any): T => {
   forEach(origin, (val: any, key: string) => {
     if (typeof val === 'object') {
       // null
-      if (val && val !== old) {
-        target[key] = clone(val, old)
+      if (val && !oldSet.has(val)) {
+        target[key] = clone(val, oldSet)
       } else {
         target[key] = val
       }

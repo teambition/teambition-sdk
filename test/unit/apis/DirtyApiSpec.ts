@@ -46,7 +46,7 @@ export default describe('Dirty APIs Spec', () => {
       return TaskApi.getMyTasks(<any>userId)
     })
       .subscribe(r => {
-        expect(r[0].subtaskCount).to.deep.equal(mockTask.subtaskCount)
+        expect(r[0]._id).to.deep.equal(mockTask._id)
         done()
       })
   })

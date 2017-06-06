@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import Fetch from './BaseFetch'
 import Stage from '../schemas/Stage'
 import Task from '../schemas/Task'
-import { StageId, TasklistId, ProjectId, TaskId, IdOfMember } from '../teambition'
+import { StageId, TasklistId, ProjectId, TaskId, UserId } from '../teambition'
 
 export interface StageCreateData {
   name: string
@@ -18,7 +18,7 @@ export interface StageUpdateData {
 
 export interface GetStageTasksOptions {
   isDone?: boolean
-  _executorId?: IdOfMember
+  _executorId?: UserId
   dueDate?: string
   accomplished?: string
   all?: boolean

@@ -60,6 +60,76 @@ export class TaskModel extends BaseModel {
     return null
   }
 
+  addMyTasksWithInbox(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `tasks:me/withInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
+      return (<any>data._executorId) === userId &&
+          !data.isDone &&
+          !data.isArchived
+    })
+  }
+
+  getMyTasksWithInbox(): Observable<TaskData[]> {
+    const dbIndex = `tasks:me/withInbox`
+    return this._get<TaskData[]>(dbIndex)
+  }
+
+  addSubtasks(_taskId: TaskId, subtasks: TaskData[]): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(subtasks, Task)
+    return this._saveCollection(`task:subtasks/${_taskId}`, result, this._schemaName, (data: TaskData) => {
+      return data.ancestorIds[0] === _taskId
+    })
+  }
+
+  getSubtasks(_taskId: TaskId): Observable<TaskData[]> {
+    return this._get<TaskData[]>(`task:subtasks/${_taskId}`)
+  }
+
+  addMyDoneTasksWithInbox(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `tasks:me:done/withInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
+      return (<any>data._executorId) === userId &&
+          data.isDone &&
+          !data.isArchived
+    })
+  }
+
+  getMyDoneTasksWithInbox(): Observable<TaskData[]> {
+    const dbIndex = `tasks:me:done/withInbox`
+    return this._get<TaskData[]>(dbIndex)
+  }
+
+  addMyCreatedTasksWithInbox(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `tasks:me/createdAndWithInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
+      return (<any>data._creatorId) === userId &&
+          !data.isArchived
+    })
+  }
+
+  getMyCreatedTasksWithInbox(): Observable<TaskData[]> {
+    const dbIndex = `tasks:me/createdAndWithInbox`
+    return this._get<TaskData[]>(dbIndex)
+  }
+
+  addMyInvolvedTasksWithInbox(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `tasks:me/involvedAndWithInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
+      return data.involveMembers &&
+          (<any[]>data.involveMembers).indexOf(userId) !== -1 &&
+          !data.isArchived
+    })
+  }
+
+  getMyInvolvedTasksWithInbox(): Observable<TaskData[]> {
+    const dbIndex = `tasks:me/involvedAndWithInbox`
+    return this._get<TaskData[]>(dbIndex)
+  }
+
   addMyDueTasks(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `tasks:me/hasdueDate`

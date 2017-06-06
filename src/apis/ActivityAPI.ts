@@ -14,8 +14,8 @@ import { DetailObjectTypes, DetailObjectId } from '../teambition'
 export interface GetActivitiesOptions {
   lang?: string
   fields?: string
-  count: number
-  page: number
+  count?: number
+  page?: number
 }
 
 export class ActivityAPI {

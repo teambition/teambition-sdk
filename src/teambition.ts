@@ -22,7 +22,7 @@ export interface ProjectInviteSchema {
 export interface ExecutorOrCreator {
   name: string
   avatarUrl: string
-  _id: IdOfMember
+  _id: UserId
 }
 
 export interface InviteLinkSchema {
@@ -41,7 +41,7 @@ export interface CreatedInProjectSchema {
 }
 
 export interface RecommendMemberSchema {
-  _id: IdOfMember
+  _id: UserId
   email: string
   avatarUrl: string
   name: string
@@ -92,7 +92,7 @@ export interface ReportAnalysisSchema {
 
 export interface FavoriteResponse {
   _id: string
-  _creatorId: IdOfMember
+  _creatorId: UserId
   _refId: DetailObjectId
   refType: string
   isFavorite: boolean
@@ -147,10 +147,6 @@ export interface FileId extends String {
 
 export interface HomeActivityId extends String {
   kind?: 'HomeActivityId'
-}
-
-export interface IdOfMember extends String {
-  kind?: 'IdOfMember'
 }
 
 export interface MemberId extends String {
@@ -217,9 +213,34 @@ export interface UserId extends String {
   kind?: 'UserId'
 }
 
-export type DetailObjectId = TaskId | PostId | EventId | FileId
+export interface GroupId extends String {
+  kind?: 'GroupId'
+}
+
+export interface FavoriteId extends String {
+  kind?: 'FavoriteId'
+}
+
+export interface ShareId extends String {
+  kind?: 'ShareId'
+}
+
+export interface CustomFieldId extends String {
+  kind?: 'CustomfieldId'
+}
+
+export type CustomFieldType = 'text' | 'date' | 'number' | 'multipleChoice' | 'dropDown'
+
+export type CommentMode = 'no_comment' | 'isolated_comment' | 'public_comment'
+
+export type DetailObjectId = TaskId | PostId | EventId | FileId | EntryId
 
 export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
+
+export type CustomFieldChoice = {
+  value: string,
+  _id: string
+}
 
 export interface TeamId extends String {
   kind?: 'TeamId'

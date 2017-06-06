@@ -2,6 +2,17 @@
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { UserMe } from '../schemas/UserMe'
+import { UserId, TaskId, DetailObjectTypes, DetailObjectId } from '../teambition'
+
+export interface SimpleUser {
+  _id: UserId
+  avatarUrl: string
+  name: string
+  email?: string
+  title?: string
+  pinyin?: string
+  py?: string
+}
 
 export class UserFetch extends BaseFetch {
 
@@ -24,6 +35,36 @@ export class UserFetch extends BaseFetch {
       phone: phone,
       vcode: vcode
     })
+  }
+
+  getRecentUsers(): Observable<SimpleUser[]> {
+    return this.fetch.get('rooms/recent-users', {
+      isWithInbox: true
+    })
+  }
+
+  getRecommendedUsers(): Observable<SimpleUser[]> {
+    return this.fetch.get('rooms/recommend-users', {
+      isWithInbox: true
+    })
+  }
+
+  getFreeTaskFollowers(taskId: TaskId, query?: any): Observable<SimpleUser[]> {
+    return this.fetch.get(`tasks/${taskId}/inbox/involvers`, query)
+  }
+
+  getRelatedProjectMembers(query?: any): Observable<SimpleUser[]> {
+    return this.fetch.get('projects/members', query)
+  }
+
+  search(keyword: string, query?: any): Observable<SimpleUser[]> {
+    query = query || {}
+    query.q = keyword
+    return this.fetch.get('members/search-related', query)
+  }
+
+  getGuestMembers(type: DetailObjectTypes, id: DetailObjectId, query?: any): Observable<SimpleUser[]> {
+    return this.fetch.get(`${type}/${id}/guestmembers`, query)
   }
 }
 

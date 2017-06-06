@@ -1,7 +1,7 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
 import {
-  IdOfMember,
+  UserId,
   MemberId,
   ProjectId,
   OrganizationId,
@@ -9,7 +9,7 @@ import {
 } from '../teambition'
 
 export interface MemberData extends ISchema {
-  _id: IdOfMember
+  _id: UserId
   _boundToObjectId: ProjectId | OrganizationId
   boundToObjectType: 'project' | 'organization'
   _roleId: RoleId
@@ -36,7 +36,7 @@ export interface MemberData extends ISchema {
 
 @schemaName('Member')
 export default class Member extends Schema<MemberData> implements MemberData {
-  _id: IdOfMember = undefined
+  _id: UserId = undefined
   _boundToObjectId: ProjectId | OrganizationId = undefined
   boundToObjectType: 'project' | 'organization' = undefined
   _roleId: RoleId = undefined

@@ -7,6 +7,7 @@ import Dirty from '../utils/Dirty'
 import {
   default as TaskFetch,
   CreateTaskOptions,
+  CreateFreeTaskOptions,
   MoveTaskOptions,
   UpdateTaskOptions,
   ForkTaskOptions,
@@ -18,7 +19,8 @@ import {
   UpdateContentResponse,
   UpdateDueDateResponse,
   UpdateInvolveMembersResponse,
-  UpdateExecutorResponse
+  UpdateExecutorResponse,
+  UpdateFavoriteResponse
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 import { assign, isObject } from '../utils/index'
@@ -28,8 +30,7 @@ import {
   StageId,
   ProjectId,
   TagId,
-  UserId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export type detailType = 'complete'
@@ -71,7 +72,7 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getTasksMe(_query)
-        .map(Dirty.handlerMytasksApi)
+        //.map(Dirty.handlerMytasksApi)
         .concatMap(tasks =>
           TaskModel.addMyDueTasks(_userId, tasks)
         )
@@ -98,6 +99,115 @@ export class TaskAPI {
         .concatMap(tasks =>
           TaskModel.addMyTasks(_userId, tasks)
         )
+    })
+  }
+
+  getMyTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        count: 500,
+        page: 1,
+        isWithInbox: true,
+        isDone: false
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        // 此处由于脏数据 此处删掉了subtaskCount
+        //.map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyTasksWithInbox(_userId, tasks))
+    })
+  }
+
+  getMyDoneTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyDoneTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isDone: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        //.map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyDoneTasksWithInbox(_userId, tasks))
+    })
+  }
+
+  getSubtasks(_id: TaskId, query?: any) {
+    return makeColdSignal<TaskData[]>(() => {
+      const get = TaskModel.getSubtasks(_id)
+      if (get) {
+        return get
+      }
+      const _query = {
+        all: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getSubtasks(_id, _query)
+        .concatMap(tasks =>
+          TaskModel.addSubtasks(_id, tasks)
+        )
+    })
+    // const _query = {
+    //   all: true
+    // }
+    // if (isObject(query)) {
+    //   assign(_query, query)
+    // }
+    // return TaskFetch.getSubtasks(_id, _query)
+  }
+
+  getMyCreatedTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyCreatedTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isCreator: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        //.map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyCreatedTasksWithInbox(_userId, tasks))
+    })
+  }
+
+  getMyInvolvedTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
+    return makeColdSignal<TaskData[]>(() => {
+      const cache = TaskModel.getMyInvolvedTasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isInvolved: true,
+        isDone: false
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return TaskFetch.getTasksMe(_query)
+        //.map(Dirty.handlerMytasksApi)
+        .concatMap(tasks => TaskModel.addMyInvolvedTasksWithInbox(_userId, tasks))
     })
   }
 
@@ -137,7 +247,7 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getOrgsTasksMe(organization._id, _query)
-        .map(Dirty.handlerMytasksApi)
+        //.map(Dirty.handlerMytasksApi)
         .concatMap(tasks =>
           TaskModel.addOrganizationMyDueTasks(userId, organization, tasks, page)
         )
@@ -159,7 +269,7 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getOrgsTasksMe(organization._id, _query)
-        .map(Dirty.handlerMytasksApi)
+        //.map(Dirty.handlerMytasksApi)
         .concatMap(tasks =>
           TaskModel.addOrganizationMyTasks(userId, organization, tasks, page)
         )
@@ -180,7 +290,7 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getOrgsTasksMe(organization._id, _query)
-        .map(Dirty.handlerMytasksApi)
+        //.map(Dirty.handlerMytasksApi)
         .concatMap(tasks =>
           TaskModel.addOrganizationMyDoneTasks(userId, organization, tasks, page)
         )
@@ -199,7 +309,7 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getOrgsTasksCreated(organization._id, _query)
-        .map(Dirty.handlerMytasksApi)
+        //.map(Dirty.handlerMytasksApi)
         .concatMap(tasks =>
           TaskModel.addOrganizationMyCreatedTasks(userId, organization, tasks, page)
         )
@@ -218,7 +328,7 @@ export class TaskAPI {
         assign(_query, query)
       }
       return TaskFetch.getOrgsTasksInvolves(organization._id, _query)
-        .map(Dirty.handlerMytasksApi)
+        //.map(Dirty.handlerMytasksApi)
         .concatMap(tasks =>
           TaskModel.addOrgMyInvolvesTasks(userId, organization, tasks, page)
         )
@@ -308,6 +418,11 @@ export class TaskAPI {
       )
   }
 
+  createFree(data: CreateFreeTaskOptions): Observable<TaskData> {
+    return TaskFetch.createFree(data)
+      .concatMap(task => TaskModel.addOne(task).take(1))
+  }
+
   fork(_taskId: TaskId, options: ForkTaskOptions): Observable<TaskData> {
     return TaskFetch.fork(_taskId, options)
       .concatMap(task =>
@@ -335,13 +450,13 @@ export class TaskAPI {
     return this._updateFromRequest(_taskId, TaskFetch.updateDueDate(_taskId, dueDate))
   }
 
-  updateExecutor(_taskId: TaskId, _executorId: IdOfMember): Observable<UpdateExecutorResponse> {
+  updateExecutor(_taskId: TaskId, _executorId: UserId): Observable<UpdateExecutorResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateExecutor(_taskId, _executorId))
   }
 
   updateInvolvemembers(
     _taskId: TaskId,
-    memberIds: IdOfMember[],
+    memberIds: UserId[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateInvolveMembersResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateInvolvemembers(_taskId, memberIds, type))
@@ -365,6 +480,14 @@ export class TaskAPI {
 
   unarchive(taskId: TaskId, stageId: StageId): Observable<ArchiveTaskResponse> {
     return this._updateFromRequest(taskId, TaskFetch.unarchive(taskId, stageId))
+  }
+
+  favorite(taskId: TaskId): Observable<UpdateFavoriteResponse> {
+    return this._updateFromRequest(taskId, TaskFetch.favorite(taskId))
+  }
+
+  unfavorite(taskId: TaskId): Observable<UpdateFavoriteResponse> {
+    return this._updateFromRequest(taskId, TaskFetch.unfavorite(taskId))
   }
 
   updateTags(taskId: TaskId, tags: TagId[]): Observable<UpdateTagsResponse> {

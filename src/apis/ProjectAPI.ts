@@ -26,8 +26,9 @@ import {
   ReportSummarySchema,
   ReportAnalysisSchema,
   ProjectId,
+  TaskId,
   OrganizationId,
-  IdOfMember,
+  UserId,
   RoleId
 } from '../teambition'
 
@@ -59,6 +60,24 @@ export class ProjectAPI {
         .concatMap(projects =>
           ProjectModel.addProjects(projects)
         )
+    })
+  }
+
+  getPrivate(taskId: TaskId, projectId?: ProjectId, query?: any): Observable<ProjectData> {
+    return makeColdSignal<ProjectData>(() => {
+      if (projectId) {
+        const cache = ProjectModel.getOne(projectId)
+        if (cache && ProjectModel.checkSchema(<string>projectId)) {
+          return cache
+        }
+      }
+      const aliasId = ProjectModel.getAliasIdOfPrivate(taskId)
+      const cache = ProjectModel.getPrivate(taskId)
+      if (cache && ProjectModel.checkSchema(aliasId)) {
+        return cache
+      }
+      return ProjectFetch.getPrivate(taskId, query)
+        .concatMap(project => ProjectModel.addPrivate(taskId, project))
     })
   }
 
@@ -195,7 +214,18 @@ export class ProjectAPI {
       )
   }
 
-  quit(_id: ProjectId, _ownerId?: IdOfMember): Observable<void> {
+  joinByCode(
+    projectId: ProjectId,
+    signCode: string,
+    _invitorId: UserId
+  ): Observable<ProjectData> {
+    return ProjectFetch.joinByCode(projectId, signCode, _invitorId)
+      .switchMap(project => {
+        return ProjectModel.addOne(project).take(1)
+      })
+  }
+
+  quit(_id: ProjectId, _ownerId?: UserId): Observable<void> {
     return ProjectFetch.quit(_id, _ownerId)
       .concatMap(x =>
         ProjectModel.delete(<string>_id)
@@ -206,7 +236,7 @@ export class ProjectAPI {
     return ProjectFetch.getRecommendMembers(_id, querys)
   }
 
-  resendInvitation(_id: ProjectId, userId: IdOfMember): Observable<{}> {
+  resendInvitation(_id: ProjectId, userId: UserId): Observable<{}> {
     return ProjectFetch.resendInvitation(_id, userId)
   }
 

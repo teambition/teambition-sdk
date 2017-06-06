@@ -145,7 +145,7 @@ export default describe('Event test:', () => {
       const day = MockRecurrence.day
       const Recurrence = new RecurrenceEvent(<any>day)
 
-      const result = Recurrence.takeUntilTime(new Date(moment(day.startDate).add(5, 'day').add(1, 'hour')))
+      const result = Recurrence.takeUntilTime(new Date(moment(day.startDate).add(5, 'day').add(1, 'hour').toDate()))
       expect(result.length).to.equal(6)
     })
 
@@ -153,7 +153,7 @@ export default describe('Event test:', () => {
       const day = MockRecurrence.day
       const Recurrence = new RecurrenceEvent(<any>day)
 
-      const result = Recurrence.takeByTime(new Date(moment(day.startDate).add(5, 'day')))
+      const result = Recurrence.takeByTime(new Date(moment(day.startDate).add(5, 'days').toDate()))
       expect(result.startDate).to.equal(moment(day.startDate).add(5, 'day').toISOString())
     })
 
@@ -190,16 +190,85 @@ export default describe('Event test:', () => {
         })
     })
 
-    it('get event should ok', done => {
-      const mockEvent = projectEvents[1]
+    it('should get one, and return `null` if invalid date given', function* () {
 
-      httpBackend.whenGET(`${apihost}events/${mockEvent._id}`)
-        .respond(JSON.stringify(mockEvent))
+      const event = clone(MockRecurrence.day)
+      const eventId = event._id = uuid()
+      const projectId = event._projectId = uuid()
+      const startDate = new Date(event.startDate)
 
-      EventApi.get(<any>mockEvent._id)
-        .subscribe(r => {
-          expectDeepEqual(mockEvent, r)
-          done()
+      httpBackend.whenGET(`${apihost}projects/${projectId}/events?startDate=${startDate.toISOString()}`)
+        .respond(JSON.stringify([event]))
+
+      yield EventApi.getProjectEvents(projectId, startDate)
+        .take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(1)
+          expect(data[0]._id).to.be.equal(eventId)
+          expect(data[0]._projectId).to.be.equal(projectId)
+          expect(data[0].startDate).to.be.equal(event.startDate)
+          expect(data[0].recurrence).to.be.deep.equal(event.recurrence)
+        })
+
+      yield EventApi.get(eventId)
+        .take(1)
+        .do(data => {
+          expect(data._id).to.be.equal(eventId)
+          expect(data._projectId).to.be.equal(projectId)
+          expect(data.startDate).to.be.equal(event.startDate)
+          expect(data.recurrence).to.be.deep.equal(event.recurrence)
+        })
+
+      const startDateOne = moment(startDate).subtract(1, 'd').toISOString()
+      const eventIdOne = `${eventId}&${startDateOne}`
+      yield EventApi.get(eventIdOne)
+        .take(1)
+        .do(data => {
+          expect(data).to.be.null
+        })
+
+      const startDateTwo = moment(startDate).add(1, 'd').toISOString()
+      const eventIdTwo = `${eventId}&${startDateTwo}`
+      yield EventApi.get(eventIdTwo)
+        .take(1)
+        .do(data => {
+          expect(data._id).to.be.equal(eventIdTwo)
+          expect(data._projectId).to.be.equal(projectId)
+          expect(data.startDate).to.be.equal(startDateTwo)
+          expect(data.recurrence).to.be.deep.equal(event.recurrence)
+          expect(spy.callCount).to.be.equal(1)
+        })
+    })
+
+    it('should get one from cache', function* () {
+
+      const event = clone(projectEvents[0])
+      const eventId = event._id = uuid()
+      const projectId = event._projectId = uuid()
+      const startDate = new Date(event.startDate)
+      event.recurrence = null
+
+      httpBackend.whenGET(`${apihost}projects/${projectId}/events?startDate=${startDate.toISOString()}`)
+        .respond(JSON.stringify([event]))
+
+      yield EventApi.getProjectEvents(projectId, startDate)
+        .take(1)
+        .do(data => {
+          expect(data.length).to.be.equal(1)
+          expect(data[0]._id).to.be.equal(eventId)
+          expect(data[0]._projectId).to.be.equal(projectId)
+          expect(data[0].startDate).to.be.equal(event.startDate)
+          expect(data[0].recurrence).to.be.null
+        })
+
+      yield EventApi.get(eventId)
+        .take(1)
+        .do(data => {
+          expect(data._id).to.be.equal(eventId)
+          expect(data._projectId).to.be.equal(projectId)
+          expect(data.startDate).to.be.equal(event.startDate)
+          expect(data.recurrence).to.be.null
+          expect(spy.callCount).to.be.equal(1)
         })
     })
 

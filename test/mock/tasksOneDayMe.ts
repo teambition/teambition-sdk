@@ -29,10 +29,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '一个任务量极大的项目',
       'isArchived': false,
@@ -80,10 +77,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '233',
       'isArchived': false,
@@ -132,10 +126,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 9,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '群聊测试1',
       'isArchived': false,
@@ -183,10 +174,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '233',
       'isArchived': false,
@@ -234,10 +222,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '一个任务量极大的项目',
       'isArchived': false,
@@ -285,10 +270,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '233',
       'isArchived': false,
@@ -336,10 +318,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '233',
       'isArchived': false,
@@ -387,10 +366,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '33333',
       'isArchived': false,
@@ -441,10 +417,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '创建个项目玩玩',
       'isArchived': false,
@@ -492,10 +465,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '群聊测试1',
       'isArchived': false,
@@ -545,10 +515,7 @@ export const tasksOneDayMe: any = [
     'commentsCount': 0,
     'likesCount': 0,
     'objectlinksCount': 0,
-    'subtaskCount': {
-      'total': 0,
-      'done': 0
-    },
+    'subtaskCount': undefined,
     'project': {
       'name': '群聊测试1',
       'isArchived': false,

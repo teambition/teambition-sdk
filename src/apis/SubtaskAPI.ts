@@ -15,7 +15,7 @@ import { TaskData } from '../schemas/Task'
 import { makeColdSignal } from './utils'
 import { OrganizationData } from '../schemas/Organization'
 import { isObject, assign } from '../utils/index'
-import { SubtaskId, TaskId, IdOfMember } from '../teambition'
+import { SubtaskId, TaskId, UserId } from '../teambition'
 
 export class SubtaskAPI {
 
@@ -54,7 +54,7 @@ export class SubtaskAPI {
   create(subtaskData: {
     content: string
     _taskId: TaskId
-    _executorId?: IdOfMember
+    _executorId?: UserId
   }): Observable<SubtaskData> {
     return SubtaskFetch.create(subtaskData)
       .concatMap(subtask =>
@@ -98,7 +98,7 @@ export class SubtaskAPI {
     return this._updateFromPromise(_subTaskId, SubtaskFetch.updateDuedate(_subTaskId, dueDate))
   }
 
-  updateExecutor(_subTaskId: SubtaskId, _executorId: IdOfMember): Observable<UpdateSubtaskExecutorResponse> {
+  updateExecutor(_subTaskId: SubtaskId, _executorId: UserId): Observable<UpdateSubtaskExecutorResponse> {
     return this._updateFromPromise(_subTaskId, SubtaskFetch.updateExecutor(_subTaskId, _executorId))
   }
 
@@ -106,7 +106,65 @@ export class SubtaskAPI {
     return this._updateFromPromise(_subTaskId, SubtaskFetch.updateStatus(_subTaskId, isDone))
   }
 
-  getOrgMySubtasks(userId: IdOfMember, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
+  getMySubtasksWithInbox(userId: UserId, query?: any): Observable<SubtaskData[]> {
+    return makeColdSignal<SubtaskData[]>(() => {
+      const cache = SubtaskModel.getMySubtasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        count: 500,
+        isWithInbox: true,
+        isDone: false
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return SubtaskFetch.getMySubtasks(_query)
+        .concatMap(subtasks => SubtaskModel.addMySubtasksWithInbox(userId, subtasks))
+    })
+  }
+
+  getMyDoneSubtasksWithInbox(userId: UserId, query?: any): Observable<SubtaskData[]> {
+    return makeColdSignal<SubtaskData[]>(() => {
+      const cache = SubtaskModel.getMyDoneSubtasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isDone: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return SubtaskFetch.getMySubtasks(_query)
+        .concatMap(subtasks => SubtaskModel.addMyDoneSubtasksWithInbox(userId, subtasks))
+    })
+  }
+
+  getMyCreatedSubtasksWithInbox(userId: UserId, query?: any): Observable<SubtaskData[]> {
+    return makeColdSignal<SubtaskData[]>(() => {
+      const cache = SubtaskModel.getMyCreatedSubtasksWithInbox()
+      if (cache) {
+        return cache
+      }
+      const _query = {
+        page: 1,
+        isWithInbox: true,
+        isCreator: true
+      }
+      if (isObject(query)) {
+        assign(_query, query)
+      }
+      return SubtaskFetch.getMySubtasks(_query)
+        .concatMap(subtasks => SubtaskModel.addMyCreatedSubtasksWithInbox(userId, subtasks))
+    })
+  }
+
+  getOrgMySubtasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
     return makeColdSignal<SubtaskData[]>(() => {
       const get = SubtaskModel.getOrgMySubtasks(organization._id, page)
       if (get) {
@@ -127,7 +185,7 @@ export class SubtaskAPI {
     })
   }
 
-  getOrgMyDueSubtasks(userId: IdOfMember, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
+  getOrgMyDueSubtasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
     return makeColdSignal<SubtaskData[]>(() => {
       const get = SubtaskModel.getOrgMyDueSubtasks(organization._id, page)
       if (get) {
@@ -148,7 +206,7 @@ export class SubtaskAPI {
     })
   }
 
-  getOrgMyDoneSubtasks(userId: IdOfMember, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
+  getOrgMyDoneSubtasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
     return makeColdSignal<SubtaskData[]>(() => {
       const get = SubtaskModel.getOrgMyDoneSubtasks(organization._id, page)
       if (get) {
@@ -168,7 +226,7 @@ export class SubtaskAPI {
     })
   }
 
-  getOrgMyCreatedSubtasks(userId: IdOfMember, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
+  getOrgMyCreatedSubtasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<SubtaskData[]> {
     return makeColdSignal<SubtaskData[]>(() => {
       const get = SubtaskModel.getOrgMyCreatedSubtasks(organization._id, page)
       if (get) {

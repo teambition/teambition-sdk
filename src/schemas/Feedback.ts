@@ -3,14 +3,14 @@ import { Schema, ISchema, schemaName, bloodyParentWithProperty } from './schema'
 import {
   ExecutorOrCreator,
   FeedbackId,
-  IdOfMember,
+  UserId,
   FileId,
   ProjectId
 } from '../teambition'
 
 export interface FeedbackData extends ISchema {
   _id: FeedbackId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   content: {
     attachments?: FileId[]
     comment: string
@@ -28,7 +28,7 @@ export interface FeedbackData extends ISchema {
 @schemaName('Feedback')
 export default class FeedbackSchema extends Schema<FeedbackData> implements FeedbackData {
   _id: FeedbackId = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   content: {
     attachments?: FileId[]
     comment: string

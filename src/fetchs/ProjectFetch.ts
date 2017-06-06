@@ -14,8 +14,9 @@ import {
   ReportAnalysisSchema,
   OrganizationId,
   ProjectId,
+  TaskId,
   RoleId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export interface ProjectCreateOptions {
@@ -107,6 +108,10 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get(`projects`, querys)
   }
 
+  getPrivate(taskId: TaskId, query?: any): Observable<ProjectData> {
+    return this.fetch.get(`tasks/${taskId}/inbox/project`, query)
+  }
+
   getPersonal(querys?: any): Observable<ProjectData[]> {
     return this.fetch.get(`projects/personal`, querys)
   }
@@ -170,7 +175,17 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.post(`v2/projects/${_id}/join`)
   }
 
-  quit(_id: ProjectId, _ownerId?: IdOfMember): Observable<{}> {
+  joinByCode(
+    projectId: ProjectId,
+    signCode: string,
+    _invitorId: UserId
+  ): Observable<ProjectData> {
+    return this.fetch.post(`projects/${projectId}/joinByCode/${signCode}`, {
+      _invitorId
+    })
+  }
+
+  quit(_id: ProjectId, _ownerId?: UserId): Observable<{}> {
     return this.fetch.put(`projects/${_id}/quit`, _ownerId ? {
       _ownerId: _ownerId
     } : undefined)
@@ -180,7 +195,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.get(`projects/${_id}/RecommendMemberSchemas`, querys)
   }
 
-  resendInvitation(_id: ProjectId, userId: IdOfMember): Observable<{}> {
+  resendInvitation(_id: ProjectId, userId: UserId): Observable<{}> {
     return this.fetch.put(`projects/${_id}/members/${userId}/resend`)
   }
 

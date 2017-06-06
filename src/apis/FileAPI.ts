@@ -14,7 +14,7 @@ import {
   CollectionId,
   FileId,
   ProjectId,
-  IdOfMember
+  UserId
 } from '../teambition'
 import { makeColdSignal } from './utils'
 
@@ -89,7 +89,7 @@ export class FileAPI {
 
   updateInvolves(
     fileId: FileId,
-    memberIds: IdOfMember[],
+    memberIds: UserId[],
     type: 'involveMembers' | 'addInvolvers' | 'delInvolvers'
   ): Observable<UpdateFileInvolvesResponse> {
     return FileFetch.updateInvolves( fileId, memberIds, type )

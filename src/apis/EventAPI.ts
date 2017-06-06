@@ -22,7 +22,8 @@ import {
 import EventModel from '../models/EventModel'
 import { TRecurrenceEvent } from '../models/events/RecurrenceEvent'
 import { EventData } from '../schemas/Event'
-import { EventId, ProjectId, TagId } from '../teambition'
+import { EventId, ProjectId, TagId, UserId } from '../teambition'
+import { makeColdSignal } from './utils'
 
 export class EventAPI {
   create(option: CreateEventOptions): Observable<EventData> {
@@ -50,13 +51,13 @@ export class EventAPI {
           )
       }
       dest = dest.map((x: TRecurrenceEvent) => {
-        if (date) {
+        if (x && date) {
           const result = x.takeByTime(date)
           if (result) {
             return result
           } else {
             const result = EventModel.getByAlias(eventId + date.toISOString())
-            return observer.next(result)
+            return observer.next(result || Observable.of(null)) // 无效日期 result 为空
           }
         } else {
           return x
@@ -67,7 +68,21 @@ export class EventAPI {
       ._switch()
   }
 
-  update(eventId: EventId, query: UpdateEventOptions): Observable<string> {
+  getMyEvents(userId: UserId, query?: any): Observable<EventData[]> {
+    return makeColdSignal<EventData[]>(() => {
+      const page: number = query && query.page || 1
+      const cache = EventModel.getMyEvents(userId, page)
+      if (cache) {
+        return cache
+      }
+      return EventFetch.getMyEvents(query)
+        .concatMap(events => {
+          return EventModel.addMyEvents(userId, events, page)
+        })
+    })
+  }
+
+  update(eventId: EventId, query: UpdateEventOptions): Observable<any> {
     return EventFetch.update(eventId, query)
       .concatMap(x =>
         EventModel.update(<string>eventId, x)

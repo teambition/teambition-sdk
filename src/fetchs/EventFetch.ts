@@ -5,7 +5,8 @@ import { visibility } from '../teambition'
 import { EventData } from '../schemas/Event'
 import { ActivityData } from '../schemas/Activity'
 import { LikeData } from '../schemas/Like'
-import { EventId, ProjectId, TagId, IdOfMember } from '../teambition'
+import { EventId, ProjectId, TagId, UserId, FileId } from '../teambition'
+import { FileRes } from './FileFetch'
 
 export interface CreateEventOptions {
   _projectId: ProjectId
@@ -13,7 +14,7 @@ export interface CreateEventOptions {
   startDate: string
   endDate: string
   location?: string
-  involveMembers?: IdOfMember[]
+  involveMembers?: UserId[]
   content?: string
   recurrence?: string[]
   reminders?: string[]
@@ -45,11 +46,11 @@ export interface ArchiveEventResponse {
 }
 
 export interface CommentBody {
-  action: 'comment'
-  _creatorId: IdOfMember
-  attachments: string[]
-  mentions: any
-  timestamp: number
+  occurrenceDate: number
+  content: string
+  attachments?: (FileId | FileRes)[]
+  voice?: FileId[]
+  mentions?: {[key: string]: string}
 }
 
 export interface LikeRepeatEventResponse {
@@ -72,17 +73,17 @@ export interface UpdateEventContentResponse {
 }
 
 export type UpdateEventInvolvesOptions = {
-  involveMembers: string[]
+  involveMembers: UserId[]
   occurrenceDate?: number
 } | {
-  addInvolvers?: string[]
-  delInvolvers?: string[]
+  addInvolvers?: UserId[]
+  delInvolvers?: UserId[]
   occurrenceDate?: number
 }
 
 export interface UpdateEventInvolvesResponse {
   _id: EventId
-  involveMembers: IdOfMember[]
+  involveMembers: UserId[]
   updated: string
 }
 
@@ -112,7 +113,7 @@ export interface MoveEventResponse {
   _id: string
   _projectId: string
   tagIds: string[]
-  involveMembers: string[]
+  involveMembers: UserId[]
   updated: string
 }
 

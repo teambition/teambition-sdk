@@ -9,7 +9,7 @@ import { OrganizationData } from '../schemas/Organization'
 import {
   TaskId,
   SubtaskId,
-  IdOfMember,
+  UserId,
   OrganizationId
 } from '../teambition'
 
@@ -40,11 +40,52 @@ export class SubtaskModel extends BaseModel {
     return this._get<SubtaskData[]>(`task:subtasks/${_taskId}`)
   }
 
+  addMySubtasksWithInbox(userId: UserId, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
+    const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
+    const dbIndex = `subtasks:me/withInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: SubtaskData) => {
+      return data._executorId === userId &&
+          !data.isDone
+    })
+  }
+
+  getMySubtasksWithInbox(): Observable<SubtaskData[]> {
+    const dbIndex = `subtasks:me/withInbox`
+    return this._get<SubtaskData[]>(dbIndex)
+  }
+
+  addMyDoneSubtasksWithInbox(userId: UserId, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
+    const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
+    const dbIndex = `subtasks:me:done/withInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: SubtaskData) => {
+      return data._executorId === userId &&
+          data.isDone
+    })
+  }
+
+  getMyDoneSubtasksWithInbox(): Observable<SubtaskData[]> {
+    const dbIndex = `subtasks:me:done/withInbox`
+    return this._get<SubtaskData[]>(dbIndex)
+  }
+
+  addMyCreatedSubtasksWithInbox(userId: UserId, subtasks: SubtaskData[]): Observable<SubtaskData[]> {
+    const result = datasToSchemas<SubtaskData>(subtasks, Subtask)
+    const dbIndex = `subtasks:me/createdAndWithInbox`
+    return this._saveCollection(dbIndex, result, this._schemaName, (data: SubtaskData) => {
+      return data._creatorId === userId
+    })
+  }
+
+  getMyCreatedSubtasksWithInbox(): Observable<SubtaskData[]> {
+    const dbIndex = `subtasks:me/createdAndWithInbox`
+    return this._get<SubtaskData[]>(dbIndex)
+  }
+
   /**
    * _collections 索引是 `organization:subtasks/${organization._id}`
    */
   addOrgMySubtasks(
-    userId: IdOfMember,
+    userId: UserId,
     organization: OrganizationData,
     tasks: SubtaskData[],
     page: number
@@ -78,7 +119,7 @@ export class SubtaskModel extends BaseModel {
    * _collections 的索引是 `organization:subtasks:due/${organization._id}`
    */
   addOrgMyDueSubtasks(
-    userId: IdOfMember,
+    userId: UserId,
     organization: OrganizationData,
     subtasks: SubtaskData[],
     page: number
@@ -112,7 +153,7 @@ export class SubtaskModel extends BaseModel {
    * _collections 的索引是 `organization:subtasks:done/${organization._id}`
    */
   addOrgMyDoneSubtasks(
-    userId: IdOfMember,
+    userId: UserId,
     organization: OrganizationData,
     tasks: SubtaskData[],
     page: number
@@ -143,7 +184,7 @@ export class SubtaskModel extends BaseModel {
    * _collections 的索引是 `organization:subtasks:created/${organization._id}`
    */
   addOrgMyCreatedSubtasks(
-    userId: IdOfMember,
+    userId: UserId,
     organization: OrganizationData,
     tasks: SubtaskData[],
     page: number

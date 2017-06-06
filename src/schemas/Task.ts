@@ -7,7 +7,7 @@ import {
   TagId,
   TaskId,
   StageId,
-  IdOfMember,
+  UserId,
   TasklistId,
   ProjectId
 } from '../teambition'
@@ -25,14 +25,15 @@ export interface TaskData extends ISchema {
   isDone: boolean
   isArchived: boolean
   created: string
+  customfields?: any[]
   updated: string
   visible: visibility
   _stageId: StageId
-  _creatorId: IdOfMember
+  _creatorId: UserId
   _tasklistId: TasklistId
   _projectId: ProjectId
-  _executorId: IdOfMember
-  involveMembers: IdOfMember[]
+  _executorId: UserId
+  involveMembers: UserId[]
   tagIds: TagId []
   recurrence?: string
   pos?: number
@@ -43,7 +44,11 @@ export interface TaskData extends ISchema {
   attachmentsCount?: number
   likesCount?: number
   objectlinksCount?: number
-  subtaskCount?: {
+  // 新版子任务新增字段
+  ancestorIds?: string[]
+  ancestors?: any
+  parent?: any
+  subtaskCount: {
     total: number
     done: number
   }
@@ -56,12 +61,13 @@ export interface TaskData extends ISchema {
     title: string
     _id: TasklistId
   }
-  isFavorite?: boolean,
+  isFavorite?: boolean
+  isInbox?: boolean
   project?: {
     _id: ProjectId
     name: string
-  },
-  uniqueId?: number,
+  }
+  uniqueId?: number
 }
 
 @schemaName('Task')
@@ -77,13 +83,18 @@ export default class Task extends Schema<TaskData> implements TaskData {
   created: string = undefined
   updated: string = undefined
   visible: visibility = undefined
+  customfields: any[] = undefined
   @bloodyParent('Stage') _stageId: StageId = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   _tasklistId: TasklistId = undefined
   _projectId: ProjectId = undefined
-  _executorId: IdOfMember = undefined
-  involveMembers: IdOfMember[] = undefined
+  _executorId: UserId = undefined
+  involveMembers: UserId[] = undefined
   tagIds: TagId[] = undefined
+  subtaskCount: {
+    total: number
+    done: number
+  } = undefined
   @child('Array', 'Subtask') subtasks?: Subtask[]
   @child('Object', 'Project') project?: {
     _id: ProjectId

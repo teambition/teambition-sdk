@@ -4,13 +4,13 @@ import {
   OrganizationId,
   ProjectId,
   RoleId,
-  IdOfMember
+  UserId
 } from '../teambition'
 
 export interface OrganizationData extends ISchema {
   _id: OrganizationId
   name: string
-  _creatorId: IdOfMember
+  _creatorId: UserId
   logo: string
   description: string
   category: string
@@ -42,7 +42,7 @@ export interface OrganizationData extends ISchema {
 export default class Organization extends Schema<OrganizationData> implements OrganizationData {
   _id: OrganizationId = undefined
   name: string = undefined
-  _creatorId: IdOfMember = undefined
+  _creatorId: UserId = undefined
   logo: string = undefined
   description: string = undefined
   category: string = undefined

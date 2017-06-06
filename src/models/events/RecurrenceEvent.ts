@@ -106,6 +106,9 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
     let startVal = new Date(startDate).valueOf()
     while (startVal < timeVal) {
       startDate = this._recurrence.after(new Date(startDate))
+      if (!startDate) {
+        break
+      }
       startVal = new Date(startDate).valueOf()
     }
     if (startVal === timeVal) {
@@ -154,5 +157,11 @@ export class RecurrenceEvent extends EventSchema implements IRecurrenceEvent {
     if (!this._isRecurrenceEvent) {
       throw new Error(`this is not a recurrence event: ${JSON.stringify(this.$$data)}`)
     }
+  }
+
+  // 普通日程无`_isRecurrenceEvent`字段
+  checkSchema() {
+    this.$$keys.delete('_isRecurrenceEvent')
+    return !this.$$keys.size
   }
 }
