@@ -145,7 +145,7 @@ export default describe('Event test:', () => {
       const day = MockRecurrence.day
       const Recurrence = new RecurrenceEvent(<any>day)
 
-      const result = Recurrence.takeUntilTime(new Date(moment(day.startDate).add(5, 'day').add(1, 'hour')))
+      const result = Recurrence.takeUntilTime(new Date(moment(day.startDate).add(5, 'day').add(1, 'hour').toDate()))
       expect(result.length).to.equal(6)
     })
 
@@ -153,7 +153,7 @@ export default describe('Event test:', () => {
       const day = MockRecurrence.day
       const Recurrence = new RecurrenceEvent(<any>day)
 
-      const result = Recurrence.takeByTime(new Date(moment(day.startDate).add(5, 'day')))
+      const result = Recurrence.takeByTime(new Date(moment(day.startDate).add(5, 'days').toDate()))
       expect(result.startDate).to.equal(moment(day.startDate).add(5, 'day').toISOString())
     })
 

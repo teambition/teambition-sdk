@@ -170,7 +170,6 @@ export class TaskAPI {
     // return TaskFetch.getSubtasks(_id, _query)
   }
 
-
   getMyCreatedTasksWithInbox(_userId: UserId, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const cache = TaskModel.getMyCreatedTasksWithInbox()
