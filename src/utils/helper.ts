@@ -60,11 +60,11 @@ export const assign = <T, U>(target: T, patch: U): T & U => {
 }
 
 export const clone = <T>(origin: T, oldSet = new WeakSet<any>()): T => {
-  oldSet.add(origin)
   /* istanbul ignore if */
   if (origin === null) {
     return null
   }
+  oldSet.add(origin)
   /* istanbul ignore if */
   if (!origin || typeof origin !== 'object') {
     return void 0

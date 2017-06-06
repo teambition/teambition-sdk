@@ -86,7 +86,6 @@ export class TaskModel extends BaseModel {
     return this._get<TaskData[]>(`task:subtasks/${_taskId}`)
   }
 
-
   addMyDoneTasksWithInbox(userId: UserId, tasks: TaskData[]): Observable<TaskData[]> {
     const result = datasToSchemas<TaskData>(tasks, Task)
     const dbIndex = `tasks:me:done/withInbox`
