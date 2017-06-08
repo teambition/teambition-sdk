@@ -133,17 +133,24 @@ export function capitalizeFirstLetter(str?: string | null) {
  * headers according to the format described here:
  * http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
  * This method parses that string into a user-friendly key/value pair object.
+ * Now this method also can window.Headers
  */
 export function parseHeaders(rawHeader: string) {
-  const head = Object.create(null)
-  const pairs = rawHeader.trim().split('\n')
-  pairs.forEach(header => {
-    const split = header.trim().split(':')
-    const key = split.shift()!.trim()
-    const value = split.join(':').trim()
-    head[key] = value
-  })
-  return head
+    const head = Object.create(null)
+    const pairs = rawHeader.trim().split('\n')
+    pairs.forEach(header => {
+      const split = header.trim().split(':')
+      const key = split.shift()!.trim()
+      const value = split.join(':').trim()
+      head[key] = value
+    })
+    return head
+}
+
+export function headers2Object(headers: Headers): Object {
+  const retHeaders = {}
+  headers.forEach((val: any, key: any) => retHeaders[key] = val)
+  return retHeaders
 }
 
 export function pagination(count: number, page: number) {

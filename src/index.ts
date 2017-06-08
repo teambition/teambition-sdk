@@ -4,7 +4,6 @@ import 'tslib'
 import { forEach, clone, uuid, concat, dropEle } from './utils/index'
 
 export const Utils = { forEach, clone, uuid, concat, dropEle }
-export * from './utils/Fetch'
 export { eventParser } from './sockets/EventParser'
 
 // export apis
@@ -16,6 +15,6 @@ export * from './schemas'
 
 export { SDK } from './SDK'
 export { SDKFetch } from './SDKFetch'
-export { Net, CacheStrategy } from './Net'
+export { Net, CacheStrategy, Http, HttpErrorMessage } from './Net'
 
 // export const SocketClient: Client = sdk.socket

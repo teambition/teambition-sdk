@@ -1,7 +1,8 @@
-import { FileId, UserId, PostId } from 'teambition-types'
 import { Observable } from 'rxjs/Observable'
+import { FileId, UserId, PostId } from 'teambition-types'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
+import { Http } from '../../Net'
 import { PostModeOptions } from '../../schemas/Post'
 
 export interface UpdatePostOptions {
@@ -17,8 +18,8 @@ export function updatePostFetch(
   this: SDKFetch,
   _id: PostId,
   options: UpdatePostOptions
-): Observable<typeof options> {
-  return this.put(`posts/${_id}`, options)
+): Http<typeof options> {
+  return this.put<typeof options>(`posts/${_id}`, options)
 }
 
 SDKFetch.prototype.updatePost = updatePostFetch
@@ -33,7 +34,7 @@ export function updatePost(
   this: SDK,
   _id: PostId,
   options: UpdatePostOptions
-) {
+): Observable<UpdatePostOptions> {
   return this.lift<typeof options>({
     request: this.fetch.updatePost(_id, options),
     tableName: 'Post',

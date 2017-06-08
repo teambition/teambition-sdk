@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
 import { forEach } from '../../utils'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TaskSchema, EventSchema, SubtaskSchema } from '../../schemas'
@@ -31,7 +32,7 @@ export type RecentResult = EventGenerator | RecentSubtaskData | RecentTaskData
 export function getMyRecentFetch(
   this: SDKFetch,
   query: MyRecentQuery
-): Observable<RecentData[]> {
+): Http<RecentData[]> {
   return this.get<RecentData[]>(`users/recent`, query)
 }
 
@@ -48,14 +49,14 @@ export function getMyRecent(
   userId: UserId,
   query: MyRecentQuery
 ): QueryToken<RecentResult> {
-  const request = this.fetch.getMyRecent(query)
-    .publishReplay(1)
-    .refCount()
   const dueDate = new Date(query.dueDate).valueOf()
   let taskToken = this.lift<RecentData>({
     cacheValidate: CacheStrategy.Request,
     tableName: 'Task',
-    request: request.map(v => v.filter(t => t.type === 'task')),
+    request: this.fetch.getMyRecent(query)
+              .map((v$: Observable<RecentData[]>) =>
+                v$.map(r =>
+                  r.filter(t => t.type === 'task'))),
     query: {
       where: {
         dueDate: {
@@ -121,7 +122,10 @@ export function getMyRecent(
   let eventToken: QueryToken<any> = this.lift<RecentData>({
     cacheValidate: CacheStrategy.Request,
     tableName: 'Event',
-    request: request.map(v => v.filter(t => t.type === 'event')),
+    request: this.fetch.getMyRecent(query)
+              .map((v$: Observable<RecentData[]>) =>
+                v$.map(r =>
+                  r.filter(t => t.type === 'event'))),
     query: eventQuery,
     assocFields: {
       project: ['_id', 'name', 'isArchived']
@@ -143,7 +147,10 @@ export function getMyRecent(
   let subtaskToken = this.lift<RecentData>({
     cacheValidate: CacheStrategy.Request,
     tableName: 'Subtask',
-    request: request.map(v => v.filter(s => s.type === 'subtask')),
+    request: this.fetch.getMyRecent(query)
+              .map((v$: Observable<RecentData[]>) =>
+                v$.map(r =>
+                  r.filter(t => t.type === 'subtask'))),
     query: {
       where: {
         _executorId: userId,

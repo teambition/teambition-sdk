@@ -1,6 +1,6 @@
 import { QueryToken, OrderDescription, Query } from 'reactivedb'
-import { Observable } from 'rxjs/Observable'
 import { SDK, CacheStrategy } from '../../SDK'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
@@ -21,8 +21,8 @@ export function getPostsFetch<T extends ProjectPostType>(
   this: SDKFetch,
   _projectId: ProjectId,
   query: GetPostsQuery<T>
-): Observable<PostSchema[]> {
-  return this.get(`projects/${_projectId}/posts`, query)
+): Http<PostSchema[]> {
+  return this.get<PostSchema[]>(`projects/${_projectId}/posts`, query)
 }
 
 SDKFetch.prototype.getPosts = getPostsFetch

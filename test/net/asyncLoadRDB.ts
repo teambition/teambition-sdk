@@ -119,7 +119,6 @@ describe('Async load reactivedb Spec', () => {
             return _r
           })
             .sort(compareFn)
-
           expect(actual).to.deep.equal(expected)
           subscription.unsubscribe()
           done()

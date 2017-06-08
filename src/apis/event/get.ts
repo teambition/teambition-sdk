@@ -1,6 +1,6 @@
 import 'rxjs/add/operator/toArray'
-import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { EventSchema } from '../../schemas/Event'
@@ -11,7 +11,7 @@ export function getEventFetch(
   this: SDKFetch,
   eventId: EventId,
   query?: any
-): Observable<EventSchema[]> {
+): Http<EventSchema[]> {
   return this.get<EventSchema[]>(`events/${eventId}`, query)
 }
 

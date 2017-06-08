@@ -1,12 +1,13 @@
 import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 
 export function addEmailFetch (
   this: SDKFetch,
   email: string
-): Observable<any> {
-  return this.post('users/email', { email })
+): Http<any> {
+  return this.post<any>('users/email', { email })
 }
 
 SDKFetch.prototype.addEmail = addEmailFetch

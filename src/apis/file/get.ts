@@ -1,6 +1,6 @@
 import { QueryToken } from 'reactivedb'
-import { Observable } from 'rxjs/Observable'
 import { SDK, CacheStrategy } from '../../SDK'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { FileSchema } from '../../schemas/File'
 import { FileId } from 'teambition-types'
@@ -9,7 +9,7 @@ export function getFileFetch(
   this: SDKFetch,
   fileId: FileId,
   query?: any
-): Observable<FileSchema> {
+): Http<FileSchema> {
   return this.get<FileSchema>(`works/${fileId}`, query)
 }
 

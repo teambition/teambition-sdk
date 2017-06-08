@@ -1,6 +1,6 @@
 import { QueryToken } from 'reactivedb'
-import { Observable } from 'rxjs/Observable'
 import { SDK, CacheStrategy } from '../../SDK'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { PostSchema } from '../../schemas/Post'
 import { PostId } from 'teambition-types'
@@ -9,7 +9,7 @@ export function getPostFetch(
   this: SDKFetch,
   postId: PostId,
   query?: any
-): Observable<PostSchema> {
+): Http<PostSchema> {
   return this.get<PostSchema>(`posts/${postId}`, query)
 }
 

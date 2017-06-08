@@ -169,8 +169,9 @@ export class SocketClient {
 
   private _getToken() {
     return this.fetch.getUserMe()
+      .send()
       .toPromise()
-      .then(r => {
+      .then((r: UserMe) => {
         this._getUserMeStream.next(r)
       })
   }
@@ -206,6 +207,7 @@ export function joinRoom(
   return this.post<void>(`/${room}/subscribe`, {
     consumerId: consumerId
   })
+    .send()
     .toPromise()
 }
 

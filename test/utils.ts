@@ -70,7 +70,7 @@ export function mock<T>(sdk: SDK) {
   return (m: T, schedule?: number | Promise<any>) => {
     methods.forEach(method => {
       sdk.fetch[method] = function(url: string, arg2?: any) {
-        const mockResult = mockFetch[`mock${capitalizeFirstLetter(method)}`](url, arg2)(sdk.fetch)
+        const mockResult = mockFetch[`mock${capitalizeFirstLetter(method)}`](url, arg2)
         mockResult.mockResponse.respond(m, schedule)
         return mockResult.request
       }
