@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { PostModeOptions, PostSchema } from '../../schemas/Post'
 import { ProjectId, Visibility, FileId, UserId, TagId } from 'teambition-types'
@@ -15,8 +16,8 @@ export interface CreatePostOptions {
   tagIds?: TagId[]
 }
 
-export function createPostFetch(this: SDKFetch, options: CreatePostOptions): Observable<PostSchema> {
-  return this.post('posts', options)
+export function createPostFetch(this: SDKFetch, options: CreatePostOptions): Http<PostSchema> {
+  return this.post<PostSchema>('posts', options)
 }
 
 SDKFetch.prototype.createPost = createPostFetch

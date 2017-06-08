@@ -1,13 +1,14 @@
 import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { PostId } from 'teambition-types'
 
 export function deletePostFetch (
   this: SDKFetch,
   _postId: PostId
-) {
-  return this.delete(`posts/delete/${_postId}`)
+): Http<void> {
+  return this.delete<void>(`posts/delete/${_postId}`)
 }
 
 SDKFetch.prototype.deletePost = deletePostFetch

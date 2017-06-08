@@ -2,13 +2,13 @@ import * as chai from 'chai'
 import { Subject } from 'rxjs/Subject'
 import { describe, it, beforeEach, afterEach } from 'tman'
 
-import { Fetch, Backend, HttpErrorMessage } from '../index'
+import { Http, Backend, HttpErrorMessage } from '../index'
 
 const expect = chai.expect
 
 export default describe('HttpError$ test: ', () => {
   let httpBackend: Backend
-  let mockFetch: Fetch
+  let mockFetch: Http<any>
   let url: string
   let error$: Subject<HttpErrorMessage>
 
@@ -17,7 +17,7 @@ export default describe('HttpError$ test: ', () => {
   beforeEach(() => {
     error$ = new Subject<HttpErrorMessage>()
     httpBackend = new Backend()
-    mockFetch = new Fetch(error$)
+    mockFetch = new Http(error$)
     url = `${mockFetch.getAPIHost()}/${path}`
   })
 
@@ -40,7 +40,7 @@ export default describe('HttpError$ test: ', () => {
         done()
       })
 
-    mockFetch.get(path).subscribe()
+    mockFetch.get(path).send().subscribe()
   })
 
   it('handler sequence error should ok', done => {
@@ -63,7 +63,7 @@ export default describe('HttpError$ test: ', () => {
         done()
       })
 
-    mockFetch.get(path).subscribe()
-    mockFetch.get(path).subscribe()
+    mockFetch.get(path).send().subscribe()
+    mockFetch.get(path).send().subscribe()
   })
 })

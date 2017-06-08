@@ -5,7 +5,8 @@ export class SocketFetch extends SDKFetch {
     return this.post<void>(`${room}/subscribe`, {
       consumerId: consumerId
     })
-      .toPromise()
+    .send<void>()
+    .toPromise()
   }
 
   leave(room: string, consumerId: string): Promise<void> {
@@ -13,6 +14,8 @@ export class SocketFetch extends SDKFetch {
     return (<any>this.delete)(`${room}/subscribe`, {
       consumerId
     })
+    .send()
+    .toPromise()
   }
 }
 

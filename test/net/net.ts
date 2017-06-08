@@ -6,7 +6,7 @@ import { spy } from 'sinon'
 import * as SinonChai from 'sinon-chai'
 import '../../src/schemas'
 import { schemas, CacheStrategy } from '../../src/SDK'
-import { Net, Backend, SDKFetch, forEach, uuid } from '..'
+import { Net, Backend, SDKFetch, forEach, uuid, Http } from '..'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
 
 use(SinonChai)
@@ -18,7 +18,8 @@ describe('Net test', () => {
   let version = 1
   let subscription: Subscription | undefined
   const sdkFetch = new SDKFetch()
-  const apiHost = sdkFetch.getAPIHost()
+  const http = new Http
+  const apiHost = http.getAPIHost()
   beforeEach(() => {
     httpBackend = new Backend()
     net = new Net(schemas)
@@ -90,7 +91,7 @@ describe('Net test', () => {
 
       const stream$ = net.lift<typeof normalEvent>({
         cacheValidate: CacheStrategy.Cache,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get<any>('api/test'),
         query: {
           where: { _id: normalEvent._id },
         },
@@ -274,7 +275,7 @@ describe('Net test', () => {
 
       const stream$ = net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get<any>('api/test'),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -423,7 +424,7 @@ describe('Net test', () => {
 
       const getToken = () => net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get<any>('api/test'),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -479,7 +480,7 @@ describe('Net test', () => {
            expect(events.length).to.equal(projectEvents.length + 1)
         })
 
-      sdkFetch.restore()
+      http.restore()
     })
 
     it('invalid cacheStrategy should throw', () => {

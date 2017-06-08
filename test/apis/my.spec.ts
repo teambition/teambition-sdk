@@ -32,7 +32,7 @@ describe('MyApi Spec', () => {
 
       yield token.values()
         .do(r => {
-          const compareFn = (x, y) => {
+          const compareFn = (x: TaskSchema, y: TaskSchema) => {
             return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
              + new Date(x.created).valueOf() - new Date(y.created).valueOf()
           }

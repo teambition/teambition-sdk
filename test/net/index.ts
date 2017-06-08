@@ -1,2 +1,3 @@
-import './async-rdb.spec'
+import './asyncLoadRDB'
 import './net'
+import './http'

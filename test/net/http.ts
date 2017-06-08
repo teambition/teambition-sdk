@@ -2,18 +2,18 @@ import { Observable } from 'rxjs'
 import { expect } from 'chai'
 import { describe, it, beforeEach } from 'tman'
 
-import { Fetch, HttpErrorMessage, forEach } from '../index'
+import { HttpErrorMessage, forEach, Http } from '../index'
 
 const fetchMock = require('fetch-mock')
 
-export default describe('utils/fetch', () => {
+export default describe('net/http', () => {
 
-  let fetchInstance: Fetch
+  let fetchInstance: Http<any>
   let url: string
   const path = 'test'
 
   beforeEach(() => {
-    fetchInstance = new Fetch()
+    fetchInstance = new Http
     url = `${fetchInstance.getAPIHost()}/${path}`
   })
 
@@ -27,7 +27,7 @@ export default describe('utils/fetch', () => {
   it('should call isomophic fetch with the correct arguments', done => {
     const data = { test: 'test' }
     fetchMock.mock(url, data)
-    fetchInstance.get(path)
+    fetchInstance.get(path).send()
       .subscribe(() => {
         expect(fetchMock.calls().matched.length).to.equal(1)
         expect(fetchMock.lastUrl()).to.equal(url)
@@ -72,11 +72,34 @@ export default describe('utils/fetch', () => {
     expect(actual).to.be.equal(expected)
   })
 
+  it('should set headers', done => {
+    const header = { 'X-Request-Id': '2333' }
+    fetchInstance.setHeaders(header)
+    fetchMock.mock(url, {})
+    fetchInstance.get(path)
+      .send()
+      .subscribe(() => {
+        expect(fetchMock.lastOptions()).to.deep.equal({
+          method: 'get',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-Request-Id': '2333'
+          },
+          credentials: 'include'
+        })
+        fetchMock.restore()
+        fetchInstance.restore()
+        done()
+      })
+  })
+
   it('should set token', done => {
     const token = 'test_token'
     fetchInstance.setToken(token)
     fetchMock.mock(url, {})
     fetchInstance.get(path)
+      .send()
       .subscribe(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
@@ -99,7 +122,8 @@ export default describe('utils/fetch', () => {
       fetchMock.mock(url, JSON.stringify(responseData), {
         method: httpMethod
       })
-      fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
+      fetchInstance[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
+        .send()
         .subscribe((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
@@ -113,12 +137,37 @@ export default describe('utils/fetch', () => {
   });
 
   ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
+    it(`${httpMethod} Result should contain requestId when request headers has X-Request-Id`, done => {
+      const responseData = { test: 'test' }
+      const body = { body: 'body' }
+      fetchMock.mock(url, {
+        body: JSON.stringify(responseData),
+        headers: {
+          'X-Request-Id': '2333'
+        }
+      }, {
+        method: httpMethod
+      })
+      fetchInstance.setHeaders({ 'X-Request-Id': '2333' })
+      fetchInstance[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
+        .send()
+        .subscribe((res: any) => {
+          expect(res).to.deep.equal({ ...responseData, requestId: '2333' })
+          fetchMock.restore()
+          fetchInstance.restore()
+          done()
+        })
+    })
+  });
+
+  ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
     [400, 401, 403, 404, 500].forEach(status => {
       it(`should handle ${status} status for ${httpMethod}`, done => {
         const responseData = { body: { test: 'test' }, method: httpMethod, status }
         const body = { body: 'body' }
         fetchMock.mock(url, responseData )
         fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
+          .send()
           .do((res: Response) => {
             expect(res).not.to.deep.equal(responseData.body)
             done()

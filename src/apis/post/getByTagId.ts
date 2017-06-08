@@ -1,8 +1,8 @@
-import { Observable } from 'rxjs/Observable'
 import { QueryToken, OrderDescription } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TagId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
+import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { pagination, omit } from '../../utils'
 
@@ -11,8 +11,8 @@ export function getByTagIdFetch(this: SDKFetch, tagId: TagId, query?: {
   count: number
   fields?: string
   [index: string]: any
-}): Observable<PostSchema[]> {
-  return this.get(`tags/${tagId}/posts`, query)
+}): Http<PostSchema[]> {
+  return this.get<PostSchema[]>(`tags/${tagId}/posts`, query)
 }
 
 SDKFetch.prototype.getPostsByTagId = getByTagIdFetch
