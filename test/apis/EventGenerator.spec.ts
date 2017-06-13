@@ -23,8 +23,9 @@ describe('EventGenerator spec', () => {
   it('should get next event for a normal event', () => {
     const egenOfNormal = new EventGenerator(normalEvent as any)
     const { done, value } = egenOfNormal.next()
-    expect(done).to.true
+    expect(done).to.false
     expect(value).to.deep.equal(normalEvent)
+    expect(egenOfNormal.next().done).to.true
   })
 
   it('should get next event for a recurrent event', () => {
@@ -32,7 +33,7 @@ describe('EventGenerator spec', () => {
     const expected = clone(recurrenceByMonth);
     ['_id', 'startDate', 'endDate']
       .forEach(f => {
-        delete nextEvent.value[f]
+        delete nextEvent.value![f]
         delete expected[f]
       })
     expect(nextEvent.done).to.false
@@ -43,36 +44,36 @@ describe('EventGenerator spec', () => {
     eventGenerator.next()
     const nextEvent = eventGenerator.next()
     expect(nextEvent.done).to.false
-    expect(nextEvent.value.startDate).to.deep.equal(Moment(recurrenceByMonth.startDate).add(1, 'month').toISOString())
+    expect(nextEvent.value!.startDate).to.deep.equal(Moment(recurrenceByMonth.startDate).add(1, 'month').toISOString())
     const nextEvent1 = eventGenerator.next()
     expect(nextEvent.done).to.false
-    expect(nextEvent1.value.startDate).to.deep.equal(Moment(recurrenceByMonth.startDate).add(2, 'month').toISOString())
+    expect(nextEvent1.value!.startDate).to.deep.equal(Moment(recurrenceByMonth.startDate).add(2, 'month').toISOString())
   })
 
   it('next, ... will come to { done: true } for a recurrent event that has an end', () => {
     const egen = new EventGenerator(recurrenceHasEnd as any)
     const until = new Date(recurrenceHasEnd.untilDate)
+    let curr = egen.next()
     let next = egen.next()
-    let nextnext = egen.next()
     let nstart: string
-    let nnstart: string
-    for (; ; next = nextnext, nextnext = egen.next()) {
-      nstart = next.value.startDate
-      nnstart = nextnext.value.startDate
-      if (!nnstart) {
-        expect(next.done).to.true
+    for (; ; curr = next, next = egen.next()) {
+      if (!curr.value) {
+        expect(curr.done).true
+        expect(next.done).true
+        break
       }
-      if (new Date(nnstart).valueOf() === until.valueOf()) {
-        expect(nextnext.done).to.true
-        return
+      nstart = curr.value.startDate
+      if (new Date(nstart).valueOf() === until.valueOf()) {
+        expect(next.done).true
       }
-      expect(next.done).to.false
+      // 只要走到这里，代表 curr.value 还有值
+      expect(curr.done).false
     }
   })
 
   it('next should start correctly when the recurrence starts at an excluded date', () => {
     const egen = new EventGenerator(recurrenceStartAtAnExcludedDate as any)
-    const actual = egen.next().value
+    const actual = egen.next().value!
     delete actual['_id']
     const expected = clone(recurrenceStartAtAnExcludedDate)
     delete expected['_id']
@@ -90,7 +91,18 @@ describe('EventGenerator spec', () => {
   it('takeUntil should return correct value', () => {
     const start = new Date(recurrenceByMonth.startDate)
     const result = eventGenerator.takeUntil(Moment(start).add(11, 'month').toDate())
-    expect(result.length).to.equal(11)
+    expect(result.length).to.equal(12)
+    result.forEach((r, index) => {
+      expect(r.startDate).to.equal(Moment(start).add(index, 'month').toISOString())
+    })
+  })
+
+  it('takeUntil should exclude events whose endDate is out of the additionally specified range', () => {
+    const start = new Date(recurrenceByMonth.startDate)
+    const startDateUntil = Moment(start).add(11, 'month').toDate()
+    const endDateUntil = startDateUntil
+    const result = eventGenerator.takeUntil(startDateUntil, endDateUntil)
+    expect(result).lengthOf(11)
     result.forEach((r, index) => {
       expect(r.startDate).to.equal(Moment(start).add(index, 'month').toISOString())
     })
@@ -104,9 +116,32 @@ describe('EventGenerator spec', () => {
 
   it('takeUntil a normal event should return single value array', () => {
     const _eventGenerator = new EventGenerator(normalEvent as any)
-    const result = _eventGenerator.takeUntil(Moment().add(1, 'day').startOf('day').toDate())
+    const until = Moment(normalEvent.endDate).add(1, 'day').startOf('day').toDate()
+    const result = _eventGenerator.takeUntil(until)
     expect(result.length).to.equal(1)
     expect(result).to.deep.equal([normalEvent])
+  })
+
+  it('takeUntil should not be interfered by next()', () => {
+    // 普通日程
+    const _eventGenerator = new EventGenerator(normalEvent as any)
+    _eventGenerator.next()
+    expect(_eventGenerator.next().done).true
+    const until = Moment(normalEvent.endDate).add(1, 'day').startOf('day').toDate()
+    let result = _eventGenerator.takeUntil(until)
+    expect(result.length).to.equal(1)
+    expect(result).to.deep.equal([normalEvent])
+
+    // 重复日程
+    const start = new Date(recurrenceByMonth.startDate)
+    for (let i = 0; i < 12; i++) {
+      eventGenerator.next()
+    }
+    result = eventGenerator.takeUntil(Moment(start).add(11, 'month').toDate())
+    expect(result.length).to.equal(12)
+    result.forEach((r, index) => {
+      expect(r.startDate).to.equal(Moment(start).add(index, 'month').toISOString())
+    })
   })
 
   it('takeFrom an out range Date should return empty array', () => {
@@ -124,6 +159,35 @@ describe('EventGenerator spec', () => {
       expect(r.startDate).to.equal(Moment(first.startDate).add(index, 'month').toISOString())
       expect(r.endDate).to.equal(Moment(first.endDate).add(index, 'month').toISOString())
     })
+  })
+
+  it('takeFrom should include events whose endDate is in the range', () => {
+    const fromDate = Moment(recurrenceByMonth.startDate).add(1, 'minutes').toDate()
+    const toDate = Moment(recurrenceByMonth.endDate).add(1, 'minutes').toDate()
+    const result = eventGenerator.takeFrom(fromDate, toDate)
+    expect(result).lengthOf(1)
+  })
+
+  it('takeFrom should include events whose startDate is in the range', () => {
+    const fromDate = new Date(recurrenceByMonth.startDate)
+    const toDate = Moment(recurrenceByMonth.startDate).add(1, 'minutes').toDate()
+    const result = eventGenerator.takeFrom(fromDate, toDate)
+    expect(result).lengthOf(1)
+  })
+
+  it('takeFrom should include events whose timespan strictly contains the range', () => {
+    const fromDate = Moment(recurrenceByMonth.startDate).add(1, 'minutes').toDate()
+    const toDate = Moment(recurrenceByMonth.endDate).subtract(1, 'minutes').toDate()
+    const result = eventGenerator.takeFrom(fromDate, toDate)
+    expect(result).lengthOf(1)
+  })
+
+  it('takeFrom should exclude events whose endDate is out of the additionally specified range', () => {
+    const fromDate = new Date(recurrenceByMonth.startDate)
+    const toDate = Moment(recurrenceByMonth.startDate).add(1, 'minutes').toDate()
+    const untilDate = Moment(recurrenceByMonth.endDate).subtract(1, 'minutes').toDate()
+    const result = eventGenerator.takeFrom(fromDate, toDate, untilDate)
+    expect(result).lengthOf(0)
   })
 
   it('takeFrom hasEnd recurrence event should return correct values', () => {
@@ -146,5 +210,59 @@ describe('EventGenerator spec', () => {
     const startDay = Moment(normalEvent.startDate).add(1, 'day').startOf('day')
     const result = _eventGenerator.takeFrom(startDay.toDate(), startDay.clone().endOf('day').toDate())
     expect(result).to.deep.equal([])
+  })
+
+  it('after should work on a normal event', () => {
+    const _eventGenerator = new EventGenerator(normalEvent as any)
+    const startDate = new Date(normalEvent.startDate)
+    expect(_eventGenerator.after(startDate)).to.deep.equal(normalEvent)
+    expect(_eventGenerator.after(new Date(startDate.valueOf() - 1))).to.deep.equal(normalEvent)
+    expect(_eventGenerator.after(new Date(startDate.valueOf() + 1))).undefined
+  })
+
+  it('after should work on a recurrent event', () => {
+    let startDate = new Date(recurrenceByMonth.startDate)
+    const firstMonthEvent = eventGenerator.after(startDate)
+    delete firstMonthEvent!['_id']
+    const firstEvent = clone(recurrenceByMonth)
+    delete firstEvent['_id']
+    expect(firstMonthEvent).to.deep.equal(firstEvent)
+
+    startDate = new Date(recurrenceHasEnd.untilDate)
+    expect(new EventGenerator(recurrenceHasEnd as any).after(new Date(startDate.valueOf() + 1))).undefined
+
+    startDate = new Date(recurrenceStartAtAnExcludedDate.startDate)
+    expect(new EventGenerator(recurrenceStartAtAnExcludedDate as any).after(startDate)!.startDate)
+      .to.equal(Moment(startDate).add(1, 'weeks').toISOString())
+  })
+
+  it('findByEventId should work on a normal event', () => {
+    const _eventGenerator = new EventGenerator(normalEvent as any)
+    const targetId = normalEvent._id
+    const invalidId = normalEvent._id + 'asdf'
+
+    expect(_eventGenerator.findByEventId(targetId)).to.deep.equal(normalEvent)
+    expect(_eventGenerator.findByEventId(invalidId)).undefined
+  })
+
+  it('findByEventId should return undefined for a recurrent event with an un-timestamped id', () => {
+    const targetId = recurrenceByMonth._id
+    expect(eventGenerator.findByEventId(targetId)).undefined
+  })
+
+  it('findByEventId should work on a recurrent event', () => {
+    let timestamp = new Date(recurrenceByMonth.startDate).valueOf()
+    let targetId = recurrenceByMonth._id + '_' + timestamp
+    expect(eventGenerator.findByEventId(targetId)).to.deep.equal(eventGenerator.next().value)
+
+    timestamp = Moment(recurrenceByMonth.startDate).add(2, 'months').valueOf()
+    targetId = recurrenceByMonth._id + '_' + timestamp
+    eventGenerator.next()
+    expect(eventGenerator.findByEventId(targetId)).to.deep.equal(eventGenerator.next().value)
+
+    const timestampExDate = new Date(recurrenceStartAtAnExcludedDate.startDate).valueOf()
+    const targetIdExDate = recurrenceStartAtAnExcludedDate._id + '_' + timestampExDate
+    const eventGeneratorExDate = new EventGenerator(recurrenceStartAtAnExcludedDate as any)
+    expect(eventGeneratorExDate.findByEventId(targetIdExDate)).undefined
   })
 })
