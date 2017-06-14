@@ -42,9 +42,9 @@ export class Http<T> {
 
   private _apiHost = 'https://www.teambition.com/api'
 
-  public map(fn: <U>(stream$: Observable<T>) => Observable<U>) {
+  public map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
     this.mapFn = fn
-    return this
+    return this as any as Http<U>
   }
 
   public getAPIHost(): string {
