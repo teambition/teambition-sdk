@@ -95,7 +95,7 @@ export function mockFetch() {
       } else {
         result = results[0]
       }
-      // console.info(uri + method + dataPath, fetchStack)
+
       const wait = result.wait
       if (!wait || wait < 0) {
         return Promise.resolve(new Response(result.response.data, result.response.responseInit))

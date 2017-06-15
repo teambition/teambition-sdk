@@ -18,8 +18,9 @@ describe('Net test', () => {
   let version = 1
   let subscription: Subscription | undefined
   const sdkFetch = new SDKFetch()
-  const http = new Http
-  const apiHost = http.getAPIHost()
+  const apiHost = sdkFetch.getAPIHost()
+  const path = 'test'
+  const http = new Http(`${apiHost}/${path}`)
   beforeEach(() => {
     httpBackend = new Backend()
     net = new Net(schemas)
@@ -41,12 +42,11 @@ describe('Net test', () => {
 
   describe('Net#handleApiResult', () => {
     it('should handle Object type response and consumed by `values`', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(normalEvent)
-
       yield net.lift({
         cacheValidate: CacheStrategy.Cache,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _id: normalEvent._id },
         },
@@ -63,12 +63,12 @@ describe('Net test', () => {
     })
 
     it('should handle Object type response and consumed by `changes`', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(normalEvent)
 
       yield net.lift({
         cacheValidate: CacheStrategy.Cache,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _id: normalEvent._id },
         },
@@ -86,12 +86,12 @@ describe('Net test', () => {
     })
 
     it('should handle Object type response and get changes', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(normalEvent)
 
       const stream$ = net.lift<typeof normalEvent>({
         cacheValidate: CacheStrategy.Cache,
-        request: sdkFetch.get<any>('api/test'),
+        request: sdkFetch.get<any>(path),
         query: {
           where: { _id: normalEvent._id },
         },
@@ -125,12 +125,12 @@ describe('Net test', () => {
     })
 
     it('should handle Array type response and consumed by `values`', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       yield net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -147,12 +147,12 @@ describe('Net test', () => {
     })
 
     it('should handle Array type response and consumed by `changes`', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       yield net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -170,12 +170,12 @@ describe('Net test', () => {
     })
 
     it('should handle Array type response and get changes', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       const stream$ = net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -208,7 +208,7 @@ describe('Net test', () => {
     })
 
     it('should handle Array type response and validate cache', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       const spyFetch = spy(sdkFetch, 'get')
@@ -223,7 +223,7 @@ describe('Net test', () => {
 
       const stream$ = net.lift<any>({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get<any>('api/test'),
+        request: sdkFetch.get<any>(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -260,7 +260,7 @@ describe('Net test', () => {
     })
 
     it('should handle empty Array', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond([])
 
       const spyFetch = spy(sdkFetch, 'get')
@@ -275,7 +275,7 @@ describe('Net test', () => {
 
       const stream$ = net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get<any>('api/test'),
+        request: sdkFetch.get<any>(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -312,12 +312,12 @@ describe('Net test', () => {
     })
 
     it('should get result from cached Response and consumed by `values`', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       const getToken = () => net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -342,12 +342,12 @@ describe('Net test', () => {
     })
 
     it('should get result from cached Response and consumed by `changes`', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       const getToken = () => net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -373,12 +373,12 @@ describe('Net test', () => {
     })
 
     it('should get result from cached Response and get changes', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       const getToken = () => net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -419,12 +419,12 @@ describe('Net test', () => {
     })
 
     it('should get result from cached Response and validate cache', function* () {
-      httpBackend.whenGET(`${apiHost}/api/test`)
+      httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
       const getToken = () => net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get<any>('api/test'),
+        request: sdkFetch.get<any>(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -486,7 +486,7 @@ describe('Net test', () => {
     it('invalid cacheStrategy should throw', () => {
       const fn = () => net.lift({
         cacheValidate: 2313,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },
@@ -505,7 +505,7 @@ describe('Net test', () => {
     it('invalid tableName should throw', () => {
       const fn = () => net.lift({
         cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get('api/test'),
+        request: sdkFetch.get(path),
         query: {
           where: { _projectId: projectEvents[0]._projectId },
         },

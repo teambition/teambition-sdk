@@ -1,4 +1,4 @@
-import { Backend, SDKFetch, Http } from '../index'
+import { Backend, SDKFetch } from '../index'
 
 function throwIfSlashPath(path: string) {
   if (path.charAt(0) === '/') {
@@ -8,12 +8,12 @@ function throwIfSlashPath(path: string) {
 
 export class MockFetch extends SDKFetch {
   private httpBackend = new Backend
-  private apiHost = new Http<any>().getAPIHost()
+  private _apiHost = new SDKFetch().getAPIHost()
 
   mockGet(path: string, query?: any) {
     throwIfSlashPath(path)
     return {
-      mockResponse: this.httpBackend.whenGET(`${this.apiHost}/${path}`, query),
+      mockResponse: this.httpBackend.whenGET(`${this._apiHost}/${path}`, query),
       request: this.get(path, query)
     }
   }
@@ -21,7 +21,7 @@ export class MockFetch extends SDKFetch {
   mockPut(path: string, body?: any) {
     throwIfSlashPath(path)
     return {
-      mockResponse: this.httpBackend.whenPUT(`${this.apiHost}/${path}`, body),
+      mockResponse: this.httpBackend.whenPUT(`${this._apiHost}/${path}`, body),
       request: this.put(path, body)
     }
   }
@@ -29,7 +29,7 @@ export class MockFetch extends SDKFetch {
   mockPost(path: string, body?: any) {
     throwIfSlashPath(path)
     return {
-      mockResponse: this.httpBackend.whenPOST(`${this.apiHost}/${path}`, body),
+      mockResponse: this.httpBackend.whenPOST(`${this._apiHost}/${path}`, body),
       request: this.post(path, body)
     }
   }
@@ -37,7 +37,7 @@ export class MockFetch extends SDKFetch {
   mockDelete(path: string) {
     throwIfSlashPath(path)
     return {
-      mockResponse: this.httpBackend.whenDELETE(`${this.apiHost}/${path}`),
+      mockResponse: this.httpBackend.whenDELETE(`${this._apiHost}/${path}`),
       request: this.delete(path)
     }
   }

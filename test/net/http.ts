@@ -1,8 +1,8 @@
-import { Observable } from 'rxjs'
+import { Observable, Scheduler } from 'rxjs'
 import { expect } from 'chai'
 import { describe, it, beforeEach } from 'tman'
 
-import { HttpErrorMessage, forEach, Http } from '../index'
+import { HttpErrorMessage, Http } from '../index'
 
 const fetchMock = require('fetch-mock')
 
@@ -10,24 +10,18 @@ export default describe('net/http', () => {
 
   let fetchInstance: Http<any>
   let url: string
+  const apiHost = 'https://www.teambition.com/api'
   const path = 'test'
 
   beforeEach(() => {
-    fetchInstance = new Http
-    url = `${fetchInstance.getAPIHost()}/${path}`
-  })
-
-  it('should configure api host', () => {
-    expect(fetchInstance.getAPIHost()).to.equal('https://www.teambition.com/api')
-    const myUrl = 'https://www.example.com'
-    fetchInstance.setAPIHost(myUrl)
-    expect(fetchInstance.getAPIHost()).to.equal(myUrl)
+    url = `${apiHost}/${path}`
+    fetchInstance = new Http(url)
   })
 
   it('should call isomophic fetch with the correct arguments', done => {
     const data = { test: 'test' }
     fetchMock.mock(url, data)
-    fetchInstance.get(path).send()
+    fetchInstance.get().send()
       .subscribe(() => {
         expect(fetchMock.calls().matched.length).to.equal(1)
         expect(fetchMock.lastUrl()).to.equal(url)
@@ -44,39 +38,11 @@ export default describe('net/http', () => {
       })
   })
 
-  it('should serialize array to query string', () => {
-    const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
-    const parts: string[] = []
-    forEach(query, (value, key) => {
-      if (!Array.isArray(value)) {
-        value = <any>[value]
-      }
-      parts.push(...(<any[]>value).map(v => `${key}=${v}`))
-    })
-    const actual = fetchInstance['_buildQuery']('', query)
-    const expected = `?${parts.join('&')}`
-    expect(actual).to.be.equal(expected)
-  })
-
-  it('should serialize query with queryUrl to query string', () => {
-    const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
-    const parts: string[] = []
-    forEach(query, (value, key) => {
-      if (!Array.isArray(value)) {
-        value = <any>[value]
-      }
-      parts.push(...(<any[]>value).map(v => `${key}=${v}`))
-    })
-    const actual = fetchInstance['_buildQuery']('http://abc.com?_=123', query)
-    const expected = `http://abc.com?_=123&${parts.join('&')}`
-    expect(actual).to.be.equal(expected)
-  })
-
   it('should set headers', done => {
     const header = { 'X-Request-Id': '2333' }
     fetchInstance.setHeaders(header)
     fetchMock.mock(url, {})
-    fetchInstance.get(path)
+    fetchInstance.get()
       .send()
       .subscribe(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
@@ -98,7 +64,7 @@ export default describe('net/http', () => {
     const token = 'test_token'
     fetchInstance.setToken(token)
     fetchMock.mock(url, {})
-    fetchInstance.get(path)
+    fetchInstance.get()
       .send()
       .subscribe(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
@@ -122,7 +88,7 @@ export default describe('net/http', () => {
       fetchMock.mock(url, JSON.stringify(responseData), {
         method: httpMethod
       })
-      fetchInstance[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
+      fetchInstance[httpMethod](httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
         .subscribe((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
@@ -183,6 +149,37 @@ export default describe('net/http', () => {
           })
           .subscribe()
       })
+    })
+  })
+
+  it('correctly clone-ed Http instance should use cached response', function* () {
+    const response = { value: 'A' }
+
+    fetchInstance.get()
+    // 一个从源 Http 对象 clone 的对象
+    const fetchInstanceClone1 = fetchInstance.clone()
+    // 第二个从源 Http 对象 clone 的对象
+    const fetchInstanceClone2 = fetchInstance.clone()
+    // 一个从 clone 出来的 Http 对象 clone 的对象
+    const fetchInstanceClone1Clone = fetchInstanceClone1.clone()
+
+    fetchMock.get(url, { body: JSON.stringify(response) })
+
+    yield Observable.forkJoin(
+      fetchInstance.send(),
+      fetchInstanceClone1.send(),
+      fetchInstanceClone2.send(),
+      fetchInstanceClone1Clone.send()
+    )
+    .subscribeOn(Scheduler.async)
+    .do(([res, resClone1, resClone2, resClone1Clone]) => {
+      expect(res).to.deep.equal(response)
+      expect(resClone1).to.deep.equal(response)
+      expect(resClone2).to.deep.equal(response)
+      expect(resClone1Clone).to.deep.equal(response)
+      expect(fetchMock.calls(url)).lengthOf(1)
+      fetchMock.restore()
+      fetchInstance.restore()
     })
   })
 })

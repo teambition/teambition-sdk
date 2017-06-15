@@ -5,7 +5,7 @@ export class SocketFetch extends SDKFetch {
     return this.post<void>(`${room}/subscribe`, {
       consumerId: consumerId
     })
-    .send<void>()
+    .send()
     .toPromise()
   }
 
