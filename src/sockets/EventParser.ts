@@ -1,4 +1,4 @@
-import { RequestEvent } from 'snapper-consumer'
+import { RequestEvent, TCMParam } from 'snapper-consumer'
 import { forEach } from '../utils/index'
 import Dirty from '../utils/Dirty'
 
@@ -24,8 +24,12 @@ export function eventParser(event: RequestEvent) {
           e: string,
           d: any
         }
+
+        // 兼容 TCM 新格式
+        const dataMsg = typeof param === 'string' ? param : (param as TCMParam).data
+
         try {
-          result = JSON.parse(param)
+          result = JSON.parse(dataMsg)
         } catch (e) {
           return console.error(e)
         }
