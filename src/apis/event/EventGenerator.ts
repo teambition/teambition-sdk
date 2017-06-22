@@ -59,8 +59,17 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     from: Date, fromCmpOption: 'byStartDate' | 'byEndDate',
     to: Date, toCmpOption: 'byStartDate' | 'byEndDate'
   ): TimeFrame[] {
-    let startDate = new Date(this.event.startDate)
-    let endDate = new Date(this.event.endDate)
+    let startDate: Date
+    let endDate: Date
+
+    if (!this.isRecurrence) {
+      startDate = new Date(this.event.startDate)
+      endDate = new Date(this.event.endDate)
+    } else {
+      startDate = this.rrule.after(this.event.startDate, true)
+      endDate = this.computeEndDate(startDate)
+    }
+
     let eventSpan = { startDate, endDate }
 
     const skipPred = (eSpan: TimeFrame): boolean =>

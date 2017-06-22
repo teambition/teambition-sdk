@@ -212,6 +212,13 @@ describe('EventGenerator spec', () => {
     expect(result).to.deep.equal([])
   })
 
+  it('takeFrom recurrent event that starts at an excluded date should ignore the excluded recurrence', () => {
+    const egen = new EventGenerator(recurrenceStartAtAnExcludedDate as any)
+    const startDate = new Date(recurrenceStartAtAnExcludedDate.startDate)
+    const beforeFirstRecurrence = Moment(startDate).add(1, 'weeks').subtract(1, 'ms').toDate()
+    expect(egen.takeFrom(startDate, beforeFirstRecurrence)).to.deep.equal([])
+  })
+
   it('after should work on a normal event', () => {
     const _eventGenerator = new EventGenerator(normalEvent as any)
     const startDate = new Date(normalEvent.startDate)
