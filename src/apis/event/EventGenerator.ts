@@ -5,7 +5,7 @@ import { EventId } from 'teambition-types'
 
 const { rrulestr } = require('rrule')
 
-type TimeFrame = { startDate: Date, endDate: Date }
+type Timeframe = { startDate: Date, endDate: Date }
 
 export class EventGenerator implements IterableIterator<EventSchema | undefined> {
   type: 'event' = 'event'
@@ -13,7 +13,7 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
 
   private done: boolean
   private rrule: any
-  private startDate: Date
+  private startDateCursor: Date
   private isRecurrence = isRecurrence(this.event)
   private duration: number
 
@@ -28,27 +28,42 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     this.duration = endDateObj.valueOf() - startDateObj.valueOf()
 
     if (this.isRecurrence) {
-      this.startDate = startDateObj
+      this.startDateCursor = startDateObj
       this.rrule = rrulestr(this.event.recurrence.join('\n'), { forceset: true })
     }
   }
 
   // 从给予的 startDate 和 endDate 生成一个 EventSchema 对象；
   // 当用于普通日程，不需要提供参数。
-  private makeEvent(timeFrame?: TimeFrame): EventSchema {
+  private makeEvent(timeframe?: Timeframe): EventSchema {
     const target = clone(this.event)
 
-    if (!this.isRecurrence || !timeFrame) {
+    if (!this.isRecurrence || !timeframe) {
       return target
     }
-    // this.isRecurrence && timeFrame
+    // this.isRecurrence && timeframe
 
-    const timestamp = timeFrame.startDate.valueOf()
+    const timestamp = timeframe.startDate.valueOf()
     target._id = `${target._id}_${timestamp}`
-    target.startDate = timeFrame.startDate.toISOString()
-    target.endDate = timeFrame.endDate.toISOString()
+    target.startDate = timeframe.startDate.toISOString()
+    target.endDate = timeframe.endDate.toISOString()
 
     return target
+  }
+
+  private getOneTimeframeFromRecurrence(
+    unadjustedStartDate: Date,
+    include: boolean = true
+  ): Timeframe | null {
+    // unadjustedStartDate 可能未经 this.rrule.after 过滤，有可能是
+    // 一个 exdate（被 rruleset 剔除的日期），发现时需要跳过。
+    const startDate = this.rrule.after(unadjustedStartDate, include)
+    if (startDate) {
+      const endDate = this.computeEndDate(startDate)
+      return { startDate, endDate }
+    } else {
+      return null
+    }
   }
 
   private computeEndDate(startDate: Date): Date {
@@ -58,78 +73,83 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
   private slice(
     from: Date, fromCmpOption: 'byStartDate' | 'byEndDate',
     to: Date, toCmpOption: 'byStartDate' | 'byEndDate'
-  ): TimeFrame[] {
-    let startDate: Date
-    let endDate: Date
-
-    if (!this.isRecurrence) {
-      startDate = new Date(this.event.startDate)
-      endDate = new Date(this.event.endDate)
-    } else {
-      startDate = this.rrule.after(this.event.startDate, true)
-      endDate = this.computeEndDate(startDate)
-    }
-
-    let eventSpan = { startDate, endDate }
-
-    const skipPred = (eSpan: TimeFrame): boolean =>
+  ): Timeframe[] {
+    const skipPred = (eSpan: Timeframe): boolean =>
       fromCmpOption === 'byStartDate' && eSpan.startDate < from
       || fromCmpOption === 'byEndDate' && eSpan.endDate < from
 
-    const stopPred = (eSpan: TimeFrame): boolean =>
+    const stopPred = (eSpan: Timeframe): boolean =>
       toCmpOption === 'byStartDate' && eSpan.startDate > to
       || toCmpOption === 'byEndDate' && eSpan.endDate > to
 
-    const result: TimeFrame[] = []
+    const result: Timeframe[] = []
+    let initialEventSpan: Timeframe | null
 
     if (!this.isRecurrence) {
-      if (!skipPred(eventSpan) && !stopPred(eventSpan)) {
+      initialEventSpan = {
+        startDate: new Date(this.event.startDate),
+        endDate: new Date(this.event.endDate)
+      }
+      if (!skipPred(initialEventSpan) && !stopPred(initialEventSpan)) {
         // eventSpan 在时间范围内
-        result.push({ startDate, endDate })
+        result.push(initialEventSpan)
       }
       return result
     }
+    // this.isRecurrence is truthy
 
-    for (; startDate; startDate = this.rrule.after(startDate)) {
-      endDate = this.computeEndDate(startDate)
-      eventSpan = { startDate, endDate }
-      if (stopPred(eventSpan)) { // 优先检查停止条件
+    initialEventSpan = this.getOneTimeframeFromRecurrence(new Date(this.event.startDate))
+    if (!initialEventSpan) {
+      return []
+    }
+
+    let curr: Timeframe | null
+    for (
+      curr = initialEventSpan;
+      curr !== null;
+      curr = this.getOneTimeframeFromRecurrence(curr.startDate, false)
+    ) {
+      if (stopPred(curr)) { // 优先检查停止条件
         break
       }
-      if (skipPred(eventSpan)) { // 其次检查忽略条件
+      if (skipPred(curr)) { // 其次检查忽略条件
         continue
       }
-      // eventSpan 在时间范围内
-      result.push(eventSpan)
+
+      result.push(curr)
     }
+
     return result
   }
 
   next(): IteratorResult<EventSchema | undefined> {
     const doneRet = { value: undefined, done: true }
 
-    if (!this.isRecurrence) {
-      if (this.done) {
-        return doneRet
-      } else {
-        this.done = true
-        return { value: this.makeEvent(), done: false }
-      }
-    }
-
-    if (!this.startDate) {
+    if (this.done) {
       return doneRet
     }
-    // 不直接将 this.startDate 赋给 startDate 的原因是：
-    //   如果这是第一次 next() 调用，this.startDate 未经 after 过滤，
-    //   有可能是一个 exdate（被 rruleset 剔除的日期），发现时需要跳过。
-    const startDate = this.rrule.after(this.startDate, true)
-    const endDate = this.computeEndDate(startDate)
+
+    if (!this.isRecurrence) {
+      this.done = true
+      return { value: this.makeEvent(), done: false }
+    }
+
+    if (!this.startDateCursor) {
+      this.done = true
+      return doneRet
+    }
+
+    const eventSpan = this.getOneTimeframeFromRecurrence(this.startDateCursor)
+    if (!eventSpan) {
+      this.done = true
+      return doneRet
+    }
+
     const result = {
-      value: this.makeEvent({ startDate, endDate }),
+      value: this.makeEvent(eventSpan),
       done: false
     }
-    this.startDate = this.rrule.after(startDate)
+    this.startDateCursor = this.rrule.after(eventSpan.startDate)
     return result
   }
 
@@ -154,48 +174,45 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     ).map((eventSpan) => this.makeEvent(eventSpan))
   }
 
-  after(date: Date) {
+  after(date: Date): EventSchema | null {
     if (!this.isRecurrence) {
       if (new Date(this.event.startDate) < date) {
-        return undefined
+        return null
       } else {
         return this.event
       }
     }
-    const startDate = this.rrule.after(date, true)
-    if (!startDate) {
-      return undefined
+    // this.isRecurrence is truthy
+    const targetEventSpan = this.getOneTimeframeFromRecurrence(date)
+    if (!targetEventSpan) {
+      return null
+    } else {
+      return this.makeEvent(targetEventSpan)
     }
-    const endDate = this.computeEndDate(startDate)
-    return this.makeEvent({ startDate, endDate })
   }
 
-  findByEventId(eventId: EventId): EventSchema | undefined {
+  findByEventId(eventId: EventId): EventSchema | null {
     if (!this.isRecurrence) {
-      return eventId === this.event._id ? this.makeEvent() : undefined
+      return eventId === this.event._id ? this.makeEvent() : null
     }
 
     const [id, timestampStr] = eventId.split('_', 2)
     if (id !== this.event._id) {
-      return undefined
+      return null
     }
 
     // 不使用 parseInt 因为不应该兼容前缀正确的错误 timestamp
     const timestamp = Number(timestampStr)
     const expectedDate = new Date(timestamp)
     if (isNaN(timestamp) || isNaN(expectedDate.valueOf())) {
-      return undefined
+      return null
     }
     // expectedDate is a valid Date object
 
-    const actualDate: Date = this.rrule.after(expectedDate, true)
-    if (!actualDate || actualDate.valueOf() !== expectedDate.valueOf()) {
-      return undefined
+    const targetEventSpan = this.getOneTimeframeFromRecurrence(expectedDate)
+    if (!targetEventSpan || targetEventSpan.startDate.valueOf() !== expectedDate.valueOf()) {
+      return null
     }
-
-    return this.makeEvent({
-      startDate: expectedDate,
-      endDate: this.computeEndDate(expectedDate)
-    })
+    return this.makeEvent(targetEventSpan)
   }
 }
