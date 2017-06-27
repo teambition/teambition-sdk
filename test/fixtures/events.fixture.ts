@@ -158,6 +158,32 @@ export const recurrenceStartAtAnExcludedDate = {
   shareStatus: 0
 }
 
+export const emptyRecurrence = {
+  _id: '595062ee5f8dd91d0128a6e8',
+  endDate: '2017-06-26T02:00:00.000Z',
+  startDate: '2017-06-26T01:00:00.000Z',
+  _projectId: '58de0732c8e92231f4237fc7',
+  location: '',
+  content: '',
+  title: 'daily',
+  _creatorId: '58aabfe4e404431e0f116d36',
+  tagIds: [],
+  updated: '2017-06-26T01:27:28.712Z',
+  created: '2017-06-26T01:27:10.123Z',
+  visible: 'members',
+  isArchived: false,
+  involveMembers: ['58aabfe4e404431e0f116d36'],
+  status: '',
+  untilDate: '2017-06-26T01:00:00.000Z',
+  _sourceId: '595062ee5f8dd91d0128a6e8',
+  sourceDate: '2017-06-26T01:00:00.000Z',
+  recurrence: ['RRULE:FREQ=DAILY;DTSTART=20170626T010000Z;INTERVAL=1;UNTIL=20170626T010000Z', 'EXDATE:20170626T010000Z'],
+  reminders: [],
+  objectlinksCount: 0,
+  isFavorite: false,
+  shareStatus: 0
+}
+
 export const projectEvents = [
   {
     _id: '579033c828bb08a462fe352c',
