@@ -7,11 +7,7 @@ cache:
   - node_modules # NPM packages
 
 install:
-  - npm install
-
-before_script:
-  - npm link
-  - npm link teambition-sdk
+  - yarn install
 
 script:
   - "npm run build_all"
