@@ -2,8 +2,9 @@
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as SinonChai from 'sinon-chai'
-import { Backend, ProjectAPI, apihost, clone, assign, forEach, BaseFetch } from '../index'
+import { Backend, ProjectAPI, MemberAPI, apihost, clone, assign, forEach, BaseFetch } from '../index'
 import { projects } from '../../mock/projects'
+import { projectMembers } from '../../mock/projectMembers'
 import { reportSummary } from '../../mock/reportSummary'
 import { reportAnalysis } from '../../mock/reportAnalysis'
 import { homeActivities } from '../../mock/homeActivities'
@@ -64,7 +65,7 @@ export default describe('Project API test: ', () => {
     Project.getPersonal()
       .subscribe(projects => {
         expect(projects).to.be.instanceof(Array)
-        forEach(projects, (project, pos) => {
+        forEach(projects, (project) => {
           expect(project._organizationId).to.equal(null)
         })
         done()
@@ -115,21 +116,26 @@ export default describe('Project API test: ', () => {
 
     yield Project.getOne(project._id)
       .take(1)
-      .do(r => {
+      .do(() => {
         expect(spy).to.calledOnce
       })
   })
 
   it('create project should ok', function* () {
-
+    const id = 'test'
+    const Member = new MemberAPI()
     httpBackend
       .whenPOST(`${apihost}projects`, {
         name: 'test project'
       })
       .respond({
-        _id: 'test',
+        _id: id,
         name: 'test project'
       })
+
+    httpBackend
+      .whenGET(`${apihost}projects/${id}/members`, { page: 1, count: 1000 })
+      .respond(projectMembers)
 
       const signal = Project.getAll()
         .publish()
@@ -144,6 +150,15 @@ export default describe('Project API test: ', () => {
       yield signal.take(1)
         .do(r => {
           expect(r[0].name).to.equal('test project')
+        })
+
+      const memberSignal = Member.getAllProjectMembers(id)
+      yield memberSignal.take(1)
+        .do(members => {
+          const ids = members.map(member => member._id)
+          const fixtureIds = projectMembers.map(member => member._id)
+
+          expect(ids).to.deep.equal(fixtureIds)
         })
   })
 
