@@ -15,9 +15,11 @@ import {
 } from '../fetchs/ProjectFetch'
 import ProjectModel from '../models/ProjectModel'
 import HomeActivityModel from '../models/HomeActivityModel'
+import MemberFetch from '../fetchs/MemberFetch'
 import { ProjectData } from '../schemas/Project'
 import { HomeActivityData } from '../schemas/HomeActivity'
 import { makeColdSignal } from './utils'
+
 import {
   CreatedInProjectSchema,
   InviteLinkSchema,
@@ -140,6 +142,7 @@ export class ProjectAPI {
       .concatMap(project =>
         ProjectModel.addOne(project)
           .take(1)
+          .do(() => MemberFetch.getProjectMembers(project._id))
       )
   }
 
