@@ -94,6 +94,24 @@ export default describe('SDKFetch', () => {
       })
   })
 
+  it('get with empty query object should work correctly', function* () {
+    const urlMatcher = new RegExp(testUrl)
+    fetchMock.get(urlMatcher, {})
+
+    yield sdkFetch.get(path, {})
+      .send()
+      .subscribeOn(Scheduler.async)
+      .do(() => {
+        const delimiter = '?_='
+        const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
+        expect(prefix).to.equal(testUrl)
+        expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
+      })
+      .finally(() => {
+        fetchMock.restore()
+      })
+  })
+
   it('get should re-use observable for mathcing request', () => {
     const getA = sdkFetch.get(path, { value: 'A' })
     const anotherGetA = sdkFetch.get(path, { value: 'A' })
@@ -136,6 +154,13 @@ export default describe('SDKFetch', () => {
     })
     const actual = sdkFetch['_buildQuery']('http://abc.com?_=123', query)
     const expected = `http://abc.com?_=123&${parts.join('&')}`
+    expect(actual).to.be.equal(expected)
+  })
+
+  it('_buildQuery should ignore key \'_\'', () => {
+    const query = { _: 123, a: 'a' }
+    const actual = sdkFetch['_buildQuery']('', query)
+    const expected = `?a=a`
     expect(actual).to.be.equal(expected)
   })
 })
