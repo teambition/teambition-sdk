@@ -50,7 +50,7 @@
     "@types/chai": "^4.0.0",
     "@types/lodash": "^4.14.64",
     "@types/lovefield": "^2.0.32",
-    "@types/node": "^7.0.18",
+    "@types/node": "^8.0.0",
     "@types/sinon": "^2.2.1",
     "@types/sinon-chai": "^2.7.27",
     "chai": "^4.0.1",
