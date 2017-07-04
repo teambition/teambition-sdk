@@ -8,7 +8,8 @@ import {
   dropEle,
   capitalizeFirstLetter,
   parseHeaders,
-  omit
+  omit,
+  isEmptyObject
 } from '../index'
 
 const expect = chai.expect
@@ -256,6 +257,13 @@ export default describe('utils test', () => {
     expect(omitProps({ x: 1 })).to.deep.equal({})
     expect(omitProps({ z: 3 })).to.deep.equal({ z: 3 })
     expect(omitProps({ x: 1, y: 2, z: 3 })).to.deep.equal({ z: 3 })
+  })
+
+  it('isEmptyObject should work correctly', () => {
+    expect(isEmptyObject({})).to.be.true
+    expect(isEmptyObject(1)).to.be.false
+    expect(isEmptyObject({ a: 'a' })).to.be.false
+    expect(isEmptyObject('a')).to.be.false
   })
 
 })

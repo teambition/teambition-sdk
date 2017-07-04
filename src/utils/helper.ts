@@ -170,3 +170,10 @@ export function omit(o: any, ...properties: string[]) {
   })
   return obj
 }
+
+export function isEmptyObject(obj: any): boolean {
+  if (typeof obj !== 'object') {
+    return false
+  }
+  return Object.keys(obj).length === 0
+}

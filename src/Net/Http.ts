@@ -17,13 +17,13 @@ export interface HttpErrorMessage {
   body?: any
 }
 
-export const HttpError$: Observable<HttpErrorMessage> = new Subject<HttpErrorMessage>()
+export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
 
 export class Http<T> {
   private errorAdapter$: Subject<HttpErrorMessage>
   private cloned = false
   private request: Observable<T>
-  public mapFn: <U>(stream$: Observable<T>) => Observable<U> = (dist$: Observable<T>) => dist$
+  public mapFn = (dist$: Observable<T>) => dist$
 
   constructor(private url: string, errorAdapter$?: Subject<HttpErrorMessage>) {
     if (errorAdapter$) {
@@ -41,7 +41,7 @@ export class Http<T> {
     credentials: 'include'
   }
 
-  public map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
+  public map<U>(fn: <U>(stream$: Observable<T>) => Observable<U>) {
     this.mapFn = fn
     return this as any as Http<U>
   }

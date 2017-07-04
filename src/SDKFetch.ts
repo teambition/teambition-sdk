@@ -6,7 +6,7 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { forEach } from './utils/index'
+import { forEach, isEmptyObject } from './utils/index'
 
 export class SDKFetch {
 
@@ -32,7 +32,7 @@ export class SDKFetch {
     }
 
     const tail = SDKFetch.fetchTail || Date.now()
-    const urlWithTail = query
+    const urlWithTail = query && !isEmptyObject(query)
       ? `${ urlWithQuery }&_=${ tail }`
       : `${ urlWithQuery }?_=${ tail }`
     const dist = Observable.defer(() => http.createMethod('get')(urlWithTail)
@@ -106,6 +106,10 @@ export class SDKFetch {
     }
     const result: string[] = []
     forEach(query, (val: any, key: string) => {
+      if (key === '_') {
+        console.warn('query should not contain key \'_\', it will be ignored')
+        return
+      }
       if (Array.isArray(val)) {
         (<any[]>val).forEach(_val => {
           if (typeof _val !== 'undefined') {

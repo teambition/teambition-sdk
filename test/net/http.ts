@@ -18,11 +18,12 @@ export default describe('net/http', () => {
     fetchInstance = new Http(url)
   })
 
-  it('should call isomophic fetch with the correct arguments', done => {
+  it('should call isomophic fetch with the correct arguments', function* () {
     const data = { test: 'test' }
     fetchMock.mock(url, data)
-    fetchInstance.get().send()
-      .subscribe(() => {
+    yield fetchInstance.get().send()
+      .subscribeOn(Scheduler.async)
+      .do(() => {
         expect(fetchMock.calls().matched.length).to.equal(1)
         expect(fetchMock.lastUrl()).to.equal(url)
         expect(fetchMock.lastOptions()).to.deep.equal({
@@ -34,7 +35,6 @@ export default describe('net/http', () => {
           credentials: 'include'
         })
         fetchMock.restore()
-        done()
       })
   })
 
