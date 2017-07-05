@@ -57,7 +57,7 @@
     "coveralls": "^2.13.1",
     "engine.io-client": "^3.1.0",
     "fetch-mock": "^5.10.0",
-    "google-closure-compiler-js": "^20170521.0.0",
+    "google-closure-compiler-js": "^20170626.0.0",
     "isomorphic-fetch": "^2.2.1",
     "jsonrpc-lite": "^1.2.3",
     "madge": "^1.6.0",
