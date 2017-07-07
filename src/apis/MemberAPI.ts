@@ -91,10 +91,17 @@ export class MemberAPI {
    * 比如项目加人时可调用，组织加人时也可以调用
    */
   addMembers(_projectId: ProjectId, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]> {
+    let length = emails.length
     return MemberFetch.addProjectMembers(_projectId, <string[]>emails)
-      .concatMap(r =>
-        MemberModel.addProjectMembers(_projectId, r)
-      )
+      .concatMap(r => {
+        if (r.length !== length) {
+          return this.getAllProjectMembers(_projectId)
+            .concatMap(r => {
+              return MemberModel.addProjectMembers(_projectId, r)
+            })
+        }
+        return MemberModel.addProjectMembers(_projectId, r)
+      })
   }
 }
 
