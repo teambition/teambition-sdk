@@ -16,11 +16,13 @@ chai.use(SinonChai)
 export default describe('Project API test: ', () => {
   let httpBackend: Backend
   let Project: ProjectAPI
+  let Member: MemberAPI
   let spy: sinon.SinonSpy
 
   beforeEach(() => {
     flush()
     Project = new ProjectAPI()
+    Member = new MemberAPI()
     httpBackend = new Backend()
     spy = sinon.spy(BaseFetch.fetch, 'get')
     httpBackend
@@ -121,9 +123,8 @@ export default describe('Project API test: ', () => {
       })
   })
 
-  it('create project should ok', function* () {
+  it.only('create project should ok', function* () {
     const id = 'test'
-    const Member = new MemberAPI()
     httpBackend
       .whenPOST(`${apihost}projects`, {
         name: 'test project'
@@ -134,26 +135,21 @@ export default describe('Project API test: ', () => {
       })
 
     httpBackend
-      .whenGET(`${apihost}projects/${id}/members`, { page: 1, count: 1000 })
+      .whenGET(`${apihost}projects/${id}/members`, { page: 1, count: 30 })
       .respond(projectMembers)
 
-      const signal = Project.getAll()
-        .publish()
-        .refCount()
-
-      yield signal.take(1)
-
-      yield Project.create({
+      const signal = Project.create({
         name: 'test project'
       })
 
-      yield signal.take(1)
+      yield signal
+        .take(1)
         .do(r => {
-          expect(r[0].name).to.equal('test project')
+          expect(r.name).to.equal('test project')
         })
 
-      const memberSignal = Member.getAllProjectMembers(id)
-      yield memberSignal.take(1)
+      yield Member.getProjectMembers(id)
+        .take(1)
         .do(members => {
           const ids = members.map(member => member._id)
           const fixtureIds = projectMembers.map(member => member._id)
