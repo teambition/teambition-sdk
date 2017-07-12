@@ -1,9 +1,9 @@
-import { QueryToken } from 'reactivedb'
+import { Query, QueryToken } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { ProjectId, UserId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
-import { GetPostsQuery } from './getProjects'
-import { pagination, omit } from '../../utils'
+import { GetPostsQuery, GetPostsUrlQuery } from './getProjects'
+import { normPagingQuery } from '../../utils'
 
 export function getMyProjectPosts (
   this: SDK,
@@ -11,26 +11,25 @@ export function getMyProjectPosts (
   _projectId: ProjectId,
   query?: GetPostsQuery<'my'>
 ): QueryToken<PostSchema> {
-  const defaultQuery: Partial<GetPostsQuery<'my'>> = {
-    count: 500,
-    page: 1
-  }
-  const q = query ? { ...defaultQuery, ...query } : defaultQuery
-  const rdbQuery: any = {
+  const queryPair = normPagingQuery(query)
+
+  const urlQuery = queryPair.forUrl as GetPostsUrlQuery<'my'>
+  const { skip, limit } = queryPair.forSql
+
+  const selectStmt: Query<PostSchema> = {
     where: {
       _projectId,
       isArchived: false,
       _creatorId: userId
     },
-    ...pagination(q.count!, q.page!)
+    skip,
+    limit,
+    ...(query && query.orderBy ? { orderBy: query.orderBy } : {})
   }
-  if (q.orderBy) {
-    rdbQuery.orderBy = q.orderBy
-  }
-  const urlQuery = omit(query, 'orderBy')
+
   return this.lift<PostSchema>({
     request: this.fetch.getPosts(_projectId, urlQuery),
-    query: rdbQuery,
+    query: selectStmt,
     tableName: 'Post',
     cacheValidate: CacheStrategy.Request,
     assocFields: {

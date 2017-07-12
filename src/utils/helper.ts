@@ -1,3 +1,5 @@
+import { PagingQuery, UrlPagingQuery, SqlPagingQuery } from './internalTypes'
+
 export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 
 export function forEach<T> (
@@ -160,15 +162,28 @@ export function pagination(count: number, page: number) {
   }
 }
 
-export function omit(o: any, ...properties: string[]) {
-  if (typeof o !== 'object' || o === null) {
-    return o
-  }
-  const obj = { ...o }
-  properties.forEach(p => {
-    delete obj[p]
-  })
-  return obj
+const omitKeys = (srcObj: PagingQuery, ...keysToBeOmitted: string[]) => {
+  const omitKeySet = new Set(keysToBeOmitted)
+  return Object.keys(srcObj)
+    .filter((key) => !(omitKeySet.has(key)))
+    .reduce((destObj, key) => {
+      destObj[key] = srcObj[key]
+      return destObj
+    }, {})
+}
+
+export const normPagingQuery = (
+  query: Partial<PagingQuery> = {}
+): { forUrl: UrlPagingQuery, forSql: SqlPagingQuery } => {
+  const defaultPaging = { count: 500, page: 1 }
+
+  let q = { ...defaultPaging, ...query }
+  const forUrl = omitKeys(q, 'orderBy') as UrlPagingQuery
+
+  q = { ...q, ...pagination(q.count, q.page) }
+  const forSql = omitKeys(q, 'count', 'page') as SqlPagingQuery
+
+  return { forUrl, forSql }
 }
 
 export function isEmptyObject(obj: any): boolean {

@@ -1,17 +1,27 @@
-import { QueryToken, OrderDescription } from 'reactivedb'
+import { Query, QueryToken, OrderDescription } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TagId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
 import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
-import { pagination, omit } from '../../utils'
+import { normPagingQuery } from '../../utils'
+import { PagingQuery, UrlPagingQuery } from '../../utils/internalTypes'
 
-export function getByTagIdFetch(this: SDKFetch, tagId: TagId, query?: {
-  page: number
-  count: number
-  fields?: string
-  [index: string]: any
-}): Http<PostSchema[]> {
+export type GetPostsByTagIdParams = {
+  [key: string]: any
+}
+
+export interface GetPostsByTagIdUrlQuery extends GetPostsByTagIdParams, UrlPagingQuery {}
+
+export interface GetPostsByTagIdQuery extends GetPostsByTagIdParams, PagingQuery {
+  orderBy?: OrderDescription[]
+}
+
+export function getByTagIdFetch(
+  this: SDKFetch,
+  tagId: TagId,
+  query?: GetPostsByTagIdUrlQuery
+): Http<PostSchema[]> {
   return this.get<PostSchema[]>(`tags/${tagId}/posts`, query)
 }
 
@@ -23,34 +33,31 @@ declare module '../../SDKFetch' {
   }
 }
 
-export function getByTagId (this: SDK, tagId: TagId, query?: {
-  page: number
-  count: number
-  fields?: string
-  orderBy?: OrderDescription[]
-  [index: string]: any
-}): QueryToken<PostSchema> {
-  const defaultQuery: Partial<typeof query> = {
-    page: 1,
-    count: 500
-  }
-  const q = query ? { ...defaultQuery, ...query } : defaultQuery
-  const rdbQuery: any = {
-    ...pagination(q.count!, q.page!),
+export function getByTagId (
+  this: SDK,
+  tagId: TagId,
+  query?: GetPostsByTagIdQuery
+): QueryToken<PostSchema> {
+  const queryPair =  normPagingQuery(query)
+
+  const urlQuery = queryPair.forUrl as GetPostsByTagIdUrlQuery
+  const { skip, limit } = queryPair.forSql
+
+  const selectStmt: Query<PostSchema> = {
     where: {
       isArchived: false,
       tagIds: {
         $has: tagId
       }
-    }
+    },
+    skip,
+    limit,
+    ...(query && query.orderBy ? { orderBy: query.orderBy } : {})
   }
-  if (q.orderBy) {
-    rdbQuery.orderBy = q.orderBy
-  }
-  const urlQuery = omit(query, 'orderBy')
+
   return this.lift<PostSchema>({
     request: this.fetch.getPostsByTagId(tagId, urlQuery),
-    query: rdbQuery,
+    query: selectStmt,
     tableName: 'Post',
     cacheValidate: CacheStrategy.Request,
     assocFields: {

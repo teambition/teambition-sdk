@@ -8,7 +8,7 @@ import {
   dropEle,
   capitalizeFirstLetter,
   parseHeaders,
-  omit,
+  normPagingQuery,
   isEmptyObject
 } from '../index'
 
@@ -249,14 +249,59 @@ export default describe('utils test', () => {
     })
   })
 
-  it('omit should ok', () => {
-    const omitProps = (x) => omit(x, 'x', 'y')
-    expect(omitProps(0)).to.equal(0)
-    expect(omitProps(undefined)).to.be.undefined
-    expect(omitProps(null)).to.be.null
-    expect(omitProps({ x: 1 })).to.deep.equal({})
-    expect(omitProps({ z: 3 })).to.deep.equal({ z: 3 })
-    expect(omitProps({ x: 1, y: 2, z: 3 })).to.deep.equal({ z: 3 })
+  it('normPagingQuery should return default result on empty or `undefined` input', () => {
+    const defaultResult = {
+      forUrl: { count: 500, page: 1 },
+      forSql: { limit: 500, skip: 0 }
+    }
+
+    expect(normPagingQuery()).to.deep.equal(defaultResult)
+    expect(normPagingQuery(undefined)).to.deep.equal(defaultResult)
+  })
+
+  it('normPagingQuery should fill in default values on incomplete input', () => {
+    expect(normPagingQuery({ count: 10 })).to.deep.equal({
+      forUrl: { count: 10, page: 1 },
+      forSql: { limit: 10, skip: 0 }
+    })
+    expect(normPagingQuery({ page: 2 })).to.deep.equal({
+      forUrl: { count: 500, page: 2 },
+      forSql: { limit: 500, skip: 500 }
+    })
+  })
+
+  it('normPagingQuery should keep properties other than orderBy|count|page|skip|limit for result', () => {
+    const getQuery = () => ({
+      count: 10,
+      page: 2,
+      prop1: 'hello',
+      prop2: 2,
+      props3: { 'c': 'world' },
+      orderBy: []
+    })
+
+    const query = getQuery()
+    const { forUrl, forSql } = normPagingQuery(query)
+
+    expect(forUrl).to.deep.equal({
+      count: 10,
+      page: 2,
+      prop1: 'hello',
+      prop2: 2,
+      props3: { 'c': 'world' }
+    })
+
+    expect(forSql).to.deep.equal({
+      limit: 10,
+      skip: 10,
+      prop1: 'hello',
+      prop2: 2,
+      props3: { 'c': 'world' },
+      orderBy: []
+    })
+
+    // shouldn't modify the input query
+    expect(query).to.deep.equal(getQuery())
   })
 
   it('isEmptyObject should work correctly', () => {

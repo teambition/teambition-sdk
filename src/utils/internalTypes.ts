@@ -16,3 +16,8 @@ export interface PagingQuery {
 }
 
 export interface UrlPagingQuery extends PagingQuery {}
+
+export interface SqlPagingQuery {
+  skip: number,
+  limit: number
+}
