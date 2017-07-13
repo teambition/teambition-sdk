@@ -12,7 +12,7 @@ import {
   TasklistId,
   ProjectId,
   TaskPriority,
-  CustomFields,
+  CustomField,
   Reminder
 } from 'teambition-types'
 
@@ -44,7 +44,7 @@ export interface TaskSchema {
   subtasks: Partial<SubtaskSchema>[]
   subtaskIds: SubtaskId[]
   source: string
-  customfields: CustomFields[]
+  customfields: CustomField[]
   involvers: ExecutorOrCreator[]
   commentsCount: number
   attachmentsCount: number

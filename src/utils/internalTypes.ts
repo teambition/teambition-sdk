@@ -5,4 +5,14 @@
 
 import { SchemaDef } from 'reactivedb'
 
-export type SchemaColl = { schema: SchemaDef<any>, name: string }[]
+export type SchemaColl = {
+  schema: SchemaDef<any>,
+  name: string
+}[]
+
+export interface PagingQuery {
+  page: number,
+  count: number
+}
+
+export interface UrlPagingQuery extends PagingQuery {}

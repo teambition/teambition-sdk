@@ -1,4 +1,5 @@
 import {
+  CustomField,
   ExecutorOrCreator,
   ProjectId,
   UserId,
@@ -19,7 +20,7 @@ export interface ProjectSchema {
   _organizationId: OrganizationId | null
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
-  applications: {
+  applications?: {
     _id: ApplicationId
     name: string
     type?: number
@@ -28,11 +29,12 @@ export interface ProjectSchema {
   category: string
   created: string
   creator: ExecutorOrCreator
+  customFields: CustomField[],
   description: string
   eventsCount: number
   hasOrgRight: number
   hasRight: number
-  inviteLink: string
+  inviteLink: string | null
   isArchived: boolean
   isPublic: boolean
   isStar: boolean
@@ -59,14 +61,15 @@ export interface ProjectSchema {
   postsCount: number
   pushStatus: boolean
   py: string
-  shortLink: string
+  shortLink?: string
+  sortMethod: 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'custom'
   starsCount: number
   tagsCount: number
   tasksCount: number
   uniqueIdPrefix: string
   unreadCount: number
   updated: string
-  visibility: string
+  visibility: 'project' | 'organization' | 'all'
   worksCount: number
 }
 
@@ -114,6 +117,9 @@ const Schema: SchemaDef<ProjectSchema> = {
         _creatorId: memberTable._id
       })
     }
+  },
+  customFields: {
+    type: RDBType.OBJECT
   },
   description: {
     type: RDBType.STRING
@@ -170,6 +176,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.STRING
   },
   shortLink: {
+    type: RDBType.STRING
+  },
+  sortMethod: {
     type: RDBType.STRING
   },
   starsCount: {

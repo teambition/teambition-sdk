@@ -1,10 +1,10 @@
 declare module 'teambition-types' {
   export type Visibility = 'project' | 'organization' | 'all' | 'members'
 
-  export interface CustomFields {
+  export interface CustomField {
     type: 'number' | 'dropDown' | 'multipleChoice' | 'date' | 'text'
     _customfieldId: CustomeFieldId
-    values: string[]
+    values: any[] // 对应后端使用的类型 Schema.Types.Mixed
   }
 
   export interface Reminder {
