@@ -126,6 +126,10 @@ declare module 'teambition-types' {
   export type DetailObjectType = 'task' | 'event' | 'post' | 'work' | 'entry'
   export type DetailObjectTypes = 'posts' | 'works' | 'events' | 'tasks' | 'entries'
 
+  export interface RoomId extends String {
+    kind?: 'RoomId'
+  }
+
   export interface ActivityId extends String {
     kind?: 'ActivityId'
   }
@@ -180,6 +184,10 @@ declare module 'teambition-types' {
 
   export interface OrganizationId extends String {
     kind?: 'OrganizationId'
+  }
+
+  export interface GroupId extends String {
+    kind?: 'GroupId'
   }
 
   export interface PreferenceId extends String {

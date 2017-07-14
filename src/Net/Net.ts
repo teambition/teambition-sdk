@@ -36,9 +36,7 @@ export interface ApiResult<T, U extends CacheStrategy> {
   padding?: (missedId: string) => Http<T>
 }
 
-export type AssocField<T> = {
-  [P in keyof T]?: AssocField<T[P]> | string[]
-}
+export type AssocField<T> = { [P in keyof T]?: AssocField<T[P]> | string[] }
 
 export interface CApiResult<T> {
   request: Http<T>
@@ -87,7 +85,6 @@ export type SelectorBufferObject = {
 export type BufferObject = CUDBufferObject | SocketCUDBufferObject | SelectorBufferObject
 
 export class Net {
-
   public fields = new Map<string, string[]>()
   public database: Database | undefined
   private requestMap = new Map<string, boolean>()
@@ -96,8 +93,8 @@ export class Net {
   private requestResultLength = new Map<string, number>()
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
-    const fn = (stream$: Observable<T[]>) => stream$
-      .switchMap(data => {
+    const fn = (stream$: Observable<T[]>) =>
+      stream$.switchMap(data => {
         if (!data.length) {
           return Observable.of(data)
         }
@@ -126,11 +123,12 @@ export class Net {
     return fn
   }
 
-  constructor(
-    schemas: { schema: SchemaDef<any>, name: string }[]
-  ) {
+  constructor(schemas: { schema: SchemaDef<any>; name: string }[]) {
     forEach(schemas, d => {
-      this.fields.set(d.name, Object.keys(d.schema).filter(k => !d.schema[k].virtual))
+      this.fields.set(
+        d.name,
+        Object.keys(d.schema).filter(k => !d.schema[k].virtual)
+      )
       forEach(d.schema, (val, key) => {
         if (val.primaryKey) {
           this.primaryKeys.set(d.name, key)
@@ -155,7 +153,9 @@ export class Net {
     }
   }
 
-  handleApiResult<T>(result: ApiResult<T, CacheStrategy>): QueryToken<T> | Observable<T> | Observable<T[]> {
+  handleApiResult<T>(
+    result: ApiResult<T, CacheStrategy>
+  ): QueryToken<T> | Observable<T> | Observable<T[]> {
     const database = this.database
     if (!database) {
       return this.bufferResponse(result)
@@ -217,7 +217,7 @@ export class Net {
           const p = database.upsert(arg, socketMessage.data)
           asyncQueue.push(p)
         } else if (socketMessage.method === 'change') {
-          const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, database)
+          const dirtyStream = Dirty.handleSocketMessage(socketMessage.id, type, socketMessage.data, database)
           if (dirtyStream !== null) {
             const p = dirtyStream
             asyncQueue.push(p)
@@ -245,14 +245,12 @@ export class Net {
 
     this.persistedDataBuffer.length = 0
 
-    return Observable.from(asyncQueue)
-      .concatAll()
-      .do({
-        error: async (err: Observable<Error>) => {
-          const errObj = await err.toPromise()
-          SDKLogger.error(errObj.message)
-        }
-      })
+    return Observable.from(asyncQueue).concatAll().do({
+      error: async (err: Observable<Error>) => {
+        const errObj = await err.toPromise()
+        SDKLogger.error(errObj.message)
+      }
+    })
   }
 
   bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
@@ -272,8 +270,7 @@ export class Net {
       proxySelector: cacheControl$
     })
 
-    return new QueryToken(cacheControl$)
-      .map(this.validate(result))
+    return new QueryToken(cacheControl$ as Observable<SelectorMeta<T>>).map(this.validate(result))
   }
 
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
@@ -285,7 +282,7 @@ export class Net {
       this.persistedDataBuffer.push({
         kind: 'CUD',
         tableName,
-        method: ((method === 'create' || method === 'update') ? 'upsert' : method),
+        method: (method === 'create' || method === 'update') ? 'upsert' : method,
         value: method === 'delete' ? (result as UDResult<T>).clause : v
       })
     })
@@ -331,17 +328,15 @@ export class Net {
                 this.requestResultLength.set(sq, r.length)
               }
             })
-            .concatMap(v => database
-              .upsert(tableName, v)
-              .mapTo(Array.isArray(v) ? v : [v])
+            .concatMap(v =>
+              database.upsert(tableName, v).mapTo(Array.isArray(v) ? v : [v])
             )
             .do(() => this.requestMap.set(sq, true))
             .concatMap(() => database.get(tableName, q).selector$)
           token = new QueryToken(selector$).map(this.validate(result))
           break
         } else {
-          token = database.get<T>(tableName, q)
-            .map(this.validate(result))
+          token = database.get<T>(tableName, q).map(this.validate(result))
           break
         }
       case CacheStrategy.Cache:
@@ -384,5 +379,4 @@ export class Net {
     const q: Query<T> = { ...query, fields }
     return { request, q, cacheValidate, tableName, requestId }
   }
-
 }

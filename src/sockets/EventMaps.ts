@@ -17,7 +17,8 @@ const methodMap: any = {
 }
 
 const tableAlias = {
-  Work: 'File'
+  Work: 'File',
+  ChatMessage: 'Activity'
 }
 
 /**
@@ -54,11 +55,17 @@ const handler = (
     }
 
     const m = db[methodMap[method]]
+
+    let dirtyStream: Observable<any> | null
     switch (socketMessage.method) {
       case 'new':
+        dirtyStream = Dirty.handleSocketMessage(socketMessage.id, type, socketMessage.data, db)
+        if (dirtyStream) {
+          return dirtyStream
+        }
         return m.call(db, arg1, socketMessage.data)
       case 'change':
-        const dirtyStream = Dirty.handlerSocketMessage(socketMessage.id, type, socketMessage.data, db)
+        dirtyStream = Dirty.handleSocketMessage(socketMessage.id, type, socketMessage.data, db)
         if (dirtyStream) {
           return dirtyStream
         }
