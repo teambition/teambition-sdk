@@ -158,6 +158,10 @@ declare module 'teambition-types' {
     kind?: 'FileId'
   }
 
+  export interface GroupId extends String {
+    kind?: 'GroupId'
+  }
+
   export interface HomeActivityId extends String {
     kind?: 'HomeActivityId'
   }
