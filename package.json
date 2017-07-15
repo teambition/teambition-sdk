@@ -60,7 +60,7 @@
     "google-closure-compiler-js": "^20170521.0.0",
     "isomorphic-fetch": "^2.2.1",
     "jsonrpc-lite": "^1.2.3",
-    "madge": "^1.6.0",
+    "madge": "^2.0.0",
     "moment": "^2.18.1",
     "node-watch": "^0.5.4",
     "nyc": "^11.0.1",
