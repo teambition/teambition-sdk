@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.8.11-alpha",
+  "version": "0.8.11-alpha.2",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
@@ -17,7 +17,8 @@
     "copy_files": "cp README.md package.json ./dist/cjs/",
     "cover": "npm run build_test && rm -rf ./coverage && nyc --reporter=html --reporter=lcov --exclude=node_modules --exclude=spec-js/test --exclude=spec-js/mock --exclude=spec-js/src/sockets/SocketClient.js tman --mocha spec-js/test/app.js",
     "lint": "tslint ./src/**/*.ts ./mock/**/*.ts ./test/*.ts ./test/apis/**/*.ts ./test/mock/**/*.ts ./test/utils/**/*.ts",
-    "publish_all": "npm run build_all && npm run copy_files && npm publish ./dist/cjs && ts-node ./tools/tasks/publish.ts && cp -r ./dist/mock-cjs/** ./.tmp/mock && cp -r ./dist/socket/** ./.tmp/socket && npm publish .tmp/mock/ && npm publish .tmp/socket/",
+    "publish_sdk": "npm run build_all && npm run copy_files && npm publish ./dist/cjs",
+    "publish_all": "npm run publish_sdk && ts-node ./tools/tasks/publish.ts && cp -r ./dist/mock-cjs/** ./.tmp/mock && cp -r ./dist/socket/** ./.tmp/socket && npm publish .tmp/mock/ && npm publish .tmp/socket/",
     "test": "npm run lint && npm run cover",
     "version": "ts-node tools/tasks/version.ts && git add .",
     "watch": "npm run watch_test & ts-node ./tools/tasks/test.ts",

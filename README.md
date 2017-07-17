@@ -202,3 +202,14 @@ export default class TaskView {
 ```
 
 在这种场景下，关于 task 的任何变更 (tasklist 变更，executor 变更，stage 变更等等，权限变化) 都能让相关的数据自动更新，从而简化 View 层的逻辑。
+
+## publish script
+```bash
+# only publish sdk
+npm version xxx
+npm run publish_sdk
+
+# publish sdk, mock and socket
+npm version xxx
+npm run publish_all
+```
