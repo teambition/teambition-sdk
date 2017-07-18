@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
 import { forEach } from '../../utils'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TaskSchema, EventSchema, SubtaskSchema } from '../../schemas'
@@ -32,7 +31,7 @@ export type RecentResult = EventGenerator | RecentSubtaskData | RecentTaskData
 export function getMyRecentFetch(
   this: SDKFetch,
   query: MyRecentQuery
-): Http<RecentData[]> {
+): Observable<RecentData[]> {
   return this.get<RecentData[]>(`users/recent`, query)
 }
 
@@ -54,9 +53,7 @@ export function getMyRecent(
     cacheValidate: CacheStrategy.Request,
     tableName: 'Task',
     request: this.fetch.getMyRecent(query)
-              .map((v$: Observable<RecentData[]>) =>
-                v$.map(r =>
-                  r.filter(t => t.type === 'task'))),
+              .map(r => r.filter(t => t.type === 'task')),
     query: {
       where: {
         dueDate: {
@@ -123,9 +120,7 @@ export function getMyRecent(
     cacheValidate: CacheStrategy.Request,
     tableName: 'Event',
     request: this.fetch.getMyRecent(query)
-              .map((v$: Observable<RecentData[]>) =>
-                v$.map(r =>
-                  r.filter(t => t.type === 'event'))),
+               .map(r => r.filter(t => t.type === 'event')),
     query: eventQuery,
     assocFields: {
       project: ['_id', 'name', 'isArchived']
@@ -148,9 +143,7 @@ export function getMyRecent(
     cacheValidate: CacheStrategy.Request,
     tableName: 'Subtask',
     request: this.fetch.getMyRecent(query)
-              .map((v$: Observable<RecentData[]>) =>
-                v$.map(r =>
-                  r.filter(t => t.type === 'subtask'))),
+              .map(r => r.filter(t => t.type === 'subtask')),
     query: {
       where: {
         _executorId: userId,

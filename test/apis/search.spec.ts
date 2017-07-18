@@ -102,7 +102,6 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, '')
-          .send()
           .subscribeOn(Scheduler.async)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
@@ -116,7 +115,6 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=nonExistence&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, 'nonExistence')
-          .send()
           .subscribeOn(Scheduler.async)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
@@ -130,7 +128,6 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=shuai&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, 'shuai')
-          .send()
           .subscribeOn(Scheduler.async)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
@@ -142,7 +139,6 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=&_=666', allMembers)
 
       yield sdkFetch.searchMembers('')
-        .send()
         .subscribeOn(Scheduler.async)
         .do((x) => {
           expect(x).to.deep.equal(allMembers)
@@ -153,7 +149,6 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=nonExistence&_=666', [])
 
       yield sdkFetch.searchMembers('nonExistence')
-        .send()
         .subscribeOn(Scheduler.async)
         .do((x) => {
           expect(x).to.deep.equal([])
@@ -165,7 +160,6 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=shuai&_=666', expectedResultSet)
 
       yield sdkFetch.searchMembers('shuai')
-        .send()
         .subscribeOn(Scheduler.async)
         .do((x) => {
           expect(x).to.deep.equal(expectedResultSet)

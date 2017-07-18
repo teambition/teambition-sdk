@@ -169,7 +169,6 @@ export class SocketClient {
 
   private _getToken() {
     return this.fetch.getUserMe()
-      .send()
       .toPromise()
       .then((r: UserMe) => {
         this._getUserMeStream.next(r)
@@ -195,7 +194,6 @@ export function leaveRoom(
 ) {
   // http delete 不允许有 body， 但是这里就是有 body
   return this.delete<void>(`${room}/subscribe`, { consumerId })
-    .send()
     .toPromise()
 }
 
@@ -205,7 +203,6 @@ export function joinRoom(
   consumerId: string
 ) {
   return this.post<void>(`${room}/subscribe`, { consumerId })
-    .send()
     .toPromise()
 }
 

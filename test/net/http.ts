@@ -1,8 +1,9 @@
 import { Observable, Scheduler } from 'rxjs'
 import { expect } from 'chai'
-import { describe, it, beforeEach } from 'tman'
+import { describe, it, beforeEach, afterEach } from 'tman'
 
 import { HttpErrorMessage, Http } from '../index'
+import * as http from '../../src/Net/Http'
 
 const fetchMock = require('fetch-mock')
 
@@ -12,10 +13,15 @@ export default describe('net/http', () => {
   let url: string
   const apiHost = 'https://www.teambition.com/api'
   const path = 'test'
+  const allowedMethods = ['get', 'post', 'put', 'delete']
 
   beforeEach(() => {
     url = `${apiHost}/${path}`
     fetchInstance = new Http(url)
+  })
+
+  afterEach(() => {
+    fetchMock.restore()
   })
 
   it('should call isomophic fetch with the correct arguments', function* () {
@@ -34,17 +40,17 @@ export default describe('net/http', () => {
           },
           credentials: 'include'
         })
-        fetchMock.restore()
       })
   })
 
-  it('should set headers', done => {
+  it('should set headers', function* () {
     const header = { 'X-Request-Id': '2333' }
     fetchInstance.setHeaders(header)
     fetchMock.mock(url, {})
-    fetchInstance.get()
+    yield fetchInstance.get()
       .send()
-      .subscribe(() => {
+      .subscribeOn(Scheduler.async)
+      .do(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
           headers: {
@@ -54,19 +60,17 @@ export default describe('net/http', () => {
           },
           credentials: 'include'
         })
-        fetchMock.restore()
-        fetchInstance.restore()
-        done()
       })
   })
 
-  it('should set token', done => {
+  it('should set token', function* () {
     const token = 'test_token'
     fetchInstance.setToken(token)
     fetchMock.mock(url, {})
-    fetchInstance.get()
+    yield fetchInstance.get()
       .send()
-      .subscribe(() => {
+      .subscribeOn(Scheduler.async)
+      .do(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
           headers: {
@@ -75,85 +79,109 @@ export default describe('net/http', () => {
             'Authorization': `OAuth2 ${token}`
           }
         })
-        fetchMock.restore()
-        fetchInstance.restore()
-        done()
       })
-  });
+  })
 
-  ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
-    it(`should define ${httpMethod}`, done => {
+  allowedMethods.forEach(httpMethod => {
+    it(`should define ${httpMethod}`, function* () {
       const responseData = { test: 'test' }
       const body = { body: 'body' }
       fetchMock.mock(url, JSON.stringify(responseData), {
         method: httpMethod
       })
-      fetchInstance[httpMethod](httpMethod === 'get' ? null : body)
+
+      yield fetchInstance[httpMethod](httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
-        .subscribe((res: any) => {
+        .subscribeOn(Scheduler.async)
+        .do((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
           if (httpMethod === 'put' || httpMethod === 'post') {
             expect(JSON.parse(fetchMock.lastOptions().body)).to.deep.equal(body)
           }
-          fetchMock.restore()
-          done()
         })
     })
-  });
+  })
 
-  ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
-    it(`${httpMethod} Result should contain requestId when request headers has X-Request-Id`, done => {
+  it('delete() should support carrying request body', function* () {
       const responseData = { test: 'test' }
       const body = { body: 'body' }
+      fetchMock.mock(url, JSON.stringify(responseData), {
+        method: 'delete'
+      })
+
+      yield fetchInstance.delete(body)
+        .send()
+        .subscribeOn(Scheduler.async)
+        .do((res: any) => {
+          expect(fetchMock.lastOptions().method).to.equal('delete')
+          expect(JSON.parse(fetchMock.lastOptions().body)).to.deep.equal(body)
+          expect(res).to.deep.equal(responseData)
+        })
+    })
+
+  allowedMethods.forEach(httpMethod => {
+    it(`${httpMethod} Result should be able to include response headers`, function* () {
+      const responseData = { test: 'test' }
+      const body = { body: 'body' }
+      const sampleValue = '2333'
       fetchMock.mock(url, {
         body: JSON.stringify(responseData),
         headers: {
-          'X-Request-Id': '2333'
+          'X-Request-Id': sampleValue
         }
       }, {
         method: httpMethod
       })
-      fetchInstance.setHeaders({ 'X-Request-Id': '2333' })
-      fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
+
+      const fetchInstance2 = http.getHttpWithResponseHeaders(url)
+      fetchInstance2.setHeaders({ 'X-Request-Id': sampleValue })
+
+      yield fetchInstance2[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
-        .subscribe((res: any) => {
-          expect(res).to.deep.equal({ ...responseData, requestId: '2333' })
-          fetchMock.restore()
-          fetchInstance.restore()
-          done()
+        .subscribeOn(Scheduler.async)
+        .do((res: any) => {
+          expect(res.body).to.deep.equal(responseData)
+          expect(res.headers['x-request-id']).to.equal(sampleValue)
         })
     })
-  });
+  })
 
-  ['get', 'post', 'put', 'delete'].forEach(httpMethod => {
+  allowedMethods.forEach(httpMethod => {
     [400, 401, 403, 404, 500].forEach(status => {
-      it(`should handle ${status} status for ${httpMethod}`, done => {
+      it(`should handle ${status} status for ${httpMethod}`, function* () {
         const responseData = { body: { test: 'test' }, method: httpMethod, status }
         const body = { body: 'body' }
         fetchMock.mock(url, responseData )
-        fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
+        yield fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
           .send()
-          .do((res: Response) => {
-            expect(res).not.to.deep.equal(responseData.body)
-            done()
-          })
           .catch((res: HttpErrorMessage) => {
             if (fetchMock.lastOptions()) {
               expect(fetchMock.lastOptions().method).to.equal(httpMethod)
             }
-            expect(res.error.status).to.deep.equal(status)
-            fetchMock.restore()
-            done()
+            expect(res.error.status).to.equal(status)
+            expect(res.method).to.equal(httpMethod)
+            expect(res.url).to.equal(url)
             return Observable.empty()
           })
-          .subscribe()
+          .subscribeOn(Scheduler.async)
       })
     })
   })
 
+  it('createMethod() should give response text when it cannot be parsed successfully', function* () {
+    const letJSONparseThrow = '[1, 2, 3,]'
+    fetchMock.getOnce(url, letJSONparseThrow)
+
+    yield http.createMethod('get')({ url } as any)
+      .subscribeOn(Scheduler.async)
+      .do((x: any) => {
+        expect(x).to.equal(letJSONparseThrow)
+      })
+  })
+
   it('correctly clone-ed Http instance should use cached response', function* () {
-    const response = { value: 'A' }
+    const expectedResp = { value: 'A' }
 
     fetchInstance.get()
     // 一个从源 Http 对象 clone 的对象
@@ -163,7 +191,7 @@ export default describe('net/http', () => {
     // 一个从 clone 出来的 Http 对象 clone 的对象
     const fetchInstanceClone1Clone = fetchInstanceClone1.clone()
 
-    fetchMock.get(url, { body: JSON.stringify(response) })
+    fetchMock.get(url, { body: JSON.stringify(expectedResp) })
 
     yield Observable.forkJoin(
       fetchInstance.send(),
@@ -173,13 +201,11 @@ export default describe('net/http', () => {
     )
     .subscribeOn(Scheduler.async)
     .do(([res, resClone1, resClone2, resClone1Clone]) => {
-      expect(res).to.deep.equal(response)
-      expect(resClone1).to.deep.equal(response)
-      expect(resClone2).to.deep.equal(response)
-      expect(resClone1Clone).to.deep.equal(response)
+      expect(res).to.deep.equal(expectedResp)
+      expect(resClone1).to.deep.equal(expectedResp)
+      expect(resClone2).to.deep.equal(expectedResp)
+      expect(resClone1Clone).to.deep.equal(expectedResp)
       expect(fetchMock.calls(url)).lengthOf(1)
-      fetchMock.restore()
-      fetchInstance.restore()
     })
   })
 })

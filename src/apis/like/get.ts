@@ -1,18 +1,18 @@
 import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
 import { LikeSchema } from '../../schemas/Like'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { DetailObjectId, DetailObjectType } from 'teambition-types'
 
-export function getLikeFetch (this: SDKFetch, objectType: DetailObjectType, objectId: DetailObjectId): Http<LikeSchema> {
+export function getLikeFetch (
+  this: SDKFetch,
+  objectType: DetailObjectType,
+  objectId: DetailObjectId
+): Observable<LikeSchema> {
   const fetchNamespace = objectType !== 'entry' ? `${objectType}s` : 'entries'
   return this.get<LikeSchema>(`${fetchNamespace}/${objectId}/like`, { all: '1' })
-      .map((v$: Observable<LikeSchema>) => v$.map(r => {
-        r._id = `${objectId}:like`
-        return r
-       }))
+    .map(r => ({ ...r, _id: `${objectId}:like` }))
 }
 
 SDKFetch.prototype.getLike = getLikeFetch

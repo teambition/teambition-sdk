@@ -1,6 +1,5 @@
 import { Observable } from 'rxjs/Observable'
 import { LikeSchema } from '../../schemas/Like'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK } from '../../SDK'
 import { DetailObjectId, DetailObjectType } from 'teambition-types'
@@ -10,14 +9,14 @@ export function toggleLikeFetch (
   objectType: DetailObjectType,
   objectId: DetailObjectId,
   isLike: boolean
-): Http<LikeSchema> {
+): Observable<LikeSchema> {
   const fetchNamespace = objectType !== 'entry' ? `${objectType}s` : 'entries'
   const uri = `${fetchNamespace}/${objectId}/like`
   const dist = isLike ? this.delete<LikeSchema>(uri) : this.post<LikeSchema>(uri)
-  return dist.map((v$: Observable<LikeSchema>) => v$.map(r => {
-        r._id = `${objectId}:like`
-        return r
-       }))
+  return dist.map(r => {
+    r._id = `${objectId}:like`
+    return r
+  })
 }
 
 SDKFetch.prototype.toggleLike = toggleLikeFetch

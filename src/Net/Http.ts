@@ -17,7 +17,116 @@ export interface HttpErrorMessage {
   body?: any
 }
 
+export interface HttpResponseWithHeaders<T> {
+  headers: any,
+  body: T
+}
+
+type MethodParams = {
+  url: string,
+  body?: any,
+  _opts: any,
+  errorAdapter$: Subject<HttpErrorMessage>,
+  includeHeaders: boolean
+}
+
 export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
+
+export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): Observable<any> => {
+  const { url, body, _opts, errorAdapter$, includeHeaders } = params
+
+  /* istanbul ignore if */
+  if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
+    return Observable.ajax({
+      url, body, method,
+      headers: _opts.headers,
+      withCredentials: _opts.credentials === 'include',
+      responseType: _opts.responseType || 'json',
+      crossDomain: typeof _opts.crossDomain !== 'undefined' ? !!_opts.crossDomain : true
+    })
+      .map(value => {
+        const resp = value.response
+        try {
+          const respBody = JSON.parse(resp)
+          if (!includeHeaders) {
+            const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
+            return {
+              headers: respHeaders,
+              body: respBody
+            }
+          }
+          return respBody
+        } catch (e) {
+          return resp
+        }
+      })
+      .catch((e: AjaxError) => {
+        const headers = e.xhr.getAllResponseHeaders()
+        const sdkError: HttpErrorMessage = {
+          error: new Response(new Blob([JSON.stringify(e.xhr.response)]), {
+            status: e.xhr.status,
+            statusText: e.xhr.statusText,
+            headers: headers.length ? new Headers(parseHeaders(headers)) : new Headers()
+          }),
+          method, url, body
+        }
+
+        setTimeout(() => {
+          errorAdapter$.next(sdkError)
+        }, 10)
+        return Observable.throw(sdkError)
+      })
+  } else {
+    return Observable.create((observer: Observer<any>) => {
+      const _options = {
+        ... _opts,
+        method: method
+      }
+      if (body) {
+        _options.body = typeof body === 'object' ? JSON.stringify(body) : body
+      }
+      let headers: Headers
+      fetch(url, _options)
+        .then((response: Response): Promise<string> => {
+          if (response.status >= 200 && response.status < 400) {
+            headers = response.headers
+            return response.text()
+          } else {
+            throw response
+          }
+        })
+        .then(respText => {
+          let result: any
+          try {
+            const respBody = JSON.parse(respText)
+            result = !includeHeaders ? respBody : { headers: headers2Object(headers), body: respBody }
+          } catch (e) {
+            result = respText
+          }
+          observer.next(result)
+          observer.complete()
+        })
+        .catch((e: Response) => {
+          const sdkError: HttpErrorMessage = {
+            error: e,
+            method, url, body
+          }
+
+          setTimeout(() => {
+            errorAdapter$.next(sdkError)
+          }, 10)
+          observer.error(sdkError)
+        })
+    })
+  }
+}
+
+export const getHttpWithResponseHeaders = <T>(
+  url?: string,
+  errorAdapter$?: Subject<HttpErrorMessage>
+): Http<HttpResponseWithHeaders<T>> => {
+  return new Http<HttpResponseWithHeaders<T>>(url, errorAdapter$, true)
+}
 
 export class Http<T> {
   private errorAdapter$: Subject<HttpErrorMessage>
@@ -25,7 +134,16 @@ export class Http<T> {
   private request: Observable<T>
   public mapFn: (v$: Observable<T>) => Observable<any> = (dist$ => dist$)
 
-  constructor(private url: string, errorAdapter$?: Subject<HttpErrorMessage>) {
+  private static get = createMethod('get')
+  private static put = createMethod('put')
+  private static post = createMethod('post')
+  private static delete = createMethod('delete')
+
+  constructor(
+    private url: string = '',
+    errorAdapter$?: Subject<HttpErrorMessage>,
+    private readonly includeHeaders: boolean = false
+  ) {
     if (errorAdapter$) {
       this.errorAdapter$ = errorAdapter$
     } else {
@@ -41,28 +159,33 @@ export class Http<T> {
     credentials: 'include'
   }
 
-  public map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
+  map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
     this.mapFn = fn
     return this as any as Http<U>
   }
 
-  public setHeaders(headers: any) {
+  setUrl(url: string) {
+    this.url = url
+    return this
+  }
+
+  setHeaders(headers: any) {
     this._opts.headers = { ...this._opts.headers, ...headers }
     return this
   }
 
-  public setToken(token: string) {
+  setToken(token: string) {
     delete this._opts.credentials
     this._opts.headers.Authorization = `OAuth2 ${token}`
     return this
   }
 
-  public setOpts(opts: any) {
+  setOpts(opts: any) {
     this._opts = { ...this._opts, ...opts }
     return this
   }
 
-  public restore() {
+  restore() {
     this._opts = {
       headers: {
         'Accept': 'application/json',
@@ -73,31 +196,31 @@ export class Http<T> {
     return this
   }
 
-  public get() {
-    this.request = this.createMethod('get')(this.url)
+  get() {
+    this.request = Http.get(this.params())
     return this
   }
 
-  public post(body?: any) {
-    this.request = this.createMethod('post')(this.url, body)
+  post(body?: any) {
+    this.request = Http.post({ ...this.params(), body })
     return this
   }
 
-  public put(body?: any) {
-    this.request = this.createMethod('put')(this.url, body)
+  put(body?: any) {
+    this.request = Http.put({ ...this.params(), body })
     return this
   }
 
-  public delete(body?: any) {
-    this.request = this.createMethod('delete')(this.url, body)
+  delete(body?: any) {
+    this.request = Http.delete({ ...this.params(), body })
     return this
   }
 
-  public send(): Observable<T> {
+  send(): Observable<T> {
     return this.mapFn(this.request)
   }
 
-  public clone() {
+  clone() {
     const result = new Http<T>(this.url, this.errorAdapter$)
     if (!this.cloned && this.request) {
       this.request = this.request.publishReplay(1).refCount()
@@ -108,86 +231,10 @@ export class Http<T> {
     return result
   }
 
-  public createMethod(method: AllowedHttpMethod): (url: string, body?: any) => Observable<T> {
-    return (url: string, body?: any) => {
-      /* istanbul ignore if */
-      if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
-        return Observable.ajax({
-          url, body, method,
-          headers: this._opts.headers,
-          withCredentials: this._opts.credentials === 'include',
-          responseType: this._opts.responseType || 'json',
-          crossDomain: typeof this._opts.crossDomain !== 'undefined' ? !!this._opts.crossDomain : true
-        })
-          .map(value => {
-            const resp = value.response
-            const headers = value.xhr.getAllResponseHeaders()
-            try {
-              const result = JSON.parse(resp)
-              const requestId = parseHeaders(headers)['x-request-id']
-              return requestId ? { ...result, requestId } : result
-            } catch (e) {
-              return resp
-            }
-          })
-          .catch((e: AjaxError) => {
-            const headers = e.xhr.getAllResponseHeaders()
-            const sdkError: HttpErrorMessage = {
-              error: new Response(new Blob([JSON.stringify(e.xhr.response)]), {
-                status: e.xhr.status,
-                statusText: e.xhr.statusText,
-                headers: headers.length ? new Headers(parseHeaders(headers)) : new Headers()
-              }),
-              method, url, body
-            }
-
-            setTimeout(() => {
-              this.errorAdapter$.next(sdkError)
-            }, 10)
-            return Observable.throw(sdkError)
-          })
-      } else {
-        return Observable.create((observer: Observer<any>) => {
-          const _options = {
-            ... this._opts,
-            method: method
-          }
-          if (body) {
-            _options.body = typeof body === 'object' ? JSON.stringify(body) : body
-          }
-          let headers: Headers
-          fetch(url, _options)
-            .then((response: Response): Promise<string> => {
-              if (response.status >= 200 && response.status < 400) {
-                headers = response.headers
-                return response.text()
-              } else {
-                throw response
-              }
-            })
-            .then(r => {
-              try {
-                const result = JSON.parse(r)
-                const requestId = headers2Object(headers)['x-request-id']
-                observer.next(requestId ? { ...result, requestId } : result)
-              } catch (e) {
-                observer.next(r)
-              }
-              observer.complete()
-            })
-            .catch((e: Response) => {
-              const sdkError: HttpErrorMessage = {
-                error: e,
-                method, url, body
-              }
-
-              setTimeout(() => {
-                this.errorAdapter$.next(sdkError)
-              }, 10)
-              observer.error(sdkError)
-            })
-        })
-      }
-    }
-  }
+  private params = (): MethodParams => ({
+    url: this.url,
+    _opts: this._opts,
+    errorAdapter$: this.errorAdapter$,
+    includeHeaders: this.includeHeaders
+  })
 }

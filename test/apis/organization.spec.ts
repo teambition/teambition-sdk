@@ -63,7 +63,6 @@ describe('get organization projects', () => {
         fetchMock.getOnce(expectedUrl, expectedResponse)
 
         yield fn.call(sdkFetch, sampleOrgId)
-          .send()
           .subscribeOn(Scheduler.async)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResponse)
@@ -79,7 +78,6 @@ describe('get organization projects', () => {
       fetchMock.getOnce(expectedUrl, expectedResponse)
 
       yield sdkFetch.getOrganizationProjectsByTagId(sampleOrgId, sampleTagId)
-        .send()
         .subscribeOn(Scheduler.async)
         .do((x: any) => {
           expect(x).to.deep.equal(expectedResponse)

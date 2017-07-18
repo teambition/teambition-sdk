@@ -1,6 +1,5 @@
 import { Observable } from 'rxjs/Observable'
 import { SDKFetch } from '../../SDKFetch'
-import { Http } from '../../Net'
 import { SDK } from '../../SDK'
 
 export interface MyCountData {
@@ -14,7 +13,7 @@ export interface MyCountData {
 
 export function getMyCountFetch(
   this: SDKFetch
-): Http<MyCountData> {
+): Observable<MyCountData> {
   return this.get<MyCountData>(`users/me/count`)
 }
 
@@ -29,7 +28,7 @@ declare module '../../SDKFetch' {
 export function getMyCount(
   this: SDK
 ): Observable<MyCountData> {
-  return this.fetch.getMyCount().send()
+  return this.fetch.getMyCount()
 }
 
 SDK.prototype.getMyCount = getMyCount

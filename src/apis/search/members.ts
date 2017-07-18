@@ -1,5 +1,5 @@
+import { Observable } from 'rxjs/Observable'
 import { UserId, TeamId, ProjectId, OrganizationId, GroupId } from 'teambition-types'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 
 /**
@@ -56,7 +56,7 @@ export const buildPath = (scope: Scope): string | null => {
   }
 }
 
-function fetch(this: SDKFetch, scope: Scope, searchString: string): Http<MembersSearchResponse> {
+function fetch(this: SDKFetch, scope: Scope, searchString: string): Observable<MembersSearchResponse> {
   const path = buildPath(scope)
   if (!path) {
     throw `failed to build path for _groupType: ${scope.type} with _groupId: ${scope.id}`
@@ -64,27 +64,27 @@ function fetch(this: SDKFetch, scope: Scope, searchString: string): Http<Members
   return this.get<MembersSearchResponse>(path, { q: searchString })
 }
 
-export function searchMembersInTeam(this: SDKFetch, teamId: TeamId, searchString: string): Http<MembersSearchResponse> {
+export function searchMembersInTeam(this: SDKFetch, teamId: TeamId, searchString: string): Observable<MembersSearchResponse> {
   const targetTeam: Scope = { id: teamId, type: ScopeType.Team }
   return fetch.call(this, targetTeam, searchString)
 }
 
-export function searchMembersInProject(this: SDKFetch, projectId: ProjectId, searchString: string): Http<MembersSearchResponse> {
+export function searchMembersInProject(this: SDKFetch, projectId: ProjectId, searchString: string): Observable<MembersSearchResponse> {
   const targetProject: Scope = { id: projectId, type: ScopeType.Project }
   return fetch.call(this, targetProject, searchString)
 }
 
-export function searchMembersInOrganization(this: SDKFetch, orgId: OrganizationId, searchString: string): Http<MembersSearchResponse> {
+export function searchMembersInOrganization(this: SDKFetch, orgId: OrganizationId, searchString: string): Observable<MembersSearchResponse> {
   const targetOrg: Scope = { id: orgId, type: ScopeType.Organization }
   return fetch.call(this, targetOrg, searchString)
 }
 
-export function searchMembersInGroup(this: SDKFetch, groupId: GroupId, searchString: string): Http<MembersSearchResponse> {
+export function searchMembersInGroup(this: SDKFetch, groupId: GroupId, searchString: string): Observable<MembersSearchResponse> {
   const targetGroup: Scope = { id: groupId, type: ScopeType.Group }
   return fetch.call(this, targetGroup, searchString)
 }
 
-export function searchMembers(this: SDKFetch, searchString: string): Http<MembersSearchResponse> {
+export function searchMembers(this: SDKFetch, searchString: string): Observable<MembersSearchResponse> {
   return fetch.call(this, {}, searchString)
 }
 
