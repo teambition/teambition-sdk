@@ -23,7 +23,7 @@ export default class CustomFieldSchema extends Schema<CustomFieldData> implement
   type: CustomFieldType = undefined
   choices?: CustomFieldChoice[] = undefined
   _creatorId: string = undefined
-  _projectId: string = undefined
+  _projectId: ProjectId = undefined
   created?: string = undefined
   updated?: string = undefined
   displayed?: boolean = undefined
