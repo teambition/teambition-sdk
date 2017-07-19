@@ -18,6 +18,7 @@ import {
   UpdateStatusResponse,
   UpdateContentResponse,
   UpdateDueDateResponse,
+  UpdateStartDateResponse,
   UpdateInvolveMembersResponse,
   UpdateExecutorResponse,
   UpdateFavoriteResponse
@@ -448,6 +449,10 @@ export class TaskAPI {
 
   updateDueDate(_taskId: TaskId, dueDate: string): Observable<UpdateDueDateResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateDueDate(_taskId, dueDate))
+  }
+
+  updateStartDate(_taskId: TaskId, startDate: string): Observable<UpdateStartDateResponse> {
+    return this._updateFromRequest(_taskId, TaskFetch.updateStartDate(_taskId, startDate))
   }
 
   updateExecutor(_taskId: TaskId, _executorId: UserId): Observable<UpdateExecutorResponse> {

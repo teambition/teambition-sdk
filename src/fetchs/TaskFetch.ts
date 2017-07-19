@@ -164,6 +164,12 @@ export interface UpdateDueDateResponse {
   dueDate: string
 }
 
+export interface UpdateStartDateResponse {
+  _id: TaskId
+  updated: string
+  startDate: string
+}
+
 export interface UpdateExecutorResponse {
   _executorId: UserId
   _id: TaskId
@@ -384,6 +390,12 @@ export class TaskFetch extends Fetch {
   updateDueDate(_taskId: TaskId, dueDate: string): Observable<UpdateDueDateResponse> {
     return this.fetch.put(`tasks/${_taskId}/dueDate`, {
       dueDate: dueDate
+    })
+  }
+
+  updateStartDate(_taskId: TaskId, startDate: string): Observable<UpdateStartDateResponse> {
+    return this.fetch.put(`tasks/${_taskId}`, {
+      startDate: startDate
     })
   }
 
