@@ -6,7 +6,6 @@ import { Observable } from 'rxjs/Observable'
 import { Database, ExecutorResult, SchemaDef } from 'reactivedb'
 import { TaskSchema } from '../schemas/Task'
 import { LikeSchema } from '../schemas/Like'
-import { MessageSchema } from '../schemas/Message'
 import { forEach } from './index'
 
 export class Dirty {
@@ -35,24 +34,13 @@ export class Dirty {
     return signal
   }
 
-  _isUpdateMessageReadSocket(data: MessageSchema) {
-    if (Object.keys(data).length === 5
-      && data.isRead === true
-      && data.unreadActivitiesCount === 0
-      && data.isAted !== undefined
-      && data.updated !== undefined
-      && (data as any).msgType === 'pm') {
-        return true
-      }
-      return false
-  }
   /**
    * 后端通知和消息存的是同一个模型，只是objectType不同 (通知的objectType是'activity')
    * 所以前端如果要把这两个东西存成两个模型的话，需要在socket区分
    * 这里在重构chat的时候，直接过滤掉通知消息，当重构通知的时候，需要改动这里代码，把通知消息
    * 存在自己的表里
    */
-  _handleMessage(_: string, __: string, data: MessageSchema, ___: Database): Observable<any> | null {
+  _handleMessage(_: string, __: string, data: any, ___: Database): Observable<any> | null {
     if (data.objectType && data.objectType !== 'room') {
       // return db.upsert('ActivityMessage | PostMessage | ...', data)
       return Observable.of(null)
@@ -60,7 +48,7 @@ export class Dirty {
     if (data as any === 'readAll:private') {
       return Observable.of(null)
     }
-    if (this._isUpdateMessageReadSocket(data)) {
+    if (data.msgType === 'pm') {
       delete data.updated
     }
     return null
