@@ -23,7 +23,7 @@ export class Http<T> {
   private errorAdapter$: Subject<HttpErrorMessage>
   private cloned = false
   private request: Observable<T>
-  public mapFn = (dist$: Observable<T>) => dist$
+  public mapFn: (v$: Observable<T>) => Observable<any> = (dist$ => dist$)
 
   constructor(private url: string, errorAdapter$?: Subject<HttpErrorMessage>) {
     if (errorAdapter$) {
@@ -41,7 +41,7 @@ export class Http<T> {
     credentials: 'include'
   }
 
-  public map<U>(fn: <U>(stream$: Observable<T>) => Observable<U>) {
+  public map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
     this.mapFn = fn
     return this as any as Http<U>
   }
