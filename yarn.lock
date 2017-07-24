@@ -14,9 +14,9 @@
   version "2.0.32"
   resolved "https://registry.npmjs.org/@types/lovefield/-/lovefield-2.0.32.tgz#61680e2bd678abf6cd261a7b487d2a2481f7cb95"
 
-"@types/node@^7.0.18":
-  version "7.0.29"
-  resolved "https://registry.npmjs.org/@types/node/-/node-7.0.29.tgz#ccfcec5b7135c7caf6c4ffb8c7f33102340d99df"
+"@types/node@^8.0.10":
+  version "8.0.15"
+  resolved "https://registry.npmjs.org/@types/node/-/node-8.0.15.tgz#8f23f8a4642ced357704d048010876fc0c7f179a"
 
 "@types/sinon-chai@^2.7.27":
   version "2.7.28"
