@@ -62,9 +62,9 @@ export class SDKFetch {
     return http.put(body)
   }
 
-  public delete<T>(path: string) {
+  public delete<T>(path: string, body?: any) {
     const http = this.setOpts<T>(new Http<T>(this.urlWithPath(path)))
-    return http.delete()
+    return http.delete(body)
   }
 
   public setAPIHost(host: string) {

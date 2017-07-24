@@ -88,7 +88,7 @@ export default describe('net/http', () => {
       fetchMock.mock(url, JSON.stringify(responseData), {
         method: httpMethod
       })
-      fetchInstance[httpMethod](httpMethod === 'get' || httpMethod === 'delete' ? null : body)
+      fetchInstance[httpMethod](httpMethod === 'get' ? null : body)
         .send()
         .subscribe((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
@@ -115,7 +115,7 @@ export default describe('net/http', () => {
         method: httpMethod
       })
       fetchInstance.setHeaders({ 'X-Request-Id': '2333' })
-      fetchInstance[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
+      fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
         .send()
         .subscribe((res: any) => {
           expect(res).to.deep.equal({ ...responseData, requestId: '2333' })

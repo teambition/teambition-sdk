@@ -88,8 +88,8 @@ export class Http<T> {
     return this
   }
 
-  public delete() {
-    this.request = this.createMethod('delete')(this.url)
+  public delete(body?: any) {
+    this.request = this.createMethod('delete')(this.url, body)
     return this
   }
 
