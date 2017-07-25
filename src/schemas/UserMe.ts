@@ -26,6 +26,10 @@ export interface SnapperToken extends String {
   kind?: 'SnapperToken'
 }
 
+export interface TCMToken extends String {
+  kind?: 'TCMToken'
+}
+
 export interface UserMe {
   _id: UserId
   email: string
@@ -89,6 +93,9 @@ export interface UserMe {
     android?: string
     third: string
   }
+  fromTitle: string
+  _invitorId: string
+  language: string
   locationByIP: {
     country: string
     region: string
@@ -100,6 +107,7 @@ export interface UserMe {
   enabledGoogleTwoFactor?: boolean
   emails: UserEmail[]
   snapperToken: SnapperToken
+  tcmToken: TCMToken
   badge: number
   normal?: number
   ated: number
@@ -120,6 +128,9 @@ const Schema: SchemaDef<UserMe> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+  _invitorId: {
+    type: RDBType.STRING
   },
   avatarUrl: {
     type: RDBType.STRING
@@ -154,6 +165,9 @@ const Schema: SchemaDef<UserMe> = {
   enabledGoogleTwoFactor: {
     type: RDBType.BOOLEAN
   },
+  fromTitle: {
+    type: RDBType.STRING
+  },
   hasAted: {
     type: RDBType.BOOLEAN
   },
@@ -177,6 +191,9 @@ const Schema: SchemaDef<UserMe> = {
   },
   joinedProjectsCount: {
     type: RDBType.NUMBER
+  },
+  language: {
+    type: RDBType.STRING
   },
   lastEntered: {
     type: RDBType.DATE_TIME
@@ -227,6 +244,9 @@ const Schema: SchemaDef<UserMe> = {
     type: RDBType.STRING
   },
   taskCalLink: {
+    type: RDBType.STRING
+  },
+  tcmToken: {
     type: RDBType.STRING
   },
   title: {
