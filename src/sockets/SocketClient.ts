@@ -15,6 +15,7 @@ import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import Dirty from '../utils/Dirty'
 import { SchemaColl } from '../utils/internalTypes'
+import * as tk from './token'
 
 declare const global: any
 
@@ -27,28 +28,52 @@ function collectPKNames(schemas: SchemaColl = []) {
   }, {})
 }
 
+export interface SocketClientOptions {
+  url: string,
+  path: string,
+  isLegacyMode?: boolean,
+  env?: string
+}
+
+export interface SocketConnectOptions {
+  path?: string,
+  [snapperConnOptionKey: string]: any
+}
+
 export class SocketClient {
+  private isLegacyMode = false
   private _isDebug = false
 
   private _client: Consumer
-
-  private _socketUrl = 'wss://push.teambition.com'
-
+  private _socketUrl: string
+  private connectOptions: {}
   private _consumerId: string
-
   private _getUserMeStream = new ReplaySubject<UserMe>(1)
 
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
 
-  private _tabNameToPKName: { [key: string]: string } = {}
+  private clients = new Set<any>()
 
+  private _tabNameToPKName: { [key: string]: string } = {}
   private database: Database
+
+  private debugMsg = (msg: string): void => {
+    if (this._isDebug) {
+      ctx['console']['log'](msg)
+    }
+  }
+
   constructor(
     private fetch: SDKFetch,
     private net: Net,
-    schemas?: SchemaColl
+    schemas?: SchemaColl,
+    options: SocketClientOptions = { url: 'wss://push.teambition.com', path: '/websocket' }
   ) {
+    this._isDebug = options.env === 'development'
+    this.isLegacyMode = !!options.isLegacyMode
+    this._socketUrl = options.url
+    this.connectOptions = { path: options.path }
     this._tabNameToPKName = collectPKNames(schemas)
   }
 
@@ -58,134 +83,132 @@ export class SocketClient {
 
   debug(): void {
     this._isDebug = true
-    ctx['console']['log']('socket debug start')
+    this.debugMsg('socket debug start')
   }
 
-  setSocketUrl(url: string): void {
+  setConnectParams = (url: string, options?: SocketConnectOptions) => {
     this._socketUrl = url
+    this.connectOptions = { ...this.connectOptions, ...options }
   }
 
-  async initClient(client: Consumer, userMe?: UserMe): Promise<void> {
+  async initClient(client: Consumer, userMe?: UserMe) {
     if (!userMe) {
       await this._getToken()
     } else {
       this._getUserMeStream.next(userMe)
     }
+
     this._client = client
-    this._client._join = this._join.bind(this)
-    this._client.onmessage = this._onmessage.bind(this)
-    this._client.onopen = this._onopen.bind(this)
+    this._client._join = this._join
+    this._client.onmessage = this._onmessage
+    this._client.onopen = this._onopen
     this._getUserMeStream.subscribe(u => {
       this._client.getToken = () => {
-        return u.snapperToken as string
+        return u[tk.userField(this.isLegacyMode)] as string
       }
     })
   }
 
   initReactiveDB(database: Database) {
     this.database = database
-    if (this._client) {
-      this._client.onmessage = this._onmessage.bind(this)
+
+    const { _client, _onmessage } = this
+    if (_client) {
+      _client.onmessage = _onmessage
     }
   }
 
-  async connect(): Promise<void> {
-    const userMe = await this._getUserMeStream
-      .take(1)
-      .toPromise()
-    const auth = userMe.snapperToken.split('.')[1]
-    const token: {
-      exp: number
-      userId: string
-      source: 'teambition'
-    } = JSON.parse(window.atob(auth))
-    const expire = token.exp * 1000 - 3600000
-    // token.exp * 1000 - 1 * 60 * 60 * 1000
-    if (expire < Date.now()) {
+  public addClient = (client: any) => {
+    this.clients.add(client)
+  }
+
+  async connect(host?: string, options?: SocketConnectOptions) {
+    console.info('connect', host, options, this._socketUrl, this.connectOptions, this._client)
+    if (!this._client) {
+      return
+    }
+    const userMe = await this._getUserMeStream.take(1).toPromise()
+    const field = tk.userField(this.isLegacyMode)
+    let token = userMe[field] as string
+
+    if (!tk.isValid(token as string)) {
       await this._getToken()
     }
-    return this._connect()
+
+    const me: UserMe = await this._getUserMeStream.take(1).toPromise()
+    token = me[tk.userField(this.isLegacyMode)] as string
+
+    const dest = host || this._socketUrl
+    this._client.connect(dest, { token, ...this.connectOptions, ...options })
   }
 
   /**
    * uri 格式: :type/:id
    * eg: projects, organizations/554c83b1b2c809b4715d17b0
    */
-  join(uri: string): Consumer {
-    if (this._joinedRoom.has(uri)) {
-      return this._client
+  join(uri: string): Consumer | undefined {
+    const { _client, _joinedRoom } = this
+    if (!_client) {
+      return
     }
-    return this._client.join.call(this._client, uri)
+    if (_joinedRoom.has(uri)) {
+      return _client
+    }
+    return _client.join.call(_client, uri)
   }
 
-  leave(uri: string): Promise<void> {
-    if (!this._consumerId) {
+  async leave(uri: string, consumerId?: string) {
+    const _consumerId = consumerId || this._consumerId
+
+    if (!_consumerId) {
       return Promise.reject(new Error(`leave room failed, no consumerId`))
     }
     if (this._leavedRoom.has(uri)) {
       return Promise.resolve()
     }
-    return this.fetch.leaveRoom(uri, this._consumerId)
-      .then(() => {
-        if (this._joinedRoom) {
-          this._joinedRoom.delete(uri)
-        }
-        this._leavedRoom.add(uri)
-      })
-      .catch((e: any) => {
-        console.error(e)
-      })
+    try {
+      await this.fetch.leaveRoom(uri, _consumerId)
+      this._joinedRoom.delete(uri)
+      this._leavedRoom.add(uri)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   // override Consumer onopen
-  private _onopen(): void {
-    this._joinedRoom.forEach(r => {
-      this.fetch.joinRoom(r, this._consumerId)
+  private _onopen = (): void => {
+    this._joinedRoom.forEach(this.join.bind(this))
+    this.debugMsg('--- WebSocket Opened ---')
+  }
+
+  private _onmessage = async (event: Consumer.RequestEvent) => {
+    // 避免被插件清除掉
+    this.debugMsg(JSON.stringify(event, null, 2))
+    this.clients.forEach((client: any) => {
+      client._onmessage(event)
     })
-  }
-
-  private _connect(): Promise<void> {
-    return this._getUserMeStream
-      .take(1)
-      .toPromise()
-      .then(userMe => {
-        this._client
-          .connect(this._socketUrl, {
-            path: '/websocket',
-            token: userMe.snapperToken as string
-          })
-      })
-  }
-
-  private _onmessage(event: Consumer.RequestEvent) {
-    if (this._isDebug) {
-      // 避免被插件清除掉
-      ctx['console']['log'](JSON.stringify(event, null, 2))
+    try {
+      await socketHandler(this.net, event, this._tabNameToPKName, this.database).toPromise()
+    } catch (err) {
+      ctx['console']['error'](err)
     }
-    return socketHandler(this.net, event, this._tabNameToPKName, this.database)
-      .toPromise()
-      .then(null, (err: any) => ctx['console']['error'](err))
   }
 
-  private _getToken() {
-    return this.fetch.getUserMe()
-      .send()
-      .toPromise()
-      .then((r: UserMe) => {
-        this._getUserMeStream.next(r)
-      })
+  private _getToken = async () => {
+    const me: UserMe = await this.fetch.getUserMe().send().toPromise()
+    this._getUserMeStream.next(me)
   }
 
-  private _join(room: string, consumerId: string): Promise<any> {
+  private _join = async (room: string, consumerId: string) => {
     this._consumerId = consumerId
-    return this.fetch.joinRoom(room, consumerId)
-      .then(() => {
-        this._joinedRoom.add(room)
-      })
-      .catch(e => {
-        console.error(e)
-      })
+    try {
+      await this.fetch.joinRoom(room, consumerId)
+      this._joinedRoom.add(room)
+    } catch (e) {
+      console.error(e)
+    }
   }
+
 }
 
 export function leaveRoom(
@@ -193,9 +216,10 @@ export function leaveRoom(
   room: string,
   consumerId: string
 ) {
-  return (<any>this.delete)(`/${room}/subscribe`, {
+  return (<any>this.delete)(`${room}/subscribe`, {
     consumerId
   })
+    .send()
     .toPromise()
 }
 
@@ -204,7 +228,7 @@ export function joinRoom(
   room: string,
   consumerId: string
 ) {
-  return this.post<void>(`/${room}/subscribe`, {
+  return this.post<void>(`${room}/subscribe`, {
     consumerId: consumerId
   })
     .send()

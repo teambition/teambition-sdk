@@ -9,18 +9,27 @@ import { Net } from './Net'
 
 import { forEach } from './utils'
 import { SDKFetch } from './SDKFetch'
-import { SocketClient } from './sockets/SocketClient'
+import { SocketClient, SocketClientOptions } from './sockets/SocketClient'
 import { SchemaColl } from './utils/internalTypes'
 
 export const schemas: SchemaColl = []
 
 export { CacheStrategy } from './Net'
 
+export interface SDKOptions {
+  pushService: SocketClientOptions,
+}
+
 export class SDK {
   net = new Net(schemas)
   fetch = new SDKFetch
-  socketClient: SocketClient = new SocketClient(this.fetch, this.net, schemas)
+  public socketClient: SocketClient
   database: Database
+
+  constructor(options: SDKOptions) {
+    this.socketClient = new SocketClient(this.fetch, this.net, schemas, options.pushService)
+  }
+
   lift: typeof Net.prototype.lift = (ApiResult: any): any => {
     return this.net.lift(ApiResult)
   }
