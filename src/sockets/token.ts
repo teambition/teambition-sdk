@@ -1,6 +1,6 @@
 import { UserMe } from '../schemas/UserMe'
 
-type TokenField = keyof Pick<UserMe, 'snapperToken' | 'tcmToken'>
+export type TokenField = keyof Pick<UserMe, 'snapperToken' | 'tcmToken'>
 
 export const userField = (isLegacyMode: boolean): TokenField =>
   isLegacyMode ? 'snapperToken' : 'tcmToken'

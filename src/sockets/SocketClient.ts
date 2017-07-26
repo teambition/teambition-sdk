@@ -37,6 +37,7 @@ export interface SocketClientOptions {
 
 export interface SocketConnectOptions {
   path?: string,
+  onOpen?: (consumerId: string) => void,
   [snapperConnOptionKey: string]: any
 }
 
@@ -46,9 +47,11 @@ export class SocketClient {
 
   private _client: Consumer
   private _socketUrl: string
-  private connectOptions: {}
+  private connOptions: {}
   private _consumerId: string
   private _getUserMeStream = new ReplaySubject<UserMe>(1)
+  private userField: tk.TokenField
+  private onOpenCallback?: (consumerId: string) => void
 
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
@@ -72,8 +75,9 @@ export class SocketClient {
   ) {
     this._isDebug = options.env === 'development'
     this.isLegacyMode = !!options.isLegacyMode
+    this.userField = tk.userField(this.isLegacyMode)
     this._socketUrl = options.url
-    this.connectOptions = { path: options.path }
+    this.connOptions = { path: options.path }
     this._tabNameToPKName = collectPKNames(schemas)
   }
 
@@ -88,7 +92,7 @@ export class SocketClient {
 
   setConnectParams = (url: string, options?: SocketConnectOptions) => {
     this._socketUrl = url
-    this.connectOptions = { ...this.connectOptions, ...options }
+    this.connOptions = { ...this.connOptions, ...options }
   }
 
   async initClient(client: Consumer, userMe?: UserMe) {
@@ -104,7 +108,7 @@ export class SocketClient {
     this._client.onopen = this._onopen
     this._getUserMeStream.subscribe(u => {
       this._client.getToken = () => {
-        return u[tk.userField(this.isLegacyMode)] as string
+        return u[this.userField] as string
       }
     })
   }
@@ -122,24 +126,26 @@ export class SocketClient {
     this.clients.add(client)
   }
 
-  async connect(host?: string, options?: SocketConnectOptions) {
-    console.info('connect', host, options, this._socketUrl, this.connectOptions, this._client)
+  async connect(host?: string, connOptions: SocketConnectOptions = {}) {
     if (!this._client) {
       return
     }
+
     const userMe = await this._getUserMeStream.take(1).toPromise()
-    const field = tk.userField(this.isLegacyMode)
-    let token = userMe[field] as string
+    let token = userMe[this.userField] as string
 
     if (!tk.isValid(token as string)) {
       await this._getToken()
     }
 
     const me: UserMe = await this._getUserMeStream.take(1).toPromise()
-    token = me[tk.userField(this.isLegacyMode)] as string
+    token = me[this.userField] as string
+
+    this.onOpenCallback = connOptions.onOpen
+    delete connOptions.onOpen
 
     const dest = host || this._socketUrl
-    this._client.connect(dest, { token, ...this.connectOptions, ...options })
+    this._client.connect(dest, { token, ...this.connOptions, ...connOptions })
   }
 
   /**
@@ -177,7 +183,13 @@ export class SocketClient {
 
   // override Consumer onopen
   private _onopen = (): void => {
+    const consumerId = this._client['consumerId']
+    if (this.onOpenCallback) {
+      this.onOpenCallback(consumerId)
+    }
+
     this._joinedRoom.forEach(this.join.bind(this))
+
     this.debugMsg('--- WebSocket Opened ---')
   }
 
