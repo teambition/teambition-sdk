@@ -23,7 +23,6 @@ describe('get organization projects', () => {
       { fn: getJoinedOrganizationProjects, namespace: 'joined' },
       { fn: getPublicOrganizationProjects, namespace: 'public' },
       { fn: getStarredOrganizationProjects, namespace: 'starred' },
-      // { fn: getOrganizationProjectsByTagId, namespace: (tagId: string) => `projecttags/${tagId}/projects` },
       { fn: getUngroupedOrganizationProjects, namespace: 'ungrouped' }
     ]
 
