@@ -6,13 +6,11 @@ import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/toPromise'
 import 'rxjs/add/operator/concatMap'
 import 'rxjs/add/operator/take'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
 import { socketHandler } from './EventMaps'
 import * as Consumer from 'snapper-consumer'
-import { UserMe } from '../schemas/UserMe'
 import Dirty from '../utils/Dirty'
 import { SchemaColl } from '../utils/internalTypes'
 import * as tk from './token'
@@ -28,29 +26,27 @@ function collectPKNames(schemas: SchemaColl = []) {
   }, {})
 }
 
-export interface SocketClientOptions {
-  url: string,
-  path: string,
+export type SocketClientOptions = {
+  env?: string,
   isLegacyMode?: boolean,
-  env?: string
 }
 
-export interface SocketConnectOptions {
-  path?: string,
+export type SocketConnectOptions = {
+  host: string,
+  path: string,
+  token?: string,
   onOpen?: (consumerId: string) => void,
   [snapperConnOptionKey: string]: any
 }
 
 export class SocketClient {
   private isLegacyMode = false
-  private _isDebug = false
+  private isDebug = false
 
   private _client: Consumer
-  private _socketUrl: string
-  private connOptions: {}
   private _consumerId: string
-  private _getUserMeStream = new ReplaySubject<UserMe>(1)
-  private userField: tk.TokenField
+  private connOptions: SocketConnectOptions
+  private token: tk.ValidToken
   private onOpenCallback?: (consumerId: string) => void
 
   private _joinedRoom = new Set<string>()
@@ -58,11 +54,11 @@ export class SocketClient {
 
   private clients = new Set<any>()
 
-  private _tabNameToPKName: { [key: string]: string } = {}
+  private tabNameToPKName: { [key: string]: string } = {}
   private database: Database
 
   private debugMsg = (msg: string): void => {
-    if (this._isDebug) {
+    if (this.isDebug) {
       ctx['console']['log'](msg)
     }
   }
@@ -71,81 +67,78 @@ export class SocketClient {
     private fetch: SDKFetch,
     private net: Net,
     schemas?: SchemaColl,
-    options: SocketClientOptions = { url: 'wss://push.teambition.com', path: '/websocket' }
+    options: SocketClientOptions = {}
   ) {
-    this._isDebug = options.env === 'development'
+    this.tabNameToPKName = collectPKNames(schemas)
     this.isLegacyMode = !!options.isLegacyMode
-    this.userField = tk.userField(this.isLegacyMode)
-    this._socketUrl = options.url
-    this.connOptions = { path: options.path }
-    this._tabNameToPKName = collectPKNames(schemas)
-  }
-
-  destroy() {
-    this._getUserMeStream.complete()
+    this.isDebug = options.env === 'development'
   }
 
   debug(): void {
-    this._isDebug = true
+    this.isDebug = true
     this.debugMsg('socket debug start')
   }
 
-  setConnectParams = (url: string, options?: SocketConnectOptions) => {
-    this._socketUrl = url
-    this.connOptions = { ...this.connOptions, ...options }
-  }
-
-  async initClient(client: Consumer, userMe?: UserMe) {
-    if (!userMe) {
-      await this._getToken()
-    } else {
-      this._getUserMeStream.next(userMe)
-    }
-
+  initClient(client: Consumer) {
     this._client = client
     this._client._join = this._join
     this._client.onmessage = this._onmessage
     this._client.onopen = this._onopen
-    this._getUserMeStream.subscribe(u => {
-      this._client.getToken = () => {
-        return u[this.userField] as string
-      }
-    })
+  }
+
+  addClient = (client: any) => {
+    this.clients.add(client)
   }
 
   initReactiveDB(database: Database) {
     this.database = database
 
-    const { _client, _onmessage } = this
-    if (_client) {
-      _client.onmessage = _onmessage
+    if (this._client) {
+      this._client.onmessage = this._onmessage
     }
   }
 
-  public addClient = (client: any) => {
-    this.clients.add(client)
+  reset() {
+    if (this._client) {
+      this._client.close()
+    }
+    this.token.destroy()
   }
 
-  async connect(host?: string, connOptions: SocketConnectOptions = {}) {
+  setConnectOptions = (options: SocketConnectOptions) => {
+    this.connOptions = { ...this.connOptions, ...options }
+  }
+
+  async connect(host?: string, connOptions: Partial<SocketConnectOptions> = {}) {
     if (!this._client) {
+      console.error('push service client is not ready')
       return
     }
 
-    const userMe = await this._getUserMeStream.take(1).toPromise()
-    let token = userMe[this.userField] as string
-
-    if (!tk.isValid(token as string)) {
-      await this._getToken()
+    if (connOptions.onOpen) {
+      this.onOpenCallback = connOptions.onOpen
+      delete connOptions.onOpen
     }
 
-    const me: UserMe = await this._getUserMeStream.take(1).toPromise()
-    token = me[this.userField] as string
+    const dest = host || connOptions.host!
 
-    this.onOpenCallback = connOptions.onOpen
-    delete connOptions.onOpen
+    try {
+      this.token = await tk.setUpValidTokenStream(
+        this.fetch,
+        this._client,
+        this.isLegacyMode,
+        2000
+      )
+    } catch (e) {
+      console.error(`failed to set up valid token stream; legacy mode: ${this.isLegacyMode}`, e)
+      return
+    }
 
-    const dest = host || this._socketUrl
-    this._client.connect(dest, { token, ...this.connOptions, ...connOptions })
+    this._client.connect(dest, {
+      token: this.token.get(),
+      ...this.connOptions,
+      ...connOptions
+    })
   }
 
   /**
@@ -200,15 +193,10 @@ export class SocketClient {
       client._onmessage(event)
     })
     try {
-      await socketHandler(this.net, event, this._tabNameToPKName, this.database).toPromise()
+      await socketHandler(this.net, event, this.tabNameToPKName, this.database).toPromise()
     } catch (err) {
       ctx['console']['error'](err)
     }
-  }
-
-  private _getToken = async () => {
-    const me: UserMe = await this.fetch.getUserMe().send().toPromise()
-    this._getUserMeStream.next(me)
   }
 
   private _join = async (room: string, consumerId: string) => {
