@@ -35,17 +35,17 @@ export class Dirty {
   }
 
   /**
-   * 后端通知和消息存的是同一个模型，只是objectType不同 (通知的objectType是'activity')
+   * 后端通知和消息存的是同一个模型，只是 msgType 以及 objectType 不同 (通知的objectType是'activity')
    * 所以前端如果要把这两个东西存成两个模型的话，需要在socket区分
    * 这里在重构chat的时候，直接过滤掉通知消息，当重构通知的时候，需要改动这里代码，把通知消息
    * 存在自己的表里
    */
   _handleMessage(_: string, __: string, data: any, ___: Database): Observable<any> | null {
-    if (data.objectType && data.objectType !== 'room') {
+    if ((data.msgType && data.msgType !== 'pm')) {
       // return db.upsert('ActivityMessage | PostMessage | ...', data)
       return Observable.of(null)
     }
-    if (data as any === 'readAll:private') {
+    if (data === 'readAll:private' || data === 'readAll:normal' || data === 'readAll:later') {
       return Observable.of(null)
     }
     if (data.msgType === 'pm') {
