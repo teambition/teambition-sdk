@@ -4,6 +4,7 @@ import 'rxjs/add/operator/concatAll'
 import 'rxjs/add/operator/do'
 import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/switchMap'
+import 'rxjs/add/operator/filter'
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
@@ -33,7 +34,7 @@ export interface ApiResult<T, U extends CacheStrategy> {
   required?: (keyof T)[]
   assocFields?: AssocField<T>
   excludeFields?: string[]
-  padding?: (missedId: string) => Http<T>
+  padding?: (missedId: string) => Observable<T>
 }
 
 export type AssocField<T> = { [P in keyof T]?: AssocField<T[P]> | string[] }
@@ -107,12 +108,12 @@ export class Net {
                 typeof result.padding === 'function'
               ) {
                 return result.padding(v[this.primaryKeys.get(result.tableName)!])
-                  .send()
-                  .concatMap(r => this.database!
+                  .filter(r => r != null)
+                  .concatMap((r: T) => this.database!
                     .upsert(result.tableName, r)
                     .mapTo(r)
                   )
-                  .do(r => Object.assign(v, r))
+                  .do((r: T) => Object.assign(v, r))
               }
               return Observable.of(v)
             })
@@ -320,6 +321,7 @@ export class Net {
     switch (cacheValidate) {
       case CacheStrategy.Request:
         if (!requestCache) {
+          /*tslint:disable no-shadowed-variable*/
           const selector$ = request
             .setHeaders(requestId ? { 'X-Request-Id': requestId } : {})
             .send()

@@ -6,7 +6,8 @@ import { spy } from 'sinon'
 import * as SinonChai from 'sinon-chai'
 import '../../src/schemas'
 import { schemas, CacheStrategy } from '../../src/SDK'
-import { Net, Backend, SDKFetch, forEach, uuid, Http } from '..'
+import { Net, Backend, SDKFetch, forEach, uuid, Http, EventSchema,  } from '..'
+import { ApiResult } from '../../src/Net/Net'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
 
 use(SinonChai)
@@ -55,7 +56,7 @@ describe('Net test', () => {
           creator: ['_id', 'name', 'avatarUrl']
         },
         excludeFields: ['isDeleted', 'source', 'type', 'url']
-      })
+      } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .values()
         .do(([r]) => {
           expect(r).to.deep.equal(normalEvent)
@@ -77,7 +78,7 @@ describe('Net test', () => {
           creator: ['_id', 'name', 'avatarUrl']
         },
         excludeFields: ['isDeleted', 'source', 'type', 'url']
-      })
+      } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .changes()
         .take(1)
         .do(([r]) => {
@@ -184,7 +185,7 @@ describe('Net test', () => {
           'isDeleted', 'source', 'type', 'url', 'attachmentsCount', 'commentsCount',
           'involvers', 'likesCount'
         ]
-      })
+      } as ApiResult<EventSchema, CacheStrategy.Request>)
         .changes()
         .publishReplay(1)
         .refCount()
@@ -202,7 +203,7 @@ describe('Net test', () => {
       })
 
       yield stream$.take(1)
-        .do(([e]: typeof projectEvents) => {
+        .do(([e]) => {
           expect(e.location).to.equal(newLocation)
         })
     })
@@ -233,7 +234,7 @@ describe('Net test', () => {
           'involvers', 'likesCount'
         ],
         required: ['startDate'],
-        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
+        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`).send()
       })
         .changes()
         .publishReplay(1)
@@ -285,7 +286,7 @@ describe('Net test', () => {
           'involvers', 'likesCount'
         ],
         required: ['startDate'],
-        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
+        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`).send()
       })
         .changes()
         .publishReplay(1)
@@ -387,7 +388,7 @@ describe('Net test', () => {
           'isDeleted', 'source', 'type', 'url', 'attachmentsCount', 'commentsCount',
           'involvers', 'likesCount'
         ]
-      })
+      } as ApiResult<EventSchema, CacheStrategy.Request>)
 
       yield getToken()
         .values()
@@ -413,7 +414,7 @@ describe('Net test', () => {
       })
 
       yield stream$.take(1)
-        .do(([r]: typeof projectEvents) => {
+        .do(([r]) => {
           expect(r.location).to.equal(newLocation)
         })
     })
@@ -434,7 +435,7 @@ describe('Net test', () => {
           'involvers', 'likesCount'
         ],
         required: ['startDate'],
-        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
+        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`).send()
       })
 
       yield getToken()
@@ -496,7 +497,7 @@ describe('Net test', () => {
           'involvers', 'likesCount'
         ],
         required: ['startDate'],
-        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
+        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`).send()
       })
 
       expect(fn).to.throw('unreachable code path')
@@ -515,7 +516,7 @@ describe('Net test', () => {
           'involvers', 'likesCount'
         ],
         required: ['startDate'],
-        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
+        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`).send()
       })
 
       expect(fn).to.throw('table: __NOT_EXIST__ is not defined')

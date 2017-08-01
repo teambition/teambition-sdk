@@ -177,7 +177,7 @@ export const normPagingQuery = (
 ): { forUrl: UrlPagingQuery, forSql: SqlPagingQuery } => {
   const defaultPaging = { count: 500, page: 1 }
 
-  let q = { ...defaultPaging, ...query }
+  let q: any = { ...defaultPaging, ...query }
   const forUrl = omitKeys(q, 'orderBy') as UrlPagingQuery
 
   q = { ...q, ...pagination(q.count, q.page) }
