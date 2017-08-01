@@ -213,6 +213,7 @@ SDKFetch.prototype.leaveRoom = leaveRoom
 SDKFetch.prototype.joinRoom = joinRoom
 
 declare module '../SDKFetch' {
+  /*tslint:disable no-shadowed-variable*/
   interface SDKFetch {
     joinRoom: typeof joinRoom
     leaveRoom: typeof leaveRoom
