@@ -498,7 +498,7 @@ describe('Net test', () => {
         ],
         required: ['startDate'],
         padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`).send()
-      })
+      } as ApiResult<EventSchema, 2313>)
 
       expect(fn).to.throw('unreachable code path')
     })
@@ -517,7 +517,7 @@ describe('Net test', () => {
         ],
         required: ['startDate'],
         padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`).send()
-      })
+      } as ApiResult<EventSchema, CacheStrategy.Request> )
 
       expect(fn).to.throw('table: __NOT_EXIST__ is not defined')
     })

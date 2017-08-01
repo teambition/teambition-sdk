@@ -34,7 +34,7 @@ export interface ApiResult<T, U extends CacheStrategy> {
   required?: (keyof T)[]
   assocFields?: AssocField<T>
   excludeFields?: string[]
-  padding?: (missedId: string) => Observable<T>
+  padding?: (missedId: string) => Observable<T | null>
 }
 
 export type AssocField<T> = { [P in keyof T]?: AssocField<T[P]> | string[] }
