@@ -193,9 +193,9 @@ export function leaveRoom(
   room: string,
   consumerId: string
 ) {
-  return (<any>this.delete)(`/${room}/subscribe`, {
-    consumerId
-  })
+  // http delete 不允许有 body， 但是这里就是有 body
+  return this.delete<void>(`${room}/subscribe`, { consumerId })
+    .send()
     .toPromise()
 }
 
@@ -204,9 +204,7 @@ export function joinRoom(
   room: string,
   consumerId: string
 ) {
-  return this.post<void>(`/${room}/subscribe`, {
-    consumerId: consumerId
-  })
+  return this.post<void>(`${room}/subscribe`, { consumerId })
     .send()
     .toPromise()
 }
