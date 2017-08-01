@@ -20,7 +20,7 @@ describe('eventParser', () => {
   })
 
   it('handles example correctly', () => {
-    event.data.params.push('{\"e\":\":change:project/574bdf1c09bf88bd4f1dbb02\",\"d\":{\"uniqueIdPrefix\":\"QYGz\"}}')
+    (event.data.params as string[]).push('{\"e\":\":change:project/574bdf1c09bf88bd4f1dbb02\",\"d\":{\"uniqueIdPrefix\":\"QYGz\"}}')
 
     expect(eventParser(event)).to.deep.equal([{
       method: 'change',
@@ -31,7 +31,7 @@ describe('eventParser', () => {
   })
 
   it('handles event strings that aren\'t prefixed with colon', () => {
-    event.data.params.push('{\"e\":\"system:notifications\",\"d\":{\"name\":\"taskUniqueId\",\"status\":\"success\"}}')
+    (event.data.params as string[]).push('{\"e\":\"system:notifications\",\"d\":{\"name\":\"taskUniqueId\",\"status\":\"success\"}}')
 
     expect(eventParser(event)).to.deep.equal([{
       method: 'system',
@@ -49,8 +49,10 @@ describe('eventParser', () => {
       collapsekey: '',
       data: plain
     }
-    event.data.params.push(plain)
-    event.data.params.push(tcm as any)
+
+    const params: any[] = event.data.params
+    params.push(plain)
+    params.push(tcm)
 
     const expectedResult = {
       method: 'change',

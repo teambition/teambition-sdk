@@ -3,7 +3,7 @@ export interface RequestObject {
   id: number
   jsonrpc: string
   method: 'publish' | 'notification' | 'success' | 'error' | 'invalid'
-  params: string[]
+  params: string[] | any[]
 }
 
 export interface RequestEvent {
@@ -28,6 +28,15 @@ export class SocketMock {
 
   constructor(SocketClient: any) {
     SocketClient.initClient(this, {})
+  }
+
+  public makeMessage = (data: RequestObject): RequestEvent => {
+    this._id = this._id + 1
+    return {
+      id: this._id,
+      type: 'request',
+      data
+    }
   }
 
   emit(
@@ -57,17 +66,14 @@ export class SocketMock {
       e: `:${method}:${objectType}/${objectId}`,
       d: patch
     }
-    this._id = this._id + 1
-    const result: RequestEvent = {
+
+    const result = this.makeMessage({
       id: this._id,
-      type: 'request',
-      data: {
-        id: this._id,
-        jsonrpc: '2.0',
-        method: 'publish',
-        params: [ JSON.stringify(params) ]
-      }
-    }
+      jsonrpc: '2.0',
+      method: 'publish',
+      params: [ JSON.stringify(params) ]
+    })
+
     if (typeof delay === 'number') {
       if (delay > 0) {
         return new Promise(resolve => {
