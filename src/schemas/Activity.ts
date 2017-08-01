@@ -1,6 +1,5 @@
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemas } from '../SDK'
-import { MemberSchema } from '.'
 import {
   ExecutorOrCreator,
   ActivityId,
@@ -150,7 +149,7 @@ const schema: SchemaDef<ActivitySchema> = {
     type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: (memberTable: MemberSchema) => ({
+      where: (memberTable) => ({
         _creatorId: memberTable._id
       })
     }
