@@ -1,0 +1,38 @@
+{
+  "private": true,
+  "name": "teambition-sdk-testutil",
+  "version": "0.8.13",
+  "description": "Front-End SDK (TestUtil) for Teambition",
+  "main": "./dist/cjs/index.js",
+  "typings": "./dist/cjs/index.d.ts",
+  "scripts": {
+    "build_cjs": "rm -rf dist/cjs && tsc",
+    "lint": "tslint --project . --exclude src/fixture/**/*.ts --config ../../tslint.json",
+    "test": "npm run lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/teambition/teambition-sdk.git"
+  },
+  "keywords": [
+    "teambition",
+    "sdk",
+    "teambition-sdk",
+    "mock",
+    "fixture"
+  ],
+  "author": "lynweklm@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/teambition/teambition-sdk/issues"
+  },
+  "homepage": "https://github.com/teambition/teambition-sdk#readme",
+  "peerDependencies": {
+    "core-js": "^2.4.1"
+  },
+  "devDependencies": {
+    "tslint": "^5.5.0",
+    "tslint-eslint-rules": "^4.1.1",
+    "typescript": "^2.4.2"
+  }
+}

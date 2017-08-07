@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist/cjs",
+    "target": "ES5",
+
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+
+    "inlineSources": true,
+    "inlineSourceMap": true,
+    "declaration": true,
+    "diagnostics": true,
+    "pretty": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "suppressImplicitAnyIndexErrors": true,
+
+    "lib": [
+      "es5",
+      "es2015.iterable",
+      "es2015.collection",
+      "es2015.promise",
+      "es2015.core",
+      "dom"
+    ],
+    "importHelpers": true,
+    "noEmitHelpers": true
+  },
+  "files": [
+    "src/index.ts"
+  ]
+}
+

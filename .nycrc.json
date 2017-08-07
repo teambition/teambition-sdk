@@ -1,0 +1,16 @@
+{
+  "exclude": [
+    "**/teambition-sdk-testutil/**",
+    "**/teambition-sdk-core/spec-js/src/teambition.js",
+    "**/teambition-sdk-core/spec-js/src/utils/internalTypes.js"
+  ],
+  "include": [
+    "**/spec-js/src/**"
+  ],
+  "extension": [
+    ".ts"
+  ],
+  "reporter": ["html", "lcov"],
+  "all": true,
+  "cache": true
+}

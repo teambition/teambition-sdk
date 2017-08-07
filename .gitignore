@@ -9,6 +9,7 @@ pids
 
 # Coverage directory used by tools like istanbul
 coverage
+packages/*/coverage/
 .nyc_output
 
 # node-waf configuration
@@ -16,10 +17,12 @@ coverage
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
+packages/*/build/Release
 
 # Dependency directory
 # https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
 node_modules
+packages/*/node_modules/
 
 .tmp
 
@@ -29,8 +32,12 @@ node_modules
 .idea/
 
 typings
+packages/*/typings
 .tsdrc
+packages/*/typings
 jsconfig.json
 coverage
 dist
+packages/*/dist
 spec-js
+packages/*/spec-js

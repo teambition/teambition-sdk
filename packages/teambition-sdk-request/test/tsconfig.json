@@ -1,0 +1,25 @@
+{
+  "files": [
+    "app.ts"
+  ],
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+
+    "outDir": "../spec-js",
+    "target": "ES2015",
+
+    "sourceMap": true,
+    "inlineSources": true,
+    "diagnostics": true,
+    "pretty": true,
+    "experimentalDecorators": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "types": [
+      "node",
+      "chai",
+      "sinon",
+      "sinon-chai"
+    ]
+  }
+}

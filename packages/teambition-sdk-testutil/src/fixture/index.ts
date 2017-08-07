@@ -1,0 +1,7 @@
+export { EventsFixture } from './events.fixture'
+export { FilesFixture } from './files.fixture'
+export { default as LikeFixture } from './like.fixture'
+export { MyFixture } from './my.fixture'
+export { PostsFixture } from './posts.fixture'
+export { TasksFixture } from './tasks.fixture'
+export { default as UserFixture } from './user.fixture'
