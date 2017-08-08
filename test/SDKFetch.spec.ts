@@ -1,7 +1,7 @@
 import { expect } from 'chai'
-import { Scheduler } from 'rxjs'
-import { describe, it, beforeEach } from 'tman'
-import { SDKFetch, forEach } from '.'
+import { Observable, Scheduler } from 'rxjs'
+import { describe, it, beforeEach, afterEach } from 'tman'
+import { SDKFetch, forEach, Http } from '.'
 
 const fetchMock = require('fetch-mock')
 
@@ -11,9 +11,14 @@ export default describe('SDKFetch', () => {
   const apiHost = 'https://www.teambition.com/api'
   const path = 'test'
   const testUrl = `${apiHost}/${path}`
+  const allowedMethods = ['get', 'post', 'put', 'delete']
 
   beforeEach(() => {
     sdkFetch = new SDKFetch()
+  })
+
+  afterEach(() => {
+    fetchMock.restore()
   })
 
   it('setAPIHost/getAPIHost should configure api host', () => {
@@ -28,7 +33,6 @@ export default describe('SDKFetch', () => {
     sdkFetch.setHeaders(headers)
     fetchMock.mock(new RegExp(testUrl), {})
     yield sdkFetch.get(path)
-      .send()
       .subscribeOn(Scheduler.async)
       .do(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
@@ -40,7 +44,6 @@ export default describe('SDKFetch', () => {
           },
           credentials: 'include'
         })
-        fetchMock.restore()
       })
   })
 
@@ -49,7 +52,6 @@ export default describe('SDKFetch', () => {
     sdkFetch.setToken(token)
     fetchMock.getOnce(new RegExp(testUrl), {})
     yield sdkFetch.get(path)
-      .send()
       .subscribeOn(Scheduler.async)
       .do(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
@@ -60,7 +62,19 @@ export default describe('SDKFetch', () => {
             'Authorization': `OAuth2 ${token}`
           }
         })
-        fetchMock.restore()
+      })
+  })
+
+  it('setOptions should work', function* () {
+    const nonDefaulResponseType = 'arraybuffer'
+    sdkFetch.setOptions({ responseType: nonDefaulResponseType })
+
+    fetchMock.getOnce(new RegExp(testUrl), {})
+
+    yield sdkFetch.get(path)
+      .subscribeOn(Scheduler.async)
+      .do(() => {
+        expect(fetchMock.lastOptions().responseType).to.equal(nonDefaulResponseType)
       })
   })
 
@@ -70,7 +84,6 @@ export default describe('SDKFetch', () => {
 
     // 无 query 的 GET
     yield sdkFetch.get(path)
-      .send()
       .subscribeOn(Scheduler.async)
       .do(() => {
         const delimiter = '?_='
@@ -83,14 +96,12 @@ export default describe('SDKFetch', () => {
     const query = { value: 'A' }
     const urlWithQuery = testUrl + '?value=A'
     yield sdkFetch.get(path, query)
-      .send()
       .subscribeOn(Scheduler.async)
       .do(() => {
         const delimiter = '&_='
         const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
         expect(prefix).to.equal(urlWithQuery)
         expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
-        fetchMock.restore()
       })
   })
 
@@ -99,7 +110,6 @@ export default describe('SDKFetch', () => {
     fetchMock.get(urlMatcher, {})
 
     yield sdkFetch.get(path, {})
-      .send()
       .subscribeOn(Scheduler.async)
       .do(() => {
         const delimiter = '?_='
@@ -107,26 +117,51 @@ export default describe('SDKFetch', () => {
         expect(prefix).to.equal(testUrl)
         expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
       })
-      .finally(() => {
-        fetchMock.restore()
-      })
   })
 
-  it('get should re-use observable for mathcing request', () => {
+  it('get should re-use observable for matching request', () => {
     const getA = sdkFetch.get(path, { value: 'A' })
     const anotherGetA = sdkFetch.get(path, { value: 'A' })
     const getB = sdkFetch.get(path, { value: 'B' })
 
     // 确定目标值不是 undefined
-    expect(getA['request']).not.undefined
-    expect(anotherGetA['request']).not.undefined
-    expect(getB['request']).not.undefined
+    expect(getA).not.undefined
+    expect(anotherGetA).not.undefined
+    expect(getB).not.undefined
 
     // anotherGetA 应该重用 getA 里的 request observable
-    expect(anotherGetA['request']).equal(getA['request'])
+    expect(anotherGetA).equal(getA)
 
     // getB 应该使用自己的 request observable
-    expect(getB['request']).not.equal(getA['request'])
+    expect(getB).not.equal(getA)
+  })
+
+  allowedMethods.forEach((httpMethod: string) => {
+    it(`method ${httpMethod} should be able to return Http object`, function* () {
+      const responseData = { body: { test: 'test' } }
+      const body = { body: 'body' }
+      let httpObj: Http<any>
+      let raw: any
+      const urlMatcher = new RegExp(testUrl)
+      fetchMock.mock(urlMatcher, responseData)
+
+      switch (httpMethod) {
+        case 'get':
+          httpObj = sdkFetch[httpMethod](path, null, { wrapped: true })
+          raw = sdkFetch[httpMethod](path, null)
+          break
+        default:
+          httpObj = sdkFetch[httpMethod](path, body, { wrapped: true })
+          raw = sdkFetch[httpMethod](path, body)
+          break
+      }
+
+      yield Observable.forkJoin(httpObj.send(), raw)
+        .subscribeOn(Scheduler.async)
+        .do(([respFromHttpObj, respFromRaw]) => {
+          expect(respFromHttpObj).to.deep.equal(respFromRaw)
+        })
+    })
   })
 
   it('_buildQuery should serialize array to query string', () => {

@@ -1,8 +1,8 @@
+import { Observable } from 'rxjs/Observable'
 import { Query, QueryToken, OrderDescription } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TagId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { normPagingQuery } from '../../utils'
 import { PagingQuery, UrlPagingQuery } from '../../utils/internalTypes'
@@ -21,7 +21,7 @@ export function getByTagIdFetch(
   this: SDKFetch,
   tagId: TagId,
   query?: GetPostsByTagIdUrlQuery
-): Http<PostSchema[]> {
+): Observable<PostSchema[]> {
   return this.get<PostSchema[]>(`tags/${tagId}/posts`, query)
 }
 

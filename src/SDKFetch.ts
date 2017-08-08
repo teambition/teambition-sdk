@@ -4,9 +4,14 @@ import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/publishReplay'
 import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
-import { Http } from './Net/Http'
+import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
 import { forEach, isEmptyObject } from './utils/index'
+
+export interface SDKFetchOptions {
+  includeHeaders?: boolean,
+  wrapped?: boolean
+}
 
 export class SDKFetch {
 
@@ -20,74 +25,117 @@ export class SDKFetch {
   static FetchStack = new Map<string, Observable<any>>()
   static fetchTail: string | undefined | 0
 
-  get<T>(path: string, query?: any) {
+  get<T>(path: string, query: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
+  get<T>(path: string, query: any, options: { wrapped: true, includeHeaders: false }): Http<T>
+  get<T>(path: string, query: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  get<T>(path: string, query: any, options: { wrapped: true }): Http<T>
+  get<T>(path: string, query: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  get<T>(path: string, query?: any, options?: SDKFetchOptions): Observable<T>
+  get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
     const url = this.urlWithPath(path)
     const urlWithQuery = query ? this._buildQuery(url, query) : url
-    const http = this.setOpts(new Http<T>(urlWithQuery))
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
 
-    if (SDKFetch.FetchStack.has(urlWithQuery)) {
-      // re-use connection when available
-      http['request'] = SDKFetch.FetchStack.get(urlWithQuery)!
-      return http
+    this.setOpts(http)
+
+    if (!SDKFetch.FetchStack.has(urlWithQuery)) {
+      const tail = SDKFetch.fetchTail || Date.now()
+      const urlWithTail = query && !isEmptyObject(query)
+        ? `${ urlWithQuery }&_=${ tail }`
+        : `${ urlWithQuery }?_=${ tail }`
+      dist = Observable.defer(() => http.setUrl(urlWithTail).get()
+        .send()
+        .publishReplay<any>(1)
+        .refCount()
+      )
+        .finally(() => {
+          SDKFetch.FetchStack.delete(urlWithQuery)
+        })
+
+      SDKFetch.FetchStack.set(urlWithQuery, dist)
     }
 
-    const tail = SDKFetch.fetchTail || Date.now()
-    const urlWithTail = query && !isEmptyObject(query)
-      ? `${ urlWithQuery }&_=${ tail }`
-      : `${ urlWithQuery }?_=${ tail }`
-    const dist = Observable.defer(() => http.createMethod('get')(urlWithTail)
-      .publishReplay(1)
-      .refCount()
-    )
-      .finally(() => {
-        SDKFetch.FetchStack.delete(urlWithQuery)
-      })
+    dist = SDKFetch.FetchStack.get(urlWithQuery)!
 
-    SDKFetch.FetchStack.set(urlWithQuery, dist)
-    http['request'] = dist
-    return http
+    if (options.wrapped) {
+      http['request'] = dist
+      return http
+    } else {
+      return dist
+    }
   }
 
   private urlWithPath(path: string): string {
     return `${this.apiHost}/${path}`
   }
 
-  public post<T>(path: string, body?: any) {
-    const http = this.setOpts<T>(new Http<T>(this.urlWithPath(path)))
-    return http.post(body)
+  post<T>(path: string, body: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
+  post<T>(path: string, body: any, options: { wrapped: true, includeHeaders: false }): Http<T>
+  post<T>(path: string, body: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  post<T>(path: string, body: any, options: { wrapped: true }): Http<T>
+  post<T>(path: string, body: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  post<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+  post<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+
+    http.setUrl(this.urlWithPath(path))
+    this.setOpts(http).post(body)
+
+    return options.wrapped ? http : http['request']
   }
 
-  public put<T>(path: string, body?: any) {
-    const http = this.setOpts<T>(new Http<T>(this.urlWithPath(path)))
-    return http.put(body)
+  put<T>(path: string, body: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
+  put<T>(path: string, body: any, options: { wrapped: true, includeHeaders: false }): Http<T>
+  put<T>(path: string, body: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  put<T>(path: string, body: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  put<T>(path: string, body: any, options: { wrapped: true }): Http<T>
+  put<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+  put<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+
+    http.setUrl(this.urlWithPath(path))
+    this.setOpts(http).put(body)
+
+    return options.wrapped ? http : http['request']
   }
 
-  public delete<T>(path: string, body?: any) {
-    const http = this.setOpts<T>(new Http<T>(this.urlWithPath(path)))
-    return http.delete(body)
+  delete<T>(path: string, body: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
+  delete<T>(path: string, body: any, options: { wrapped: true, includeHeaders: false }): Http<T>
+  delete<T>(path: string, body: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  delete<T>(path: string, body: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  delete<T>(path: string, body: any, options: { wrapped: true }): Http<T>
+  delete<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+  delete<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+
+    http.setUrl(this.urlWithPath(path))
+    this.setOpts(http).delete(body)
+
+    return options.wrapped ? http : http['request']
   }
 
-  public setAPIHost(host: string) {
+  setAPIHost(host: string) {
     this.apiHost = host
   }
 
-  public getAPIHost() {
+  getAPIHost() {
     return this.apiHost
   }
 
-  public setHeaders(headers: {}) {
+  setHeaders(headers: {}) {
     this.headers = headers
   }
 
-  public setToken(token: string) {
+  setToken(token: string) {
     this.token = token
   }
 
-  public setOptions(options: {}) {
+  setOptions(options: {}) {
     this.options = options
   }
 
-  private setOpts<T>(http: Http<T>) {
+  private setOpts<T>(http: Http<T | HttpResponseWithHeaders<T>>) {
     if (Object.keys(this.headers).length > 0) {
       http.setHeaders(this.headers)
     }

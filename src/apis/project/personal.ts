@@ -1,4 +1,4 @@
-import { Http } from '../../Net'
+import { Observable } from 'rxjs/Observable'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectSchema } from '../../schemas/Project'
 import { UrlPagingQuery } from '../../utils/internalTypes'
@@ -15,7 +15,7 @@ export interface GetPersonalProjectsUrlQuery
 export function getPersonalProjects(
   this: SDKFetch,
   query: GetPersonalProjectsUrlQuery
-): Http<ProjectSchema[]> {
+): Observable<ProjectSchema[]> {
   return this.get<ProjectSchema[]>('projects/personal', query)
 }
 

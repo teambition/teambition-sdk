@@ -19,18 +19,16 @@ import {
 import { forEach } from '../utils'
 import Dirty from '../utils/Dirty'
 import { SDKLogger } from '../utils/Logger'
-import { Http } from './Http'
 export enum CacheStrategy {
   Request = 200,
   Cache
 }
 
 export interface ApiResult<T, U extends CacheStrategy> {
-  request: Http<T> | Http<T[]>
+  request: Observable<T> | Observable<T[]>
   query: Query<T>
   tableName: string
   cacheValidate: U
-  requestId?: string
   required?: (keyof T)[]
   assocFields?: AssocField<T>
   excludeFields?: string[]
@@ -40,18 +38,16 @@ export interface ApiResult<T, U extends CacheStrategy> {
 export type AssocField<T> = { [P in keyof T]?: AssocField<T[P]> | string[] }
 
 export interface CApiResult<T> {
-  request: Http<T>
+  request: Observable<T>
   tableName: string
   method: 'create'
-  requestId?: string
 }
 
 export interface UDResult<T> {
-  request: Http<T>
+  request: Observable<T>
   tableName: string
   method: 'update' | 'delete'
   clause: Predicate<T>
-  requestId?: string
 }
 
 export type CUDApiResult<T> = CApiResult<T> | UDResult<T>
@@ -172,11 +168,9 @@ export class Net {
 
     const database = this.database!
 
-    const { request, requestId, method, tableName } = result as CUDApiResult<T>
+    const { request, method, tableName } = result as CUDApiResult<T>
     let destination: Observable<ExecutorResult> | Observable<T | T[]>
     return request
-      .setHeaders(requestId ? { 'X-Request-Id': requestId } : {})
-      .send()
       .concatMap(v => {
         switch (method) {
           case 'create':
@@ -256,11 +250,9 @@ export class Net {
 
   bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
 
-    const { request, requestId, q, tableName } = this.getInfoFromResult(result)
+    const { request, q, tableName } = this.getInfoFromResult(result)
     const proxySelector = new ProxySelector<T>(
-      request
-        .setHeaders(requestId ? { 'X-Request-Id': requestId } : {})
-        .send(),
+      request,
       q,
       tableName
     )
@@ -275,10 +267,8 @@ export class Net {
   }
 
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
-    const { request, requestId, method, tableName } = result as CUDApiResult<T>
+    const { request, method, tableName } = result as CUDApiResult<T>
     return request
-      .setHeaders(requestId ? { 'X-Request-Id': requestId } : {})
-      .send()
       .do((v: T | T[]) => {
       this.persistedDataBuffer.push({
         kind: 'CUD',
@@ -309,7 +299,6 @@ export class Net {
     const database = this.database!
     const {
       request,
-      requestId,
       q,
       cacheValidate,
       tableName
@@ -323,8 +312,6 @@ export class Net {
         if (!requestCache) {
           /*tslint:disable no-shadowed-variable*/
           const selector$ = request
-            .setHeaders(requestId ? { 'X-Request-Id': requestId } : {})
-            .send()
             .do<T | T[]>(r => {
               if (Array.isArray(r)) {
                 this.requestResultLength.set(sq, r.length)
@@ -343,8 +330,6 @@ export class Net {
         }
       case CacheStrategy.Cache:
         const selector$ = request
-          .setHeaders(requestId ? { 'X-Request-Id': requestId } : {})
-          .send()
           .concatMap((r: T | T[]) => database.upsert(tableName, r))
           .concatMap(() => database.get(tableName, q).selector$)
         return new QueryToken(selector$)
@@ -360,7 +345,6 @@ export class Net {
       tableName,
       cacheValidate,
       request,
-      requestId,
       assocFields,
       excludeFields
     } = result as ApiResult<T, CacheStrategy>
@@ -379,6 +363,6 @@ export class Net {
       }
     })
     const q: Query<T> = { ...query, fields }
-    return { request, q, cacheValidate, tableName, requestId }
+    return { request, q, cacheValidate, tableName }
   }
 }

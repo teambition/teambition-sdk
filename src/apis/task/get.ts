@@ -1,5 +1,5 @@
+import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TaskSchema } from '../../schemas/Task'
@@ -9,7 +9,7 @@ export function getTaskFetch(
   this: SDKFetch,
   taskId: TaskId,
   query?: any
-): Http<TaskSchema> {
+): Observable<TaskSchema> {
   return this.get<TaskSchema>(`events/${taskId}`, query)
 }
 

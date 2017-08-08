@@ -1,12 +1,11 @@
 import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 
 export function updateUserFetch<T> (
   this: SDKFetch,
   patch: T
-): Http<T> {
+): Observable<T> {
   return this.put<T>('users', patch)
 }
 

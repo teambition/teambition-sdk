@@ -1,5 +1,5 @@
+import { Observable } from 'rxjs/Observable'
 import { OrganizationId, TagId } from 'teambition-types'
-import { Http } from '../../Net'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectSchema } from '../../schemas/Project'
 import { UrlPagingQuery } from '../../utils/internalTypes'
@@ -8,7 +8,7 @@ export function getAllOrganizationProjects(
   this: SDKFetch,
   orgId: OrganizationId,
   query?: UrlPagingQuery
-): Http<ProjectSchema> {
+): Observable<ProjectSchema> {
   return this.get<ProjectSchema>(`organizations/${orgId}/projects/all`, query)
 }
 
@@ -16,7 +16,7 @@ export function getJoinedOrganizationProjects(
   this: SDKFetch,
   orgId: OrganizationId,
   query?: UrlPagingQuery
-): Http<ProjectSchema> {
+): Observable<ProjectSchema> {
   return this.get<ProjectSchema>(`organizations/${orgId}/projects/joined`, query)
 }
 
@@ -24,14 +24,14 @@ export function getPublicOrganizationProjects(
   this: SDKFetch,
   orgId: OrganizationId,
   query?: UrlPagingQuery
-): Http<ProjectSchema> {
+): Observable<ProjectSchema> {
   return this.get<ProjectSchema>(`organizations/${orgId}/projects/public`, query)
 }
 
 export function getStarredOrganizationProjects(
   this: SDKFetch,
   orgId: OrganizationId
-): Http<ProjectSchema> {
+): Observable<ProjectSchema> {
   return this.get<ProjectSchema>(`organizations/${orgId}/projects/starred`)
 }
 
@@ -40,14 +40,14 @@ export function getOrganizationProjectsByTagId(
   orgId: OrganizationId,
   tagId: TagId,
   query?: UrlPagingQuery
-): Http<ProjectSchema> {
+): Observable<ProjectSchema> {
   return this.get<ProjectSchema>(`organizations/${orgId}/projecttags/${tagId}/projects`, query)
 }
 
 export function getUngroupedOrganizationProjects(
   this: SDKFetch,
   orgId: OrganizationId
-): Http<ProjectSchema> {
+): Observable<ProjectSchema> {
   return this.get<ProjectSchema>(`organizations/${orgId}/projects/ungrouped`)
 }
 

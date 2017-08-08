@@ -75,7 +75,6 @@ describe('get personal projects', () => {
         }
 
         yield sdkFetch.getPersonalProjects(params as any)
-          .send()
           .subscribeOn(Scheduler.async)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResponse)
