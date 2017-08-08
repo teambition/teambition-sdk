@@ -1,20 +1,8 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
+import { CustomFieldValue, ExecutorOrCreator, Reminder, Visibility } from 'teambition-types'
+import { ProjectId, StageId, SubtaskId, TagId, TaskId, TasklistId, TaskPriority, UserId } from 'teambition-types'
 import { SubtaskSchema } from './Subtask'
 import { schemas } from '../SDK'
-import {
-  ExecutorOrCreator,
-  Visibility,
-  SubtaskId,
-  TagId,
-  TaskId,
-  StageId,
-  UserId,
-  TasklistId,
-  ProjectId,
-  TaskPriority,
-  CustomField,
-  Reminder
-} from 'teambition-types'
 
 export interface TaskSchema {
   _id: TaskId
@@ -44,7 +32,7 @@ export interface TaskSchema {
   subtasks: Partial<SubtaskSchema>[]
   subtaskIds: SubtaskId[]
   source: string
-  customfields: CustomField[]
+  customfields: CustomFieldValue[]
   involvers: ExecutorOrCreator[]
   commentsCount: number
   attachmentsCount: number
@@ -208,7 +196,7 @@ const schema: SchemaDef<TaskSchema> = {
     virtual: {
       name: 'Subtask',
       where: (subtaskTable: any) => ({
-        _id: (subtaskTable as any)._taskId
+        _id: subtaskTable._taskId
       })
     }
   },

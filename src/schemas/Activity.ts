@@ -149,7 +149,7 @@ const schema: SchemaDef<ActivitySchema> = {
     type: Relationship.oneToOne,
     virtual: {
       name: 'Member',
-      where: (memberTable) => ({
+      where: (memberTable: any) => ({
         _creatorId: memberTable._id
       })
     }

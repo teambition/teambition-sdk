@@ -20,7 +20,7 @@ export function getMyCountFetch(
 SDKFetch.prototype.getMyCount = getMyCountFetch
 
 declare module '../../SDKFetch' {
-  interface SDKFetch {
+  interface SDKFetch { // tslint:disable-line:no-shadowed-variable
     getMyCount: typeof getMyCountFetch
   }
 }
@@ -34,7 +34,7 @@ export function getMyCount(
 SDK.prototype.getMyCount = getMyCount
 
 declare module '../../SDK' {
-  interface SDK {
+  interface SDK { // tslint:disable-line:no-shadowed-variable
     getMyCount: typeof getMyCount
   }
 }

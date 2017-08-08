@@ -1,6 +1,5 @@
 import {
   ExecutorOrCreator,
-  PostSource,
   PostId,
   UserId,
   TagId,
@@ -29,7 +28,7 @@ export interface PostSchema {
   lastCommentedAt: string | null
   pin: boolean
   postMode: PostModeOptions
-  source: PostSource
+  source: string
   tagIds: TagId[]
   title: string
   updated: string
