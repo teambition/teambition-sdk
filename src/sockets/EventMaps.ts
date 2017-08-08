@@ -21,6 +21,36 @@ const tableAlias = {
   ChatMessage: 'Activity'
 }
 
+export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string) => {
+  const m = db[methodMap[msg.method]]
+  let dirtyStream: Observable<any> | null
+
+  switch (msg.method) {
+    case 'new':
+      dirtyStream = Dirty.handleSocketMessage(msg.id, tableName, msg.data, db)
+      if (dirtyStream) {
+        return dirtyStream
+      }
+      return m.call(db, tableName, msg.data)
+    case 'change':
+      dirtyStream = Dirty.handleSocketMessage(msg.id, tableName, msg.data, db)
+      if (dirtyStream) {
+        return dirtyStream
+      }
+      return m.call(db, tableName, {
+        ...msg.data,
+        [pkName]: msg.id
+      })
+    case 'destroy':
+    case 'remove':
+      return m.call(db, tableName, {
+        where: { [pkName]: msg.id || msg.data }
+      })
+    default:
+      return Observable.of(null)
+  }
+}
+
 /**
  * refresh 事件需要逐个单独处理
  * destroy 事件没有 data
@@ -31,57 +61,32 @@ const handler = (
   tabNameToPKName: { [key: string]: string } = {},
   db?: Database
 ) => {
-  const method = socketMessage.method
   let type = socketMessage.type
   if (type.charAt(type.length - 1) === 's' &&
     type !== 'activities' &&
     type !== 'homeActivities') {
     type = type.substring(0, type.length - 1)
   }
-  let arg1 = capitalizeFirstLetter(type)
-  if (arg1 !== null) {
-    const alias: string | undefined = tableAlias[arg1]
-    arg1 = alias ? alias : arg1
-    const pkName = tabNameToPKName[arg1]
+  const arg1 = capitalizeFirstLetter(type)
 
-    if (!db) {
-      net.bufferSocketPush(arg1, socketMessage, pkName, type)
-      return Observable.of(null)
-    }
-
-    if (!pkName) {
-      SDKLogger.warn(`Non-existent table: ${arg1}`)
-      return Observable.of(null)
-    }
-
-    const m = db[methodMap[method]]
-
-    let dirtyStream: Observable<any> | null
-    switch (socketMessage.method) {
-      case 'new':
-        dirtyStream = Dirty.handleSocketMessage(socketMessage.id, type, socketMessage.data, db)
-        if (dirtyStream) {
-          return dirtyStream
-        }
-        return m.call(db, arg1, socketMessage.data)
-      case 'change':
-        dirtyStream = Dirty.handleSocketMessage(socketMessage.id, type, socketMessage.data, db)
-        if (dirtyStream) {
-          return dirtyStream
-        }
-        return m.call(db, arg1, {
-          ...socketMessage.data,
-          [pkName]: socketMessage.id
-        })
-      case 'destroy':
-      case 'remove':
-        return m.call(db, arg1, {
-          where: { [pkName]: socketMessage.id || socketMessage.data }
-        })
-      default:
-        return Observable.of(null)
-    }
+  if (!arg1) {
+    return Observable.of(null)
   }
+
+  const tableName = tableAlias[arg1] || arg1
+  const pkName = tabNameToPKName[tableName]
+
+  if (!pkName) {
+    SDKLogger.warn(`Non-existent table: ${tableName}`)
+    return Observable.of(null)
+  }
+
+  if (!db) {
+    net.bufferSocketPush(tableName, socketMessage, pkName, type)
+    return Observable.of(null)
+  }
+
+  return handleMsgToDb(db, socketMessage, tableName, pkName)
 }
 
 export function socketHandler(

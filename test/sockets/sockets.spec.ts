@@ -28,6 +28,23 @@ describe('Socket handling Spec', () => {
     expect(spy).to.be.calledWith(`Non-existent table: ${tx}`)
     spy.restore()
   })
+
+  it('should ignore when `type` on message is empty', function* () {
+    const result = socket.makeMessage({
+      id: 'bep2f21oz18m:1' as any,
+      jsonrpc: '2.0',
+      method: 'publish',
+      params: [{
+        appid: '58f95e92c06a546f7dab73c7',
+        collapsekey: '',
+        data: '{"e":":action:","d":{"action":"import-tasks","status":"success","body":{"_tasklistId":"597fdea5528664cd3c81ebfa"}}}'
+      }]
+    })
+
+    const r = yield sdk.socketClient['_onmessage'](result as any)
+
+    expect(r).to.be.null
+  })
 })
 
 describe('join/leave `room`', () => {
