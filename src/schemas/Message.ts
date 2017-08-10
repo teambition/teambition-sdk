@@ -1,6 +1,5 @@
-import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
+import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemas } from '../SDK'
-import { GroupSchema } from '.'
 import {
   MessageId,
   UserId,
@@ -120,13 +119,7 @@ const schema: SchemaDef<MessageSchema> = {
     type: RDBType.STRING
   },
   group: {
-    type: Relationship.oneToOne,
-    virtual: {
-      name: 'Group',
-      where: (groupTable: Partial<GroupSchema>) => ({
-        _groupId: groupTable._id
-      })
-    }
+    type: RDBType.OBJECT
   },
   _objectId: {
     type: RDBType.STRING
