@@ -1,10 +1,10 @@
 import { RequestEvent, TCMParam } from 'snapper-consumer'
-import { forEach, ParsedWSMessage } from '../utils'
+import { forEach, ParsedWSMsg } from '../utils'
 import Dirty from '../utils/Dirty'
 
 export function eventParser(event: RequestEvent) {
   const data = event.data
-  const methodAndDatas: ParsedWSMessage[] = []
+  const methodAndDatas: ParsedWSMsg[] = []
   if (data) {
     const params = data.params
     if (params && params.length) {
@@ -23,7 +23,7 @@ export function eventParser(event: RequestEvent) {
           return console.error(e)
         }
         const eventStr = Dirty.prefixWithColonIfItIsMissing(result.e)
-        const methodAndData: ParsedWSMessage = parser(eventStr)
+        const methodAndData: ParsedWSMsg = parser(eventStr)
         methodAndData.data = result.d
         methodAndDatas.push(methodAndData)
       })
@@ -40,11 +40,12 @@ const ID_STATE = 'ID_STATE'
 
 function parser(str: string) {
   const length = str.length
-  const result: ParsedWSMessage = {
+  const result: ParsedWSMsg = {
     method: '',
     id: '',
     type: '',
-    data: null
+    data: null,
+    source: str
   }
   let state = BEGIN_STATE
   let i = -1
@@ -70,7 +71,7 @@ function parser(str: string) {
   return result
 }
 
-function readToken (result: ParsedWSMessage, str: string, state: string) {
+function readToken (result: ParsedWSMsg, str: string, state: string) {
   switch (state) {
     case METHOD_STATE:
       result.method = result.method + str
