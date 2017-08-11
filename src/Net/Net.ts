@@ -17,7 +17,7 @@ import {
 } from 'reactivedb'
 
 import { forEach } from '../utils'
-import Dirty from '../utils/Dirty'
+import { SocketInterceptor } from '../sockets/SocketInterceptor'
 import { SDKLogger } from '../utils/Logger'
 export enum CacheStrategy {
   Request = 200,
@@ -88,6 +88,7 @@ export class Net {
   private primaryKeys = new Map<string, string>()
   public persistedDataBuffer: BufferObject[] = []
   private requestResultLength = new Map<string, number>()
+  private socketInterceptor: SocketInterceptor
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
     const fn = (stream$: Observable<T[]>) =>
@@ -134,6 +135,10 @@ export class Net {
         return true
       })
     })
+  }
+
+  initSocketInterceptor(socketInterceptor: SocketInterceptor) {
+    this.socketInterceptor = socketInterceptor
   }
 
   lift<T>(result: ApiResult<T, CacheStrategy.Cache>): QueryToken<T>
@@ -212,9 +217,9 @@ export class Net {
           const p = database.upsert(arg, socketMessage.data)
           asyncQueue.push(p)
         } else if (socketMessage.method === 'change') {
-          const dirtyStream = Dirty.handleSocketMessage(socketMessage.id, type, socketMessage.data, database)
-          if (dirtyStream !== null) {
-            const p = dirtyStream
+          const ret = this.socketInterceptor.do(socketMessage.method, type, socketMessage.id, socketMessage.data, database)
+          if (ret !== null) {
+            const p = ret
             asyncQueue.push(p)
           } else {
             const p = database.upsert(arg, {

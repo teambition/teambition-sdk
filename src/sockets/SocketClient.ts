@@ -11,6 +11,7 @@ import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
 import { socketHandler } from './EventMaps'
+import { SocketInterceptor, SocketInterceptorFunc } from './SocketInterceptor'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import Dirty from '../utils/Dirty'
@@ -41,6 +42,8 @@ export class SocketClient {
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
 
+  private socketInterceptor: SocketInterceptor = new SocketInterceptor()
+
   private _tabNameToPKName: { [key: string]: string } = {}
 
   private database: Database
@@ -49,7 +52,12 @@ export class SocketClient {
     private net: Net,
     schemas?: SchemaColl
   ) {
+    this.net.initSocketInterceptor(this.socketInterceptor)
     this._tabNameToPKName = collectPKNames(schemas)
+  }
+
+  use = (mw: SocketInterceptorFunc) => {
+    this.socketInterceptor.use(mw)
   }
 
   destroy() {
@@ -162,7 +170,7 @@ export class SocketClient {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
     }
-    return socketHandler(this.net, event, this._tabNameToPKName, this.database)
+    return socketHandler(this.net, event, this.socketInterceptor, this._tabNameToPKName, this.database)
       .toPromise()
       .then(null, (err: any) => ctx['console']['error'](err))
   }

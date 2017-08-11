@@ -5,9 +5,9 @@ import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { Net } from '../Net'
 import { MessageResult, eventParser } from './EventParser'
+import { SocketInterceptor } from './SocketInterceptor'
 import { forEach, capitalizeFirstLetter } from '../utils'
 import { SDKLogger } from '../utils/Logger'
-import Dirty from '../utils/Dirty'
 
 const methodMap: any = {
   'change': 'upsert',
@@ -23,26 +23,21 @@ const tableAlias = {
   HomeActivities: 'Activity'
 }
 
-export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string) => {
-  const { method, id, data } = msg
-  const dbMethod = db[methodMap[method]]
-  let dirtyStream: Observable<any> | null
+export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string, socketInterceptor: SocketInterceptor) => {
+  const m = db[methodMap[msg.method]]
+
+  const ret = socketInterceptor.do(msg.method, msg.id, tableName, msg.data, db)
+  if (ret) {
+    return ret
+  }
 
   switch (method) {
     case 'new':
-      dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
-      if (dirtyStream) {
-        return dirtyStream
-      }
-      return dbMethod.call(db, tableName, data)
+      return m.call(db, tableName, msg.data)
     case 'change':
-      dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
-      if (dirtyStream) {
-        return dirtyStream
-      }
-      return dbMethod.call(db, tableName, {
-        ...data,
-        [pkName]: id
+      return m.call(db, tableName, {
+        ...msg.data,
+        [pkName]: msg.id
       })
     case 'destroy':
       return dbMethod.call(db, tableName, {
@@ -64,6 +59,7 @@ export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: strin
 const handler = (
   net: Net,
   socketMessage: MessageResult,
+  socketInterceptor: SocketInterceptor,
   tabNameToPKName: { [key: string]: string } = {},
   db?: Database
 ) => {
@@ -92,19 +88,20 @@ const handler = (
     return Observable.of(null)
   }
 
-  return handleMsgToDb(db, socketMessage, tableName, pkName)
+  return handleMsgToDb(db, socketMessage, tableName, pkName, socketInterceptor)
 }
 
 export function socketHandler(
   net: Net,
   event: RequestEvent,
+  socketInterceptor: SocketInterceptor,
   tabNameToPKName?: { [key: string]: string },
   db?: Database
 ): Observable<any> {
   const signals: Observable<any>[] = []
   const socketMessages = eventParser(event)
   forEach(socketMessages, socketMessage => {
-    signals.push(handler(net, socketMessage, tabNameToPKName, db))
+    signals.push(handler(net, socketMessage, socketInterceptor, tabNameToPKName, db))
   })
   return Observable.from(signals)
     .mergeAll()
