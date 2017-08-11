@@ -1,7 +1,9 @@
-import { describe, it, beforeEach } from 'tman'
+import { describe, it, beforeEach, afterEach } from 'tman'
 import { expect } from 'chai'
+import * as sinon from 'sinon'
 import { clone } from '../utils'
 import { WSMiddleware as midware } from '../'
+import { Logger } from 'reactivedb'
 
 const CF = midware.ControlFlow
 
@@ -9,6 +11,7 @@ describe('Socket interceptor creator', () => {
 
   let msg: any
   let msgClone: any
+  let errStub: any
   const simpleTransFn = (message: any) => {
     message.data.key = 'hello'
   }
@@ -21,6 +24,12 @@ describe('Socket interceptor creator', () => {
       data: { key: 'value' }
     }
     msgClone = clone(msg)
+    const logger = Logger.get('teambition-sdk')
+    errStub = sinon.stub(logger, 'error')
+  })
+
+  afterEach(() => {
+    errStub.restore()
   })
 
   it('no flag', () => {
@@ -29,6 +38,7 @@ describe('Socket interceptor creator', () => {
     interceptor(msg)
 
     expect(msg).to.deep.equal(msgClone)
+    expect(errStub).to.called
   })
 
   it('shortCircuit', () => {
@@ -41,6 +51,7 @@ describe('Socket interceptor creator', () => {
 
     expect(result).to.equal(CF.ShortCircuit)
     expect(msg).to.deep.equal(msgClone)
+    expect(errStub).to.called
   })
 
   it('mutateMessage', () => {
@@ -81,6 +92,7 @@ describe('Socket interceptor creator', () => {
 
     expect(result).to.equal(CF.IgnoreDefaultDBOps)
     expect(msg).to.deep.equal(msgClone)
+    expect(errStub).to.called
   })
 
   it('mutateMessage + IgnoreDefaultDBOps', () => {
@@ -106,6 +118,8 @@ describe('Socket interceptor as ProxyToDB', () => {
   let interceptors: any
   let msg: any
   let msgClone: any
+  let errStub: any
+
   const transDataKey = (message: any) => {
     message.data.key = 'hello'
   }
@@ -122,6 +136,12 @@ describe('Socket interceptor as ProxyToDB', () => {
       data: { key: 'value' }
     }
     msgClone = clone(msg)
+    const logger = Logger.get('teambition-sdk')
+    errStub = sinon.stub(logger, 'error')
+  })
+
+  afterEach(() => {
+    errStub.restore()
   })
 
   it('should passthrough when no interceptor is registered', () => {
@@ -139,6 +159,7 @@ describe('Socket interceptor as ProxyToDB', () => {
 
     expect(controlFlow).to.equal(CF.PassThrough)
     expect(msg).to.deep.equal(msgClone)
+    expect(errStub).calledTwice
   })
 
   it('should passthrough when all interceptors are passthroughs: with message mutation', () => {
@@ -194,9 +215,10 @@ describe('Socket interceptor as ProxyToDB', () => {
 
 describe('Socket interceptor as Proxy', () => {
 
-  let interceptors: midware.Proxy
+  let interceptors: midware.WSProxy
   let msg: any
   let msgClone: any
+  let errStub: any
   const transDataKey = (message: any) => {
     message.data.key = 'hello'
   }
@@ -205,7 +227,7 @@ describe('Socket interceptor as Proxy', () => {
   }
 
   beforeEach(() => {
-    interceptors = new midware.Proxy()
+    interceptors = new midware.WSProxy()
     msg = {
       method: 'change',
       id: '1234567890',
@@ -213,6 +235,12 @@ describe('Socket interceptor as Proxy', () => {
       data: { key: 'value' }
     }
     msgClone = clone(msg)
+    const logger = Logger.get('teambition-sdk')
+    errStub = sinon.stub(logger, 'error')
+  })
+
+  afterEach(() => {
+    errStub.restore()
   })
 
   it('should return nothing and not mutate message when no interceptor is registered', () => {
@@ -237,6 +265,21 @@ describe('Socket interceptor as Proxy', () => {
     interceptors.apply(msg)
 
     expect(msg).to.deep.equal(msgClone)
+    expect(errStub).calledTwice
+  })
+
+  it('should be able to deregister callback', () => {
+    const spy1 = sinon.spy()
+    const spy2 = sinon.spy()
+
+    const deregisterToken1 = interceptors.register(spy1)
+    const deregisterToken2 = interceptors.register(spy2)
+    deregisterToken1()
+    deregisterToken2()
+    interceptors.apply(msg)
+
+    expect(spy1).to.have.callCount(0)
+    expect(spy2).to.have.callCount(0)
   })
 
 })

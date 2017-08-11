@@ -11,7 +11,7 @@ import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
 import { socketHandler, createMsgToDBHandler, createMsgHandler } from './EventMaps'
-import { Interceptors, Proxy } from './Middleware'
+import { Interceptors, WSProxy } from './Middleware'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import { TableInfoByMessageType } from './MapToTable'
@@ -43,7 +43,7 @@ export class SocketClient {
    * 代理。如果需要获得不会接触 db 的消息（与数据模型无关），比如界面
    * 状态变更的消息等，可以在这里注册相应 handler。
    */
-  public proxy: Proxy = new Proxy()
+  public proxy: WSProxy = new WSProxy()
 
   private handleMsgToDB = createMsgToDBHandler(this.interceptors)
   private handleMsg = createMsgHandler(this.proxy)

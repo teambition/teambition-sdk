@@ -235,6 +235,8 @@ describe('Socket interceptors', () => {
   })
 
   it('should not allow a UserFunc to mutate message when mutateMessage flag is not set', function* () {
+    const logger = Logger.get('teambition-sdk')
+    const stub = sinon.stub(logger, 'error')
     client.interceptors.append((msg) => {
       msg.data.title = 'hello'
     })
@@ -247,6 +249,8 @@ describe('Socket interceptors', () => {
       .values()
       .do(([r]) => {
         expect((r as any).title).to.be.undefined
+        expect(stub).called
+        stub.restore()
       })
   })
 

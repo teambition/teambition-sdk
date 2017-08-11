@@ -1,6 +1,7 @@
 import { Database } from 'reactivedb'
 
-import { clone, forEach, ParsedWSMsg } from '../utils'
+import { forEach, ParsedWSMsg, createProxy } from '../utils'
+import * as path2Regexp from 'path-to-regexp'
 
 export type Flags = {
   /**
@@ -26,12 +27,29 @@ export type Interceptor = (msg: ParsedWSMsg, ...args: any[]) => void | ControlFl
 
 type InterceptorCreator = (handler: CustomMsgHandler) => Interceptor
 
+type SequenceRemoveToken = () => void
+
 class Sequence {
 
   private interceptors: Interceptor[] = []
 
-  append(handler: CustomMsgHandler, options: Flags = {}) {
-    this.interceptors.push(createInterceptor(handler, options))
+  append(handler: CustomMsgHandler, options: Flags = {}): SequenceRemoveToken {
+    const interceptor = createInterceptor(handler, options)
+    this.interceptors.push(interceptor)
+    return () => {
+      this.remove(interceptor)
+    }
+  }
+
+  remove(handler: Interceptor) {
+    let iter = this.interceptors.length - 1
+    while (iter >= 0) {
+      if (handler === this.interceptors[iter]) {
+        this.interceptors.splice(iter, 1)
+        break
+      }
+      iter--
+    }
   }
 
   apply: Interceptor = (msg, ...args) => {
@@ -61,7 +79,7 @@ export class Interceptors {
    * 往当前拦截器序列的尾端添加一个拦截器。
    */
   append(handler: MsgToDBHandler, options?: Flags) {
-    this.seq.append(handler, options)
+    return this.seq.append(handler, options)
   }
 
   /**
@@ -79,16 +97,46 @@ export class Interceptors {
  * websocket 代理。
  * 使用 Proxy 来为与数据模型无关的推送消息进行相应处理。
  */
-export class Proxy {
+export class WSProxy {
 
   private seq: Sequence = new Sequence()
+  private pathHandler: Map<string, SequenceRemoveToken>
 
   /**
    * 注册一个代理。
    * 该代理将会获得原推送消息经解析后的消息对象。
    */
   register(handler: MsgHandler) {
-    this.seq.append(handler)
+    return this.seq.append(handler)
+  }
+  /**
+   * 根据 pattern 注册一个代理。
+   * 该代理将会获得原推送消息经解析后的消息对象。
+   */
+  on(pattern: string, handler: Function) {
+    if (this.pathHandler.has(pattern)) {
+      throw new Error(`Pattern: ${pattern} is already registed.`)
+    }
+    const re = path2Regexp(pattern)
+    const callback = (msg: ParsedWSMsg) => {
+      if (msg.source && re.test(msg.source)) {
+        handler(msg)
+      }
+      return ControlFlow.PassThrough
+    }
+    const removeToken = this.seq.append(callback)
+    this.pathHandler.set(pattern, removeToken)
+  }
+
+  /**
+   * 移除某个 pattern 下的代理
+   */
+  off(pattern: string) {
+    if (this.pathHandler.has(pattern)) {
+      const removeToken = this.pathHandler.get(pattern)!
+      this.pathHandler.delete(pattern)
+      removeToken()
+    }
   }
 
   /**
@@ -133,4 +181,4 @@ const mutateMessage: InterceptorCreator = (handler) =>
   (msg, ...args: any[]) => handler.call(null, msg, ...args)
 
 const keepMessage: InterceptorCreator = (handler) =>
-  (msg, ...args: any[]) => handler.call(null, clone(msg), ...args)
+  (msg, ...args: any[]) => handler.call(null, createProxy(msg), ...args)
