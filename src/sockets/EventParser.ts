@@ -44,7 +44,8 @@ function parser(str: string) {
     method: '',
     id: '',
     type: '',
-    data: null
+    data: null,
+    source: str
   }
   let state = BEGIN_STATE
   let i = -1
