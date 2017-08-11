@@ -1,6 +1,8 @@
+import { Observable } from 'rxjs/Observable'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
-import { createSdk, SDK, SocketMock, SDKFetch } from '../'
+import { createSdk, SDK, SocketMock, SDKFetch, Socket } from '../'
+import * as midware from '../../src/sockets/Middleware'
 import { restore, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 import * as sinon from 'sinon'
 import { Logger } from 'reactivedb'
@@ -139,6 +141,154 @@ describe('Socket handling Spec', () => {
       .values()
       .do((r) => expect(r.length).to.equal(0))
   })
+})
+
+describe('Socket interceptors', () => {
+  let sdk: SDK
+  let client: Socket.Client
+
+  let commentSample: any
+  const modelId = '59a3aea25e25ef050c28ce4f'
+
+  beforeEach(() => {
+    sdk = createSdk()
+    client = sdk.socketClient
+    commentSample = {
+      _id: modelId,
+      action: 'activity.comment'
+    }
+  })
+
+  afterEach(() => {
+    restore(sdk)
+  })
+
+  it('should allow interceptor to mutate message', function* () {
+    client.interceptors.append((msg) => {
+      if (msg.data.title == null) {
+        msg.data.title = 'hello'
+      } else if (msg.data.title === 'hello world') {
+        delete msg.data.title
+      }
+    }, { mutate: true })
+
+    const server = new SocketMock(client)
+
+    yield server.emit('new', 'event' as any, '', commentSample)
+
+    // 添加 message title 字段有效：得到数据库中相应行的 title 为 'hello'
+    yield sdk.database.get('Event', { where: { _id: modelId } })
+      .values()
+      .do(([r]) => {
+        expect((r as any).title).to.equal('hello')
+      })
+
+    yield server.emit('change', 'event' as any, modelId, { title: 'hello world' })
+
+    // 删除 message title 字段有效：使得数据库中相应行的 title 保持不变，为 'hello'
+    yield sdk.database.get('Event', { where: { _id: modelId } })
+      .values()
+      .do(([r]) => {
+        expect((r as any).title).to.equal('hello')
+      })
+  })
+
+  it('should allow interceptor to ignore default DB ops', function* () {
+    client.interceptors.append((_) => {
+      return Observable.of(null)
+    })
+
+    const server = new SocketMock(client)
+
+    yield sdk.database.insert('Activity', commentSample)
+
+    yield server.emit('remove', 'activities' as any, '', modelId)
+
+    yield sdk.database.get('Activity', { where: { _id: modelId } })
+      .values()
+      .do((r) => {
+        expect(r.length).to.equal(1)
+      })
+  })
+
+  it('should allow an interceptor to shortcircuit a sequence of interceptors', function* () {
+    client.interceptors.append((msg) => { // -> 'hello'
+      msg.data.title = 'hello'
+    }, { mutate: true })
+
+    client.interceptors.append((msg) => { // -> 'hello world'
+      msg.data.title += ' world'
+      return midware.ControlFlow.ShortCircuit
+    }, { mutate: true })
+
+    client.interceptors.append((msg) => { // -> ''
+      msg.data.title = ''
+    }, { mutate: true })
+
+    const server = new SocketMock(client)
+
+    yield server.emit('new', 'event' as any, '', commentSample)
+
+    yield sdk.database.get('Event', { where: { _id: modelId } })
+      .values()
+      .do(([r]) => {
+        expect((r as any).title).to.equal('hello world')
+      })
+  })
+
+  it('should not allow a UserFunc to mutate message when mutateMessage flag is not set', function* () {
+    const logger = Logger.get('teambition-sdk')
+    const stub = sinon.stub(logger, 'error')
+    client.interceptors.append((msg) => {
+      msg.data.title = 'hello'
+    })
+
+    const server = new SocketMock(client)
+
+    yield server.emit('new', 'event' as any, '', commentSample)
+
+    yield sdk.database.get('Event', { where: { _id: modelId } })
+      .values()
+      .do(([r]) => {
+        expect((r as any).title).to.be.undefined
+        expect(stub).called
+        stub.restore()
+      })
+  })
+
+  it('should allow a UserFunc to give up control flow flags set on interceptor creation', function* () {
+    client.interceptors.append((msg) => { // -> 'hello'
+      if (msg.data.title == null) {
+        msg.data.title = 'hello'
+        return midware.ControlFlow.ShortCircuit
+      } else {
+        return midware.ControlFlow.PassThrough
+      }
+    }, { mutate: true })
+
+    client.interceptors.append((msg) => { // -> x + ' world'
+      msg.data.title += ' world'
+    }, { mutate: true })
+
+    const server = new SocketMock(client)
+
+    yield server.emit('new', 'event' as any, '', commentSample)
+
+    yield sdk.database.get('Event', { where: { _id: modelId } })
+      .values()
+      .do(([r]) => {
+        expect((r as any).title).to.equal('hello')
+      })
+
+    yield server.emit('change', 'event', modelId, { title: 'hello' })
+
+    yield sdk.database.get('Event', { where: { _id: modelId } })
+    .values()
+    .do(([r]) => {
+      expect((r as any).title).to.equal('hello world')
+    })
+  })
+
 })
 
 describe('join/leave `room`', () => {

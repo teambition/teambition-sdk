@@ -11,7 +11,8 @@ import {
   parseHeaders,
   normPagingQuery,
   isEmptyObject,
-  hasMorePages
+  hasMorePages,
+  eventToRE
 } from '../index'
 
 const expect = chai.expect
@@ -340,5 +341,10 @@ export default describe('utils test', () => {
     expect(hasMorePages(gen(27), size2, 3, { page: 2, hasMore: false })).to.be.false
     expect(hasMorePages(gen(27), size2, 3, { page: 3, hasMore: false })).to.be.false
     expect(hasMorePages(gen(27), size2, 3, { page: 3, hasMore: true })).to.be.true
+  })
+
+  it('eventToRE does NOT support wild card, for now', () => {
+    expect(() => eventToRE('')).to.throw('Invalid socket event')
+    expect(() => eventToRE('\*')).to.throw('Invalid socket event')
   })
 })
