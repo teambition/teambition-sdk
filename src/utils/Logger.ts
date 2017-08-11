@@ -1,5 +1,6 @@
 import { Logger, Level, ContextLogger } from 'reactivedb/shared'
 
+/* istanbul ignore next */
 const envify = () => {
   const env = (process && process.env && process.env.NODE_ENV) || 'production'
   switch (env) {

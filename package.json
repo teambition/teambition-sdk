@@ -7,11 +7,11 @@
   "scripts": {
     "build_all": "rm -rf dist && mkdir dist && mkdir dist/bundle && npm run build_es6 && npm run build_cjs && npm run build_bundle && npm run build_mock && npm run build_mock_cjs && npm run build_test && npm run build_socket",
     "build_bundle": "rm -rf dist/bundle/tbsdk.umd.js && ts-node --type-check ./tools/tasks/bundle.sdk.ts",
-    "build_cjs": "rm -rf dist/cjs &&      tsc src/index.ts    -m commonjs --outDir dist/cjs      --sourcemap --inlineSources --target ES5    -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --importHelpers --noEmitHelpers --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom",
-    "build_es6": "rm -rf dist/es6 &&      tsc src/index.ts    -m es2015   --outDir dist/es6      --sourcemap --inlineSources --target ES2015 -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --importHelpers --noEmitHelpers --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom",
-    "build_mock": "rm -rf dist/mock-es6 && tsc mock/index.ts -m es2015  --outDir dist/mock-es6   --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom && ts-node --type-check ./tools/tasks/bundle.mock.ts",
-    "build_mock_cjs": "rm -rf dist/mock-cjs && tsc mock/index.ts -m commonjs --outDir dist/mock-cjs --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom",
-    "build_socket": "rm -rf dist/bundle/tbsdk.socket.js && tsc ./src/SocketApp.ts ./src/teambition.ts -m commonjs --outDir dist/socket --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom && ts-node --type-check ./tools/tasks/bundle.socket.ts",
+    "build_cjs": "rm -rf dist/cjs &&      tsc src/index.ts    -m commonjs --outDir dist/cjs      --sourcemap --inlineSources --target ES5    -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --importHelpers --noEmitHelpers --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom,es2015.proxy",
+    "build_es6": "rm -rf dist/es6 &&      tsc src/index.ts    -m es2015   --outDir dist/es6      --sourcemap --inlineSources --target ES2015 -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --importHelpers --noEmitHelpers --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom,es2015.proxy",
+    "build_mock": "rm -rf dist/mock-es6 && tsc mock/index.ts -m es2015  --outDir dist/mock-es6   --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom,es2015.proxy && ts-node --type-check ./tools/tasks/bundle.mock.ts",
+    "build_mock_cjs": "rm -rf dist/mock-cjs && tsc mock/index.ts -m commonjs --outDir dist/mock-cjs --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --strict --noUnusedLocals --noUnusedParameters --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom,es2015.proxy",
+    "build_socket": "rm -rf dist/bundle/tbsdk.socket.js && tsc ./src/SocketApp.ts ./src/teambition.ts -m commonjs --outDir dist/socket --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom,es2015.proxy && ts-node --type-check ./tools/tasks/bundle.socket.ts",
     "build_test": "rm -rf spec-js && tsc test/app.ts -m commonjs --sourcemap --inlineSources --outDir spec-js --target ES2015 --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --types \"node,chai,sinon,sinon-chai\" --moduleResolution node",
     "check_circular_dependencies": "madge ./dist/cjs --circular",
     "copy_files": "cp README.md package.json ./dist/cjs/",
@@ -22,7 +22,7 @@
     "test": "npm run lint && npm run cover",
     "version": "ts-node tools/tasks/version.ts && git add .",
     "watch": "export TZ=\"EST+5\"; npm run watch_test & ts-node ./tools/tasks/test.ts $!",
-    "watch_cjs": "tsc src/index.ts  -m commonjs --outDir dist/cjs --sourcemap --inlineSources --target ES5    -d --diagnostics --pretty --experimentalDecorators --strict --noUnusedLocals --noUnusedParameters --suppressImplicitAnyIndexErrors --moduleResolution node --skipLibCheck -w --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom",
+    "watch_cjs": "tsc src/index.ts  -m commonjs --outDir dist/cjs --sourcemap --inlineSources --target ES5    -d --diagnostics --pretty --experimentalDecorators --strict --noUnusedLocals --noUnusedParameters --suppressImplicitAnyIndexErrors --moduleResolution node --skipLibCheck -w --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom,es2015.proxy",
     "watch_test": "tsc test/app.ts  -m commonjs --outDir spec-js  --sourcemap --inlineSources --target ES2015    --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --types \"node,chai,sinon,sinon-chai\" --moduleResolution node --skipLibCheck -w"
   },
   "repository": {
@@ -82,5 +82,8 @@
     "tslint": "^5.7.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "path-to-regexp": "^2.1.0"
   }
 }

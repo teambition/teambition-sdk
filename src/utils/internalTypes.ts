@@ -36,7 +36,7 @@ export interface SqlPagingQuery {
 export interface ParsedWSMsg {
   // new change destroy refresh ...
   method: string
-
+  // data id
   id: string
 
   // schema types: task, post, event, file, etc...
@@ -44,6 +44,8 @@ export interface ParsedWSMsg {
 
   // optional data, null in delete
   data: any
+  // original socket event string
+  source: string
 }
 
 export type WSMsgToDBHandler = (

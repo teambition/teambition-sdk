@@ -6,6 +6,10 @@ import { SDKFetch } from './SDKFetch'
 import { SocketClient } from './sockets/SocketClient'
 import { mapWSMsgTypeToTable } from './sockets/MapToTable'
 import { schemaColl } from './schemas'
+import { WSProxy } from './sockets/Middleware'
+import { SchemaColl } from './utils/internalTypes'
+
+export const schemas: SchemaColl = []
 
 export { schemaColl }
 export { CacheStrategy } from './Net'
@@ -16,15 +20,21 @@ export class SDK {
   net = new Net(this.schemas)
   fetch = new SDKFetch
 
-  socketClient: SocketClient = new SocketClient(
-    this.fetch,
-    this.net,
-    mapWSMsgTypeToTable
-  )
+  socketClient: SocketClient
   database: Database
+  proxy: WSProxy
 
   lift: typeof Net.prototype.lift = (ApiResult: any): any => {
     return this.net.lift(ApiResult)
+  }
+
+  constructor() {
+    this.socketClient = new SocketClient(
+      this.fetch,
+      this.net,
+      mapWSMsgTypeToTable
+    )
+    this.proxy = this.socketClient.proxy
   }
 
   initReactiveDB (db: Database): Observable<void[]> {
