@@ -8,6 +8,7 @@ import '../../src/schemas'
 import { schemaColl, CacheStrategy } from '../../src/SDK'
 import { Net, Backend, SDKFetch, forEach, uuid, Http, EventSchema } from '..'
 import { ApiResult } from '../../src/Net/Net'
+import { createMsgToDBHandler } from '../../src/sockets/EventMaps'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
 
 import { expectToDeepEqualForFieldsOfTheExpected } from '../utils'
@@ -32,6 +33,7 @@ describe('Net test', () => {
     httpBackend = new Backend()
     net = new Net(schemas)
     database = new Database(DataStoreType.MEMORY, false, 'teambition-sdk', version++)
+    net.initMsgToDBHandler(createMsgToDBHandler())
     net.persist(database)
     forEach(schemas, d => {
       database.defineSchema(d.name, d.schema)

@@ -1,4 +1,3 @@
-'use strict'
 import { Database, DataStoreType } from 'reactivedb'
 import { testable } from '../src/testable'
 import { SDK } from '../src/index'
@@ -26,5 +25,6 @@ export function loadRDB(sdk: SDK) {
 }
 
 export * from '../src/index'
+export { SocketClient } from '../src/sockets/SocketClient'
 export * from '../src/utils/index'
 export * from '../mock/index'

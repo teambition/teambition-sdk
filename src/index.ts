@@ -17,6 +17,9 @@ export * from './schemas'
 import * as EventSDK from './apis/event'
 export { EventSDK }
 
+import * as WSMiddleware from './sockets/Middleware'
+export { WSMiddleware }
+
 export { SDK } from './SDK'
 export { SDKFetch } from './SDKFetch'
 export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$ } from './Net'
