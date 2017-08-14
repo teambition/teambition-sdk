@@ -250,6 +250,14 @@ declare module 'teambition-types' {
     kind?: 'CustomeFieldId'
   }
 
+  export interface TapDashboardId extends String {
+    kind?: 'TapDashboardId'
+  }
+
+  export interface TapChartId extends String {
+    kind?: 'TapChartId'
+  }
+
   export type TaskPriority = 0 | 1 | 2
 
   export interface TasksMeCount {
@@ -264,4 +272,84 @@ declare module 'teambition-types' {
     executedSubtasksDoneCount: number
     executedSubtasksUndoneCount: number
   }
+
+  export type TapBaseRefType = 'projectId' | 'executorId' | 'executorGroup' | 'stageId' | 'organizationId' |
+    'creatorId' | 'creatorGroup' | 'createBegin' | 'createEnd' | 'createRelative' | 'dueBegin' |
+    'dueEnd' | 'dueRelative' | 'accBegin' | 'accEnd' | 'accRelative' | 'startBegin' | 'startEnd' |
+    'startRelative' | 'rangeEnd' | 'rangeBegin' | 'rangeRelative' | 'isDone' | 'isArchived' |
+    'priority' | 'isOverdue' | 'limit' | 'isSubtask' | 'tasklistId'
+
+  export type TapBaseDataType = 'type/MongoId' | 'type/Date' | 'type/Number' | 'type/String' | 'type/Boolean'
+
+  export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType, U> = {
+    refType: R
+    isRequired: boolean
+    dataType: D
+    refData?: U
+    defaultValue?: U
+  }
+
+  export interface TapGenericFilterRequest {
+    projectId?: ProjectId[]
+    executorId?: MemberId[]
+    executorGroup?: TeamId[]
+    stageId?: StageId[]
+    organizationId?: OrganizationId[]
+    creatorId?: MemberId[]
+    creatorGroup?: TeamId[]
+    tasklistId?: TasklistId[]
+    createBegin?: string
+    createEnd?: string
+    createRelative?: string
+    dueBegin?: string
+    dueEnd?: string
+    dueRelative?: string
+    accBegin?: string
+    accEnd?: string
+    accRelative?: string
+    startBegin?: string
+    startEnd?: string
+    startRelative?: string
+    rangeBegin?: string
+    rangeEnd?: string
+    rangeRelative?: string
+    isDone?: boolean
+    isArchived?: boolean
+    priority?: number
+    isOverdue?: boolean
+    limit?: number
+    isSubtask?: boolean
+  }
+
+  export type TapGenericFilterResponse = Array<
+    TapFilterTarget<'projectId', 'type/MongoId', ProjectId[]> |
+    TapFilterTarget<'executorId', 'type/MongoId', MemberId[]> |
+    TapFilterTarget<'executorGroup', 'type/MongoId', TeamId[]> |
+    TapFilterTarget<'stageId', 'type/MongoId', StageId[]> |
+    TapFilterTarget<'organizationId', 'type/MongoId', OrganizationId[]> |
+    TapFilterTarget<'creatorId', 'type/MongoId', MemberId[]> |
+    TapFilterTarget<'creatorGroup', 'type/MongoId', TeamId[]> |
+    TapFilterTarget<'tasklistId', 'type/MongoId', TasklistId[]> |
+    TapFilterTarget<'createBegin', 'type/Date', string> |
+    TapFilterTarget<'createEnd', 'type/Date', string> |
+    TapFilterTarget<'createRelative', 'type/String', string> |
+    TapFilterTarget<'dueBegin', 'type/Date', string> |
+    TapFilterTarget<'dueEnd', 'type/Date', string> |
+    TapFilterTarget<'dueRelative', 'type/String', string> |
+    TapFilterTarget<'accBegin', 'type/Date', string> |
+    TapFilterTarget<'accEnd', 'type/Date', string> |
+    TapFilterTarget<'accRelative', 'type/String', string> |
+    TapFilterTarget<'startBegin', 'type/Date', string> |
+    TapFilterTarget<'startEnd', 'type/Date', string> |
+    TapFilterTarget<'startRelative', 'type/String', string> |
+    TapFilterTarget<'rangeBegin', 'type/Date', string> |
+    TapFilterTarget<'rangeEnd', 'type/Date', string> |
+    TapFilterTarget<'rangeRelative', 'type/String', string> |
+    TapFilterTarget<'isDone', 'type/Boolean', boolean> |
+    TapFilterTarget<'isArchived', 'type/Boolean', boolean> |
+    TapFilterTarget<'priority', 'type/Number', number> |
+    TapFilterTarget<'isOverdue', 'type/Boolean', boolean> |
+    TapFilterTarget<'limit', 'type/Number', number> |
+    TapFilterTarget<'isSubtask', 'type/Boolean', boolean>
+  >
 }
