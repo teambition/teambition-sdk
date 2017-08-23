@@ -1,27 +1,9 @@
 import 'rxjs/add/operator/toArray'
-import { Observable } from 'rxjs/Observable'
 import { QueryToken } from 'reactivedb'
-import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { EventSchema } from '../../schemas/Event'
 import { EventGenerator } from './EventGenerator'
 import { EventId } from 'teambition-types'
-
-export function getEventFetch(
-  this: SDKFetch,
-  eventId: EventId,
-  query?: any
-): Observable<EventSchema[]> {
-  return this.get<EventSchema[]>(`events/${eventId}`, query)
-}
-
-SDKFetch.prototype.getEvent = getEventFetch
-
-declare module '../../SDKFetch' {
-  interface SDKFetch {
-    getEvent: typeof getEventFetch
-  }
-}
 
 export function getEvent(
   this: SDK,
@@ -47,7 +29,7 @@ export function getEvent(
 SDK.prototype.getEvent = getEvent
 
 declare module '../../SDK' {
-  interface SDK {
+  interface SDK { // tslint:disable-line no-shadowed-variable
     getEvent: typeof getEvent
   }
 }

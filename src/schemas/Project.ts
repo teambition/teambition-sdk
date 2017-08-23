@@ -1,14 +1,6 @@
-import {
-  CustomField,
-  ExecutorOrCreator,
-  ProjectId,
-  UserId,
-  OrganizationId,
-  RoleId,
-  CollectionId,
-  ApplicationId
-} from 'teambition-types'
 import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
+import { CustomFieldValue, ExecutorOrCreator } from 'teambition-types'
+import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemas } from '../SDK'
 
 export interface ProjectSchema {
@@ -18,6 +10,7 @@ export interface ProjectSchema {
   _id: ProjectId
   _orgRoleId: RoleId | null
   _organizationId: OrganizationId | null
+  _parendId: ProjectId
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
   applications?: {
@@ -27,15 +20,17 @@ export interface ProjectSchema {
     order?: number
   }[]
   category: string
+  cover: string
   created: string
   creator: ExecutorOrCreator
-  customFields: CustomField[],
+  customfields: CustomFieldValue[],
   description: string
   eventsCount: number
   hasOrgRight: number
   hasRight: number
   inviteLink: string | null
   isArchived: boolean
+  isDeleted: boolean
   isPublic: boolean
   isStar: boolean
   logo: string
@@ -64,6 +59,7 @@ export interface ProjectSchema {
   shortLink?: string
   sortMethod: 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'custom'
   starsCount: number
+  syncCountsAt: string //  a Date
   tagsCount: number
   tasksCount: number
   uniqueIdPrefix: string
@@ -93,6 +89,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   _orgRoleId: {
     type: RDBType.STRING
   },
+  _parendId: {
+    type: RDBType.STRING
+  },
   _roleId: {
     type: RDBType.STRING
   },
@@ -104,6 +103,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.OBJECT
   },
   category: {
+    type: RDBType.STRING
+  },
+  cover: {
     type: RDBType.STRING
   },
   created: {
@@ -118,7 +120,7 @@ const Schema: SchemaDef<ProjectSchema> = {
       })
     }
   },
-  customFields: {
+  customfields: {
     type: RDBType.OBJECT
   },
   description: {
@@ -137,6 +139,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.STRING
   },
   isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  isDeleted: {
     type: RDBType.BOOLEAN
   },
   isPublic: {
@@ -183,6 +188,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   starsCount: {
     type: RDBType.NUMBER
+  },
+  syncCountsAt: {
+    type: RDBType.DATE_TIME
   },
   tagsCount: {
     type: RDBType.NUMBER

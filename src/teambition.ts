@@ -1,16 +1,79 @@
-declare module 'teambition-types' {
-  export type Visibility = 'project' | 'organization' | 'all' | 'members'
+// id
 
-  export interface CustomField {
-    type: 'number' | 'dropDown' | 'multipleChoice' | 'date' | 'text'
-    _customfieldId: CustomeFieldId
-    values: any[] // 对应后端使用的类型 Schema.Types.Mixed
+declare module 'teambition-types' {
+  export interface ActivenessId extends String { kind?: 'ActivenessId' }
+  export interface ActivityId extends String { kind?: 'ActivityId' }
+  export interface ApplicationId extends String { kind?: 'ApplicationId' }
+  export interface CollectionId extends String { kind?: 'CollectionId' }
+  export interface CustomFieldChoiceId extends String { kind?: 'CustomFieldChoiceId' }
+  export interface CustomFieldId extends String { kind?: 'CustomFieldId' }
+  export interface CustomFieldLinkId extends String { kind?: 'CustomFieldLinkId' }
+  export interface CustomFieldValueId extends String { kind?: 'CustomFieldValueId' }
+  export interface CustomRoleId extends String { kind?: 'CustomRoleId' }
+  export interface EntryCategoryId extends String { kind?: 'EntryCategoryId' }
+  export interface EntryId extends String { kind?: 'EntryId' }
+  export interface EventId extends String { kind?: 'EventId' }
+  export interface FeedbackId extends String { kind?: 'FeedbackId' }
+  export interface FileId extends String { kind?: 'FileId' }
+  export interface GroupId extends String { kind?: 'GroupId' }
+  export interface HomeActivityId extends String { kind?: 'HomeActivityId' }
+  export interface MemberId extends String { kind?: 'MemberId' }
+  export interface MessageId extends String { kind?: 'MessageId' }
+  export interface ObjectLinkId extends String { kind?: 'ObjectLinkId' }
+  export interface OrganizationId extends String { kind?: 'OrganizationId' }
+  export interface PostId extends String { kind?: 'PostId' }
+  export interface PreferenceId extends String { kind?: 'PreferenceId' }
+  export interface ProjectBoardId extends String { kind?: 'ProjectBoardId' }
+  export interface ProjectId extends String { kind?: 'ProjectId' }
+  export interface ProjectTagId extends String { kind?: 'ProjectTagId' }
+  export interface RoomId extends String { kind?: 'RoomId' }
+  export interface StageId extends String { kind?: 'StageId' }
+  export interface SubscribeId extends String { kind?: 'SubscribeId' }
+  export interface SubtaskId extends String { kind?: 'SubtaskId' }
+  export interface TagId extends String { kind?: 'TagId' }
+  export interface TapChartId extends String { kind?: 'TapChartId' }
+  export interface TapDashboardId extends String { kind?: 'TapDashboardId' }
+  export interface TaskId extends String { kind?: 'TaskId' }
+  export interface TasklistId extends String { kind?: 'TasklistId' }
+  export interface TeamId extends String { kind?: 'TeamId' }
+  export interface UserId extends String { kind?: 'UserId' }
+  export interface VersionId extends String { kind?: 'VersionId' }
+  export interface WorkId extends String { kind?: 'WorkId' }
+}
+
+// computed id
+
+declare module 'teambition-types' {
+  export type DefaultRoleId = -1 | 0 | 1 | 2
+  export type DetailObjectId = TaskId | PostId | EventId | FileId
+  export type RoleId = DefaultRoleId | CustomRoleId
+}
+
+// types
+
+declare module 'teambition-types' {
+  export type CustomFieldBoundType = 'member' | 'project' | 'task'
+  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text'
+  export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
+  export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work'
+  export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works'
+  export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'
+  export type TaskPriority = 0 | 1 | 2
+  export type Visibility = 'all' | 'members' | 'organization' | 'project'
+}
+
+declare module 'teambition-types' {
+
+  export interface CustomFieldValue {
+    _customfieldId: CustomFieldId
+    type: CustomFieldType
+    values: string[]
   }
 
   export interface Reminder {
-    members: MemberId[]
     date: string
-    type: 'startDate' | 'endDate'
+    members: MemberId[]
+    type: ReminderType
   }
 
   export interface LikeSchema {
@@ -121,144 +184,6 @@ declare module 'teambition-types' {
     refType: DetailObjectType
     isFavorite: boolean
   }
-
-  export type PostSource = 'shimo' | 'yiqixie' | 'teambition'
-  export type DetailObjectType = 'task' | 'event' | 'post' | 'work' | 'entry'
-  export type DetailObjectTypes = 'posts' | 'works' | 'events' | 'tasks' | 'entries'
-
-  export interface RoomId extends String {
-    kind?: 'RoomId'
-  }
-
-  export interface ActivityId extends String {
-    kind?: 'ActivityId'
-  }
-
-  export interface ApplicationId extends String {
-    kind?: 'ApplicationId'
-  }
-
-  export interface CollectionId extends String {
-    kind?: 'CollectionId'
-  }
-
-  export interface EntryId extends String {
-    kind?: 'EntryId'
-  }
-
-  export interface EntryCategoryId extends String {
-    kind?: 'EntryCategoryId'
-  }
-
-  export interface EventId extends String {
-    kind?: 'EventId'
-  }
-
-  export interface FeedbackId extends String {
-    kind?: 'FeedbackId'
-  }
-
-  export interface FileId extends String {
-    kind?: 'FileId'
-  }
-
-  export interface GroupId extends String {
-    kind?: 'GroupId'
-  }
-
-  export interface HomeActivityId extends String {
-    kind?: 'HomeActivityId'
-  }
-
-  export interface MemberId extends String {
-    kind?: 'MemberId'
-  }
-
-  export interface MessageId extends String {
-    kind?: 'MessageId'
-  }
-
-  export interface ObjectLinkId extends String {
-    kind?: 'ObjectLinkId'
-  }
-
-  export interface OrganizationId extends String {
-    kind?: 'OrganizationId'
-  }
-
-  export interface GroupId extends String {
-    kind?: 'GroupId'
-  }
-
-  export interface PreferenceId extends String {
-    kind?: 'PreferenceId'
-  }
-
-  export interface PostId extends String {
-    kind?: 'PostId'
-  }
-
-  export interface ProjectId extends String {
-    kind?: 'ProjectId'
-  }
-
-  export type DefaultRoleId = -1 | 0 | 1 | 2
-
-  export interface CustomRoleId extends String {
-    kind?: 'CustomRoleId'
-  }
-
-  export type RoleId = DefaultRoleId | CustomRoleId
-
-  export interface StageId extends String {
-    kind?: 'StageId'
-  }
-
-  export interface SubscribeId extends String {
-    kind?: 'SubscribeId'
-  }
-
-  export interface SubtaskId extends String {
-    kind?: 'SubtaskId'
-  }
-
-  export interface TagId extends String {
-    kind?: 'TagId'
-  }
-
-  export interface TaskId extends String {
-    kind?: 'TaskId'
-  }
-
-  export interface TasklistId extends String {
-    kind?: 'TasklistId'
-  }
-
-  export interface UserId extends String {
-    kind?: 'UserId'
-  }
-
-  export type DetailObjectId = TaskId | PostId | EventId | FileId
-
-  export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
-
-  export interface TeamId extends String {
-    kind?: 'TeamId'
-  }
-
-  export interface CustomeFieldId extends String {
-    kind?: 'CustomeFieldId'
-  }
-
-  export interface TapDashboardId extends String {
-    kind?: 'TapDashboardId'
-  }
-
-  export interface TapChartId extends String {
-    kind?: 'TapChartId'
-  }
-
-  export type TaskPriority = 0 | 1 | 2
 
   export interface TasksMeCount {
     executedTasksDoneCount: number
