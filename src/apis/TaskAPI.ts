@@ -276,6 +276,18 @@ export class TaskAPI {
     })
   }
 
+  getTaskCreateByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
+    return TaskFetch.getTaskCreateByMe(options)
+  }
+
+  getTaskExecuteByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
+    return TaskFetch.getTaskExecuteByMe(options)
+  }
+
+  getTaskInvolvesMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
+    return TaskFetch.getTaskInvolvesMe(options)
+  }
+
   getOrgMyDoneTasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {
     return makeColdSignal<TaskData[]>(() => {
       const get = TaskModel.getOrganizationMyDoneTasks(organization._id, page)

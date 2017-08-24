@@ -231,6 +231,36 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`organizations/${organizationId}/tasks/me`, option)
   }
 
+  getTaskCreateByMe(options: {
+    page: number,
+    count: number,
+    isDone: boolean,
+    sort: string,
+    _projectId?: ProjectId
+  }) {
+    return this.fetch.get('tasks/me/created', options)
+  }
+
+  getTaskExecuteByMe(options: {
+    page: number,
+    count: number,
+    isDone: boolean,
+    sort: string,
+    _projectId?: ProjectId
+  }) {
+    return this.fetch.get('tasks/me/execute', options)
+  }
+
+  getTaskInvolvesMe(options: {
+    page: number,
+    count: number,
+    isDone: boolean,
+    sort: string,
+    _projectId?: ProjectId
+  }) {
+    return this.fetch.get('tasks/me/involves', options)
+  }
+
   getOrgsTasksCreated(organizationId: OrganizationId, options: GetOrgsTasksCreatedOptions): Observable<TaskData[]> {
     const query = this.checkQuery(options)
     return this.fetch.get(`organizations/${organizationId}/tasks/me/created`, query)
