@@ -152,15 +152,20 @@ describe('EventGenerator spec', () => {
   })
 
   it('takeFrom() an out range Date should return empty array', () => {
-    const now = new Date
-    const result = eventGenerator.takeFrom(Moment(now).add(-10, 'year').toDate(), Moment(now).add(-9, 'year').toDate())
+    const refDate = recurrenceByMonth.startDate
+    const fromDate = Moment(refDate).subtract(10, 'years').toDate()
+    const toDate = Moment(refDate).subtract(9, 'years').toDate()
+    const result = eventGenerator.takeFrom(fromDate, toDate)
+
     expect(result).to.deep.equal([])
   })
 
   it('takeFrom() should return correct values', () => {
-    const now = new Date
-    const result = eventGenerator.takeFrom(now, Moment(now).add(10, 'month').toDate())
+    const fromDate = new Date('2017-08-01T00:00:00Z')
+    const toDate = Moment(fromDate).add(10, 'month').toDate()
+    const result = eventGenerator.takeFrom(fromDate, toDate)
     const [ first ] = result
+
     expect(result.length).to.equal(10)
     result.forEach((r, index) => {
       expect(r.startDate).to.equal(Moment(first.startDate).add(index, 'month').toISOString())

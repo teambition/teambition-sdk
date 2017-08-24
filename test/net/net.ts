@@ -18,10 +18,13 @@ describe('Net test', () => {
   let database: Database
   let version = 1
   let subscription: Subscription | undefined
+  let spyFetch: sinon.SinonSpy
+
   const sdkFetch = new SDKFetch()
   const apiHost = sdkFetch.getAPIHost()
   const path = 'test'
   const http = new Http(`${apiHost}/${path}`)
+
   beforeEach(() => {
     httpBackend = new Backend()
     net = new Net(schemas)
@@ -35,6 +38,7 @@ describe('Net test', () => {
 
   afterEach(function* () {
     httpBackend.restore()
+    spyFetch && spyFetch.restore()
     if (subscription instanceof Subscription) {
       subscription.unsubscribe()
     }
@@ -212,7 +216,7 @@ describe('Net test', () => {
       httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
 
-      const spyFetch = spy(sdkFetch, 'get')
+      spyFetch = spy(sdkFetch, 'get')
 
       const newLocation = 'new_event_location'
 
@@ -257,14 +261,13 @@ describe('Net test', () => {
           expect(events.length).to.equal(projectEvents.length + 1)
         })
 
-      spyFetch.restore()
     })
 
     it('should handle empty Array', function* () {
       httpBackend.whenGET(`${apiHost}/${path}`)
         .respond([])
 
-      const spyFetch = spy(sdkFetch, 'get')
+      spyFetch = spy(sdkFetch, 'get')
 
       const newLocation = 'new_event_location'
 
@@ -308,8 +311,6 @@ describe('Net test', () => {
           expect(spyFetch.callCount).to.equal(2)
           expect(events.length).to.equal(1)
         })
-
-      spyFetch.restore()
     })
 
     it('should get result from cached Response and consumed by `values`', function* () {
@@ -444,7 +445,7 @@ describe('Net test', () => {
           expect(r).to.deep.equal(projectEvents)
         })
 
-      const spyFetch = spy(sdkFetch, 'get')
+      spyFetch = spy(sdkFetch, 'get')
 
       const newLocation = 'new_event_location'
 
