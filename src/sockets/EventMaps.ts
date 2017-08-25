@@ -18,7 +18,9 @@ const methodMap: any = {
 
 const tableAlias = {
   Work: 'File',
-  ChatMessage: 'Activity'
+  ChatMessage: 'Activity',
+  Activities: 'Activity',
+  HomeActivities: 'Activity'
 }
 
 export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string) => {
