@@ -58,12 +58,13 @@ export class SocketMock {
   emit(
     method: 'change' | 'destroy' | 'new' | 'refresh' | 'remove',
     objectType: SocketEventType,
-    objectId: string,
+    objectId?: string,
     patch?: any,
     delay: number | Promise<any> | ToPromiseObject = 0
   ): Promise<any> {
+    const eTail = objectId ? `/${objectId}` : ''
     const params = {
-      e: `:${method}:${objectType}/${objectId}`,
+      e: `:${method}:${objectType}${eTail}`,
       d: patch
     }
 

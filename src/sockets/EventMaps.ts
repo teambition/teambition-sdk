@@ -24,29 +24,33 @@ const tableAlias = {
 }
 
 export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string) => {
-  const m = db[methodMap[msg.method]]
+  const { method, id, data } = msg
+  const dbMethod = db[methodMap[method]]
   let dirtyStream: Observable<any> | null
 
-  switch (msg.method) {
+  switch (method) {
     case 'new':
-      dirtyStream = Dirty.handleSocketMessage(msg.id, tableName, msg.data, db)
+      dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
       if (dirtyStream) {
         return dirtyStream
       }
-      return m.call(db, tableName, msg.data)
+      return dbMethod.call(db, tableName, data)
     case 'change':
-      dirtyStream = Dirty.handleSocketMessage(msg.id, tableName, msg.data, db)
+      dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
       if (dirtyStream) {
         return dirtyStream
       }
-      return m.call(db, tableName, {
-        ...msg.data,
-        [pkName]: msg.id
+      return dbMethod.call(db, tableName, {
+        ...data,
+        [pkName]: id
       })
     case 'destroy':
+      return dbMethod.call(db, tableName, {
+        where: { [pkName]: id }
+      })
     case 'remove':
-      return m.call(db, tableName, {
-        where: { [pkName]: msg.id || msg.data }
+      return dbMethod.call(db, tableName, {
+        where: { [pkName]: data }
       })
     default:
       return Observable.of(null)

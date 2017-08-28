@@ -45,6 +45,55 @@ describe('Socket handling Spec', () => {
 
     expect(r).to.be.null
   })
+
+  it('should do db:remove on { e: ":destroy:{modelType}/{modelId}", d: "" }', function* () {
+    const modelId = '587ee5510f399a3a37e0e182'
+    const postSample = {
+      _id: '587ee5510f399a3a37e0e182',
+      _projectId: '56988fb705ead4ae7bb8dcfe'
+    }
+
+    yield sdk.database.insert('Post', postSample)
+
+    yield socket.emit('destroy', 'post', modelId)
+
+    yield sdk.database.get('Post', { where: { _id: modelId } })
+      .values()
+      .do((r) => expect(r.length).to.equal(0))
+  })
+
+  it('should do db:remove on { e: ":remove:{collectionType}/{collectionId}", d: "{modelId}" }', function* () {
+    const collectionId = '597fdea5528664cd3c81ebfa'
+    const modelId = '597fdea5528664cd3c81ebfd'
+    const stageSample = {
+      _id: modelId,
+      _tasklistId: collectionId
+    }
+
+    yield sdk.database.insert('Stage', stageSample)
+
+    yield socket.emit('remove', 'stages' as any, collectionId, modelId)
+
+    yield sdk.database.get('Stage', { where: { _id: modelId } })
+      .values()
+      .do((r) => expect(r.length).to.equal(0))
+  })
+
+  it('should do db:remove on { e: ":remove:{collectionType}", d: "{modelId}" }', function* () {
+    const modelId = '59a3aea25e25ef050c28ce4f'
+    const commentSample = {
+      _id: modelId,
+      action: 'activity.comment'
+    }
+
+    yield sdk.database.insert('Activity', commentSample)
+
+    yield socket.emit('remove', 'activities' as any, '', modelId)
+
+    yield sdk.database.get('Activity', { where: { _id: modelId } })
+      .values()
+      .do((r) => expect(r.length).to.equal(0))
+  })
 })
 
 describe('join/leave `room`', () => {
