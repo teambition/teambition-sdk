@@ -4,6 +4,7 @@ import 'tslib'
 import { forEach, clone, uuid, concat, dropEle } from './utils/index'
 
 export const Utils = { forEach, clone, uuid, concat, dropEle }
+export { pagination } from './utils'
 export { eventParser } from './sockets/EventParser'
 
 // export apis

@@ -59,6 +59,7 @@ declare module 'teambition-types' {
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works'
   export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'
   export type TaskPriority = 0 | 1 | 2
+  export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
   export type Visibility = 'all' | 'members' | 'organization' | 'project'
 }
 
