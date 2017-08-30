@@ -2,7 +2,7 @@ import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, TaskSchema } from '../index'
 import * as Fixture from '../fixtures/tasks.fixture'
-import { mock, restore, looseDeepEqual } from '../utils'
+import { mock, restore, looseDeepEqual, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 describe('TaskApi Spec', () => {
   let sdk: SDK
@@ -29,13 +29,7 @@ describe('TaskApi Spec', () => {
       yield sdk.getTask(fixture._id)
         .values()
         .do(([r]) => {
-          const omitKeys = new Set(['subtasks', 'ancestors'])
-          Object.keys(fixture).forEach(fixtureKey => {
-            if (omitKeys.has(fixtureKey)) {
-              return
-            }
-            expect(r[fixtureKey]).to.deep.equal(fixture[fixtureKey])
-          })
+          expectToDeepEqualForFieldsOfTheExpected(r, fixture, 'subtasks', 'ancestors')
         })
     })
 

@@ -17,7 +17,7 @@ import { task } from '../fixtures/tasks.fixture'
 import * as myFixture from '../fixtures/my.fixture'
 import { EventGenerator } from '../../src/apis/event/EventGenerator'
 
-import { mock, restore, equals } from '../utils'
+import { mock, restore, equals, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 describe('Async load reactivedb Spec', () => {
   let sdk: SDK
@@ -85,7 +85,7 @@ describe('Async load reactivedb Spec', () => {
   })
   describe('ReactiveDB async load in', () => {
 
-    it.skip('getMyRecent should response correct data when reactivedb async load in', done => {
+    it('getMyRecent should response correct data when reactivedb async load in', done => {
       mockResponse(myFixture.myRecent)
 
       const token = sdk.getMyRecent(userId, {
@@ -119,7 +119,11 @@ describe('Async load reactivedb Spec', () => {
             return _r
           })
             .sort(compareFn)
-          expect(actual).to.deep.equal(expected)
+
+          expected.forEach((expectedResult, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(actual[i], expectedResult)
+          })
+
           subscription.unsubscribe()
           done()
         })

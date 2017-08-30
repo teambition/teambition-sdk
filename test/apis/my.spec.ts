@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { createSdk, SocketMock, SDK, TaskSchema } from '../index'
 import { EventGenerator } from '../../src/apis/event/EventGenerator'
 import * as Fixture from '../fixtures/my.fixture'
-import { mock, restore } from '../utils'
+import { mock, restore, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 describe('MyApi Spec', () => {
   const userId = Fixture.myRecent[0]['_executorId']
@@ -22,7 +22,7 @@ describe('MyApi Spec', () => {
   })
 
   describe('MyApi request Spec', () => {
-    it.skip('should get my recent data', function* () {
+    it('should get my recent data', function* () {
       mockResponse(Fixture.myRecent)
 
       const token = sdk.getMyRecent(userId, {
@@ -55,7 +55,9 @@ describe('MyApi Spec', () => {
           })
           .sort(compareFn)
 
-          expect(actual).to.deep.equal(expected)
+          expected.forEach((expectedResult, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(actual[i], expectedResult)
+          })
         })
     })
 
