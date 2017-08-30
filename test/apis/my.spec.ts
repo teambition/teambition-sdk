@@ -22,7 +22,7 @@ describe('MyApi Spec', () => {
   })
 
   describe('MyApi request Spec', () => {
-    it('should get my recent data', function* () {
+    it.skip('should get my recent data', function* () {
       mockResponse(Fixture.myRecent)
 
       const token = sdk.getMyRecent(userId, {

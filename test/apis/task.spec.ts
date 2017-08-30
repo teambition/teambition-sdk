@@ -21,13 +21,21 @@ describe('TaskApi Spec', () => {
 
   describe('TasksAPI request spec', () => {
     it('should get task', function* () {
-      const fixture = Fixture.task
+      const fixture = Fixture.taskWithParentAndChildren
       mockResponse(fixture)
+
+      yield sdk.database.insert('Task', fixture.parent)
 
       yield sdk.getTask(fixture._id)
         .values()
         .do(([r]) => {
-          expect(r).to.deep.equal(fixture)
+          const omitKeys = new Set(['subtasks', 'ancestors'])
+          Object.keys(fixture).forEach(fixtureKey => {
+            if (omitKeys.has(fixtureKey)) {
+              return
+            }
+            expect(r[fixtureKey]).to.deep.equal(fixture[fixtureKey])
+          })
         })
     })
 

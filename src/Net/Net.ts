@@ -13,8 +13,9 @@ import {
   SchemaDef,
   Query,
   Predicate,
-  ExecutorResult
-} from 'reactivedb'
+  ExecutorResult,
+  JoinMode
+ } from 'reactivedb'
 
 import { forEach } from '../utils'
 import Dirty from '../utils/Dirty'
@@ -80,6 +81,11 @@ export type SelectorBufferObject = {
 }
 
 export type BufferObject = CUDBufferObject | SocketCUDBufferObject | SelectorBufferObject
+
+const dbGetWithSelfJoinEnabled =
+  <T>(db: Database, table: string, query: Query<T>): QueryToken<T> => {
+    return db.get(table, query, JoinMode.explicit)
+  }
 
 export class Net {
   public fields = new Map<string, string[]>()
@@ -321,17 +327,17 @@ export class Net {
               database.upsert(tableName, v).mapTo(Array.isArray(v) ? v : [v])
             )
             .do(() => this.requestMap.set(sq, true))
-            .concatMap(() => database.get(tableName, q).selector$)
+            .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
           token = new QueryToken(selector$).map(this.validate(result))
           break
         } else {
-          token = database.get<T>(tableName, q).map(this.validate(result))
+          token = dbGetWithSelfJoinEnabled<T>(database, tableName, q).map(this.validate(result))
           break
         }
       case CacheStrategy.Cache:
         const selector$ = request
           .concatMap((r: T | T[]) => database.upsert(tableName, r))
-          .concatMap(() => database.get(tableName, q).selector$)
+          .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
         return new QueryToken(selector$)
       default:
         throw new TypeError('unreachable code path')

@@ -85,7 +85,7 @@ describe('Async load reactivedb Spec', () => {
   })
   describe('ReactiveDB async load in', () => {
 
-    it('getMyRecent should response correct data when reactivedb async load in', done => {
+    it.skip('getMyRecent should response correct data when reactivedb async load in', done => {
       mockResponse(myFixture.myRecent)
 
       const token = sdk.getMyRecent(userId, {

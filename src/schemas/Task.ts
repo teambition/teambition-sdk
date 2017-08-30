@@ -1,7 +1,6 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import { CustomFieldValue, ExecutorOrCreator, Reminder, Visibility } from 'teambition-types'
 import { ProjectId, StageId, SubtaskId, TagId, TaskId, TasklistId, TaskPriority, UserId } from 'teambition-types'
-import { SubtaskSchema } from './Subtask'
 import { schemas } from '../SDK'
 
 export interface TaskSchema {
@@ -9,6 +8,8 @@ export interface TaskSchema {
   content: string
   note: string
   accomplished: string
+  ancestorIds: TaskId[]
+  // ancestors: Array<Pick<TaskSchema, '_id' | 'content'>>
   startDate: string
   dueDate: string
   priority: TaskPriority
@@ -29,7 +30,7 @@ export interface TaskSchema {
   pos: number
   _sourceId: string
   sourceDate: string
-  subtasks: Partial<SubtaskSchema>[]
+  // subtasks: Partial<SubtaskSchema>[]
   subtaskIds: SubtaskId[]
   source: string
   customfields: CustomFieldValue[]
@@ -45,10 +46,14 @@ export interface TaskSchema {
     done: number
   }
   executor: ExecutorOrCreator
+  _taskId: TaskId // id of the parent task
+  parent: Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
+  progress: number
   stage: {
     name: string
     _id: StageId
   }
+  storyPoint: string
   tasklist: {
     title: string
     _id: TasklistId
@@ -61,6 +66,11 @@ export interface TaskSchema {
   },
   uniqueId: number
   url: string
+  workTime: {
+    totalTime: number
+    usedTime: number
+    unit: string
+  }
 }
 
 const schema: SchemaDef<TaskSchema> = {
@@ -83,11 +93,17 @@ const schema: SchemaDef<TaskSchema> = {
   _stageId: {
     type: RDBType.STRING
   },
+  _taskId: {
+    type: RDBType.STRING
+  },
   _tasklistId: {
     type: RDBType.STRING
   },
   accomplished: {
     type: RDBType.DATE_TIME
+  },
+  ancestorIds: {
+    type: RDBType.LITERAL_ARRAY
   },
   attachmentsCount: {
     type: RDBType.NUMBER
@@ -143,10 +159,22 @@ const schema: SchemaDef<TaskSchema> = {
   objectlinksCount: {
     type: RDBType.NUMBER
   },
+  parent: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'Task',
+      where: (taskTable: any) => ({
+        _taskId: taskTable._id
+      })
+    }
+  },
   pos: {
     type: RDBType.NUMBER
   },
   priority: {
+    type: RDBType.NUMBER
+  },
+  progress: {
     type: RDBType.NUMBER
   },
   project: {
@@ -185,20 +213,14 @@ const schema: SchemaDef<TaskSchema> = {
   startDate: {
     type: RDBType.DATE_TIME
   },
+  storyPoint: {
+    type: RDBType.STRING
+  },
   subtaskCount: {
     type: RDBType.NUMBER
   },
   subtaskIds: {
     type: RDBType.LITERAL_ARRAY
-  },
-  subtasks: {
-    type: Relationship.oneToMany,
-    virtual: {
-      name: 'Subtask',
-      where: (subtaskTable: any) => ({
-        _id: subtaskTable._taskId
-      })
-    }
   },
   tagIds: {
     type: RDBType.LITERAL_ARRAY
@@ -226,6 +248,9 @@ const schema: SchemaDef<TaskSchema> = {
   },
   visible: {
     type: RDBType.STRING
+  },
+  workTime: {
+    type: RDBType.OBJECT
   }
 }
 
