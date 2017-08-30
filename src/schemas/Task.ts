@@ -9,7 +9,6 @@ export interface TaskSchema {
   note: string
   accomplished: string
   ancestorIds: TaskId[]
-  // ancestors: Array<Pick<TaskSchema, '_id' | 'content'>>
   startDate: string
   dueDate: string
   priority: TaskPriority
@@ -25,12 +24,16 @@ export interface TaskSchema {
   _projectId: ProjectId
   _executorId: UserId
   involveMembers: UserId[]
-  tagIds: TagId[]
+  tagIds: TagId []
+  tags?: {
+    _id: TagId
+    name: string
+    color: string
+  }
   recurrence: string[]
   pos: number
   _sourceId: string
   sourceDate: string
-  // subtasks: Partial<SubtaskSchema>[]
   subtaskIds: SubtaskId[]
   source: string
   customfields: CustomFieldValue[]
@@ -54,9 +57,9 @@ export interface TaskSchema {
     _id: StageId
   }
   storyPoint: string
-  tasklist: {
-    title: string
+  tasklist?: {
     _id: TasklistId
+    title: string
   }
   type: 'task'
   isFavorite: boolean,
@@ -224,6 +227,9 @@ const schema: SchemaDef<TaskSchema> = {
   },
   tagIds: {
     type: RDBType.LITERAL_ARRAY
+  },
+  tags: {
+    type: RDBType.OBJECT
   },
   tasklist: {
     type: Relationship.oneToOne,

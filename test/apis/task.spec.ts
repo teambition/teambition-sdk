@@ -24,8 +24,6 @@ describe('TaskApi Spec', () => {
       const fixture = Fixture.taskWithParentAndChildren
       mockResponse(fixture)
 
-      yield sdk.database.insert('Task', fixture.parent)
-
       yield sdk.getTask(fixture._id)
         .values()
         .do(([r]) => {

@@ -100,6 +100,15 @@ export const taskWithParentAndChildren = {
   '_projectId': '58de087921efc137f43cef3c',
   '_tasklistId': '58de087921efc137f43cef40',
   'tagIds': ['59a535df721944941aa8663e', '59a535e159089c94332a0e93'],
+  'tags': [{
+    _id: '59a535df721944941aa8663e',
+    name: 'tag1',
+    color: 'blue'
+  }, {
+    _id: '59a535e159089c94332a0e93',
+    name: 'tag2',
+    color: 'blue'
+  }],
   '_stageId': '58de087921efc137f43cef47',
   'visible': 'members',
   'involveMembers': ['58aabfe4e404431e0f116d36'],
