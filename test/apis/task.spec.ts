@@ -21,7 +21,7 @@ describe('TaskApi Spec', () => {
 
   describe('TasksAPI request spec', () => {
     it('should get task', function* () {
-      const fixture = Fixture.taskWithParentAndChildren
+      const fixture = Fixture.task
       mockResponse(fixture)
 
       yield sdk.getTask(fixture._id)
