@@ -17,6 +17,8 @@ import {
 } from 'reactivedb'
 
 import { forEach } from '../utils'
+import { handleMsgToDb } from '../sockets/EventMaps'
+import { MessageResult } from '../sockets/EventParser'
 import { SocketInterceptor } from '../sockets/SocketInterceptor'
 import { SDKLogger } from '../utils/Logger'
 export enum CacheStrategy {
@@ -59,18 +61,11 @@ export type CUDBufferObject = {
   value: any
 }
 
-export type SocketMessage = {
-  id: string
-  method: string
-  data: any
-}
-
 export type SocketCUDBufferObject = {
   kind: 'SocketCUD'
-  arg: string
-  socketMessage: SocketMessage
+  tableName: string
+  socketMessage: MessageResult
   pkName: string
-  type: any
 }
 
 export type SelectorBufferObject = {
@@ -198,48 +193,39 @@ export class Net {
     if (!this.database) {
       this.database = database
     }
+
     const asyncQueue: Observable<any>[] = []
+
     forEach(this.persistedDataBuffer, (v: BufferObject) => {
-      if (v.kind === 'CUD') {
-        const p = database[(v as CUDBufferObject).method](v.tableName, v.value)
-        asyncQueue.push(p)
-      } else if (v.kind === 'SocketCUD') {
-        const socketMessage = v.socketMessage
-        const type = v.type
-        const arg = v.arg
-        const pkName = v.pkName
-        if (socketMessage.method === 'destroy' || socketMessage.method === 'remove') {
-          const p = database.delete(arg, {
-            where: { [pkName]: socketMessage.id || socketMessage.data }
-          })
-          asyncQueue.push(p)
-        } else if (socketMessage.method === 'new') {
-          const p = database.upsert(arg, socketMessage.data)
-          asyncQueue.push(p)
-        } else if (socketMessage.method === 'change') {
-          const ret = this.socketInterceptor.do(socketMessage.method, type, socketMessage.id, socketMessage.data, database)
-          if (ret !== null) {
-            const p = ret
-            asyncQueue.push(p)
-          } else {
-            const p = database.upsert(arg, {
-              ...socketMessage.data,
-              [pkName]: socketMessage.id
+      let p: Observable<any> | null = null
+
+      switch (v.kind) {
+      case 'CUD':
+        p = database[(v as CUDBufferObject).method](v.tableName, v.value)
+        break
+      case 'SocketCUD':
+        p = handleMsgToDb(database, v.socketMessage, v.tableName, v.pkName, this.socketInterceptor)
+        break
+      case 'Selector':
+        p = (() => {
+          const cacheControl$ = v.proxySelector
+          const token = this.handleRequestCache(v.realSelectorInfo)
+          const selector$ = token.selector$
+
+          return selector$
+            .do({
+              next(selector) {
+                cacheControl$.next(selector)
+              }
             })
-            asyncQueue.push(p)
-          }
-        }
-      } else if (v.kind === 'Selector') {
-        const cacheControl$ = v.proxySelector
-        const token = this.handleRequestCache(v.realSelectorInfo)
-        const selector$ = token.selector$
-        asyncQueue.push(
-          selector$.do({
-            next(selector) {
-              cacheControl$.next(selector)
-            }
-          })
-        )
+        })()
+        break
+      default:
+        break
+      }
+
+      if (p) {
+        asyncQueue.push(p)
       }
     })
 
@@ -285,17 +271,15 @@ export class Net {
   }
 
   bufferSocketPush(
-    arg: string,
-    socketMessage: SocketMessage,
+    tableName: string,
+    socketMessage: MessageResult,
     pkName: string,
-    type: any
   ) {
     this.persistedDataBuffer.push({
       kind: 'SocketCUD',
-      arg,
+      tableName,
       socketMessage,
-      pkName,
-      type
+      pkName
     })
     return Observable.of(null)
   }

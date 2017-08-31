@@ -23,21 +23,34 @@ const tableAlias = {
   HomeActivities: 'Activity'
 }
 
-export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string, socketInterceptor: SocketInterceptor) => {
-  const m = db[methodMap[msg.method]]
+export const handleMsgToDb = (
+  db: Database,
+  msg: MessageResult,
+  tableName: string,
+  pkName: string,
+  socketInterceptor: SocketInterceptor
+) => {
+  const { method, id, data } = msg
+  const dbMethod = db[methodMap[method]]
 
-  const ret = socketInterceptor.do(msg.method, msg.id, tableName, msg.data, db)
+  // interceptor 有比默认操作更高的优先级；
+  // 并且一旦其 do 方法返回真值，目前代表所需操作已经完成，不再需要默认操作。
+  // 这样做的好处是，以最直接的方式给予 interceptor 最大的控制权；
+  // 有问题的地方在于，一方面，可能逐渐令默认操作成为“死”代码，并且令默认操作失去
+  // 对 db 操作的控制。令一部分也许可以得到广泛重用的代码失去其被重用的机会。
+  // _An ALL OR NOTHING design.
+  const ret = socketInterceptor.do(method, tableName, id, data, db)
   if (ret) {
     return ret
   }
 
   switch (method) {
     case 'new':
-      return m.call(db, tableName, msg.data)
+      return dbMethod.call(db, tableName, data)
     case 'change':
-      return m.call(db, tableName, {
-        ...msg.data,
-        [pkName]: msg.id
+      return dbMethod.call(db, tableName, {
+        ...data,
+        [pkName]: id
       })
     case 'destroy':
       return dbMethod.call(db, tableName, {
@@ -84,7 +97,7 @@ const handler = (
   }
 
   if (!db) {
-    net.bufferSocketPush(tableName, socketMessage, pkName, type)
+    net.bufferSocketPush(tableName, socketMessage, pkName)
     return Observable.of(null)
   }
 
