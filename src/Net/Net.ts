@@ -19,7 +19,7 @@ import {
 import { forEach } from '../utils'
 import { handleMsgToDb } from '../sockets/EventMaps'
 import { MessageResult } from '../sockets/EventParser'
-import { SocketInterceptor } from '../sockets/SocketInterceptor'
+import { Sequence as SocketInterceptorSequence } from '../sockets/SocketInterceptor'
 import { SDKLogger } from '../utils/Logger'
 export enum CacheStrategy {
   Request = 200,
@@ -83,7 +83,7 @@ export class Net {
   private primaryKeys = new Map<string, string>()
   public persistedDataBuffer: BufferObject[] = []
   private requestResultLength = new Map<string, number>()
-  private socketInterceptor: SocketInterceptor
+  private socketInterceptors: SocketInterceptorSequence
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
     const fn = (stream$: Observable<T[]>) =>
@@ -132,8 +132,8 @@ export class Net {
     })
   }
 
-  initSocketInterceptor(socketInterceptor: SocketInterceptor) {
-    this.socketInterceptor = socketInterceptor
+  initSocketInterceptor(socketInterceptor: SocketInterceptorSequence) {
+    this.socketInterceptors = socketInterceptor
   }
 
   lift<T>(result: ApiResult<T, CacheStrategy.Cache>): QueryToken<T>
@@ -204,7 +204,7 @@ export class Net {
         p = database[(v as CUDBufferObject).method](v.tableName, v.value)
         break
       case 'SocketCUD':
-        p = handleMsgToDb(database, v.socketMessage, v.tableName, v.pkName, this.socketInterceptor)
+        p = handleMsgToDb(database, v.socketMessage, v.tableName, v.pkName, this.socketInterceptors)
         break
       case 'Selector':
         p = (() => {

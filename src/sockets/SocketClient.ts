@@ -11,7 +11,7 @@ import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
 import { socketHandler } from './EventMaps'
-import { SocketInterceptor, SocketInterceptorFunc } from './SocketInterceptor'
+import * as Interceptor from './SocketInterceptor'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import Dirty from '../utils/Dirty'
@@ -42,7 +42,7 @@ export class SocketClient {
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
 
-  private socketInterceptor: SocketInterceptor = new SocketInterceptor()
+  private socketInterceptor: Interceptor.Sequence = new Interceptor.Sequence()
 
   private _tabNameToPKName: { [key: string]: string } = {}
 
@@ -56,8 +56,8 @@ export class SocketClient {
     this._tabNameToPKName = collectPKNames(schemas)
   }
 
-  use = (mw: SocketInterceptorFunc) => {
-    this.socketInterceptor.use(mw)
+  appendInterceptor = (userFn: Interceptor.UserFunc, options: Interceptor.Flags = {}) => {
+    this.socketInterceptor.append(userFn, options)
   }
 
   destroy() {
