@@ -192,3 +192,20 @@ export function isEmptyObject(obj: any): boolean {
   }
   return Object.keys(obj).length === 0
 }
+
+export const hasMorePages = <T>(
+  data: T[],
+  pageSize: number,
+  nextPage: number,
+  curr?: {
+    page: number,
+    hasMore: boolean
+  }
+): boolean => {
+
+  if (curr && nextPage === curr.page) {
+    return curr.hasMore
+  }
+
+  return data.length >= pageSize * (nextPage - 1)
+}
