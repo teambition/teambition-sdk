@@ -1,5 +1,6 @@
 import * as chai from 'chai'
 import { it, describe } from 'tman'
+import * as _ from 'lodash'
 import {
   forEach,
   clone,
@@ -9,10 +10,12 @@ import {
   capitalizeFirstLetter,
   parseHeaders,
   normPagingQuery,
-  isEmptyObject
+  isEmptyObject,
+  hasMorePages
 } from '../index'
 
 const expect = chai.expect
+const gen = (len: number) => _.range(0, len)
 
 export default describe('utils test', () => {
   it('forEach should ok', () => {
@@ -50,12 +53,14 @@ export default describe('utils test', () => {
 
   it('forEach break should ok', () => {
     const arr = [0, 1, 2, 3, 4]
-    const dest = []
-    forEach(arr, ele => {
+    const dest: number[] = []
+    forEach(arr, (ele: number) => {
       if (ele === 2) {
         return false
       }
+
       dest.push(ele)
+      return true
     })
     expect(dest.length).to.equal(2)
   })
@@ -69,7 +74,7 @@ export default describe('utils test', () => {
       4,
       5
     ]
-    const result = []
+    const result: number[] = []
     forEach(arr, (val) => {
       result.push(val)
     }, true)
@@ -80,12 +85,13 @@ export default describe('utils test', () => {
 
   it('inverse forEach break should ok', () => {
     const arr = [0, 1, 2, 3, 4]
-    const dest = []
-    forEach(arr, ele => {
+    const dest: number[] = []
+    forEach(arr, (ele) => {
       if (ele === 1) {
         return false
       }
       dest.push(ele)
+      return true
     }, true)
     expect(dest.length).to.equal(3)
   })
@@ -98,7 +104,7 @@ export default describe('utils test', () => {
       d: 4,
       e: 5
     }
-    const arr = []
+    const arr: number[] = []
     const dest = [1, 2, 3, 4, 5]
     forEach(obj, val => {
       arr.push(val)
@@ -114,7 +120,7 @@ export default describe('utils test', () => {
       d: 4,
       e: 5
     }
-    const arr = []
+    const arr: number[] = []
     const dest = [1, 2, 3]
     forEach(obj, val => {
       if (val === 4) {
@@ -311,4 +317,28 @@ export default describe('utils test', () => {
     expect(isEmptyObject('a')).to.be.false
   })
 
+  it('hasMorePages should work correctly in different scenario', () => {
+    const size1 = 20
+
+    expect(hasMorePages(gen(20), size1, 2)).to.be.true
+    expect(hasMorePages(gen(19), size1, 2)).to.be.false
+    expect(hasMorePages(gen(20), size1, 2, { page: 1, hasMore: true })).to.be.true
+    expect(hasMorePages(gen(40), size1, 3, { page: 2, hasMore: true })).to.be.true
+    expect(hasMorePages(gen(17), size1, 2, { page: 1, hasMore: true })).to.be.false
+    expect(hasMorePages(gen(19), size1, 2, { page: 2, hasMore: true })).to.be.true
+    expect(hasMorePages(gen(22), size1, 3, { page: 3, hasMore: false })).to.be.false
+    expect(hasMorePages(gen(22), size1, 4, { page: 1, hasMore: true })).to.be.false
+    expect(hasMorePages(gen(10), size1, 2, { page: 1, hasMore: false })).to.be.false
+    expect(hasMorePages(gen(0), size1, 2, { page: 1, hasMore: false })).to.be.false
+  })
+
+  it('hasMorePages should work correctly with another page size', () => {
+    const size2 = 15
+
+    expect(hasMorePages(gen(30), size2, 3, { page: 2, hasMore: true })).to.be.true
+    expect(hasMorePages(gen(27), size2, 3, { page: 2, hasMore: true })).to.be.false
+    expect(hasMorePages(gen(27), size2, 3, { page: 2, hasMore: false })).to.be.false
+    expect(hasMorePages(gen(27), size2, 3, { page: 3, hasMore: false })).to.be.false
+    expect(hasMorePages(gen(27), size2, 3, { page: 3, hasMore: true })).to.be.true
+  })
 })
