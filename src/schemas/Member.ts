@@ -79,4 +79,8 @@ const Schema: SchemaDef<MemberSchema> = {
   website: { type: RDBType.STRING },
 }
 
-schemas.push({ schema: Schema, name: 'Member' })
+schemas.push(
+  { schema: Schema, name: 'Member' },
+  { schema: Schema, name: 'ProjectMember' },
+  { schema: Schema, name: 'OrganizationMember' }
+)

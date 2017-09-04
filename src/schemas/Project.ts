@@ -114,7 +114,7 @@ const Schema: SchemaDef<ProjectSchema> = {
   creator: {
     type: Relationship.oneToOne,
     virtual: {
-      name: 'Member',
+      name: 'ProjectMember',
       where: (memberTable: any) => ({
         _creatorId: memberTable._id
       })
