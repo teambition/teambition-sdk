@@ -25,12 +25,20 @@ export class SDKFetch {
   static FetchStack = new Map<string, Observable<any>>()
   static fetchTail: string | undefined | 0
 
-  get<T>(path: string, query: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
-  get<T>(path: string, query: any, options: { wrapped: true, includeHeaders: false }): Http<T>
-  get<T>(path: string, query: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
-  get<T>(path: string, query: any, options: { wrapped: true }): Http<T>
-  get<T>(path: string, query: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  get<T>(path: string, query: any, options: SDKFetchOptions & {
+    wrapped: true, includeHeaders: true
+  }): Http<HttpResponseWithHeaders<T>>
+
+  get<T>(path: string, query: any, options: SDKFetchOptions & {
+    wrapped: true
+  }): Http<T>
+
+  get<T>(path: string, query: any, options: SDKFetchOptions & {
+    includeHeaders: true
+  }): Observable<HttpResponseWithHeaders<T>>
+
   get<T>(path: string, query?: any, options?: SDKFetchOptions): Observable<T>
+
   get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
     const url = this.urlWithPath(path)
     const urlWithQuery = query ? this._buildQuery(url, query) : url
@@ -70,12 +78,20 @@ export class SDKFetch {
     return `${this.apiHost}/${path}`
   }
 
-  post<T>(path: string, body: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
-  post<T>(path: string, body: any, options: { wrapped: true, includeHeaders: false }): Http<T>
-  post<T>(path: string, body: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
-  post<T>(path: string, body: any, options: { wrapped: true }): Http<T>
-  post<T>(path: string, body: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
+  post<T>(path: string, body: any, options: SDKFetchOptions & {
+    wrapped: true, includeHeaders: true
+  }): Http<HttpResponseWithHeaders<T>>
+
+  post<T>(path: string, body: any, options: SDKFetchOptions & {
+    wrapped: true
+  }): Http<T>
+
+  post<T>(path: string, body: any, options: SDKFetchOptions & {
+    includeHeaders: true
+  }): Observable<HttpResponseWithHeaders<T>>
+
   post<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+
   post<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
 
@@ -85,12 +101,20 @@ export class SDKFetch {
     return options.wrapped ? http : http['request']
   }
 
-  put<T>(path: string, body: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
-  put<T>(path: string, body: any, options: { wrapped: true, includeHeaders: false }): Http<T>
-  put<T>(path: string, body: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
-  put<T>(path: string, body: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
-  put<T>(path: string, body: any, options: { wrapped: true }): Http<T>
+  put<T>(path: string, body: any, options: SDKFetchOptions & {
+    wrapped: true, includeHeaders: true
+  }): Http<HttpResponseWithHeaders<T>>
+
+  put<T>(path: string, body: any, options: SDKFetchOptions & {
+    wrapped: true
+  }): Http<T>
+
+  put<T>(path: string, body: any, options: SDKFetchOptions & {
+    includeHeaders: true
+  }): Observable<HttpResponseWithHeaders<T>>
+
   put<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+
   put<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
 
@@ -100,12 +124,20 @@ export class SDKFetch {
     return options.wrapped ? http : http['request']
   }
 
-  delete<T>(path: string, body: any, options: { wrapped: true, includeHeaders: true }): Http<HttpResponseWithHeaders<T>>
-  delete<T>(path: string, body: any, options: { wrapped: true, includeHeaders: false }): Http<T>
-  delete<T>(path: string, body: any, options: { wrapped: false, includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
-  delete<T>(path: string, body: any, options: { includeHeaders: true }): Observable<HttpResponseWithHeaders<T>>
-  delete<T>(path: string, body: any, options: { wrapped: true }): Http<T>
+  delete<T>(path: string, body: any, options: SDKFetchOptions & {
+    wrapped: true, includeHeaders: true
+  }): Http<HttpResponseWithHeaders<T>>
+
+  delete<T>(path: string, body: any, options: SDKFetchOptions & {
+    wrapped: true
+  }): Http<T>
+
+  delete<T>(path: string, body: any, options: SDKFetchOptions & {
+    includeHeaders: true
+  }): Observable<HttpResponseWithHeaders<T>>
+
   delete<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+
   delete<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
 
