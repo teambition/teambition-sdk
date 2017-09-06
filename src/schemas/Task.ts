@@ -24,8 +24,8 @@ export interface TaskSchema {
   _projectId: ProjectId
   _executorId: UserId
   involveMembers: UserId[]
-  tagIds: TagId []
-  recurrence: string
+  tagIds: TagId[]
+  recurrence: string[]
   pos: number
   _sourceId: string
   sourceDate: string
