@@ -224,6 +224,12 @@ export interface UpdateFavoriteResponse {
     status?: string
 }
 
+export interface UpdateTaskRateResponse {
+  _id: TaskId
+  updated: string
+  rating: number
+}
+
 export class TaskFetch extends Fetch {
   getTasksMe (option: TasksMeOptions): Observable<TaskData[]> {
     return this.fetch.get(`v2/tasks/me`, option)
@@ -439,6 +445,11 @@ export class TaskFetch extends Fetch {
     })
   }
 
+  updateRating(_taskId: TaskId, rating: number): Observable<UpdateTaskRateResponse> {
+    return this.fetch.put(`tasks/${_taskId}/rating`, {
+      rating: rating
+    })
+  }
 }
 
 export default new TaskFetch
