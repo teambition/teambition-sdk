@@ -21,7 +21,8 @@ import {
   UpdateStartDateResponse,
   UpdateInvolveMembersResponse,
   UpdateExecutorResponse,
-  UpdateFavoriteResponse
+  UpdateFavoriteResponse,
+  UpdateTaskRateResponse
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 import { assign, isObject } from '../utils/index'
@@ -497,6 +498,10 @@ export class TaskAPI {
 
   updateTags(taskId: TaskId, tags: TagId[]): Observable<UpdateTagsResponse> {
     return this._updateFromRequest(taskId, TaskFetch.updateTags(taskId, tags))
+  }
+
+  updateRates(taskId: TaskId, rating: number): Observable<UpdateTaskRateResponse> {
+    return this._updateFromRequest(taskId, TaskFetch.updateRating(taskId, rating))
   }
 
   private _updateFromRequest<T>(_taskId: TaskId, request: Observable<T>): Observable<T> {
