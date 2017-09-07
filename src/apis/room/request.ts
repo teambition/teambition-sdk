@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import { SDKFetch } from '../../SDKFetch'
 import { ActivitySchema, RoomSchema } from '../../schemas'
-import { MemberId, RoomId } from 'teambition-types'
+import { RoomId } from 'teambition-types'
 
 export interface CreateChatMessageOptions {
   attachments: any
@@ -23,10 +23,11 @@ export function createChatMessageFetch(
   return this.post<ActivitySchema>(`rooms/${roomId}/activities`, options)
 }
 
+// _TODO: 令参数 modelId 的类型匹配参数 type
 export function getRoomInfoFetch(
   this: SDKFetch,
   type: string,
-  modelId: MemberId,
+  modelId: string,
   query?: any
 ): Observable<RoomSchema> {
   return this.get<RoomSchema>(`rooms/${type}/${modelId}`, query)

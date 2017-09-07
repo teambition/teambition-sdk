@@ -73,7 +73,7 @@ declare module 'teambition-types' {
 
   export interface Reminder {
     date: string
-    members: MemberId[]
+    members: UserId[]
     type: ReminderType
   }
 
@@ -217,11 +217,11 @@ declare module 'teambition-types' {
 
   export interface TapGenericFilterRequest {
     projectId?: ProjectId[]
-    executorId?: MemberId[]
+    executorId?: UserId[]
     executorGroup?: TeamId[]
     stageId?: StageId[]
     organizationId?: OrganizationId[]
-    creatorId?: MemberId[]
+    creatorId?: UserId[]
     creatorGroup?: TeamId[]
     tasklistId?: TasklistId[]
     createBegin?: string
@@ -249,11 +249,11 @@ declare module 'teambition-types' {
 
   export type TapGenericFilterResponse = Array<
     TapFilterTarget<'projectId', 'type/MongoId', ProjectId[]> |
-    TapFilterTarget<'executorId', 'type/MongoId', MemberId[]> |
+    TapFilterTarget<'executorId', 'type/MongoId', UserId[]> |
     TapFilterTarget<'executorGroup', 'type/MongoId', TeamId[]> |
     TapFilterTarget<'stageId', 'type/MongoId', StageId[]> |
     TapFilterTarget<'organizationId', 'type/MongoId', OrganizationId[]> |
-    TapFilterTarget<'creatorId', 'type/MongoId', MemberId[]> |
+    TapFilterTarget<'creatorId', 'type/MongoId', UserId[]> |
     TapFilterTarget<'creatorGroup', 'type/MongoId', TeamId[]> |
     TapFilterTarget<'tasklistId', 'type/MongoId', TasklistId[]> |
     TapFilterTarget<'createBegin', 'type/Date', string> |
