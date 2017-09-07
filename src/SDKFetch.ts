@@ -6,11 +6,34 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { forEach, isEmptyObject } from './utils/index'
+import { clone, forEach, isEmptyObject } from './utils/index'
 
-export interface SDKFetchOptions {
+export type ReturnOptions = {
   includeHeaders?: boolean,
   wrapped?: boolean
+}
+
+export type ConnectOptions = {
+  apiHost?: string,
+  token?: string,
+  headers?: {}
+}
+
+export type NamedOptions = ConnectOptions & ReturnOptions
+
+const defaultOptions: Readonly<NamedOptions> = {
+  includeHeaders: false,
+  wrapped: false,
+
+  apiHost: 'https://www.teambition.com/api',
+  token: '',
+  headers: {}
+}
+
+const optionNames: ReadonlyArray<string> = Object.keys(defaultOptions)
+
+export type SDKFetchOptions = NamedOptions & {
+  [option: string]: any
 }
 
 export class SDKFetch {
@@ -40,12 +63,12 @@ export class SDKFetch {
   get<T>(path: string, query?: any, options?: SDKFetchOptions): Observable<T>
 
   get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
-    const url = this.urlWithPath(path)
+    const url = this.urlWithPath(path, options.apiHost)
     const urlWithQuery = query ? this._buildQuery(url, query) : url
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
     let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
 
-    this.setOpts(http)
+    this.setOptionsPerRequest(http, options)
 
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
@@ -74,8 +97,9 @@ export class SDKFetch {
     }
   }
 
-  private urlWithPath(path: string): string {
-    return `${this.apiHost}/${path}`
+  private urlWithPath(path: string, apiHost?: string): string {
+    const host = apiHost || this.apiHost
+    return `${host}/${path}`
   }
 
   post<T>(path: string, body: any, options: SDKFetchOptions & {
@@ -94,9 +118,11 @@ export class SDKFetch {
 
   post<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    const url = this.urlWithPath(path, options.apiHost)
 
-    http.setUrl(this.urlWithPath(path))
-    this.setOpts(http).post(body)
+    this.setOptionsPerRequest(http, options)
+
+    http.setUrl(url).post(body)
 
     return options.wrapped ? http : http['request']
   }
@@ -117,9 +143,11 @@ export class SDKFetch {
 
   put<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    const url = this.urlWithPath(path, options.apiHost)
 
-    http.setUrl(this.urlWithPath(path))
-    this.setOpts(http).put(body)
+    this.setOptionsPerRequest(http, options)
+
+    http.setUrl(url).put(body)
 
     return options.wrapped ? http : http['request']
   }
@@ -140,15 +168,18 @@ export class SDKFetch {
 
   delete<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    const url = this.urlWithPath(path, options.apiHost)
 
-    http.setUrl(this.urlWithPath(path))
-    this.setOpts(http).delete(body)
+    this.setOptionsPerRequest(http, options)
+
+    http.setUrl(url).delete(body)
 
     return options.wrapped ? http : http['request']
   }
 
   setAPIHost(host: string) {
     this.apiHost = host
+    return this
   }
 
   getAPIHost() {
@@ -157,27 +188,49 @@ export class SDKFetch {
 
   setHeaders(headers: {}) {
     this.headers = headers
+    return this
+  }
+
+  getHeaders() {
+    return clone(this.headers)
   }
 
   setToken(token: string) {
     this.token = token
+    return this
+  }
+
+  getToken() {
+    return this.token
   }
 
   setOptions(options: {}) {
     this.options = options
+    return
   }
 
-  private setOpts<T>(http: Http<T | HttpResponseWithHeaders<T>>) {
-    if (Object.keys(this.headers).length > 0) {
-      http.setHeaders(this.headers)
-    }
-    if (this.token) {
-      http.setToken(this.token)
-    }
-    if (Object.keys(this.options).length > 0) {
-      http.setOpts(this.options)
-    }
-    return http
+  getOptions() {
+    return clone(this.options)
+  }
+
+  private setOptionsPerRequest<T>(
+    http: Http<T | HttpResponseWithHeaders<T>>,
+    options: SDKFetchOptions
+  ): void {
+    const token = options.token || this.token
+    const headers = options.headers || this.headers
+    const opts = Object.assign({}, this.options, Object.keys(options).reduce((ret, x) => {
+      if (optionNames.indexOf(x) >= 0) {
+        return ret
+      } else {
+        ret[x] = options[x]
+        return ret
+      }
+    }, {}))
+
+    token && http.setToken(token)
+    headers && http.setHeaders(headers)
+    Object.keys(opts).length > 0 && http.setOpts({ ...this.options, ...opts })
   }
 
   private _buildQuery(url: string, query: any) {
