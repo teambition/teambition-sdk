@@ -139,6 +139,11 @@ export class Http<T> {
   private static post = createMethod('post')
   private static delete = createMethod('delete')
 
+  private static defaultOpts = () => ({
+    headers: {},
+    credentials: 'include'
+  })
+
   constructor(
     private url: string = '',
     errorAdapter$?: Subject<HttpErrorMessage>,
@@ -151,13 +156,7 @@ export class Http<T> {
     }
   }
 
-  private _opts: any = {
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include'
-  }
+  private _opts: any = Http.defaultOpts()
 
   map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
     this.mapFn = fn
@@ -186,13 +185,7 @@ export class Http<T> {
   }
 
   restore() {
-    this._opts = {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    }
+    this._opts = Http.defaultOpts()
     return this
   }
 

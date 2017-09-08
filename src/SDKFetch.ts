@@ -6,43 +6,59 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { clone, forEach, isEmptyObject } from './utils/index'
+import { forEach, isEmptyObject } from './utils/index'
 
-export type ReturnOptions = {
-  includeHeaders?: boolean,
-  wrapped?: boolean
-}
-
-export type ConnectOptions = {
+export type SDKFetchOptions = {
   apiHost?: string,
   token?: string,
-  headers?: {}
+  headers?: {
+    [header: string]: any,
+    /**
+     * 指定 headers 字段的数据是否以 merge 模式设置到
+     * 最终要生成的 headers 上。若为 true，使用 merge
+     * 模式，将 headers 字段的键值对以类似于 Object.assign
+     * 的方式“添加”到 SDKFetch 对象当前的 headers 上；
+     * 若为 false，使用 headers 字段替代 SDKFetch 对象
+     * 当前的 headers 作为请求使用的 headers。
+     * 默认为 false。
+     */
+    merge?: boolean
+  },
+  [fetchOption: string]: any,
+
+  /**
+   * 当需要使用某些高级功能（如不能通过 Observable 实现的中间件），
+   * 设置为 true，会令 get/post/put/delete 请求返回 SDK Http
+   * 对象，提供额外功能。默认为 false。
+   */
+  wrapped?: boolean,
+  /**
+   * 当设置为 true，get/post/put/delete 返回的值中会包含
+   * response headers。默认为 false，仅返回 response body。
+   */
+  includeHeaders?: boolean,
 }
 
-export type NamedOptions = ConnectOptions & ReturnOptions
-
-const defaultOptions: Readonly<NamedOptions> = {
-  includeHeaders: false,
-  wrapped: false,
-
-  apiHost: 'https://www.teambition.com/api',
-  token: '',
-  headers: {}
+const getUnnamedOptions = (options: SDKFetchOptions): {} => {
+  const {
+    apiHost, token, headers, wrapped, includeHeaders,
+    ...unnamed
+  } = options
+  return unnamed
 }
 
-const optionNames: ReadonlyArray<string> = Object.keys(defaultOptions)
-
-export type SDKFetchOptions = NamedOptions & {
-  [option: string]: any
-}
+export const defaultSDKFetchHeaders = () => ({
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+})
 
 export class SDKFetch {
 
   constructor(
     private apiHost: string = 'https://www.teambition.com/api',
     private token: string = '',
-    private headers = {},
-    private options = {}
+    private headers: {} = defaultSDKFetchHeaders(),
+    private options: {} = {}
   ) {}
 
   static FetchStack = new Map<string, Observable<any>>()
@@ -192,7 +208,7 @@ export class SDKFetch {
   }
 
   getHeaders() {
-    return clone(this.headers)
+    return { ...this.headers }
   }
 
   setToken(token: string) {
@@ -206,31 +222,42 @@ export class SDKFetch {
 
   setOptions(options: {}) {
     this.options = options
-    return
+    return this
   }
 
   getOptions() {
-    return clone(this.options)
+    return { ...this.options }
   }
 
   private setOptionsPerRequest<T>(
     http: Http<T | HttpResponseWithHeaders<T>>,
-    options: SDKFetchOptions
+    fetchOptions: SDKFetchOptions
   ): void {
-    const token = options.token || this.token
-    const headers = options.headers || this.headers
-    const opts = Object.assign({}, this.options, Object.keys(options).reduce((ret, x) => {
-      if (optionNames.indexOf(x) >= 0) {
-        return ret
-      } else {
-        ret[x] = options[x]
-        return ret
-      }
-    }, {}))
+    let headers: any
 
-    token && http.setToken(token)
-    headers && http.setHeaders(headers)
-    Object.keys(opts).length > 0 && http.setOpts({ ...this.options, ...opts })
+    if (fetchOptions.headers) {
+      const { merge, ...hdrs } = fetchOptions.headers
+
+      headers = merge ? { ...this.headers, ...hdrs } : hdrs
+    } else {
+      headers = this.headers
+    }
+
+    const token = fetchOptions.token || this.token
+
+    let options = getUnnamedOptions(fetchOptions)
+    if (Object.keys(options).length === 0) {
+      options = this.options
+    }
+
+    http.setHeaders(headers)
+    if (token) {
+      http.setToken(token)
+    }
+
+    if (Object.keys(options).length > 0) {
+      http.setOpts(options)
+    }
   }
 
   private _buildQuery(url: string, query: any) {
