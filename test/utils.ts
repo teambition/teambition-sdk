@@ -63,6 +63,18 @@ export function looseDeepEqual(a: any, b: any) {
   })
 }
 
+export function expectToDeepEqualForFieldsOfTheExpected(actual: any, expected: {}, ...fieldsToBeOmitted: string[]) {
+  expect(typeof actual).to.equal('object')
+
+  const omitted = new Set(fieldsToBeOmitted)
+  Object.keys(expected).forEach((field) => {
+    if (omitted.has(field)) {
+      return
+    }
+    expect(actual[field]).to.deep.equal(expected[field])
+  })
+}
+
 export function mock<T>(sdk: SDK) {
   const mockFetch = new MockFetch
   const methods = ['get', 'put', 'post', 'delete']

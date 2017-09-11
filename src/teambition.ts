@@ -75,6 +75,7 @@ declare module 'teambition-types' {
     date: string
     members: UserId[]
     type: ReminderType
+    _creatorId: UserId
   }
 
   export interface LikeSchema {

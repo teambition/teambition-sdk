@@ -10,12 +10,13 @@ export function getTaskFetch(
   taskId: TaskId,
   query?: any
 ): Observable<TaskSchema> {
-  return this.get<TaskSchema>(`events/${taskId}`, query)
+  return this.get<TaskSchema>(`tasks/${taskId}`, query)
 }
 
 SDKFetch.prototype.getTask = getTaskFetch
 
 declare module '../../SDKFetch' {
+  // tslint:disable-next-line: no-shadowed-variable
   interface SDKFetch {
     getTask: typeof getTaskFetch
   }
@@ -37,12 +38,7 @@ export function getTask(
       executor: [ '_id', 'name', 'avatarUrl' ],
       stage: ['_id', 'name'],
       tasklist: ['_id', 'title'],
-      subtasks: [
-        '_id', '_projectId', '_creatorId', 'content', 'isDone', '_executorId',
-        '_taskId', 'dueDate', 'order', 'created', 'updated', {
-          executor: [ '_id', 'name', 'avatarUrl' ]
-        }
-      ]
+      parent: ['_id', 'content', '_creatorId', '_executorId', 'isDone']
     },
     excludeFields: ['project', 'isDeleted', 'source', 'subtaskIds', 'type', 'url']
   })
@@ -51,6 +47,7 @@ export function getTask(
 SDK.prototype.getTask = getTask
 
 declare module '../../SDK' {
+  // tslint:disable-next-line: no-shadowed-variable
   interface SDK {
     getTask: typeof getTask
   }
