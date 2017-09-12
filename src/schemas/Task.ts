@@ -2,6 +2,9 @@ import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import { CustomFieldValue, ExecutorOrCreator, Reminder, Visibility } from 'teambition-types'
 import { ProjectId, StageId, SubtaskId, TagId, TaskId, TasklistId, TaskPriority, UserId } from 'teambition-types'
 import { schemas } from '../SDK'
+import { ProjectSchema } from './Project'
+import { StageSchema } from './Stage'
+import { TagSchema } from './Tag'
 
 export interface TaskSchema {
   _id: TaskId
@@ -25,11 +28,7 @@ export interface TaskSchema {
   _executorId: UserId
   involveMembers: UserId[]
   tagIds: TagId []
-  tags?: {
-    _id: TagId
-    name: string
-    color: string
-  }
+  tags?: Array<Pick<TagSchema, '_id' | 'name' | 'color'>>
   recurrence: string[]
   pos: number
   _sourceId: string
@@ -52,10 +51,7 @@ export interface TaskSchema {
   _taskId: TaskId // id of the parent task
   parent: Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
   progress: number
-  stage: {
-    name: string
-    _id: StageId
-  }
+  stage: Pick<StageSchema, '_id' | 'name'>
   storyPoint: string
   tasklist?: {
     _id: TasklistId
@@ -63,10 +59,7 @@ export interface TaskSchema {
   }
   type: 'task'
   isFavorite: boolean,
-  project: {
-    _id: ProjectId
-    name: string
-  },
+  project: Pick<ProjectSchema, '_id' | 'name'>,
   uniqueId: number
   url: string
   workTime: {
