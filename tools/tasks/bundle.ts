@@ -18,7 +18,10 @@ export function bundle (entry: string, output: string, name: string) {
       main: true
     }),
     commonjs({
-      exclude: [ 'dist/es6/**', 'dist/mock-es6/**', 'node_modules/lovefield/**' ]
+      exclude: [ 'dist/es6/**', 'dist/mock-es6/**', 'node_modules/lovefield/**' ],
+      namedExports: {
+        'reactivedb': [ 'JoinMode' ]
+      }
     })
   ]
   rollup.rollup({

@@ -64,8 +64,6 @@ describe('EventApi Spec', () => {
 
       const signal = sdk.getEvent(fixture._id)
         .changes()
-        .publishReplay(1)
-        .refCount()
 
       signal.subscribe()
 
