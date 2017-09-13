@@ -20,7 +20,8 @@ const tableAlias = {
   Work: 'File',
   ChatMessage: 'Activity',
   Activities: 'Activity',
-  HomeActivities: 'Activity'
+  HomeActivities: 'Activity',
+  Customfield: 'CustomField'
 }
 
 export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string) => {

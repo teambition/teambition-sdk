@@ -1,3 +1,5 @@
+import { SchemaDef, RDBType } from 'reactivedb/interface'
+import { schemas } from '../SDK'
 import { CustomFieldType, CustomFieldBoundType } from 'teambition-types'
 import { CustomFieldId, OrganizationId, ProjectId, RoleId, UserId } from 'teambition-types'
 
@@ -18,3 +20,48 @@ export interface CustomFieldSchema {
   type: CustomFieldType
   updated: string
 }
+
+const schema: SchemaDef<CustomFieldSchema> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _organizationId: {
+    type: RDBType.STRING
+  },
+  _projectId: {
+    type: RDBType.STRING
+  },
+  _roleIds: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  boundType: {
+    type: RDBType.STRING
+  },
+  choices: {
+    type: RDBType.OBJECT
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  displayed: {
+    type: RDBType.BOOLEAN
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  pos: {
+    type: RDBType.NUMBER
+  },
+  type: {
+    type: RDBType.STRING
+  },
+  updated: {
+    type: RDBType.DATE_TIME
+  },
+}
+
+schemas.push({ schema, name: 'CustomField' })

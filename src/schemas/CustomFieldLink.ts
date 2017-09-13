@@ -1,3 +1,5 @@
+import { SchemaDef, RDBType } from 'reactivedb/interface'
+import { schemas } from '../SDK'
 import { CustomFieldType } from 'teambition-types'
 import { CustomFieldId, CustomFieldLinkId, ProjectId, RoleId } from 'teambition-types'
 
@@ -9,7 +11,41 @@ export interface CustomFieldLinkSchema {
   _projectId: ProjectId
   _roleIds: RoleId[]
   choices: CustomFieldChoiceSchema[]
+  displayed: boolean
   name: string
   pos: number
   type: CustomFieldType
 }
+
+const schema: SchemaDef<CustomFieldLinkSchema> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _customfieldId: {
+    type: RDBType.STRING
+  },
+  _projectId: {
+    type: RDBType.STRING
+  },
+  _roleIds: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  choices: {
+    type: RDBType.OBJECT
+  },
+  displayed: {
+    type: RDBType.BOOLEAN
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  pos: {
+    type: RDBType.NUMBER
+  },
+  type: {
+    type: RDBType.STRING
+  },
+}
+
+schemas.push({ schema, name: 'CustomFieldLink' })
