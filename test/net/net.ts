@@ -107,8 +107,6 @@ describe('Net test', () => {
         excludeFields: ['isDeleted', 'source', 'type', 'url']
       })
         .changes()
-        .publishReplay(1)
-        .refCount()
 
       subscription = stream$.subscribe()
 
@@ -191,8 +189,6 @@ describe('Net test', () => {
         ]
       } as ApiResult<EventSchema, CacheStrategy.Request>)
         .changes()
-        .publishReplay(1)
-        .refCount()
 
       subscription = stream$.subscribe()
 
@@ -241,8 +237,6 @@ describe('Net test', () => {
         padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
       })
         .changes()
-        .publishReplay(1)
-        .refCount()
 
       subscription = stream$.subscribe()
 
@@ -292,8 +286,6 @@ describe('Net test', () => {
         padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
       })
         .changes()
-        .publishReplay(1)
-        .refCount()
 
       subscription = stream$.subscribe()
 
@@ -399,8 +391,6 @@ describe('Net test', () => {
 
       const stream$ = getToken()
         .changes()
-        .publishReplay(1)
-        .refCount()
 
       subscription = stream$.subscribe()
 
@@ -457,8 +447,6 @@ describe('Net test', () => {
 
       const stream$ = getToken()
         .changes()
-        .publishReplay(1)
-        .refCount()
 
       subscription = stream$.subscribe()
 
