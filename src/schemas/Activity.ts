@@ -4,7 +4,8 @@ import {
   ExecutorOrCreator,
   ActivityId,
   DetailObjectTypes,
-  DetailObjectId
+  DetailObjectId,
+  UserId
 } from 'teambition-types'
 
 export interface Locales {
@@ -57,7 +58,7 @@ export interface Share {
 
 export interface ActivitySchema {
   _boundToObjectId: DetailObjectId
-  _creatorId: string
+  _creatorId: UserId
   _id: ActivityId
   action: string
   boundToObjectType: DetailObjectTypes
@@ -148,9 +149,9 @@ const schema: SchemaDef<ActivitySchema> = {
   creator: {
     type: Relationship.oneToOne,
     virtual: {
-      name: 'Member',
-      where: (memberTable: any) => ({
-        _creatorId: memberTable._id
+      name: 'User',
+      where: (userTable: any) => ({
+        _creatorId: userTable._id
       })
     }
   },
