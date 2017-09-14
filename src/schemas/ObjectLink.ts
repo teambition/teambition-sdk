@@ -42,9 +42,9 @@ const schema: SchemaDef<ObjectLinkSchema> = {
   creator: {
     type: Relationship.oneToOne,
     virtual: {
-      name: 'Member',
-      where: (memberTable: any) => ({
-        _creatorId: memberTable._id
+      name: 'User',
+      where: (userTable: any) => ({
+        _creatorId: userTable._id
       })
     }
   },

@@ -122,9 +122,9 @@ const schema: SchemaDef<TaskSchema> = {
   executor: {
     type: Relationship.oneToOne,
     virtual: {
-      name: 'Member',
-      where: (memberTable: any) => ({
-        _executorId: memberTable._id
+      name: 'User',
+      where: (userTable: any) => ({
+        _executorId: userTable._id
       })
     }
   },
