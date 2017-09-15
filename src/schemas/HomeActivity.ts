@@ -1,8 +1,8 @@
-import { ExecutorOrCreator, ProjectId } from 'teambition-types'
+import { ExecutorOrCreator, ProjectId, UserId } from 'teambition-types'
 
 export interface HomeActivitySchema {
   _id: string
-  _creatorId: string
+  _creatorId: UserId
   action: string
   content: {
 

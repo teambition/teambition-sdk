@@ -1,12 +1,12 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemas } from '../SDK'
-import { CollectionId } from 'teambition-types'
+import { CollectionId, UserId } from 'teambition-types'
 
 export interface CollectionSchema {
   _id: CollectionId
   title: string
   _projectId: string
-  _creatorId: string
+  _creatorId: UserId
   _parentId: CollectionId
   collectionType: string
   description: string

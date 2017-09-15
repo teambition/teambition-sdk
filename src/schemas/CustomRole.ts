@@ -1,11 +1,11 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemas } from '../SDK'
-import { CustomRoleId, OrganizationId } from 'teambition-types'
+import { CustomRoleId, OrganizationId, UserId } from 'teambition-types'
 
 export interface CustomRoleSchema {
   _id: CustomRoleId
   name: string
-  _creatorId: string
+  _creatorId: UserId
   _organizationId: OrganizationId
   updated: string
   created: string

@@ -19,7 +19,7 @@ export interface MemberProfileSchema {
 
 export interface MemberSchema {
   _boundToObjectId: ProjectId | OrganizationId
-  _id: UserId
+  _id: String // 兼容新（MemberId）和旧（UserId），当完成迁移，换为更准确的 MemberId
   _memberId: MemberId
   _roleId: RoleId
   _userId: UserId
@@ -46,6 +46,10 @@ export interface MemberSchema {
   title: string
   visited: string
   website: string
+}
+
+export interface LegacyMemberSchema extends MemberSchema {
+  _id: UserId
 }
 
 const Schema: SchemaDef<MemberSchema> = {
