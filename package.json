@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/teambition/teambition-sdk.git"
+    "url": "git@github.com:teambition/teambition-sdk.git"
   },
   "keywords": [
     "teambition",

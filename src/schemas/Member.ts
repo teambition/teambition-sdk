@@ -21,6 +21,7 @@ export interface MemberData extends ISchema {
   nicknamePinyin: string
   hasVisited: boolean
   _memberId: MemberId
+  _userId: UserId
   phone: string
   location: string
   website: string
@@ -48,6 +49,7 @@ export default class Member extends Schema<MemberData> implements MemberData {
   nicknamePinyin: string = undefined
   hasVisited: boolean = undefined
   _memberId: MemberId = undefined
+  _userId: UserId = undefined
   phone: string = undefined
   location: string = undefined
   website: string = undefined
