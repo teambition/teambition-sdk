@@ -3,15 +3,84 @@ import { Observable, Scheduler } from 'rxjs'
 import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDKFetch, forEach, Http } from '.'
 
+import { defaultSDKFetchHeaders } from '../src/SDKFetch'
+
 const fetchMock = require('fetch-mock')
 
-export default describe('SDKFetch', () => {
+const allowedMethods: ReadonlyArray<string> = ['get', 'post', 'put', 'delete']
+
+const path = 'test'
+
+describe('SDKFetch setters and getters', () => {
+
+  let sdkFetch: SDKFetch
+
+  const getterSetterGood = (getter: string, setter: string, newValue: any, newResult?: any) => {
+    if (arguments.length - 2 === 3) {
+      newResult = newValue
+    }
+
+    // before setter is called
+    expect(sdkFetch[getter]()).to.not.deep.equal(newResult)
+
+    sdkFetch[setter](newValue)
+
+    // after setter is called
+    expect(sdkFetch[getter]()).to.deep.equal(newResult)
+  }
+
+  beforeEach(() => {
+    sdkFetch = new SDKFetch('')
+  })
+
+  it('setAPIHost/getAPIHost should write/read internal state correctly', () => {
+    getterSetterGood('getAPIHost', 'setAPIHost', 'https://www.example.com')
+  })
+
+  it('setHeaders/getHeaders should write/read internal state correctly', () => {
+    const newHeader = { 'X-Request-Id': '2333' }
+    const headers = sdkFetch.getHeaders()
+
+    getterSetterGood('getHeaders', 'setHeaders', newHeader, { ...headers, ...newHeader })
+  })
+
+  it('setToken/getToken should write/read internal state correctly', () => {
+    getterSetterGood('getToken', 'setToken', '1234567890')
+  })
+
+  it('setOptions/getOptions should write/read internal state correctly', () => {
+    const newOption = { responseType: 'arraybuffer' }
+    const options = sdkFetch.getOptions()
+
+    getterSetterGood('getOptions', 'setOptions', newOption, { ...options, ...newOption })
+  })
+
+  it('getHeaders should return a deep copy of the current headers object', () => {
+    const originalHeaders = { hello: 'world' }
+
+    sdkFetch.setHeaders(originalHeaders)
+    const headers = sdkFetch.getHeaders()
+    headers!['hello'] = 'you'
+
+    expect(sdkFetch.getHeaders()).to.deep.equal(originalHeaders)
+  })
+
+  it('getOptions should return a deep copy of the current options object', () => {
+    const originalOptions = { responseType: 'arraybuffer' }
+
+    sdkFetch.setOptions(originalOptions)
+    const options = sdkFetch.getOptions()
+    options!['hello'] = 'you'
+
+    expect(sdkFetch.getOptions()).to.deep.equal(originalOptions)
+  })
+})
+
+describe('SDKFetch', () => {
 
   let sdkFetch: SDKFetch
   const apiHost = 'https://www.teambition.com/api'
-  const path = 'test'
   const testUrl = `${apiHost}/${path}`
-  const allowedMethods = ['get', 'post', 'put', 'delete']
 
   beforeEach(() => {
     sdkFetch = new SDKFetch()
@@ -19,63 +88,6 @@ export default describe('SDKFetch', () => {
 
   afterEach(() => {
     fetchMock.restore()
-  })
-
-  it('setAPIHost/getAPIHost should configure api host', () => {
-    expect(sdkFetch.getAPIHost()).to.equal('https://www.teambition.com/api')
-    const myUrl = 'https://www.example.com'
-    sdkFetch.setAPIHost(myUrl)
-    expect(sdkFetch.getAPIHost()).to.equal(myUrl)
-  })
-
-  it('setHeaders should work', function* () {
-    const headers = { 'X-Request-Id': '2333' }
-    sdkFetch.setHeaders(headers)
-    fetchMock.mock(new RegExp(testUrl), {})
-    yield sdkFetch.get(path)
-      .subscribeOn(Scheduler.async)
-      .do(() => {
-        expect(fetchMock.lastOptions()).to.deep.equal({
-          method: 'get',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-Request-Id': '2333'
-          },
-          credentials: 'include'
-        })
-      })
-  })
-
-  it('setToken should work', function* () {
-    const token = 'secret, public :)'
-    sdkFetch.setToken(token)
-    fetchMock.getOnce(new RegExp(testUrl), {})
-    yield sdkFetch.get(path)
-      .subscribeOn(Scheduler.async)
-      .do(() => {
-        expect(fetchMock.lastOptions()).to.deep.equal({
-          method: 'get',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `OAuth2 ${token}`
-          }
-        })
-      })
-  })
-
-  it('setOptions should work', function* () {
-    const nonDefaulResponseType = 'arraybuffer'
-    sdkFetch.setOptions({ responseType: nonDefaulResponseType })
-
-    fetchMock.getOnce(new RegExp(testUrl), {})
-
-    yield sdkFetch.get(path)
-      .subscribeOn(Scheduler.async)
-      .do(() => {
-        expect(fetchMock.lastOptions().responseType).to.equal(nonDefaulResponseType)
-      })
   })
 
   it('get should use correctly timestamped url', function* () {
@@ -164,6 +176,41 @@ export default describe('SDKFetch', () => {
     })
   })
 
+  allowedMethods.forEach((httpMethod: string) => {
+    it(`method ${httpMethod} should be able to return with response headers`, function* () {
+      const responseData = { test: 'test' }
+      const body = { body: 'body' }
+      const sampleValue = '2333'
+
+      let withRespHeaders$: Observable<any>
+
+      fetchMock.mock(new RegExp(testUrl), {
+        body: JSON.stringify(responseData),
+        headers: {
+          'X-Request-Id': sampleValue
+        }
+      }, {
+        method: httpMethod
+      })
+
+      switch (httpMethod) {
+      case 'get':
+        withRespHeaders$ = sdkFetch[httpMethod](path, null, { includeHeaders: true })
+        break
+      default:
+        withRespHeaders$ = sdkFetch[httpMethod](path, body, { includeHeaders: true })
+        break
+      }
+
+      yield withRespHeaders$
+        .subscribeOn(Scheduler.async)
+        .do((resp) => {
+          expect(resp.body).to.deep.equal(responseData)
+          expect(resp.headers['x-request-id']).to.equal(sampleValue)
+        })
+    })
+  })
+
   it('_buildQuery should serialize array to query string', () => {
     const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
     const parts: string[] = []
@@ -197,5 +244,154 @@ export default describe('SDKFetch', () => {
     const actual = sdkFetch['_buildQuery']('', query)
     const expected = `?a=a`
     expect(actual).to.be.equal(expected)
+  })
+})
+
+describe('SDKFetch options', () => {
+
+  let sdkFetch: SDKFetch
+
+  const newHost = 'https://www.example.com'
+  const newHeader = { 'X-Request-Id': '2333' }
+  const newToken = '1234567890'
+  const newOption = { responseType: 'arraybuffer' }
+  const newMockOptions = {
+    headers: {
+      'Authorization': 'OAuth2 1234567890',
+      'X-Request-Id': '2333'
+    },
+    responseType: 'arraybuffer'
+  }
+
+  const requestOptionsGood = function* (httpMethod: string, getCustomizedRequest: () => Observable<any>) {
+    fetchMock.mock(new RegExp(newHost), {})
+
+    yield getCustomizedRequest()
+      .subscribeOn(Scheduler.async)
+      .do(() => {
+        expect(fetchMock.lastOptions()).to.deep.equal({
+          method: httpMethod,
+          ...newMockOptions
+        })
+      })
+  }
+
+  beforeEach(() => {
+    sdkFetch = new SDKFetch()
+  })
+
+  afterEach(() => {
+    fetchMock.restore()
+  })
+
+  it('defaultSDKFetchHeaders should be immutable', () => {
+    const headers = defaultSDKFetchHeaders()
+
+    headers['X-Request-Id'] = '2333'
+    expect(defaultSDKFetchHeaders()).to.deep.equal({
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    })
+  })
+
+  allowedMethods.forEach((httpMethod: string) => {
+    it(`use default headers when headers are not set: ${httpMethod}`, function* () {
+      fetchMock.mock(new RegExp(''), {})
+
+      sdkFetch
+        .setAPIHost(newHost)
+        .setOptions(newOption)
+
+      yield sdkFetch[httpMethod](path)
+        .subscribeOn(Scheduler.async)
+        .do(() => {
+          expect(fetchMock.lastOptions().headers).to.deep.equal({
+            ...defaultSDKFetchHeaders()
+          })
+        })
+    })
+  })
+
+  allowedMethods.forEach((httpMethod: string) => {
+    it(`setters should take effect in ${httpMethod} request`, function* () {
+      yield requestOptionsGood(httpMethod, () => {
+        sdkFetch
+          .setAPIHost(newHost)
+          .setHeaders(newHeader)
+          .setToken(newToken)
+          .setOptions(newOption)
+        return sdkFetch[httpMethod](path)
+      })
+    })
+  })
+
+  allowedMethods.forEach((httpMethod1: string) => {
+    allowedMethods.forEach((httpMethod2: string) => {
+      it(`setter' effect should be kept across requests: ${httpMethod1} then ${httpMethod2}`, function* () {
+        yield requestOptionsGood(httpMethod2, () => {
+          sdkFetch
+            .setAPIHost(newHost)
+            .setHeaders(newHeader)
+            .setToken(newToken)
+            .setOptions(newOption)
+
+          return sdkFetch[httpMethod1](path)
+            .switchMap(() => sdkFetch[httpMethod2](path))
+        })
+      })
+    })
+  })
+
+  allowedMethods.forEach((httpMethod: string) => {
+    it(`per request setting should work for ${httpMethod}`, function* () {
+      yield requestOptionsGood(httpMethod, () => {
+        return sdkFetch[httpMethod](path, undefined, {
+          apiHost: newHost,
+          headers: newHeader,
+          token: newToken,
+          ...newOption
+        })
+      })
+    })
+  })
+
+  allowedMethods.forEach((httpMethod: string) => {
+    it(`per request header setting in merge mode should work: ${httpMethod}`, function* () {
+      fetchMock.mock(new RegExp(''), {})
+
+      yield sdkFetch[httpMethod](path, undefined, {
+        headers: { ...newHeader, merge: true },
+      })
+        .subscribeOn(Scheduler.async)
+        .do(() => {
+          expect(fetchMock.lastOptions().headers).to.deep.equal({
+            ...defaultSDKFetchHeaders(), ...newHeader
+          })
+        })
+    })
+  })
+
+  allowedMethods.forEach((httpMethod1: string) => {
+    allowedMethods.forEach((httpMethod2: string) => {
+      it(`per request setting should not take effect across requests: ${httpMethod1} then ${httpMethod2}`, function* () {
+        yield requestOptionsGood(httpMethod2, () => {
+          const perRequestOptions = {
+            apiHost: newHost + '.cn',
+            headers: { ...newHeader, hello: 'world' },
+            token: newToken + '1',
+            ...{ ...newOption, good: 'bye' }
+          }
+
+          sdkFetch
+            .setAPIHost(newHost)
+            .setHeaders(newHeader)
+            .setToken(newToken)
+            .setOptions(newOption)
+
+          return sdkFetch[httpMethod1](path, undefined, perRequestOptions)
+            .switchMap(() => sdkFetch[httpMethod2](path))
+        })
+      })
+    })
   })
 })

@@ -34,10 +34,7 @@ export default describe('net/http', () => {
         expect(fetchMock.lastUrl()).to.equal(url)
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
+          headers: {},
           credentials: 'include'
         })
       })
@@ -54,12 +51,27 @@ export default describe('net/http', () => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
             'X-Request-Id': '2333'
           },
           credentials: 'include'
         })
+      })
+  })
+
+  it('should set headers with copy of the input headers', function* () {
+    const headers = {}
+
+    fetchInstance.setHeaders(headers)
+
+    // 如果使用的是传入 headers 对象的引用，下面修改会导致最终 headers 被修改
+    headers['X-Request-Id'] = '2333'
+
+    fetchMock.mock(url, {})
+    yield fetchInstance.get()
+      .send()
+      .subscribeOn(Scheduler.async)
+      .do(() => {
+        expect(fetchMock.lastOptions().headers).to.deep.equal({})
       })
   })
 
@@ -74,8 +86,6 @@ export default describe('net/http', () => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
             'Authorization': `OAuth2 ${token}`
           }
         })
@@ -140,9 +150,9 @@ export default describe('net/http', () => {
       yield fetchInstance2[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
         .subscribeOn(Scheduler.async)
-        .do((res: any) => {
-          expect(res.body).to.deep.equal(responseData)
-          expect(res.headers['x-request-id']).to.equal(sampleValue)
+        .do((resp: any) => {
+          expect(resp.body).to.deep.equal(responseData)
+          expect(resp.headers['x-request-id']).to.equal(sampleValue)
         })
     })
   })
