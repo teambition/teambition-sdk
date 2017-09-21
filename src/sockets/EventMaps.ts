@@ -21,7 +21,8 @@ const tableAlias = {
   ChatMessage: 'Activity',
   Activities: 'Activity',
   HomeActivities: 'Activity',
-  Customfield: 'CustomField'
+  Customfield: 'CustomField',
+  Scenariofieldconfig: 'ScenarioFieldConfig'
 }
 
 export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string) => {

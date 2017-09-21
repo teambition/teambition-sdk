@@ -27,6 +27,8 @@ declare module 'teambition-types' {
   export interface ProjectId extends String { kind?: 'ProjectId' }
   export interface ProjectTagId extends String { kind?: 'ProjectTagId' }
   export interface RoomId extends String { kind?: 'RoomId' }
+  export interface ScenarioFieldId extends String { kind?: 'ScenarioFieldId' }
+  export interface ScenarioFieldConfigId extends String { kind?: 'ScenarioFieldConfigId' }
   export interface StageId extends String { kind?: 'StageId' }
   export interface SubscribeId extends String { kind?: 'SubscribeId' }
   export interface SubtaskId extends String { kind?: 'SubtaskId' }
@@ -52,13 +54,21 @@ declare module 'teambition-types' {
 // types
 
 declare module 'teambition-types' {
-  export type CustomFieldBoundType = 'member' | 'project' | 'task'
+  export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text'
+  export type CustomScenarioFieldType = 'customfield'
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
   export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work'
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works'
+  export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
+  export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
   export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'
+  export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
+  export type ScenarioFieldConfigObjectType = 'task' | 'event'
+  export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
+  export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating'
   export type TaskPriority = 0 | 1 | 2
+  export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
   export type Visibility = 'all' | 'members' | 'organization' | 'project'
 }
