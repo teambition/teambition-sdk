@@ -15,13 +15,11 @@ export function eventParser(event: RequestEvent) {
   if (data) {
     const params = data.params
     if (params && params.length) {
-      forEach(params, param => {
-        let result: {
-          e: string,
-          d: any
-        }
+      forEach(params, (param: any) => {
+        let _param = typeof param === 'string' ? param : param.data
+        let result: { e: string, d: any }
         try {
-          result = JSON.parse(param)
+          result = JSON.parse(_param)
         } catch (e) {
           return console.error(e)
         }
