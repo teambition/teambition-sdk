@@ -1,5 +1,4 @@
-import './event.spec'
-import './EventGenerator.spec'
+import './event'
 import './like.spec'
 import './my.spec'
 import './post.spec'

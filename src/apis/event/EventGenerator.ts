@@ -1,5 +1,5 @@
 import { EventSchema } from '../../schemas/Event'
-import { isRecurrence } from './utils'
+import { isRecurrent } from './utils'
 import { clone } from '../../utils'
 import { EventId } from 'teambition-types'
 
@@ -14,7 +14,7 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
   private done: boolean
   private rrule: any
   private startDateCursor: Date
-  private isRecurrence = isRecurrence(this.event)
+  private isRecurrence = isRecurrent(this.event)
   private duration: number
 
   [Symbol.iterator] = () => this
