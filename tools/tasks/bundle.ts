@@ -25,22 +25,20 @@ export function bundle (entry: string, output: string, name: string) {
     })
   ]
   rollup.rollup({
-    entry: entry,
+    input: entry,
     plugins: plugins
   })
     .then((bundle: any) => {
-      const code = bundle.generate({
+      return bundle.generate({
         format: 'umd',
-        moduleName: name,
+        name: name,
         globals: {
           lovefield: 'lf'
         },
         external: [ 'lovefield' ]
-      }).code
-
-      return code
+      })
     })
-    .then((code: string) => {
+    .then(({ code }: { code: string }) => {
       return write(path.resolve(process.cwd(), output), code)
     })
     .then(() => {
