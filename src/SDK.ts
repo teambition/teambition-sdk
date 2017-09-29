@@ -2,14 +2,13 @@ import 'rxjs/add/operator/concatMap'
 import 'rxjs/add/operator/do'
 import 'rxjs/add/operator/mapTo'
 import { Observable } from 'rxjs/Observable'
-import {
-  Database
-} from 'reactivedb'
+import { Database } from 'reactivedb'
 import { Net } from './Net'
-
 import { forEach } from './utils'
 import { SDKFetch } from './SDKFetch'
 import { SocketClient } from './sockets/SocketClient'
+import { TableInfoByMessageType } from './sockets/MapToTable'
+import tableAlias from './sockets/TableAlias'
 import { SchemaColl } from './utils/internalTypes'
 
 export const schemas: SchemaColl = []
@@ -20,7 +19,11 @@ export class SDK {
   net = new Net(schemas)
   fetch = new SDKFetch
 
-  socketClient: SocketClient = new SocketClient(this.fetch, this.net, schemas)
+  socketClient: SocketClient = new SocketClient(
+    this.fetch,
+    this.net,
+    new TableInfoByMessageType(schemas, tableAlias)
+  )
   database: Database
 
   lift: typeof Net.prototype.lift = (ApiResult: any): any => {

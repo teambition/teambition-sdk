@@ -5,9 +5,8 @@ import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { Net } from '../Net'
 import { MessageResult, eventParser } from './EventParser'
-import { forEach, capitalizeFirstLetter } from '../utils'
-import { SDKLogger } from '../utils/Logger'
 import Dirty from '../utils/Dirty'
+import { TableInfoByMessageType } from './MapToTable'
 
 const methodMap: any = {
   'change': 'upsert',
@@ -16,17 +15,17 @@ const methodMap: any = {
   'remove': 'delete'
 }
 
-const tableAlias = {
-  Work: 'File',
-  ChatMessage: 'Activity',
-  Activities: 'Activity',
-  HomeActivities: 'Activity',
-  Customfield: 'CustomField',
-  Customfieldlink: 'CustomFieldLink',
-  Scenariofieldconfig: 'ScenarioFieldConfig'
-}
+/**
+ * refresh 事件需要逐个单独处理
+ * destroy 事件没有 data
+ */
+export const handleMsgToDb = (
+  db: Database,
+  msg: MessageResult,
+  tableName: string,
+  pkName: string
+): Observable<any> => {
 
-export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: string, pkName: string) => {
   const { method, id, data } = msg
   const dbMethod = db[methodMap[method]]
   let dirtyStream: Observable<any> | null
@@ -60,55 +59,31 @@ export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: strin
   }
 }
 
-/**
- * refresh 事件需要逐个单独处理
- * destroy 事件没有 data
- */
-const handler = (
-  net: Net,
-  socketMessage: MessageResult,
-  tabNameToPKName: { [key: string]: string } = {},
-  db?: Database
-) => {
-  let type = socketMessage.type
-  if (type.charAt(type.length - 1) === 's' &&
-    type !== 'activities' &&
-    type !== 'homeActivities') {
-    type = type.substring(0, type.length - 1)
-  }
-  const arg1 = capitalizeFirstLetter(type)
-
-  if (!arg1) {
-    return Observable.of(null)
-  }
-
-  const tableName = tableAlias[arg1] || arg1
-  const pkName = tabNameToPKName[tableName]
-
-  if (!pkName) {
-    SDKLogger.warn(`Non-existent table: ${tableName}`)
-    return Observable.of(null)
-  }
-
-  if (!db) {
-    net.bufferSocketPush(tableName, socketMessage, pkName, type)
-    return Observable.of(null)
-  }
-
-  return handleMsgToDb(db, socketMessage, tableName, pkName)
-}
-
 export function socketHandler(
   net: Net,
   event: RequestEvent,
-  tabNameToPKName?: { [key: string]: string },
+  mapToTable: TableInfoByMessageType,
   db?: Database
 ): Observable<any> {
-  const signals: Observable<any>[] = []
-  const socketMessages = eventParser(event)
-  forEach(socketMessages, socketMessage => {
-    signals.push(handler(net, socketMessage, tabNameToPKName, db))
+  const parsedMsgs = eventParser(event)
+
+  const signals = parsedMsgs.map((msg) => {
+    const tabInfo = mapToTable.getTableInfo(msg.type)
+
+    if (!tabInfo) {
+      return Observable.of(null)
+    }
+
+    const { tabName, pkName } = tabInfo
+
+    if (!db) {
+      net.bufferSocketPush(tabName, msg, pkName, msg.type)
+      return Observable.of(null)
+    } else {
+      return handleMsgToDb(db, msg, tabName, pkName)
+    }
   })
+
   return Observable.from(signals)
     .mergeAll()
 }

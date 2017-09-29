@@ -25,7 +25,7 @@ describe('Socket handling Spec', () => {
     const spy = sinon.spy(logger, 'warn')
     const tx: any = 'Non-existent-table'
     yield socket.emit('new', tx, '', {})
-    expect(spy).to.be.calledWith(`Non-existent table: ${tx}`)
+    expect(spy).to.be.calledWith(`Table not found for message of type ${tx}`)
     spy.restore()
   })
 

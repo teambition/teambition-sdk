@@ -10,6 +10,15 @@ export type SchemaColl = {
   name: string
 }[]
 
+export type Dict<T> = {
+  [key: string]: T
+}
+
+export type TableInfo = {
+  tabName: string,
+  pkName: string
+}
+
 export interface PagingQuery {
   page: number,
   count: number

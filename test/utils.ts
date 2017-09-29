@@ -1,6 +1,7 @@
 'use strict'
 import { expect } from 'chai'
-import { forEach, SDK, capitalizeFirstLetter, SDKFetch } from './index'
+import { capitalize } from 'lodash'
+import { forEach, SDK, SDKFetch } from './index'
 import { MockFetch } from './mock/MockFetch'
 
 export function notInclude(collection: any[], ele: any) {
@@ -82,7 +83,7 @@ export function mock<T>(sdk: SDK) {
   return (m: T, schedule?: number | Promise<any>) => {
     methods.forEach(method => {
       sdk.fetch[method] = function(url: string, arg2?: any) {
-        const mockResult = mockFetch[`mock${capitalizeFirstLetter(method)}`](url, arg2)
+        const mockResult = mockFetch[`mock${capitalize(method)}`](url, arg2)
         mockResult.mockResponse.respond(m, schedule)
         return mockResult.request
       }
