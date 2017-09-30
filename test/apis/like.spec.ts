@@ -1,34 +1,31 @@
 'use strict'
 import { expect } from 'chai'
 import { describe, it, beforeEach, afterEach } from 'tman'
-import { createSdk, SocketMock, SDK, LikeSchema } from '../index'
+import { createSdk, SDK, LikeSchema } from '../index'
 import like from '../fixtures/like.fixture'
 import { mock, restore } from '../utils'
 
-describe('LikeApi Spec: ', () => {
+describe('LikeApi request spec: ', () => {
   let sdk: SDK
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
-  let socket: SocketMock
 
   beforeEach(() => {
     sdk = createSdk()
     mockResponse = mock(sdk)
-    socket = new SocketMock(sdk.socketClient)
   })
 
   afterEach(() => {
     restore(sdk)
   })
 
-  it('get like should pass', done => {
+  it('get like should pass', function* () {
     mockResponse(like)
 
-    sdk.getLike('task', 'mocktask')
+    yield sdk.getLike('task', 'mocktask')
       .values()
-      .subscribe(([r]) => {
+      .do(([r]) => {
         delete r._id
         expect(r).to.deep.equal(like)
-        done()
       })
   })
 
@@ -61,6 +58,5 @@ describe('LikeApi Spec: ', () => {
       .do(([r]) => {
         expect(r.isLike).to.be.true
       })
-
   })
 })

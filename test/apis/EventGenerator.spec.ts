@@ -118,7 +118,7 @@ describe('EventGenerator spec', () => {
   it('takeUntil() hasEnd recurrence event should return correct result', () => {
     const _eventGenerator = new EventGenerator(recurrenceHasEnd as any)
     const result = _eventGenerator.takeUntil(Moment().add(1, 'day').startOf('day').toDate())
-    expect(result.length).to.equal(100)
+    expect(result.length).to.equal(15)
   })
 
   it('takeUntil() a normal event should return single value array', () => {
@@ -206,7 +206,7 @@ describe('EventGenerator spec', () => {
     const _eventGenerator = new EventGenerator(recurrenceHasEnd as any)
     const startDay = recurrenceHasEnd.startDate
     const result = _eventGenerator.takeFrom(Moment(startDay).subtract(1, 'day').toDate(), Moment().add(1, 'day').startOf('day').toDate())
-    expect(result.length).to.equal(100)
+    expect(result.length).to.equal(15)
   })
 
   it('takeFrom() normal event should return single value array when date is in range', () => {

@@ -42,4 +42,12 @@ process.on('uncaughtException', (err: any) => {
   console.info(`Caught exception: ${err.stack}`)
 })
 
+process.on('SIGINT', () => {
+  const watchCompilePid = Number(process.argv[2])
+  if (watchCompilePid){
+    process.kill(watchCompilePid)
+  }
+  process.exit()
+})
+
 console.info('\x1b[1m\x1b[34mwatch start\x1b[39m\x1b[22m')

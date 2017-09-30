@@ -1,23 +1,24 @@
 import * as chai from 'chai'
-import { Subject } from 'rxjs/Subject'
+import { Observable, Scheduler, Subject } from 'rxjs'
 import { describe, it, beforeEach, afterEach } from 'tman'
 
-import { Http, Backend, HttpErrorMessage, SDKFetch } from '../index'
+import { Http, Backend, HttpErrorMessage } from '../index'
 
 const expect = chai.expect
 
 export default describe('HttpError$ test: ', () => {
+  const url = 'www.example.com'
+
+  const silentRequest = (req: Http<any>) =>
+    req.get().send().catch(() => Observable.of(null))
+
   let httpBackend: Backend
   let mockFetch: Http<any>
-  let url: string
   let error$: Subject<HttpErrorMessage>
-
-  const path = 'users/me'
 
   beforeEach(() => {
     error$ = new Subject<HttpErrorMessage>()
     httpBackend = new Backend()
-    url = `${new SDKFetch().getAPIHost()}/${path}`
     mockFetch = new Http(url, error$)
   })
 
@@ -25,45 +26,45 @@ export default describe('HttpError$ test: ', () => {
     httpBackend.restore()
   })
 
-  it('handler error should ok', done => {
+  it('handler error should ok', function* () {
     httpBackend.whenGET(url)
-      .error('Bad Request', {
+      .error('testing', {
         status: 400
       })
 
-    error$.map(r => {
-      return r.error.statusText
-    })
-      .take(1)
-      .subscribe(r => {
-        expect(r).to.equal('Bad Request')
-        done()
+    yield Observable.zip(
+      silentRequest(mockFetch),
+      error$,
+      (_, { error }) => error
+    )
+      .subscribeOn(Scheduler.asap)
+      .do(({ statusText, body }) => {
+        expect(statusText).to.equal('Bad Request')
+        expect(body).equal('testing')
       })
-
-    mockFetch.get().send().subscribe()
   })
 
-  it('handler sequence error should ok', done => {
-
+  it('handler sequence error should ok', function* () {
     httpBackend.whenGET(url)
-      .error('Bad Request', {
+      .error('testing 1', {
         status: 400
       })
 
     httpBackend.whenGET(url)
-      .error('Bad Request', {
+      .error('testing 2', {
         status: 400
       })
 
-    error$.skip(1)
-      .take(1)
-      .map(r => r.error.statusText)
-      .subscribe(r => {
-        expect(r).to.equal('Bad Request')
-        done()
+    yield Observable.zip(
+      silentRequest(mockFetch).concat(silentRequest(mockFetch)),
+      error$,
+      (_, { error }) => error
+    )
+      .skip(1)
+      .subscribeOn(Scheduler.asap)
+      .do(({ statusText, body }) => {
+        expect(statusText).to.equal('Bad Request')
+        expect(body).to.equal('testing 2')
       })
-
-    mockFetch.get().send().subscribe()
-    mockFetch.get().send().subscribe()
   })
 })

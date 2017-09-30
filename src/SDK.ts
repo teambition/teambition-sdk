@@ -19,8 +19,10 @@ export { CacheStrategy } from './Net'
 export class SDK {
   net = new Net(schemas)
   fetch = new SDKFetch
+
   socketClient: SocketClient = new SocketClient(this.fetch, this.net, schemas)
   database: Database
+
   lift: typeof Net.prototype.lift = (ApiResult: any): any => {
     return this.net.lift(ApiResult)
   }
@@ -33,6 +35,7 @@ export class SDK {
     this.database.connect()
 
     this.socketClient.initReactiveDB(this.database)
+
     return this.net.persist(this.database)
   }
 

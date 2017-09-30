@@ -102,7 +102,7 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, '')
-          .subscribeOn(Scheduler.async)
+          .subscribeOn(Scheduler.asap)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
           })
@@ -115,7 +115,7 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=nonExistence&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, 'nonExistence')
-          .subscribeOn(Scheduler.async)
+          .subscribeOn(Scheduler.asap)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
           })
@@ -128,7 +128,7 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=shuai&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, 'shuai')
-          .subscribeOn(Scheduler.async)
+          .subscribeOn(Scheduler.asap)
           .do((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
           })
@@ -139,7 +139,7 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=&_=666', allMembers)
 
       yield sdkFetch.searchMembers('')
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do((x) => {
           expect(x).to.deep.equal(allMembers)
         })
@@ -149,7 +149,7 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=nonExistence&_=666', [])
 
       yield sdkFetch.searchMembers('nonExistence')
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do((x) => {
           expect(x).to.deep.equal([])
         })
@@ -160,7 +160,7 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=shuai&_=666', expectedResultSet)
 
       yield sdkFetch.searchMembers('shuai')
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do((x) => {
           expect(x).to.deep.equal(expectedResultSet)
         })

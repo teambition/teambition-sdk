@@ -96,7 +96,7 @@ describe('SDKFetch', () => {
 
     // 无 query 的 GET
     yield sdkFetch.get(path)
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         const delimiter = '?_='
         const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
@@ -108,7 +108,7 @@ describe('SDKFetch', () => {
     const query = { value: 'A' }
     const urlWithQuery = testUrl + '?value=A'
     yield sdkFetch.get(path, query)
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         const delimiter = '&_='
         const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
@@ -122,7 +122,7 @@ describe('SDKFetch', () => {
     fetchMock.get(urlMatcher, {})
 
     yield sdkFetch.get(path, {})
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         const delimiter = '?_='
         const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
@@ -169,7 +169,7 @@ describe('SDKFetch', () => {
       }
 
       yield Observable.forkJoin(httpObj.send(), raw)
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do(([respFromHttpObj, respFromRaw]) => {
           expect(respFromHttpObj).to.deep.equal(respFromRaw)
         })
@@ -203,7 +203,7 @@ describe('SDKFetch', () => {
       }
 
       yield withRespHeaders$
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do((resp) => {
           expect(resp.body).to.deep.equal(responseData)
           expect(resp.headers['x-request-id']).to.equal(sampleValue)
@@ -267,7 +267,7 @@ describe('SDKFetch options', () => {
     fetchMock.mock(new RegExp(newHost), {})
 
     yield getCustomizedRequest()
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: httpMethod,
@@ -303,7 +303,7 @@ describe('SDKFetch options', () => {
         .setOptions(newOption)
 
       yield sdkFetch[httpMethod](path)
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do(() => {
           expect(fetchMock.lastOptions().headers).to.deep.equal({
             ...defaultSDKFetchHeaders()
@@ -362,7 +362,7 @@ describe('SDKFetch options', () => {
       yield sdkFetch[httpMethod](path, undefined, {
         headers: { ...newHeader, merge: true },
       })
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do(() => {
           expect(fetchMock.lastOptions().headers).to.deep.equal({
             ...defaultSDKFetchHeaders(), ...newHeader

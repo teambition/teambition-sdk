@@ -4,14 +4,37 @@ import { createSdk, SDK, SocketMock, FileSchema } from '../index'
 import * as Fixture from '../fixtures/files.fixture'
 import { mock, restore, looseDeepEqual } from '../utils'
 
-describe('FileApi Spec', () => {
+describe('FileApi request spec', () => {
   let sdk: SDK
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
-  let socket: SocketMock
 
   beforeEach(() => {
     sdk = createSdk()
     mockResponse = mock(sdk)
+  })
+
+  afterEach(() => {
+    restore(sdk)
+  })
+
+  it('should get file', function* () {
+    const [ fixture ] = Fixture.projectFiles
+    mockResponse(fixture)
+
+    yield sdk.getFile(fixture._id)
+      .values()
+      .do(([r]) => {
+        expect(r).to.deep.equal(fixture)
+      })
+  })
+})
+
+describe('FileApi socket spec', () => {
+  let sdk: SDK
+  let socket: SocketMock
+
+  beforeEach(() => {
+    sdk = createSdk()
     socket = new SocketMock(sdk.socketClient)
   })
 
@@ -19,58 +42,42 @@ describe('FileApi Spec', () => {
     restore(sdk)
   })
 
-  describe('FileApi request spec', () => {
-    it('should get file', function* () {
-      const [ fixture ] = Fixture.projectFiles
-      mockResponse(fixture)
+  it('new file should add cache', function* () {
+    const [ fixture ] = Fixture.projectFiles
 
-      yield sdk.getFile(fixture._id)
-        .values()
-        .do(([r]) => {
-          expect(r).to.deep.equal(fixture)
-        })
-    })
+    yield socket.emit('new', 'work', '', fixture)
 
+    yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
+      .values()
+      .do(([r]) => {
+        looseDeepEqual(r, fixture)
+      })
   })
 
-  describe('FileApi socket spec', () => {
-    it('new file should add cache', function* () {
-      const [ fixture ] = Fixture.projectFiles
+  it('update file should change cache', function* () {
+    const [ fixture ] = Fixture.projectFiles
 
-      yield socket.emit('new', 'work', '', fixture)
+    yield sdk.database.insert('File', fixture)
 
-      yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
-        .values()
-        .do(([r]) => {
-          looseDeepEqual(r, fixture)
-        })
+    yield socket.emit('change', 'work', fixture._id, {
+      _id: fixture._id,
+      fileName: 'fixture'
     })
 
-    it('update file should change cache', function* () {
-      const [ fixture ] = Fixture.projectFiles
+    yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
+      .values()
+      .do(([r]) => expect(r.fileName).to.equal('fixture'))
+  })
 
-      yield sdk.database.insert('File', fixture)
+  it('delete file should delete cache', function* () {
+    const [ fixture ] = Fixture.projectFiles
 
-      yield socket.emit('change', 'work', fixture._id, {
-        _id: fixture._id,
-        fileName: 'fixture'
-      })
+    yield sdk.database.insert('File', fixture)
 
-      yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
-        .values()
-        .do(([r]) => expect(r.fileName).to.equal('fixture'))
-    })
+    yield socket.emit('destroy', 'work', fixture._id)
 
-    it('delete file should delete cache', function* () {
-      const [ fixture ] = Fixture.projectFiles
-
-      yield sdk.database.insert('File', fixture)
-
-      yield socket.emit('destroy', 'work', fixture._id)
-
-      yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
-        .values()
-        .do((r) => expect(r.length).to.equal(0))
-    })
+    yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
+      .values()
+      .do((r) => expect(r.length).to.equal(0))
   })
 })
