@@ -248,7 +248,7 @@ describe('Net test', () => {
       yield database.insert('Event', partialEvent)
 
       yield stream$
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .take(1)
         .do((events: typeof projectEvents) => {
           expect(spyFetch.callCount).to.equal(2)
@@ -297,7 +297,7 @@ describe('Net test', () => {
       yield database.insert('Event', partialEvent)
 
       yield stream$
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .take(1)
         .do((events: typeof projectEvents) => {
           expect(spyFetch.callCount).to.equal(2)
@@ -458,12 +458,12 @@ describe('Net test', () => {
       yield database.insert('Event', partialEvent)
 
       yield stream$
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .take(1)
 
       // 多请求一次，保证 padding 被执行之后，再次从 ReactiveDB 里面拿数据的时候应该能拿到完整的数据
       yield stream$
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .take(1)
         .do((events: typeof projectEvents) => {
            expect(spyFetch.callCount).to.equal(2)

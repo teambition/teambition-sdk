@@ -1,6 +1,5 @@
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
-import { Subscription } from 'rxjs'
 import {
   createSdkWithoutRDB,
   loadRDB,
@@ -85,18 +84,17 @@ describe('Async load reactivedb Spec', () => {
   })
   describe('ReactiveDB async load in', () => {
 
-    it('getMyRecent should response correct data when reactivedb async load in', done => {
+    it('getMyRecent should response correct data when reactivedb async load in', function* () {
       mockResponse(myFixture.myRecent)
 
-      const token = sdk.getMyRecent(userId, {
+      const result$ = sdk.getMyRecent(userId, {
         dueDate: '2017-02-13T03:38:54.252Z',
         startDate: '2016-12-31T16:00:00.000Z'
-      })
+      }).values()
 
-      let subscription: Subscription
-
-      token.values()
-        .subscribe(r => {
+      yield loadRDB(sdk)
+      yield result$
+        .do(r => {
           const compareFn = (x: any, y: any) => {
             return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
               + new Date(x.created).valueOf() - new Date(y.created).valueOf()
@@ -123,12 +121,7 @@ describe('Async load reactivedb Spec', () => {
           expected.forEach((expectedResult, i) => {
             expectToDeepEqualForFieldsOfTheExpected(actual[i], expectedResult)
           })
-
-          subscription.unsubscribe()
-          done()
         })
-
-       subscription = loadRDB(sdk).subscribe()
     })
 
     it('response cache should work when reactivedb async load in', function* () {

@@ -6,7 +6,8 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { forEach, isEmptyObject } from './utils/index'
+import { forEach, isEmptyObject } from './utils'
+import { SDKLogger } from './utils/Logger'
 
 export type SDKFetchOptions = {
   apiHost?: string,
@@ -267,7 +268,7 @@ export class SDKFetch {
     const result: string[] = []
     forEach(query, (val: any, key: string) => {
       if (key === '_') {
-        console.warn('query should not contain key \'_\', it will be ignored')
+        SDKLogger.warn('query should not contain key \'_\', it will be ignored')
         return
       }
       if (Array.isArray(val)) {

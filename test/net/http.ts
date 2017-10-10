@@ -28,7 +28,7 @@ export default describe('net/http', () => {
     const data = { test: 'test' }
     fetchMock.mock(url, data)
     yield fetchInstance.get().send()
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         expect(fetchMock.calls().matched.length).to.equal(1)
         expect(fetchMock.lastUrl()).to.equal(url)
@@ -46,7 +46,7 @@ export default describe('net/http', () => {
     fetchMock.mock(url, {})
     yield fetchInstance.get()
       .send()
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
@@ -69,7 +69,7 @@ export default describe('net/http', () => {
     fetchMock.mock(url, {})
     yield fetchInstance.get()
       .send()
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         expect(fetchMock.lastOptions().headers).to.deep.equal({})
       })
@@ -81,7 +81,7 @@ export default describe('net/http', () => {
     fetchMock.mock(url, {})
     yield fetchInstance.get()
       .send()
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
@@ -102,7 +102,7 @@ export default describe('net/http', () => {
 
       yield fetchInstance[httpMethod](httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
@@ -122,7 +122,7 @@ export default describe('net/http', () => {
 
       yield fetchInstance.delete(body)
         .send()
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal('delete')
           expect(JSON.parse(fetchMock.lastOptions().body)).to.deep.equal(body)
@@ -149,7 +149,7 @@ export default describe('net/http', () => {
 
       yield fetchInstance2[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
-        .subscribeOn(Scheduler.async)
+        .subscribeOn(Scheduler.asap)
         .do((resp: any) => {
           expect(resp.body).to.deep.equal(responseData)
           expect(resp.headers['x-request-id']).to.equal(sampleValue)
@@ -174,7 +174,7 @@ export default describe('net/http', () => {
             expect(res.url).to.equal(url)
             return Observable.empty()
           })
-          .subscribeOn(Scheduler.async)
+          .subscribeOn(Scheduler.asap)
       })
     })
   })
@@ -184,7 +184,7 @@ export default describe('net/http', () => {
     fetchMock.getOnce(url, letJSONparseThrow)
 
     yield http.createMethod('get')({ url } as any)
-      .subscribeOn(Scheduler.async)
+      .subscribeOn(Scheduler.asap)
       .do((x: any) => {
         expect(x).to.equal(letJSONparseThrow)
       })
@@ -209,7 +209,7 @@ export default describe('net/http', () => {
       fetchInstanceClone2.send(),
       fetchInstanceClone1Clone.send()
     )
-    .subscribeOn(Scheduler.async)
+    .subscribeOn(Scheduler.asap)
     .do(([res, resClone1, resClone2, resClone1Clone]) => {
       expect(res).to.deep.equal(expectedResp)
       expect(resClone1).to.deep.equal(expectedResp)

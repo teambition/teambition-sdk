@@ -9,6 +9,7 @@ export * from './utils/httpErrorSpec'
 
 export * from './mock/MockSpec'
 
+import './mock'
 import './apis'
 import './sockets'
 import './net'

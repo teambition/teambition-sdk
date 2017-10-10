@@ -3,13 +3,14 @@ import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
 import { Backend, parseObject, reParseQuery } from '../index'
-import { describe, it, beforeEach } from 'tman'
+import { describe, it, afterEach, beforeEach } from 'tman'
 
 const expect = chai.expect
 chai.use(sinonChai)
 
-export default describe('mock test: ', () => {
+describe('mock test: ', () => {
   let httpBackend: Backend
+
   beforeEach(() => {
     httpBackend = new Backend()
   })
@@ -136,6 +137,21 @@ export default describe('mock test: ', () => {
       method: 'delete'
     })
   })
+})
+
+describe('mock test: on waiting', () => {
+
+  let httpBackend: Backend
+  let clock: sinon.SinonFakeTimers
+
+  beforeEach(() => {
+    httpBackend = new Backend()
+    clock = sinon.useFakeTimers()
+  })
+
+  afterEach(() => {
+    clock.restore()
+  })
 
   it('wait respond should ok', function* () {
     const uri = 'http://mock.test/1'
@@ -153,10 +169,11 @@ export default describe('mock test: ', () => {
       expect(callback).not.be.called
     }, 90)
 
+    clock.tick(100)
+
     yield request
 
     expect(callback).to.be.calledOnce
-
   })
 
   it('wait promise resolved and respose should ok', function* () {
@@ -181,9 +198,10 @@ export default describe('mock test: ', () => {
       expect(callback).not.be.called
     }, 90)
 
+    clock.tick(110)
+
     yield request
 
     expect(callback).to.be.calledOnce
   })
-
 })
