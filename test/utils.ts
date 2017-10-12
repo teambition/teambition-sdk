@@ -93,3 +93,17 @@ export function mock<T>(sdk: SDK) {
 export function restore(sdk: SDK) {
   sdk.fetch = new SDKFetch
 }
+
+export function forEachFalsyValueOfProperty(
+  prop: string,
+  f: (patch: { [key: string]: any }) => void
+) {
+  [{},
+   { [prop]: 0 },
+   { [prop]: '' },
+   { [prop]: null },
+   { [prop]: undefined },
+   { [prop]: false },
+   { [prop]: NaN }
+  ].forEach(f)
+}

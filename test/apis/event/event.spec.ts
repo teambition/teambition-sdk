@@ -1,9 +1,9 @@
 import * as moment from 'moment'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
-import { createSdk, SDK, SocketMock, EventSchema } from '../index'
-import * as Fixture from '../fixtures/events.fixture'
-import { mock, restore, equals, looseDeepEqual, clone } from '../utils'
+import { createSdk, SDK, SocketMock, EventSchema } from '../../index'
+import * as Fixture from '../../fixtures/events.fixture'
+import { mock, restore, equals, looseDeepEqual, clone } from '../../utils'
 
 describe('EventApi request spec', () => {
   let sdk: SDK

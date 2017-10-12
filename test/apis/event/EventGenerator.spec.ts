@@ -7,9 +7,9 @@ import {
   recurrenceStartAtAnExcludedDate,
   emptyRecurrence,
   normalEvent
-} from '../fixtures/events.fixture'
-import { EventGenerator } from '../../src/apis/event/EventGenerator'
-import { clone } from '../index'
+} from '../../fixtures/events.fixture'
+import { EventGenerator } from '../../../src/apis/event/EventGenerator'
+import { clone } from '../../index'
 
 describe('EventGenerator spec', () => {
   let eventGenerator: EventGenerator
