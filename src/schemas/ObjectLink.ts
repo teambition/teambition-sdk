@@ -7,7 +7,7 @@ import {
   DetailObjectId
 } from 'teambition-types'
 
-export type ParentType = 'task' | 'post' | 'event' | 'work'
+export type ParentType = 'task' | 'post' | 'event' | 'work' | 'collection'
 
 export interface ObjectLinkSchema {
   _id: ObjectLinkId
