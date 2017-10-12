@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.8.22",
+  "version": "0.8.23-alpha.1-objectlinkschema",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
