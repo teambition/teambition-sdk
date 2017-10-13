@@ -6,9 +6,11 @@ import { spy } from 'sinon'
 import * as SinonChai from 'sinon-chai'
 import '../../src/schemas'
 import { schemas, CacheStrategy } from '../../src/SDK'
-import { Net, Backend, SDKFetch, forEach, uuid, Http, EventSchema,  } from '..'
+import { Net, Backend, SDKFetch, forEach, uuid, Http, EventSchema } from '..'
 import { ApiResult } from '../../src/Net/Net'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
+
+import { expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 use(SinonChai)
 
@@ -63,7 +65,7 @@ describe('Net test', () => {
       } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .values()
         .do(([r]) => {
-          expect(r).to.deep.equal(normalEvent)
+          expectToDeepEqualForFieldsOfTheExpected(r, normalEvent)
         })
     })
 
@@ -86,7 +88,7 @@ describe('Net test', () => {
         .changes()
         .take(1)
         .do(([r]) => {
-          expect(r).to.deep.equal(normalEvent)
+          expectToDeepEqualForFieldsOfTheExpected(r, normalEvent)
         })
     })
 
@@ -144,8 +146,10 @@ describe('Net test', () => {
         ]
       })
         .values()
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
     })
 
@@ -167,8 +171,10 @@ describe('Net test', () => {
       })
         .changes()
         .take(1)
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
     })
 
@@ -324,14 +330,18 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
 
       yield getToken()
         .values()
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
     })
 
@@ -354,15 +364,19 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
 
       yield getToken()
         .changes()
         .take(1)
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
     })
 
@@ -385,8 +399,10 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
 
       const stream$ = getToken()
@@ -431,8 +447,10 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(r => {
-          expect(r).to.deep.equal(projectEvents)
+        .do(rs => {
+          projectEvents.forEach((expected, i) => {
+            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+          })
         })
 
       spyFetch = spy(sdkFetch, 'get')
