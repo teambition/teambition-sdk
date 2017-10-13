@@ -6,7 +6,9 @@ import {
   UserId,
   ProjectId,
   TagId,
-  ExecutorOrCreator
+  ExecutorOrCreator,
+  ScenarioFieldConfigId,
+  CustomFieldValue
 } from 'teambition-types'
 
 export interface EventSchema {
@@ -24,9 +26,11 @@ export interface EventSchema {
   untilDate: string
   involveMembers: string []
   _projectId: ProjectId
+  _scenariofieldconfigId?: ScenarioFieldConfigId
   _sourceId: EventId
   sourceDate: string
   source?: string
+  customfields?: CustomFieldValue[]
   shareStatus: number
   recurrence: string[]
   reminders: string[]
@@ -59,6 +63,9 @@ const schema: SchemaDef<EventSchema> = {
   _projectId: {
     type: RDBType.STRING
   },
+  _scenariofieldconfigId: {
+    type: RDBType.STRING
+  },
   _sourceId: {
     type: RDBType.STRING
   },
@@ -82,6 +89,9 @@ const schema: SchemaDef<EventSchema> = {
         _creatorId: userTable._id
       })
     }
+  },
+  customfields: {
+    type: RDBType.OBJECT
   },
   endDate: {
     type: RDBType.DATE_TIME
