@@ -11,7 +11,7 @@ export const isRecurrent = (event: EventSchema) =>
 const msPerDay = 24 * 60 * 60 * 1000
 
 // epoch time in current time zone
-const epochTime = new Date(1970, 1, 1).valueOf()
+const epochTime = new Date(1970, 0, 1).valueOf()
 
 /**
  * 判断一个日程是否为全天日程。
