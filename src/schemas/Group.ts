@@ -3,7 +3,8 @@ import { schemaColl } from './schemas'
 import {
   GroupId,
   UserId,
-  OrganizationId
+  OrganizationId,
+  UserSnippet
 } from 'teambition-types'
 
 export interface GroupSchema {
@@ -18,6 +19,10 @@ export interface GroupSchema {
   created: string,
   updated: string,
   membersCount: number,
+  hasMembers?: Array<UserSnippet & {
+    pinyin: string,
+    py: string
+  }>,
   organization?: {
     name: string,
     description: string,
@@ -48,29 +53,23 @@ const schema: SchemaDef<GroupSchema> = {
   _organizationId: {
     type: RDBType.STRING
   },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  hasMembers: {
+    type: RDBType.OBJECT
+  },
   isDeleted: {
     type: RDBType.BOOLEAN
-  },
-  name: {
-    type: RDBType.STRING
   },
   logo: {
     type: RDBType.STRING
   },
-  pinyin: {
-    type: RDBType.STRING
-  },
-  py: {
-    type: RDBType.STRING
-  },
-  created: {
-    type: RDBType.DATE_TIME
-  },
-  updated: {
-    type: RDBType.DATE_TIME
-  },
   membersCount: {
     type: RDBType.NUMBER
+  },
+  name: {
+    type: RDBType.STRING
   },
   organization: {
     type: Relationship.oneToOne,
@@ -81,6 +80,15 @@ const schema: SchemaDef<GroupSchema> = {
       })
     }
   },
+  pinyin: {
+    type: RDBType.STRING
+  },
+  py: {
+    type: RDBType.STRING
+  },
+  updated: {
+    type: RDBType.DATE_TIME
+  }
 }
 
 schemaColl.add({ schema, name: 'Group' })
