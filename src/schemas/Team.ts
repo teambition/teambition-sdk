@@ -1,9 +1,10 @@
-import { MemberSchema } from './Member'
+import { RDBType, SchemaDef } from 'reactivedb/interface'
+import { schemaColl } from './schemas'
 import {
   TeamId,
   UserId,
   OrganizationId,
-  ExecutorOrCreator,
+  UserSnippet,
   TeamMemberStatus
 } from 'teambition-types'
 
@@ -14,8 +15,11 @@ export interface TeamSchema {
   _organizationId: OrganizationId
   _parentId?: TeamId | null
   created: string
-  hasMembers: MemberSchema[]
-  leader: ExecutorOrCreator & { status: TeamMemberStatus } | null
+  hasMembers: Array<UserSnippet & {
+    isDisabled: boolean,
+    teams: TeamId[]
+  }>,
+  leader: UserSnippet & { status: TeamMemberStatus } | null
   membersCount: number
   name: string
   parent?: TeamSchema | null
@@ -27,3 +31,63 @@ export interface TeamSchema {
   type: 'default' | '' | string
   updated: string
 }
+
+const schema: SchemaDef<TeamSchema> = {
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _leaderId: {
+    type: RDBType.STRING
+  },
+  _organizationId: {
+    type: RDBType.STRING
+  },
+  _parentId: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.STRING
+  },
+  hasMembers: {
+    type: RDBType.OBJECT
+  },
+  leader: {
+    type: RDBType.OBJECT
+  },
+  membersCount: {
+    type: RDBType.NUMBER
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  parent: {
+    type: RDBType.OBJECT
+  },
+  pinyin: {
+    type: RDBType.STRING
+  },
+  pos: {
+    type: RDBType.NUMBER
+  },
+  projectsCount: {
+    type: RDBType.NUMBER
+  },
+  py: {
+    type: RDBType.STRING
+  },
+  style: {
+    type: RDBType.STRING
+  },
+  type: {
+    type: RDBType.STRING
+  },
+  updated: {
+    type: RDBType.STRING
+  }
+}
+
+schemaColl.add({ schema, name: 'Team' })
