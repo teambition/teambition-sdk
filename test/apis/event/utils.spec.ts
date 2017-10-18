@@ -37,43 +37,93 @@ describe('Event-related util functions', () => {
     expect(e.isRecurrent({ recurrence: [] } as any)).to.be.false
   })
 
-  it('isAllDay() should return true for an event from 00:00 to 00:00 of the next day', () => {
+  it('isAllDay() should return the value of field `isAllDay`, whenever it is true/false, even if the LEGACY mode reports otherwise', () => {
     expect(e.isAllDay({
-      startDate: Moment(now).startOf('day'),
-      endDate: Moment(now).add(1, 'day').startOf('day')
+      isAllDay: true,
+      allDayStart: '2017-10-30',
+      allDayEnd: '2017-10-31'
+    } as any)).to.be.true
+
+    expect(e.isAllDay({
+      isAllDay: false,
+      allDayStart: '',
+      allDayEnd: ''
+    } as any)).to.be.false
+
+    expect(e.isAllDay({
+      isAllDay: true,
+      allDayStart: '2017-10-30',
+      allDayEnd: '2017-10-31',
+      startDate: Moment(now).toISOString(),
+      endDate: Moment(now).add(1, 'hour').toISOString()
+    } as any)).to.be.true
+
+    expect(e.isAllDay({
+      isAllDay: false,
+      allDayStart: '',
+      allDayEnd: '',
+      startDate: Moment(now).startOf('day').toISOString(),
+      endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
+    } as any)).to.be.false
+  })
+
+  it('LEGACY isAllDay() should return true for an event from 00:00 to 00:00 of the next day', () => {
+    expect(e.isAllDay({
+      startDate: Moment(now).startOf('day').toISOString(),
+      endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
     } as any)).to.be.true
   })
 
-  it('isAllDay() should return true for an event from 00:00 to 00:00 of the next nth days', () => {
+  it('LEGACY isAllDay() should return true for an event from 00:00 to 00:00 of the next nth days', () => {
     const nthDays = [3, 5, 7]
 
     nthDays.forEach((nthDay) => {
       expect(e.isAllDay({
-        startDate: Moment(now).startOf('day'),
-        endDate: Moment(now).add(nthDay, 'day').startOf('day')
+        startDate: Moment(now).startOf('day').toISOString(),
+        endDate: Moment(now).add(nthDay, 'day').startOf('day').toISOString()
       } as any)).to.be.true
     })
   })
 
-  it('isAllDay() should return false for an event from 00:00 to 00:00 of the same day', () => {
+  it('LEGACY isAllDay() should return false for an event from 00:00 to 00:00 of the same day', () => {
     expect(e.isAllDay({
-      startDate: Moment(now).startOf('day'),
-      endDate: Moment(now).startOf('day')
+      startDate: Moment(now).startOf('day').toISOString(),
+      endDate: Moment(now).startOf('day').toISOString()
     } as any)).to.be.false
   })
 
-  it('isAllDay() should return false for an event from 00:00 to 23:59:999 of the same day', () => {
+  it('LEGACY isAllDay() should return false for an event from 00:00 to 23:59:999 of the same day', () => {
     expect(e.isAllDay({
-      startDate: Moment(now).startOf('day'),
-      endDate: Moment(now).endOf('day')
+      startDate: Moment(now).startOf('day').toISOString(),
+      endDate: Moment(now).endOf('day').toISOString()
     } as any)).to.be.false
   })
 
-  it('isAllDay() should return false for an event that doesn\'t start at 00:00', () => {
+  it('LEGACY isAllDay() should return false for an event that doesn\'t start at 00:00', () => {
     expect(e.isAllDay({
-      startDate: Moment(now).startOf('day').add(1, 'hour'),
-      endDate: Moment(now).add(1, 'day').startOf('day').add(1, 'hour')
+      startDate: Moment(now).startOf('day').add(1, 'hour').toISOString(),
+      endDate: Moment(now).add(1, 'day').startOf('day').add(1, 'hour').toISOString()
     } as any)).to.be.false
+  })
+
+  it('allDayEventStartEndDate() should return orginal startDate/endDate for object without allday info', () => {
+    const startEndDate = {
+      startDate: Moment(now).startOf('day').toISOString(),
+      endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
+    }
+    expect(e.allDayEventStartEndDate(startEndDate as any)).to.deep.equal(startEndDate)
+  })
+
+  it('allDayEventStartEndDate() should return valid allday event startDate/endDate when provided with allday info', () => {
+    const allDayInfos = [1, 2, 3].map((nth) => ({
+      isAllDay: true,
+      allDayStart: '2017-10-10',
+      allDayEnd: '2017-10-1' + nth
+    }))
+
+    allDayInfos.forEach((allDayInfo) => {
+      expect(e.isAllDay(e.allDayEventStartEndDate(allDayInfo as any) as any)).to.be.true
+    })
   })
 
   it('originEventId() should pick out origin event id from generated id', () => {
