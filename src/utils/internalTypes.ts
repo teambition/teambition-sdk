@@ -31,3 +31,16 @@ export interface SqlPagingQuery {
   skip: number,
   limit: number
 }
+
+export interface ParsedWSMessage {
+  // new change destroy refresh ...
+  method: string
+
+  id: string
+
+  // schema types: task, post, event, file, etc...
+  type: string
+
+  // optional data, null in delete
+  data: any
+}

@@ -5,50 +5,89 @@ import { EventId } from 'teambition-types'
 
 const { rrulestr } = require('rrule')
 
-type Timeframe = { startDate: Date, endDate: Date }
+export type Timeframe = { startDate: Date, endDate: Date }
 
-export class EventGenerator implements IterableIterator<EventSchema | undefined> {
-  type: 'event' = 'event'
-  _id: EventId
+export interface DateInfo {
+  startDate: string,
+  endDate: string,
+  recurrence?: string[]
+}
 
+export type InstanceCreator<T> = (source: T, timeframe?: Timeframe) => T
+
+export class RecurrenceFactory<T extends DateInfo> implements IterableIterator<T | undefined> {
+  readonly type: string
+
+  protected readonly source: T
+
+  private startDateCursor: Date | undefined
   private done: boolean
-  private rrule: any
-  private startDateCursor: Date
-  private isRecurrence = isRecurrent(this.event)
+  private readonly makeInst: InstanceCreator<T>
+
   private duration: number
+  private isRecurrence: boolean
+  private rruleSet: any
 
   [Symbol.iterator] = () => this
 
-  constructor(private event: EventSchema) {
-    this._id = event._id
+  protected constructor(source: T, type: string, makeInst: InstanceCreator<T>) {
+    this.source = source
+    this.type = type
+
     this.done = false
 
-    const startDateObj = new Date(event.startDate)
-    const endDateObj = new Date(event.endDate)
-    this.duration = endDateObj.valueOf() - startDateObj.valueOf()
+    this.duration = new Date(this.source.endDate).valueOf()
+      - new Date(this.source.startDate).valueOf()
 
+    this.isRecurrence = isRecurrent(this.source)
     if (this.isRecurrence) {
-      this.startDateCursor = startDateObj
-      this.rrule = rrulestr(this.event.recurrence.join('\n'), { forceset: true })
+      this.rruleSet = rrulestr(this.source.recurrence!.join('\n'), { forceset: true })
+      this.startDateCursor = this.rruleSet.all((_: Date, i: number) => i < 1)[0]
     }
+    this.makeInst = makeInst
   }
 
-  // 从给予的 startDate 和 endDate 生成一个 EventSchema 对象；
-  // 当用于普通日程，不需要提供参数。
-  private makeEvent(timeframe?: Timeframe): EventSchema {
-    const target = clone(this.event)
+  protected makeInstance(timeframe?: Timeframe): T {
+    const target = clone(this.source)
 
-    if (!this.isRecurrence || !timeframe) {
-      return target
+    return this.isRecurrence && timeframe
+      ? this.makeInst(target, timeframe)
+      : this.makeInst(target)
+  }
+
+  isRecurrent(): boolean {
+    return this.isRecurrence
+  }
+
+  next(): IteratorResult<T | undefined> {
+    const doneRet = { value: undefined, done: true }
+
+    if (this.done) {
+      return doneRet
     }
-    // this.isRecurrence && timeframe
 
-    const timestamp = timeframe.startDate.valueOf()
-    target._id = `${target._id}_${timestamp}`
-    target.startDate = timeframe.startDate.toISOString()
-    target.endDate = timeframe.endDate.toISOString()
+    if (!this.isRecurrence) {
+      this.done = true
+      return { value: this.makeInstance(), done: false }
+    }
 
-    return target
+    if (!this.startDateCursor) {
+      this.done = true
+      return doneRet
+    }
+
+    const eventSpan = this.getOneTimeframeFromRecurrence(this.startDateCursor)
+    if (!eventSpan) {
+      this.done = true
+      return doneRet
+    }
+
+    const result = {
+      value: this.makeInstance(eventSpan),
+      done: false
+    }
+    this.startDateCursor = this.rruleSet.after(eventSpan.startDate)
+    return result
   }
 
   private getOneTimeframeFromRecurrence(
@@ -57,17 +96,11 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
   ): Timeframe | null {
     // unadjustedStartDate 可能未经 this.rrule.after 过滤，有可能是
     // 一个 exdate（被 rruleset 剔除的日期），发现时需要跳过。
-    const startDate = this.rrule.after(unadjustedStartDate, include)
-    if (startDate) {
-      const endDate = this.computeEndDate(startDate)
-      return { startDate, endDate }
-    } else {
-      return null
-    }
-  }
+    const startDate = this.rruleSet.after(unadjustedStartDate, include)
 
-  private computeEndDate(startDate: Date): Date {
-    return new Date(startDate.valueOf() + this.duration)
+    return startDate
+      ? { startDate, endDate: new Date(startDate.valueOf() + this.duration) }
+      : null
   }
 
   private slice(
@@ -75,20 +108,25 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     to: Date, toCmpOption: 'byStartDate' | 'byEndDate'
   ): Timeframe[] {
     const skipPred = (eSpan: Timeframe): boolean =>
+      // 用开始时间来判断一个实例是否应该出现在当前区间的话，它可以晚于或等于 from
       fromCmpOption === 'byStartDate' && eSpan.startDate < from
-      || fromCmpOption === 'byEndDate' && eSpan.endDate < from
+    // 用结束时间来判断一个实例是否应该出现在当前区间的话，它必须要严格晚于 from
+      || fromCmpOption === 'byEndDate' && eSpan.endDate <= from
 
-    const stopPred = (eSpan: Timeframe): boolean =>
-      toCmpOption === 'byStartDate' && eSpan.startDate > to
-      || toCmpOption === 'byEndDate' && eSpan.endDate > to
+    const stopPred = (eSpan: Timeframe): boolean => {
+      // 用开始时间来判断一个实例是否应该出现在当前区间的话，它必须严格早于 to
+      return toCmpOption === 'byStartDate' && eSpan.startDate >= to
+      // 用结束时间来判断一个实例是否应该出现在当前区间的话，它可以早于或等于 to
+        || toCmpOption === 'byEndDate' && eSpan.endDate > to
+    }
 
     const result: Timeframe[] = []
     let initialEventSpan: Timeframe | null
 
     if (!this.isRecurrence) {
       initialEventSpan = {
-        startDate: new Date(this.event.startDate),
-        endDate: new Date(this.event.endDate)
+        startDate: new Date(this.source.startDate),
+        endDate: new Date(this.source.endDate)
       }
       if (!skipPred(initialEventSpan) && !stopPred(initialEventSpan)) {
         // eventSpan 在时间范围内
@@ -98,7 +136,7 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     }
     // this.isRecurrence is truthy
 
-    initialEventSpan = this.getOneTimeframeFromRecurrence(new Date(this.event.startDate))
+    initialEventSpan = this.getOneTimeframeFromRecurrence(new Date(this.source.startDate))
     if (!initialEventSpan) {
       return []
     }
@@ -122,64 +160,37 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     return result
   }
 
-  next(): IteratorResult<EventSchema | undefined> {
-    const doneRet = { value: undefined, done: true }
-
-    if (this.done) {
-      return doneRet
-    }
-
-    if (!this.isRecurrence) {
-      this.done = true
-      return { value: this.makeEvent(), done: false }
-    }
-
-    if (!this.startDateCursor) {
-      this.done = true
-      return doneRet
-    }
-
-    const eventSpan = this.getOneTimeframeFromRecurrence(this.startDateCursor)
-    if (!eventSpan) {
-      this.done = true
-      return doneRet
-    }
-
-    const result = {
-      value: this.makeEvent(eventSpan),
-      done: false
-    }
-    this.startDateCursor = this.rrule.after(eventSpan.startDate)
-    return result
-  }
-
   takeUntil(startDateUntil: Date, endDateUntil?: Date) {
     return this.takeFrom(
-      new Date(this.event.startDate),
+      new Date(this.source.startDate),
       startDateUntil,
       endDateUntil
     )
   }
 
   takeFrom(fromDate: Date, startDateTo: Date, endDateTo?: Date) {
-    const toDate = !endDateTo ? startDateTo : new Date(
-      Math.min(
-        startDateTo.valueOf(),
-        endDateTo.valueOf() - this.duration
-      )
-    )
+    let toDate = startDateTo
+    let toCmpOption: 'byStartDate' | 'byEndDate'
+
+    if (!endDateTo || (endDateTo.valueOf() >= startDateTo.valueOf() + this.duration)) {
+      toCmpOption = 'byStartDate'
+    } else {
+      toDate = endDateTo
+      toCmpOption = 'byEndDate'
+    }
+
     return this.slice(
       fromDate, 'byEndDate',
-      toDate, 'byStartDate'
-    ).map((eventSpan) => this.makeEvent(eventSpan))
+      toDate, toCmpOption
+    ).map((eventSpan) => this.makeInstance(eventSpan))
   }
 
-  after(date: Date): EventSchema | null {
+  after(date: Date): T | null {
     if (!this.isRecurrence) {
-      if (new Date(this.event.startDate) < date) {
+      if (new Date(this.source.startDate) < date) {
         return null
       } else {
-        return this.event
+        return this.makeInstance()
       }
     }
     // this.isRecurrence is truthy
@@ -187,22 +198,11 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     if (!targetEventSpan) {
       return null
     } else {
-      return this.makeEvent(targetEventSpan)
+      return this.makeInstance(targetEventSpan)
     }
   }
 
-  findByEventId(eventId: EventId): EventSchema | null {
-    if (!this.isRecurrence) {
-      return eventId === this.event._id ? this.makeEvent() : null
-    }
-
-    const [id, timestampStr] = eventId.split('_', 2)
-    if (id !== this.event._id) {
-      return null
-    }
-
-    // 不使用 parseInt 因为不应该兼容前缀正确的错误 timestamp
-    const timestamp = Number(timestampStr)
+  findByTimestamp(timestamp: number): T | null {
     const expectedDate = new Date(timestamp)
     if (isNaN(timestamp) || isNaN(expectedDate.valueOf())) {
       return null
@@ -213,6 +213,47 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
     if (!targetEventSpan || targetEventSpan.startDate.valueOf() !== expectedDate.valueOf()) {
       return null
     }
-    return this.makeEvent(targetEventSpan)
+    return this.makeInstance(targetEventSpan)
+  }
+}
+
+export class EventGenerator extends RecurrenceFactory<EventSchema> {
+  private static makeInst: InstanceCreator<EventSchema> = (event, timeframe?: Timeframe) =>
+    !timeframe ? event : Object.assign(event, {
+      _id: `${event._id}_${timeframe.startDate.valueOf()}`,
+      startDate: timeframe.startDate.toISOString(),
+      endDate: timeframe.endDate.toISOString()
+    })
+
+  constructor(event: EventSchema) {
+    super(event, 'event', EventGenerator.makeInst)
+  }
+
+  findByEventId(eventId: EventId) {
+    const originEventId = this.source._id
+
+    if (!this.isRecurrent()) {
+      return eventId === originEventId ? this.makeInstance() : null
+    }
+
+    const [ id, timestampStr ] = eventId.split('_', 2)
+    if (id !== originEventId) {
+      return null
+    }
+
+    // 不使用 parseInt 因为不应该兼容前缀正确的错误 timestamp
+    return this.findByTimestamp(Number(timestampStr))
+  }
+}
+
+export class Recurrence extends RecurrenceFactory<DateInfo> {
+  private static makeInst: InstanceCreator<DateInfo> = (dateInfo, timeframe?: Timeframe) =>
+    !timeframe ? dateInfo : Object.assign(dateInfo, {
+      startDate: timeframe.startDate.toISOString(),
+      endDate: timeframe.endDate.toISOString()
+    })
+
+  constructor(dateInfo: DateInfo) {
+    super(dateInfo, 'dateInfo', Recurrence.makeInst)
   }
 }

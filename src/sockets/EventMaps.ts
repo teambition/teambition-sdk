@@ -4,7 +4,8 @@ import { Observable } from 'rxjs/Observable'
 import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { Net } from '../Net'
-import { MessageResult, eventParser } from './EventParser'
+import { eventParser } from './EventParser'
+import { ParsedWSMessage } from '../utils'
 import Dirty from '../utils/Dirty'
 import { TableInfoByMessageType } from './MapToTable'
 
@@ -20,8 +21,8 @@ const methodMap: any = {
  * destroy 事件没有 data
  */
 export const handleMsgToDb = (
+  msg: ParsedWSMessage,
   db: Database,
-  msg: MessageResult,
   tableName: string,
   pkName: string
 ): Observable<any> => {
@@ -29,7 +30,7 @@ export const handleMsgToDb = (
   const { method, id, data } = msg
 
   if (method === 'new' || method === 'change') {
-    const dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
+    const dirtyStream = Dirty.handleSocketMessage(msg, db)
     if (dirtyStream) {
       return dirtyStream
     }
@@ -75,10 +76,10 @@ export function socketHandler(
     const { tabName, pkName } = tabInfo
 
     if (!db) {
-      net.bufferSocketPush(tabName, msg, pkName, msg.type)
+      net.bufferSocketPush(msg, tabName, pkName)
       return Observable.of(null)
     } else {
-      return handleMsgToDb(db, msg, tabName, pkName)
+      return handleMsgToDb(msg, db, tabName, pkName)
     }
   })
 

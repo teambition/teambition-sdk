@@ -1,7 +1,7 @@
 import './get'
 import './request'
 
-export { EventGenerator as Generator } from './EventGenerator'
+export { Recurrence, EventGenerator as Generator } from './EventGenerator'
 
 export {
   CommentsRepeatEvent,
@@ -10,4 +10,12 @@ export {
   EventSpan
 } from './request'
 
-export { originEventId, isAllDay, isRecurrent } from './utils'
+export {
+  originEventId,
+  isAllDay,
+  isRecurrent,
+  timeToDate,
+  dateToTime
+} from './utils'
+
+export { marshaler } from './marshaler'

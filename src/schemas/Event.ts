@@ -24,6 +24,7 @@ export interface EventSchema {
   startDate: string
   endDate: string
   untilDate: string
+  isAllDay: boolean
   involveMembers: string []
   _projectId: ProjectId
   _scenariofieldconfigId?: ScenarioFieldConfigId
@@ -50,6 +51,11 @@ export interface EventSchema {
   }
   type: 'event'
   url: string
+}
+
+export interface AllDayEventSchema extends EventSchema {
+  allDayStart?: string,
+  allDayEnd?: string
 }
 
 const schema: SchemaDef<EventSchema> = {
@@ -101,6 +107,9 @@ const schema: SchemaDef<EventSchema> = {
   },
   involveMembers: {
     type: RDBType.LITERAL_ARRAY
+  },
+  isAllDay: {
+    type: RDBType.BOOLEAN
   },
   isArchived: {
     type: RDBType.BOOLEAN
