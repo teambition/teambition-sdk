@@ -1,12 +1,12 @@
 import { RDBType, SchemaDef } from 'reactivedb/interface'
-import { MemberSchema } from './Member'
 import { schemas } from '../SDK'
 import {
   TeamId,
   UserId,
   OrganizationId,
-  ExecutorOrCreator,
-  TeamMemberStatus
+  UserSnippet,
+  TeamMemberStatus,
+  TeamHasMembersElement
 } from 'teambition-types'
 
 export interface TeamSchema {
@@ -16,8 +16,8 @@ export interface TeamSchema {
   _organizationId: OrganizationId
   _parentId?: TeamId | null
   created: string
-  hasMembers: MemberSchema[]
-  leader: ExecutorOrCreator & { status: TeamMemberStatus } | null
+  hasMembers: TeamHasMembersElement[]
+  leader: UserSnippet & { status: TeamMemberStatus } | null
   membersCount: number
   name: string
   parent?: TeamSchema | null
@@ -31,12 +31,12 @@ export interface TeamSchema {
 }
 
 const schema: SchemaDef<TeamSchema> = {
-  _creatorId: {
-    type: RDBType.STRING
-  },
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+  _creatorId: {
+    type: RDBType.STRING
   },
   _leaderId: {
     type: RDBType.STRING
