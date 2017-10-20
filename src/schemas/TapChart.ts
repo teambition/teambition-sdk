@@ -10,10 +10,10 @@ import {
   TapGenericFilterResponse as FilterResponse
 } from 'teambition-types'
 
-export type TapChartType = 'bar' | 'line'
+export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details'
 
 // tapGraph definition
-export type TapGraphColType = 'type/DateTime' | 'type/Integer' | 'type/String'
+export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String'
 
 export interface TapGraphCol {
   name: string
@@ -25,19 +25,16 @@ export type TapGraphData = {
   rows: any[][]
 }
 
-export type TapGraphLineDisplay = {
-  showPointMarker: boolean,
+export interface TapGraphNullableDimDisplay {
+  nullDimension?: false | string,
+  nullAs?: 'zero' | 'nothing' | 'interpolation'
+}
+
+export interface TapGraphStackDisplay {
   stack: false | 'stack'
 }
 
-export type TapGraphBarDisplay = {
-  stack: false | 'stack'
-}
-
-export type TapGraphVisualizationSettings = {
-  type: TapChartType
-  dimension: number // key of cols in data
-  display: TapGraphLineDisplay | TapGraphBarDisplay
+export interface TapGraphCoordGridDisplay {
   axes: {
     x: {
       visible: boolean
@@ -49,12 +46,70 @@ export type TapGraphVisualizationSettings = {
       scale: 'linear'
       label: string | null
       range: 'auto'
+    },
+    y1?: {
+      visible: boolean
+      scale: 'linear'
+      label: string | null
+      range: 'auto'
     }
   }
 }
 
+export interface TapGraphLineDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay {
+  showPointMarker: boolean,
+}
+
+export interface TapGraphBarDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay {}
+
+export interface TapGraphPieDisplay {
+  showLegend: boolean
+  sectorCapacity?: number
+}
+
+export interface TapGraphLineBarDisplay extends TapGraphLineDisplay, TapGraphBarDisplay {
+  barColumns: number[]
+  lineColumns: number[]
+}
+
+export interface TapGraphNumberDisplay {
+  showTitle: boolean
+  multiplyBy?: number
+  prefix?: string
+  suffix?: string
+  circleColor?: string
+}
+
+export interface TapGraphTableDisplay {
+  columOrder?: number[]
+}
+
+export interface TapGraphDetailsDisplay extends TapGraphTableDisplay {
+  idColumn: number
+  typeColumn: number
+  preset: string
+}
+
+export type TapDisplaySet = TapGraphLineDisplay | TapGraphBarDisplay | TapGraphPieDisplay | TapGraphLineBarDisplay |
+                            TapGraphNumberDisplay | TapGraphTableDisplay | TapGraphDetailsDisplay
+
+export type TapGraphVisualizationSettings<T extends TapChartType, D extends TapDisplaySet> = {
+  type: T
+  dimension: number // key of cols in data
+  display: D
+}
+
+export type TapGraphVisualizationSettingsSet =
+  TapGraphVisualizationSettings<'bar', TapGraphBarDisplay> |
+  TapGraphVisualizationSettings<'line', TapGraphLineDisplay> |
+  TapGraphVisualizationSettings<'pie', TapGraphPieDisplay> |
+  TapGraphVisualizationSettings<'linebar', TapGraphLineBarDisplay> |
+  TapGraphVisualizationSettings<'number', TapGraphNumberDisplay> |
+  TapGraphVisualizationSettings<'table', TapGraphTableDisplay> |
+  TapGraphVisualizationSettings<'details', TapGraphDetailsDisplay>
+
 // tapChart definition
-export interface TapChartSchema<T extends FilterRequest | FilterResponse> {
+export interface TapChart<T extends FilterRequest | FilterResponse> {
   _id: TapChartId
 
   _creatorId: UserId
@@ -76,10 +131,10 @@ export interface TapChartSchema<T extends FilterRequest | FilterResponse> {
   filterList: FilterResponse
 
   graphData: TapGraphData
-  visualizationSettings: TapGraphVisualizationSettings
+  visualizationSettings: TapGraphVisualizationSettingsSet
 }
 
-const schema: SchemaDef<TapChartSchema<FilterRequest | FilterResponse>> = {
+const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true

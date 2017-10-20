@@ -210,11 +210,7 @@ declare module 'teambition-types' {
     executedSubtasksUndoneCount: number
   }
 
-  export type TapBaseRefType = 'projectId' | 'executorId' | 'executorGroup' | 'stageId' | 'organizationId' |
-    'creatorId' | 'creatorGroup' | 'createBegin' | 'createEnd' | 'createRelative' | 'dueBegin' |
-    'dueEnd' | 'dueRelative' | 'accBegin' | 'accEnd' | 'accRelative' | 'startBegin' | 'startEnd' |
-    'startRelative' | 'rangeEnd' | 'rangeBegin' | 'rangeRelative' | 'isDone' | 'isArchived' |
-    'priority' | 'isOverdue' | 'limit' | 'isSubtask' | 'tasklistId'
+  export type TapBaseRefType = keyof TapGenericFilterRequest
 
   export type TapBaseDataType = 'type/MongoId' | 'type/Date' | 'type/Number' | 'type/String' | 'type/Boolean'
 
@@ -256,6 +252,8 @@ declare module 'teambition-types' {
     isOverdue?: boolean
     limit?: number
     isSubtask?: boolean
+    pageCount?: number
+    pageNum?: number
   }
 
   export type TapGenericFilterResponse = Array<
@@ -287,6 +285,8 @@ declare module 'teambition-types' {
     TapFilterTarget<'priority', 'type/Number', number> |
     TapFilterTarget<'isOverdue', 'type/Boolean', boolean> |
     TapFilterTarget<'limit', 'type/Number', number> |
-    TapFilterTarget<'isSubtask', 'type/Boolean', boolean>
+    TapFilterTarget<'isSubtask', 'type/Boolean', boolean> |
+    TapFilterTarget<'pageCount', 'type/Number', number> |
+    TapFilterTarget<'pageNum', 'type/Number', number>
   >
 }
