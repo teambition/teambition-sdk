@@ -1,12 +1,12 @@
 import { TapChartType } from './TapChart'
 import { TapGenericFilterResponse } from 'teambition-types'
 
-export interface QuestionId extends String {
+export interface TapQuestionId extends String {
   kind?: 'QuestionId'
 }
 
-export interface QuestionSchema {
-  _id: QuestionId
+export interface TapQuestion {
+  _id: TapQuestionId
   type: TapChartType
 
   name: string
