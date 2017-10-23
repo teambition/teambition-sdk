@@ -1,6 +1,16 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import { CustomFieldValue, ExecutorOrCreator, Reminder, Visibility } from 'teambition-types'
-import { ProjectId, StageId, SubtaskId, TagId, TaskId, TasklistId, TaskPriority, UserId } from 'teambition-types'
+import {
+  ProjectId,
+  ScenarioFieldConfigId,
+  StageId,
+  SubtaskId,
+  TagId,
+  TaskId,
+  TasklistId,
+  TaskPriority,
+  UserId
+} from 'teambition-types'
 import { schemas } from '../SDK'
 import { ProjectSchema } from './Project'
 import { StageSchema } from './Stage'
@@ -26,6 +36,7 @@ export interface TaskSchema {
   _tasklistId: TasklistId
   _projectId: ProjectId
   _executorId: UserId
+  _scenariofieldconfigId?: ScenarioFieldConfigId
   involveMembers: UserId[]
   tagIds: TagId []
   tags?: Array<Pick<TagSchema, '_id' | 'name' | 'color'>>
@@ -51,6 +62,7 @@ export interface TaskSchema {
   _taskId: TaskId // id of the parent task
   parent: Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
   progress: number
+  rating: 0 | 1 | 2 | 3 | 4 | 5
   stage: Pick<StageSchema, '_id' | 'name'>
   storyPoint: string
   tasklist?: {
@@ -81,6 +93,9 @@ const schema: SchemaDef<TaskSchema> = {
     primaryKey: true
   },
   _projectId: {
+    type: RDBType.STRING
+  },
+  _scenariofieldconfigId: {
     type: RDBType.STRING
   },
   _sourceId: {
@@ -181,6 +196,9 @@ const schema: SchemaDef<TaskSchema> = {
         _projectId: projectTable._id
       })
     }
+  },
+  rating: {
+    type: RDBType.NUMBER
   },
   recurrence: {
     type: RDBType.OBJECT
