@@ -111,6 +111,7 @@ declare module 'teambition-types' {
     name: string
     avatarUrl: string
     _id: UserId
+    isRobot?: boolean
   }
 
   export interface InviteLinkSchema {
