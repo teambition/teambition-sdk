@@ -40,6 +40,7 @@ export interface UserMe {
   location?: string
   phone: string
   isActive?: boolean
+  isRobot?: boolean
   website?: string
   pinyin: string
   py: string
@@ -173,6 +174,9 @@ const Schema: SchemaDef<UserMe> = {
     type: RDBType.BOOLEAN
   },
   isNew: {
+    type: RDBType.BOOLEAN
+  },
+  isRobot: {
     type: RDBType.BOOLEAN
   },
   joinedProjectsCount: {

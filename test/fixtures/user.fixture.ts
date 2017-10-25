@@ -9,6 +9,7 @@ export default {
   location: '',
   phone: '',
   isActive: false,
+  isRobot: false,
   website: '',
   pinyin: 'long yi nan',
   py: 'lyn',
