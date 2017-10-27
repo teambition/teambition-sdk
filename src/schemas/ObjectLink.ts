@@ -7,15 +7,18 @@ import {
   DetailObjectId
 } from 'teambition-types'
 
-export type ParentType = 'task' | 'post' | 'event' | 'work' | 'collection'
+// 下列任意两个类型（或同类型）的数据可以互相链接
+export type ParentType = 'task' | 'post' | 'event' | 'work' | 'collection' | 'entry'
 
 export interface ObjectLinkSchema {
   _id: ObjectLinkId
   _creatorId: UserId
   _parentId: DetailObjectId
   parentType: ParentType
-  linkedType: ParentType
+  parent: any
   _linkedId: DetailObjectId
+  linkedType: ParentType
+  linked: any
   created: string
   creator: ExecutorOrCreator
   title: string
@@ -51,8 +54,14 @@ const schema: SchemaDef<ObjectLinkSchema> = {
   data: {
     type: RDBType.OBJECT
   },
+  linked: {
+    type: RDBType.OBJECT
+  },
   linkedType: {
     type: RDBType.STRING
+  },
+  parent: {
+    type: RDBType.OBJECT
   },
   parentType: {
     type: RDBType.STRING
