@@ -56,7 +56,9 @@ const isAllDayLegacy = (e: Readonly<EventSchema>): boolean => {
   return duration > 0 && duration % msPerDay === 0
 }
 
-export const allDayEventStartEndDate = (e: Readonly<EventSchema>) => {
+type StartEndDate = Pick<EventSchema, 'startDate' | 'endDate'>
+
+export const allDayEventStartEndDate = (e: Readonly<EventSchema>): StartEndDate => {
   const snippet = ad.getAllDayInfo(e)
 
   if (!snippet) { // pass through
@@ -64,6 +66,29 @@ export const allDayEventStartEndDate = (e: Readonly<EventSchema>) => {
   }
 
   return ad.generateStartEndDate(snippet)
+}
+
+export const normAllDayEventStartEndDateUpdate = (attrs: Readonly<StartEndDate>) => {
+  const startDate = new Date(attrs.startDate)
+  const endDate = new Date(attrs.endDate)
+
+  const normedStartDate = new Date(Date.UTC(
+    startDate.getFullYear(),
+    startDate.getMonth(),
+    startDate.getDate()
+  )).toISOString()
+  const normedEndDate = new Date(Date.UTC(
+    endDate.getFullYear(),
+    endDate.getMonth(),
+    endDate.getDate()
+  )).toISOString()
+
+  return {
+    startDate: normedStartDate,
+    endDate: normedEndDate,
+    allDayStart: normedStartDate.slice(0, 10),
+    allDayEnd: normedEndDate.slice(0, 10)
+  }
 }
 
 /**

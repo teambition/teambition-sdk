@@ -126,6 +126,28 @@ describe('Event-related util functions', () => {
     })
   })
 
+  it('normAllDayEventStartEndDateUpdate() should return normalized date info', () => {
+    expect(e.normAllDayEventStartEndDateUpdate({
+      startDate: '2017-10-31T16:00:00.000-08:00',
+      endDate: '2017-11-01T16:00:00.000-08:00'
+    })).to.deep.equal({
+      startDate: '2017-11-01T00:00:00.000Z',
+      endDate: '2017-11-02T00:00:00.000Z',
+      allDayStart: '2017-11-01',
+      allDayEnd: '2017-11-02'
+    })
+
+    expect(e.normAllDayEventStartEndDateUpdate({
+      startDate: '2017-10-31T16:00:00.000-08:00',
+      endDate: '2017-11-03T16:00:00.000-08:00'
+    })).to.deep.equal({
+      startDate: '2017-11-01T00:00:00.000Z',
+      endDate: '2017-11-04T00:00:00.000Z',
+      allDayStart: '2017-11-01',
+      allDayEnd: '2017-11-04'
+    })
+  })
+
   it('originEventId() should pick out origin event id from generated id', () => {
     const originId = recurrenceByMonth._id
     const gen = new e.Generator(recurrenceByMonth as any)
