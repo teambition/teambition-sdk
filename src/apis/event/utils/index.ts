@@ -91,6 +91,17 @@ export const normAllDayEventStartEndDateUpdate = (attrs: Readonly<StartEndDate>)
   }
 }
 
+export const getUIStartEndDate = (eventData: Readonly<EventSchema>): StartEndDate => {
+  const { startDate, endDate } = eventData
+  const isAllDayFlag = isAllDay(eventData )
+
+  if (!isAllDayFlag) {
+    return { startDate, endDate }
+  }
+
+  return allDayEventStartEndDate(eventData)
+}
+
 /**
  * 从重复日程实例上生成的 _id 获取原重复日程 _id。
  * （重复日程在使用时，根据重复规则，常被生成多个日程实例，每个这样的
