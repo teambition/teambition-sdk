@@ -10,4 +10,4 @@ export {
   EventSpan
 } from './request'
 
-export { originEventId, isAllDay, isRecurrent } from './utils'
+export { originEventId, isAllDay, isRecurrent, allDayEventStartEndDate, normAllDayEventStartEndDateUpdate } from './utils'
