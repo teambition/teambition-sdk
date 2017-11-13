@@ -52,7 +52,7 @@
     "@types/lodash": "^4.14.74",
     "@types/lovefield": "^2.1.1",
     "@types/node": "^8.0.28",
-    "@types/sinon": "^2.3.5",
+    "@types/sinon": "^4.0.0",
     "@types/sinon-chai": "^2.7.29",
     "chai": "^4.1.2",
     "coveralls": "^2.13.1",
