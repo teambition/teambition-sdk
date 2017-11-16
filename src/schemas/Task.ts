@@ -3,6 +3,7 @@ import { CustomFieldValue, ExecutorOrCreator, Reminder, Visibility } from 'teamb
 import {
   ProjectId,
   ScenarioFieldConfigId,
+  SprintId,
   StageId,
   SubtaskId,
   TagId,
@@ -31,6 +32,7 @@ export interface TaskSchema {
   created: string
   updated: string
   visible: Visibility
+  _sprintId?: SprintId
   _stageId: StageId
   _creatorId: UserId
   _tasklistId: TasklistId
@@ -96,6 +98,9 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.STRING
   },
   _scenariofieldconfigId: {
+    type: RDBType.STRING
+  },
+  _sprintId: {
     type: RDBType.STRING
   },
   _sourceId: {
