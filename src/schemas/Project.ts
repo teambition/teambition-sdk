@@ -67,6 +67,7 @@ export interface ProjectSchema {
   updated: string
   visibility: 'project' | 'organization' | 'all'
   worksCount: number
+  proTemplateType?: 'scrum'
 }
 
 const Schema: SchemaDef<ProjectSchema> = {
@@ -173,6 +174,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   postsCount: {
     type: RDBType.NUMBER
+  },
+  proTemplateType: {
+    type: RDBType.STRING
   },
   pushStatus: {
     type: RDBType.BOOLEAN
