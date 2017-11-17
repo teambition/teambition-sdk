@@ -55,7 +55,7 @@
     "@types/sinon": "^2.3.5",
     "@types/sinon-chai": "^2.7.29",
     "chai": "^4.1.2",
-    "coveralls": "^2.13.1",
+    "coveralls": "^3.0.0",
     "engine.io-client": "^3.1.0",
     "fetch-mock": "^5.12.2",
     "google-closure-compiler-js": "^20170910.0.0",
