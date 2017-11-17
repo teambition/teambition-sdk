@@ -29,6 +29,7 @@ declare module 'teambition-types' {
   export interface RoomId extends String { kind?: 'RoomId' }
   export interface ScenarioFieldId extends String { kind?: 'ScenarioFieldId' }
   export interface ScenarioFieldConfigId extends String { kind?: 'ScenarioFieldConfigId' }
+  export interface SprintId extends String { kind?: 'SprintId' }
   export interface StageId extends String { kind?: 'StageId' }
   export interface SubscribeId extends String { kind?: 'SubscribeId' }
   export interface SubtaskId extends String { kind?: 'SubtaskId' }
@@ -66,7 +67,7 @@ declare module 'teambition-types' {
   export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
   export type ScenarioFieldConfigObjectType = 'task' | 'event'
   export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
-  export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating'
+  export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = 0 | 1 | 2
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
