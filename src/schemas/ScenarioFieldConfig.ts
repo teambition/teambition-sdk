@@ -27,6 +27,7 @@ export interface ScenarioFieldConfigSchema {
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
   updated: string
+  proTemplateConfigType?: 'bug' | 'story'
 }
 
 export interface TaskScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
@@ -70,12 +71,15 @@ const schema: SchemaDef<ScenarioFieldConfigSchema> = {
   objectType: {
     type: RDBType.STRING
   },
+  proTemplateConfigType: {
+    type: RDBType.STRING
+  },
   scenariofields: {
     type: RDBType.OBJECT
   },
   updated: {
     type: RDBType.DATE_TIME
-  },
+  }
 }
 
 schemas.push({ schema, name: 'ScenarioFieldConfig' })
