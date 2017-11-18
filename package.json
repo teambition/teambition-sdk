@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.8.26-alpha.2-sprintschema",
+  "version": "0.8.26-alpha.3-smartgroupschema",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
