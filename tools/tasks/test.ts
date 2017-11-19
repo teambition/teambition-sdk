@@ -28,7 +28,7 @@ function watch (paths: string[]) {
       })
       return () => fileWatcher.close()
     }))
-    .debounceTime(300)
+    .debounceTime(500)
 }
 
 watch(['spec-js'])

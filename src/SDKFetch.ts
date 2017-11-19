@@ -230,8 +230,8 @@ export class SDKFetch {
     return { ...this.options }
   }
 
-  private setOptionsPerRequest<T>(
-    http: Http<T | HttpResponseWithHeaders<T>>,
+  private setOptionsPerRequest(
+    http: Http<any>,
     fetchOptions: SDKFetchOptions
   ): void {
     let headers: any

@@ -96,32 +96,31 @@ export class Net {
   private requestResultLength = new Map<string, number>()
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
+    const { tableName, required, padding } = result
+
+    const hasRequiredFields = Array.isArray(required)
+    const hasPaddingFunction = typeof padding === 'function'
+    const pk = this.primaryKeys.get(tableName)
+
     const fn = (stream$: Observable<T[]>) =>
-      stream$.switchMap(data => {
-        if (!data.length) {
-          return Observable.of(data)
-        }
-        return Observable.forkJoin(
+      stream$.switchMap(data => !data.length
+        ? Observable.of(data)
+        : Observable.forkJoin(
           Observable.from(data)
-            .mergeMap(v => {
-              if (
-                result.required &&
-                result.required.some(k => typeof v[k] === 'undefined') &&
-                typeof result.padding === 'function'
+            .mergeMap(datum => {
+              if (!hasRequiredFields || !hasPaddingFunction || !pk ||
+                required!.every(k => typeof datum[k] !== 'undefined')
               ) {
-                return result.padding(v[this.primaryKeys.get(result.tableName)!])
-                  .filter(r => r != null)
-                  .concatMap((r: T) => this.database!
-                    .upsert(result.tableName, r)
-                    .mapTo(r)
-                  )
-                  .do((r: T) => Object.assign(v, r))
+                return Observable.of(datum)
               }
-              return Observable.of(v)
+              const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
+              return patch
+                .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
+                .do(r => Object.assign(datum, r))
             })
-          )
+        )
           .mapTo(data)
-      })
+      )
     fn.toString = () => 'SDK_VALIDATE'
     return fn
   }
@@ -262,14 +261,14 @@ export class Net {
       q,
       tableName
     )
-    const cacheControl$: BehaviorSubject<SelectorMeta<T>> = new BehaviorSubject(proxySelector)
+    const cacheControl$ = new BehaviorSubject<SelectorMeta<T>>(proxySelector)
     this.persistedDataBuffer.push({
       kind: 'Selector',
       realSelectorInfo: result,
       proxySelector: cacheControl$
     })
 
-    return new QueryToken(cacheControl$ as Observable<SelectorMeta<T>>).map(this.validate(result))
+    return new QueryToken(cacheControl$).map(this.validate(result))
   }
 
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
@@ -336,7 +335,7 @@ export class Net {
         }
       case CacheStrategy.Cache:
         const selector$ = request
-          .concatMap((r: T | T[]) => database.upsert(tableName, r))
+          .concatMap<T | T[], void>(r => database.upsert(tableName, r))
           .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
         return new QueryToken(selector$)
       default:
