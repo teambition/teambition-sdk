@@ -14,6 +14,11 @@ export {
   originEventId,
   isAllDay,
   isRecurrent,
-  getUIStartEndDate,
+  normFromAllDayAttrs,
+  normToAllDayAttrs,
+  dateToAllDay,
+  allDayToDate,
+  allDayRRuleSetMethodWrapper,
+  rruleSetMethodWrapper,
   normAllDayEventStartEndDateUpdate
 } from './utils'
