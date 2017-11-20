@@ -25,8 +25,8 @@ export interface EventSchema {
   endDate: string
   untilDate: string
   isAllDay: boolean
-  allDayStart: string
-  allDayEnd: string
+  allDayStart?: string
+  allDayEnd?: string
   involveMembers: string []
   _projectId: ProjectId
   _scenariofieldconfigId?: ScenarioFieldConfigId
