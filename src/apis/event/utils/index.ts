@@ -1,3 +1,4 @@
+import * as moment from 'moment'
 import { EventSchema } from '../../../schemas/Event'
 import { EventId } from 'teambition-types'
 import { SDKLogger } from '../../../utils/Logger'
@@ -58,16 +59,6 @@ const isAllDayLegacy = (e: Readonly<EventSchema>): boolean => {
 
 type StartEndDate = Pick<EventSchema, 'startDate' | 'endDate'>
 
-export const allDayEventStartEndDate = (e: Readonly<EventSchema>): StartEndDate => {
-  const snippet = ad.getAllDayInfo(e)
-
-  if (!snippet) { // pass through
-    return { startDate: e.startDate, endDate: e.endDate }
-  }
-
-  return ad.generateStartEndDate(snippet)
-}
-
 export const normAllDayEventStartEndDateUpdate = (attrs: Readonly<StartEndDate>) => {
   const startDate = new Date(attrs.startDate)
   const endDate = new Date(attrs.endDate)
@@ -91,16 +82,49 @@ export const normAllDayEventStartEndDateUpdate = (attrs: Readonly<StartEndDate>)
   }
 }
 
-export const getUIStartEndDate = (eventData: Readonly<EventSchema>): StartEndDate => {
-  const { startDate, endDate } = eventData
-  const isAllDayFlag = isAllDay(eventData )
-
-  if (!isAllDayFlag) {
-    return { startDate, endDate }
+export function normFromAllDayAttrs(event: EventSchema): EventSchema
+export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema>
+export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema> {
+  if (!attrs.isAllDay) {
+    return attrs
   }
 
-  return allDayEventStartEndDate(eventData)
+  const { allDayStart, allDayEnd, ...rest } = attrs
+
+  if (allDayStart) {
+    rest.startDate = allDayToDate(allDayStart)
+  }
+  if (allDayEnd) {
+    rest.endDate = allDayToDate(allDayEnd)
+  }
+
+  return rest
 }
+
+export function normToAllDayAttrs(event: EventSchema): EventSchema
+export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema>
+export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema> {
+  if (!attrs.isAllDay) {
+    return attrs
+  }
+
+  const { startDate, endDate, ...rest } = attrs
+
+  if (startDate) {
+    rest.allDayStart = dateToAllDay(startDate)
+  }
+  if (endDate) {
+    rest.allDayEnd = dateToAllDay(endDate)
+  }
+
+  return rest
+}
+
+export const allDayToDate = (allDay: string): string =>
+  moment(allDay).toISOString()
+
+export const dateToAllDay = (date: string): string =>
+  moment(date).format('YYYY-MM-DD')
 
 /**
  * 从重复日程实例上生成的 _id 获取原重复日程 _id。

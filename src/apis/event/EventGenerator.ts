@@ -1,5 +1,5 @@
 import { EventSchema } from '../../schemas/Event'
-import { isRecurrent } from './utils'
+import { isRecurrent, normFromAllDayAttrs } from './utils'
 import { clone } from '../../utils'
 import { EventId } from 'teambition-types'
 
@@ -20,6 +20,10 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
   [Symbol.iterator] = () => this
 
   constructor(private event: EventSchema) {
+    if (this.event.isAllDay) {
+      this.event = normFromAllDayAttrs(this.event)
+    }
+
     this._id = event._id
     this.done = false
 
