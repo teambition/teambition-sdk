@@ -1,5 +1,10 @@
 import { EventSchema } from '../../schemas/Event'
-import { isRecurrent } from './utils'
+import {
+  isRecurrent,
+  normFromAllDayAttrs,
+  rruleSetMethodWrapper,
+  allDayRRuleSetMethodWrapper
+} from './utils'
 import { clone } from '../../utils'
 import { EventId } from 'teambition-types'
 
@@ -11,25 +16,34 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
   type: 'event' = 'event'
   _id: EventId
 
-  private done: boolean
-  private rrule: any
-  private startDateCursor: Date
-  private isRecurrence = isRecurrent(this.event)
+  private event: EventSchema
   private duration: number
+
+  private startDateCursor: Date
+  private done: boolean
+
+  private isRecurrence: boolean
+  private rrule: (method: string, ...args: any[]) => any
 
   [Symbol.iterator] = () => this
 
-  constructor(private event: EventSchema) {
-    this._id = event._id
+  constructor(event: EventSchema) {
+    this.event = event.isAllDay ? normFromAllDayAttrs(event) : event
+
+    this._id = this.event._id
     this.done = false
 
-    const startDateObj = new Date(event.startDate)
-    const endDateObj = new Date(event.endDate)
+    const startDateObj = new Date(this.event.startDate)
+    const endDateObj = new Date(this.event.endDate)
     this.duration = endDateObj.valueOf() - startDateObj.valueOf()
 
+    this.isRecurrence = isRecurrent(this.event)
     if (this.isRecurrence) {
       this.startDateCursor = startDateObj
-      this.rrule = rrulestr(this.event.recurrence.join('\n'), { forceset: true })
+      const rruleSet = rrulestr(this.event.recurrence.join('\n'), { forceset: true })
+      this.rrule = this.event.isAllDay
+        ? allDayRRuleSetMethodWrapper(rruleSet)
+        : rruleSetMethodWrapper()(rruleSet)
     }
   }
 
@@ -57,7 +71,7 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
   ): Timeframe | null {
     // unadjustedStartDate 可能未经 this.rrule.after 过滤，有可能是
     // 一个 exdate（被 rruleset 剔除的日期），发现时需要跳过。
-    const startDate = this.rrule.after(unadjustedStartDate, include)
+    const startDate = this.rrule('after', unadjustedStartDate, include)
     if (startDate) {
       const endDate = this.computeEndDate(startDate)
       return { startDate, endDate }
@@ -149,7 +163,7 @@ export class EventGenerator implements IterableIterator<EventSchema | undefined>
       value: this.makeEvent(eventSpan),
       done: false
     }
-    this.startDateCursor = this.rrule.after(eventSpan.startDate)
+    this.startDateCursor = this.rrule('after', eventSpan.startDate)
     return result
   }
 

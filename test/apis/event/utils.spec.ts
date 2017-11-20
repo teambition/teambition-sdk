@@ -106,15 +106,15 @@ describe('Event-related util functions', () => {
     } as any)).to.be.false
   })
 
-  it('allDayEventStartEndDate() should return orginal startDate/endDate for object without allday info', () => {
+  it('normFromAllDayAttrs() should return orginal startDate/endDate for object without allday info', () => {
     const startEndDate = {
       startDate: Moment(now).startOf('day').toISOString(),
       endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
     }
-    expect(e.allDayEventStartEndDate(startEndDate as any)).to.deep.equal(startEndDate)
+    expect(e.normFromAllDayAttrs(startEndDate)).to.deep.equal(startEndDate)
   })
 
-  it('allDayEventStartEndDate() should return valid allday event startDate/endDate when provided with allday info', () => {
+  it('normFromAllDayAttrs() should return valid allday event startDate/endDate when provided with allday info', () => {
     const allDayInfos = [1, 2, 3].map((nth) => ({
       isAllDay: true,
       allDayStart: '2017-10-10',
@@ -122,8 +122,29 @@ describe('Event-related util functions', () => {
     }))
 
     allDayInfos.forEach((allDayInfo) => {
-      expect(e.isAllDay(e.allDayEventStartEndDate(allDayInfo as any) as any)).to.be.true
+      expect(e.isAllDay(e.normFromAllDayAttrs(allDayInfo) as any)).to.be.true
     })
+  })
+
+  it('normToAllDayAttrs() should replace startDate/endDate info with allDayStart/allDayEnd info on allday events', () => {
+    const allDayInfos = [1, 2, 3].map((nth) => ({
+      isAllDay: true,
+      allDayStart: '2017-10-10',
+      allDayEnd: '2017-10-1' + nth
+    }))
+
+    allDayInfos.forEach((allDayInfo) => {
+      expect(e.normToAllDayAttrs(e.normFromAllDayAttrs(allDayInfo))).to.deep.equal(allDayInfo)
+    })
+  })
+
+  it('normToAllDayAttrs() should keep startDate/endDate info without augmenting allDayStart/allDayEnd on non-allday events', () => {
+    const startEndDate = {
+      startDate: Moment(now).startOf('day').toISOString(),
+      endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
+    }
+
+    expect(e.normToAllDayAttrs(startEndDate)).to.deep.equal(startEndDate)
   })
 
   it('normAllDayEventStartEndDateUpdate() should return normalized date info', () => {
