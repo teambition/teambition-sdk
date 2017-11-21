@@ -14,6 +14,7 @@ import {
 } from 'teambition-types'
 import { schemas } from '../SDK'
 import { ProjectSchema } from './Project'
+import { SprintSchema } from './Sprint'
 import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
 
@@ -67,6 +68,7 @@ export interface TaskSchema {
   rating: 0 | 1 | 2 | 3 | 4 | 5
   stage: Pick<StageSchema, '_id' | 'name'>
   storyPoint: string
+  sprint?: SprintSchema
   tasklist?: {
     _id: TasklistId
     title: string
@@ -219,6 +221,15 @@ const schema: SchemaDef<TaskSchema> = {
   },
   sourceDate: {
     type: RDBType.DATE_TIME
+  },
+  sprint: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'Sprint',
+      where: (sprintTable: any) => {
+        return { _sprintId: sprintTable._id }
+      }
+    }
   },
   stage: {
     type: Relationship.oneToOne,
