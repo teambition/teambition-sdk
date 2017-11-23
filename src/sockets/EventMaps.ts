@@ -22,6 +22,7 @@ const tableAlias = {
   Activities: 'Activity',
   HomeActivities: 'Activity',
   Customfield: 'CustomField',
+  Customfieldlink: 'CustomFieldLink',
   Scenariofieldconfig: 'ScenarioFieldConfig'
 }
 
