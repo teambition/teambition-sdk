@@ -126,6 +126,27 @@ export const allDayToDate = (allDay: string): string =>
 export const dateToAllDay = (date: string): string =>
   moment(date).format('YYYY-MM-DD')
 
+export const rruleSetMethodWrapper =
+  (normDate: { input?: (date: Date) => Date, output?: (date: Date) => Date } = {}) =>
+  (context: any) =>
+  (method: string, ...args: any[]) => {
+    const { input, output } = normDate
+    const ret = input
+      ? context[method](...args.map((arg) => arg instanceof Date ? input(arg) : arg))
+      : context[method](...args)
+
+    return output && ret instanceof Date ? output(ret) : ret
+  }
+
+export const allDayRRuleSetMethodWrapper = (() => {
+  // 使用代码载入时环境的 UTC offset
+  const utcOffset = moment().utcOffset()
+  return rruleSetMethodWrapper({
+    input: (date: Date) => moment(date).add(utcOffset, 'minutes').toDate(),
+    output: (date: Date) => moment(date).subtract(utcOffset, 'minutes').toDate()
+  })
+})()
+
 /**
  * 从重复日程实例上生成的 _id 获取原重复日程 _id。
  * （重复日程在使用时，根据重复规则，常被生成多个日程实例，每个这样的

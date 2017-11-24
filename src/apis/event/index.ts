@@ -18,5 +18,7 @@ export {
   normToAllDayAttrs,
   dateToAllDay,
   allDayToDate,
+  allDayRRuleSetMethodWrapper,
+  rruleSetMethodWrapper,
   normAllDayEventStartEndDateUpdate
 } from './utils'
