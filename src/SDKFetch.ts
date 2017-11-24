@@ -50,7 +50,8 @@ const getUnnamedOptions = (options: SDKFetchOptions): {} => {
 
 export const defaultSDKFetchHeaders = () => ({
   'Accept': 'application/json',
-  'Content-Type': 'application/json'
+  'Content-Type': 'application/json',
+  'x-timezone': - new Date().getTimezoneOffset() / 60
 })
 
 export class SDKFetch {
