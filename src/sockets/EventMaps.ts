@@ -43,10 +43,9 @@ export const handleMsgToDb = (db: Database, msg: MessageResult, tableName: strin
       if (dirtyStream) {
         return dirtyStream
       }
-      return dbMethod.call(db, tableName, {
-        ...data,
-        [pkName]: id
-      })
+      return dbMethod.call(db, tableName,
+        Array.isArray(data) ? data : { ...data, [pkName]: id }
+      )
     case 'destroy':
       return dbMethod.call(db, tableName, {
         where: { [pkName]: id }
