@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { Observable, Scheduler } from 'rxjs'
 import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDKFetch, forEach, Http } from '.'
+import { clone } from './'
 
 import { defaultSDKFetchHeaders } from '../src/SDKFetch'
 
@@ -286,12 +287,11 @@ describe('SDKFetch options', () => {
 
   it('defaultSDKFetchHeaders should be immutable', () => {
     const headers = defaultSDKFetchHeaders()
+    const headersClone = clone(headers)
 
     headers['X-Request-Id'] = '2333'
-    expect(defaultSDKFetchHeaders()).to.deep.equal({
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    })
+
+    expect(defaultSDKFetchHeaders()).to.deep.equal(headersClone)
   })
 
   allowedMethods.forEach((httpMethod: string) => {
