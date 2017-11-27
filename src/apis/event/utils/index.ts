@@ -1,4 +1,3 @@
-import * as moment from 'moment'
 import { EventSchema } from '../../../schemas/Event'
 import { EventId } from 'teambition-types'
 import { SDKLogger } from '../../../utils/Logger'
@@ -120,11 +119,27 @@ export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSch
   return rest
 }
 
-export const allDayToDate = (allDay: string): string =>
-  moment(allDay).toISOString()
+export const allDayToDate = (allDay: string): string => {
+  const src = new Date(allDay)
 
-export const dateToAllDay = (date: string): string =>
-  moment(date).format('YYYY-MM-DD')
+  return new Date(
+    src.getFullYear(),
+    src.getMonth(),
+    src.getDate()
+  ).toISOString()
+}
+
+export const dateToAllDay = (date: string): string => {
+  const src = new Date(date)
+
+  src.setUTCFullYear(
+    src.getFullYear(),
+    src.getMonth(),
+    src.getDate()
+  )
+
+  return src.toISOString().slice(0, 10)
+}
 
 export const rruleSetMethodWrapper =
   (normDate: { input?: (date: Date) => Date, output?: (date: Date) => Date } = {}) =>
@@ -138,14 +153,12 @@ export const rruleSetMethodWrapper =
     return output && ret instanceof Date ? output(ret) : ret
   }
 
-export const allDayRRuleSetMethodWrapper = (() => {
-  // 使用代码载入时环境的 UTC offset
-  const utcOffset = moment().utcOffset()
-  return rruleSetMethodWrapper({
-    input: (date: Date) => moment(date).add(utcOffset, 'minutes').toDate(),
-    output: (date: Date) => moment(date).subtract(utcOffset, 'minutes').toDate()
+export const allDayRRuleSetMethodWrapper = (() =>
+  rruleSetMethodWrapper({
+    input: (date: Date) => new Date(dateToAllDay(date.toISOString())),
+    output: (date: Date) => new Date(allDayToDate(date.toISOString()))
   })
-})()
+)()
 
 /**
  * 从重复日程实例上生成的 _id 获取原重复日程 _id。
