@@ -29,7 +29,7 @@ describe('MyApi request spec', () => {
 
     yield token.values()
       .do(r => {
-        const compareFn = (x: TaskSchema, y: TaskSchema) => {
+        const compareFn = (x: any, y: any) => {
           return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
             + new Date(x.created).valueOf() - new Date(y.created).valueOf()
         }
@@ -46,7 +46,7 @@ describe('MyApi request spec', () => {
             }
           }
           if (_r instanceof EventGenerator) {
-            return _r.next().value
+            return (_r as EventGenerator).next().value!
           }
           return _r
         })

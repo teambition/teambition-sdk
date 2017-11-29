@@ -1,7 +1,7 @@
 import './get'
 import './request'
 
-export { EventGenerator as Generator } from './EventGenerator'
+export { Recurrence, EventGenerator as Generator, findByEventId } from './EventGenerator'
 
 export {
   CommentsRepeatEvent,

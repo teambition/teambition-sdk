@@ -112,7 +112,7 @@ describe('Async load reactivedb Spec', () => {
               }
             }
             if (_r instanceof EventGenerator) {
-              return _r.next().value
+              return (_r as EventGenerator).next().value
             }
             return _r
           })
