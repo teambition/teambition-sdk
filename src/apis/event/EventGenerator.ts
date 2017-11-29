@@ -12,221 +12,255 @@ const { rrulestr } = require('rrule')
 
 type Timeframe = { startDate: Date, endDate: Date }
 
-export class EventGenerator implements IterableIterator<EventSchema | undefined> {
-  type: 'event' = 'event'
-  _id: EventId
+export interface DateInfo {
+  startDate: string,
+  endDate: string,
+  recurrence?: string[],
+  isAllDay: boolean
+}
 
-  private event: EventSchema
-  private duration: number
+type InstanceCreator<T> = (source: T, timeframe?: Timeframe) => T
 
-  private startDateCursor: Date
-  private done: boolean
+export interface RecurrenceInstance<T> extends IterableIterator<T | undefined> {
+  type: string
+  next(): IteratorResult<T | undefined>
+  takeUntil(startDateUntil: Date, endDateUntil?: Date): T[]
+  takeFrom(fromDate: Date, startDateTo: Date, endDateTo?: Date): T[]
+  after(date: Date): T | null
+  findByTimestamp(timestamp: number): T | null
+}
 
-  private isRecurrence: boolean
-  private rrule: (method: string, ...args: any[]) => any
+export interface RecurrenceClass<T> {
+  new(source: T & DateInfo): RecurrenceInstance<T>
+}
 
-  [Symbol.iterator] = () => this
+const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceClass<T> => {
+  return class implements IterableIterator<T | undefined> {
+    type = type
 
-  constructor(event: EventSchema) {
-    this.event = event.isAllDay ? normFromAllDayAttrs(event) : event
+    private source: T & DateInfo
 
-    this._id = this.event._id
-    this.done = false
+    private startDateCursor: Date | undefined
+    private done: boolean
+    private makeInst: InstanceCreator<T>
 
-    const startDateObj = new Date(this.event.startDate)
-    const endDateObj = new Date(this.event.endDate)
-    this.duration = endDateObj.valueOf() - startDateObj.valueOf()
+    private duration: number
+    private isRecurrence: boolean
+    private rrule: (method: string, ...args: any[]) => any
 
-    this.isRecurrence = isRecurrent(this.event)
-    if (this.isRecurrence) {
-      this.startDateCursor = startDateObj
-      const rruleSet = rrulestr(this.event.recurrence.join('\n'), { forceset: true })
-      this.rrule = this.event.isAllDay
-        ? allDayRRuleSetMethodWrapper(rruleSet)
-        : rruleSetMethodWrapper()(rruleSet)
-    }
-  }
+    [Symbol.iterator] = () => this
 
-  // 从给予的 startDate 和 endDate 生成一个 EventSchema 对象；
-  // 当用于普通日程，不需要提供参数。
-  private makeEvent(timeframe?: Timeframe): EventSchema {
-    const target = clone(this.event)
+    constructor(event: T & DateInfo) {
+      this.source = event.isAllDay ? normFromAllDayAttrs(event) as T & DateInfo : event
 
-    if (!this.isRecurrence || !timeframe) {
-      return target
-    }
-    // this.isRecurrence && timeframe
+      this.done = false
 
-    const timestamp = timeframe.startDate.valueOf()
-    target._id = `${target._id}_${timestamp}`
-    target.startDate = timeframe.startDate.toISOString()
-    target.endDate = timeframe.endDate.toISOString()
+      this.duration = new Date(this.source.endDate).valueOf()
+        - new Date(this.source.startDate).valueOf()
 
-    return target
-  }
-
-  private getOneTimeframeFromRecurrence(
-    unadjustedStartDate: Date,
-    include: boolean = true
-  ): Timeframe | null {
-    // unadjustedStartDate 可能未经 this.rrule.after 过滤，有可能是
-    // 一个 exdate（被 rruleset 剔除的日期），发现时需要跳过。
-    const startDate = this.rrule('after', unadjustedStartDate, include)
-    if (startDate) {
-      const endDate = this.computeEndDate(startDate)
-      return { startDate, endDate }
-    } else {
-      return null
-    }
-  }
-
-  private computeEndDate(startDate: Date): Date {
-    return new Date(startDate.valueOf() + this.duration)
-  }
-
-  private slice(
-    from: Date, fromCmpOption: 'byStartDate' | 'byEndDate',
-    to: Date, toCmpOption: 'byStartDate' | 'byEndDate'
-  ): Timeframe[] {
-    const skipPred = (eSpan: Timeframe): boolean =>
-      fromCmpOption === 'byStartDate' && eSpan.startDate < from
-      || fromCmpOption === 'byEndDate' && eSpan.endDate < from
-
-    const stopPred = (eSpan: Timeframe): boolean =>
-      toCmpOption === 'byStartDate' && eSpan.startDate > to
-      || toCmpOption === 'byEndDate' && eSpan.endDate > to
-
-    const result: Timeframe[] = []
-    let initialEventSpan: Timeframe | null
-
-    if (!this.isRecurrence) {
-      initialEventSpan = {
-        startDate: new Date(this.event.startDate),
-        endDate: new Date(this.event.endDate)
+      this.isRecurrence = isRecurrent(this.source)
+      if (this.isRecurrence) {
+        const rruleSet = rrulestr(this.source.recurrence!.join('\n'), { forceset: true })
+        this.rrule = this.source.isAllDay
+          ? allDayRRuleSetMethodWrapper(rruleSet)
+          : rruleSetMethodWrapper()(rruleSet)
+        this.startDateCursor = rruleSet.all((_: Date, i: number) => i < 1)[0]
       }
-      if (!skipPred(initialEventSpan) && !stopPred(initialEventSpan)) {
-        // eventSpan 在时间范围内
-        result.push(initialEventSpan)
+      this.makeInst = makeInst
+    }
+
+    private makeInstance(timeframe?: Timeframe): T {
+      const target = clone(this.source)
+
+      return this.isRecurrence && timeframe
+        ? this.makeInst(target, timeframe)
+        : this.makeInst(target)
+    }
+
+    next(): IteratorResult<T | undefined> {
+      const doneRet = { value: undefined, done: true }
+
+      if (this.done) {
+        return doneRet
       }
+
+      if (!this.isRecurrence) {
+        this.done = true
+        return { value: this.makeInstance(), done: false }
+      }
+
+      if (!this.startDateCursor) {
+        this.done = true
+        return doneRet
+      }
+
+      const eventSpan = this.getOneTimeframeFromRecurrence(this.startDateCursor)
+      if (!eventSpan) {
+        this.done = true
+        return doneRet
+      }
+
+      const result = {
+        value: this.makeInstance(eventSpan),
+        done: false
+      }
+      this.startDateCursor = this.rrule('after', eventSpan.startDate)
       return result
     }
-    // this.isRecurrence is truthy
 
-    initialEventSpan = this.getOneTimeframeFromRecurrence(new Date(this.event.startDate))
-    if (!initialEventSpan) {
-      return []
+    private getOneTimeframeFromRecurrence(
+      unadjustedStartDate: Date,
+      include: boolean = true
+    ): Timeframe | null {
+      // unadjustedStartDate 可能未经 this.rrule.after 过滤，有可能是
+      // 一个 exdate（被 rruleset 剔除的日期），发现时需要跳过。
+      const startDate = this.rrule('after', unadjustedStartDate, include)
+
+      return startDate
+        ? { startDate, endDate: new Date(startDate.valueOf() + this.duration) }
+        : null
     }
 
-    let curr: Timeframe | null
-    for (
-      curr = initialEventSpan;
-      curr !== null;
-      curr = this.getOneTimeframeFromRecurrence(curr.startDate, false)
-    ) {
-      if (stopPred(curr)) { // 优先检查停止条件
-        break
+    private slice(
+      from: Date, fromCmpOption: 'byStartDate' | 'byEndDate',
+      to: Date, toCmpOption: 'byStartDate' | 'byEndDate'
+    ): Timeframe[] {
+      const skipPred = (eSpan: Timeframe): boolean =>
+        fromCmpOption === 'byStartDate' && eSpan.startDate < from
+        || fromCmpOption === 'byEndDate' && eSpan.endDate < from
+
+      const stopPred = (eSpan: Timeframe): boolean =>
+        toCmpOption === 'byStartDate' && eSpan.startDate > to
+        || toCmpOption === 'byEndDate' && eSpan.endDate > to
+
+      const result: Timeframe[] = []
+      let initialEventSpan: Timeframe | null
+
+      if (!this.isRecurrence) {
+        initialEventSpan = {
+          startDate: new Date(this.source.startDate),
+          endDate: new Date(this.source.endDate)
+        }
+        if (!skipPred(initialEventSpan) && !stopPred(initialEventSpan)) {
+          // eventSpan 在时间范围内
+          result.push(initialEventSpan)
+        }
+        return result
       }
-      if (skipPred(curr)) { // 其次检查忽略条件
-        continue
+      // this.isRecurrence is truthy
+
+      initialEventSpan = this.getOneTimeframeFromRecurrence(new Date(this.source.startDate))
+      if (!initialEventSpan) {
+        return []
       }
 
-      result.push(curr)
+      let curr: Timeframe | null
+      for (
+        curr = initialEventSpan;
+        curr !== null;
+        curr = this.getOneTimeframeFromRecurrence(curr.startDate, false)
+      ) {
+        if (stopPred(curr)) { // 优先检查停止条件
+          break
+        }
+        if (skipPred(curr)) { // 其次检查忽略条件
+          continue
+        }
+
+        result.push(curr)
+      }
+
+      return result
     }
 
-    return result
-  }
-
-  next(): IteratorResult<EventSchema | undefined> {
-    const doneRet = { value: undefined, done: true }
-
-    if (this.done) {
-      return doneRet
-    }
-
-    if (!this.isRecurrence) {
-      this.done = true
-      return { value: this.makeEvent(), done: false }
-    }
-
-    if (!this.startDateCursor) {
-      this.done = true
-      return doneRet
-    }
-
-    const eventSpan = this.getOneTimeframeFromRecurrence(this.startDateCursor)
-    if (!eventSpan) {
-      this.done = true
-      return doneRet
-    }
-
-    const result = {
-      value: this.makeEvent(eventSpan),
-      done: false
-    }
-    this.startDateCursor = this.rrule('after', eventSpan.startDate)
-    return result
-  }
-
-  takeUntil(startDateUntil: Date, endDateUntil?: Date) {
-    return this.takeFrom(
-      new Date(this.event.startDate),
-      startDateUntil,
-      endDateUntil
-    )
-  }
-
-  takeFrom(fromDate: Date, startDateTo: Date, endDateTo?: Date) {
-    const toDate = !endDateTo ? startDateTo : new Date(
-      Math.min(
-        startDateTo.valueOf(),
-        endDateTo.valueOf() - this.duration
+    takeUntil(startDateUntil: Date, endDateUntil?: Date) {
+      return this.takeFrom(
+        new Date(this.source.startDate),
+        startDateUntil,
+        endDateUntil
       )
-    )
-    return this.slice(
-      fromDate, 'byEndDate',
-      toDate, 'byStartDate'
-    ).map((eventSpan) => this.makeEvent(eventSpan))
-  }
+    }
 
-  after(date: Date): EventSchema | null {
-    if (!this.isRecurrence) {
-      if (new Date(this.event.startDate) < date) {
+    takeFrom(fromDate: Date, startDateTo: Date, endDateTo?: Date) {
+      const toDate = !endDateTo ? startDateTo : new Date(
+        Math.min(
+          startDateTo.valueOf(),
+          endDateTo.valueOf() - this.duration
+        )
+      )
+      return this.slice(
+        fromDate, 'byEndDate',
+        toDate, 'byStartDate'
+      ).map((eventSpan) => this.makeInstance(eventSpan))
+    }
+
+    after(date: Date): T | null {
+      if (!this.isRecurrence) {
+        if (new Date(this.source.startDate) < date) {
+          return null
+        } else {
+          return this.makeInstance()
+        }
+      }
+      // this.isRecurrence is truthy
+      const targetEventSpan = this.getOneTimeframeFromRecurrence(date)
+      if (!targetEventSpan) {
         return null
       } else {
-        return this.event
+        return this.makeInstance(targetEventSpan)
       }
     }
-    // this.isRecurrence is truthy
-    const targetEventSpan = this.getOneTimeframeFromRecurrence(date)
-    if (!targetEventSpan) {
-      return null
-    } else {
-      return this.makeEvent(targetEventSpan)
-    }
-  }
 
-  findByEventId(eventId: EventId): EventSchema | null {
-    if (!this.isRecurrence) {
-      return eventId === this.event._id ? this.makeEvent() : null
-    }
+    findByTimestamp(timestamp: number): T | null {
+      const expectedDate = new Date(timestamp)
+      if (isNaN(timestamp) || isNaN(expectedDate.valueOf())) {
+        return null
+      }
+      // expectedDate is a valid Date object
 
-    const [id, timestampStr] = eventId.split('_', 2)
-    if (id !== this.event._id) {
-      return null
+      const targetEventSpan = this.getOneTimeframeFromRecurrence(expectedDate)
+      if (!targetEventSpan || targetEventSpan.startDate.valueOf() !== expectedDate.valueOf()) {
+        return null
+      }
+      return this.makeInstance(targetEventSpan)
     }
-
-    // 不使用 parseInt 因为不应该兼容前缀正确的错误 timestamp
-    const timestamp = Number(timestampStr)
-    const expectedDate = new Date(timestamp)
-    if (isNaN(timestamp) || isNaN(expectedDate.valueOf())) {
-      return null
-    }
-    // expectedDate is a valid Date object
-
-    const targetEventSpan = this.getOneTimeframeFromRecurrence(expectedDate)
-    if (!targetEventSpan || targetEventSpan.startDate.valueOf() !== expectedDate.valueOf()) {
-      return null
-    }
-    return this.makeEvent(targetEventSpan)
   }
 }
+
+export const findByEventId = (eventGen: EventGenerator, eventId: EventId): EventSchema | null => {
+  const originEventId = eventGen['source']._id
+
+  if (!eventGen['isRecurrence']) {
+    return eventId === originEventId ? eventGen['makeInstance']() : null
+  }
+
+  const [id, timestampStr] = eventId.split('_', 2)
+  if (id !== originEventId) {
+    return null
+  }
+
+  // 不使用 parseInt 因为不应该兼容前缀正确的错误 timestamp
+  return eventGen.findByTimestamp(Number(timestampStr))
+}
+
+export const EventGenerator = createRecur<EventSchema>(
+  'event',
+  (event, timeframe?: Timeframe) =>
+    !timeframe ? event : Object.assign(event, {
+      _id: `${event._id}_${timeframe.startDate.valueOf()}`,
+      startDate: timeframe.startDate.toISOString(),
+      endDate: timeframe.endDate.toISOString()
+    })
+)
+export interface EventGenerator extends RecurrenceInstance<EventSchema> {}
+
+export const Recurrence = createRecur<DateInfo>(
+  'dateinfo',
+  (dateInfo, timeframe?: Timeframe) =>
+    !timeframe ? dateInfo : Object.assign(dateInfo, {
+      startDate: timeframe.startDate.toISOString(),
+      endDate: timeframe.endDate.toISOString()
+    })
+)
+
+export interface Recurrence extends RecurrenceInstance<DateInfo> {}
