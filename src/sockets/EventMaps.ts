@@ -51,7 +51,7 @@ export const handleMsgToDb = (
       })
     case 'remove':
       return dbMethod.call(db, tableName, {
-        where: { [pkName]: data }
+        where: Array.isArray(data) ? { [pkName]: { $in: data } } : { [pkName]: data }
       })
     default:
       return Observable.of(null)

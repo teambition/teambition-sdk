@@ -70,6 +70,27 @@ describe('Socket handling Spec', () => {
       })
   })
 
+  it('should do db:remove for all the PKs to be deleted in { e: ":remove:{modelType}s/{boundToObjectId}", d: "[pk1, pk2, ...]"}', function* () {
+    const _projectId = '597fdea5528664cd3c81ebd9'
+    const tasks = [
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e6', _projectId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e7', _projectId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e8', _projectId }
+    ]
+
+    yield sdk.database.upsert('Task', tasks)
+
+    yield socket.emit('remove', 'tasks', _projectId, tasks.map(({ _id }) => _id).slice(0, 2))
+
+    yield sdk.database.get('Task')
+      .values()
+      .do((rs) => {
+        expect(rs).to.have.lengthOf(1)
+        const [r] = rs
+        expectToDeepEqualForFieldsOfTheExpected(r, tasks[2])
+      })
+  })
+
   it('should do db:remove on { e: ":destroy:{modelType}/{modelId}", d: "" }', function* () {
     const modelId = '587ee5510f399a3a37e0e182'
     const postSample = {
