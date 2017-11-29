@@ -40,7 +40,7 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
 
     private source: T & DateInfo
 
-    private startDateCursor: Date
+    private startDateCursor: Date | undefined
     private done: boolean
     private makeInst: InstanceCreator<T>
 
@@ -55,17 +55,16 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
 
       this.done = false
 
-      const startDateObj = new Date(this.source.startDate)
-      const endDateObj = new Date(this.source.endDate)
-      this.duration = endDateObj.valueOf() - startDateObj.valueOf()
+      this.duration = new Date(this.source.endDate).valueOf()
+        - new Date(this.source.startDate).valueOf()
 
       this.isRecurrence = isRecurrent(this.source)
       if (this.isRecurrence) {
-        this.startDateCursor = startDateObj
         const rruleSet = rrulestr(this.source.recurrence!.join('\n'), { forceset: true })
         this.rrule = this.source.isAllDay
           ? allDayRRuleSetMethodWrapper(rruleSet)
           : rruleSetMethodWrapper()(rruleSet)
+        this.startDateCursor = rruleSet.all((_: Date, i: number) => i < 1)[0]
       }
       this.makeInst = makeInst
     }

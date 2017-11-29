@@ -150,6 +150,9 @@ export const rruleSetMethodWrapper =
       ? context[method](...args.map((arg) => arg instanceof Date ? input(arg) : arg))
       : context[method](...args)
 
+    if (method === 'all') {
+      return output ? ret.map(output) : ret
+    }
     return output && ret instanceof Date ? output(ret) : ret
   }
 
