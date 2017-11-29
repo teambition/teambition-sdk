@@ -8,7 +8,7 @@ import * as ad from './all-day'
  * 判断一个日程对象是否为重复日程。
  * 注意：有重复规则，但仅能推导得零个可用时间点的日程，会返回 true。
  */
-export const isRecurrent = (event: Readonly<EventSchema>) =>
+export const isRecurrent = (event: Readonly<Partial<EventSchema>>) =>
   !!event.recurrence && event.recurrence.length > 0
 
 const msPerDay = 24 * 60 * 60 * 1000
