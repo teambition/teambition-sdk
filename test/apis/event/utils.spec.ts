@@ -11,6 +11,7 @@ import {
 } from '../../fixtures/events.fixture'
 
 import { EventSDK as e } from '../../../src'
+import { isAllDayLegacy } from '../../../src/apis/event/utils'
 import { forEachFalsyValueOfProperty } from '../../utils'
 
 describe('Event-related util functions', () => {
@@ -67,43 +68,55 @@ describe('Event-related util functions', () => {
     } as any)).to.be.false
   })
 
-  it('LEGACY isAllDay() should return true for an event from 00:00 to 00:00 of the next day', () => {
-    expect(e.isAllDay({
+  it(`${isAllDayLegacy.name}() should return true for an event from 00:00 to 00:00 of the next day`, () => {
+    expect(isAllDayLegacy({
       startDate: Moment(now).startOf('day').toISOString(),
       endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
     } as any)).to.be.true
   })
 
-  it('LEGACY isAllDay() should return true for an event from 00:00 to 00:00 of the next nth days', () => {
+  it(`${isAllDayLegacy.name}() should return true for an event from 00:00 to 00:00 of the next nth days`, () => {
     const nthDays = [3, 5, 7]
 
     nthDays.forEach((nthDay) => {
-      expect(e.isAllDay({
+      expect(isAllDayLegacy({
         startDate: Moment(now).startOf('day').toISOString(),
         endDate: Moment(now).add(nthDay, 'day').startOf('day').toISOString()
       } as any)).to.be.true
     })
   })
 
-  it('LEGACY isAllDay() should return false for an event from 00:00 to 00:00 of the same day', () => {
-    expect(e.isAllDay({
+  it(`${isAllDayLegacy.name}() should return false for an event from 00:00 to 00:00 of the same day`, () => {
+    expect(isAllDayLegacy({
       startDate: Moment(now).startOf('day').toISOString(),
       endDate: Moment(now).startOf('day').toISOString()
     } as any)).to.be.false
   })
 
-  it('LEGACY isAllDay() should return false for an event from 00:00 to 23:59:999 of the same day', () => {
-    expect(e.isAllDay({
+  it(`${isAllDayLegacy.name}() should return false for an event from 00:00 to 23:59:999 of the same day`, () => {
+    expect(isAllDayLegacy({
       startDate: Moment(now).startOf('day').toISOString(),
       endDate: Moment(now).endOf('day').toISOString()
     } as any)).to.be.false
   })
 
-  it('LEGACY isAllDay() should return false for an event that doesn\'t start at 00:00', () => {
-    expect(e.isAllDay({
+  it(`${isAllDayLegacy.name}() should return false for an event that doesn\'t start at 00:00`, () => {
+    expect(isAllDayLegacy({
       startDate: Moment(now).startOf('day').add(1, 'hour').toISOString(),
       endDate: Moment(now).add(1, 'day').startOf('day').add(1, 'hour').toISOString()
     } as any)).to.be.false
+  })
+
+  it(`${e.dateToTime.name}() takes date info from input string, and returns zero o'clock of the date in current timezone in string`, () => {
+    const expected = '2017-11-29T16:00:00.000Z'
+    expect(e.dateToTime('2017-11-30')).to.equal(expected)
+    expect(e.dateToTime('2017-11-30T00:00:00Z')).to.equal(expected)
+    expect(e.dateToTime('2017-11-30T02:58:09.293Z')).to.equal(expected)
+  })
+
+  it(`${e.timeToDate.name}() takes from input string the date info as interpreted in current timezone, and returns it as 'YYYY-MM-DD'`, () => {
+    expect(e.timeToDate('2017-11-29T16:00:00Z')).to.equal('2017-11-30')
+    expect(e.timeToDate('2017-11-29T15:59:59Z')).to.equal('2017-11-29')
   })
 
   it('normFromAllDayAttrs() should return orginal startDate/endDate for object without allday info', () => {
@@ -145,28 +158,6 @@ describe('Event-related util functions', () => {
     }
 
     expect(e.normToAllDayAttrs(startEndDate)).to.deep.equal(startEndDate)
-  })
-
-  it('normAllDayEventStartEndDateUpdate() should return normalized date info', () => {
-    expect(e.normAllDayEventStartEndDateUpdate({
-      startDate: '2017-10-31T16:00:00.000-08:00',
-      endDate: '2017-11-01T16:00:00.000-08:00'
-    })).to.deep.equal({
-      startDate: '2017-11-01T00:00:00.000Z',
-      endDate: '2017-11-02T00:00:00.000Z',
-      allDayStart: '2017-11-01',
-      allDayEnd: '2017-11-02'
-    })
-
-    expect(e.normAllDayEventStartEndDateUpdate({
-      startDate: '2017-10-31T16:00:00.000-08:00',
-      endDate: '2017-11-03T16:00:00.000-08:00'
-    })).to.deep.equal({
-      startDate: '2017-11-01T00:00:00.000Z',
-      endDate: '2017-11-04T00:00:00.000Z',
-      allDayStart: '2017-11-01',
-      allDayEnd: '2017-11-04'
-    })
   })
 
   it('originEventId() should pick out origin event id from generated id', () => {

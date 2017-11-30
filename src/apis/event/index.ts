@@ -16,9 +16,8 @@ export {
   isRecurrent,
   normFromAllDayAttrs,
   normToAllDayAttrs,
-  dateToAllDay,
-  allDayToDate,
+  timeToDate,
+  dateToTime,
   allDayRRuleSetMethodWrapper,
   rruleSetMethodWrapper,
-  normAllDayEventStartEndDateUpdate
 } from './utils'

@@ -1,8 +1,6 @@
-import { EventSchema } from '../../../schemas/Event'
+import { EventSchema } from '../../schemas/Event'
 import { EventId } from 'teambition-types'
-import { SDKLogger } from '../../../utils/Logger'
-
-import * as ad from './all-day'
+import { SDKLogger } from '../../utils/Logger'
 
 /**
  * 判断一个日程对象是否为重复日程。
@@ -11,40 +9,35 @@ import * as ad from './all-day'
 export const isRecurrent = (event: Readonly<Partial<EventSchema>>) =>
   !!event.recurrence && event.recurrence.length > 0
 
+/**
+ * 判断一个日程是否为全天日程。
+ */
+export const isAllDay = (e: Readonly<EventSchema>): boolean => {
+  const currentResult = e.isAllDay
+  const legacyResult = isAllDayLegacy(e)
+
+  if (currentResult !== legacyResult) {
+    SDKLogger.warn('isAllDay migration incompatibility:', {
+      current: currentResult,
+      legacy: legacyResult,
+      event: e
+    })
+  }
+
+  return currentResult
+}
+
 const msPerDay = 24 * 60 * 60 * 1000
 
 // epoch time in current time zone
 const epochTime = new Date(1970, 0, 1).valueOf()
 
 /**
- * 判断一个日程是否为全天日程。
- */
-export const isAllDay = (e: Readonly<EventSchema>): boolean => {
-  const snippet = ad.getAllDayInfo(e)
-  let currentResult: boolean
-  const legacyResult = isAllDayLegacy(e)
-
-  if (snippet) {
-    currentResult = ad.isAllDay(snippet)
-
-    if (currentResult !== legacyResult) { // for debugging purpose
-      SDKLogger.warn('isAllDay migration incompatibility:', {
-        current: e.isAllDay,
-        legacy: legacyResult
-      })
-    }
-    return currentResult
-  } else {
-    return legacyResult
-  }
-}
-
-/**
  * LEGACY 全天日程的定义：开始时间为零点，结束时间为第二天零点，或
  * 接下来第 n 天零点，的日程。
  * 注意：零点判断根据当地时区得。
  */
-const isAllDayLegacy = (e: Readonly<EventSchema>): boolean => {
+export function isAllDayLegacy(e: Readonly<EventSchema>): boolean {
   const startTime = new Date(e.startDate).valueOf()
 
   if ((startTime - epochTime) % msPerDay !== 0) {
@@ -54,31 +47,6 @@ const isAllDayLegacy = (e: Readonly<EventSchema>): boolean => {
   const duration = new Date(e.endDate).valueOf() - startTime
 
   return duration > 0 && duration % msPerDay === 0
-}
-
-type StartEndDate = Pick<EventSchema, 'startDate' | 'endDate'>
-
-export const normAllDayEventStartEndDateUpdate = (attrs: Readonly<StartEndDate>) => {
-  const startDate = new Date(attrs.startDate)
-  const endDate = new Date(attrs.endDate)
-
-  const normedStartDate = new Date(Date.UTC(
-    startDate.getFullYear(),
-    startDate.getMonth(),
-    startDate.getDate()
-  )).toISOString()
-  const normedEndDate = new Date(Date.UTC(
-    endDate.getFullYear(),
-    endDate.getMonth(),
-    endDate.getDate()
-  )).toISOString()
-
-  return {
-    startDate: normedStartDate,
-    endDate: normedEndDate,
-    allDayStart: normedStartDate.slice(0, 10),
-    allDayEnd: normedEndDate.slice(0, 10)
-  }
 }
 
 export function normFromAllDayAttrs(event: EventSchema): EventSchema
@@ -91,12 +59,11 @@ export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventS
   const { allDayStart, allDayEnd, ...rest } = attrs
 
   if (allDayStart) {
-    rest.startDate = allDayToDate(allDayStart)
+    rest.startDate = dateToTime(allDayStart)
   }
   if (allDayEnd) {
-    rest.endDate = allDayToDate(allDayEnd)
+    rest.endDate = dateToTime(allDayEnd)
   }
-
   return rest
 }
 
@@ -110,17 +77,20 @@ export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSch
   const { startDate, endDate, ...rest } = attrs
 
   if (startDate) {
-    rest.allDayStart = dateToAllDay(startDate)
+    rest.allDayStart = timeToDate(startDate)
   }
   if (endDate) {
-    rest.allDayEnd = dateToAllDay(endDate)
+    rest.allDayEnd = timeToDate(endDate)
   }
-
   return rest
 }
 
-export const allDayToDate = (allDay: string): string => {
-  const src = new Date(allDay)
+/**
+ * 取输入中的日期信息，得当前时区同一日期零点的时间。
+ * 如：北京时间环境下，输入 '2017-11-30'，会得 '2017-11-29T16:00:00.000Z'
+ */
+export function dateToTime(date: string): string {
+  const src = new Date(date)
 
   return new Date(
     src.getFullYear(),
@@ -129,7 +99,11 @@ export const allDayToDate = (allDay: string): string => {
   ).toISOString()
 }
 
-export const dateToAllDay = (date: string): string => {
+/**
+ * 取输入中的日期信息（根据当前时区解析），得对应日期的 'YYYY-MM-DD' 表达。
+ * 如：北京时间环境下，输入 '2017-11-29T16:00:00.000Z'，会得 '2017-11-30'。
+ */
+export function timeToDate(date: string): string {
   const src = new Date(date)
 
   src.setUTCFullYear(
@@ -158,8 +132,8 @@ export const rruleSetMethodWrapper =
 
 export const allDayRRuleSetMethodWrapper = (() =>
   rruleSetMethodWrapper({
-    input: (date: Date) => new Date(dateToAllDay(date.toISOString())),
-    output: (date: Date) => new Date(allDayToDate(date.toISOString()))
+    input: (date: Date) => new Date(timeToDate(date.toISOString())),
+    output: (date: Date) => new Date(dateToTime(date.toISOString()))
   })
 )()
 
