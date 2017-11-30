@@ -11,6 +11,7 @@ export interface SprintSchema {
   dueDate: string | null
   isDeleted: boolean
   status: 'future' | 'active' | 'complete'
+  noStoryPointTaskCount: number
   created: string
   updated: string
 }
@@ -37,6 +38,9 @@ const schema: SchemaDef<SprintSchema> = {
   },
   name: {
     type: RDBType.STRING
+  },
+  noStoryPointTaskCount: {
+    type: RDBType.NUMBER
   },
   startDate: {
     type: RDBType.DATE_TIME
