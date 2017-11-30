@@ -23,6 +23,7 @@ type InstanceCreator<T> = (source: T, timeframe?: Timeframe) => T
 
 export interface RecurrenceInstance<T> extends IterableIterator<T | undefined> {
   type: string
+  isRecurrent(): boolean
   next(): IteratorResult<T | undefined>
   takeUntil(startDateUntil: Date, endDateUntil?: Date): T[]
   takeFrom(fromDate: Date, startDateTo: Date, endDateTo?: Date): T[]
@@ -77,6 +78,10 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
         : this.makeInst(target)
     }
 
+    isRecurrent(): boolean {
+      return this.isRecurrence
+    }
+
     next(): IteratorResult<T | undefined> {
       const doneRet = { value: undefined, done: true }
 
@@ -126,12 +131,17 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
       to: Date, toCmpOption: 'byStartDate' | 'byEndDate'
     ): Timeframe[] {
       const skipPred = (eSpan: Timeframe): boolean =>
+        // 用开始时间来判断一个实例是否应该出现在当前区间的话，它可以晚于或等于 from
         fromCmpOption === 'byStartDate' && eSpan.startDate < from
-        || fromCmpOption === 'byEndDate' && eSpan.endDate < from
+        // 用结束时间来判断一个实例是否应该出现在当前区间的话，它必须要严格晚于 from
+        || fromCmpOption === 'byEndDate' && eSpan.endDate <= from
 
-      const stopPred = (eSpan: Timeframe): boolean =>
-        toCmpOption === 'byStartDate' && eSpan.startDate > to
+      const stopPred = (eSpan: Timeframe): boolean => {
+        // 用开始时间来判断一个实例是否应该出现在当前区间的话，它必须严格早于 to
+        return toCmpOption === 'byStartDate' && eSpan.startDate >= to
+        // 用结束时间来判断一个实例是否应该出现在当前区间的话，它可以早于或等于 to
         || toCmpOption === 'byEndDate' && eSpan.endDate > to
+      }
 
       const result: Timeframe[] = []
       let initialEventSpan: Timeframe | null
@@ -182,15 +192,19 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
     }
 
     takeFrom(fromDate: Date, startDateTo: Date, endDateTo?: Date) {
-      const toDate = !endDateTo ? startDateTo : new Date(
-        Math.min(
-          startDateTo.valueOf(),
-          endDateTo.valueOf() - this.duration
-        )
-      )
+      let toDate = startDateTo
+      let toCmpOption: 'byStartDate' | 'byEndDate'
+
+      if (!endDateTo || startDateTo.valueOf() + this.duration <= endDateTo.valueOf()) {
+        toCmpOption = 'byStartDate'
+      } else {
+        toDate = endDateTo
+        toCmpOption = 'byEndDate'
+      }
+
       return this.slice(
         fromDate, 'byEndDate',
-        toDate, 'byStartDate'
+        toDate, toCmpOption
       ).map((eventSpan) => this.makeInstance(eventSpan))
     }
 
