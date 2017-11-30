@@ -14,6 +14,7 @@ export interface SmartGroupSchema {
   _creatorId: UserId
   name: string
   description: string
+  type?: 'story' | 'sprint' | 'bug'
   view: {
     type: SmartGroupViewType
     vertical: SwimAxisLane
@@ -45,6 +46,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
     type: RDBType.STRING,
   },
   name: {
+    type: RDBType.STRING,
+  },
+  type: {
     type: RDBType.STRING,
   },
   updated: {
