@@ -1,5 +1,6 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import { schemas } from '../SDK'
+import { Moment } from 'moment'
 
 import {
   UserId,
@@ -54,6 +55,9 @@ export interface TapGraphCoordGridDisplay {
       range: 'auto'
     }
   }
+  // should be filled by client
+  // restriction: axes.x.scale should be 'timeseries' when weekends provided
+  weekends?: Moment[][]
 }
 
 export interface TapGraphLineDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay {
@@ -65,11 +69,26 @@ export interface TapGraphBarDisplay extends TapGraphCoordGridDisplay, TapGraphSt
 export interface TapGraphPieDisplay {
   showLegend: boolean
   sectorCapacity?: number
+  colorPreset?: string
 }
 
-export interface TapGraphLineBarDisplay extends TapGraphLineDisplay, TapGraphBarDisplay {
+export type TapGraphLineBarPreset = {
+  name: 'burndown'
+  colorScheme: 'blue'
+  idealLineCol: number
+  actualLineCol: number
+  barColumns: number[]
+} | {
+  name: 'generic'
+  colorScheme: 'blue'
   barColumns: number[]
   lineColumns: number[]
+}
+
+export interface TapGraphLineBarDisplay extends TapGraphCoordGridDisplay, TapGraphNullableDimDisplay {
+  preset: TapGraphLineBarPreset
+  barYAxis: 'y' | 'y1'
+  lineYAxis: 'y' | 'y1'
 }
 
 export interface TapGraphNumberDisplay {

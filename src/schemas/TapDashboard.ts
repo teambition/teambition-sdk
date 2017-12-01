@@ -41,11 +41,15 @@ export interface TapDashboard<T extends FilterRequest | FilterResponse> {
   ancestor?: TapDashboard<FilterResponse>
 
   name: string
+  desc: string
   display: TapDashboardDisplay
   coords: TapCoordination[]
   coverChart?: TapChart<FilterResponse>
 
   filter: T
+  filterList: FilterResponse
+
+  thumbnail: string
 
   tapcharts: TapChart<FilterResponse>[]
   tapdashboards: TapDashboard<FilterResponse>[]
@@ -90,6 +94,9 @@ const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
   name: {
     type: RDBType.STRING
   },
+  desc: {
+    type: RDBType.STRING
+  },
   display: {
     type: RDBType.OBJECT
   },
@@ -102,6 +109,14 @@ const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
 
   filter: {
     type: RDBType.OBJECT
+  },
+
+  filterList: {
+    type: RDBType.OBJECT
+  },
+
+  thumbnail: {
+    type: RDBType.STRING
   },
 
   tapcharts: {
