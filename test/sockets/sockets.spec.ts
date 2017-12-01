@@ -1,7 +1,7 @@
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, SDKFetch } from '../'
-import { restore } from '../utils'
+import { restore, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 import * as sinon from 'sinon'
 import { Logger } from 'reactivedb'
 
@@ -44,6 +44,51 @@ describe('Socket handling Spec', () => {
     const r = yield sdk.socketClient['_onmessage'](result as any)
 
     expect(r).to.be.null
+  })
+
+  it('should do db:upsert for all the updates in { e: ":change:{modelType}s/{boundToObjectId}", d: "[update1, update2, ...]"}', function* () {
+    const _projectId = '597fdea5528664cd3c81ebd9'
+    const taskUndone = [
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e6', _projectId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e7', _projectId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e8', _projectId }
+    ]
+    const taskDone = taskUndone.map((undone) => ({ _id: undone._id, isDone: true }))
+
+    yield sdk.database.upsert('Task', taskUndone)
+
+    yield socket.emit('change', 'tasks', _projectId, taskDone)
+
+    yield sdk.database.get('Task', { where: { isDone: true } })
+      .values()
+      .do((rs) => {
+        expect(rs).to.have.lengthOf(taskDone.length)
+        rs.forEach((r: any) => {
+          const expectedTask = { ...taskUndone.find(({ _id }) => _id === r._id), isDone: true }
+          expectToDeepEqualForFieldsOfTheExpected(r, expectedTask)
+        })
+      })
+  })
+
+  it('should do db:remove for all the PKs to be deleted in { e: ":remove:{modelType}s/{boundToObjectId}", d: "[pk1, pk2, ...]"}', function* () {
+    const _projectId = '597fdea5528664cd3c81ebd9'
+    const tasks = [
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e6', _projectId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e7', _projectId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e8', _projectId }
+    ]
+
+    yield sdk.database.upsert('Task', tasks)
+
+    yield socket.emit('remove', 'tasks', _projectId, tasks.map(({ _id }) => _id).slice(0, 2))
+
+    yield sdk.database.get('Task')
+      .values()
+      .do((rs) => {
+        expect(rs).to.have.lengthOf(1)
+        const [r] = rs
+        expectToDeepEqualForFieldsOfTheExpected(r, tasks[2])
+      })
   })
 
   it('should do db:remove on { e: ":destroy:{modelType}/{modelId}", d: "" }', function* () {
