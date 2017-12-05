@@ -8,7 +8,9 @@
  */
 export default {
   Work: 'File',
+  Works: 'File',
   ChatMessage: 'Activity',
+  ChatMessages: 'Activity',
   Activities: 'Activity',
   HomeActivities: 'Activity'
 }
