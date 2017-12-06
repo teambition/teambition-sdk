@@ -1,5 +1,8 @@
 import { describe, it } from 'tman'
 import { expect } from 'chai'
+import { schemas } from '../../src/SDK'
+import { clone } from '../'
+import tableAlias from '../../src/sockets/TableAlias'
 import { TableInfoByMessageType } from '../../src/sockets/MapToTable'
 
 describe('TableInfoByMessageType spec', () => {
@@ -13,7 +16,8 @@ describe('TableInfoByMessageType spec', () => {
       { name: 'Alias', schema: { _id: { primaryKey: true } } }
     ] as any,
     {
-      'Alias': 'Task'
+      'Alias': 'Task',
+      'job': 'Task'
     }
   )
 
@@ -45,6 +49,57 @@ describe('TableInfoByMessageType spec', () => {
     const target = { pkName: '_id', tabName: 'Task' }
     expect(mapToTable.getTableInfo('alias')).to.deep.equal(target)
     expect(mapToTable.getTableInfo('aliAs')).to.deep.equal(target)
+  })
+
+  // 走别名匹配的代码路径，等于放弃进行自动的复数变单数转换，单复数别名条目
+  // 需要用户自行添加。
+  it('should not cut trailing `s` during alias matching', () => {
+    expect(mapToTable.getTableInfo('jobs')).to.be.null
+    expect(mapToTable.getTableInfo('job')).to.deep.equal({ pkName: '_id', tabName: 'Task' })
+  })
+
+})
+
+describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
+
+  const mapToTable = new TableInfoByMessageType(clone(schemas), tableAlias)
+
+  it('should map `work(s)`(case-insensitive) to `File`', () => {
+    [
+      'work', 'Work', 'WorK',
+      'works', 'Works', 'WorkS'
+    ].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'File'
+      })
+    })
+  })
+
+  it('should map `chatMessage(s)`(case-insensitive) to `Activity`', () => {
+    [
+      'chatMessage', 'chatmessage', 'ChatMessage',
+      'chatMessages', 'chatmessages', 'ChatMessages'
+    ].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'Activity'
+      })
+    })
+  })
+
+  it('should map `activities`(case-insensitive) to `Activity`', () => {
+    ['activities', 'Activities', 'ActivitiES'].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'Activity'
+      })
+    })
+  })
+
+  it('should map `homeActivities`(case-insensitive) to `Activity`', () => {
+    ['homeActivities', 'homeactivities', 'HomeActivities'].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'Activity'
+      })
+    })
   })
 
 })

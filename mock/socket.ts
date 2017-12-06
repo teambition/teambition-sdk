@@ -51,7 +51,7 @@ export class SocketMock {
   emit(
     method: 'new',
     objectType: SocketEventType,
-    objectId: '',
+    _boundToObjectId: string,
     patch?: any,
     delay?: number | Promise<any> | ToPromiseObject
   ): Promise<any>
