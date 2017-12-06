@@ -59,14 +59,24 @@ export class Dirty {
    * 后端认为这种数据应该被 patch 到它的实体上
    * 而前端需要将点赞数据分开存储
    */
-  _handleLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database): Observable<ExecutorResult> | null {
+  _handleLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database): Observable<ExecutorResult[]> | null {
+    const ops: Observable<ExecutorResult>[] = []
     if (data.likesGroup && data.likesGroup instanceof Array) {
-      data._boundToObjectId = id
-      data._boundToObjectType = type
-      data._id = `${id}:like`
-      return database.upsert('Like', data)
+      const likeData = {
+        ...data,
+        _id: `${id}:like`,
+        // 以下两个字段暂时未在 LikeSchema 中定义
+        // _boundToObjectId: id,
+        // _boundToObjectType: type
+      }
+      ops.push(database.upsert('Like', likeData))
+
+      if (type === 'Task') {
+        const taskData = { ...data, _id: id }
+        ops.push(database.upsert('Task', taskData))
+      }
     }
-    return null
+    return ops.length > 0 ? Observable.forkJoin(ops) : null
   }
 
   _handleTaskUpdateFromSocket(_id: string, _type: string, data: any): void {
