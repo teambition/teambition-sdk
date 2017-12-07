@@ -62,7 +62,8 @@ export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventS
     rest.startDate = dateToTime(allDayStart)
   }
   if (allDayEnd) {
-    rest.endDate = dateToTime(allDayEnd)
+    const endDateObj = new Date(dateToTime(allDayEnd, true) + msPerDay)
+    rest.endDate = endDateObj.toISOString()
   }
   return rest
 }
@@ -80,39 +81,47 @@ export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSch
     rest.allDayStart = timeToDate(startDate)
   }
   if (endDate) {
-    rest.allDayEnd = timeToDate(endDate)
+    const endDateObj = new Date(timeToDate(endDate, true) - msPerDay)
+    rest.allDayEnd = endDateObj.toISOString().slice(0, 10)
   }
   return rest
 }
 
 /**
- * 取输入中的日期信息，得当前时区同一日期零点的时间。
- * 如：北京时间环境下，输入 '2017-11-30'，会得 '2017-11-29T16:00:00.000Z'
+ * 取输入中的日期信息，得当前时区同一日期零点的时间。如：北京时间环境下，
+ * 输入 '2017-11-30'，会得 '2017-11-29T16:00:00.000Z'。若参数
+ * returnValue 为 true，返回对应时间的毫秒数。
  */
-export function dateToTime(date: string): string {
+export function dateToTime(date: string, returnValue: true): number
+export function dateToTime(date: string, returnValue?: false): string
+export function dateToTime(date: string, returnValue?: boolean) {
   const src = new Date(date)
 
-  return new Date(
+  const ret = new Date(
     src.getFullYear(),
     src.getMonth(),
     src.getDate()
-  ).toISOString()
+  )
+  return returnValue ? ret.valueOf() : ret.toISOString()
 }
 
 /**
  * 取输入中的日期信息（根据当前时区解析），得对应日期的 'YYYY-MM-DD' 表达。
  * 如：北京时间环境下，输入 '2017-11-29T16:00:00.000Z'，会得 '2017-11-30'。
+ * 若参数 returnValue 为 true，返回对应日期 UTC 零点的毫秒数，如：
+ * new Date('2017-11-30T00:00:00.000Z').valueOf() 的值。
  */
-export function timeToDate(date: string): string {
+export function timeToDate(date: string, returnValue: true): number
+export function timeToDate(date: string, returnValue?: false): string
+export function timeToDate(date: string, returnValue?: boolean) {
   const src = new Date(date)
 
-  src.setUTCFullYear(
+  const ret = new Date(Date.UTC(
     src.getFullYear(),
     src.getMonth(),
     src.getDate()
-  )
-
-  return src.toISOString().slice(0, 10)
+  ))
+  return returnValue ? ret.valueOf() : ret.toISOString().slice(0, 10)
 }
 
 export const rruleSetMethodWrapper =

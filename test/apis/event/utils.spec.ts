@@ -128,19 +128,21 @@ describe('Event-related util functions', () => {
   })
 
   it('normFromAllDayAttrs() should return valid allday event startDate/endDate when provided with allday info', () => {
-    const allDayInfos = [1, 2, 3].map((nth) => ({
+    const allDayInfos = [0, 1, 2].map((nth) => ({
       isAllDay: true,
       allDayStart: '2017-10-10',
       allDayEnd: '2017-10-1' + nth
     }))
 
     allDayInfos.forEach((allDayInfo) => {
-      expect(e.isAllDay(e.normFromAllDayAttrs(allDayInfo) as any)).to.be.true
+      const normed: any = e.normFromAllDayAttrs(allDayInfo)
+      expect(e.isAllDay(normed)).to.be.true
+      expect(isAllDayLegacy(normed)).to.be.true
     })
   })
 
   it('normToAllDayAttrs() should replace startDate/endDate info with allDayStart/allDayEnd info on allday events', () => {
-    const allDayInfos = [1, 2, 3].map((nth) => ({
+    const allDayInfos = [0, 1, 2].map((nth) => ({
       isAllDay: true,
       allDayStart: '2017-10-10',
       allDayEnd: '2017-10-1' + nth
