@@ -15,7 +15,7 @@ import {
   Predicate,
   ExecutorResult,
   JoinMode
- } from 'reactivedb'
+} from 'reactivedb'
 
 import { forEach } from '../utils'
 import Dirty from '../utils/Dirty'
@@ -87,6 +87,49 @@ const dbGetWithSelfJoinEnabled =
     return db.get(table, query, JoinMode.explicit)
   }
 
+/**
+ * 当发现更新流中推出的数据包含 __cacheIsInvalid__ 为 true 的条目，去做请求
+ * 抓取，并将请求结果中的条目标为 __cacheIsInvalid__: false，存入数据库。
+ *
+ * 注意：当请求结果没有包含原来 __cacheIsInvalid__ 的部分条目，会导致这些
+ * 未被更新的条目成为“脏数据”，并导致重复走 revalidate 的过程（死循环）而
+ * 没有结果。目前的使用场景没有这种情况，但不保证未来不会遇到。TODO 避免死循环
+ * 的做法是，在发现“脏数据”时，删除它们。
+ */
+const revalidateCache = <T>(
+  database: Database,
+  tableName: string,
+  request: Observable<T | T[]>,
+  data: T[]
+) => {
+  let allValidCache = true
+
+  for (let i = 0; i < data.length; i++) {
+    if (data[i]['__cacheIsInvalid__']) {
+      allValidCache = false
+      break
+    }
+  }
+
+  if (allValidCache) {
+    return Observable.of(data)
+  }
+
+  return request
+    .map<T | T[], T[]>((res) => {
+      const v = Array.isArray(res) ? res : [res]
+      for (let i = 0; i < v.length; i++) {
+        v[i]['__cacheIsInvalid__'] = false
+      }
+      return v
+    })
+    .concatMap((validated) => database.upsert(tableName, validated))
+    .mapTo(null)
+}
+
+// 试验性为 Task 表启用 cache revalidate 功能
+const revalidateEnabledTables = new Set(['Task'])
+
 export class Net {
   public fields = new Map<string, string[]>()
   public database: Database | undefined
@@ -96,31 +139,43 @@ export class Net {
   private requestResultLength = new Map<string, number>()
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
-    const { tableName, required, padding } = result
+    const { tableName, required, padding, request } = result
 
-    const hasRequiredFields = Array.isArray(required)
-    const hasPaddingFunction = typeof padding === 'function'
+    const doCheckPadding = Array.isArray(required) && typeof padding === 'function'
     const pk = this.primaryKeys.get(tableName)
 
-    const fn = (stream$: Observable<T[]>) =>
-      stream$.switchMap(data => !data.length
-        ? Observable.of(data)
-        : Observable.forkJoin(
-          Observable.from(data)
-            .mergeMap(datum => {
-              if (!hasRequiredFields || !hasPaddingFunction || !pk ||
-                required!.every(k => typeof datum[k] !== 'undefined')
-              ) {
-                return Observable.of(datum)
-              }
-              const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
-              return patch
-                .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
-                .do(r => Object.assign(datum, r))
-            })
-        )
-          .mapTo(data)
+    const paddingOnResultSet = (data: T[]) => {
+      return Observable.forkJoin(
+        Observable.from(data)
+          .mergeMap(datum => {
+            if (!doCheckPadding || !pk || required!.every(k => typeof datum[k] !== 'undefined')) {
+              return Observable.of(datum)
+            }
+            const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
+            return patch
+              .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
+              .do(r => Object.assign(datum, r))
+          })
       )
+        .mapTo(data)
+    }
+
+    const fn = (stream$: Observable<T[]>) =>
+      stream$.switchMap(data => {
+        if (!data.length) {
+          return Observable.of([])
+        }
+
+        if (!revalidateEnabledTables.has(tableName)) {
+          return paddingOnResultSet(data)
+        }
+
+        const validCache$ = revalidateCache(this.database!, tableName, request, data)
+          .filter(r => r != null) as Observable<T[]>
+
+        return validCache$.concatMap(paddingOnResultSet)
+      })
+
     fn.toString = () => 'SDK_VALIDATE'
     return fn
   }
@@ -275,13 +330,13 @@ export class Net {
     const { request, method, tableName } = result as CUDApiResult<T>
     return request
       .do((v: T | T[]) => {
-      this.persistedDataBuffer.push({
-        kind: 'CUD',
-        tableName,
-        method: (method === 'create' || method === 'update') ? 'upsert' : method,
-        value: method === 'delete' ? (result as UDResult<T>).clause : v
+        this.persistedDataBuffer.push({
+          kind: 'CUD',
+          tableName,
+          method: (method === 'create' || method === 'update') ? 'upsert' : method,
+          value: method === 'delete' ? (result as UDResult<T>).clause : v
+        })
       })
-    })
   }
 
   bufferSocketPush(

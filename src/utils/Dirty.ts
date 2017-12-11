@@ -20,6 +20,14 @@ export class Dirty {
     return tasks
   }
 
+  handleRefreshMessage(id: string, type: string, _: any, db: Database): Observable<any> | null {
+    if (type === 'Task') {
+      return db.update(type, { _stageId: id }, { __cacheIsInvalid__: true })
+    } else {
+      return null
+    }
+  }
+
   handleSocketMessage(id: string, type: string, data: any, db: Database): Observable<any> | null {
     const methods = [ '_handleLikeMessage', '_handleTaskUpdateFromSocket', '_handleMessage']
     let signal: Observable<any> | null = null

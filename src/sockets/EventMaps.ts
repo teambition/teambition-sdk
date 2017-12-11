@@ -53,6 +53,11 @@ export const handleMsgToDb = (
       return dbMethod.call(db, tableName, {
         where: Array.isArray(data) ? { [pkName]: { $in: data } } : { [pkName]: data }
       })
+    case 'refresh':
+      dirtyStream = Dirty.handleRefreshMessage(id, tableName, data, db)
+      if (dirtyStream) {
+        return dirtyStream
+      }
     default:
       return Observable.of(null)
   }
