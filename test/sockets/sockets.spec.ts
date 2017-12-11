@@ -139,6 +139,33 @@ describe('Socket handling Spec', () => {
       .values()
       .do((r) => expect(r.length).to.equal(0))
   })
+
+  it('should label related data in database as { __cacheIsInvalid__: true } on `refresh:{modelType}(s)/_boundToObjectId`', function* () {
+    const _stageId = '597fdea5528664cd3c81ebd9'
+    const tasks = [
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e6', _stageId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e7', _stageId },
+      { isDone: false, _id: '5a17b9a5a58dd8a0cddec5e8', _stageId }
+    ]
+
+    yield sdk.database.upsert('Task', tasks)
+
+    yield sdk.database.get('Task', { where: { _stageId } })
+      .values()
+      .do((rs) => {
+        expect(rs).to.have.lengthOf(3)
+        expect(rs.every((r) => !r['__cacheIsInvalid__'])).to.be.true
+      })
+
+    yield socket.emit('refresh', 'tasks', _stageId)
+
+    yield sdk.database.get('Task', { where: { _stageId } })
+      .values()
+      .do((rs) => {
+        expect(rs).to.have.lengthOf(3)
+        expect(rs.every((r) => r['__cacheIsInvalid__'] === true)).to.be.true
+      })
+  })
 })
 
 describe('join/leave `room`', () => {

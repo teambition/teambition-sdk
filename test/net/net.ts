@@ -491,6 +491,61 @@ describe('Net test', () => {
       http.restore()
     })
 
+    it('should not revalidate(by server) on result set that does not include data with { __cacheIsInvalid__: true }', function* () {
+      httpBackend.whenGET(`${apiHost}/${path}`)
+        .respond({ isDone: false, _id: '5a17b9a5a58dd8a0cddec5e6' })
+
+      const targetTaskId = '5a17b9a5a58dd8a0cddec5e6'
+      const anotherTaskId = '5a17b9a5a58dd8a0cddec5e7'
+
+      const getTask = (_id: string) => net.lift({
+        cacheValidate: CacheStrategy.Request,
+        request: sdkFetch.get<any>(path),
+        query: { where: { _id, isDone: true } },
+        tableName: 'Task'
+      })
+
+      yield getTask(targetTaskId).values().do((rs) => {
+        expect(rs).to.have.lengthOf(0)
+      })
+
+      yield database.upsert('Task', { _id: targetTaskId, isDone: true })
+
+      yield getTask(targetTaskId).values().do((rs) => {
+        expect(rs).to.have.lengthOf(1)
+      })
+
+      yield database.upsert('Task', { _id: anotherTaskId, __cacheIsInvalid__: true })
+
+      yield getTask(targetTaskId).values().do((rs) => {
+        expect(rs).to.have.lengthOf(1)
+      })
+    })
+
+    it('should revalidate(by server) on result set that include data with { __cacheIsInvalid__: true }', function* () {
+      httpBackend.whenGET(`${apiHost}/${path}`)
+        .respond({ isDone: false, _id: '5a17b9a5a58dd8a0cddec5e6' })
+
+      const targetTaskId = '5a17b9a5a58dd8a0cddec5e6'
+
+      const getTask = (_id: string) => net.lift({
+        cacheValidate: CacheStrategy.Request,
+        request: sdkFetch.get<any>(path),
+        query: { where: { _id, isDone: true } },
+        tableName: 'Task'
+      })
+
+      yield getTask(targetTaskId).values().do((rs) => {
+        expect(rs).to.have.lengthOf(0)
+      })
+
+      yield database.upsert('Task', { _id: targetTaskId, isDone: true, __cacheIsInvalid__: true })
+
+      yield getTask(targetTaskId).changes().take(1).do((rs) => {
+        expect(rs).to.have.lengthOf(0)
+      })
+    })
+
     it('invalid cacheStrategy should throw', () => {
       const fn = () => net.lift({
         cacheValidate: 2313,

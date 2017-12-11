@@ -85,7 +85,11 @@ export interface TaskSchema {
   }
 }
 
-const schema: SchemaDef<TaskSchema> = {
+interface TaskSchemaRevalidateEnabled extends TaskSchema {
+  __cacheIsInvalid__: boolean
+}
+
+const schema: SchemaDef<TaskSchemaRevalidateEnabled> = {
   _creatorId: {
     type: RDBType.STRING
   },
@@ -284,6 +288,9 @@ const schema: SchemaDef<TaskSchema> = {
   },
   workTime: {
     type: RDBType.OBJECT
+  },
+  __cacheIsInvalid__: {
+    type: RDBType.BOOLEAN
   }
 }
 
