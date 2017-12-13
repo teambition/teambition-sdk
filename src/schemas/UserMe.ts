@@ -16,6 +16,7 @@ export interface PaymentPlan {
   membersCount: number
   days: number
   objectType: 'free' | 'organization' | 'professional' | 'user'
+  isExpired: boolean
 }
 
 export interface StrikerToken extends String {
