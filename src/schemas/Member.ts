@@ -28,6 +28,8 @@ export interface MemberSchema {
   email: string
   hasVisited: boolean
   isActive: boolean
+  isDisabled: boolean
+  invited: string
   joined: string
   latestActived: string
   location: string
@@ -44,7 +46,7 @@ export interface MemberSchema {
   py: string
   teams: TeamId[]
   title: string
-  visited: string
+  visited: string | null
   website: string
 }
 
@@ -62,7 +64,9 @@ const Schema: SchemaDef<MemberSchema> = {
   boundToObjectType: { type: RDBType.STRING },
   email: { type: RDBType.STRING },
   hasVisited: { type: RDBType.BOOLEAN },
+  invited: { type: RDBType.DATE_TIME },
   isActive: { type: RDBType.BOOLEAN },
+  isDisabled: { type: RDBType.BOOLEAN },
   joined: { type: RDBType.DATE_TIME },
   latestActived: { type: RDBType.DATE_TIME },
   location: { type: RDBType.STRING },
