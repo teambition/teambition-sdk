@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import {
   EventScenarioFieldIcon,
   ProjectId,
@@ -82,4 +82,4 @@ const schema: SchemaDef<ScenarioFieldConfigSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'ScenarioFieldConfig' })
+schemaColl.add({ schema, name: 'ScenarioFieldConfig' })

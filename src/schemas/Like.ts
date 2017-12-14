@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import { ExecutorOrCreator } from 'teambition-types'
 
 export interface LikeSchema {
@@ -25,4 +25,4 @@ const schema: SchemaDef<LikeSchema> = {
   }
 }
 
-schemas.push({ name: 'Like', schema })
+schemaColl.add({ name: 'Like', schema })

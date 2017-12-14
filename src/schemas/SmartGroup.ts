@@ -6,7 +6,7 @@ import {
   SmartGroupViewType,
   SwimAxisLane,
 } from 'teambition-types'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface SmartGroupSchema {
   _id: SmartGroupId
@@ -59,4 +59,4 @@ const schema: SchemaDef<SmartGroupSchema> = {
   }
 }
 
-schemas.push({ name: 'SmartGroup', schema })
+schemaColl.add({ name: 'SmartGroup', schema })

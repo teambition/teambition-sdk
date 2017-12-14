@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import {
   ExecutorOrCreator,
   ActivityId,
@@ -184,4 +184,4 @@ const schema: SchemaDef<ActivitySchema> = {
   }
 }
 
-schemas.push({ schema, name: 'Activity' })
+schemaColl.add({ schema, name: 'Activity' })

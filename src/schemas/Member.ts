@@ -1,7 +1,7 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId } from 'teambition-types'
 import { ProjectSchema } from './Project'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface MemberProfileSchema {
   birthday: string
@@ -83,4 +83,4 @@ const Schema: SchemaDef<MemberSchema> = {
   website: { type: RDBType.STRING },
 }
 
-schemas.push({ schema: Schema, name: 'Member' })
+schemaColl.add({ schema: Schema, name: 'Member' })

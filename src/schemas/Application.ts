@@ -1,6 +1,6 @@
 import { ApplicationId } from 'teambition-types'
 import { RDBType, SchemaDef } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface ApplicationSchema {
   _id: ApplicationId
@@ -47,4 +47,4 @@ const Schema: SchemaDef<ApplicationSchema> = {
   }
 }
 
-schemas.push({ name: 'Application', schema: Schema })
+schemaColl.add({ name: 'Application', schema: Schema })

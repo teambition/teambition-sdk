@@ -1,6 +1,6 @@
 import { UserId } from 'teambition-types'
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface UserEmail {
   email: string
@@ -241,4 +241,4 @@ const Schema: SchemaDef<UserMe> = {
   }
 }
 
-export default schemas.push({ schema: Schema, name: 'User' })
+export default schemaColl.add({ schema: Schema, name: 'User' })

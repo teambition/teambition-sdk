@@ -5,7 +5,7 @@ import {
   ProjectId
 } from 'teambition-types'
 import { RDBType, SchemaDef } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface PreferenceSchema {
   _id: PreferenceId
@@ -82,4 +82,4 @@ const Schema: SchemaDef<PreferenceSchema> = {
   }
 }
 
-schemas.push({ name: 'Preference', schema: Schema })
+schemaColl.add({ name: 'Preference', schema: Schema })

@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import {
   Visibility,
   EventId,
@@ -173,4 +173,4 @@ const schema: SchemaDef<EventSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'Event' })
+schemaColl.add({ schema, name: 'Event' })

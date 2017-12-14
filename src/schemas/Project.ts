@@ -1,7 +1,7 @@
 import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
 import { CustomFieldValue, ExecutorOrCreator } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface ProjectSchema {
   _creatorId: UserId
@@ -219,4 +219,4 @@ const Schema: SchemaDef<ProjectSchema> = {
   }
 }
 
-schemas.push({ name: 'Project', schema: Schema })
+schemaColl.add({ name: 'Project', schema: Schema })

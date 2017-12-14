@@ -27,21 +27,20 @@ export const handleMsgToDb = (
 ): Observable<any> => {
 
   const { method, id, data } = msg
+
+  if (method === 'new' || method === 'change') {
+    const dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
+    if (dirtyStream) {
+      return dirtyStream
+    }
+  }
+
   const dbMethod = db[methodMap[method]]
-  let dirtyStream: Observable<any> | null
 
   switch (method) {
     case 'new':
-      dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
-      if (dirtyStream) {
-        return dirtyStream
-      }
       return dbMethod.call(db, tableName, data)
     case 'change':
-      dirtyStream = Dirty.handleSocketMessage(id, tableName, data, db)
-      if (dirtyStream) {
-        return dirtyStream
-      }
       return dbMethod.call(db, tableName,
         Array.isArray(data) ? data : { ...data, [pkName]: id }
       )

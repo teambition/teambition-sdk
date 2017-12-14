@@ -1,3 +1,6 @@
+import './schemas'
+export * from './schemas'
+
 import './Collection'
 export * from './Collection'
 import './CustomRole'

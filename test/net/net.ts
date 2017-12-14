@@ -5,7 +5,7 @@ import { expect, use } from 'chai'
 import { spy } from 'sinon'
 import * as SinonChai from 'sinon-chai'
 import '../../src/schemas'
-import { schemas, CacheStrategy } from '../../src/SDK'
+import { schemaColl, CacheStrategy } from '../../src/SDK'
 import { Net, Backend, SDKFetch, forEach, uuid, Http, EventSchema } from '..'
 import { ApiResult } from '../../src/Net/Net'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
@@ -26,6 +26,7 @@ describe('Net test', () => {
   const apiHost = sdkFetch.getAPIHost()
   const path = 'test'
   const http = new Http(`${apiHost}/${path}`)
+  const schemas = schemaColl.toArray()
 
   beforeEach(() => {
     httpBackend = new Backend()
@@ -521,6 +522,7 @@ describe('Net CacheStrategy Spec', () => {
   let server: sinon.SinonSpy
   let getEventOptions: (strategy: CacheStrategy, options?: any) => any
   const testTables = new Set(['Event', 'Task'])
+  const schemas = schemaColl.toArray()
 
   beforeEach(() => {
     net = new Net(schemas)

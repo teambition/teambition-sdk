@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import { DefaultRoleId } from 'teambition-types'
 
 export type DefaultRoleName = 'guest' | 'member' | 'admin' | 'owner'
@@ -23,4 +23,4 @@ const schema: SchemaDef<DefaultRoleSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'DefaultRole' })
+schemaColl.add({ schema, name: 'DefaultRole' })

@@ -7,7 +7,8 @@ import { SchemaDef } from 'reactivedb'
 
 export type SchemaColl = {
   schema: SchemaDef<any>,
-  name: string
+  name: string,
+  pkName: string
 }[]
 
 export type Dict<T> = {

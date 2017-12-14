@@ -1,5 +1,5 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 import {
   UserId,
@@ -139,4 +139,4 @@ const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
   }
 }
 
-schemas.push({ schema, name: 'TapDashboard' })
+schemaColl.add({ schema, name: 'TapDashboard' })
