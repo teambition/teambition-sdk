@@ -1,4 +1,4 @@
-import { Subscription, Scheduler } from 'rxjs'
+import { Observable, Subscription, Scheduler } from 'rxjs'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { Database, DataStoreType } from 'reactivedb'
 import { expect, use } from 'chai'
@@ -491,25 +491,6 @@ describe('Net test', () => {
       http.restore()
     })
 
-    it('invalid cacheStrategy should throw', () => {
-      const fn = () => net.lift({
-        cacheValidate: 2313,
-        request: sdkFetch.get(path),
-        query: {
-          where: { _projectId: projectEvents[0]._projectId },
-        },
-        tableName: 'Event',
-        excludeFields: [
-          'isDeleted', 'source', 'type', 'url', 'attachmentsCount', 'commentsCount',
-          'involvers', 'likesCount'
-        ],
-        required: ['startDate'],
-        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
-      } as ApiResult<EventSchema, 2313>)
-
-      expect(fn).to.throw('unreachable code path')
-    })
-
     it('invalid tableName should throw', () => {
       const fn = () => net.lift({
         cacheValidate: CacheStrategy.Request,
@@ -531,4 +512,91 @@ describe('Net test', () => {
 
   })
 
+})
+
+describe('Net CacheStrategy Spec', () => {
+
+  let net: Net
+  let database: Database
+  let server: sinon.SinonSpy
+  let getEventOptions: (strategy: CacheStrategy, options?: any) => any
+  const testTables = new Set(['Event', 'Task'])
+
+  beforeEach(() => {
+    net = new Net(schemas)
+    database = new Database(DataStoreType.MEMORY, false, 'teambition-sdk')
+    net.persist(database)
+    schemas.filter(({ name }) => testTables.has(name)).forEach((schema) => {
+      database.defineSchema(schema.name, schema.schema)
+    })
+    database.connect()
+
+    server = spy(() => Observable.of(projectEvents[0]))
+    getEventOptions = (strategy: CacheStrategy, options = {}): any => {
+      const defaultOptions = {
+        cacheValidate: strategy,
+        request: Observable.defer(server),
+        tableName: 'Event',
+        query: {
+          where: {
+            projectId: projectEvents[0]._projectId
+          }
+        }
+      }
+      return Object.assign(defaultOptions, options)
+    }
+  })
+
+  afterEach(async () => {
+    server.reset()
+    await database.dispose()
+  })
+
+  it('CacheStrategy.Request / do `request` for the 1st call', function* () {
+    yield net.lift(getEventOptions(CacheStrategy.Request)).values()
+
+    expect(server.calledOnce).to.be.true
+  })
+
+  it('CacheStrategy.Request / same `request`, `tableName`, `query` / no `request` after 1st call', function* () {
+    // note: 目前的实现，要求第一个请求先完成抓取并存入缓存，后续的请求才会被省去
+    yield net.lift(getEventOptions(CacheStrategy.Request)).values()
+    yield net.lift(getEventOptions(CacheStrategy.Request)).values()
+
+    expect(server.calledOnce).to.be.true
+  })
+
+  it('CacheStrategy.Request / different `tableName` / do `request` for each call', function* () {
+    yield net.lift(getEventOptions(CacheStrategy.Request)).values()
+    yield net.lift(getEventOptions(CacheStrategy.Request, { tableName: 'Task' })).values()
+
+    expect(server.calledTwice).to.be.true
+  })
+
+  it('CacheStrategy.Request / different `query` / do `request` for each call', function* () {
+    yield net.lift(getEventOptions(CacheStrategy.Request)).values()
+    yield net.lift(getEventOptions(CacheStrategy.Request, { query: {} })).values()
+
+    expect(server.calledTwice).to.be.true
+  })
+
+  it('CacheStrategy.Cache / do `request` for the 1st call', function* () {
+    yield net.lift(getEventOptions(CacheStrategy.Cache)).values()
+
+    expect(server.calledOnce).to.be.true
+  })
+
+  it('CacheStrategy.Cache / same `request`, `tableName`, `query` / do `request` for each following call', function* () {
+    yield net.lift(getEventOptions(CacheStrategy.Cache)).values()
+    yield net.lift(getEventOptions(CacheStrategy.Cache)).values()
+    yield net.lift(getEventOptions(CacheStrategy.Cache)).values()
+
+    expect(server.calledThrice).to.be.true
+  })
+
+  it('Invalid cache strategy should throw on lift call', () => {
+    const fn = () => net.lift(getEventOptions(2313))
+
+    expect(fn).to.throw('unreachable code path')
+  })
 })

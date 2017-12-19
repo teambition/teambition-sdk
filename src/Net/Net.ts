@@ -93,7 +93,6 @@ export class Net {
   private requestMap = new Map<string, boolean>()
   private primaryKeys = new Map<string, string>()
   public persistedDataBuffer: BufferObject[] = []
-  private requestResultLength = new Map<string, number>()
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
     const { tableName, required, padding } = result
@@ -125,7 +124,7 @@ export class Net {
     return fn
   }
 
-  constructor(schemas: { schema: SchemaDef<any>; name: string }[]) {
+  constructor(schemas: { schema: SchemaDef<any>, name: string }[]) {
     forEach(schemas, d => {
       this.fields.set(
         d.name,
@@ -300,6 +299,11 @@ export class Net {
     return Observable.of(null)
   }
 
+  private genCacheKey<T>(tableName: string, q: Readonly<Query<T>>) {
+    const key = `${tableName}:${JSON.stringify(q)}`
+    return key
+  }
+
   private handleRequestCache<T>(result: ApiResult<T, CacheStrategy>) {
     const database = this.database!
     const {
@@ -309,23 +313,18 @@ export class Net {
       tableName
     } = this.getInfoFromResult(result)
 
-    const sq = JSON.stringify(q)
-    const requestCache = this.requestMap.get(sq)
+    const cacheKey = this.genCacheKey(tableName, q)
+    const requestCache = this.requestMap.get(cacheKey)
     let token: QueryToken<T>
     switch (cacheValidate) {
       case CacheStrategy.Request:
         if (!requestCache) {
           /*tslint:disable no-shadowed-variable*/
           const selector$ = request
-            .do<T | T[]>(r => {
-              if (Array.isArray(r)) {
-                this.requestResultLength.set(sq, r.length)
-              }
-            })
-            .concatMap(v =>
+            .concatMap<T | T[], void>(v =>
               database.upsert(tableName, v).mapTo(Array.isArray(v) ? v : [v])
             )
-            .do(() => this.requestMap.set(sq, true))
+            .do(() => this.requestMap.set(cacheKey, true))
             .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
           token = new QueryToken(selector$).map(this.validate(result))
           break
