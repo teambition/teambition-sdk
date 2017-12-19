@@ -12,6 +12,7 @@ export interface SimpleUser {
   title?: string
   pinyin?: string
   py?: string
+  _userId?: UserId
 }
 
 export class UserFetch extends BaseFetch {
