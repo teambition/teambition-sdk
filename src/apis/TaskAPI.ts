@@ -278,16 +278,43 @@ export class TaskAPI {
     })
   }
 
-  getTaskCreateByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
-    return TaskFetch.getTaskCreateByMe(options)
+  getTaskCreateByMe(options: { page: 1, count: 100, isDone: boolean, sort: 'accomplished', _projectId?: ProjectId}) {
+    return makeColdSignal<TaskData[]>(() => {
+      const get = TaskModel.getMyTaskCreateByMe(options.page, options.isDone)
+      if (get) {
+        return get
+      }
+      return TaskFetch.getTaskCreateByMe(options)
+        .concatMap(tasks =>
+          TaskModel.addMyTaskCreateByMe(tasks, options.page, options.isDone)
+        )
+    })
   }
 
-  getTaskExecuteByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
-    return TaskFetch.getTaskExecuteByMe(options)
+  getTaskExecuteByMe(options: { page: 1, count: 100, isDone: boolean, sort: 'accomplished', _projectId?: ProjectId}) {
+    return makeColdSignal<TaskData[]>(() => {
+      const get = TaskModel.getMyTaskExecutedByMe(options.page, options.isDone)
+      if (get) {
+        return get
+      }
+      return TaskFetch.getTaskExecuteByMe(options)
+        .concatMap(tasks =>
+          TaskModel.addMyTaskExecutedByMe(tasks, options.page, options.isDone)
+        )
+    })
   }
 
-  getTaskInvolvesMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
-    return TaskFetch.getTaskInvolvesMe(options)
+  getTaskInvolvesMe(userId: UserId, options: { page: 1, count: 100, isDone: boolean, sort: 'accomplished', _projectId?: ProjectId}) {
+    return makeColdSignal<TaskData[]>(() => {
+      const get = TaskModel.getMyTaskInvoledMe(options.page, options.isDone)
+      if (get) {
+        return get
+      }
+      return TaskFetch.getTaskInvolvesMe(options)
+        .concatMap(tasks =>
+          TaskModel.addMyTaskInvoleddByMe(userId, tasks, options.page, options.isDone)
+        )
+    })
   }
 
   getOrgMyDoneTasks(userId: UserId, organization: OrganizationData, page = 1, query?: any): Observable<TaskData[]> {

@@ -274,6 +274,89 @@ export class TaskModel extends BaseModel {
     return null
   }
 
+  getMyTaskCreateByMe(page: number, isDone: boolean): Observable<TaskData[]> | null {
+    const collection = this._collections.get(`me:tasks:createByMe/${isDone}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  addMyTaskCreateByMe(
+    tasks: TaskData[],
+    page: number,
+    isDone: boolean
+  ): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `me:tasks:createByMe/${isDone}`
+
+    let collection: Collection<TaskData> = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Task) => {
+        return (data.isDone == isDone)
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getMyTaskExecutedByMe(page: number, isDone: boolean): Observable<TaskData[]> | null {
+    const collection = this._collections.get(`me:tasks:executed/${isDone}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  addMyTaskExecutedByMe(
+    tasks: TaskData[],
+    page: number,
+    isDone: boolean
+  ): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `me:tasks:executed/${isDone}`
+
+    let collection: Collection<TaskData> = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Task) => {
+        return data.isDone == isDone
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
+  getMyTaskInvoledMe(page: number, isDone: boolean): Observable<TaskData[]> | null {
+    const collection = this._collections.get(`me:tasks:involed/${isDone}`)
+    if (collection) {
+      return collection.get(page)
+    }
+    return null
+  }
+
+  addMyTaskInvoleddByMe(
+    userId: UserId,
+    tasks: TaskData[],
+    page: number,
+    isDone: boolean
+  ): Observable<TaskData[]> {
+    const result = datasToSchemas<TaskData>(tasks, Task)
+    const dbIndex = `me:tasks:involed/${isDone}`
+
+    let collection: Collection<TaskData> = this._collections.get(dbIndex)
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (data: Task) => {
+        return (<any>data.involveMembers.indexOf(userId) !== -1) &&
+                data.isDone == isDone
+      }, dbIndex)
+      this._collections.set(dbIndex, collection)
+    }
+    return collection.addPage(page, result)
+  }
+
   /**
    * _collections 的索引是 `organization:tasks:done/${organization._id}`
    */
