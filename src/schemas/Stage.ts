@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import { StageId, ProjectId, TasklistId } from 'teambition-types'
 
 export interface StageSchema {
@@ -37,4 +37,4 @@ const schema: SchemaDef<StageSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'Stage' })
+schemaColl.add({ schema, name: 'Stage' })

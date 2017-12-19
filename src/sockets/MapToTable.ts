@@ -1,17 +1,12 @@
-import Dirty from '../utils/Dirty'
-import { Dict, SchemaColl, TableInfo } from '../utils/internalTypes'
+import { Dict, TableInfo } from '../utils'
 import { SDKLogger } from '../utils/Logger'
+import { SchemaCollection, schemaColl as globalSchemaColl } from '../schemas'
+import globalTableAlias from './TableAlias'
 
 const byLowerCase = (ret: Dict<string>, x: string) => {
   ret[x.toLowerCase()] = x
   return ret
 }
-
-const collectPKNames = (schemas: SchemaColl) =>
-  schemas.reduce((ret, { schema, name }) => {
-    ret[name] = Dirty.getPKNameinSchema(schema)
-    return ret
-  }, {} as Dict<string>)
 
 const cutTrailingS = (msgType: string): string =>
   msgType.slice(-1) === 's' ? msgType.slice(0, -1) : msgType
@@ -20,12 +15,9 @@ export class TableInfoByMessageType {
 
   private tabNameByLowerCase: Dict<string>
   private tabAliasByLowerCase: Dict<string>
-  private pkNameByTabName: Dict<string>
 
-  constructor(schemas: SchemaColl, private tableAlias: Dict<string>) {
-    this.pkNameByTabName = collectPKNames(schemas)
-
-    const tabNames = Object.keys(this.pkNameByTabName)
+  constructor(private schemaColl: SchemaCollection, private tableAlias: Dict<string>) {
+    const tabNames = this.schemaColl.listTableNames()
     const aliases = Object.keys(this.tableAlias)
 
     this.tabNameByLowerCase = tabNames.reduce(byLowerCase, {})
@@ -54,7 +46,12 @@ export class TableInfoByMessageType {
 
     return {
       tabName,
-      pkName: this.pkNameByTabName[tabName]
+      pkName: this.schemaColl.getSchema(tabName).pkName
     }
   }
 }
+
+export const mapWSMsgTypeToTable = new TableInfoByMessageType(
+  globalSchemaColl,
+  globalTableAlias
+)

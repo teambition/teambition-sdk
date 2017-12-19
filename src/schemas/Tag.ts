@@ -1,7 +1,7 @@
 import { RDBType } from 'reactivedb/interface'
 import { SchemaDef } from 'reactivedb/interface'
 import { TagId, UserId, ProjectId, DefaultColors } from 'teambition-types'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface TagSchema {
   _creatorId: UserId
@@ -58,4 +58,4 @@ const schema: SchemaDef<TagSchema> = {
   },
 }
 
-schemas.push({ name: 'Tag', schema })
+schemaColl.add({ name: 'Tag', schema })

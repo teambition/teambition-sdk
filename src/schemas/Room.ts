@@ -1,5 +1,5 @@
 import { SchemaDef, Relationship, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import {
   RoomId,
   UserId,
@@ -93,4 +93,4 @@ const schema: SchemaDef<RoomSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'Room' })
+schemaColl.add({ schema, name: 'Room' })

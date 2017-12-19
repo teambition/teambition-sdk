@@ -12,7 +12,7 @@ import {
   TaskPriority,
   UserId
 } from 'teambition-types'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import { ProjectSchema } from './Project'
 import { SprintSchema } from './Sprint'
 import { StageSchema } from './Stage'
@@ -287,4 +287,4 @@ const schema: SchemaDef<TaskSchema> = {
   }
 }
 
-schemas.push({ name: 'Task', schema })
+schemaColl.add({ name: 'Task', schema })

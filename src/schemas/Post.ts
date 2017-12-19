@@ -7,7 +7,7 @@ import {
   FileId
 } from 'teambition-types'
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export type PostModeOptions = 'md' | 'html'
 
@@ -120,4 +120,4 @@ const Schema: SchemaDef<PostSchema> = {
   }
 }
 
-schemas.push({ schema: Schema, name: 'Post' })
+schemaColl.add({ schema: Schema, name: 'Post' })

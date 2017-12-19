@@ -1,8 +1,7 @@
 'use strict'
 import { Database, DataStoreType } from 'reactivedb'
 import { testable } from '../src/testable'
-import { SDK, SDKFetch, Net } from '../src/index'
-import { schemas } from '../src/SDK'
+import { SDK } from '../src/index'
 
 import './SDKFetch.spec'
 

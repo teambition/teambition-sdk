@@ -1,28 +1,25 @@
-import 'rxjs/add/operator/concatMap'
-import 'rxjs/add/operator/do'
-import 'rxjs/add/operator/mapTo'
 import { Observable } from 'rxjs/Observable'
 import { Database } from 'reactivedb'
 import { Net } from './Net'
 import { forEach } from './utils'
 import { SDKFetch } from './SDKFetch'
 import { SocketClient } from './sockets/SocketClient'
-import { TableInfoByMessageType } from './sockets/MapToTable'
-import tableAlias from './sockets/TableAlias'
-import { SchemaColl } from './utils/internalTypes'
+import { mapWSMsgTypeToTable } from './sockets/MapToTable'
+import { schemaColl } from './schemas'
 
-export const schemas: SchemaColl = []
-
+export { schemaColl }
 export { CacheStrategy } from './Net'
 
 export class SDK {
-  net = new Net(schemas)
+  private schemas = schemaColl.toArray()
+
+  net = new Net(this.schemas)
   fetch = new SDKFetch
 
   socketClient: SocketClient = new SocketClient(
     this.fetch,
     this.net,
-    new TableInfoByMessageType(schemas, tableAlias)
+    mapWSMsgTypeToTable
   )
   database: Database
 
@@ -32,7 +29,7 @@ export class SDK {
 
   initReactiveDB (db: Database): Observable<void[]> {
     this.database = db
-    forEach(schemas, d => {
+    forEach(this.schemas, d => {
       this.database.defineSchema(d.name, d.schema)
     })
     this.database.connect()

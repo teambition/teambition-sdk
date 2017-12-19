@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import {
   ExecutorOrCreator,
   TaskId,
@@ -99,4 +99,4 @@ const schema: SchemaDef<SubtaskSchema> = {
   }
 }
 
-schemas.push({ name: 'Subtask', schema })
+schemaColl.add({ name: 'Subtask', schema })

@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import { CustomFieldType } from 'teambition-types'
 import { CustomFieldId, CustomFieldLinkId, ProjectId, RoleId } from 'teambition-types'
 
@@ -48,4 +48,4 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   },
 }
 
-schemas.push({ schema, name: 'CustomFieldLink' })
+schemaColl.add({ schema, name: 'CustomFieldLink' })

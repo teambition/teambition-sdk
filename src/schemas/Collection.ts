@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import { CollectionId, UserId } from 'teambition-types'
 
 export interface CollectionSchema {
@@ -49,4 +49,4 @@ const schema: SchemaDef<CollectionSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'Collection' })
+schemaColl.add({ schema, name: 'Collection' })

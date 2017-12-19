@@ -3,10 +3,11 @@
  * 做一些很脏的事情
  */
 import { Observable } from 'rxjs/Observable'
-import { Database, ExecutorResult, SchemaDef } from 'reactivedb'
+import { Database, ExecutorResult } from 'reactivedb'
 import { TaskSchema } from '../schemas/Task'
 import { LikeSchema } from '../schemas/Like'
 import { forEach } from './index'
+import { mapWSMsgTypeToTable } from '../sockets/MapToTable'
 
 export class Dirty {
 
@@ -59,14 +60,26 @@ export class Dirty {
    * 后端认为这种数据应该被 patch 到它的实体上
    * 而前端需要将点赞数据分开存储
    */
-  _handleLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database): Observable<ExecutorResult> | null {
-    if (data.likesGroup && data.likesGroup instanceof Array) {
-      data._boundToObjectId = id
-      data._boundToObjectType = type
-      data._id = `${id}:like`
-      return database.upsert('Like', data)
+  _handleLikeMessage(id: string, type: string, data: LikeSchema | any, database: Database): Observable<ExecutorResult[]> | null {
+    if (!data.likesGroup || !Array.isArray(data.likesGroup)) {
+      return null
     }
-    return null
+
+    const ops: Observable<ExecutorResult>[] = []
+
+    const like = mapWSMsgTypeToTable.getTableInfo('like')
+    if (like) {
+      ops.push(database.upsert(like.tabName, { ...data, [like.pkName]: `${id}:like` }))
+    }
+
+    if (type === 'Task') {
+      const task = mapWSMsgTypeToTable.getTableInfo(type)
+      if (task) {
+        ops.push(database.upsert(task.tabName, { ...data, [task.pkName]: id }))
+      }
+    }
+
+    return ops.length > 0 ? Observable.forkJoin(ops) : null
   }
 
   _handleTaskUpdateFromSocket(_id: string, _type: string, data: any): void {
@@ -75,17 +88,6 @@ export class Dirty {
         typeof data.executor !== 'undefined') {
       delete data.executor
     }
-  }
-
-  getPKNameinSchema(schema: SchemaDef<any>): string {
-    let pkName = ''
-
-    const [next, stop] = [true, false]
-    forEach(schema, (v, k) => {
-      return (!v.primaryKey && next) || ((pkName = k) && stop)
-    })
-
-    return pkName
   }
 
   prefixWithColonIfItIsMissing(eventStr: string) {

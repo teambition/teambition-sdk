@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { OrganizationId, ProjectId, RoleId, UserId } from 'teambition-types'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface OrganizationDividerSchema {
   name: string
@@ -60,4 +60,4 @@ const Schema: SchemaDef<OrganizationSchema> = {
   staffTypes: { type: RDBType.OBJECT },
 }
 
-schemas.push({ name: 'Organization', schema: Schema })
+schemaColl.add({ name: 'Organization', schema: Schema })

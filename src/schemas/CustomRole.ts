@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import { CustomRoleId, OrganizationId, UserId } from 'teambition-types'
 
 export interface CustomRoleSchema {
@@ -37,4 +37,4 @@ const schema: SchemaDef<CustomRoleSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'CustomRole' })
+schemaColl.add({ schema, name: 'CustomRole' })

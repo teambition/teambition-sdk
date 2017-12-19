@@ -1,5 +1,5 @@
 import { SchemaDef, Relationship, RDBType } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import {
   ExecutorOrCreator,
   ObjectLinkId,
@@ -71,4 +71,4 @@ const schema: SchemaDef<ObjectLinkSchema> = {
   }
 }
 
-schemas.push({ schema, name: 'ObjectLink' })
+schemaColl.add({ schema, name: 'ObjectLink' })

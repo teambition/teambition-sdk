@@ -1,25 +1,30 @@
 import { describe, it } from 'tman'
 import { expect } from 'chai'
-import { schemas } from '../../src/SDK'
-import { clone } from '../'
+import { schemaColl } from '../../src/SDK'
 import tableAlias from '../../src/sockets/TableAlias'
 import { TableInfoByMessageType } from '../../src/sockets/MapToTable'
+import { SchemaCollection } from '../../src/schemas'
 
 describe('TableInfoByMessageType spec', () => {
 
-  const mapToTable = new TableInfoByMessageType(
-    [
-      { name: 'Task', schema: { _id: { primaryKey: true } } },
-      { name: 'Event', schema: { _id: { primaryKey: true } } },
-      { name: 'Activity', schema: { _id: { primaryKey: true } } },
-      { name: 'CustomFieldLink', schema: { _id: { primaryKey: true } } },
-      { name: 'Alias', schema: { _id: { primaryKey: true } } }
-    ] as any,
-    {
-      'Alias': 'Task',
-      'job': 'Task'
-    }
-  )
+  const schemaColl = new SchemaCollection()
+
+  const schemas = [
+    { name: 'Task', schema: { _id: { primaryKey: true } } },
+    { name: 'Event', schema: { _id: { primaryKey: true } } },
+    { name: 'Activity', schema: { _id: { primaryKey: true } } },
+    { name: 'CustomFieldLink', schema: { _id: { primaryKey: true } } },
+    { name: 'Alias', schema: { _id: { primaryKey: true } } }
+  ]
+
+  schemas.forEach((schemaInfo: any) => {
+    schemaColl.add(schemaInfo)
+  })
+
+  const mapToTable = new TableInfoByMessageType(schemaColl, {
+    'Alias': 'Task',
+    'job': 'Task'
+  })
 
   it('should map a normal message `type` or `Type` to its table info', () => {
     const target = { pkName: '_id', tabName: 'Task' }
@@ -62,7 +67,7 @@ describe('TableInfoByMessageType spec', () => {
 
 describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
 
-  const mapToTable = new TableInfoByMessageType(clone(schemas), tableAlias)
+  const mapToTable = new TableInfoByMessageType(schemaColl, tableAlias)
 
   it('should map `work(s)`(case-insensitive) to `File`', () => {
     [

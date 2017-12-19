@@ -1,6 +1,6 @@
 import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { SprintId, ProjectId, UserId } from 'teambition-types'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 
 export interface SprintSchema {
   _id: SprintId
@@ -53,4 +53,4 @@ const schema: SchemaDef<SprintSchema> = {
   }
 }
 
-schemas.push({ name: 'Sprint', schema })
+schemaColl.add({ name: 'Sprint', schema })
