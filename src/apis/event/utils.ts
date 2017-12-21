@@ -49,6 +49,70 @@ export function isAllDayLegacy(e: Readonly<EventSchema>): boolean {
   return duration > 0 && duration % msPerDay === 0
 }
 
+namespace RS {
+  const dateRE = /\d{8}(?!T)/g
+  const dateSeperatorRE = /\-/g
+
+  const dateTimeRE = /(\d{8})T(\d{6})Z/g
+  const dateTimeSeperatorRE = /\-|\:/g
+
+  const dateFragments = ['YYYY', 'MM', 'DD']
+  const timeFragments = ['HH', 'mm', 'ss']
+
+  const dropMsZLength = 'YYYY-MM-DDTHH:mm:ss'.length
+
+  const join = (s: string, sep: string, templates: string[]): string => {
+    const fragments: string[] = []
+    for (let si = 0, ti = 0; ti < templates.length; ti++) {
+      const len = templates[ti].length
+      fragments.push(s.slice(si, si + len))
+      si += len
+    }
+    return fragments.join(sep)
+  }
+
+  /**
+   * 处理步骤：
+   * 在 recurrence 里的每个元素都是一个字符串 S。找到 S 里每一个(no-overlapping)
+   * yyyymmdd，将其转换为 yyyy-mm-dd。使用 dateToTime 转换为对应当地时间 yyyy-mm-dd
+   * 当天的零点，YYYY-MM-DDTHH:mm:SS.xxxZ。拿掉分隔符和毫秒信息，得 YYYYMMDDTHHmmSSZ。
+   */
+  export const recurrenceDateToTime = (recurrence: string[]): string[] => {
+    return recurrence.map((s) => {
+      return s.replace(dateRE, (dateStr) => {
+        const yyyy_mm_dd = join(dateStr, '-', dateFragments)
+        const dateTimeStr = dateToTime(yyyy_mm_dd)
+        const dropMsZ = dateTimeStr.slice(0, dropMsZLength)
+        return dropMsZ.replace(dateTimeSeperatorRE, '') + 'Z'
+      })
+    })
+  }
+
+  /**
+   * 非全天重复日程的重复规则，长得与全天重复日程的重复规则不一样，解析时的语义也不一样。
+   * 非全天重复日程的重复规则，里面的每一个时间都是 DATE，而全天重复日程的重复规则，里面
+   * 每一个时间都是 DATETIME。另外，对于它们时间的解析也不一样。同一个重复规则：
+   * ["RRULE:FREQ=DAILY;DTSTART=201712020T160000Z"]
+   * 如果属于一个全天日程，就应该映射到 ["RRULE:FREQ=DAILY;DTSTART=20171221"]；而如果它
+   * 属于一个非全天日程，就应该映射到 ["RRULE:FREQ=DAILY;DTSTART=20171220T160000Z"]。
+   *
+   * 处理步骤：
+   * 1. 在 recurrence 的每个元素都是一个字符串 S。找到 S 里的每一个（no-overlapping）
+   * yyyymmddThhmmssZ，将其识别为 yyyy-mm-ddThh:mm:ssZ 代表的时间，使用 timeToDate 转换为
+   * 字符串 YYYY-MM-DD，然后拿掉横杠，得 YYYYMMDD。在原字符串中，中 YYYYMMDD 代替 yyyymmddThhmmssZ。
+   */
+  export const recurrenceTimeToDate = (recurrence: string[]): string[] => {
+    return recurrence.map((s) => {
+      return s.replace(dateTimeRE, (_, dateStr, timeStr) => {
+        const yyyy_mm_dd = join(dateStr, '-', dateFragments)
+        const hh_mm_ss = join(timeStr, ':', timeFragments)
+        const date = timeToDate(`${yyyy_mm_dd}T${hh_mm_ss}Z`)
+        return date.replace(dateSeperatorRE, '')
+      })
+    })
+  }
+}
+
 export function normFromAllDayAttrs(event: EventSchema): EventSchema
 export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema>
 export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema> {
@@ -64,6 +128,9 @@ export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventS
   if (allDayEnd) {
     const endDateObj = new Date(dateToTime(allDayEnd, true) + msPerDay)
     rest.endDate = endDateObj.toISOString()
+  }
+  if (rest.recurrence) {
+    rest.recurrence = RS.recurrenceDateToTime(rest.recurrence)
   }
   return rest
 }
@@ -83,6 +150,9 @@ export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSch
   if (endDate) {
     const endDateObj = new Date(timeToDate(endDate, true) - msPerDay)
     rest.allDayEnd = endDateObj.toISOString().slice(0, 10)
+  }
+  if (rest.recurrence) {
+    rest.recurrence = RS.recurrenceTimeToDate(rest.recurrence)
   }
   return rest
 }
@@ -123,28 +193,6 @@ export function timeToDate(date: string, returnValue?: boolean) {
   ))
   return returnValue ? ret.valueOf() : ret.toISOString().slice(0, 10)
 }
-
-export const rruleSetMethodWrapper =
-  (normDate: { input?: (date: Date) => Date, output?: (date: Date) => Date } = {}) =>
-  (context: any) =>
-  (method: string, ...args: any[]) => {
-    const { input, output } = normDate
-    const ret = input
-      ? context[method](...args.map((arg) => arg instanceof Date ? input(arg) : arg))
-      : context[method](...args)
-
-    if (method === 'all') {
-      return output ? ret.map(output) : ret
-    }
-    return output && ret instanceof Date ? output(ret) : ret
-  }
-
-export const allDayRRuleSetMethodWrapper = (() =>
-  rruleSetMethodWrapper({
-    input: (date: Date) => new Date(timeToDate(date.toISOString())),
-    output: (date: Date) => new Date(dateToTime(date.toISOString()))
-  })
-)()
 
 /**
  * 从重复日程实例上生成的 _id 获取原重复日程 _id。
