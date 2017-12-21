@@ -1,10 +1,5 @@
 import { EventSchema } from '../../schemas/Event'
-import {
-  isRecurrent,
-  normFromAllDayAttrs,
-  rruleSetMethodWrapper,
-  allDayRRuleSetMethodWrapper
-} from './utils'
+import { isRecurrent } from './utils'
 import { clone } from '../../utils'
 import { EventId } from 'teambition-types'
 
@@ -15,8 +10,7 @@ type Timeframe = { startDate: Date, endDate: Date }
 export interface DateInfo {
   startDate: string,
   endDate: string,
-  recurrence?: string[],
-  isAllDay: boolean
+  recurrence?: string[]
 }
 
 type InstanceCreator<T> = (source: T, timeframe?: Timeframe) => T
@@ -31,15 +25,15 @@ export interface RecurrenceInstance<T> extends IterableIterator<T | undefined> {
   findByTimestamp(timestamp: number): T | null
 }
 
-export interface RecurrenceClass<T> {
-  new(source: T & DateInfo): RecurrenceInstance<T>
+export interface RecurrenceClass<T extends DateInfo> {
+  new(source: T): RecurrenceInstance<T>
 }
 
-const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceClass<T> => {
+const createRecur = <T extends DateInfo>(type: string, makeInst: InstanceCreator<T>): RecurrenceClass<T> => {
   return class implements IterableIterator<T | undefined> {
     type = type
 
-    private source: T & DateInfo
+    private source: T
 
     private startDateCursor: Date | undefined
     private done: boolean
@@ -47,12 +41,12 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
 
     private duration: number
     private isRecurrence: boolean
-    private rrule: (method: string, ...args: any[]) => any
+    private rruleSet: any
 
     [Symbol.iterator] = () => this
 
-    constructor(event: T & DateInfo) {
-      this.source = event.isAllDay ? normFromAllDayAttrs(event) as T & DateInfo : event
+    constructor(event: T) {
+      this.source = event
 
       this.done = false
 
@@ -61,11 +55,8 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
 
       this.isRecurrence = isRecurrent(this.source)
       if (this.isRecurrence) {
-        const rruleSet = rrulestr(this.source.recurrence!.join('\n'), { forceset: true })
-        this.rrule = this.source.isAllDay
-          ? allDayRRuleSetMethodWrapper(rruleSet)
-          : rruleSetMethodWrapper()(rruleSet)
-        this.startDateCursor = rruleSet.all((_: Date, i: number) => i < 1)[0]
+        this.rruleSet = rrulestr(this.source.recurrence!.join('\n'), { forceset: true })
+        this.startDateCursor = this.rruleSet.all((_: Date, i: number) => i < 1)[0]
       }
       this.makeInst = makeInst
     }
@@ -109,7 +100,7 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
         value: this.makeInstance(eventSpan),
         done: false
       }
-      this.startDateCursor = this.rrule('after', eventSpan.startDate)
+      this.startDateCursor = this.rruleSet.after(eventSpan.startDate)
       return result
     }
 
@@ -119,7 +110,7 @@ const createRecur = <T>(type: string, makeInst: InstanceCreator<T>): RecurrenceC
     ): Timeframe | null {
       // unadjustedStartDate 可能未经 this.rrule.after 过滤，有可能是
       // 一个 exdate（被 rruleset 剔除的日期），发现时需要跳过。
-      const startDate = this.rrule('after', unadjustedStartDate, include)
+      const startDate = this.rruleSet.after(unadjustedStartDate, include)
 
       return startDate
         ? { startDate, endDate: new Date(startDate.valueOf() + this.duration) }
