@@ -65,6 +65,22 @@ export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventS
     const endDateObj = new Date(dateToTime(allDayEnd, true) + msPerDay)
     rest.endDate = endDateObj.toISOString()
   }
+  if (rest.recurrence) {
+    /**
+     * 处理步骤：
+     * 在 recurrence 里的每个元素都是一个字符串 S。找到 S 里每一个(no-overlapping)
+     * yyyymmdd，将其转换为 yyyy-mm-dd。使用 dateToTime 转换为对应当地时间 yyyy-mm-dd
+     * 当天的零点，YYYY-MM-DDTHH:mm:SS.xxxZ。拿掉分隔符和毫秒信息，得 YYYYMMDDTHHmmSSZ。
+     */
+    rest.recurrence = rest.recurrence.map((s) => {
+      return s.replace(/\d{8}(?!T)/gi, (dateStr) => {
+        const yyyy_mm_dd = joinSlices(dateStr, '-', ['yyyy', 'mm', 'dd'])
+        const datetimeStr = dateToTime(yyyy_mm_dd)
+        const [dropMilliSec] = datetimeStr.split('.', 1)
+        return dropMilliSec.split(/\-|\:/).join('') + 'Z'
+      })
+    })
+  }
   return rest
 }
 
@@ -84,7 +100,40 @@ export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSch
     const endDateObj = new Date(timeToDate(endDate, true) - msPerDay)
     rest.allDayEnd = endDateObj.toISOString().slice(0, 10)
   }
+  if (rest.recurrence) {
+    /**
+     * 非全天重复日程的重复规则，长得与全天重复日程的重复规则不一样，解析时的语义也不一样。
+     * 非全天重复日程的重复规则，里面的每一个时间都是 DATE，而全天重复日程的重复规则，里面
+     * 每一个时间都是 DATETIME。另外，对于它们时间的解析也不一样。同一个重复规则：
+     * ["RRULE:FREQ=DAILY;DTSTART=201712020T160000Z"]
+     * 如果属于一个全天日程，就应该映射到 ["RRULE:FREQ=DAILY;DTSTART=20171221"]；而如果它
+     * 属于一个非全天日程，就应该映射到 ["RRULE:FREQ=DAILY;DTSTART=20171220T160000Z"]。
+     *
+     * 处理步骤：
+     * 1. 在 recurrence 的每个元素都是一个字符串 S。找到 S 里的每一个（no-overlapping）
+     * yyyymmddThhmmssZ，将其识别为 yyyy-mm-ddThh:mm:ssZ 代表的时间，使用 timeToDate 转换为
+     * 字符串 YYYY-MM-DD，然后拿掉横杠，得 YYYYMMDD。在原字符串中，中 YYYYMMDD 代替 yyyymmddThhmmssZ。
+     */
+    rest.recurrence = rest.recurrence.map((s) => {
+      return s.replace(/(\d{8})T(\d{6})Z/gi, (_, dateStr, timeStr) => {
+        const yyyy_mm_dd = joinSlices(dateStr, '-', ['yyyy', 'mm', 'dd'])
+        const hh_mm_ss = joinSlices(timeStr, ':', ['hh', 'mm', 'ss'])
+        const date = timeToDate(`${yyyy_mm_dd}T${hh_mm_ss}Z`)
+        return date.split('-').join('')
+      })
+    })
+  }
   return rest
+}
+
+function joinSlices(s: string, sep: string, templates: string[]): string {
+  const fragments: string[] = []
+  for (let si = 0, ti = 0; ti < templates.length; ti++) {
+    const len = templates[ti].length
+    fragments.push(s.slice(si, si + len))
+    si += len
+  }
+  return fragments.join(sep)
 }
 
 /**
@@ -138,13 +187,6 @@ export const rruleSetMethodWrapper =
     }
     return output && ret instanceof Date ? output(ret) : ret
   }
-
-export const allDayRRuleSetMethodWrapper = (() =>
-  rruleSetMethodWrapper({
-    input: (date: Date) => new Date(timeToDate(date.toISOString())),
-    output: (date: Date) => new Date(dateToTime(date.toISOString()))
-  })
-)()
 
 /**
  * 从重复日程实例上生成的 _id 获取原重复日程 _id。
