@@ -1,12 +1,11 @@
 import { RDBType, SchemaDef } from 'reactivedb/interface'
-import { schemas } from '../SDK'
+import { schemaColl } from './schemas'
 import {
   TeamId,
   UserId,
   OrganizationId,
   UserSnippet,
-  TeamMemberStatus,
-  TeamHasMembersElement
+  TeamMemberStatus
 } from 'teambition-types'
 
 export interface TeamSchema {
@@ -16,7 +15,10 @@ export interface TeamSchema {
   _organizationId: OrganizationId
   _parentId?: TeamId | null
   created: string
-  hasMembers: TeamHasMembersElement[]
+  hasMembers: Array<UserSnippet & {
+    isDisabled: boolean,
+    teams: TeamId[]
+  }>,
   leader: UserSnippet & { status: TeamMemberStatus } | null
   membersCount: number
   name: string
@@ -88,4 +90,4 @@ const schema: SchemaDef<TeamSchema> = {
   }
 }
 
-schemas.push({ name: 'Team', schema })
+schemaColl.add({ schema, name: 'Team' })

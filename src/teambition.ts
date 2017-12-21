@@ -122,11 +122,6 @@ declare module 'teambition-types' {
     isRobot?: boolean
   }
 
-  export interface TeamHasMembersElement extends UserSnippet {
-    isDisabled: boolean
-    teams: TeamId[]
-  }
-
   export interface InviteLinkSchema {
     inviteLink: string
     mobileInviteLink: string
