@@ -2,11 +2,9 @@
  * bundle socket 的时候，这个文件是 tsc 的一个 entry
  * import 一下需要的 Rx 操作符
  */
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/toPromise'
-import 'rxjs/add/operator/concatMap'
-import 'rxjs/add/operator/take'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { take } from 'rxjs/operators/take'
+
 import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
@@ -78,9 +76,7 @@ export class SocketClient {
   }
 
   async connect(): Promise<void> {
-    const userMe = await this._getUserMeStream
-      .take(1)
-      .toPromise()
+    const userMe = await this._getUserMeStream.pipe(take(1)).toPromise()
     const auth = userMe.snapperToken.split('.')[1]
     const token: {
       exp: number
@@ -133,9 +129,7 @@ export class SocketClient {
   }
 
   private _connect(): Promise<void> {
-    return this._getUserMeStream
-      .take(1)
-      .toPromise()
+    return this._getUserMeStream.pipe(take(1)).toPromise()
       .then(userMe => {
         this._client
           .connect(this._socketUrl, {

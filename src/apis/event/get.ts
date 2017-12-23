@@ -1,4 +1,3 @@
-import 'rxjs/add/operator/toArray'
 import { QueryToken } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { EventSchema } from '../../schemas/Event'

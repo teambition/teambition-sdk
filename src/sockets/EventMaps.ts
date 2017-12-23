@@ -1,6 +1,7 @@
 import 'rxjs/add/observable/from'
-import 'rxjs/add/operator/mergeAll'
 import { Observable } from 'rxjs/Observable'
+import { mergeAll } from 'rxjs/operators/mergeAll'
+
 import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { Net } from '../Net'
@@ -82,6 +83,5 @@ export function socketHandler(
     }
   })
 
-  return Observable.from(signals)
-    .mergeAll()
+  return Observable.from(signals).pipe(mergeAll())
 }

@@ -1,10 +1,11 @@
 import 'rxjs/add/observable/dom/ajax'
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/map'
 import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
+import { catchError } from 'rxjs/operators/catchError'
+import { map } from 'rxjs/operators/map'
+
 import { parseHeaders, headers2Object } from '../utils/index'
 import { testable } from '../testable'
 
@@ -43,8 +44,8 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
       withCredentials: _opts.credentials === 'include',
       responseType: _opts.responseType || 'json',
       crossDomain: typeof _opts.crossDomain !== 'undefined' ? !!_opts.crossDomain : true
-    })
-      .map(value => {
+    }).pipe(
+      map(value => {
         const resp = value.response
         try {
           const respBody = JSON.parse(resp)
@@ -59,8 +60,8 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
         } catch (e) {
           return resp
         }
-      })
-      .catch((e: AjaxError) => {
+      }),
+      catchError((e: AjaxError) => {
         const headers = e.xhr.getAllResponseHeaders()
         const sdkError: HttpErrorMessage = {
           error: new Response(new Blob([JSON.stringify(e.xhr.response)]), {
@@ -76,6 +77,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
         }, 10)
         return Observable.throw(sdkError)
       })
+    )
   } else {
     return Observable.create((observer: Observer<any>) => {
       const _options = {

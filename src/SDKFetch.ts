@@ -1,9 +1,9 @@
 import 'rxjs/add/observable/defer'
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/publishReplay'
-import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
+import { publishReplay } from 'rxjs/operators/publishReplay'
+import { finalize } from 'rxjs/operators/finalize'
+import { refCount } from 'rxjs/operators/refCount'
+
 import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
 import { forEach, isEmptyObject } from './utils'
@@ -92,14 +92,16 @@ export class SDKFetch {
       const urlWithTail = query && !isEmptyObject(query)
         ? `${ urlWithQuery }&_=${ tail }`
         : `${ urlWithQuery }?_=${ tail }`
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get()
-        .send()
-        .publishReplay<any>(1)
-        .refCount()
-      )
-        .finally(() => {
+      dist = Observable.defer(() => {
+        const request = http.setUrl(urlWithTail).get()
+        // 将 Observable<T> | Observable<HttpResponsewithheaders<T>> 弱化为
+        // Observable<T | HttpResponsewithheaders<T>>
+        const response$: Observable<T | HttpResponseWithHeaders<T>> = request.send()
+        return response$.pipe(publishReplay(1), refCount())
+      })
+        .pipe(finalize(() => {
           SDKFetch.FetchStack.delete(urlWithQuery)
-        })
+        }))
 
       SDKFetch.FetchStack.set(urlWithQuery, dist)
     }
