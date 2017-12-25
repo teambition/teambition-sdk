@@ -1,4 +1,4 @@
-import { EventSchema } from '../../schemas/Event'
+import { EventSchema, AllDayEventSchema } from '../../schemas/Event'
 import { EventId } from 'teambition-types'
 import { SDKLogger } from '../../utils/Logger'
 
@@ -113,9 +113,9 @@ namespace RS {
   }
 }
 
-export function normFromAllDayAttrs(event: EventSchema): EventSchema
-export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema>
-export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema> {
+export function normFromAllDayAttrs(event: AllDayEventSchema): EventSchema
+export function normFromAllDayAttrs(attrs: Partial<AllDayEventSchema>): Partial<EventSchema>
+export function normFromAllDayAttrs(attrs: Partial<AllDayEventSchema>): Partial<EventSchema> {
   if (!attrs.isAllDay) {
     return attrs
   }
@@ -135,9 +135,9 @@ export function normFromAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventS
   return rest
 }
 
-export function normToAllDayAttrs(event: EventSchema): EventSchema
-export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema>
-export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSchema> {
+export function normToAllDayAttrs(event: EventSchema): AllDayEventSchema
+export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<AllDayEventSchema>
+export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<AllDayEventSchema> {
   if (!attrs.isAllDay) {
     return attrs
   }
@@ -145,11 +145,11 @@ export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<EventSch
   const { startDate, endDate, ...rest } = attrs
 
   if (startDate) {
-    rest.allDayStart = timeToDate(startDate)
+    (rest as Partial<AllDayEventSchema>).allDayStart = timeToDate(startDate)
   }
   if (endDate) {
-    const endDateObj = new Date(timeToDate(endDate, true) - msPerDay)
-    rest.allDayEnd = endDateObj.toISOString().slice(0, 10)
+    const endDateObj = new Date(timeToDate(endDate, true) - msPerDay);
+    (rest as Partial<AllDayEventSchema>).allDayEnd = endDateObj.toISOString().slice(0, 10)
   }
   if (rest.recurrence) {
     rest.recurrence = RS.recurrenceTimeToDate(rest.recurrence)

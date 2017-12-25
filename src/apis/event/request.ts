@@ -2,6 +2,8 @@ import { Observable } from 'rxjs/Observable'
 import { SDKFetch } from '../../SDKFetch'
 import { EventSchema } from '../../schemas/Event'
 import { EventId, ProjectId, UserId } from 'teambition-types'
+import { api as eventAPI } from './iface'
+import { API } from '../iface'
 
 export namespace CommentsRepeatEvent {
   export interface Response {
@@ -22,6 +24,13 @@ export namespace CommentsRepeatEvent {
     attachments?: any[]
     mentions?: any[]
   }
+
+  export const api: Pick<API<Response>, 'parse'> = {
+    parse: (raw) => Object.assign(raw, {
+      new: eventAPI.parse(raw.new),
+      repeat: eventAPI.parse(raw.repeat)
+    })
+  }
 }
 
 export function commentsRepeatEvent(
@@ -29,7 +38,8 @@ export function commentsRepeatEvent(
   _id: EventId,
   options: CommentsRepeatEvent.Options
 ): Observable<CommentsRepeatEvent.Response> {
-  return this.post(`events/${_id}/comments_repeat_event`, options)
+  return this.post<CommentsRepeatEvent.Response>(`events/${_id}/comments_repeat_event`, options)
+    .map(CommentsRepeatEvent.api.parse)
 }
 
 export namespace UpdateInvolveMembers {
@@ -66,6 +76,7 @@ export function fetchAnEvent(
   query?: any
 ): Observable<EventSchema> {
   return this.get<EventSchema>(`events/${eventId}`, query)
+    .map(eventAPI.parse)
 }
 
 export function fetchProjectEventsCount(
@@ -82,6 +93,7 @@ export function fetchProjectEvents(
   query: EventSpan
 ): Observable<EventSchema[]> {
   return this.get<EventSchema[]>(`projects/${_projectId}/events`, query)
+    .map((rawEvents) => rawEvents.map(eventAPI.parse))
 }
 
 SDKFetch.prototype.commentsRepeatEvent = commentsRepeatEvent
