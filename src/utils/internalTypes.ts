@@ -31,3 +31,14 @@ export interface SqlPagingQuery {
   skip: number,
   limit: number
 }
+
+export interface WSMessageParsed {
+  // new change destroy refresh ...
+  method: string
+  // mongo id
+  id: string
+  // schema types: task, post, event, file, etc...
+  type: string
+  // optional data, null in delete
+  data: any
+}
