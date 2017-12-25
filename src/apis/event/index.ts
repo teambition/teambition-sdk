@@ -19,3 +19,5 @@ export {
   timeToDate,
   dateToTime,
 } from './utils'
+
+export { api } from './iface'

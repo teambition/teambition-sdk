@@ -3,7 +3,6 @@ import { QueryToken } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { EventSchema } from '../../schemas/Event'
 import { EventGenerator } from './EventGenerator'
-import { normFromAllDayAttrs } from './utils'
 import { EventId } from 'teambition-types'
 
 export function getEvent(
@@ -24,10 +23,7 @@ export function getEvent(
     excludeFields: [ 'project' ]
   })
 
-  return token.map(e$ => e$.map(events => events.map(e => {
-    const normed = e.isAllDay ? normFromAllDayAttrs(e) : e
-    return new EventGenerator(normed)
-  })))
+  return token.map(e$ => e$.map(events => events.map(e => new EventGenerator(e))))
 }
 
 SDK.prototype.getEvent = getEvent
