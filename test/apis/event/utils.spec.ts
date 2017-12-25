@@ -2,6 +2,8 @@ import { describe, it, beforeEach } from 'tman'
 import { expect } from 'chai'
 import * as Moment from 'moment'
 
+import * as e from '../../../src/apis/event/utils'
+
 import {
   recurrenceByMonth,
   recurrenceHasEnd,
@@ -9,9 +11,7 @@ import {
   emptyRecurrence,
   normalEvent
 } from '../../fixtures/events.fixture'
-
-import { EventSDK as e } from '../../../src'
-import { isAllDayLegacy } from '../../../src/apis/event/utils'
+import { Generator } from '../../../src/apis/event'
 import { forEachFalsyValueOfProperty } from '../../utils'
 
 describe('Event-related util functions', () => {
@@ -68,40 +68,40 @@ describe('Event-related util functions', () => {
     } as any)).to.be.false
   })
 
-  it(`${isAllDayLegacy.name}() should return true for an event from 00:00 to 00:00 of the next day`, () => {
-    expect(isAllDayLegacy({
+  it(`${e.isAllDayLegacy.name}() should return true for an event from 00:00 to 00:00 of the next day`, () => {
+    expect(e.isAllDayLegacy({
       startDate: Moment(now).startOf('day').toISOString(),
       endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
     } as any)).to.be.true
   })
 
-  it(`${isAllDayLegacy.name}() should return true for an event from 00:00 to 00:00 of the next nth days`, () => {
+  it(`${e.isAllDayLegacy.name}() should return true for an event from 00:00 to 00:00 of the next nth days`, () => {
     const nthDays = [3, 5, 7]
 
     nthDays.forEach((nthDay) => {
-      expect(isAllDayLegacy({
+      expect(e.isAllDayLegacy({
         startDate: Moment(now).startOf('day').toISOString(),
         endDate: Moment(now).add(nthDay, 'day').startOf('day').toISOString()
       } as any)).to.be.true
     })
   })
 
-  it(`${isAllDayLegacy.name}() should return false for an event from 00:00 to 00:00 of the same day`, () => {
-    expect(isAllDayLegacy({
+  it(`${e.isAllDayLegacy.name}() should return false for an event from 00:00 to 00:00 of the same day`, () => {
+    expect(e.isAllDayLegacy({
       startDate: Moment(now).startOf('day').toISOString(),
       endDate: Moment(now).startOf('day').toISOString()
     } as any)).to.be.false
   })
 
-  it(`${isAllDayLegacy.name}() should return false for an event from 00:00 to 23:59:999 of the same day`, () => {
-    expect(isAllDayLegacy({
+  it(`${e.isAllDayLegacy.name}() should return false for an event from 00:00 to 23:59:999 of the same day`, () => {
+    expect(e.isAllDayLegacy({
       startDate: Moment(now).startOf('day').toISOString(),
       endDate: Moment(now).endOf('day').toISOString()
     } as any)).to.be.false
   })
 
-  it(`${isAllDayLegacy.name}() should return false for an event that doesn\'t start at 00:00`, () => {
-    expect(isAllDayLegacy({
+  it(`${e.isAllDayLegacy.name}() should return false for an event that doesn\'t start at 00:00`, () => {
+    expect(e.isAllDayLegacy({
       startDate: Moment(now).startOf('day').add(1, 'hour').toISOString(),
       endDate: Moment(now).add(1, 'day').startOf('day').add(1, 'hour').toISOString()
     } as any)).to.be.false
@@ -152,7 +152,7 @@ describe('Event-related util functions', () => {
     allDayInfos.forEach((allDayInfo) => {
       const normed: any = e.normFromAllDayAttrs(allDayInfo)
       expect(e.isAllDay(normed)).to.be.true
-      expect(isAllDayLegacy(normed)).to.be.true
+      expect(e.isAllDayLegacy(normed)).to.be.true
     })
   })
 
@@ -209,7 +209,7 @@ describe('Event-related util functions', () => {
 
   it('originEventId() should pick out origin event id from generated id', () => {
     const originId = recurrenceByMonth._id
-    const gen = new e.Generator(recurrenceByMonth as any)
+    const gen = new Generator(recurrenceByMonth as any)
 
     for (let i = 0; i < 5; i++) {
       const { _id } = gen.next().value!
@@ -219,7 +219,7 @@ describe('Event-related util functions', () => {
 
   it('originEventId() should return the id as it is if the id is original', () => {
     const originId = recurrenceByMonth._id
-    const gen = new e.Generator(recurrenceByMonth as any)
+    const gen = new Generator(recurrenceByMonth as any)
 
     for (let i = 0; i < 5; i++) {
       const { _id } = gen.next().value!

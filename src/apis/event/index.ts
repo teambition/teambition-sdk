@@ -14,8 +14,8 @@ export {
   originEventId,
   isAllDay,
   isRecurrent,
-  normFromAllDayAttrs,
-  normToAllDayAttrs,
   timeToDate,
-  dateToTime,
+  dateToTime
 } from './utils'
+
+export { api } from './iface'
