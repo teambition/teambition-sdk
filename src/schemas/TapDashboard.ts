@@ -29,6 +29,15 @@ export interface TapCoordination {
   size?: TapCoordSize
 }
 
+export interface TapDashboardSectionId extends String {
+  kind?: 'TapDashboardSectionId'
+}
+
+export interface TapDashboardSection {
+  _id: TapDashboardSectionId
+  name: string
+}
+
 export interface TapDashboard<T extends FilterRequest | FilterResponse> {
   _id: TapDashboardId
 
@@ -45,6 +54,9 @@ export interface TapDashboard<T extends FilterRequest | FilterResponse> {
   display: TapDashboardDisplay
   coords: TapCoordination[]
   coverChart?: TapChart<FilterResponse>
+
+  sections: TapDashboardSection[]
+  _selectedSectionId: TapDashboardSectionId
 
   filter: T
   filterList: FilterResponse
@@ -105,6 +117,14 @@ const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
   },
   coverChart: {
     type: RDBType.OBJECT
+  },
+
+  sections: {
+    type: RDBType.OBJECT
+  },
+
+  _selectedSectionId: {
+    type: RDBType.STRING
   },
 
   filter: {
