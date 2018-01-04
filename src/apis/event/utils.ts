@@ -168,9 +168,9 @@ export function dateToTime(date: string, returnValue?: boolean) {
   const src = new Date(date)
 
   const ret = new Date(
-    src.getFullYear(),
-    src.getMonth(),
-    src.getDate()
+    src.getUTCFullYear(),
+    src.getUTCMonth(),
+    src.getUTCDate()
   )
   return returnValue ? ret.valueOf() : ret.toISOString()
 }
