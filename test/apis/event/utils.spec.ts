@@ -1,4 +1,4 @@
-import { describe, it } from 'tman'
+import { describe, it, beforeEach } from 'tman'
 import { expect } from 'chai'
 import * as Moment from 'moment'
 
@@ -108,15 +108,15 @@ describe('Event-related util functions', () => {
   })
 
   it(`${e.dateToTime.name}() takes date info from input string, and returns zero o'clock of the date in current timezone in string`, () => {
-    const expected = '2017-11-29T16:00:00.000Z'
+    const expected = '2017-11-30T05:00:00.000Z'
     expect(e.dateToTime('2017-11-30')).to.equal(expected)
     expect(e.dateToTime('2017-11-30T00:00:00Z')).to.equal(expected)
     expect(e.dateToTime('2017-11-30T02:58:09.293Z')).to.equal(expected)
   })
 
   it(`${e.timeToDate.name}() takes from input string the date info as interpreted in current timezone, and returns it as 'YYYY-MM-DD'`, () => {
-    expect(e.timeToDate('2017-11-29T16:00:00Z')).to.equal('2017-11-30')
-    expect(e.timeToDate('2017-11-29T15:59:59Z')).to.equal('2017-11-29')
+    expect(e.timeToDate('2017-11-30T05:00:00Z')).to.equal('2017-11-30')
+    expect(e.timeToDate('2017-11-30T04:59:59Z')).to.equal('2017-11-29')
   })
 
   it('normFromAllDayAttrs() should return orginal startDate/endDate for object without allday info', () => {
@@ -125,6 +125,21 @@ describe('Event-related util functions', () => {
       endDate: Moment(now).add(1, 'day').startOf('day').toISOString()
     }
     expect(e.normFromAllDayAttrs(startEndDate)).to.deep.equal(startEndDate)
+  })
+
+  it(`${e.normFromAllDayAttrs.name}() should drop allDayStart/allDayEnd for non-allday info`, () => {
+    const nonAllDayInfo = {
+      isAllDay: false,
+      startDate: '2018-01-04T22:30:00.000Z',
+      endDate: '2018-01-04T22:40:00.000Z',
+      allDayStart: 'not to be used',
+      allDayEnd: 'not to be used'
+    }
+    expect(e.normFromAllDayAttrs(nonAllDayInfo)).to.deep.equal({
+      isAllDay: false,
+      startDate: '2018-01-04T22:30:00.000Z',
+      endDate: '2018-01-04T22:40:00.000Z'
+    })
   })
 
   it('normFromAllDayAttrs() should return valid allday event startDate/endDate when provided with allday info', () => {
@@ -138,58 +153,6 @@ describe('Event-related util functions', () => {
       const normed: any = e.normFromAllDayAttrs(allDayInfo)
       expect(e.isAllDay(normed)).to.be.true
       expect(isAllDayLegacy(normed)).to.be.true
-    })
-  })
-
-  it(`${e.normFromAllDayAttrs.name} should convert 'recurrence' to DATETIME format if isAllDay: true`, () => {
-    const sample = {
-      isAllDay: true,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171221;UNTIL=20171231',
-        'EXDATE:20171225,20171226'
-      ]
-    }
-
-    expect(e.normFromAllDayAttrs(sample)).to.deep.equal({
-      isAllDay: true,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
-        'EXDATE:20171224T160000Z,20171225T160000Z'
-      ]
-    })
-  })
-
-  it(`${e.normFromAllDayAttrs.name} should NOT convert 'recurrence' if isAllDay: false`, () => {
-    const sample = {
-      isAllDay: false,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
-        'EXDATE:20171224T160000Z,20171225T160000Z'
-      ]
-    }
-
-    expect(e.normFromAllDayAttrs(sample)).to.deep.equal(sample)
-  })
-
-  it(`${e.normFromAllDayAttrs.name} should reach fixpoint no later than the 1st call`, () => {
-    const samples = [{}, {
-      isAllDay: false,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
-        'EXDATE:20171224T160000Z,20171225T160000Z'
-      ]
-    }, {
-      isAllDay: true,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171221;UNTIL=20171231',
-        'EXDATE:20171225,20171226'
-      ]
-    }]
-
-    samples.forEach((sample) => {
-      const firstResult = e.normFromAllDayAttrs(sample)
-      const secondResult = e.normFromAllDayAttrs(firstResult)
-      expect(secondResult).to.deep.equal(firstResult)
     })
   })
 
@@ -214,70 +177,22 @@ describe('Event-related util functions', () => {
     expect(e.normToAllDayAttrs(startEndDate)).to.deep.equal(startEndDate)
   })
 
-  it(`${e.normToAllDayAttrs.name} should convert 'recurrence' to DATE format if isAllDay: true`, () => {
-    const sample = {
-      isAllDay: true,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
-        'EXDATE:20171224T160000Z,20171225T160000Z'
-      ]
-    }
-
-    expect(e.normToAllDayAttrs(sample)).to.deep.equal({
-      isAllDay: true,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171221;UNTIL=20171231',
-        'EXDATE:20171225,20171226'
-      ]
-    })
-  })
-
-  it(`${e.normToAllDayAttrs.name} should NOT convert 'recurrence' if isAllDay: false`, () => {
-    const sample = {
-      isAllDay: false,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
-        'EXDATE:20171224T160000Z,20171225T160000Z'
-      ]
-    }
-
-    expect(e.normToAllDayAttrs(sample)).to.deep.equal(sample)
-  })
-
-  it(`${e.normToAllDayAttrs.name} should reach fixpoint no later than the 1st call`, () => {
-    const samples = [{}, {
-      isAllDay: false,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
-        'EXDATE:20171224T160000Z,20171225T160000Z'
-      ]
-    }, {
-      isAllDay: true,
-      recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
-        'EXDATE:20171224T160000Z,20171225T160000Z'
-      ]
-    }]
-
-    samples.forEach((sample) => {
-      const firstResult = e.normToAllDayAttrs(sample)
-      const secondResult = e.normToAllDayAttrs(sample)
-      expect(secondResult).to.deep.equal(firstResult)
-    })
-  })
-
   it(`${e.normFromAllDayAttrs.name} and ${e.normToAllDayAttrs.name} should form a dual pair`, () => {
     const samples = [
       {},
       {
         isAllDay: false,
         startDate: '2017-12-21T10:36:57.414Z',
-        endDate: '2017-12-21T11:00:00.000Z'
+        endDate: '2017-12-21T11:00:00.000Z',
+        allDayStart: 'hello',
+        allDayEnd: 'world'
       },
       {
         isAllDay: true,
         allDayStart: '2017-12-21',
         allDayEnd: '2017-12-21',
+        startDate: 'hello',
+        endDate: 'world',
         recurrence: [
           'RRULE:FREQ=DAILY;DTSTART=20171221;UNTIL=20171231',
           'EXDATE:20171225,20171226'
@@ -286,7 +201,9 @@ describe('Event-related util functions', () => {
     ]
 
     samples.forEach((sample) => {
-      expect(e.normToAllDayAttrs(e.normFromAllDayAttrs(sample))).to.deep.equal(sample)
+      const normed = e.normFromAllDayAttrs(sample)
+      const raw = e.normToAllDayAttrs(normed)
+      expect(e.normFromAllDayAttrs(raw)).to.deep.equal(normed)
     })
   })
 
@@ -308,5 +225,86 @@ describe('Event-related util functions', () => {
       const { _id } = gen.next().value!
       expect(e.originEventId(e.originEventId(_id))).to.equal(originId)
     }
+  })
+})
+
+describe('normalization of allday attrs with recurrence', () => {
+
+  let rawAllDay: any
+  let rawNonAllDay: any
+  let normedAllDay: any
+  let normedNonAllDay: any
+
+  beforeEach(() => {
+    rawAllDay = {
+      isAllDay: true,
+      recurrence: [
+        'RRULE:FREQ=DAILY;DTSTART=20171221;UNTIL=20171231',
+        'EXDATE:20171225,20171226'
+      ]
+    }
+    normedAllDay = {
+      isAllDay: true,
+      recurrence: [
+        'RRULE:FREQ=DAILY;DTSTART=20171221T050000Z;UNTIL=20171231T050000Z',
+        'EXDATE:20171225T050000Z,20171226T050000Z'
+      ]
+    }
+    rawNonAllDay = {
+      isAllDay: false,
+      recurrence: [
+        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
+        'EXDATE:20171224T160000Z,20171225T160000Z'
+      ]
+    }
+    normedNonAllDay = {
+      isAllDay: false,
+      recurrence: [
+        'RRULE:FREQ=DAILY;DTSTART=20171220T160000Z;UNTIL=20171230T160000Z',
+        'EXDATE:20171224T160000Z,20171225T160000Z'
+      ]
+    }
+  })
+
+  it(`${e.normFromAllDayAttrs.name} should convert 'recurrence' to DATETIME format if isAllDay: true`, () => {
+    expect(e.normFromAllDayAttrs(rawAllDay)).to.deep.equal({
+      isAllDay: true,
+      recurrence: [
+        'RRULE:FREQ=DAILY;DTSTART=20171221T050000Z;UNTIL=20171231T050000Z',
+        'EXDATE:20171225T050000Z,20171226T050000Z'
+      ]
+    })
+  })
+
+  it(`${e.normFromAllDayAttrs.name} should NOT convert 'recurrence' if isAllDay: false`, () => {
+    expect(e.normFromAllDayAttrs(rawNonAllDay)).to.deep.equal(normedNonAllDay)
+  })
+
+  it(`${e.normFromAllDayAttrs.name} should reach fixpoint no later than the 1st call`, () => {
+    const samples = [rawAllDay, rawNonAllDay]
+
+    samples.forEach((sample) => {
+      const firstResult = e.normFromAllDayAttrs(sample)
+      const secondResult = e.normFromAllDayAttrs(firstResult)
+      expect(secondResult).to.deep.equal(firstResult)
+    })
+  })
+
+  it(`${e.normToAllDayAttrs.name} should convert 'recurrence' to DATE format if isAllDay: true`, () => {
+    expect(e.normToAllDayAttrs(normedAllDay)).to.deep.equal(rawAllDay)
+  })
+
+  it(`${e.normToAllDayAttrs.name} should NOT convert 'recurrence' if isAllDay: false`, () => {
+    expect(e.normToAllDayAttrs(normedNonAllDay)).to.deep.equal(normedNonAllDay)
+  })
+
+  it(`${e.normToAllDayAttrs.name} should reach fixpoint no later than the 1st call`, () => {
+    const samples = [{}, normedNonAllDay, normedAllDay]
+
+    samples.forEach((sample) => {
+      const firstResult = e.normToAllDayAttrs(sample)
+      const secondResult = e.normToAllDayAttrs(sample)
+      expect(secondResult).to.deep.equal(firstResult)
+    })
   })
 })
