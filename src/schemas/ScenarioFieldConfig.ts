@@ -6,7 +6,6 @@ import {
   ScenarioFieldConfigIcon,
   ScenarioFieldConfigId,
   ScenarioFieldConfigObjectType,
-  ScenarioProTemplateConfigType,
   TaskScenarioFieldIcon,
   UserId,
 } from 'teambition-types'
@@ -28,7 +27,7 @@ export interface ScenarioFieldConfigSchema {
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
   updated: string
-  proTemplateConfigType?: ScenarioProTemplateConfigType
+  proTemplateConfigType?: 'bug' | 'story'
 }
 
 export interface TaskScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
