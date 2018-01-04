@@ -116,11 +116,11 @@ namespace RS {
 export function normFromAllDayAttrs(event: AllDayEventSchema): EventSchema
 export function normFromAllDayAttrs(attrs: Partial<AllDayEventSchema>): Partial<EventSchema>
 export function normFromAllDayAttrs(attrs: Partial<AllDayEventSchema>): Partial<EventSchema> {
-  if (!attrs.isAllDay) {
-    return attrs
-  }
-
   const { allDayStart, allDayEnd, ...rest } = attrs
+
+  if (!attrs.isAllDay) {
+    return rest
+  }
 
   if (allDayStart) {
     rest.startDate = dateToTime(allDayStart)
