@@ -19,6 +19,7 @@ export interface TeamSchema {
     isDisabled: boolean,
     teams: TeamId[]
   }>,
+  hasSubTeams: boolean,
   leader: UserSnippet & { status: TeamMemberStatus } | null
   membersCount: number
   name: string
@@ -54,6 +55,9 @@ const schema: SchemaDef<TeamSchema> = {
   },
   hasMembers: {
     type: RDBType.OBJECT
+  },
+  hasSubTeams: {
+    type: RDBType.BOOLEAN
   },
   leader: {
     type: RDBType.OBJECT
