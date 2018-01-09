@@ -18,4 +18,4 @@ export {
   dateToTime
 } from './utils'
 
-export { api } from './iface'
+export { marshaler, api } from './marshaler'

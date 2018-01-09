@@ -186,7 +186,7 @@ const createRecur = <T extends DateInfo>(type: string, makeInst: InstanceCreator
       let toDate = startDateTo
       let toCmpOption: 'byStartDate' | 'byEndDate'
 
-      if (!endDateTo || startDateTo.valueOf() + this.duration <= endDateTo.valueOf()) {
+      if (!endDateTo || (endDateTo.valueOf() >= startDateTo.valueOf() + this.duration)) {
         toCmpOption = 'byStartDate'
       } else {
         toDate = endDateTo
@@ -239,7 +239,7 @@ export const findByEventId = (eventGen: EventGenerator, eventId: EventId): Event
     return eventId === originEventId ? eventGen['makeInstance']() : null
   }
 
-  const [id, timestampStr] = eventId.split('_', 2)
+  const [ id, timestampStr ] = eventId.split('_', 2)
   if (id !== originEventId) {
     return null
   }

@@ -18,7 +18,7 @@ import {
   JoinMode
  } from 'reactivedb'
 
-import { forEach, WSMessageParsed } from '../utils'
+import { forEach, ParsedWSMessage } from '../utils'
 import Dirty from '../utils/Dirty'
 import { SDKLogger } from '../utils/Logger'
 export enum CacheStrategy {
@@ -64,7 +64,7 @@ export type CUDBufferObject = {
 export type SocketCUDBufferObject = {
   kind: 'SocketCUD'
   tableName: string
-  socketMessage: WSMessageParsed
+  socketMessage: ParsedWSMessage
   pkName: string
 }
 
@@ -275,7 +275,7 @@ export class Net {
   }
 
   bufferSocketPush(
-    socketMessage: WSMessageParsed,
+    socketMessage: ParsedWSMessage,
     tableName: string,
     pkName: string
   ) {

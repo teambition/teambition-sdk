@@ -5,7 +5,7 @@ import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { Net } from '../Net'
 import { eventParser } from './EventParser'
-import { WSMessageParsed } from '../utils'
+import { ParsedWSMessage } from '../utils'
 import Dirty from '../utils/Dirty'
 import { TableInfoByMessageType } from './MapToTable'
 
@@ -21,7 +21,7 @@ const methodMap: any = {
  * destroy 事件没有 data
  */
 export const handleMsgToDb = (
-  msg: WSMessageParsed,
+  msg: ParsedWSMessage,
   db: Database,
   tableName: string,
   pkName: string

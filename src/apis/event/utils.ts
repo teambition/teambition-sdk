@@ -49,27 +49,16 @@ export function isAllDayLegacy(e: Readonly<EventSchema>): boolean {
   return duration > 0 && duration % msPerDay === 0
 }
 
-namespace RS {
+namespace RRuleSetConvert {
   const dateRE = /\d{8}(?!T)/g
   const dateSeperatorRE = /\-/g
+  const yyyymmddRE = /(\d{4})(\d{2})(\d{2})/
 
   const dateTimeRE = /(\d{8})T(\d{6})Z/g
   const dateTimeSeperatorRE = /\-|\:/g
-
-  const dateFragments = ['YYYY', 'MM', 'DD']
-  const timeFragments = ['HH', 'mm', 'ss']
+  const hhmmssRE = /(\d{2})(\d{2})(\d{2})/
 
   const dropMsZLength = 'YYYY-MM-DDTHH:mm:ss'.length
-
-  const join = (s: string, sep: string, templates: string[]): string => {
-    const fragments: string[] = []
-    for (let si = 0, ti = 0; ti < templates.length; ti++) {
-      const len = templates[ti].length
-      fragments.push(s.slice(si, si + len))
-      si += len
-    }
-    return fragments.join(sep)
-  }
 
   /**
    * 处理步骤：
@@ -77,10 +66,10 @@ namespace RS {
    * yyyymmdd，将其转换为 yyyy-mm-dd。使用 dateToTime 转换为对应当地时间 yyyy-mm-dd
    * 当天的零点，YYYY-MM-DDTHH:mm:SS.xxxZ。拿掉分隔符和毫秒信息，得 YYYYMMDDTHHmmSSZ。
    */
-  export const recurrenceDateToTime = (recurrence: string[]): string[] => {
-    return recurrence.map((s) => {
+  export const toDateTime = (rruleSet: string[]): string[] => {
+    return rruleSet.map((s) => {
       return s.replace(dateRE, (dateStr) => {
-        const yyyy_mm_dd = join(dateStr, '-', dateFragments)
+        const yyyy_mm_dd = dateStr.replace(yyyymmddRE, '$1-$2-$3')
         const dateTimeStr = dateToTime(yyyy_mm_dd)
         const dropMsZ = dateTimeStr.slice(0, dropMsZLength)
         return dropMsZ.replace(dateTimeSeperatorRE, '') + 'Z'
@@ -89,8 +78,8 @@ namespace RS {
   }
 
   /**
-   * 非全天重复日程的重复规则，长得与全天重复日程的重复规则不一样，解析时的语义也不一样。
-   * 非全天重复日程的重复规则，里面的每一个时间都是 DATE，而全天重复日程的重复规则，里面
+   * 全天重复日程的重复规则，长得与非全天重复日程的重复规则不一样，解析时的语义也不一样。
+   * 全天重复日程的重复规则，里面的每一个时间都是 DATE，而非全天重复日程的重复规则，里面
    * 每一个时间都是 DATETIME。另外，对于它们时间的解析也不一样。同一个重复规则：
    * ["RRULE:FREQ=DAILY;DTSTART=201712020T160000Z"]
    * 如果属于一个全天日程，就应该映射到 ["RRULE:FREQ=DAILY;DTSTART=20171221"]；而如果它
@@ -101,11 +90,11 @@ namespace RS {
    * yyyymmddThhmmssZ，将其识别为 yyyy-mm-ddThh:mm:ssZ 代表的时间，使用 timeToDate 转换为
    * 字符串 YYYY-MM-DD，然后拿掉横杠，得 YYYYMMDD。在原字符串中，中 YYYYMMDD 代替 yyyymmddThhmmssZ。
    */
-  export const recurrenceTimeToDate = (recurrence: string[]): string[] => {
-    return recurrence.map((s) => {
+  export const toDate = (rruleSet: string[]): string[] => {
+    return rruleSet.map((s) => {
       return s.replace(dateTimeRE, (_, dateStr, timeStr) => {
-        const yyyy_mm_dd = join(dateStr, '-', dateFragments)
-        const hh_mm_ss = join(timeStr, ':', timeFragments)
+        const yyyy_mm_dd = dateStr.replace(yyyymmddRE, '$1-$2-$3')
+        const hh_mm_ss = timeStr.replace(hhmmssRE, '$1:$2:$3')
         const date = timeToDate(`${yyyy_mm_dd}T${hh_mm_ss}Z`)
         return date.replace(dateSeperatorRE, '')
       })
@@ -130,7 +119,7 @@ export function normFromAllDayAttrs(attrs: Partial<AllDayEventSchema>): Partial<
     rest.endDate = endDateObj.toISOString()
   }
   if (rest.recurrence) {
-    rest.recurrence = RS.recurrenceDateToTime(rest.recurrence)
+    rest.recurrence = RRuleSetConvert.toDateTime(rest.recurrence)
   }
   return rest
 }
@@ -152,7 +141,7 @@ export function normToAllDayAttrs(attrs: Partial<EventSchema>): Partial<AllDayEv
     (rest as Partial<AllDayEventSchema>).allDayEnd = endDateObj.toISOString().slice(0, 10)
   }
   if (rest.recurrence) {
-    rest.recurrence = RS.recurrenceTimeToDate(rest.recurrence)
+    rest.recurrence = RRuleSetConvert.toDate(rest.recurrence)
   }
   return rest
 }

@@ -2,8 +2,8 @@ import { Observable } from 'rxjs/Observable'
 import { SDKFetch } from '../../SDKFetch'
 import { EventSchema } from '../../schemas/Event'
 import { EventId, ProjectId, UserId } from 'teambition-types'
-import { api as eventAPI } from './iface'
-import { API } from '../iface'
+import { marshaler as eventMarshaler } from './marshaler'
+import { Marshaler } from '../marshaler'
 
 export namespace CommentsRepeatEvent {
   export interface Response {
@@ -25,10 +25,11 @@ export namespace CommentsRepeatEvent {
     mentions?: any[]
   }
 
-  export const api: Pick<API<Response>, 'parse'> = {
-    parse: (raw) => Object.assign(raw, {
-      new: eventAPI.parse(raw.new),
-      repeat: eventAPI.parse(raw.repeat)
+  export const api: Pick<Marshaler<Response>, 'parse'> = {
+    parse: (raw) => ({
+      ...raw as Response,
+      new: eventMarshaler.parse(raw.new),
+      repeat: eventMarshaler.parse(raw.repeat)
     })
   }
 }
@@ -76,7 +77,7 @@ export function fetchAnEvent(
   query?: any
 ): Observable<EventSchema> {
   return this.get<EventSchema>(`events/${eventId}`, query)
-    .map(eventAPI.parse)
+    .map(eventMarshaler.parse)
 }
 
 export function fetchProjectEventsCount(
@@ -93,7 +94,7 @@ export function fetchProjectEvents(
   query: EventSpan
 ): Observable<EventSchema[]> {
   return this.get<EventSchema[]>(`projects/${_projectId}/events`, query)
-    .map((rawEvents) => rawEvents.map(eventAPI.parse))
+    .map((rawEvents) => rawEvents.map(eventMarshaler.parse))
 }
 
 SDKFetch.prototype.commentsRepeatEvent = commentsRepeatEvent

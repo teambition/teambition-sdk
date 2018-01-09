@@ -32,13 +32,15 @@ export interface SqlPagingQuery {
   limit: number
 }
 
-export interface WSMessageParsed {
+export interface ParsedWSMessage {
   // new change destroy refresh ...
   method: string
-  // mongo id
+
   id: string
+
   // schema types: task, post, event, file, etc...
   type: string
+
   // optional data, null in delete
   data: any
 }

@@ -5,9 +5,9 @@
 import { Observable } from 'rxjs/Observable'
 import { Database, ExecutorResult } from 'reactivedb'
 import { TaskSchema } from '../schemas/Task'
-import { forEach, WSMessageParsed } from './index'
+import { forEach, ParsedWSMessage } from './index'
 import { mapWSMsgTypeToTable } from '../sockets/MapToTable'
-import { api as eventAPI } from '../apis/event/iface'
+import { marshaler as eventMarshaler } from '../apis/event/marshaler'
 import { EventSchema } from '../schemas/Event'
 
 export class Dirty {
@@ -22,7 +22,7 @@ export class Dirty {
     return tasks
   }
 
-  handleSocketMessage(msg: WSMessageParsed, db: Database): Observable<any> | null {
+  handleSocketMessage(msg: ParsedWSMessage, db: Database): Observable<any> | null {
     const methods = [ '_handleLikeMessage', '_handleTaskUpdateFromSocket', '_handleMessage', '_handleEventMessage']
     let signal: Observable<any> | null = null
     forEach(methods, method => {
@@ -42,7 +42,7 @@ export class Dirty {
    * 这里在重构chat的时候，直接过滤掉通知消息，当重构通知的时候，需要改动这里代码，把通知消息
    * 存在自己的表里
    */
-  _handleMessage({ data }: WSMessageParsed): Observable<any> | null {
+  _handleMessage({ data }: ParsedWSMessage): Observable<any> | null {
     if ((data.msgType && data.msgType !== 'pm')) {
       // return db.upsert('ActivityMessage | PostMessage | ...', data)
       return Observable.of(null)
@@ -61,7 +61,7 @@ export class Dirty {
    * 后端认为这种数据应该被 patch 到它的实体上
    * 而前端需要将点赞数据分开存储
    */
-  _handleLikeMessage({ id, type, data }: WSMessageParsed, database: Database): Observable<ExecutorResult[]> | null {
+  _handleLikeMessage({ id, type, data }: ParsedWSMessage, database: Database): Observable<ExecutorResult[]> | null {
     if (!data.likesGroup || !Array.isArray(data.likesGroup)) {
       return null
     }
@@ -82,7 +82,7 @@ export class Dirty {
     return ops.length > 0 ? Observable.forkJoin(ops) : null
   }
 
-  _handleTaskUpdateFromSocket({ data }: WSMessageParsed): void {
+  _handleTaskUpdateFromSocket({ data }: ParsedWSMessage): void {
     if (data &&
         !data._executorId &&
         typeof data.executor !== 'undefined') {
@@ -90,7 +90,7 @@ export class Dirty {
     }
   }
 
-  _handleEventMessage({ id, type, method, data }: WSMessageParsed, database: Database): void | Observable<ExecutorResult> {
+  _handleEventMessage({ id, type, method, data }: ParsedWSMessage, database: Database): void | Observable<ExecutorResult> {
     const tabInfo = mapWSMsgTypeToTable.getTableInfo(type)
 
     if (!tabInfo || tabInfo.tabName !== 'Event') {
@@ -98,7 +98,7 @@ export class Dirty {
     }
 
     if (method === 'new') { // mutate data
-      Object.assign(data, eventAPI.parse(data))
+      Object.assign(data, eventMarshaler.parse(data))
       return
     }
 
@@ -116,7 +116,7 @@ export class Dirty {
             .map((patch) => {
               const pkValue = patch[pkName]
               const target = existingEvents.find((x) => x[pkName] === pkValue)
-              const parsed = eventAPI.parsePatch(patch, target)
+              const parsed = eventMarshaler.parsePatch(patch, target)
               return database.upsert(tabName, parsed)
             })
             .mergeAll()
