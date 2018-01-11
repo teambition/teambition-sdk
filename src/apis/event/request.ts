@@ -2,6 +2,8 @@ import { Observable } from 'rxjs/Observable'
 import { SDKFetch } from '../../SDKFetch'
 import { EventSchema } from '../../schemas/Event'
 import { EventId, ProjectId, UserId } from 'teambition-types'
+import { marshaler as eventMarshaler } from './marshaler'
+import { Marshaler } from '../marshaler'
 
 export namespace CommentsRepeatEvent {
   export interface Response {
@@ -22,6 +24,14 @@ export namespace CommentsRepeatEvent {
     attachments?: any[]
     mentions?: any[]
   }
+
+  export const api: Pick<Marshaler<Response>, 'parse'> = {
+    parse: (raw) => ({
+      ...raw as Response,
+      new: eventMarshaler.parse(raw.new),
+      repeat: eventMarshaler.parse(raw.repeat)
+    })
+  }
 }
 
 export function commentsRepeatEvent(
@@ -29,7 +39,8 @@ export function commentsRepeatEvent(
   _id: EventId,
   options: CommentsRepeatEvent.Options
 ): Observable<CommentsRepeatEvent.Response> {
-  return this.post(`events/${_id}/comments_repeat_event`, options)
+  return this.post<CommentsRepeatEvent.Response>(`events/${_id}/comments_repeat_event`, options)
+    .map(CommentsRepeatEvent.api.parse)
 }
 
 export namespace UpdateInvolveMembers {
@@ -66,6 +77,7 @@ export function fetchAnEvent(
   query?: any
 ): Observable<EventSchema> {
   return this.get<EventSchema>(`events/${eventId}`, query)
+    .map(eventMarshaler.parse)
 }
 
 export function fetchProjectEventsCount(
@@ -82,6 +94,7 @@ export function fetchProjectEvents(
   query: EventSpan
 ): Observable<EventSchema[]> {
   return this.get<EventSchema[]>(`projects/${_projectId}/events`, query)
+    .map((rawEvents) => rawEvents.map(eventMarshaler.parse))
 }
 
 SDKFetch.prototype.commentsRepeatEvent = commentsRepeatEvent
