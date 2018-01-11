@@ -68,12 +68,13 @@ declare module 'teambition-types' {
   export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
   export type ScenarioFieldConfigObjectType = 'task' | 'event'
   export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
+  export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban'
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
     | 'taskType' | 'rating' | 'storyPoint'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = 0 | 1 | 2
-  export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead'
+  export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
   export type Visibility = 'all' | 'members' | 'organization' | 'project'
 }
