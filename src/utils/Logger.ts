@@ -13,6 +13,7 @@ const envify = () => {
   }
 }
 
+/* istanbul ignore next */
 export const SDKLogger: ContextLogger = Logger.get('teambition-sdk', (name, _, message) => {
   return `${name}: at ${new Date().toLocaleString()} \r\n    ` + message
 })
