@@ -82,8 +82,5 @@
     "tslint": "^5.7.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "^2.6.2"
-  },
-  "dependencies": {
-    "path-to-regexp": "^2.1.0"
   }
 }

@@ -1,7 +1,7 @@
 /// <reference path="./teambition.ts" />
 import 'tslib'
 
-import { forEach, clone, uuid, concat, dropEle, hasMorePages, pagination } from './utils'
+import { forEach, clone, uuid, concat, dropEle, hasMorePages, pagination, eventToRE } from './utils'
 
 export { hasMorePages, pagination }
 export const Utils = { forEach, clone, uuid, concat, dropEle }
@@ -18,7 +18,7 @@ import * as EventSDK from './apis/event'
 export { EventSDK }
 
 import * as WSMiddleware from './sockets/Middleware'
-export { WSMiddleware }
+export { WSMiddleware, eventToRE as socketEventToRE }
 
 export { SDK } from './SDK'
 export { SDKFetch } from './SDKFetch'
