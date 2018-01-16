@@ -1,7 +1,9 @@
 import { Database } from 'reactivedb'
+import { Observable } from 'rxjs/Observable'
+import { Subject } from 'rxjs/Subject'
+import 'rxjs/add/operator/publishReplay'
 
-import { forEach, ParsedWSMsg, createProxy } from '../utils'
-import * as path2Regexp from 'path-to-regexp'
+import { forEach, ParsedWSMsg, createProxy, eventToRE } from '../utils'
 
 export type Flags = {
   /**
@@ -27,7 +29,7 @@ export type Interceptor = (msg: ParsedWSMsg, ...args: any[]) => void | ControlFl
 
 type InterceptorCreator = (handler: CustomMsgHandler) => Interceptor
 
-type SequenceRemoveToken = () => void
+export type SequenceRemoveToken = () => void
 
 class Sequence {
 
@@ -93,6 +95,17 @@ export class Interceptors {
   }
 }
 
+export interface WSProxyConfig {
+  clean: SequenceRemoveToken
+  pattern: string
+  handler: Function
+}
+
+export interface PublishedSource {
+  source: Observable<ParsedWSMsg>
+  clean: SequenceRemoveToken
+}
+
 /**
  * websocket 代理。
  * 使用 Proxy 来为与数据模型无关的推送消息进行相应处理。
@@ -100,7 +113,8 @@ export class Interceptors {
 export class WSProxy {
 
   private seq: Sequence = new Sequence()
-  private pathHandler: Map<string, SequenceRemoveToken>
+  private proxyHandler: WSProxyConfig[] = []
+  private publishedHandler: Map<string, PublishedSource> = new Map<string, PublishedSource>()
 
   /**
    * 注册一个代理。
@@ -112,30 +126,73 @@ export class WSProxy {
   /**
    * 根据 pattern 注册一个代理。
    * 该代理将会获得原推送消息经解析后的消息对象。
+   * pattern 支持正则
    */
   on(pattern: string, handler: Function) {
-    if (this.pathHandler.has(pattern)) {
-      throw new Error(`Pattern: ${pattern} is already registed.`)
-    }
-    const re = path2Regexp(pattern)
+    const re = eventToRE(pattern)
+
     const callback = (msg: ParsedWSMsg) => {
       if (msg.source && re.test(msg.source)) {
         handler(msg)
       }
+      re.lastIndex = 0
       return ControlFlow.PassThrough
     }
+
     const removeToken = this.seq.append(callback)
-    this.pathHandler.set(pattern, removeToken)
+    this.proxyHandler.push({ clean: removeToken, pattern, handler: handler })
   }
 
   /**
    * 移除某个 pattern 下的代理
    */
-  off(pattern: string) {
-    if (this.pathHandler.has(pattern)) {
-      const removeToken = this.pathHandler.get(pattern)!
-      this.pathHandler.delete(pattern)
-      removeToken()
+  off(pattern: string, handler: Function) {
+    const ret: WSProxyConfig[] = []
+
+    this.findHandler((target) => {
+      if (target.handler === handler && target.pattern === pattern) {
+        target.clean()
+      } else {
+        ret.push(target)
+      }
+    })
+
+    this.proxyHandler = ret
+  }
+
+  /**
+   * 根据某个 pattern 持续订阅某个 socket event, e.g. publish(':change:task/:id')
+   * 以 socket type 开头 例如: change、new、remove、destroy、refresh
+   * 建议搭配全局 refresh 使用, 集合的单一资源 refresh 场景可以使用 on 接口
+   */
+
+  publish(pattern: string): Observable<ParsedWSMsg> {
+    if (this.publishedHandler.has(pattern)) {
+      return this.publishedHandler.get(pattern)!.source
+    }
+
+    const origin = new Subject<ParsedWSMsg>()
+    const handler = (msg: ParsedWSMsg) => {
+      origin.next(msg)
+    }
+    this.on(pattern, handler)
+    const source = origin.publishReplay(1).refCount()
+    const cleanUp = () => {
+      this.off(pattern, handler)
+      origin.complete()
+      this.publishedHandler.delete(pattern)
+    }
+    this.publishedHandler.set(pattern, { source, clean: cleanUp })
+    return source
+  }
+
+  /**
+   * 移除某个持续订阅的 socket event
+   */
+  unpublish(pattern: string) {
+    if (this.publishedHandler.has(pattern)) {
+      const { clean } = this.publishedHandler.get(pattern)!
+      clean()
     }
   }
 
@@ -144,6 +201,13 @@ export class WSProxy {
    */
   apply: MsgHandler = (msg) => {
     this.seq.apply(msg)
+  }
+
+  private findHandler(callback: (target: WSProxyConfig) => void) {
+    for (let i = 0; i < this.proxyHandler.length; i++) {
+      const target = this.proxyHandler[i]
+      callback(target)
+    }
   }
 
 }
