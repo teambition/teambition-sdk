@@ -550,7 +550,6 @@ describe('Net CacheStrategy Spec', () => {
   })
 
   afterEach(async () => {
-    server.reset()
     await database.dispose()
   })
 

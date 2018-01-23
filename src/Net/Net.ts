@@ -150,7 +150,7 @@ export class Net {
 
   handleApiResult<T>(
     result: ApiResult<T, CacheStrategy>
-  ): QueryToken<T> | Observable<T> | Observable<T[]> {
+  ): QueryToken<T> {
     const database = this.database
     if (!database) {
       return this.bufferResponse(result)
@@ -302,28 +302,29 @@ export class Net {
       tableName
     } = this.getInfoFromResult(result)
 
+    // 将类型 Observalbe<T> | Observable<T[]> 弱化为 Observable<T | T[]>
+    const response$: Observable<T | T[]> = request
     const cacheKey = this.genCacheKey(tableName, q)
     const requestCache = this.requestMap.get(cacheKey)
+
     let token: QueryToken<T>
     switch (cacheValidate) {
       case CacheStrategy.Request:
         if (!requestCache) {
           /*tslint:disable no-shadowed-variable*/
-          const selector$ = request
-            .concatMap<T | T[], void>(v =>
-              database.upsert(tableName, v).mapTo(Array.isArray(v) ? v : [v])
-            )
+          const selector$ = response$
+            .concatMap(v => database.upsert(tableName, v))
             .do(() => this.requestMap.set(cacheKey, true))
             .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
-          token = new QueryToken(selector$).map(this.validate(result))
-          break
+          token = new QueryToken(selector$)
         } else {
-          token = dbGetWithSelfJoinEnabled<T>(database, tableName, q).map(this.validate(result))
-          break
+          token = dbGetWithSelfJoinEnabled<T>(database, tableName, q)
         }
+        token.map(this.validate(result))
+        break
       case CacheStrategy.Cache:
-        const selector$ = request
-          .concatMap<T | T[], void>(r => database.upsert(tableName, r))
+        const selector$ = response$
+          .concatMap(v => database.upsert(tableName, v))
           .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
         return new QueryToken(selector$)
       default:
