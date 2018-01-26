@@ -113,10 +113,13 @@ declare module 'teambition-types' {
     signCode: string
   }
 
-  export interface ExecutorOrCreator {
+  export interface UserSnippet {
+    _id: UserId
     name: string
     avatarUrl: string
-    _id: UserId
+  }
+
+  export interface ExecutorOrCreator extends UserSnippet {
     isRobot?: boolean
   }
 
@@ -135,11 +138,8 @@ declare module 'teambition-types' {
     task: number
   }
 
-  export interface RecommendMemberSchema {
-    _id: UserId
+  export interface RecommendMemberSchema extends UserSnippet {
     email: string
-    avatarUrl: string
-    name: string
     latestActived: string
     isActive: boolean
     website: string
