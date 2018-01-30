@@ -34,7 +34,7 @@ describe('Net test', () => {
     httpBackend = new Backend()
     net = new Net(schemas)
     database = new Database(DataStoreType.MEMORY, false, 'teambition-sdk', version++)
-    net.initMsgToDBHandler(createMsgToDBHandler(undefined, mapWSMsgTypeToTable))
+    net.initMsgToDBHandler(createMsgToDBHandler(mapWSMsgTypeToTable))
     net.persist(database)
     forEach(schemas, d => {
       database.defineSchema(d.name, d.schema)

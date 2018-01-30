@@ -6,6 +6,7 @@ import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/toPromise'
 import 'rxjs/add/operator/concatMap'
 import 'rxjs/add/operator/take'
+import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Net } from '../Net'
 import { Database } from 'reactivedb'
@@ -56,7 +57,11 @@ export class SocketClient {
     private mapToTable: TableInfoByMessageType
   ) {
     this.handleMsg = createMsgHandler(this.proxy)
-    this.handleMsgToDB = createMsgToDBHandler(this.interceptors, mapToTable)
+    this.interceptors.setDestination(createMsgToDBHandler(mapToTable))
+    this.handleMsgToDB = (msg, db) => {
+      const ret = this.interceptors.apply(msg, db)
+      return ret instanceof Observable ? ret : Observable.of(null)
+    }
     this.net.initMsgToDBHandler(this.handleMsgToDB)
   }
 

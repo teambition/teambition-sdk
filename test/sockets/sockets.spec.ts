@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Observable'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, SDKFetch, SocketClient, WSMiddleware as midware } from '../'
@@ -193,7 +194,7 @@ describe('Socket interceptors', () => {
 
   it('should allow interceptor to ignore default DB ops', function* () {
     client.interceptors.append((_) => {
-      return midware.ControlFlow.IgnoreDefaultDBOps
+      return Observable.of(null)
     })
 
     const server = new SocketMock(client)
