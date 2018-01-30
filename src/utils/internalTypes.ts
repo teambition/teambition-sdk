@@ -51,8 +51,6 @@ export interface ParsedWSMsg {
 export type WSMsgToDBHandler = (
   msg: ParsedWSMsg,
   db: Database,
-  tableName: string,
-  pkName: string
 ) => Observable<any>
 
 export type WSMsgHandler = (msg: ParsedWSMsg) => Observable<any>

@@ -15,6 +15,7 @@ import { Interceptors, WSProxy } from './Middleware'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import { TableInfoByMessageType } from './MapToTable'
+import { WSMsgToDBHandler, WSMsgHandler } from '../utils'
 
 declare const global: any
 
@@ -45,8 +46,8 @@ export class SocketClient {
    */
   public proxy: WSProxy = new WSProxy()
 
-  private handleMsgToDB = createMsgToDBHandler(this.interceptors)
-  private handleMsg = createMsgHandler(this.proxy)
+  private handleMsgToDB: WSMsgToDBHandler
+  private handleMsg: WSMsgHandler
 
   private database: Database
   constructor(
@@ -54,6 +55,8 @@ export class SocketClient {
     private net: Net,
     private mapToTable: TableInfoByMessageType
   ) {
+    this.handleMsg = createMsgHandler(this.proxy)
+    this.handleMsgToDB = createMsgToDBHandler(this.interceptors, mapToTable)
     this.net.initMsgToDBHandler(this.handleMsgToDB)
   }
 

@@ -19,8 +19,6 @@ export type MsgHandler = (msg: ParsedWSMsg) => void
 export type MsgToDBHandler = (
   msg: ParsedWSMsg,
   db: Database,
-  tabName: string,
-  pkName: string
 ) => void | ControlFlow
 
 export type CustomMsgHandler = MsgHandler | MsgToDBHandler
@@ -90,8 +88,8 @@ export class Interceptors {
    * 如果一个拦截器返回 ControlFlow.IngoreDefaultDBOps，不仅跳过（不执行）后续拦截器，
    * 也会跳过本会对传入消息进行的默认数据库操作。
    */
-  apply: MsgToDBHandler = (msg, db, tabName, pkName) => {
-    return this.seq.apply(msg, db, tabName, pkName)
+  apply: MsgToDBHandler = (msg, db) => {
+    return this.seq.apply(msg, db)
   }
 }
 

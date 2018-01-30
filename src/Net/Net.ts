@@ -62,9 +62,7 @@ export type CUDBufferObject = {
 
 export type SocketCUDBufferObject = {
   kind: 'SocketCUD'
-  tableName: string
   socketMessage: ParsedWSMsg
-  pkName: string
 }
 
 export type SelectorBufferObject = {
@@ -206,7 +204,7 @@ export class Net {
         p = database[(v as CUDBufferObject).method](v.tableName, v.value)
         break
       case 'SocketCUD':
-        p = this.msgToDB(v.socketMessage, database, v.tableName, v.pkName)
+        p = this.msgToDB(v.socketMessage, database)
         break
       case 'Selector':
         p = (() => {
@@ -272,16 +270,10 @@ export class Net {
     })
   }
 
-  bufferSocketPush(
-    socketMessage: ParsedWSMsg,
-    tableName: string,
-    pkName: string
-  ) {
+  bufferSocketPush(socketMessage: ParsedWSMsg) {
     this.persistedDataBuffer.push({
       kind: 'SocketCUD',
-      tableName,
-      socketMessage,
-      pkName
+      socketMessage
     })
     return Observable.of(null)
   }

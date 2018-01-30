@@ -30,35 +30,40 @@ export const createMsgHandler = (
  * destroy 事件没有 data
  */
 export const createMsgToDBHandler = (
-  proxyWithDB: Interceptors = new Interceptors()
+  proxyWithDB: Interceptors = new Interceptors(),
+  mapToTable: TableInfoByMessageType
 ) => (
   msg: ParsedWSMsg,
-  db: Database,
-  tableName: string,
-  pkName: string
+  db: Database
 ): Observable<any> => {
-  const { method, id, data } = msg
-
-  const dbMethod = db[methodMap[method]]
-
-  const ret = proxyWithDB.apply(msg, db, tableName, pkName)
+  const ret = proxyWithDB.apply(msg, db)
   if (ret === ControlFlow.IgnoreDefaultDBOps) {
     return Observable.of(null)
   }
 
+  const tabInfo = mapToTable.getTableInfo(msg.type)
+  if (!tabInfo) {
+    return Observable.of(null)
+  }
+
+  const { method, id, data } = msg // dingwen: 要更明显地突出 msg 是可能经过拦截器修改的
+  const { tabName, pkName } = tabInfo
+
+  const dbMethod = db[methodMap[method]]
+
   switch (method) {
     case 'new':
-      return dbMethod.call(db, tableName, data)
+      return dbMethod.call(db, tabName, data)
     case 'change':
-      return dbMethod.call(db, tableName,
+      return dbMethod.call(db, tabName,
         Array.isArray(data) ? data : { ...data, [pkName]: id }
       )
     case 'destroy':
-      return dbMethod.call(db, tableName, {
+      return dbMethod.call(db, tabName, {
         where: { [pkName]: id }
       })
     case 'remove':
-      return dbMethod.call(db, tableName, {
+      return dbMethod.call(db, tabName, {
         where: Array.isArray(data) ? { [pkName]: { $in: data } } : { [pkName]: data }
       })
     default:
@@ -83,13 +88,11 @@ export function socketHandler(
       return handleMsg(msg)
     }
 
-    const { tabName, pkName } = tabInfo
-
     if (!db) {
-      net.bufferSocketPush(msg, tabName, pkName)
+      net.bufferSocketPush(msg)
       return Observable.of(null)
     } else {
-      return handleMsgToDb(msg, db, tabName, pkName)
+      return handleMsgToDb(msg, db)
     }
   })
 

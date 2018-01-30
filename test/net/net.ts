@@ -12,6 +12,7 @@ import { createMsgToDBHandler } from '../../src/sockets/EventMaps'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
 
 import { expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { mapWSMsgTypeToTable } from '../../src/sockets/MapToTable'
 
 use(SinonChai)
 
@@ -33,7 +34,7 @@ describe('Net test', () => {
     httpBackend = new Backend()
     net = new Net(schemas)
     database = new Database(DataStoreType.MEMORY, false, 'teambition-sdk', version++)
-    net.initMsgToDBHandler(createMsgToDBHandler())
+    net.initMsgToDBHandler(createMsgToDBHandler(undefined, mapWSMsgTypeToTable))
     net.persist(database)
     forEach(schemas, d => {
       database.defineSchema(d.name, d.schema)

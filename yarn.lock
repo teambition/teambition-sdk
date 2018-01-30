@@ -2009,9 +2009,9 @@ rc@^1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-reactivedb@~0.10.0:
-  version "0.10.1"
-  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.10.1.tgz#430f39441d12c1f352b742527fd296dbbc840802"
+reactivedb@~0.10.2:
+  version "0.10.2"
+  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.10.2.tgz#297c0b05599b5c4fab4f7bf6c82cb81e50915b43"
   dependencies:
     "@types/lovefield" "^2.1.1"
     lovefield "2.1.12"
