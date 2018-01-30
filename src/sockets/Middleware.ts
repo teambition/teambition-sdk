@@ -16,14 +16,15 @@ export type Flags = {
 
 export type MsgHandler = (msg: ParsedWSMsg) => void
 
+export type FinalMsgToDBHandler = (msg: ParsedWSMsg, db: Database) => Observable<any>
 export type MsgToDBHandler = (
   msg: ParsedWSMsg,
   db: Database,
-) => void | ControlFlow
+) => void | ControlFlow | Observable<any>
 
 export type CustomMsgHandler = MsgHandler | MsgToDBHandler
 
-export type Interceptor = (msg: ParsedWSMsg, ...args: any[]) => void | ControlFlow
+export type Interceptor = (msg: ParsedWSMsg, ...args: any[]) => void | ControlFlow | Observable<any>
 
 type InterceptorCreator = (handler: CustomMsgHandler) => Interceptor
 
@@ -32,6 +33,7 @@ export type SequenceRemoveToken = () => void
 class Sequence {
 
   private interceptors: Interceptor[] = []
+  private sink: Interceptor | null = null
 
   append(handler: CustomMsgHandler, options: Flags = {}): SequenceRemoveToken {
     const interceptor = createInterceptor(handler, options)
@@ -53,17 +55,25 @@ class Sequence {
   }
 
   apply: Interceptor = (msg, ...args) => {
-    let cf: ControlFlow = ControlFlow.PassThrough
+    let cf: ControlFlow | Observable<any> = ControlFlow.PassThrough
 
     forEach(this.interceptors, (interceptor): void | false => {
       cf = interceptor(msg, ...args) || ControlFlow.PassThrough
 
-      if (cf === ControlFlow.ShortCircuit || cf === ControlFlow.IgnoreDefaultDBOps) {
+      if (cf === ControlFlow.ShortCircuit || (cf as any) instanceof Observable) {
         return false
       }
     })
 
-    return cf
+    if ((cf as any) instanceof Observable || !this.sink) {
+      return cf
+    }
+
+    return this.sink(msg, ...args)
+  }
+
+  setSink(interceptor: Interceptor) {
+    this.sink = interceptor
   }
 
 }
@@ -90,6 +100,10 @@ export class Interceptors {
    */
   apply: MsgToDBHandler = (msg, db) => {
     return this.seq.apply(msg, db)
+  }
+
+  setDestination(handler: FinalMsgToDBHandler) {
+    this.seq.setSink(handler)
   }
 }
 
@@ -224,13 +238,7 @@ export enum ControlFlow {
    * 当返回 ShortCircuit，中间件截断所在中间件序列的执行流程，
    * 不执行其后的中间件，如 switch 语句中 break 的效果。
    */
-  ShortCircuit,
-
-  /**
-   * 当返回 IgnoreDefaultDBOps，中间件在截断所在中间件序列
-   * 执行流程的同时，告诉外部，不执行默认数据库操作。
-   */
-  IgnoreDefaultDBOps
+  ShortCircuit
 }
 
 export function createInterceptor(userFn: CustomMsgHandler, flags: Flags = {}): Interceptor {

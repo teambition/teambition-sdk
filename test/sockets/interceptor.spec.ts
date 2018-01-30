@@ -1,4 +1,5 @@
 import { describe, it, beforeEach, afterEach } from 'tman'
+import { Observable } from 'rxjs/Observable'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { clone } from '../utils'
@@ -82,34 +83,40 @@ describe('Socket interceptor creator', () => {
     expect(msg).to.deep.equal(msgClone)
   })
 
-  it('shortCircuit and ignoreDefaultDBOps', () => {
+  it('shortCircuit and Observable', () => {
+    const expectedResult = { say: 'hello' }
     const interceptor: any = midware.createInterceptor((message) => {
       simpleTransFn(message)
-      return CF.IgnoreDefaultDBOps
+      return Observable.of(expectedResult)
     })
 
     const result = interceptor(msg)
 
-    expect(result).to.equal(CF.IgnoreDefaultDBOps)
     expect(msg).to.deep.equal(msgClone)
     expect(errStub).to.called
+    return (result as Observable<any>).do((x) => {
+      expect(x).to.deep.equal(expectedResult)
+    })
   })
 
-  it('mutateMessage + IgnoreDefaultDBOps', () => {
+  it('mutateMessage + Observable', () => {
+    const expectedResult = { say: 'world' }
     const intercept: any = midware.createInterceptor((message) => {
       simpleTransFn(message)
-      return CF.IgnoreDefaultDBOps
+      return Observable.of(expectedResult)
     }, {
       mutate: true
     })
 
     const result = intercept(msg)
 
-    expect(result).to.equal(CF.IgnoreDefaultDBOps)
     expect(msg.data.key).to.equal('hello')
 
     msg.data.key = 'value'
     expect(msg).to.deep.equal(msgClone)
+    return (result as Observable<any>).do((x) => {
+      expect(x).to.deep.equal(expectedResult)
+    })
   })
 })
 
@@ -194,16 +201,15 @@ describe('Socket interceptor as ProxyToDB', () => {
     expect(msg).to.deep.equal(msgClone)
   })
 
-  it('should shortcircuit when an interceptor returns IgnoreDefaultDBOps flag', () => {
+  it('should shortcircuit when an interceptor returns an Observable', () => {
     interceptors.append((message: any) => {
       transDataKey(message)
-      return CF.IgnoreDefaultDBOps
+      return Observable.of(null)
     }, { mutate: true })
     interceptors.append(transType, { mutate: true })
 
-    const controlFlow = interceptors.apply(msg)
+    interceptors.apply(msg)
 
-    expect(controlFlow).to.equal(CF.IgnoreDefaultDBOps)
     expect(msg.data.key).to.equal('hello')
     expect(msg.type).to.equal('event')
 

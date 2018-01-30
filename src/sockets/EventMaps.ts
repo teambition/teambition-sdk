@@ -7,7 +7,7 @@ import { Net } from '../Net'
 import { eventParser } from './EventParser'
 import { ParsedWSMsg, WSMsgHandler, WSMsgToDBHandler } from '../utils'
 import { TableInfoByMessageType } from './MapToTable'
-import { Interceptors, WSProxy, ControlFlow } from './Middleware'
+import { WSProxy } from './Middleware'
 
 const methodMap: any = {
   'change': 'upsert',
@@ -30,23 +30,17 @@ export const createMsgHandler = (
  * destroy 事件没有 data
  */
 export const createMsgToDBHandler = (
-  proxyWithDB: Interceptors = new Interceptors(),
   mapToTable: TableInfoByMessageType
 ) => (
   msg: ParsedWSMsg,
   db: Database
 ): Observable<any> => {
-  const ret = proxyWithDB.apply(msg, db)
-  if (ret === ControlFlow.IgnoreDefaultDBOps) {
-    return Observable.of(null)
-  }
-
   const tabInfo = mapToTable.getTableInfo(msg.type)
   if (!tabInfo) {
     return Observable.of(null)
   }
 
-  const { method, id, data } = msg // dingwen: 要更明显地突出 msg 是可能经过拦截器修改的
+  const { method, id, data } = msg
   const { tabName, pkName } = tabInfo
 
   const dbMethod = db[methodMap[method]]
