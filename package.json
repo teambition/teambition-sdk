@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.9.1",
+  "version": "0.10.0-alpha.3-wsmsgfix",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
