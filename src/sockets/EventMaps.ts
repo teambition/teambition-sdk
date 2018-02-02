@@ -78,7 +78,7 @@ export function socketHandler(
   const signals = parsedMsgs.map((msg) => {
     const tabInfo = mapToTable.getTableInfo(msg.type)
 
-    if (!tabInfo) { // todo: 判断 message method 是否有对应的 db 操作
+    if (!tabInfo || msg.method === 'refresh') { // todo: 判断 message method 是否有对应的 db 操作
       return handleMsg(msg)
     }
 

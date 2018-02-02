@@ -149,7 +149,7 @@ export class WSProxy {
     }
 
     const removeToken = this.seq.append(callback)
-    this.proxyHandler.push({ clean: removeToken, pattern, handler: handler })
+    this.proxyHandler.push({ clean: removeToken, pattern, handler })
   }
 
   /**
@@ -162,6 +162,7 @@ export class WSProxy {
       if (target.handler === handler && target.pattern === pattern) {
         target.clean()
       } else {
+        // dingwen: ad-hoc TODO refactor with findhandler
         ret.push(target)
       }
     })
@@ -189,7 +190,6 @@ export class WSProxy {
     const cleanUp = () => {
       this.off(pattern, handler)
       origin.complete()
-      this.publishedHandler.delete(pattern)
     }
     this.publishedHandler.set(pattern, { source, clean: cleanUp })
     return source
@@ -202,6 +202,7 @@ export class WSProxy {
     if (this.publishedHandler.has(pattern)) {
       const { clean } = this.publishedHandler.get(pattern)!
       clean()
+      this.publishedHandler.delete(pattern)
     }
   }
 
