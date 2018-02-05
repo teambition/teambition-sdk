@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.10.0-alpha.5-wsrefresh",
+  "version": "0.10.0-alpha.6-wsdeamon",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
