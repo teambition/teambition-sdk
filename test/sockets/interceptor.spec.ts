@@ -1,10 +1,12 @@
 import { describe, it, beforeEach, afterEach } from 'tman'
 import { Observable } from 'rxjs/Observable'
+import { Subject } from 'rxjs/Subject'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { clone } from '../utils'
 import { WSMiddleware as midware } from '../'
 import { Logger } from 'reactivedb'
+import { marbles } from 'rxjs-marbles'
 
 const CF = midware.ControlFlow
 
@@ -497,4 +499,106 @@ describe('Socket interceptor as Proxy', () => {
     }, 10)
   })
 
+})
+
+describe('WSProxy onRefreshMethod() method', () => {
+  const matchingMessages = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].reduce((ret, x) => {
+    const id = Math.random().toFixed(8)
+    ret[x] = { method: 'refresh', id, type: 'tasks', data: null, source: `:refresh:tasks/${id}`}
+    return ret
+  }, {})
+
+  const deamonStatusChange = { u: 'up', d: 'down' }
+
+  type SuspendFn = () => void
+
+  let proxy: midware.WSProxy;
+  let callbackSpy: Subject<any>;
+  let onStatusChange: (suspend: SuspendFn | null, signal: string) => SuspendFn | null
+
+  beforeEach(() => {
+    proxy = new midware.WSProxy()
+    callbackSpy = new Subject()
+    onStatusChange = (suspend, signal) => {
+      switch (signal) {
+      case 'down':
+        suspend!()
+        return null
+      case 'up':
+        return proxy.onRefreshMethod(':refresh:tasks', (msg) => callbackSpy.next(msg))
+      default:
+        return null
+      }
+    }
+  })
+
+  afterEach(() => {
+    proxy.stopDeamon(':refresh:tasks')
+  })
+
+  it('should trigger callback after first being activated', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d--e-', matchingMessages)
+    const deamon =   m.cold('-------u-----------', deamonStatusChange).scan(onStatusChange, null)
+    const expected = m.cold('--------c-----d--e-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy).toBeObservable(expected)
+  }))
+
+  it('should not trigger callback after suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d--e-', matchingMessages)
+    const deamon =   m.cold('-------u-----d-----', deamonStatusChange).scan(onStatusChange, null)
+    const expected = m.cold('--------c----------', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy).toBeObservable(expected)
+  }))
+
+  it('should not trigger callback after re-activation if there is no matching message during suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c----------', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u-', deamonStatusChange).scan(onStatusChange, null)
+    const expected = m.cold('--------c----------', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy).toBeObservable(expected)
+  }))
+
+  it('should trigger callback after re-activation if there is one matching message during suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c------d---', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u-', deamonStatusChange).scan(onStatusChange, null)
+    const expected = m.cold('--------c--------d-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy).toBeObservable(expected)
+  }))
+
+  it('should trigger callback after re-activation with the last of the matching messages during suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d-e--', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u-', deamonStatusChange).scan(onStatusChange, null)
+    const expected = m.cold('--------c--------e-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy).toBeObservable(expected)
+  }))
+
+  it('overall, should trigger callback actively when the deamon is active, and select the last matching during suspension to trigger callback on re-activation', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d-e--f---g-----h-', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u---d-----u---', deamonStatusChange).scan(onStatusChange, null)
+    const expected = m.cold('--------c--------e-f-------g-h-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy).toBeObservable(expected)
+  }))
 })
