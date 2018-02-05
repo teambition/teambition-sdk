@@ -1,7 +1,14 @@
+import 'rxjs/add/operator/publish'
+import 'rxjs/add/operator/takeUntil'
+import 'rxjs/add/operator/takeLast'
+import 'rxjs/add/observable/merge'
 import { Database } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
-import { Subject } from 'rxjs/Subject'
+import { Observer } from 'rxjs/Observer'
+import { Subscription } from 'rxjs/Subscription'
+import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
 import { shareReplay } from 'rxjs/operators/shareReplay'
+import { Subject } from 'rxjs/Subject'
 
 import { forEach, ParsedWSMsg, createProxy, eventToRE } from '../utils'
 
@@ -113,6 +120,14 @@ export interface PublishedSource {
   clean: SequenceRemoveToken
 }
 
+type Deamon = {
+  start$: Subject<any>,
+  suspend$: Subject<any>,
+  published$: ConnectableObservable<ParsedWSMsg>,
+  connection: Subscription,
+  subscriberCount?: number
+}
+
 export type MsgHandler = (msg: ParsedWSMsg) => void
 
 /**
@@ -124,6 +139,7 @@ export class WSProxy {
   private seq: Sequence = new Sequence()
   private proxyHandler: WSProxyConfig[] = []
   private publishedHandler: Map<string, PublishedSource> = new Map<string, PublishedSource>()
+  private deamonManager: Map<string, Deamon> = new Map()
 
   /**
    * 注册一个代理。
@@ -203,6 +219,58 @@ export class WSProxy {
       const { clean } = this.publishedHandler.get(pattern)!
       clean()
       this.publishedHandler.delete(pattern)
+    }
+  }
+
+  /**
+   * 结合 on/off 方法，创建一个监听符合 pattern 事件的流，并包含 teardown 逻辑。
+   */
+  private createMsg$(pattern: string): Observable<ParsedWSMsg> {
+    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+      const nexter: MsgHandler = (msg) => observer.next(msg)
+      this.on(pattern, nexter)
+
+      return () => {
+        this.off(pattern, nexter)
+      }
+    })
+  }
+
+  /**
+   * 初始化在激活状态下主动触发、在挂起状态下懒触发的监听给定 pattern 的 deamon。
+   */
+  private initDeamon(pattern: string): Deamon {
+    const start$ = new Subject()
+    const suspend$ = new Subject()
+
+    const published$ = Observable.merge(
+      suspend$.switchMap(() => this.createMsg$(pattern).takeUntil(start$).takeLast(1)),
+      start$.switchMap(() => this.createMsg$(pattern).takeUntil(suspend$))
+    ).publish()
+
+    const connection = published$.connect()
+
+    return { start$, suspend$, published$, connection }
+  }
+
+  /**
+   * 激活监听给定 pattern 的 deamon，令其在受到相应消息时及时触发 callback。
+   * 返回 teardown 逻辑。
+   */
+  activate(pattern: string, callback: MsgHandler) {
+    if (!this.deamonManager.has(pattern)) {
+      this.deamonManager.set(pattern, this.initDeamon(pattern))
+    }
+
+    const { start$, suspend$, published$ } = this.deamonManager.get(pattern)!
+
+    const subscription = published$.subscribe(callback)
+
+    start$.next({})
+
+    return () => {
+      suspend$.next({})
+      subscription.unsubscribe()
     }
   }
 
