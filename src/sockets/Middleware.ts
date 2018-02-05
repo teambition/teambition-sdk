@@ -1,7 +1,14 @@
+import 'rxjs/add/operator/publish'
+import 'rxjs/add/operator/takeUntil'
+import 'rxjs/add/operator/takeLast'
+import 'rxjs/add/observable/merge'
 import { Database } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
-import { Subject } from 'rxjs/Subject'
+import { Observer } from 'rxjs/Observer'
+import { Subscription } from 'rxjs/Subscription'
+import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
 import { shareReplay } from 'rxjs/operators/shareReplay'
+import { Subject } from 'rxjs/Subject'
 
 import { forEach, ParsedWSMsg, createProxy, eventToRE } from '../utils'
 
@@ -113,6 +120,13 @@ export interface PublishedSource {
   clean: SequenceRemoveToken
 }
 
+interface Deamon {
+  start$: Subject<any>,
+  suspend$: Subject<any>,
+  published$: ConnectableObservable<ParsedWSMsg>,
+  connection: Subscription
+}
+
 export type MsgHandler = (msg: ParsedWSMsg) => void
 
 /**
@@ -124,6 +138,7 @@ export class WSProxy {
   private seq: Sequence = new Sequence()
   private proxyHandler: WSProxyConfig[] = []
   private publishedHandler: Map<string, PublishedSource> = new Map<string, PublishedSource>()
+  private deamonManager: Map<string, Deamon> = new Map()
 
   /**
    * 注册一个代理。
@@ -204,6 +219,98 @@ export class WSProxy {
       clean()
       this.publishedHandler.delete(pattern)
     }
+  }
+
+  /**
+   * 结合 on/off 方法，创建一个监听符合 pattern 事件的流，并包含 teardown 逻辑。
+   */
+  private createMsg$(pattern: string): Observable<ParsedWSMsg> {
+    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+      const nexter: MsgHandler = (msg) => observer.next(msg)
+      this.on(pattern, nexter)
+
+      return () => {
+        this.off(pattern, nexter)
+      }
+    })
+  }
+
+  /**
+   * 初始化在激活状态下主动触发、在挂起状态下懒触发地监听给定 pattern 的 deamon。
+   */
+  private initDeamon(pattern: string): Deamon {
+    const start$ = new Subject()
+    const suspend$ = new Subject()
+
+    const published$ = Observable.merge(
+      suspend$.switchMap(() => this.createMsg$(pattern).takeUntil(start$).takeLast(1)),
+      start$.switchMap(() => this.createMsg$(pattern).takeUntil(suspend$))
+    ).publish()
+
+    const connection = published$.connect()
+
+    return { start$, suspend$, published$, connection }
+  }
+
+  // 如果不能根据给定的 deamonKey 找到对应的 deamon，返回 undefined
+  private startDeamon(deamonKey: string) {
+    if (!this.deamonManager.has(deamonKey)) {
+      return
+    }
+
+    const { start$, suspend$ } = this.deamonManager.get(deamonKey)!
+
+    start$.next()
+
+    return () => {
+      suspend$.next()
+    }
+  }
+
+  stopDeamon(deamonKey: string) {
+    if (!this.deamonManager.has(deamonKey)) {
+      return
+    }
+
+    const { connection } = this.deamonManager.get(deamonKey)!
+
+    connection.unsubscribe()
+    this.deamonManager.delete(deamonKey)
+  }
+
+  /**
+   * 结合 deamon 的行为，实现部分 refresh 推送消息处理需要的操作。
+   * 注意：为了实现功能，由该方法创建的 deamon 不会被删除。
+   */
+  private onRefreshEvent(appNamespace: string, pattern: string, callback: MsgHandler) {
+    const deamonKey = `${appNamespace}/${pattern}`
+
+    if (!this.deamonManager.has(deamonKey)) {
+      this.deamonManager.set(deamonKey, this.initDeamon(pattern))
+    }
+
+    const { published$ } = this.deamonManager.get(deamonKey)!
+
+    const subs = published$.subscribe(callback)
+
+    const suspendDeamon = this.startDeamon(deamonKey)!
+
+    return () => {
+      suspendDeamon()
+      subs.unsubscribe()
+    }
+  }
+
+  /**
+   * 获得 `e` 字段能匹配给定 pattern 的 refresh 推送的流，其中每一个值
+   * 对应所得消息解析完成的完整消息内容。
+   * @param appNamespace 提供应用特有的 appNamespace 以避免受潜在的注册了同样 pattern
+   * @param pattern 要监听的 refresh 事件的格式，如 ':refresh:tasks/123'
+   */
+  getRefreshStream(appNamespace: string, pattern: string) {
+    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+      return this.onRefreshEvent(appNamespace, pattern, (msg) => observer.next(msg))
+    }) as Observable<ParsedWSMsg>
   }
 
   /**

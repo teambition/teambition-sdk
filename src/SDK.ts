@@ -22,7 +22,7 @@ export class SDK {
 
   socketClient: SocketClient
   database: Database
-  proxy: WSProxy
+  wsProxy: WSProxy
 
   lift: typeof Net.prototype.lift = (ApiResult: any): any => {
     return this.net.lift(ApiResult)
@@ -34,7 +34,7 @@ export class SDK {
       this.net,
       mapWSMsgTypeToTable
     )
-    this.proxy = this.socketClient.proxy
+    this.wsProxy = this.socketClient.proxy
   }
 
   initReactiveDB (db: Database): Observable<void[]> {

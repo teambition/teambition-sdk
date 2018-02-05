@@ -1,10 +1,13 @@
 import { describe, it, beforeEach, afterEach } from 'tman'
 import { Observable } from 'rxjs/Observable'
+import { Subject } from 'rxjs/Subject'
+import { Subscription } from 'rxjs/Subscription'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { clone } from '../utils'
 import { WSMiddleware as midware } from '../'
 import { Logger } from 'reactivedb'
+import { marbles } from 'rxjs-marbles'
 
 const CF = midware.ControlFlow
 
@@ -497,4 +500,138 @@ describe('Socket interceptor as Proxy', () => {
     }, 10)
   })
 
+})
+
+describe('WSProxy getRefreshStream() method', () => {
+  const matchingMessages = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].reduce((ret, x) => {
+    const id = Math.random().toFixed(8)
+    ret[x] = { method: 'refresh', id, type: 'tasks', data: null, source: `:refresh:tasks/${id}` }
+    return ret
+  }, {})
+
+  const deamonStatusChange = { u: 'up', d: 'down' }
+
+  let proxy: midware.WSProxy
+  let callbackSpy1: Subject<any>
+  let callbackSpy2: Subject<any>
+  let callbackSpy3: Subject<any>
+  let namespacedCallbackSpies: { [key: string]: Subject<any> }
+  let onStatusChange: (appNamespace: string) => (subs: Subscription | null, signal: string) => Subscription | null
+
+  beforeEach(() => {
+    proxy = new midware.WSProxy()
+    callbackSpy1 = new Subject()
+    callbackSpy2 = new Subject()
+    callbackSpy3 = new Subject()
+    namespacedCallbackSpies = {
+      test1: callbackSpy1,
+      test2: callbackSpy2,
+      test3: callbackSpy3
+    }
+    onStatusChange = (appNamespace: string) => (subs, signal) => {
+      switch (signal) {
+        case 'down':
+          subs!.unsubscribe()
+          return null
+        case 'up':
+          return proxy.getRefreshStream(appNamespace, ':refresh:tasks').subscribe((msg) => {
+            namespacedCallbackSpies[appNamespace].next(msg)
+          })
+        default:
+          return null
+      }
+    }
+  })
+
+  afterEach(() => {
+    proxy.stopDeamon('test1/:refresh:tasks')
+    proxy.stopDeamon('test2/:refresh:tasks')
+    proxy.stopDeamon('test3/:refresh:tasks')
+  })
+
+  it('should trigger callback after first being activated', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d--e-', matchingMessages)
+    const deamon =   m.cold('-------u-----------', deamonStatusChange).scan(onStatusChange('test1'), null)
+    const expected = m.cold('--------c-----d--e-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy1).toBeObservable(expected)
+  }))
+
+  it('should not trigger callback after suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d--e-', matchingMessages)
+    const deamon =   m.cold('-------u-----d-----', deamonStatusChange).scan(onStatusChange('test1'), null)
+    const expected = m.cold('--------c----------', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy1).toBeObservable(expected)
+  }))
+
+  it('should not trigger callback after re-activation if there is no matching message during suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c----------', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u-', deamonStatusChange).scan(onStatusChange('test1'), null)
+    const expected = m.cold('--------c----------', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy1).toBeObservable(expected)
+  }))
+
+  it('should trigger callback after re-activation if there is one matching message during suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c------d---', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u-', deamonStatusChange).scan(onStatusChange('test1'), null)
+    const expected = m.cold('--------c--------d-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy1).toBeObservable(expected)
+  }))
+
+  it('should trigger callback after re-activation with the last of the matching messages during suspension', marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d-e--', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u-', deamonStatusChange).scan(onStatusChange('test1'), null)
+    const expected = m.cold('--------c--------e-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy1).toBeObservable(expected)
+  }))
+
+  it(`overall, should trigger callback actively when the deamon is active,
+  \tand select the last matching during suspension to trigger callback on re-activation`, marbles((m) => {
+    const wsMsg$ =    m.hot('^-a-b---c-----d-e--f---g-----h-', matchingMessages)
+    const deamon =   m.cold('-------u-----d---u---d-----u---', deamonStatusChange).scan(onStatusChange('test1'), null)
+    const expected = m.cold('--------c--------e-f-------g-h-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon.subscribe()
+
+    m.expect(callbackSpy1).toBeObservable(expected)
+  }))
+
+  it('should allow more than one differently namespaced callers to work independently', marbles((m) => {
+    const wsMsg$ =     m.hot('^-a-b---c-----d-e--f---g-----h-', matchingMessages)
+    const deamon1 =   m.cold('-------u-----d---u---d-----u---', deamonStatusChange).scan(onStatusChange('test1'), null)
+    const expected1 = m.cold('--------c--------e-f-------g-h-', matchingMessages)
+    const deamon2 =   m.cold('-u----d------u----d----------u-', deamonStatusChange).scan(onStatusChange('test2'), null)
+    const expected2 = m.cold('--a-b--------cd-e------------(gh)-', matchingMessages)
+    const deamon3 =   m.cold('----------u------d----------u--', deamonStatusChange).scan(onStatusChange('test3'), null)
+    const expected3 = m.cold('--------------d-e-----------gh-', matchingMessages)
+
+    wsMsg$.subscribe(proxy.apply)
+    deamon1.subscribe()
+    deamon2.subscribe()
+    deamon3.subscribe()
+
+    m.expect(callbackSpy1).toBeObservable(expected1)
+    m.expect(callbackSpy2).toBeObservable(expected2)
+    m.expect(callbackSpy3).toBeObservable(expected3)
+  }))
 })
