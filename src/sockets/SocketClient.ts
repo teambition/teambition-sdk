@@ -12,7 +12,7 @@ import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
 import { socketHandler, createMsgToDBHandler, createMsgHandler } from './EventMaps'
-import { Interceptors, WSProxy } from './Middleware'
+import { Interceptors, Proxy } from './Middleware'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import { TableInfoByMessageType } from './MapToTable'
@@ -40,28 +40,32 @@ export class SocketClient {
    * 拦截器序列。如果需要在消息接触 db 之前对起进行额外的过滤、变换
    * 等操作，可以在这里添加相应 handler。
    */
-  public interceptors: Interceptors = new Interceptors()
+  public interceptors: Interceptors
   /**
    * 代理。如果需要获得不会接触 db 的消息（与数据模型无关），比如界面
    * 状态变更的消息等，可以在这里注册相应 handler。
    */
-  public proxy: WSProxy = new WSProxy()
+  public proxy: Proxy
 
   private handleMsgToDB: WSMsgToDBHandler
   private handleMsg: WSMsgHandler
 
   private database: Database
+
   constructor(
     private fetch: SDKFetch,
     private net: Net,
     private mapToTable: TableInfoByMessageType
   ) {
+    this.proxy = new Proxy()
     this.handleMsg = createMsgHandler(this.proxy)
-    this.interceptors.setDestination(createMsgToDBHandler(mapToTable))
+
+    this.interceptors = new Interceptors(createMsgToDBHandler(mapToTable))
     this.handleMsgToDB = (msg, db) => {
       const ret = this.interceptors.apply(msg, db)
       return ret instanceof Observable ? ret : Observable.of(null)
     }
+
     this.net.initMsgToDBHandler(this.handleMsgToDB)
   }
 

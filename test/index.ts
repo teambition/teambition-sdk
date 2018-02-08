@@ -25,6 +25,5 @@ export function loadRDB(sdk: SDK) {
 }
 
 export * from '../src/index'
-export { SocketClient } from '../src/sockets/SocketClient'
 export * from '../src/utils/index'
 export * from '../mock/index'

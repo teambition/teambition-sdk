@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs/Subscription'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { clone } from '../utils'
-import { WSMiddleware as midware } from '../'
+import * as midware from '../../src/sockets/Middleware'
 import { Logger } from 'reactivedb'
 import { marbles } from 'rxjs-marbles'
 
@@ -123,7 +123,7 @@ describe('Socket interceptor creator', () => {
   })
 })
 
-describe('Socket interceptor as ProxyToDB', () => {
+describe('Socket Interceptors', () => {
 
   let interceptors: any
   let msg: any
@@ -222,9 +222,9 @@ describe('Socket interceptor as ProxyToDB', () => {
 
 })
 
-describe('Socket interceptor as Proxy', () => {
+describe('Socket Proxy', () => {
 
-  let proxy: midware.WSProxy
+  let proxy: midware.Proxy
   let msg: any
   let msgClone: any
   let errStub: any
@@ -236,7 +236,7 @@ describe('Socket interceptor as Proxy', () => {
   }
 
   beforeEach(() => {
-    proxy = new midware.WSProxy()
+    proxy = new midware.Proxy()
     msg = {
       method: 'change',
       id: '1234567890',
@@ -511,7 +511,7 @@ describe('WSProxy getRefreshStream() method', () => {
 
   const deamonStatusChange = { u: 'up', d: 'down' }
 
-  let proxy: midware.WSProxy
+  let proxy: midware.Proxy
   let callbackSpy1: Subject<any>
   let callbackSpy2: Subject<any>
   let callbackSpy3: Subject<any>
@@ -519,7 +519,7 @@ describe('WSProxy getRefreshStream() method', () => {
   let onStatusChange: (appNamespace: string) => (subs: Subscription | null, signal: string) => Subscription | null
 
   beforeEach(() => {
-    proxy = new midware.WSProxy()
+    proxy = new midware.Proxy()
     callbackSpy1 = new Subject()
     callbackSpy2 = new Subject()
     callbackSpy3 = new Subject()

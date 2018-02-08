@@ -10,7 +10,7 @@ import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
 import { shareReplay } from 'rxjs/operators/shareReplay'
 import { Subject } from 'rxjs/Subject'
 
-import { forEach, ParsedWSMsg, createProxy, eventToRE } from '../utils'
+import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
 
 export type Flags = {
   /**
@@ -27,7 +27,7 @@ export type Interceptor = (msg: ParsedWSMsg, ...args: any[]) => void | ControlFl
 
 type InterceptorCreator = (handler: CustomMsgHandler) => Interceptor
 
-export type SequenceRemoveToken = () => void
+type SequenceRemoveToken = () => void
 
 class Sequence {
 
@@ -78,7 +78,6 @@ class Sequence {
 }
 
 export type MsgToDBHandler = (msg: ParsedWSMsg, db: Database) => void | ControlFlow | Observable<any>
-export type FinalMsgToDBHandler = (msg: ParsedWSMsg, db: Database) => Observable<any>
 
 /**
  * websocket 拦截器的序列。
@@ -86,6 +85,17 @@ export type FinalMsgToDBHandler = (msg: ParsedWSMsg, db: Database) => Observable
 export class Interceptors {
 
   private seq: Sequence = new Sequence()
+
+  /**
+   * 若提供 destination，会设置默认的消息处理逻辑。当所有通过
+   * append() 添加的拦截器都 pass-through，由 destination 处理
+   * （可能经部分拦截器修改的）消息。
+   */
+  constructor(destination?: WSMsgToDBHandler) {
+    if (destination) {
+      this.seq.setSink(destination)
+    }
+  }
 
   /**
    * 往当前拦截器序列的尾端添加一个拦截器。
@@ -103,19 +113,15 @@ export class Interceptors {
   apply: MsgToDBHandler = (msg, db) => {
     return this.seq.apply(msg, db)
   }
-
-  setDestination(handler: FinalMsgToDBHandler) {
-    this.seq.setSink(handler)
-  }
 }
 
-export interface WSProxyConfig {
+interface WSProxyConfig {
   clean: SequenceRemoveToken
   pattern: string
   handler: Function
 }
 
-export interface PublishedSource {
+interface PublishedSource {
   source: Observable<ParsedWSMsg>
   clean: SequenceRemoveToken
 }
@@ -133,7 +139,7 @@ export type MsgHandler = (msg: ParsedWSMsg) => void
  * websocket 代理。
  * 使用 Proxy 来为与数据模型无关的推送消息进行相应处理。
  */
-export class WSProxy {
+export class Proxy {
 
   private seq: Sequence = new Sequence()
   private proxyHandler: WSProxyConfig[] = []

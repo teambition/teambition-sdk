@@ -1,7 +1,8 @@
 import { Observable } from 'rxjs/Observable'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
-import { createSdk, SDK, SocketMock, SDKFetch, SocketClient, WSMiddleware as midware } from '../'
+import { createSdk, SDK, SocketMock, SDKFetch, Socket } from '../'
+import * as midware from '../../src/sockets/Middleware'
 import { restore, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 import * as sinon from 'sinon'
 import { Logger } from 'reactivedb'
@@ -144,7 +145,7 @@ describe('Socket handling Spec', () => {
 
 describe('Socket interceptors', () => {
   let sdk: SDK
-  let client: SocketClient
+  let client: Socket.Client
 
   let commentSample: any
   const modelId = '59a3aea25e25ef050c28ce4f'

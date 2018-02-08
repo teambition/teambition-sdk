@@ -7,7 +7,7 @@ import { Net } from '../Net'
 import { eventParser } from './EventParser'
 import { ParsedWSMsg, WSMsgHandler, WSMsgToDBHandler } from '../utils'
 import { TableInfoByMessageType } from './MapToTable'
-import { WSProxy } from './Middleware'
+import { Proxy } from './Middleware'
 
 const methodMap: any = {
   'change': 'upsert',
@@ -17,7 +17,7 @@ const methodMap: any = {
 }
 
 export const createMsgHandler = (
-  proxy: WSProxy = new WSProxy()
+  proxy: Proxy = new Proxy()
 ) => (
   msg: ParsedWSMsg
 ): Observable<any> => {

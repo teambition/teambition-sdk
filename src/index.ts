@@ -17,8 +17,8 @@ export * from './schemas'
 import * as EventSDK from './apis/event'
 export { EventSDK }
 
-import * as WSMiddleware from './sockets/Middleware'
-export { WSMiddleware, eventToRE as socketEventToRE }
+import * as Socket from './sockets'
+export { Socket, eventToRE as socketEventToRE }
 
 export { SDK } from './SDK'
 export { SDKFetch } from './SDKFetch'
