@@ -7,7 +7,6 @@ import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subscription } from 'rxjs/Subscription'
 import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
-import { shareReplay } from 'rxjs/operators/shareReplay'
 import { Subject } from 'rxjs/Subject'
 
 import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
@@ -115,11 +114,6 @@ export class Interceptors {
   }
 }
 
-interface PublishedSource {
-  source: Observable<ParsedWSMsg>
-  clean: MsgHandlerRemoval
-}
-
 interface Deamon {
   start$: Subject<any>,
   suspend$: Subject<any>,
@@ -136,81 +130,80 @@ export type MsgHandler = (msg: ParsedWSMsg) => void
 export class Proxy {
 
   private seq: Sequence = new Sequence()
-  private publishedHandler: Map<string, PublishedSource> = new Map<string, PublishedSource>()
+  private publishedHandler: Map<string, Observable<ParsedWSMsg>> = new Map()
   private deamonManager: Map<string, Deamon> = new Map()
 
   /**
    * 注册一个代理。
    * 该代理将会获得原推送消息经解析后的消息对象。
+   * 返回函数用于移除所注册的回调。
    */
-  register(handler: MsgHandler) {
+  register(handler: MsgHandler): MsgHandlerRemoval {
     return this.seq.append(handler)
   }
 
   /**
-   * 根据 pattern 注册一个代理。
-   * 该代理将会获得原推送消息经解析后的消息对象。
-   * pattern 支持正则
-   * 返回函数用于移除所注册的回调
+   * 将一条推送消息广播给所有注册的代理。
    */
-  on(pattern: string, handler: Function) {
+  apply: MsgHandler = (msg) => {
+    this.seq.apply(msg)
+  }
+
+  /**
+   * 根据 pattern（支持正则） 注册一个代理。
+   * 该代理将会获得原推送消息经解析后的消息对象。
+   * 返回函数用于移除所注册的回调。
+   */
+  on(pattern: string, handler: MsgHandler): MsgHandlerRemoval {
     const re = eventToRE(pattern)
 
-    const callback = (msg: ParsedWSMsg) => {
+    return this.register((msg: ParsedWSMsg) => {
       if (msg.source && re.test(msg.source)) {
         handler(msg)
       }
       re.lastIndex = 0
-      return ControlFlow.PassThrough
-    }
-
-    return this.seq.append(callback)
+    })
   }
 
   /**
    * 根据某个 pattern 持续订阅某个 socket event, e.g. publish(':change:task/:id')
    * 以 socket type 开头 例如: change、new、remove、destroy、refresh
-   * 建议搭配全局 refresh 使用, 集合的单一资源 refresh 场景可以使用 on 接口
    */
-
   publish(pattern: string): Observable<ParsedWSMsg> {
-    if (this.publishedHandler.has(pattern)) {
-      return this.publishedHandler.get(pattern)!.source
+    if (!this.publishedHandler.has(pattern)) {
+      const source = this.createMsg$(pattern, () => {
+        // 当订阅数降到 0 时，移除该条目
+        this.publishedHandler.delete(pattern)
+      })
+      this.publishedHandler.set(pattern, source.publish().refCount())
     }
-
-    const origin = new Subject<ParsedWSMsg>()
-    const handler = (msg: ParsedWSMsg) => {
-      origin.next(msg)
-    }
-    const off = this.on(pattern, handler)
-    const source = origin.pipe(shareReplay(1))
-    const cleanUp = () => {
-      off()
-      origin.complete()
-    }
-    this.publishedHandler.set(pattern, { source, clean: cleanUp })
-    return source
+    return this.publishedHandler.get(pattern)!
   }
 
   /**
-   * 移除某个持续订阅的 socket event
+   * 获得 `e` 字段能匹配给定 pattern 的 refresh 推送的流，其中每一个值
+   * 对应所得消息解析完成的完整消息内容。
+   * @param appNamespace 提供应用特有的 appNamespace 以避免受潜在的注册了同样 pattern
+   * @param pattern 要监听的 refresh 事件的格式，如 ':refresh:tasks/123'
    */
-  unpublish(pattern: string) {
-    if (this.publishedHandler.has(pattern)) {
-      const { clean } = this.publishedHandler.get(pattern)!
-      clean()
-      this.publishedHandler.delete(pattern)
-    }
+  getRefreshStream(appNamespace: string, pattern: string) {
+    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+      return this.onRefreshEvent(appNamespace, pattern, (msg) => observer.next(msg))
+    }) as Observable<ParsedWSMsg>
   }
 
   /**
    * 结合 on/off 方法，创建一个监听符合 pattern 事件的流，并包含 teardown 逻辑。
    */
-  private createMsg$(pattern: string): Observable<ParsedWSMsg> {
+  private createMsg$(pattern: string, teardown?: MsgHandlerRemoval): Observable<ParsedWSMsg> {
     return Observable.create((observer: Observer<ParsedWSMsg>) => {
       const nexter: MsgHandler = (msg) => observer.next(msg)
 
-      return this.on(pattern, nexter)
+      const off = this.on(pattern, nexter)
+      return !teardown ? off : () => {
+        off()
+        teardown()
+      }
     })
   }
 
@@ -278,25 +271,6 @@ export class Proxy {
       suspendDeamon()
       subs.unsubscribe()
     }
-  }
-
-  /**
-   * 获得 `e` 字段能匹配给定 pattern 的 refresh 推送的流，其中每一个值
-   * 对应所得消息解析完成的完整消息内容。
-   * @param appNamespace 提供应用特有的 appNamespace 以避免受潜在的注册了同样 pattern
-   * @param pattern 要监听的 refresh 事件的格式，如 ':refresh:tasks/123'
-   */
-  getRefreshStream(appNamespace: string, pattern: string) {
-    return Observable.create((observer: Observer<ParsedWSMsg>) => {
-      return this.onRefreshEvent(appNamespace, pattern, (msg) => observer.next(msg))
-    }) as Observable<ParsedWSMsg>
-  }
-
-  /**
-   * 将一条推送消息广播给所有注册的代理。
-   */
-  apply: MsgHandler = (msg) => {
-    this.seq.apply(msg)
   }
 
 }

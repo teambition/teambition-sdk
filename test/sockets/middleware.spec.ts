@@ -386,21 +386,6 @@ describe('Socket Proxy', () => {
     proxy.apply(msg)
   })
 
-  it('should be able to \'publish\' socket event [2]', (done) => {
-    proxy.publish(':change:event/(\\d+)').subscribe((data) => {
-      expect(data).to.deep.equal(msg)
-    })
-
-    setTimeout(() => {
-      proxy.publish(':change:event/(\\d+)').subscribe((data) => {
-        expect(data).to.deep.equal(msg)
-        done()
-      })
-    }, 1)
-
-    proxy.apply(msg)
-  })
-
   it('should be able to \'publish\' socket event [3]', (done) => {
     const msg2 = {
       method: 'change',
@@ -447,7 +432,7 @@ describe('Socket Proxy', () => {
     }
   })
 
-  it('should be able to \'publish\' socket event [5]', (done) => {
+  it('should NOT \'publish\' replay last one socket event', () => {
     const newMsg = {
       method: 'change',
       id: '10',
@@ -456,48 +441,35 @@ describe('Socket Proxy', () => {
       source: `:change:event/10`
     }
 
-    const obs1 = proxy.publish(':change:event/(\\d+)').subscribe()
+    const source = proxy.publish(':change:event/(\\d+)')
+
+    const subs1 = source.subscribe()
 
     proxy.apply(newMsg)
 
-    obs1.unsubscribe()
+    const spy = sinon.spy()
 
-    proxy.publish(':change:event/(\\d+)').subscribe((data) => {
-      expect(data).to.deep.equal(newMsg)
-      done()
+    const subs2 = source.subscribe(spy)
+
+    return Promise.resolve().then(() => {
+      subs1.unsubscribe()
+      subs2.unsubscribe()
+
+      expect(spy.called).to.be.false
     })
   })
 
-  it('should be able to unpublish the handler [1]', (done) => {
-    const spy = sinon.spy()
-    proxy.publish(':change:event/(\\d+)').subscribe(spy)
+  it('should be able to clean the published pattern', () => {
+    const subs = proxy.publish(':change:event/(\\d+)').subscribe()
     proxy.apply(msg)
 
-    setTimeout(() => {
-      proxy.unpublish(':change:event/(\\d+)')
-      proxy.apply(msg)
-    }, 1)
+    expect(proxy['publishedHandler'].size).to.equal(1)
+    expect(proxy['seq']['interceptors'].length).to.equal(1)
 
-    setTimeout(() => {
-      expect(spy).to.have.callCount(1)
-      done()
-    }, 10)
-  })
+    subs.unsubscribe()
 
-  it('should be able to unpublish the handler [2]', (done) => {
-    const spy = sinon.spy()
-    proxy.publish(':change:event/(\\d+)').subscribe(spy)
-    proxy.apply(msg)
-
-    setTimeout(() => {
-      proxy.unpublish('unused-socket-event')
-      proxy.apply(msg)
-    }, 1)
-
-    setTimeout(() => {
-      expect(spy).to.have.callCount(2)
-      done()
-    }, 10)
+    expect(proxy['publishedHandler'].size).to.equal(0)
+    expect(proxy['seq']['interceptors'].length).to.equal(0)
   })
 
 })
