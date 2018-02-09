@@ -6,6 +6,7 @@ export {
   Proxy,
   Interceptors as Interceptors,
   ControlFlow as InterceptorsControlFlow,
+  MsgHandlerRemoval,
   MsgHandler,
   MsgToDBHandler,
   CustomMsgHandler

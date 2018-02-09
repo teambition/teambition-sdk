@@ -323,12 +323,12 @@ describe('Socket Proxy', () => {
   it('should be able to remove registed listener', () => {
     const spy = sinon.spy()
     const spy2 = sinon.spy()
-    proxy.on(':change:event/1234567890', spy)
+    const off = proxy.on(':change:event/1234567890', spy)
     proxy.on(':change:event/(\\d+)', spy2)
 
     proxy.apply(msg)
 
-    proxy.off(':change:event/1234567890', spy)
+    off()
 
     expect(spy).to.have.callCount(1)
     expect(spy2).to.have.callCount(1)

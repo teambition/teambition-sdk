@@ -23,18 +23,18 @@ export type Flags = {
 
 export type CustomMsgHandler = MsgHandler | MsgToDBHandler
 
+export type MsgHandlerRemoval = () => void
+
 export type Interceptor = (msg: ParsedWSMsg, ...args: any[]) => void | ControlFlow | Observable<any>
 
 type InterceptorCreator = (handler: CustomMsgHandler) => Interceptor
-
-type SequenceRemoveToken = () => void
 
 class Sequence {
 
   private interceptors: Interceptor[] = []
   private sink: Interceptor | null = null
 
-  append(handler: CustomMsgHandler, options: Flags = {}): SequenceRemoveToken {
+  append(handler: CustomMsgHandler, options: Flags = {}): MsgHandlerRemoval {
     const interceptor = createInterceptor(handler, options)
     this.interceptors.push(interceptor)
     return () => {
@@ -115,15 +115,9 @@ export class Interceptors {
   }
 }
 
-interface WSProxyConfig {
-  clean: SequenceRemoveToken
-  pattern: string
-  handler: Function
-}
-
 interface PublishedSource {
   source: Observable<ParsedWSMsg>
-  clean: SequenceRemoveToken
+  clean: MsgHandlerRemoval
 }
 
 interface Deamon {
@@ -142,7 +136,6 @@ export type MsgHandler = (msg: ParsedWSMsg) => void
 export class Proxy {
 
   private seq: Sequence = new Sequence()
-  private proxyHandler: WSProxyConfig[] = []
   private publishedHandler: Map<string, PublishedSource> = new Map<string, PublishedSource>()
   private deamonManager: Map<string, Deamon> = new Map()
 
@@ -153,10 +146,12 @@ export class Proxy {
   register(handler: MsgHandler) {
     return this.seq.append(handler)
   }
+
   /**
    * 根据 pattern 注册一个代理。
    * 该代理将会获得原推送消息经解析后的消息对象。
    * pattern 支持正则
+   * 返回函数用于移除所注册的回调
    */
   on(pattern: string, handler: Function) {
     const re = eventToRE(pattern)
@@ -169,26 +164,7 @@ export class Proxy {
       return ControlFlow.PassThrough
     }
 
-    const removeToken = this.seq.append(callback)
-    this.proxyHandler.push({ clean: removeToken, pattern, handler })
-  }
-
-  /**
-   * 移除某个 pattern 下的代理
-   */
-  off(pattern: string, handler: Function) {
-    const ret: WSProxyConfig[] = []
-
-    this.findHandler((target) => {
-      if (target.handler === handler && target.pattern === pattern) {
-        target.clean()
-      } else {
-        // dingwen: ad-hoc TODO refactor with findhandler
-        ret.push(target)
-      }
-    })
-
-    this.proxyHandler = ret
+    return this.seq.append(callback)
   }
 
   /**
@@ -206,10 +182,10 @@ export class Proxy {
     const handler = (msg: ParsedWSMsg) => {
       origin.next(msg)
     }
-    this.on(pattern, handler)
+    const off = this.on(pattern, handler)
     const source = origin.pipe(shareReplay(1))
     const cleanUp = () => {
-      this.off(pattern, handler)
+      off()
       origin.complete()
     }
     this.publishedHandler.set(pattern, { source, clean: cleanUp })
@@ -233,11 +209,8 @@ export class Proxy {
   private createMsg$(pattern: string): Observable<ParsedWSMsg> {
     return Observable.create((observer: Observer<ParsedWSMsg>) => {
       const nexter: MsgHandler = (msg) => observer.next(msg)
-      this.on(pattern, nexter)
 
-      return () => {
-        this.off(pattern, nexter)
-      }
+      return this.on(pattern, nexter)
     })
   }
 
@@ -324,13 +297,6 @@ export class Proxy {
    */
   apply: MsgHandler = (msg) => {
     this.seq.apply(msg)
-  }
-
-  private findHandler(callback: (target: WSProxyConfig) => void) {
-    for (let i = 0; i < this.proxyHandler.length; i++) {
-      const target = this.proxyHandler[i]
-      callback(target)
-    }
   }
 
 }
