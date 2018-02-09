@@ -78,16 +78,21 @@ export function socketHandler(
   const signals = parsedMsgs.map((msg) => {
     const tabInfo = mapToTable.getTableInfo(msg.type)
 
-    if (!tabInfo || msg.method === 'refresh') { // todo: 判断 message method 是否有对应的 db 操作
-      return handleMsg(msg)
+    const proxyTask$ = handleMsg(msg)
+
+    if (!tabInfo) {
+      return proxyTask$
     }
 
+    let interceptorsTask$: Observable<any>
     if (!db) {
       net.bufferSocketPush(msg)
-      return Observable.of(null)
+      interceptorsTask$ = Observable.of(null)
     } else {
-      return handleMsgToDb(msg, db)
+      interceptorsTask$ = handleMsgToDb(msg, db)
     }
+
+    return Observable.merge(interceptorsTask$, proxyTask$)
   })
 
   return Observable.from(signals)
