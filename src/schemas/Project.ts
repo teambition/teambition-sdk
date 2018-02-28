@@ -2,6 +2,8 @@ import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
 import { CustomFieldValue, ExecutorOrCreator } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
+import { OrganizationPaymentPlan } from './Organization'
+import { UserPaymentPlan } from './UserMe'
 
 export interface ProjectSchema {
   _creatorId: UserId
@@ -36,22 +38,16 @@ export interface ProjectSchema {
   logo: string
   membersCount: number
   name: string
-  organization: {
+  organization?: {
     _id: OrganizationId
     description: string
     isExpired: boolean
     isPublic: boolean
     logo: string
     name: string
-    plan: {
-      days: number
-      expired: string
-      membersCount: number
-      objectType: string
-      paidCount: number
-      status: string
-    }
+    plan: OrganizationPaymentPlan
   }
+  plan?: UserPaymentPlan
   pinyin: string
   postsCount: number
   pushStatus: boolean
@@ -168,6 +164,9 @@ const Schema: SchemaDef<ProjectSchema> = {
         _organizationId: organizationTable._id
       })
     }
+  },
+  plan: {
+    type: RDBType.OBJECT
   },
   pinyin: {
     type: RDBType.STRING

@@ -7,15 +7,16 @@ export interface OrganizationDividerSchema {
   pos: number
 }
 
-export interface OrganizationPlanSchema {
-  created?: string
-  days: number
+export interface OrganizationPaymentPlan {
   expired: string
-  firstPaidTime?: string
-  free?: boolean
-  lastPaidTime?: string
+  isExpired: boolean
+  isTrialExpired: boolean
   membersCount: number
-  updated?: string
+  objectType: 'organization'
+  payType: string
+  status: string
+  trialExpired: string
+  trialType: string
 }
 
 export interface OrganizationSchema {
@@ -32,7 +33,7 @@ export interface OrganizationSchema {
   logo: string
   name: string
   pinyin: string
-  plan: OrganizationPlanSchema
+  plan: OrganizationPaymentPlan
   positions: string[]
   projectIds: ProjectId[]
   py: string
