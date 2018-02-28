@@ -9,14 +9,13 @@ export interface UserEmail {
   id: string
 }
 
-export interface PaymentPlan {
-  status: 'paid' | 'trial'
-  expired: string
-  paidCount: number
-  membersCount: number
-  days: number
-  objectType: 'free' | 'organization' | 'professional' | 'user'
+export interface UserPaymentPlan {
+  expired: string | null
   isExpired: boolean
+  membersCount: number
+  objectType: 'user'
+  paidCount: number
+  status: string
 }
 
 export interface StrikerToken extends String {
@@ -46,7 +45,7 @@ export interface UserMe {
   pinyin: string
   py: string
   isNew?: boolean
-  plan: PaymentPlan
+  plan: UserPaymentPlan
   notification?: {
     comment: {
       mobile: boolean

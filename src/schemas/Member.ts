@@ -2,6 +2,7 @@ import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId } from 'teambition-types'
 import { ProjectSchema } from './Project'
 import { schemaColl } from './schemas'
+import { UserPaymentPlan } from './UserMe'
 
 export interface MemberProfileSchema {
   birthday: string
@@ -39,6 +40,7 @@ export interface MemberSchema {
   nicknamePy: string
   phone: string
   pinyin: string
+  plan: UserPaymentPlan
   profile: MemberProfileSchema
   projectExperience: ProjectSchema[]
   projectExperienceIds: ProjectId[]
@@ -76,6 +78,7 @@ const Schema: SchemaDef<MemberSchema> = {
   nicknamePy: { type: RDBType.STRING },
   phone: { type: RDBType.STRING },
   pinyin: { type: RDBType.STRING },
+  plan: { type: RDBType.OBJECT },
   profile: { type: RDBType.OBJECT },
   projectExperience: { type: RDBType.OBJECT }, // 需要被重新定义, 没有找到 manyToMany 的查询条件
   projectExperienceIds: { type: RDBType.OBJECT }, // 需要被重新定义, 没有找到 manyToMany 的查询条件
