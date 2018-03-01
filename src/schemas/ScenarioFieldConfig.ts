@@ -7,6 +7,7 @@ import {
   ScenarioFieldConfigId,
   ScenarioFieldConfigObjectType,
   ScenarioProTemplateConfigType,
+  TaskflowId,
   TaskScenarioFieldIcon,
   UserId,
 } from 'teambition-types'
@@ -15,6 +16,7 @@ import {
   EventScenarioFieldSchema,
   TaskScenarioFieldSchema,
 } from './ScenarioField'
+import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface ScenarioFieldConfigSchema {
   _creatorId: UserId
@@ -28,7 +30,11 @@ export interface ScenarioFieldConfigSchema {
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
   updated: string
-  proTemplateConfigType?: ScenarioProTemplateConfigType
+
+  // pro fields
+  proTemplateConfigType: ScenarioProTemplateConfigType
+  _taskflowId: TaskflowId
+  taskflowStatus: TaskflowStatusSnippet[]
 }
 
 export interface TaskScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
@@ -54,6 +60,9 @@ const schema: SchemaDef<ScenarioFieldConfigSchema> = {
   _projectId: {
     type: RDBType.STRING
   },
+  _taskflowId: {
+    type: RDBType.STRING
+  },
   created: {
     type: RDBType.DATE_TIME
   },
@@ -76,6 +85,9 @@ const schema: SchemaDef<ScenarioFieldConfigSchema> = {
     type: RDBType.STRING
   },
   scenariofields: {
+    type: RDBType.OBJECT
+  },
+  taskflowStatus: {
     type: RDBType.OBJECT
   },
   updated: {
