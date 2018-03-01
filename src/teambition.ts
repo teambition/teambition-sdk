@@ -37,6 +37,8 @@ declare module 'teambition-types' {
   export interface TagId extends String { kind?: 'TagId' }
   export interface TapChartId extends String { kind?: 'TapChartId' }
   export interface TapDashboardId extends String { kind?: 'TapDashboardId' }
+  export interface TaskflowId extends String { kind?: 'TaskflowId' }
+  export interface TaskflowStatusId extends String { kind?: 'TaskflowStatusId' }
   export interface TaskId extends String { kind?: 'TaskId' }
   export interface TasklistId extends String { kind?: 'TasklistId' }
   export interface TeamId extends String { kind?: 'TeamId' }
@@ -304,4 +306,5 @@ declare module 'teambition-types' {
     TapFilterTarget<'weekend', 'type/Number', number[]> |
     TapFilterTarget<'holiday', 'type/DateCollection', string[]>
   >
+
 }
