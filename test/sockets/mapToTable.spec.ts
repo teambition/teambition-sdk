@@ -107,4 +107,12 @@ describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
     })
   })
 
+  it('should map `taskflowstatus`(case-insensitive) to `TaskflowStatus`', () => {
+    ['taskflowstatus', 'taskflowStatus'].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'TaskflowStatus'
+      })
+    })
+  })
+
 })
