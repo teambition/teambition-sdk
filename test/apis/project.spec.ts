@@ -4,7 +4,9 @@ import { Scheduler } from 'rxjs'
 import {
   GetPersonalProjectsQueryParams
 } from '../../src/apis/project/personal'
-import { SDKFetch } from '../'
+import { SDKFetch, ProjectSchema, createSdk, SDK } from '../'
+import * as Fixture from '../fixtures/projects.fixture'
+import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 const fetchMock = require('fetch-mock')
 
@@ -80,6 +82,59 @@ describe('get personal projects', () => {
             expect(x).to.deep.equal(expectedResponse)
           })
       })
+    })
+  })
+})
+
+describe('ProjectApi request spec: ', () => {
+  before(() => {
+    SDKFetch.fetchTail = '666'
+  })
+
+  after(() => {
+    SDKFetch.fetchTail = undefined
+  })
+
+  let sdkFetch: SDKFetch
+  let sdk: SDK
+  let mockResponse: <T>(m: T, schedule?: number | Promise<any>) => void
+
+  beforeEach(() => {
+    sdkFetch = new SDKFetch()
+    sdkFetch.setAPIHost('')
+    sdk = createSdk()
+    mockResponse = mock(sdk)
+  })
+
+  afterEach(() => {
+    fetchMock.restore()
+  })
+
+  describe('getProjectFetch()', () => {
+    it('should return a project response', function* () {
+      const project: ProjectSchema = Fixture.projects[0] as any
+      const projectId = project._id
+      const url = `/projects/${projectId}?_=666`
+
+      fetchMock.getOnce(url, project)
+
+      yield sdkFetch.getProjectFetch(projectId)
+        .subscribeOn(Scheduler.asap)
+        .do((result) => expect(result).to.deep.equal(project))
+    })
+  })
+
+  describe('getProject()', () => {
+    it('should return a project', function* () {
+      const fixture: ProjectSchema = Fixture.projects[0] as any
+      mockResponse(fixture)
+
+      yield sdk.getProject(fixture._id)
+        .values()
+        .subscribeOn(Scheduler.asap)
+        .do(([project]) => {
+          expectToDeepEqualForFieldsOfTheExpected(fixture, project)
+        })
     })
   })
 })
