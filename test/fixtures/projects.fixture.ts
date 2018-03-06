@@ -1,0 +1,122 @@
+export const normalProject = {
+  _id: '562dd8861f1446bb44c71b73',
+  name: '朕的排序项目',
+  _creatorId: '55f684cf1cfbf2945d0673a0',
+  logo:
+  'http://striker.project.ci/thumbnail/010g91ce2db9abfeb46512ea81673f90b931/w/600/h/300',
+  py: 'zdpxxm',
+  pinyin: 'zhen de pai xu xiang mu',
+  description: '谁敢乱改追刑事责任',
+  category: 'education',
+  _organizationId: '56f0d51e3cd13a5b537c3a12',
+  visibility: 'organization',
+  uniqueIdPrefix: 'Meee',
+  isPublic: false,
+  created: '2015-10-26T07:38:46.573Z',
+  updated: '2017-11-22T08:15:21.144Z',
+  isArchived: false,
+  inviteLink: null,
+  hasRight: 0,
+  hasOrgRight: 1,
+  organization: {
+    name: '1这都是朕的江山！',
+    description: '',
+    logo: 'http://project.ci/api/images/organizations/2.jpg',
+    isPublic: false,
+    _id: '56f0d51e3cd13a5b537c3a12',
+    isExpired: false,
+    plan: {
+      status: 'paid',
+      expired: '2024-06-05T05:16:00.000Z',
+      payType: 'org:2',
+      paidCount: 35,
+      membersCount: 200,
+      trialType: 'org:2',
+      trialExpired: '2018-01-11T10:57:49.843Z',
+      days: 2283,
+      objectType: 'organization',
+      isExpired: false,
+      isTrialExpired: true
+    }
+  },
+  _defaultRoleId: null,
+  _rootCollectionId: '562dd8861f1446bb44c71b74',
+  _defaultCollectionId: '562dd8861f1446bb44c71b75',
+  customfields: [],
+  sortMethod: 'priority',
+  proTemplateType: null,
+  isTemplate: false,
+  tasksCount: 0,
+  postsCount: 0,
+  eventsCount: 0,
+  worksCount: 0,
+  tagsCount: 0,
+  membersCount: 0,
+  applications: [
+    {
+    _id: '56a861e87ee8ab16694d9635',
+    name: 'tasks',
+    type: 1,
+    order: 0
+  },
+    {
+    _id: '56aad022443d43a60a1c7755',
+    name: 'posts',
+    type: 1,
+    order: 1
+  },
+    {
+    _id: '56aad022443d43a60a1c7756',
+    name: 'events',
+    type: 1,
+    order: 3
+  }
+  ],
+  _roleId: '5874c001a84ddc0c85c4054e',
+  _orgRoleId: 1,
+  unreadCount: 84,
+  pushStatus: false,
+  role: {
+    _id: '5874c001a84ddc0c85c4054e',
+    _creatorId: '55c02018fd0360a44c93ff97',
+    name: '123',
+    _organizationId: '56f0d51e3cd13a5b537c3a12',
+    created: '2017-01-10T11:05:37.964Z',
+    type: 'project',
+    permissions: [
+      'task.post',
+      'task.put.note',
+      'task.put.executor',
+      'subtask.post',
+      'subtask.put.executor',
+      'tasklist.post',
+      'tasklist.get.dumpTasks',
+      'stage.post',
+      'work.post',
+      'work.get.download',
+      'work.put.fork',
+      'collection.post',
+      'event.post',
+      'event.put.content',
+      'post.post',
+      'entry.post',
+      'entrycategory.post',
+      'tag.post',
+      'object.put.tag',
+      'objectlink.post',
+      'object.put.like',
+      'object.put.involvers',
+      'activity.post',
+      'project.post.member'
+    ]
+  },
+  creator: {
+    _id: '55f684cf1cfbf2945d0673a0',
+    name: 'qiuming',
+    avatarUrl:
+    'http://striker.project.ci/thumbnail/010s4dfa2dcaa6564cbcbc456dfea81f77cb/w/100/h/100'
+  },
+  starsCount: 7,
+  isStar: false,
+  shortLink: 'http://project.ci/project/562dd8861f1446bb44c71b73'
+}
