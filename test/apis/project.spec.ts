@@ -119,7 +119,7 @@ describe('ProjectApi request spec: ', () => {
   })
 })
 
-describe('ProjectApi spec', () => {
+describe('ProjectApi spec: ', () => {
 
   let sdk: SDK
   let mockResponse: <T>(m: T, schedule?: number | Promise<any>) => void

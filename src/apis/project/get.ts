@@ -5,6 +5,7 @@ import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId } from 'teambition-types'
 import { ProjectSchema } from '../../schemas'
+import { AssocField } from '../../Net'
 
 export function getProjectFetch(
   this: SDKFetch,
@@ -24,13 +25,15 @@ SDKFetch.prototype.getProject = getProjectFetch
 
 export function getProject(
   this: SDK,
-  projectId: ProjectId
+  projectId: ProjectId,
+  assocFields?: AssocField<ProjectSchema>
 ): QueryToken<ProjectSchema> {
   return this.lift<ProjectSchema>({
     cacheValidate: CacheStrategy.Request,
     tableName: 'Project',
     request: this.fetch.getProject(projectId),
     query: { where: { _id: projectId } },
+    assocFields: assocFields,
   })
 }
 
