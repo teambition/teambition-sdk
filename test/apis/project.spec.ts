@@ -4,8 +4,8 @@ import { Scheduler } from 'rxjs'
 import {
   GetPersonalProjectsQueryParams
 } from '../../src/apis/project/personal'
-import { SDKFetch, ProjectSchema, createSdk, SDK } from '../'
-import * as Fixture from '../fixtures/projects.fixture'
+import { SDKFetch, createSdk, SDK } from '../'
+import { normalProject } from '../fixtures/projects.fixture'
 import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 const fetchMock = require('fetch-mock')
@@ -112,7 +112,7 @@ describe('ProjectApi request spec: ', () => {
 
   describe('getProjectFetch()', () => {
     it('should return a project response', function* () {
-      const project: ProjectSchema = Fixture.projects[0] as any
+      const project = normalProject
       const projectId = project._id
       const url = `/projects/${projectId}?_=666`
 
@@ -126,7 +126,7 @@ describe('ProjectApi request spec: ', () => {
 
   describe('getProject()', () => {
     it('should return a project', function* () {
-      const fixture: ProjectSchema = Fixture.projects[0] as any
+      const fixture = normalProject
       mockResponse(fixture)
 
       yield sdk.getProject(fixture._id)
