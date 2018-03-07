@@ -16,11 +16,11 @@ export function getProjectFetch(
 declare module '../../SDKFetch' {
   // tslint:disable-next-line:no-shadowed-variable
   interface SDKFetch {
-    getProjectFetch: typeof getProjectFetch
+    getProject: typeof getProjectFetch
   }
 }
 
-SDKFetch.prototype.getProjectFetch = getProjectFetch
+SDKFetch.prototype.getProject = getProjectFetch
 
 export function getProject(
   this: SDK,
@@ -29,7 +29,7 @@ export function getProject(
   return this.lift<ProjectSchema>({
     cacheValidate: CacheStrategy.Request,
     tableName: 'Project',
-    request: this.fetch.getProjectFetch(projectId),
+    request: this.fetch.getProject(projectId),
     query: { where: { _id: projectId } },
   })
 }
