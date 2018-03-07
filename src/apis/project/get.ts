@@ -1,10 +1,10 @@
-import { CacheStrategy } from '../..'
 import { Observable } from 'rxjs/Observable'
+import { QueryToken } from 'reactivedb'
+
+import { SDK, CacheStrategy } from '../../SDK'
+import { SDKFetch } from '../../SDKFetch'
 import { ProjectId } from 'teambition-types'
 import { ProjectSchema } from '../../schemas'
-import { QueryToken } from 'reactivedb'
-import { SDK } from '../../SDK'
-import { SDKFetch } from '../../SDKFetch'
 
 export function getProjectFetch(
   this: SDKFetch,
