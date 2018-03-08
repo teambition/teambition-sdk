@@ -9,23 +9,26 @@ import { ScenarioFieldConfigSchema, TaskScenarioFieldConfigSchema, EventScenario
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
-  objectType: 'task'
+  objectType: 'task',
+  withTaskflowstatus?: boolean
 ): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
-  objectType: 'event'
+  objectType: 'event',
+  withTaskflowstatus?: boolean
 ): Observable<EventScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
-  objectType: ScenarioFieldConfigObjectType
+  objectType: ScenarioFieldConfigObjectType,
+  withTaskflowstatus = false
 ) {
   return this.get<ScenarioFieldConfigSchema[]>(
     `projects/${projectId}/scenariofieldconfigs`,
-    { objectType },
+    { objectType, withTaskflowstatus },
   )
 }
 
@@ -41,19 +44,22 @@ SDKFetch.prototype.getScenarioFieldConfigs = getScenarioFieldConfigsFetch
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
-  objectType: 'task'
+  objectType: 'task',
+  withTaskflowstatus?: boolean
 ): QueryToken<TaskScenarioFieldConfigSchema>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
-  objectType: 'event'
+  objectType: 'event',
+  withTaskflowstatus?: boolean
 ): QueryToken<EventScenarioFieldConfigSchema>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
-  objectType: ScenarioFieldConfigObjectType
+  objectType: ScenarioFieldConfigObjectType,
+  withTaskflowstatus = false
 ):
   | QueryToken<TaskScenarioFieldConfigSchema>
   | QueryToken<EventScenarioFieldConfigSchema> {
@@ -63,7 +69,11 @@ export function getScenarioFieldConfigs(
     >({
       cacheValidate: CacheStrategy.Request,
       tableName: 'ScenarioFieldConfig',
-      request: this.fetch.getScenarioFieldConfigs(projectId, objectType as any) as any,
+      request: this.fetch.getScenarioFieldConfigs(
+        projectId,
+        objectType as any,
+        withTaskflowstatus
+      ) as any,
       query: {
         where: [
           { _projectId: projectId },
