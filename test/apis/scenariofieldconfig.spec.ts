@@ -31,11 +31,11 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   it('should return a TaskScenariofieldConfig array', function* () {
     const projectId = taskScenariofieldConfig._projectId
     const configs = [taskScenariofieldConfig]
-    const url = `/projects/${projectId}/scenariofieldconfigs?objectType=task&_=666`
+    const url = `/projects/${projectId}/scenariofieldconfigs?objectType=task&withTaskflowstatus=true&_=666`
 
     fetchMock.once(url, configs)
 
-    yield sdkFetch.getScenarioFieldConfigs(projectId, 'task')
+    yield sdkFetch.getScenarioFieldConfigs(projectId, 'task', true)
       .subscribeOn(Scheduler.asap)
       .do((result) => expect(result).to.deep.equal(configs))
   })
@@ -43,11 +43,11 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   it('should return an EventScenariofieldConfig array', function* () {
     const projectId = eventScenariofieldConfig._projectId
     const configs = [eventScenariofieldConfig]
-    const url = `/projects/${projectId}/scenariofieldconfigs?objectType=event&_=666`
+    const url = `/projects/${projectId}/scenariofieldconfigs?objectType=event&withTaskflowstatus=true&_=666`
 
     fetchMock.once(url, configs)
 
-    yield sdkFetch.getScenarioFieldConfigs(projectId, 'event')
+    yield sdkFetch.getScenarioFieldConfigs(projectId, 'event', true)
       .subscribeOn(Scheduler.asap)
       .do((result) => expect(result).to.deep.equal(configs))
   })
