@@ -1,0 +1,13 @@
+{
+  "arrowParens": "always",
+  "semi": false,
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": "{tslint.json,package.json}",
+      "options": {
+        "printWidth": 1e3
+      }
+    }
+  ]
+}
