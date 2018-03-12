@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType } from 'reactivedb/interface'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 import {
   EventScenarioFieldIcon,
@@ -88,7 +88,13 @@ const schema: SchemaDef<ScenarioFieldConfigSchema> = {
     type: RDBType.OBJECT
   },
   taskflowstatuses: {
-    type: RDBType.OBJECT
+    type: Relationship.oneToMany,
+    virtual: {
+      name: 'TaskflowStatus',
+      where: (taskflowStatusTable: any) => ({
+        _taskflowId: taskflowStatusTable._taskflowId
+      })
+    }
   },
   updated: {
     type: RDBType.DATE_TIME
