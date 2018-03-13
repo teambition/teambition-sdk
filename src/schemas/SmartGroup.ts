@@ -5,6 +5,7 @@ import {
   SmartGroupId,
   SmartGroupViewType,
   SwimAxisLane,
+  SmartGroupType,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -14,7 +15,7 @@ export interface SmartGroupSchema {
   _creatorId: UserId
   name: string
   description: string
-  type?: 'story' | 'sprint' | 'bug'
+  type?: SmartGroupType
   view: {
     type: SmartGroupViewType
     vertical: SwimAxisLane
