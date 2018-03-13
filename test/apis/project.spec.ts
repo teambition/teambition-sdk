@@ -106,7 +106,7 @@ describe('ProjectApi request spec: ', () => {
     fetchMock.restore()
   })
 
-  it('getProject() should return a project response', function* () {
+  it('getProject() should return a project', function* () {
     const project = normalProject
     const projectId = project._id
     const url = `/projects/${projectId}?_=666`
