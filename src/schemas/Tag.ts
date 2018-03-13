@@ -1,12 +1,20 @@
 import { RDBType } from 'reactivedb/interface'
 import { SchemaDef } from 'reactivedb/interface'
-import { TagId, UserId, ProjectId, DefaultColors } from 'teambition-types'
+import { TagId, UserId, ProjectId, DefaultColors, OrganizationId, TagCategoryId } from 'teambition-types'
 import { schemaColl } from './schemas'
+
+export interface TagCategorySchema {
+  _id: TagCategoryId
+  name: string
+  updated: string
+  isDefault?: boolean
+}
 
 export interface TagSchema {
   _creatorId: UserId
   _id: TagId
   _projectId: ProjectId
+  _organizationId: OrganizationId
   color: DefaultColors
   created: string
   isArchived: boolean
@@ -16,6 +24,8 @@ export interface TagSchema {
   tasksCount?: number
   eventsCount?: number
   worksCount?: number
+  tagcategoryIds?: TagCategoryId[]
+  tagcategories?: TagCategorySchema[]
 }
 
 const schema: SchemaDef<TagSchema> = {
@@ -27,6 +37,9 @@ const schema: SchemaDef<TagSchema> = {
     type: RDBType.STRING,
   },
   _projectId: {
+    type: RDBType.STRING,
+  },
+  _organizationId: {
     type: RDBType.STRING,
   },
   color: {
@@ -55,6 +68,12 @@ const schema: SchemaDef<TagSchema> = {
   },
   worksCount: {
     type: RDBType.NUMBER
+  },
+  tagcategoryIds: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  tagcategories: {
+    type: RDBType.OBJECT
   },
 }
 
