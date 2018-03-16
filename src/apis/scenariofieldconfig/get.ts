@@ -80,6 +80,9 @@ export function getScenarioFieldConfigs(
           { objectType },
         ],
       },
+      assocFields: {
+        taskflowstatuses: ['_id', '_taskflowId', 'name', 'kind', 'rejectStatusIds', 'pos']
+      }
     }) as any
 }
 
