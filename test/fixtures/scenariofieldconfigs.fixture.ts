@@ -1,73 +1,118 @@
 export const taskScenariofieldConfig = {
-  _id: '59ef11e0d564c422680d73e0',
-  name: '任务',
-  _creatorId: '56efaff50e5a879506e2dbb4',
+  _id: '5a977492a4e7b30012b6437c',
+  name: '需求',
+  _creatorId: '5795ae540add8b24078fcb7d',
   objectType: 'task',
-  _projectId: '59ef11dfb29c94454cd453d7',
-  _taskflowId: null,
-  icon: 'order',
-  proTemplateConfigType: null,
+  _projectId: '5a977492a4e7b30012b6436b',
+  _taskflowId: '5a977492a4e7b30012b6436c',
+  icon: 'requirement',
+  proTemplateConfigType: 'story',
   scenariofields: [
     {
-      fieldType: 'customfield',
-      _customfieldId: '5a2514d9f270996e5f3879f6',
-      _id: '5a279324aa22f916d5a12ce2',
+      fieldType: 'note',
+      _id: '5a98e63858f6300012e544c5',
+      required: false,
+      displayed: true,
+      _roleIds: []
+    },
+    {
+      fieldType: 'storyPoint',
+      _id: '5a98e63858f6300012e544c4',
+      required: false,
+      displayed: true,
+      _roleIds: []
+    },
+    {
+      fieldType: 'priority',
+      _id: '5a98e63858f6300012e544c3',
+      required: false,
+      displayed: true,
+      _roleIds: []
+    },
+    {
+      fieldType: 'sprint',
+      _id: '5a98e63858f6300012e544c2',
+      required: false,
+      displayed: true,
+      _roleIds: []
+    },
+    {
+      fieldType: 'taskProgress',
+      _id: '5a98e63858f6300012e544c1',
       required: false,
       displayed: true,
       _roleIds: []
     },
     {
       fieldType: 'tag',
-      _id: '5a279324aa22f916d5a12ce1',
-      required: false,
-      displayed: true,
-      _roleIds: []
-    },
-    {
-      fieldType: 'customfield',
-      _customfieldId: '5a1686eef3758f5bf0f11dec',
-      _id: '5a279324aa22f916d5a12ce0',
-      required: false,
-      displayed: true,
-      _roleIds: []
-    },
-    {
-      fieldType: 'customfield',
-      _customfieldId: '5a168802f3758f5bf0f11e2d',
-      _id: '5a279324aa22f916d5a12cdf',
-      required: false,
-      displayed: true,
-      _roleIds: []
-    },
-    {
-      fieldType: 'customfield',
-      _customfieldId: '5a168436c17f605c00c7a3f4',
-      _id: '5a279324aa22f916d5a12cde',
-      required: false,
-      displayed: true,
-      _roleIds: []
-    },
-    {
-      fieldType: 'customfield',
-      _customfieldId: '5a168371f3758f5bf0f11ce2',
-      _id: '5a279324aa22f916d5a12cdd',
-      required: false,
-      displayed: true,
-      _roleIds: []
-    },
-    {
-      fieldType: 'customfield',
-      _customfieldId: '5a168024c17f605c00c7a3b9',
-      _id: '5a279324aa22f916d5a12cdc',
+      _id: '5a98e63858f6300012e544c0',
       required: false,
       displayed: true,
       _roleIds: []
     }
   ],
-  created: '2017-10-24T10:11:44.483Z',
-  updated: '2017-12-19T07:59:26.348Z',
+  created: '2018-03-01T03:33:38.829Z',
+  updated: '2018-03-02T05:50:48.968Z',
   isDefault: true,
-  displayed: true
+  displayed: true,
+  taskflowstatuses: [
+    {
+      _id: '5a977492a4e7b30012b6436f',
+      _taskflowId: '5a977492a4e7b30012b6436c',
+      name: '待处理待处理待处理待处理待处理待处理待处理待处理',
+      kind: 'start',
+      rejectStatusIds: [],
+      pos: 34304
+    },
+    {
+      _id: '5a9903ccc552e600126784db',
+      _taskflowId: '5a977492a4e7b30012b6436c',
+      name: '第三个',
+      kind: 'start',
+      rejectStatusIds: [],
+      pos: 34560
+    },
+    {
+      _id: '5a977492a4e7b30012b64370',
+      _taskflowId: '5a977492a4e7b30012b6436c',
+      name: '开发中',
+      kind: 'unset',
+      rejectStatusIds: [],
+      pos: 34816
+    },
+    {
+      _id: '5a9903c5c552e600126784d4',
+      _taskflowId: '5a977492a4e7b30012b6436c',
+      name: '开发3',
+      kind: 'unset',
+      rejectStatusIds: [],
+      pos: 99840
+    },
+    {
+      _id: '5a97d118e5f65d00127c5f46',
+      _taskflowId: '5a977492a4e7b30012b6436c',
+      name: '测试',
+      kind: 'unset',
+      rejectStatusIds: [],
+      pos: 105216
+    },
+    {
+      _id: '5a977492a4e7b30012b64371',
+      _taskflowId: '5a977492a4e7b30012b6436c',
+      name: '已完成-没有的',
+      kind: 'end',
+      rejectStatusIds: [],
+      pos: 107008
+    },
+    {
+      _id: '5a97a44d2530350012583511',
+      _taskflowId: '5a977492a4e7b30012b6436c',
+      name: '待处理',
+      kind: 'end',
+      rejectStatusIds: [],
+      pos: 638976
+    }
+  ]
 }
 
 export const eventScenariofieldConfig = {
