@@ -65,6 +65,8 @@ export interface TapDashboard<T extends FilterRequest | FilterResponse> {
 
   tapcharts: TapChart<FilterResponse>[]
   tapdashboards: TapDashboard<FilterResponse>[]
+
+  lastRefreshed: string
 }
 
 const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
@@ -156,6 +158,9 @@ const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
         _id: tapDashboardTable._ancestorId
       })
     }
+  },
+  lastRefreshed: {
+    type: RDBType.DATE_TIME
   }
 }
 
