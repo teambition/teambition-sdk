@@ -64,7 +64,10 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
   it('should return a TaskScenariofieldConfig array', function* () {
     const projectId = taskScenariofieldConfig._projectId
-    const configs = [taskScenariofieldConfig]
+    const configs = [{
+      ...taskScenariofieldConfig,
+      taskflowstatuses: undefined
+    }]
     mockResponse(configs)
 
     yield sdk.getScenarioFieldConfigs(projectId, 'task')
