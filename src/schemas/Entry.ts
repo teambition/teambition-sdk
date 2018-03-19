@@ -3,7 +3,7 @@ import {
   EntryCategoryId,
   ProjectId,
   UserId,
-  Visibility,
+  VisibleOption,
   TagId
 } from 'teambition-types'
 
@@ -18,7 +18,7 @@ export interface EntryData {
   amount: number
   status: string
   involveMembers: string[]
-  visible: Visibility
+  visible: VisibleOption
   tagIds: TagId[]
   created: string
   updated: string

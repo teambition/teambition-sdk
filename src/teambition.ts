@@ -76,7 +76,7 @@ declare module 'teambition-types' {
   export type TaskPriority = 0 | 1 | 2
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
-  export type Visibility = 'all' | 'members' | 'organization' | 'project'
+  export type VisibleOption = 'members' | 'involves'
 }
 
 declare module 'teambition-types' {

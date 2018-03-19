@@ -7,7 +7,7 @@ import {
   TagId,
   ProjectId,
   UserId,
-  Visibility,
+  VisibleOption,
   ExecutorOrCreator
 } from 'teambition-types'
 
@@ -25,7 +25,7 @@ export interface FileSchema {
   _creatorId: UserId
   creator: ExecutorOrCreator
   tagIds: TagId[]
-  visible: Visibility
+  visible: VisibleOption
   downloadUrl: string
   thumbnail: string
   thumbnailUrl: string
