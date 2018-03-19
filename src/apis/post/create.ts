@@ -2,14 +2,14 @@ import { Observable } from 'rxjs/Observable'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { PostModeOptions, PostSchema } from '../../schemas/Post'
-import { ProjectId, Visibility, FileId, UserId, TagId } from 'teambition-types'
+import { ProjectId, VisibleOption, FileId, UserId, TagId } from 'teambition-types'
 
 export interface CreatePostOptions {
   _projectId: ProjectId
   title: string
   content: string
   postMode?: PostModeOptions
-  visiable?: Visibility
+  visible?: VisibleOption
   attachments?: FileId[]
   involveMembers?: UserId[]
   tagIds?: TagId[]
@@ -27,7 +27,7 @@ declare module '../../SDKFetch' {
   }
 }
 
-export function createPost (this: SDK, options: CreatePostOptions): Observable<PostSchema> {
+export function createPost(this: SDK, options: CreatePostOptions): Observable<PostSchema> {
   return this.lift({
     request: this.fetch.createPost(options),
     tableName: 'Post',

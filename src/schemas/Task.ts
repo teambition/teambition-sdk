@@ -1,5 +1,5 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
-import { CustomFieldValue, ExecutorOrCreator, Reminder, Visibility } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption } from 'teambition-types'
 import {
   ProjectId,
   ScenarioFieldConfigId,
@@ -32,7 +32,7 @@ export interface TaskSchema {
   isDeleted: boolean
   created: string
   updated: string
-  visible: Visibility
+  visible: VisibleOption
   _sprintId?: SprintId
   _stageId: StageId
   _creatorId: UserId

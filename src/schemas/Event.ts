@@ -1,7 +1,7 @@
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 import {
-  Visibility,
+  VisibleOption,
   EventId,
   UserId,
   ProjectId,
@@ -36,7 +36,7 @@ export interface EventSchema {
   recurrence: string[]
   reminders: string[]
   isArchived: boolean
-  visible: Visibility
+  visible: VisibleOption
   isDeleted: boolean
   created: string
   updated: string
