@@ -81,7 +81,11 @@ export function getScenarioFieldConfigs(
         ],
       },
       assocFields: {
-        taskflowstatuses: ['_id', '_taskflowId', 'name', 'kind', 'rejectStatusIds', 'pos']
+        ...(
+          withTaskflowstatus
+            ? { taskflowstatuses: ['_id', '_taskflowId', 'name', 'kind', 'rejectStatusIds', 'pos'] }
+            : {}
+        )
       }
     }) as any
 }
