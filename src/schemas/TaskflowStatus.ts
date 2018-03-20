@@ -4,15 +4,15 @@ import { TaskflowId, TaskflowStatusId, UserId } from 'teambition-types'
 
 export interface TaskflowStatusSnippet {
   _id: TaskflowStatusId
+  _taskflowId: TaskflowId
   kind: 'start' | 'end' | 'unset'
   name: string
   pos: number
+  rejectStatusIds: TaskflowStatusId[]
 }
 
 export interface TaskflowStatusSchema extends TaskflowStatusSnippet {
-  _taskflowId: TaskflowId
   _creatorId: UserId
-  rejectStatusIds: TaskflowStatusId[]
   taskCount: number
   created: string
   updated: string
