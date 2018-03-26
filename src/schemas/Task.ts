@@ -1,5 +1,5 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
-import { CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption, OrganizationId } from 'teambition-types'
 import {
   ProjectId,
   ScenarioFieldConfigId,
@@ -33,11 +33,12 @@ export interface TaskSchema {
   created: string
   updated: string
   visible: VisibleOption
+  _organizationId: OrganizationId | null
   _sprintId?: SprintId
   _stageId: StageId
   _creatorId: UserId
   _tasklistId: TasklistId
-  _projectId: ProjectId
+  _projectId: ProjectId | null
   _executorId: UserId
   _scenariofieldconfigId?: ScenarioFieldConfigId
   involveMembers: UserId[]
@@ -115,6 +116,9 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.STRING
   },
   _tasklistId: {
+    type: RDBType.STRING
+  },
+  _organizationId: {
     type: RDBType.STRING
   },
   accomplished: {

@@ -2,7 +2,7 @@ import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, FileSchema } from '../index'
 import * as Fixture from '../fixtures/files.fixture'
-import { mock, restore, looseDeepEqual } from '../utils'
+import { mock, restore, looseDeepEqual, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 describe('FileApi request spec', () => {
   let sdk: SDK
@@ -24,7 +24,7 @@ describe('FileApi request spec', () => {
     yield sdk.getFile(fixture._id)
       .values()
       .do(([r]) => {
-        expect(r).to.deep.equal(fixture)
+        expectToDeepEqualForFieldsOfTheExpected(r, fixture)
       })
   })
 })
