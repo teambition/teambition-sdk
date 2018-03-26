@@ -8,7 +8,8 @@ import {
   ProjectId,
   UserId,
   VisibleOption,
-  ExecutorOrCreator
+  ExecutorOrCreator,
+  OrganizationId
 } from 'teambition-types'
 
 export interface FileSchema {
@@ -20,8 +21,9 @@ export interface FileSchema {
   fileCategory: string
   imageWidth: number
   imageHeight: number
+  _organizationId: OrganizationId | null
   _parentId: CollectionId
-  _projectId: ProjectId
+  _projectId: ProjectId | null
   _creatorId: UserId
   creator: ExecutorOrCreator
   tagIds: TagId[]
@@ -56,6 +58,9 @@ const schema: SchemaDef<FileSchema> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+  _organizationId: {
+    type: RDBType.STRING
   },
   _parentId: {
     type: RDBType.STRING
