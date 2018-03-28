@@ -17,7 +17,7 @@ export interface HttpErrorMessage {
   body?: any
 }
 
-export interface HttpResponseWithHeaders<T> {
+export interface HttpResponseWithHeaders<T = any> {
   headers: any,
   body: T
 }
@@ -45,20 +45,17 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
       crossDomain: typeof _opts.crossDomain !== 'undefined' ? !!_opts.crossDomain : true
     })
       .map(value => {
-        const resp = value.response
-        try {
-          const respBody = JSON.parse(resp)
-          if (!includeHeaders) {
-            const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
-            return {
-              headers: respHeaders,
-              body: respBody
-            }
-          }
+        const respBody = value.response
+        if (!includeHeaders) {
           return respBody
-        } catch (e) {
-          return resp
         }
+        let respHeaders: any
+        try {
+          respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
+        } catch (e) {
+          respHeaders = null
+        }
+        return { headers: respHeaders, body: respBody }
       })
       .catch((e: AjaxError) => {
         const headers = e.xhr.getAllResponseHeaders()
