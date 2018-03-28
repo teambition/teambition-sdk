@@ -10,6 +10,7 @@ import {
   TaskId,
   TasklistId,
   TaskPriority,
+  TaskflowStatusId,
   UserId
 } from 'teambition-types'
 import { schemaColl } from './schemas'
@@ -41,8 +42,9 @@ export interface TaskSchema {
   _projectId: ProjectId | null
   _executorId: UserId
   _scenariofieldconfigId?: ScenarioFieldConfigId
+  _taskflowstatusId?: TaskflowStatusId
   involveMembers: UserId[]
-  tagIds: TagId []
+  tagIds: TagId[]
   tags?: Array<Pick<TagSchema, '_id' | 'name' | 'color'>>
   recurrence: string[]
   pos: number
@@ -101,6 +103,9 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.STRING
   },
   _scenariofieldconfigId: {
+    type: RDBType.STRING
+  },
+  _taskflowstatusId: {
     type: RDBType.STRING
   },
   _sprintId: {

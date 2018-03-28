@@ -34,9 +34,12 @@ declare module 'teambition-types' {
   export interface StageId extends String { kind?: 'StageId' }
   export interface SubscribeId extends String { kind?: 'SubscribeId' }
   export interface SubtaskId extends String { kind?: 'SubtaskId' }
+  export interface TagCategoryId extends String { kind?: 'TagCategoryId' }
   export interface TagId extends String { kind?: 'TagId' }
   export interface TapChartId extends String { kind?: 'TapChartId' }
   export interface TapDashboardId extends String { kind?: 'TapDashboardId' }
+  export interface TaskflowId extends String { kind?: 'TaskflowId' }
+  export interface TaskflowStatusId extends String { kind?: 'TaskflowStatusId' }
   export interface TaskId extends String { kind?: 'TaskId' }
   export interface TasklistId extends String { kind?: 'TasklistId' }
   export interface TeamId extends String { kind?: 'TeamId' }
@@ -69,9 +72,11 @@ declare module 'teambition-types' {
   export type ScenarioFieldConfigObjectType = 'task' | 'event'
   export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
   export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
+  export type SmartGroupType = 'story' | 'sprint' | 'bug'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban'
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
     | 'taskType' | 'rating' | 'storyPoint'
+  export type TagType = 'organization' | 'project'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = 0 | 1 | 2
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask'
@@ -303,5 +308,6 @@ declare module 'teambition-types' {
     TapFilterTarget<'sprintId', 'type/MongoId', SprintId[]> |
     TapFilterTarget<'weekend', 'type/Number', number[]> |
     TapFilterTarget<'holiday', 'type/DateCollection', string[]>
-  >
+    >
+
 }
