@@ -25,11 +25,17 @@ export interface PagingQuery {
   count: number
 }
 
-export interface UrlPagingQuery extends PagingQuery {}
+export interface UrlPagingQuery extends PagingQuery { }
 
 export interface SqlPagingQuery {
   skip: number,
   limit: number
+}
+
+export interface PaginatedResponse<T = any> {
+  nextPageToken: string,
+  result: T,
+  totalSize: number
 }
 
 export interface ParsedWSMessage {
