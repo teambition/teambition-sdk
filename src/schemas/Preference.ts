@@ -2,24 +2,38 @@ import {
   TasklistId,
   PreferenceId,
   UserId,
-  ProjectId
+  ProjectId,
+  OrganizationId
 } from 'teambition-types'
 import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 
+export interface PreferenceTipMap {
+  [key: string]: boolean | PreferenceTipMap
+}
+
 export interface PreferenceSchema {
   _id: PreferenceId
   _userId: UserId
-  language: string
+  language: string                        // @isayme: 优先使用 `UserMe.language`
   showProjects?: ProjectId[]
-  starProjects?: {
-    [index: string]: ProjectId
-  }
-  tasklist?: {
-    [index: string]: TasklistId[]
-  }
-  tips: any
-  notification: any
+  organization: { isShowChildTeams: boolean }
+  tasklist?: Record<string, TasklistId[]> // 键类型为 ProjectId
+  tips: PreferenceTipMap
+  selections: Record<string, string[]>    // 键类型为 ProjectId
+  notifications: Record<string, boolean>
+  notification: Record<string, Partial<Record<'email' | 'mobile', boolean>>>
+  emails: Record<string, boolean>
+  lastNoticeDate?: string
+  lastWorkspace: 'personal' | OrganizationId
+  myTaskExecuteSort: string
+  myTaskInvolvesSort: string
+  myTaskCreatedSort: string
+  myFileOrder: string
+  libraryOrder: string
+  messageType: string
+  portalMode: string
+  inboxSortMode: string
   openWindowMode: string
   postMode: 'html' | 'markdown'
   quickCreateTask: boolean
@@ -38,8 +52,14 @@ const Schema: SchemaDef<PreferenceSchema> = {
   _userId: {
     type: RDBType.STRING
   },
+  emails: {
+    type: RDBType.OBJECT
+  },
   hasNew: {
     type: RDBType.BOOLEAN
+  },
+  inboxSortMode: {
+    type: RDBType.STRING
   },
   isUsePanel: {
     type: RDBType.BOOLEAN
@@ -47,28 +67,61 @@ const Schema: SchemaDef<PreferenceSchema> = {
   language: {
     type: RDBType.STRING
   },
+  lastNoticeDate: {
+    type: RDBType.DATE_TIME
+  },
+  lastWorkspace: {
+    type: RDBType.STRING
+  },
+  libraryOrder: {
+    type: RDBType.STRING
+  },
   memberBarMode: {
+    type: RDBType.STRING
+  },
+  messageType: {
+    type: RDBType.STRING
+  },
+  myFileOrder: {
+    type: RDBType.STRING
+  },
+  myTaskCreatedSort: {
+    type: RDBType.STRING
+  },
+  myTaskExecuteSort: {
+    type: RDBType.STRING
+  },
+  myTaskInvolvesSort: {
     type: RDBType.STRING
   },
   notification: {
     type: RDBType.OBJECT
   },
+  notifications: {
+    type: RDBType.OBJECT
+  },
   openWindowMode: {
+    type: RDBType.STRING
+  },
+  organization: {
+    type: RDBType.OBJECT
+  },
+  portalMode: {
     type: RDBType.STRING
   },
   postMode: {
     type: RDBType.STRING
   },
   quickCreateTask: {
-    type: RDBType.STRING
+    type: RDBType.BOOLEAN
   },
   quickReply: {
-    type: RDBType.STRING
+    type: RDBType.BOOLEAN
+  },
+  selections: {
+    type: RDBType.OBJECT
   },
   showProjects: {
-    type: RDBType.LITERAL_ARRAY
-  },
-  starProjects: {
     type: RDBType.LITERAL_ARRAY
   },
   switcherOn: {
