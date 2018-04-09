@@ -10,6 +10,46 @@ export interface FetchResult {
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
 
+export const buildQuery = (url: string, query: any) => {
+  if (typeof query !== 'object' || !query) {
+    return url
+  }
+  const result: string[] = []
+  const pushKVToResult = pushKVEncoded(result)
+  Object.keys(query).forEach((key) => {
+    const val = query[key]
+    if (key === '_') {
+      console.warn('query should not contain key \'_\', it will be ignored')
+      return
+    }
+    if (Array.isArray(val)) {
+      val.forEach(_val => pushKVToResult(key, _val))
+      return
+    }
+    pushKVToResult(key, val)
+  })
+  let _query: string
+  if (url.indexOf('?') !== -1) {
+    const hasExistingQueryInUrl = url.slice(-1) !== '?'
+    const additionalQuery = result.join('&')
+    _query = hasExistingQueryInUrl && additionalQuery
+      ? '&' + additionalQuery
+      : additionalQuery
+  } else {
+    _query = result.length ? '?' + result.join('&') : ''
+  }
+  return url + _query
+}
+
+const pushKVEncoded = (array: string[]) => (key: string, value: any): void => {
+  if (typeof value === 'undefined') {
+    return
+  }
+
+  const encodedValue = encodeURIComponent(String(value))
+  array.push(`${key}=${encodedValue}`)
+}
+
 export function parseObject (query: any): string {
   let _query: any
   try {
@@ -65,12 +105,7 @@ export function mockFetch() {
           uri = uri.substr(0, pos - 1)
         }
       }
-      const dataPath = options.body ? parseObject(options.body) : ''
-      if (uri.indexOf('?') === -1) {
-        uri = (options.body && dataPath !== '') ? `${uri}?${dataPath}` : uri
-      } else {
-        uri = (options.body && dataPath !== '') ? `${uri}&${dataPath}` : uri
-      }
+      uri = buildQuery(uri, options.body)
       const fetchIndex = reParseQuery(uri) + method
       const results = fetchStack.get(fetchIndex)
       if (!results) {
@@ -82,7 +117,6 @@ export function mockFetch() {
         const error = new TypeError(
             `nothing expect response from server,
             uri: ${uri}, method: ${options.method},
-            parsedUri: ${uri + method + dataPath}
             body: ${JSON.stringify(options.body, null, 2)},
             defined uri: ${JSON.stringify(definedUri, null, 2)}`
         )

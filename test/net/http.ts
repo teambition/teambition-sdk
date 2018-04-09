@@ -107,7 +107,7 @@ export default describe('net/http', () => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
           if (httpMethod === 'put' || httpMethod === 'post') {
-            expect(JSON.parse(fetchMock.lastOptions().body)).to.deep.equal(body)
+            expect(fetchMock.lastOptions().body).to.deep.equal(body)
           }
         })
     })
@@ -125,7 +125,7 @@ export default describe('net/http', () => {
         .subscribeOn(Scheduler.asap)
         .do((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal('delete')
-          expect(JSON.parse(fetchMock.lastOptions().body)).to.deep.equal(body)
+          expect(fetchMock.lastOptions().body).to.deep.equal(body)
           expect(res).to.deep.equal(responseData)
         })
     })
