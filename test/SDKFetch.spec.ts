@@ -211,41 +211,6 @@ describe('SDKFetch', () => {
         })
     })
   })
-
-  it('_buildQuery should serialize array to query string', () => {
-    const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
-    const parts: string[] = []
-    forEach(query, (value, key) => {
-      if (!Array.isArray(value)) {
-        value = <any>[value]
-      }
-      parts.push(...(<any[]>value).map(v => `${key}=${v}`))
-    })
-    const actual = sdkFetch['_buildQuery']('', query)
-    const expected = `?${parts.join('&')}`
-    expect(actual).to.be.equal(expected)
-  })
-
-  it('_buildQuery should serialize query with queryUrl to query string', () => {
-    const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
-    const parts: string[] = []
-    forEach(query, (value, key) => {
-      if (!Array.isArray(value)) {
-        value = <any>[value]
-      }
-      parts.push(...(<any[]>value).map(v => `${key}=${v}`))
-    })
-    const actual = sdkFetch['_buildQuery']('http://abc.com?_=123', query)
-    const expected = `http://abc.com?_=123&${parts.join('&')}`
-    expect(actual).to.be.equal(expected)
-  })
-
-  it('_buildQuery should ignore key \'_\'', () => {
-    const query = { _: 123, a: 'a' }
-    const actual = sdkFetch['_buildQuery']('', query)
-    const expected = `?a=a`
-    expect(actual).to.be.equal(expected)
-  })
 })
 
 describe('SDKFetch options', () => {
@@ -393,5 +358,55 @@ describe('SDKFetch options', () => {
         })
       })
     })
+  })
+})
+
+describe('SDKFetch.buildQuery', () => {
+  it('should serialize array to query string', () => {
+    const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
+    const parts: string[] = []
+    forEach(query, (value, key) => {
+      if (!Array.isArray(value)) {
+        value = <any>[value]
+      }
+      parts.push(...(<any[]>value).map(v => `${key}=${v}`))
+    })
+    const actual = SDKFetch.buildQuery('', query)
+    const expected = `?${parts.join('&')}`
+    expect(actual).to.be.equal(expected)
+  })
+
+  it('should serialize query with queryUrl to query string', () => {
+    const query = { a: 'a', b: [1, 2, 'b', 'b'], c: 3 }
+    const parts: string[] = []
+    forEach(query, (value, key) => {
+      if (!Array.isArray(value)) {
+        value = <any>[value]
+      }
+      parts.push(...(<any[]>value).map(v => `${key}=${v}`))
+    })
+    const actual = SDKFetch.buildQuery('http://abc.com?_=123', query)
+    const expected = `http://abc.com?_=123&${parts.join('&')}`
+    expect(actual).to.be.equal(expected)
+  })
+
+  it('should ignore key \'_\'', () => {
+    const query = { _: 123, a: 'a' }
+    const actual = SDKFetch.buildQuery('', query)
+    const expected = `?a=a`
+    expect(actual).to.be.equal(expected)
+  })
+
+  it('should prevent `&` from being added for query { key: undefined }', () => {
+    expect(SDKFetch.buildQuery('?_=123', { optional: undefined })).to.equal('?_=123')
+    expect(SDKFetch.buildQuery('?', { optional: undefined })).to.equal('?')
+    expect(SDKFetch.buildQuery('?', { optional: undefined, required: true })).to.equal('?required=true')
+    expect(SDKFetch.buildQuery('', { optional: undefined })).to.equal('')
+    expect(SDKFetch.buildQuery('', { optional: undefined, required: true })).to.equal('?required=true')
+  })
+
+  it('should encode query', () => {
+    expect(SDKFetch.buildQuery('', { q: 'hello world' })).to.equal('?q=hello%20world')
+    expect(SDKFetch.buildQuery('', { q: '你好' })).to.equal('?q=%E4%BD%A0%E5%A5%BD')
   })
 })

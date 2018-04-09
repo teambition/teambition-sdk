@@ -165,7 +165,7 @@ describe('join/leave `room`', () => {
     await sdkFetch.joinRoom(sampleRoom, sampleConsumerId)
 
     expect(fetchMock.lastUrl()).to.equal(expectedUrl)
-    expect(fetchMock.lastOptions().body).to.equal(`{"consumerId":"${sampleConsumerId}"}`)
+    expect(fetchMock.lastOptions().body).to.deep.equal({ consumerId: sampleConsumerId })
   })
 
   it('leaveRoom should DELETE consumerId from :room/subscribe', async () => {
@@ -176,6 +176,6 @@ describe('join/leave `room`', () => {
     await sdkFetch.leaveRoom(sampleRoom, sampleConsumerId)
 
     expect(fetchMock.lastUrl()).to.equal(expectedUrl)
-    expect(fetchMock.lastOptions().body).to.equal(`{"consumerId":"${sampleConsumerId}"}`)
+    expect(fetchMock.lastOptions().body).to.deep.equal({ consumerId: sampleConsumerId })
   })
 })
