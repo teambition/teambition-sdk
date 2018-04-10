@@ -82,7 +82,7 @@ export class SDKFetch {
 
   get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
     const url = this.urlWithPath(path, options.apiHost)
-    const urlWithQuery = query ? this._buildQuery(url, query) : url
+    const urlWithQuery = query ? SDKFetch.buildQuery(url, query) : url
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
     let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
 
@@ -262,31 +262,31 @@ export class SDKFetch {
     }
   }
 
-  private _buildQuery(url: string, query: any) {
+  // 注意：当该方法相关逻辑发生修改，请至 mock/mock.ts 做相应修改。
+  static buildQuery(url: string, query: any) {
     if (typeof query !== 'object' || !query) {
       return url
     }
     const result: string[] = []
+    const pushKVToResult = pushKVEncoded(result)
     forEach(query, (val: any, key: string) => {
       if (key === '_') {
         SDKLogger.warn('query should not contain key \'_\', it will be ignored')
         return
       }
       if (Array.isArray(val)) {
-        (<any[]>val).forEach(_val => {
-          if (typeof _val !== 'undefined') {
-            result.push(`${key}=${_val}`)
-          }
-        })
-      } else {
-        if (typeof val !== 'undefined') {
-          result.push(`${key}=${val}`)
-        }
+        val.forEach(_val => pushKVToResult(key, _val))
+        return
       }
+      pushKVToResult(key, val)
     })
     let _query: string
     if (url.indexOf('?') !== -1) {
-      _query = result.length ? '&' + result.join('&') : ''
+      const hasExistingQueryInUrl = url.slice(-1) !== '?'
+      const additionalQuery = result.join('&')
+      _query = hasExistingQueryInUrl && additionalQuery
+        ? '&' + additionalQuery
+        : additionalQuery
     } else {
       _query = result.length ? '?' + result.join('&') : ''
     }
@@ -296,4 +296,13 @@ export class SDKFetch {
   getUserMe() {
     return this.get<UserMe>('users/me')
   }
+}
+
+const pushKVEncoded = (array: string[]) => (key: string, value: any): void => {
+  if (typeof value === 'undefined') {
+    return
+  }
+
+  const encodedValue = encodeURIComponent(String(value))
+  array.push(`${key}=${encodedValue}`)
 }

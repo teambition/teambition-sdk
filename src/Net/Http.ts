@@ -73,14 +73,14 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
         }, 10)
         return Observable.throw(sdkError)
       })
-  } else {
+  } else { // 测试用分支
     return Observable.create((observer: Observer<any>) => {
       const _options = {
         ... _opts,
         method: method
       }
-      if (body) {
-        _options.body = typeof body === 'object' ? JSON.stringify(body) : body
+      if (body) { // body 内容没有 stringify，以便于测试代码中（如：mockFetch）的数据处理
+        _options.body = body
       }
       let headers: Headers
       fetch(url, _options)

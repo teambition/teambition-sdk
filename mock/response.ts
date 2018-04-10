@@ -1,4 +1,4 @@
-import { fetchStack, parseObject, reParseQuery } from './mock'
+import { fetchStack,  reParseQuery, buildQuery } from './mock'
 
 export class HttpResponse {
   private namespace: string
@@ -7,13 +7,9 @@ export class HttpResponse {
     if (!uri) {
       throw new TypeError('no uri')
     }
-    const dataPath = data ? parseObject(data) : ''
+
+    uri = buildQuery(uri, data)
     method = method ? method.toLowerCase() : ''
-    if (uri.indexOf('?') === -1) {
-      uri = data && dataPath !== '' ? `${uri}?${dataPath}` : uri
-    } else {
-      uri = data && dataPath !== '' ? `${uri}&${dataPath}` : uri
-    }
     this.namespace = reParseQuery(uri) + method
   }
 
