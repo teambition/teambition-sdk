@@ -55,43 +55,40 @@ const Schema: SchemaDef<PreferenceSchema> = {
   _userId: {
     type: RDBType.STRING
   },
-  language: {
-    type: RDBType.STRING
-  },
-  taskSort: {
-    type: RDBType.OBJECT
-  },
-  showProjects: {
-    type: RDBType.LITERAL_ARRAY
-  },
-  starProjects: {
-    type: RDBType.OBJECT
-  },
-  organization: {
-    type: RDBType.OBJECT
-  },
-  tasklist: {
-    type: RDBType.OBJECT
-  },
-  tips: {
-    type: RDBType.OBJECT
-  },
-  selections: {
-    type: RDBType.OBJECT
-  },
-  notifications: {
-    type: RDBType.OBJECT
-  },
-  notification: {
-    type: RDBType.OBJECT
-  },
   emails: {
     type: RDBType.OBJECT
   },
-  lastNoticeDate: {
+  hasNew: {
+    type: RDBType.BOOLEAN
+  },
+  inboxSortMode: {
     type: RDBType.STRING
   },
+  isUsePanel: {
+    type: RDBType.BOOLEAN
+  },
+  language: {
+    type: RDBType.STRING
+  },
+  lastNoticeDate: {
+    type: RDBType.DATE_TIME
+  },
   lastWorkspace: {
+    type: RDBType.STRING
+  },
+  libraryOrder: {
+    type: RDBType.STRING
+  },
+  memberBarMode: {
+    type: RDBType.STRING
+  },
+  messageType: {
+    type: RDBType.STRING
+  },
+  myFileOrder: {
+    type: RDBType.STRING
+  },
+  myTaskCreatedSort: {
     type: RDBType.STRING
   },
   myTaskExecuteSort: {
@@ -100,25 +97,19 @@ const Schema: SchemaDef<PreferenceSchema> = {
   myTaskInvolvesSort: {
     type: RDBType.STRING
   },
-  myTaskCreatedSort: {
-    type: RDBType.STRING
+  notification: {
+    type: RDBType.OBJECT
   },
-  myFileOrder: {
-    type: RDBType.STRING
-  },
-  libraryOrder: {
-    type: RDBType.STRING
-  },
-  messageType: {
-    type: RDBType.STRING
-  },
-  portalMode: {
-    type: RDBType.STRING
-  },
-  inboxSortMode: {
-    type: RDBType.STRING
+  notifications: {
+    type: RDBType.OBJECT
   },
   openWindowMode: {
+    type: RDBType.STRING
+  },
+  organization: {
+    type: RDBType.OBJECT
+  },
+  portalMode: {
     type: RDBType.STRING
   },
   postMode: {
@@ -130,17 +121,26 @@ const Schema: SchemaDef<PreferenceSchema> = {
   quickReply: {
     type: RDBType.BOOLEAN
   },
-  hasNew: {
-    type: RDBType.BOOLEAN
+  selections: {
+    type: RDBType.OBJECT
+  },
+  showProjects: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  starProjects: {
+    type: RDBType.OBJECT
   },
   switcherOn: {
     type: RDBType.BOOLEAN
   },
-  memberBarMode: {
-    type: RDBType.STRING
+  tasklist: {
+    type: RDBType.OBJECT
   },
-  isUsePanel: {
-    type: RDBType.BOOLEAN
+  taskSort: {
+    type: RDBType.OBJECT
+  },
+  tips: {
+    type: RDBType.OBJECT
   }
 }
 
