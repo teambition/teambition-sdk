@@ -298,11 +298,25 @@ export class SDKFetch {
   }
 }
 
+/**
+ * encodeURIComponent 不会修改的字符有 A-Z a-z 0-9 - _ . ! ~ * ' ( )
+ * - 参考自 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent#Description
+ * 而被修改的字符，都会以 percent-encoding 方法替换
+ * - 参考自 https://tools.ietf.org/html/rfc3986#section-2.4
+ * - percent-encoding 的方法参考自 https://tools.ietf.org/html/rfc3986#section-2.1
+ */
+const encodedRegExp = /^(%(\d|[a-fA-F]){2}|[a-zA-Z0-9]|-|_|\.|!|~|\*|'|\(|\))*$/
+//                       ^percent-encoded^ ^^^^^^^^^^^^^escaped^^^^^^^^^^^^^w
+
 const pushKVEncoded = (array: string[]) => (key: string, value: any): void => {
   if (typeof value === 'undefined') {
     return
   }
 
-  const encodedValue = encodeURIComponent(String(value))
-  array.push(`${key}=${encodedValue}`)
+  const maybeEncoded = String(value)
+  const encoded = encodedRegExp.test(maybeEncoded)
+    ? maybeEncoded
+    : encodeURIComponent(maybeEncoded)
+
+  array.push(`${key}=${encoded}`)
 }
