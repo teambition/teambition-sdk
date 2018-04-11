@@ -46,8 +46,15 @@ const pushKVEncoded = (array: string[]) => (key: string, value: any): void => {
     return
   }
 
-  const encodedValue = encodeURIComponent(String(value))
-  array.push(`${key}=${encodedValue}`)
+  const encodedRegExp = /^(%(\d|[a-fA-F]){2}|[a-zA-Z0-9]|-|_|\.|!|~|\*|'|\(|\))*$/
+  //                       ^percent-encoded^ ^^^^^^^^^^^^^escaped^^^^^^^^^^^^^w
+
+  const maybeEncoded = String(value)
+  const encoded = encodedRegExp.test(maybeEncoded)
+    ? maybeEncoded
+    : encodeURIComponent(maybeEncoded)
+
+  array.push(`${key}=${encoded}`)
 }
 
 export function parseObject (query: any): string {
