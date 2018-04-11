@@ -31,6 +31,7 @@ export interface UserMe {
   email: string
   name: string
   avatarUrl: string
+  language: string
   created: string
   crossNotify: {
     badge: number
@@ -40,6 +41,7 @@ export interface UserMe {
   location?: string
   phone: string
   isActive?: boolean
+  isGhost?: boolean
   isRobot?: boolean
   website?: string
   pinyin: string
@@ -173,6 +175,9 @@ const Schema: SchemaDef<UserMe> = {
   isActive: {
     type: RDBType.BOOLEAN
   },
+  isGhost: {
+    type: RDBType.BOOLEAN
+  },
   isNew: {
     type: RDBType.BOOLEAN
   },
@@ -181,6 +186,9 @@ const Schema: SchemaDef<UserMe> = {
   },
   joinedProjectsCount: {
     type: RDBType.NUMBER
+  },
+  language: {
+    type: RDBType.STRING
   },
   lastEntered: {
     type: RDBType.DATE_TIME
