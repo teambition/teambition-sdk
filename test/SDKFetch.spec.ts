@@ -405,8 +405,31 @@ describe('SDKFetch.buildQuery', () => {
     expect(SDKFetch.buildQuery('', { optional: undefined, required: true })).to.equal('?required=true')
   })
 
-  it('should encode query', () => {
-    expect(SDKFetch.buildQuery('', { q: 'hello world' })).to.equal('?q=hello%20world')
-    expect(SDKFetch.buildQuery('', { q: '你好' })).to.equal('?q=%E4%BD%A0%E5%A5%BD')
+  it('should encode query correctly', () => {
+    expect(SDKFetch.buildQuery('', {
+      q: ''
+    })).to.equal('?q=')
+
+    expect(SDKFetch.buildQuery('', {
+      q: 'noNeedToEncode0-9-_.!~*\'()'
+    })).to.equal('?q=noNeedToEncode0-9-_.!~*\'()')
+
+    expect(SDKFetch.buildQuery('', {
+      q: 'hello world'
+    })).to.equal('?q=hello%20world')
+
+    expect(SDKFetch.buildQuery('', {
+      q: '你(ni)好(hao)'
+    })).to.equal('?q=%E4%BD%A0(ni)%E5%A5%BD(hao)')
+  })
+
+  it('should encode query in an idempotent manner', () => {
+    expect(SDKFetch.buildQuery('', {
+      q: 'hello%20world'
+    })).to.equal('?q=hello%20world')
+
+    expect(SDKFetch.buildQuery('', {
+      q: '%E4%BD%A0(ni)%E5%A5%BD(hao)'
+    })).to.equal('?q=%E4%BD%A0(ni)%E5%A5%BD(hao)')
   })
 })
