@@ -13,7 +13,7 @@ export interface TaskflowStatusSnippet {
 
 export interface TaskflowStatusSchema extends TaskflowStatusSnippet {
   _creatorId: UserId
-  taskCount: number
+  taskCount?: number // 后端不能实时保证准确，也不保证所有相关接口提供该字段
   created: string
   updated: string
 }
