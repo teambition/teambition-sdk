@@ -9,13 +9,13 @@ export interface UserEmail {
   id: string
 }
 
-export interface PaymentPlan {
-  status: 'paid' | 'trial'
-  expired: string
-  paidCount: number
+export interface UserPaymentPlan {
+  expired: string | null
+  isExpired: boolean
   membersCount: number
-  days: number
-  objectType: 'free' | 'organization' | 'professional' | 'user'
+  objectType: 'user'
+  paidCount: number
+  status: string
 }
 
 export interface StrikerToken extends String {
@@ -31,61 +31,40 @@ export interface UserMe extends ISchema {
   email: string
   name: string
   avatarUrl: string
+  language: string
   created: string
+  crossNotify: {
+    badge: number
+  }
   title: string
   birthday?: string
   location?: string
   phone: string
   isActive?: boolean
+  isGhost?: boolean
+  isRobot?: boolean
   website?: string
   pinyin: string
   py: string
   isNew?: boolean
-  plan: PaymentPlan
-  notification?: {
-    comment: {
-      mobile: boolean
-      email: boolean
-    },
-    newpost: {
-      mobile: boolean
-      email: boolean
-    },
-    newtask: {
-      mobile: boolean
-      email: boolean
-    },
-    newwork: {
-      mobile: boolean
-      email: boolean
-    },
-    newevent: {
-      mobile: boolean
-      email: boolean
-    },
-    involve: {
-      mobile: boolean
-      email: boolean
-    },
-    update: {
-      mobile: boolean
-      email: boolean
-    },
-    daily: {
-      mobile: boolean
-      email: boolean
-    },
-    monthly: {
-      mobile: boolean
-      email: boolean
-    }
-  }
-  lastEntered: {
-    web?: string
-    ios?: string
-    android?: string
-    third: string
-  }
+  plan: UserPaymentPlan
+  notification?: Record<
+  | 'comment'
+  | 'newpost'
+  | 'newtask'
+  | 'newwork'
+  | 'newevent'
+  | 'involve'
+  | 'update'
+  | 'daily'
+  | 'monthly'
+  , Record<'mobile' | 'email', boolean>>
+  lastEntered: Partial<Record<
+  | 'web'
+  | 'ios'
+  | 'android'
+  | 'third'
+  , string>>
   locationByIP: {
     country: string
     region: string
@@ -110,6 +89,7 @@ export interface UserMe extends ISchema {
   calLink?: string
   taskCalLink?: string
   joinedProjectsCount: number
+  region: string
 }
 
 @schemaName('UserMe')
@@ -118,29 +98,42 @@ export default class User extends Schema<UserMe> implements UserMe {
   email: string = undefined
   name: string = undefined
   avatarUrl: string = undefined
+  language: string = undefined
   created: string = undefined
+  crossNotify: UserMe['crossNotify'] = undefined
   title: string = undefined
+  birthday?: string = undefined
+  location?: string = undefined
   phone: string = undefined
+  isActive?: boolean = undefined
+  isGhost?: boolean = undefined
+  isRobot?: boolean = undefined
+  website?: string = undefined
   pinyin: string = undefined
   py: string = undefined
-  plan: PaymentPlan = undefined
-  lastEntered: {
-    web?: string
-    ios?: string
-    android?: string
-    third: string
-  } = undefined
-  locationByIP: {
-    country: string
-    region: string
-    city: string
-  } = undefined
+  isNew?: boolean = undefined
+  plan: UserPaymentPlan = undefined
+  notification?: UserMe['notification'] = undefined
+  lastEntered: UserMe['lastEntered'] = undefined
+  locationByIP: UserMe['locationByIP'] = undefined
+  aliens?: any[] = undefined
   strikerAuth: StrikerToken = undefined
+  phoneForLogin?: string = undefined
+  enabledGoogleTwoFactor?: boolean = undefined
   emails: UserEmail[] = undefined
   snapperToken: SnapperToken = undefined
   badge: number = undefined
+  normal?: number = undefined
   ated: number = undefined
   later: number = undefined
+  private?: number = undefined
   inbox: number = undefined
+  hasNormal?: boolean = undefined
+  hasAted?: boolean = undefined
+  hasLater?: boolean = undefined
+  hasPrivate?: boolean = undefined
+  calLink?: string = undefined
+  taskCalLink?: string = undefined
   joinedProjectsCount: number = undefined
+  region: string = undefined
 }
