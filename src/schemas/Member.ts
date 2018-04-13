@@ -5,58 +5,91 @@ import {
   MemberId,
   ProjectId,
   OrganizationId,
-  RoleId
+  RoleId,
+  TeamId
 } from '../teambition'
+import { ProjectData } from './Project'
+import { UserPaymentPlan } from './UserMe'
+
+export interface MemberProfile {
+  birthday: string
+  city: string
+  country: string
+  email: string
+  entryTime: string
+  name: string
+  phone: string
+  position: string
+  province: string
+  staffType: string
+  teamIds: TeamId[]
+}
 
 export interface MemberData extends ISchema {
-  _id: UserId
   _boundToObjectId: ProjectId | OrganizationId
-  boundToObjectType: 'project' | 'organization'
-  _roleId: RoleId
-  visited: string
-  joined: string
-  pushStatus: boolean
-  nickname: string
-  nicknamePy: string
-  nicknamePinyin: string
-  hasVisited: boolean
+  _id: MemberId
   _memberId: MemberId
-  phone: string
-  location: string
-  website: string
-  latestActived: string
-  isActive: boolean
-  email: string
-  name: string
+  _roleId: RoleId
+  _userId: UserId
   avatarUrl: string
-  title: string
+  boundToObjectType: 'project' | 'organization'
+  email: string
+  hasVisited: boolean
+  isActive: boolean
+  isDisabled: boolean
+  invited: string
+  joined: string
+  latestActived: string
+  location: string
+  name: string
+  nickname: string
+  nicknamePinyin: string
+  nicknamePy: string
+  phone: string
   pinyin: string
+  plan: UserPaymentPlan
+  profile: MemberProfile
+  projectExperience: ProjectData[]
+  projectExperienceIds: ProjectId[]
+  pushStatus: boolean
   py: string
+  teams: TeamId[]
+  title: string
+  visited: string | null
+  website: string
 }
 
 @schemaName('Member')
 export default class Member extends Schema<MemberData> implements MemberData {
-  _id: UserId = undefined
   _boundToObjectId: ProjectId | OrganizationId = undefined
-  boundToObjectType: 'project' | 'organization' = undefined
-  _roleId: RoleId = undefined
-  visited: string = undefined
-  joined: string = undefined
-  pushStatus: boolean = undefined
-  nickname: string = undefined
-  nicknamePy: string = undefined
-  nicknamePinyin: string = undefined
-  hasVisited: boolean = undefined
+  _id: MemberId = undefined
   _memberId: MemberId = undefined
-  phone: string = undefined
-  location: string = undefined
-  website: string = undefined
-  latestActived: string = undefined
-  isActive: boolean = undefined
-  email: string = undefined
-  name: string = undefined
+  _roleId: RoleId = undefined
+  _userId: UserId = undefined
   avatarUrl: string = undefined
-  title: string = undefined
+  boundToObjectType: 'project' | 'organization' = undefined
+  email: string = undefined
+  hasVisited: boolean = undefined
+  isActive: boolean = undefined
+  isDisabled: boolean = undefined
+  invited: string = undefined
+  joined: string = undefined
+  latestActived: string = undefined
+  location: string = undefined
+  name: string = undefined
+  nickname: string = undefined
+  nicknamePinyin: string = undefined
+  nicknamePy: string = undefined
+  phone: string = undefined
   pinyin: string = undefined
+  plan: UserPaymentPlan = undefined
+  profile: MemberProfile = undefined
+  projectExperience: ProjectData[] = undefined
+  projectExperienceIds: ProjectId[] = undefined
+  pushStatus: boolean = undefined
   py: string = undefined
+  teams: TeamId[] = undefined
+  title: string = undefined
+  visited: string | null = undefined
+  website: string = undefined
 }
