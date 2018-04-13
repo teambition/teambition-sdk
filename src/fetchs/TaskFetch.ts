@@ -183,43 +183,43 @@ export interface UpdateSubtaskIdsResponse {
 }
 
 export interface UpdateFavoriteResponse {
-    _id?: string,
-    _creatorId?: string,
-    _refId?: string,
-    data?: {
-      created?: string,
-      updated?: string,
-      content?: string,
-      note?: string,
-      isDone?: boolean,
-      startDate?: string,
-      dueDate?: string,
-      executor?: {
-        _id?: string,
-        name?: string,
-        avatarUrl?: string
-      },
-      project?: {
-      _id?: string,
-      name?: string
-      },
-      creator?: {
+  _id?: string,
+  _creatorId?: string,
+  _refId?: string,
+  data?: {
+    created?: string,
+    updated?: string,
+    content?: string,
+    note?: string,
+    isDone?: boolean,
+    startDate?: string,
+    dueDate?: string,
+    executor?: {
       _id?: string,
       name?: string,
       avatarUrl?: string
-      }
     },
-    updated?: string,
-    created?: string,
-    refType?: string,
-    isFavorite?: boolean,
-    isVisible?: boolean,
-    isUpdated?: boolean,
-    status?: string
+    project?: {
+      _id?: string,
+      name?: string
+    },
+    creator?: {
+      _id?: string,
+      name?: string,
+      avatarUrl?: string
+    }
+  },
+  updated?: string,
+  created?: string,
+  refType?: string,
+  isFavorite?: boolean,
+  isVisible?: boolean,
+  isUpdated?: boolean,
+  status?: string
 }
 
 export class TaskFetch extends Fetch {
-  getTasksMe (option: TasksMeOptions): Observable<TaskData[]> {
+  getTasksMe(option: TasksMeOptions): Observable<TaskData[]> {
     return this.fetch.get(`v2/tasks/me`, option)
   }
 
@@ -270,8 +270,8 @@ export class TaskFetch extends Fetch {
     page?: number
     maxId?: number
   } = {
-    page: 1
-  }): Observable<TaskData[]> {
+      page: 1
+    }): Observable<TaskData[]> {
     const query = this.checkQuery(option)
     return this.fetch.get(`organizations/${organizationId}/tasks/me/involves`, query)
   }
@@ -330,7 +330,13 @@ export class TaskFetch extends Fetch {
 
   favorite(_taskId: TaskId): Observable<UpdateFavoriteResponse> {
     return this.fetch.post(`tasks/${_taskId}/favorite`)
-      .map(resp => resp.data)
+      .map(resp => {
+        return {
+          ...resp.data,
+          // 需要将新的 `isFavorite` 信息写入 TaskModel 里
+          isFavorite: resp.isFavorite
+        }
+      })
   }
 
   getSubtasks(_taskId: TaskId, query: any = {}): Observable<TaskData[]> {
@@ -338,7 +344,11 @@ export class TaskFetch extends Fetch {
   }
 
   unfavorite(_taskId: TaskId): Observable<UpdateFavoriteResponse> {
-    return this.fetch.delete(`tasks/${_taskId}/favorite?`)
+    return this.fetch.delete(`tasks/${_taskId}/favorite`)
+      .map((resp) => {
+        // 需要将新的 `isFavorite` 信息写入 TaskModel 里
+        return { isFavorite: resp.isFavorite }
+      })
   }
 
   batchUpdateDuedate(stageId: StageId, dueDate: string): Observable<BatchUpdateDuedateResponse> {
