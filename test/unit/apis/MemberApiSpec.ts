@@ -40,11 +40,12 @@ export default describe('member api test', () => {
 
   it('should get one', function* () {
 
+    const memberId = uuid()
     const member = <MemberSchema>{
-      _id: <any>uuid(),
-      _memberId: <any>uuid()
+      _id: <any>memberId,
+      _memberId: <any>memberId,
+      _userId: <any>uuid()
     }
-    const memberId = member._memberId
 
     httpBackend
       .whenGET(`${apihost}members/${memberId}`)
@@ -67,10 +68,12 @@ export default describe('member api test', () => {
     const count = 5
     const projectId = uuid()
     const members = <MemberSchema[]>[]
-    for (let i = 0; i < count; i ++) {
-      members.push(<any>Utils.assign(Utils.clone(mockMember), {
-        _id: uuid(),
-        _memberId: uuid(),
+    for (let i = 0; i < count; i++) {
+      const mockMemberId = uuid()
+      members.push(Utils.assign(Utils.clone(mockMember), {
+        _id: mockMemberId,
+        _memberId: mockMemberId,
+        _userId: uuid(),
         _boundToObjectId: projectId,
         boundToObjectType: 'project'
       }))
@@ -106,10 +109,12 @@ export default describe('member api test', () => {
     const count = 5
     const organizationId = uuid()
     const members = <MemberSchema[]>[]
-    for (let i = 0; i < count; i ++) {
-      members.push(<any>Utils.assign(Utils.clone(mockMember), {
-        _id: uuid(),
-        _memberId: uuid(),
+    for (let i = 0; i < count; i++) {
+      const mockMemberId = uuid()
+      members.push(Utils.assign(Utils.clone(mockMember), {
+        _id: mockMemberId,
+        _memberId: mockMemberId,
+        _userId: uuid(),
         _boundToObjectId: organizationId,
         boundToObjectType: 'organization'
       }))
@@ -196,7 +201,7 @@ export default describe('member api test', () => {
 
   })
 
-  it ('getMembers from project should ok', function* () {
+  it('getMembers from project should ok', function* () {
     const stream = Member.getProjectMembers(<any>member._boundToObjectId)
       .publish()
       .refCount()
@@ -225,7 +230,7 @@ export default describe('member api test', () => {
 
   })
 
-  it ('get members from project page2 should ok', function* () {
+  it('get members from project page2 should ok', function* () {
     const id = member._boundToObjectId
 
     httpBackend
@@ -276,13 +281,13 @@ export default describe('member api test', () => {
     const mockEmails = projectMembers.map(member => member.email)
 
     httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
-        email: mockEmails
-      })
+      email: mockEmails
+    })
       .respond(JSON.stringify(projectMembers))
 
     httpBackend.whenPOST(`${apihost}v2/projects/${projectId}/members`, {
-        email: mockEmails
-      })
+      email: mockEmails
+    })
       .respond(JSON.stringify(projectMembers))
 
     const stream = Member.addMembers(<any>projectId, mockEmails)
@@ -338,10 +343,10 @@ export default describe('member api test', () => {
       const emails = chunkProjectMembers.map(member => member.email)
       httpBackend.whenPOST(
         `${apihost}v2/projects/${projectId}/members`,
-          {
-            email: emails
-          }
-        )
+        {
+          email: emails
+        }
+      )
         .respond(JSON.stringify(chunkProjectMembers))
     })
 
@@ -474,7 +479,7 @@ export default describe('member api test', () => {
 
   })
 
-  it('get all project members 2900 should ok',  function* () {
+  it('get all project members 2900 should ok', function* () {
     const mockMembers = new Array(2900)
       .fill(0)
       .map((r, index) => {

@@ -51,8 +51,9 @@ export default describe('socket member test', () => {
     const projectId: any = uuid()
     const memberId: any = uuid()
     const member = <any>{
-      _id: uuid(),
+      _id: memberId,
       _memberId: memberId,
+      _userId: uuid(),
       _boundToObjectId: projectId,
       boundToObjectType: 'project'
     }
@@ -86,10 +87,12 @@ export default describe('socket member test', () => {
     const count = 5
     const projectId: any = uuid()
     const members = <MemberSchema[]>[]
-    for (let i = 0; i < count; i ++) {
+    for (let i = 0; i < count; i++) {
+      const mockMemberId = uuid()
       members.push(<any>{
-        _id: uuid(),
-        _memberId: uuid(),
+        _id: mockMemberId,
+        _memberId: mockMemberId,
+        _userId: uuid(),
         _boundToObjectId: projectId,
         boundToObjectType: 'project'
       })
@@ -125,8 +128,9 @@ export default describe('socket member test', () => {
     const organizationId: any = uuid()
     const memberId = uuid()
     const member = <any>{
-      _id: uuid(),
+      _id: memberId,
       _memberId: memberId,
+      _userId: uuid(),
       _boundToObjectId: organizationId,
       boundToObjectType: 'organization'
     }
@@ -160,10 +164,12 @@ export default describe('socket member test', () => {
     const count = 5
     const organizationId: any = uuid()
     const members = <MemberSchema[]>[]
-    for (let i = 0; i < count; i ++) {
+    for (let i = 0; i < count; i++) {
+      const mockMemberId = uuid()
       members.push(<any>{
-        _id: uuid(),
-        _memberId: uuid(),
+        _id: mockMemberId,
+        _memberId: mockMemberId,
+        _userId: uuid(),
         _boundToObjectId: organizationId,
         boundToObjectType: 'organization'
       })

@@ -10,12 +10,17 @@ export interface UserEmail {
 }
 
 export interface UserPaymentPlan {
+  days: number
   expired: string | null
   isExpired: boolean
+  isTrialExpired: boolean
   membersCount: number
   objectType: 'user'
   paidCount: number
+  payType: string
   status: string
+  trialExpired: string | null
+  trialType: string
 }
 
 export interface StrikerToken extends String {
