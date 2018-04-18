@@ -94,7 +94,7 @@ export default class DataBase {
         if (cache && data.length) {
           const requested = data[0]._requested
           if (requested && requested === cache.requested) {
-            observer.next(cache.get())
+            return observer.next(cache.get())
           /* istanbul ignore if */
           } else {
             return observer.error(new Error(`Can not store a existed data: ${index}${schemaName ? ' ,schemaName: ' + schemaName : ''}`))
