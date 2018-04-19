@@ -61,6 +61,7 @@ declare module 'teambition-types' {
 declare module 'teambition-types' {
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text'
+  export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
   export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work'
