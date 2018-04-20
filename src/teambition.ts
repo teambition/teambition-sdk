@@ -272,6 +272,7 @@ declare module 'teambition-types' {
     sprintId?: SprintId[]
     weekend?: number[]
     holiday?: string[]
+    groupField?: string
   }
 
   export type TapGenericFilterResponse = Array<
@@ -308,7 +309,8 @@ declare module 'teambition-types' {
     TapFilterTarget<'pageNum', 'type/Number', number> |
     TapFilterTarget<'sprintId', 'type/MongoId', SprintId[]> |
     TapFilterTarget<'weekend', 'type/Number', number[]> |
-    TapFilterTarget<'holiday', 'type/DateCollection', string[]>
+    TapFilterTarget<'holiday', 'type/DateCollection', string[]> |
+    TapFilterTarget<'groupField', 'type/String', string>
     >
 
 }
