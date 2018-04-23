@@ -13,14 +13,14 @@ import {
 import { OrganizationPaymentPlan } from './Organization'
 import { UserPaymentPlan } from './UserMe'
 
-interface ProjectApplication {
+export interface ProjectApplication {
   _id: ApplicationId
   name: string
   type: number
   order: number
 }
 
-interface ProjectOrganization {
+export interface ProjectOrganization {
   _id: OrganizationId
   description: string
   isExpired: boolean
