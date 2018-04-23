@@ -55,9 +55,15 @@ export default describe('Subtask API test: ', () => {
   })
 
   describe('get organization my subtasks without dueDate: ', () => {
-    const page1 = organizationMySubtasks.slice(0, 30)
+    const page1 = organizationMySubtasks.slice(0, 30).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const page2 = organizationMySubtasks.slice(30, 60)
+    const page2 = organizationMySubtasks.slice(30, 60).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me?page=1&isDone=false&hasDuedate=false`)
@@ -185,9 +191,15 @@ export default describe('Subtask API test: ', () => {
   })
 
   describe('get organization my subtasks have dueDate: ', () => {
-    const page1 = organizationMyDueSubtasks.slice(0, 30)
+    const page1 = organizationMyDueSubtasks.slice(0, 30).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const page2 = organizationMyDueSubtasks.slice(30, 60)
+    const page2 = organizationMyDueSubtasks.slice(30, 60).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me?page=1&isDone=false&hasDuedate=true`)
@@ -321,9 +333,15 @@ export default describe('Subtask API test: ', () => {
   })
 
   describe('get organization my subtasks done: ', () => {
-    const page1 = organizationMyDoneSubtasks.slice(0, 30)
+    const page1 = organizationMyDoneSubtasks.slice(0, 30).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const page2 = organizationMyDoneSubtasks.slice(30, 60)
+    const page2 = organizationMyDoneSubtasks.slice(30, 60).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/subtasks/me?page=1&isDone=true`)
@@ -424,9 +442,15 @@ export default describe('Subtask API test: ', () => {
   })
 
   describe('get organization my created subtasks:', () => {
-    const page1 = organizationMyCreatedSubtasks.slice(0, 30)
+    const page1 = organizationMyCreatedSubtasks.slice(0, 30).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const page2 = organizationMyCreatedSubtasks.slice(30, 60)
+    const page2 = organizationMyCreatedSubtasks.slice(30, 60).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
     const maxId = page1[page1.length - 1]._id
 

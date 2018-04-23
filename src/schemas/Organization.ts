@@ -4,68 +4,77 @@ import {
   OrganizationId,
   ProjectId,
   RoleId,
-  UserId
+  UserId,
+  TeamId
 } from '../teambition'
 
-export interface OrganizationData extends ISchema {
-  _id: OrganizationId
+export interface OrganizationDivider {
   name: string
+  pos: number
+}
+
+export interface OrganizationPaymentPlan {
+  _objectId: OrganizationId
+  days: number
+  expired: string
+  isExpired: boolean
+  isTrialExpired: boolean
+  membersCount: number
+  objectType: 'organization'
+  paidCount: number
+  payType: string
+  status: string
+  trialExpired: string
+  trialType: string
+}
+
+export interface OrganizationData extends ISchema {
   _creatorId: UserId
-  logo: string
-  description: string
-  category: string
-  pinyin: string
-  py: string
-  isPublic: boolean
-  dividers: {
-    name: string
-    pos: number
-  }[]
-  projectIds: ProjectId[]
-  created: string
-  background: string
-  plan: {
-    lastPaidTime?: string
-    firstPaidTime?: string
-    updated?: string
-    created?: string
-    expired: string
-    free?: boolean
-    membersCount: number
-    days: number
-  }
+  _defaultOrgRoleId: RoleId | null
   _defaultRoleId: RoleId | null
+  _defaultTeamId: TeamId | null
+  _id: OrganizationId
   _roleId: RoleId
+  background: string
+  category: string
+  created: string
+  description: string
+  dividers: OrganizationDivider[]
+  hasRight: number
+  isPublic: boolean
+  logo: string
+  name: string
+  okrProgressMode: string
+  pinyin: string
+  plan: OrganizationPaymentPlan
+  positions: string[]
+  projectIds: ProjectId[]
+  py: string
+  staffTypes: string[]
 }
 
 @schemaName('Organization')
 export default class Organization extends Schema<OrganizationData> implements OrganizationData {
-  _id: OrganizationId = undefined
-  name: string = undefined
   _creatorId: UserId = undefined
-  logo: string = undefined
-  description: string = undefined
-  category: string = undefined
-  pinyin: string = undefined
-  py: string = undefined
-  isPublic: boolean = undefined
-  dividers: {
-    name: string
-    pos: number
-  }[] = undefined
-  projectIds: ProjectId[] = undefined
-  created: string = undefined
-  background: string = undefined
-  plan: {
-    lastPaidTime?: string
-    firstPaidTime?: string
-    updated?: string
-    created?: string
-    expired: string
-    free?: boolean
-    membersCount: number
-    days: number
-  } = undefined
+  _defaultOrgRoleId: RoleId | null = undefined
   _defaultRoleId: RoleId | null = undefined
+  _defaultTeamId: TeamId | null = undefined
+  _id: OrganizationId = undefined
   _roleId: RoleId = undefined
+  background: string = undefined
+  category: string = undefined
+  created: string = undefined
+  description: string = undefined
+  dividers: OrganizationDivider[] = undefined
+  hasRight: number = undefined
+  isPublic: boolean = undefined
+  logo: string = undefined
+  name: string = undefined
+  okrProgressMode: string = undefined
+  pinyin: string = undefined
+  plan: OrganizationPaymentPlan = undefined
+  positions: string[] = undefined
+  projectIds: ProjectId[] = undefined
+  py: string = undefined
+  staffTypes: string[] = undefined
 }

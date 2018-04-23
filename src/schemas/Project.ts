@@ -7,120 +7,120 @@ import {
   OrganizationId,
   RoleId,
   CollectionId,
-  ApplicationId
+  ApplicationId,
+  CustomFieldValue
 } from '../teambition'
+import { OrganizationPaymentPlan } from './Organization'
+import { UserPaymentPlan } from './UserMe'
 
-export type ProjectVisibility = 'organization' | 'project' | 'private'
+interface ProjectApplication {
+  _id: ApplicationId
+  name: string
+  type: number
+  order: number
+}
+
+interface ProjectOrganization {
+  _id: OrganizationId
+  description: string
+  isExpired: boolean
+  isPublic: boolean
+  logo: string
+  name: string
+  plan: OrganizationPaymentPlan
+}
 
 export interface ProjectData extends ISchema {
-  _id: ProjectId
-  name: string
   _creatorId: UserId
-  logo: string
-  py: string
-  pinyin: string
-  description: string
-  category: string
-  _organizationId: OrganizationId
-  navigation?: {
-    tasks: number
-    posts: number
-    events: number
-    files: number
-    tags: number
-    bookkeeping: number
-    home: number
-    review: number
-  }
-  visibility: ProjectVisibility
-  isPublic: boolean
-  created: string
-  updated: string
-  isArchived: boolean
-  isStar: boolean
-  hasRight: number
-  hasOrgRight: number
-  organization: {
-    name: string
-    description: string
-    logo: string
-    isPublic: boolean
-    _id: OrganizationId
-    isExpired: boolean
-  }
-  unreadCount?: number
-  unreadMessageCount?: number
-  uniqueIdPrefix?: string
+  _defaultCollectionId: CollectionId
   _defaultRoleId: RoleId | null
-  creator: ExecutorOrCreator
-  pushStatus: boolean
-  canQuit: boolean
-  canDelete: boolean
-  canArchive: boolean
-  canTransfer: boolean
+  _id: ProjectId
+  _orgRoleId: RoleId | null
+  _organizationId: OrganizationId | null
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
-  _defaultCollectionId: CollectionId
-  _orgRoleId: RoleId | null
-  applications?: {
-    _id: ApplicationId
-    name: string
-    type?: number
-    order?: number
-  }[]
+  applications: ProjectApplication[]
+  category: string
+  created: string
+  creator: ExecutorOrCreator
+  customfields: CustomFieldValue[]
+  description: string
+  eventsCount: number
+  hasOrgRight: number
+  hasRight: number
+  inviteLink: string | null
+  isArchived: boolean
+  isDeleted?: boolean
+  isPublic: boolean
+  isStar: boolean
+  isTemplate: boolean
+  logo: string
+  membersCount: number
+  name: string
+  organization: ProjectOrganization
+  pinyin: string
+  plan?: UserPaymentPlan
+  postsCount: number
+  proTemplateType: 'scrum'
+  pushStatus: boolean
+  py: string
+  shortLink: string
+  sortMethod: 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'custom'
+  starsCount: number
+  syncCountsAt?: string //  a Date
+  tagsCount: number
+  tasksCount: number
+  uniqueIdPrefix: string
+  unreadCount: number
+  updated: string
+  visibility: 'project' | 'organization' | 'all' | 'private'
+  worksCount: number
 }
 
 @schemaName('Project')
 export default class ProjectSchema extends Schema<ProjectData> implements ProjectData {
-  _id: ProjectId = undefined
-  name: string = undefined
   _creatorId: UserId = undefined
-  logo: string = undefined
-  py: string = undefined
-  pinyin: string = undefined
-  description: string = undefined
-  category: string = undefined
-  @bloodyParent('Organization') _organizationId: OrganizationId = undefined
-  navigation: {
-    tasks: number
-    posts: number
-    events: number
-    files: number
-    tags: number
-    bookkeeping: number
-    home: number
-    review: number
-  } = undefined
-  visibility: ProjectVisibility = undefined
-  isPublic: boolean = undefined
-  created: string = undefined
-  updated: string = undefined
-  isArchived: boolean = undefined
-  isStar: boolean = undefined
-  hasRight: number = undefined
-  hasOrgRight: number = undefined
-  organization: {
-    name: string
-    description: string
-    logo: string
-    isPublic: boolean
-    _id: OrganizationId
-    isExpired: boolean
-  } = undefined
-  _defaultRoleId: RoleId | null = undefined
-  creator: ExecutorOrCreator = undefined
-  pushStatus: boolean = undefined
-  canQuit: boolean = undefined
-  canDelete: boolean = undefined
-  canArchive: boolean = undefined
-  canTransfer: boolean = undefined
-  _roleId: RoleId | null = undefined
-  link: {
-    created: string
-    expiration: string
-  } = undefined
-  _rootCollectionId: CollectionId = undefined
   _defaultCollectionId: CollectionId = undefined
-  shortLink: string = undefined
+  _defaultRoleId: RoleId | null = undefined
+  _id: ProjectId = undefined
   _orgRoleId: RoleId | null = undefined
+  @bloodyParent('Organization') _organizationId: OrganizationId | null = undefined
+  _roleId: RoleId | null = undefined
+  _rootCollectionId: CollectionId = undefined
+  applications: ProjectApplication[] = undefined
+  category: string = undefined
+  created: string = undefined
+  creator: ExecutorOrCreator = undefined
+  customfields: CustomFieldValue[] = undefined
+  description: string = undefined
+  eventsCount: number = undefined
+  hasOrgRight: number = undefined
+  hasRight: number = undefined
+  inviteLink: string | null = undefined
+  isArchived: boolean = undefined
+  isDeleted?: boolean
+  isPublic: boolean = undefined
+  isStar: boolean = undefined
+  isTemplate: boolean = undefined
+  logo: string = undefined
+  membersCount: number = undefined
+  name: string = undefined
+  organization: ProjectOrganization = undefined
+  pinyin: string = undefined
+  plan?: UserPaymentPlan
+  postsCount: number = undefined
+  proTemplateType: 'scrum' = undefined
+  pushStatus: boolean = undefined
+  py: string = undefined
+  shortLink: string = undefined
+  sortMethod: 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'custom' = undefined
+  starsCount: number = undefined
+  syncCountsAt?: string //  a Date
+  tagsCount: number = undefined
+  tasksCount: number = undefined
+  uniqueIdPrefix: string = undefined
+  unreadCount: number = undefined
+  updated: string = undefined
+  visibility: 'project' | 'organization' | 'all' | 'private' = undefined
+  worksCount: number = undefined
 }

@@ -137,29 +137,29 @@ export default describe('Project API test: ', () => {
       .whenGET(`${apihost}projects/${id}/members`, { page: 1, count: 1000 })
       .respond(projectMembers)
 
-      const signal = Project.getAll()
-        .publish()
-        .refCount()
+    const signal = Project.getAll()
+      .publish()
+      .refCount()
 
-      yield signal.take(1)
+    yield signal.take(1)
 
-      yield Project.create({
-        name: 'test project'
+    yield Project.create({
+      name: 'test project'
+    })
+
+    yield signal.take(1)
+      .do(r => {
+        expect(r[0].name).to.equal('test project')
       })
 
-      yield signal.take(1)
-        .do(r => {
-          expect(r[0].name).to.equal('test project')
-        })
+    const memberSignal = Member.getAllProjectMembers(id)
+    yield memberSignal.take(1)
+      .do(members => {
+        const ids = members.map(member => member._id)
+        const fixtureIds = projectMembers.map(member => member._id)
 
-      const memberSignal = Member.getAllProjectMembers(id)
-      yield memberSignal.take(1)
-        .do(members => {
-          const ids = members.map(member => member._id)
-          const fixtureIds = projectMembers.map(member => member._id)
-
-          expect(ids).to.deep.equal(fixtureIds)
-        })
+        expect(ids).to.deep.equal(fixtureIds)
+      })
   })
 
   it('update project should ok', function* () {
@@ -355,14 +355,14 @@ export default describe('Project API test: ', () => {
     const project = projects[0]
     const mockResponse = {
       _id: project._id,
-      _roleId: project._roleId + 1
+      _roleId: (project._roleId as number) + 1
     }
 
     httpBackend.whenGET(`${apihost}projects/${project._id}`)
       .respond(JSON.stringify(project))
 
     httpBackend.whenPUT(`${apihost}projects/${project._id}/_defaultRoleId`, {
-      _roleId: project._roleId + 1
+      _roleId: (project._roleId as number) + 1
     })
       .respond(JSON.stringify(mockResponse))
 
@@ -379,7 +379,7 @@ export default describe('Project API test: ', () => {
 
     yield signal.take(1)
       .do(r => {
-        expect(r._roleId).to.equal(project._roleId + 1)
+        expect(r._roleId).to.equal((project._roleId as number) + 1)
       })
   })
 
@@ -523,7 +523,7 @@ export default describe('Project API test: ', () => {
 
   describe('get home activities: ', () => {
 
-    const toIds = (...data: {_id: string}[][]) => [].concat(...data.map(data => data.map(one => one._id)))
+    const toIds = (...data: { _id: string }[][]) => [].concat(...data.map(data => data.map(one => one._id)))
     const projectId = homeActivities[0].rootId.split('#')[1]
     const count = 30
     const pageOne = homeActivities.slice(0, count)
@@ -539,13 +539,13 @@ export default describe('Project API test: ', () => {
     })
 
     it('get should ok', function* () {
-      const signal = Project.getHomeActivities(<any>projectId, {page: 1})
+      const signal = Project.getHomeActivities(<any>projectId, { page: 1 })
         .publish()
         .refCount()
 
       yield signal.take(1)
 
-      yield Project.getHomeActivities(<any>projectId, {page: 2})
+      yield Project.getHomeActivities(<any>projectId, { page: 2 })
         .take(1)
         .do(r => {
           expect(toIds(r)).to.be.deep.equal(toIds(pageTwo))
@@ -558,7 +558,7 @@ export default describe('Project API test: ', () => {
     })
 
     it('get from cache should ok', function* () {
-      const signal = Project.getHomeActivities(<any>projectId, {page: 1})
+      const signal = Project.getHomeActivities(<any>projectId, { page: 1 })
         .publish()
         .refCount()
 

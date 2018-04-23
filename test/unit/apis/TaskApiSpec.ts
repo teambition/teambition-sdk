@@ -160,7 +160,7 @@ export default describe('Task API test: ', () => {
           forEach(data, (task, index) => {
             expectDeepEqual(task, tasksDone[index])
           })
-      })
+        })
     })
 
     it('get tasks done from cache should ok', function* () {
@@ -290,24 +290,51 @@ export default describe('Task API test: ', () => {
     const organization: OrganizationSchema = organizations[0]
     const organizationId = organization._id
 
-    const mockTaskDue = clone(organizationMyDueTasks[0])
+    const mockTaskDue = {
+      ...clone(organizationMyDueTasks[0]),
+      _projectId: organization.projectIds[0]
+    }
     mockTaskDue._id = 'mocktaskdue'
-    const mockTaskNodue = clone(organizationMyTasks[0])
+    const mockTaskNodue = {
+      ...clone(organizationMyTasks[0]),
+      _projectId: organization.projectIds[0]
+    }
     mockTaskNodue._id = 'mocktasknodue'
-    const mockTaskDone = clone(organizationMyDoneTasks[0])
+    const mockTaskDone = {
+      ...clone(organizationMyDoneTasks[0]),
+      _projectId: organization.projectIds[0]
+    }
     mockTaskDone._id = 'mocktaskdone'
 
-    const duepage1 = organizationMyDueTasks.slice(0, 30)
+    const duepage1 = organizationMyDueTasks.slice(0, 30).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const duepage2 = organizationMyDueTasks.slice(30, 60)
+    const duepage2 = organizationMyDueTasks.slice(30, 60).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const taskspage1 = organizationMyTasks.slice(0, 30)
+    const taskspage1 = organizationMyTasks.slice(0, 30).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const taskspage2 = organizationMyTasks.slice(30, 60)
+    const taskspage2 = organizationMyTasks.slice(30, 60).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const tasksdonepage1 = organizationMyDoneTasks.slice(0, 30)
+    const tasksdonepage1 = organizationMyDoneTasks.slice(0, 30).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
-    const tasksdonepage2 = organizationMyDoneTasks.slice(30, 60)
+    const tasksdonepage2 = organizationMyDoneTasks.slice(30, 60).map(x => ({
+      ...x,
+      _projectId: organization.projectIds[0]
+    }))
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}organizations/${organizationId}/tasks/me?page=1&isDone=false&hasDuedate=true`)
@@ -1256,7 +1283,7 @@ export default describe('Task API test: ', () => {
     })
 
     it('should get undone/done tasks', function* () {
-      const signal = Task.getStageDoneTasks(stageId, {page: 1})
+      const signal = Task.getStageDoneTasks(stageId, { page: 1 })
         .publish()
         .refCount()
 
@@ -1270,7 +1297,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.getStageDoneTasks(stageId, {page: 2})
+      yield Task.getStageDoneTasks(stageId, { page: 2 })
         .take(1)
         .do(r => {
           forEach(r, (task, index) => {
@@ -1305,13 +1332,13 @@ export default describe('Task API test: ', () => {
           expect(spy.calledOnce).to.be.true
         })
 
-      const signalDone1 = Task.getStageDoneTasks(stageId, {page: 1})
+      const signalDone1 = Task.getStageDoneTasks(stageId, { page: 1 })
         .publish()
         .refCount()
 
       yield signalDone1.take(1)
 
-      const signalDone2 = Task.getStageDoneTasks(stageId, {page: 2})
+      const signalDone2 = Task.getStageDoneTasks(stageId, { page: 2 })
         .publish()
         .refCount()
 
@@ -1404,8 +1431,8 @@ export default describe('Task API test: ', () => {
       const _anotherStageId: any = 'mockstageid'
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/move`, {
-          _stageId: _anotherStageId
-        })
+        _stageId: _anotherStageId
+      })
         .respond({
           _id: _taskId,
           _stageId: _anotherStageId,
@@ -1428,8 +1455,8 @@ export default describe('Task API test: ', () => {
       yield signal2.take(1)
 
       yield Task.move(_taskId, {
-          _stageId: _anotherStageId
-        })
+        _stageId: _anotherStageId
+      })
         .do(r => {
           expect(r._id).to.be.equal(_taskId)
         })
@@ -1450,8 +1477,8 @@ export default describe('Task API test: ', () => {
       const _taskId = stageTasksUndone[0]._id
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/isDone`, {
-          isDone: true
-        })
+        isDone: true
+      })
         .respond({
           _id: _taskId,
           isDone: true,
@@ -1499,7 +1526,7 @@ export default describe('Task API test: ', () => {
       httpBackend.whenDELETE(`${apihost}tasks/${_taskId}`)
         .respond({})
 
-      const signal = Task.getStageDoneTasks(stageId, {page: 1})
+      const signal = Task.getStageDoneTasks(stageId, { page: 1 })
         .publish()
         .refCount()
 
@@ -1522,8 +1549,8 @@ export default describe('Task API test: ', () => {
       const _anotherStageId: any = 'mockstageid'
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/move`, {
-          _stageId: _anotherStageId
-        })
+        _stageId: _anotherStageId
+      })
         .respond({
           _id: _taskId,
           _stageId: _anotherStageId,
@@ -1533,7 +1560,7 @@ export default describe('Task API test: ', () => {
       httpBackend.whenGET(`${apihost}stages/${_anotherStageId}/tasks?isDone=true`)
         .respond(JSON.stringify([]))
 
-      const signal1 = Task.getStageDoneTasks(stageId, {page: 1})
+      const signal1 = Task.getStageDoneTasks(stageId, { page: 1 })
         .publish()
         .refCount()
 
@@ -1546,8 +1573,8 @@ export default describe('Task API test: ', () => {
       yield signal2.take(1)
 
       yield Task.move(_taskId, {
-          _stageId: _anotherStageId
-        })
+        _stageId: _anotherStageId
+      })
         .do(r => {
           expect(r._id).to.be.equal(_taskId)
         })
@@ -1568,8 +1595,8 @@ export default describe('Task API test: ', () => {
       const _taskId = stageDoneTask._id
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/isDone`, {
-          isDone: false
-        })
+        isDone: false
+      })
         .respond({
           _id: _taskId,
           isDone: false,
@@ -1584,7 +1611,7 @@ export default describe('Task API test: ', () => {
         .publish()
         .refCount()
 
-      const signal2 = Task.getStageDoneTasks(stageId, {page: 1})
+      const signal2 = Task.getStageDoneTasks(stageId, { page: 1 })
         .publish()
         .refCount()
 
@@ -1657,8 +1684,8 @@ export default describe('Task API test: ', () => {
         .respond(JSON.stringify(projectTasks))
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/fork`, {
-          _stageId
-        })
+        _stageId
+      })
         .respond(newTask)
 
       const signal = Task.getProjectTasks(_projectId)
@@ -1667,7 +1694,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.fork(_taskId, {_stageId})
+      yield Task.fork(_taskId, { _stageId })
 
       yield signal.take(1)
         .do(r => {
@@ -1690,8 +1717,8 @@ export default describe('Task API test: ', () => {
       let _newStageId = null
       tasklists.some(tasklist => {
         if (tasklist._id !== _tasklistId &&
-            tasklist.stageIds &&
-            tasklist.stageIds.length) {
+          tasklist.stageIds &&
+          tasklist.stageIds.length) {
           newTask._projectId = tasklist._projectId
           newTask._tasklistId = _newTasklistId = tasklist._id
           newTask._stageId = _newStageId = tasklist.stageIds[0]
@@ -1703,8 +1730,8 @@ export default describe('Task API test: ', () => {
         .respond(JSON.stringify([]))
 
       httpBackend.whenPUT(`${apihost}tasks/${_taskId}/fork`, {
-          _stageId: _newStageId
-        })
+        _stageId: _newStageId
+      })
         .respond(newTask)
 
       const signal = Task.getTasklistUndone(_newTasklistId)
@@ -1713,7 +1740,7 @@ export default describe('Task API test: ', () => {
 
       yield signal.take(1)
 
-      yield Task.fork(_taskId, {_stageId: _newStageId})
+      yield Task.fork(_taskId, { _stageId: _newStageId })
 
       yield signal.take(1)
         .do(([r]) => {
@@ -1863,8 +1890,8 @@ export default describe('Task API test: ', () => {
       const _executorId = mockTaskGet._executorId
 
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/_executorId`, {
-          _executorId
-        })
+        _executorId
+      })
         .respond('')
 
       let i = 1
@@ -1945,8 +1972,8 @@ export default describe('Task API test: ', () => {
       const involveMembers = mockTaskGet.involveMembers
 
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/involveMembers`, {
-          involveMembers
-        })
+        involveMembers
+      })
         .respond('')
 
       let i = 1

@@ -177,7 +177,7 @@ export interface ProjectId extends String {
   kind?: 'ProjectId'
 }
 
-export type DefaultRoleId = -1 | 0 | 1 | 2
+export type DefaultRoleId = -2 | -1 | 0 | 1 | 2
 
 export interface CustomRoleId extends String {
   kind?: 'CustomRoleId'
@@ -240,6 +240,12 @@ export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purp
 export type CustomFieldChoice = {
   value: string,
   _id: string
+}
+
+export interface CustomFieldValue {
+  _customfieldId: CustomFieldId
+  type: CustomFieldType
+  values: string[]
 }
 
 export interface TeamId extends String {

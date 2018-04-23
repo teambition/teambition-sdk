@@ -11,6 +11,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-08-29T06:55:24.783Z',
     pushStatus: false,
     plan: {
+      _objectId: '56efaff50e5a879506e2dbb4',
       status: 'paid',
       expired: '2018-05-31T04:58:13.000Z',
       payType: 'org',
@@ -42,8 +43,7 @@ export const projectMembers: MemberSchema[] = [
     birthday: '2006-03-02T08:23:00.259Z',
     email: 'beta@qq.com',
     name: 'Lee',
-    avatarUrl:
-      'http://tcs.project.ci/thumbnail/0113ea80bdbda9765cabe7c9aeb0a492b4f3/w/100/h/100',
+    avatarUrl: 'http://tcs.project.ci/thumbnail/0113ea80bdbda9765cabe7c9aeb0a492b4f3/w/100/h/100',
     title: '',
     isRobot: false,
     pinyin: 'lee',
@@ -60,6 +60,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-10-12T01:44:22.408Z',
     pushStatus: false,
     plan: {
+      _objectId: '58aabfe4e404431e0f116d36',
       status: 'trial',
       expired: null,
       payType: 'trial',
@@ -107,6 +108,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-10-12T08:43:44.665Z',
     pushStatus: false,
     plan: {
+      _objectId: '55c02018fd0360a44c93ff97',
       status: 'paid',
       expired: '2044-11-06T02:26:43.497Z',
       payType: 'org',
@@ -135,8 +137,7 @@ export const projectMembers: MemberSchema[] = [
     birthday: '2005-02-05T06:10:06.264Z',
     email: '123@123.com',
     name: 'Nice 兄dei',
-    avatarUrl:
-      'http://tcs.project.ci/thumbnail/01130165bd2949d102d8b7a1f6ef5baee2fb/w/200/h/200',
+    avatarUrl: 'http://tcs.project.ci/thumbnail/01130165bd2949d102d8b7a1f6ef5baee2fb/w/200/h/200',
     title: '哎呦喂',
     isRobot: false,
     pinyin: 'nice xiong dei',
@@ -153,6 +154,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-10-12T08:43:55.875Z',
     pushStatus: false,
     plan: {
+      _objectId: '55c060be2944cfe95e75a088',
       status: 'trial',
       expired: '2016-11-06T02:26:43.497Z',
       payType: 'trial',
@@ -196,6 +198,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-10-12T08:43:55.876Z',
     pushStatus: false,
     plan: {
+      _objectId: '56419b6be9b736f7148f19f8',
       status: 'paid',
       expired: '2022-11-06T02:26:43.497Z',
       payType: 'org',
@@ -223,8 +226,7 @@ export const projectMembers: MemberSchema[] = [
     isActive: false,
     email: 'admin@lhq.com',
     name: 'admin',
-    avatarUrl:
-      'http://tcs.project.ci/thumbnail/0114271ae9c05ae7b78c08fd0e8212f1a554/w/100/h/100',
+    avatarUrl: 'http://tcs.project.ci/thumbnail/0114271ae9c05ae7b78c08fd0e8212f1a554/w/100/h/100',
     title: '',
     isRobot: false,
     pinyin: 'admin',
@@ -241,6 +243,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-10-13T07:19:57.825Z',
     pushStatus: false,
     plan: {
+      _objectId: '572ffa2ee93a7a07086435ae',
       status: 'paid',
       expired: '2019-05-11T08:39:38.600Z',
       payType: 'org',
@@ -271,8 +274,7 @@ export const projectMembers: MemberSchema[] = [
     isActive: false,
     email: 'bjmin@r2d2.com',
     name: 'R2D2',
-    avatarUrl:
-      'https://striker.teambition.net/thumbnail/110gba57d2c527d05c72d94e2c3b374bfe7a/w/200/h/200',
+    avatarUrl: 'https://striker.teambition.net/thumbnail/110gba57d2c527d05c72d94e2c3b374bfe7a/w/200/h/200',
     title: 'Astromech Droid',
     isRobot: false,
     pinyin: 'r2d2',
@@ -289,6 +291,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-12-20T03:47:02.838Z',
     pushStatus: false,
     plan: {
+      _objectId: '581847d6ce471d5104125451',
       status: 'trial',
       expired: null,
       payType: 'trial',
@@ -322,8 +325,7 @@ export const projectMembers: MemberSchema[] = [
     birthday: '2002-02-01T09:33:39.189Z',
     email: 'tbtest_test1@163.com',
     name: ' 测试人员12',
-    avatarUrl:
-      'http://tcs.project.ci/thumbnail/0112a2b5952a4e64fa275fc799a26a0bc278/w/200/h/200',
+    avatarUrl: 'http://tcs.project.ci/thumbnail/0112a2b5952a4e64fa275fc799a26a0bc278/w/200/h/200',
     title: '职业厨师',
     isRobot: false,
     pinyin: 'ce shi ren yuan 12',
@@ -340,6 +342,7 @@ export const projectMembers: MemberSchema[] = [
     joined: '2017-12-20T03:47:21.762Z',
     pushStatus: false,
     plan: {
+      _objectId: '5693784cfc77cddb27655c5d',
       status: 'paid',
       expired: '2016-11-06T02:26:43.497Z',
       payType: 'org',
@@ -370,8 +373,7 @@ export const projectMembers: MemberSchema[] = [
     isActive: false,
     email: 'blank@123.com',
     name: 'blank',
-    avatarUrl:
-      'https://striker.teambition.net/thumbnail/110c5879fca2f8a5835b2fcde368301e371a/w/100/h/100',
+    avatarUrl: 'https://striker.teambition.net/thumbnail/110c5879fca2f8a5835b2fcde368301e371a/w/100/h/100',
     title: '',
     isRobot: false,
     pinyin: 'blank',
