@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.14"></a>
+## [0.6.14](https://github.com/teambition/teambition-sdk/compare/v0.6.13...v0.6.14) (2018-04-23)
+
+
+### Bug Fixes
+
+* **schemas:** 更新 `Organization` 和 `Project` 定义 ([ada00c5](https://github.com/teambition/teambition-sdk/commit/ada00c5))
+
+
+
 <a name="0.6.13"></a>
 ## [0.6.13](https://github.com/teambition/teambition-sdk/compare/v0.6.12...v0.6.13) (2018-04-18)
 
