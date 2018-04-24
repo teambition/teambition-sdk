@@ -10,6 +10,7 @@ export interface UserEmail {
 }
 
 export interface UserPaymentPlan {
+  _objectId: UserId
   expired: string | null
   isExpired: boolean
   membersCount: number
