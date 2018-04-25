@@ -56,7 +56,7 @@ export interface TaskData extends ISchema {
   _executorId: UserId
   _id: TaskId
   _organizationId: OrganizationId | null
-  _projectId: ProjectId
+  _projectId: ProjectId | null
   _scenariofieldconfigId: ScenarioFieldConfigId
   _sourceId: TaskId | null
   _sprintId: SprintId | null
@@ -123,7 +123,7 @@ export default class Task extends Schema<TaskData> implements TaskData {
   _creatorId: UserId = undefined
   _executorId: UserId = undefined
   _id: TaskId = undefined
-  _projectId: ProjectId = undefined
+  _projectId: ProjectId | null = undefined
   _scenariofieldconfigId: ScenarioFieldConfigId = undefined
   _sourceId: TaskId | null = undefined
   _sprintId: SprintId | null = undefined

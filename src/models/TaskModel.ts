@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
-import Collection from './BaseCollection'
+import Collection, { Page } from './BaseCollection'
 import MaxIdCollection from './tasks/MaxIdCollection'
 import { TaskData, default as Task } from '../schemas/Task'
 import { datasToSchemas, dataToSchema } from '../utils/index'
@@ -15,9 +15,45 @@ import {
   UserId,
   TaskId
 } from '../teambition'
+import { TaskScope } from '../fetchs/TaskFetch'
 
 export class TaskModel extends BaseModel {
   private _schemaName = 'Task'
+
+  saveMyTasksByScope(userId: UserId, scope: TaskScope, query: Partial<TaskData>, page: Page, tasks: TaskData[]) {
+    const index = `tasks:${scope}/${userId}?${JSON.stringify(query)}`
+    let collection = this._collections.get(index) as Collection<TaskData> | null
+
+    if (!collection) {
+      collection = new Collection(this._schemaName, (task) => {
+        if (task.isArchived) {
+          return false
+        }
+        if (Object.keys(query).some((key) => query[key] !== task[key])) {
+          return false
+        }
+        switch (scope) {
+          case TaskScope.executor:
+            return task._executorId === userId
+          case TaskScope.creator:
+            return task._creatorId === userId
+          case TaskScope.follower:
+            return task.involveMembers.indexOf(userId) >= 0
+          default:
+            return false
+        }
+      }, index)
+      this._collections.set(index, collection)
+    }
+
+    return collection.addPage(page, datasToSchemas(tasks, Task))
+  }
+
+  getMyTasksByScope(userId: UserId, scope: TaskScope, query: Partial<TaskData>, page?: Page) {
+    const index = `tasks:${scope}/${userId}?${JSON.stringify(query)}`
+    const collection = this._collections.get(index) as Collection<TaskData> | null
+    return collection ? collection.get(page) : null
+  }
 
   /**
    * 不分页不用 Collection
@@ -65,8 +101,8 @@ export class TaskModel extends BaseModel {
     const dbIndex = `tasks:me/withInbox`
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return (<any>data._executorId) === userId &&
-          !data.isDone &&
-          !data.isArchived
+        !data.isDone &&
+        !data.isArchived
     })
   }
 
@@ -91,8 +127,8 @@ export class TaskModel extends BaseModel {
     const dbIndex = `tasks:me:done/withInbox`
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return (<any>data._executorId) === userId &&
-          data.isDone &&
-          !data.isArchived
+        data.isDone &&
+        !data.isArchived
     })
   }
 
@@ -106,7 +142,7 @@ export class TaskModel extends BaseModel {
     const dbIndex = `tasks:me/createdAndWithInbox`
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return (<any>data._creatorId) === userId &&
-          !data.isArchived
+        !data.isArchived
     })
   }
 
@@ -120,8 +156,8 @@ export class TaskModel extends BaseModel {
     const dbIndex = `tasks:me/involvedAndWithInbox`
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return data.involveMembers &&
-          (<any[]>data.involveMembers).indexOf(userId) !== -1 &&
-          !data.isArchived
+        (<any[]>data.involveMembers).indexOf(userId) !== -1 &&
+        !data.isArchived
     })
   }
 
@@ -136,9 +172,9 @@ export class TaskModel extends BaseModel {
 
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return (<any>data._executorId) === userId &&
-             Boolean(data.dueDate) &&
-             !data.isDone &&
-             !data.isArchived
+        Boolean(data.dueDate) &&
+        !data.isDone &&
+        !data.isArchived
     })
   }
 
@@ -153,9 +189,9 @@ export class TaskModel extends BaseModel {
 
     return this._saveCollection(dbIndex, result, this._schemaName, (data: TaskData) => {
       return (<any>data._executorId) === userId &&
-             !data.dueDate &&
-             !data.isDone &&
-             !data.isArchived
+        !data.dueDate &&
+        !data.isDone &&
+        !data.isArchived
     })
   }
 
@@ -181,10 +217,10 @@ export class TaskModel extends BaseModel {
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Task) => {
         return organization.projectIds instanceof Array &&
-               organization.projectIds.indexOf(data._projectId) !== -1 &&
-               !!data.dueDate &&
-               (<any>data._executorId) === userId &&
-               !data.isDone
+          organization.projectIds.indexOf(data._projectId) !== -1 &&
+          !!data.dueDate &&
+          (<any>data._executorId) === userId &&
+          !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -219,8 +255,8 @@ export class TaskModel extends BaseModel {
         this._schemaName,
         (data: TaskData) => {
           return data._stageId === stageId &&
-              data.isDone &&
-              !data.isArchived
+            data.isDone &&
+            !data.isArchived
         },
         dbIndex
       )
@@ -256,10 +292,10 @@ export class TaskModel extends BaseModel {
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Task) => {
         return organization.projectIds instanceof Array &&
-               organization.projectIds.indexOf(data._projectId) !== -1 &&
-               !data.dueDate &&
-               (<any>data._executorId) === userId &&
-               !data.isDone
+          organization.projectIds.indexOf(data._projectId) !== -1 &&
+          !data.dueDate &&
+          (<any>data._executorId) === userId &&
+          !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -291,9 +327,9 @@ export class TaskModel extends BaseModel {
     if (!collection) {
       collection = new Collection(this._schemaName, (data: Task) => {
         return organization.projectIds instanceof Array &&
-               organization.projectIds.indexOf(data._projectId) !== -1 &&
-               data.isDone &&
-               (<any>data._executorId) === userId
+          organization.projectIds.indexOf(data._projectId) !== -1 &&
+          data.isDone &&
+          (<any>data._executorId) === userId
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -398,8 +434,8 @@ export class TaskModel extends BaseModel {
     if (!collection) {
       collection = new Collection(this._schemaName, (data: TaskData) => {
         return data._projectId === _projectId &&
-            !data.isArchived &&
-            !data.isDone
+          !data.isArchived &&
+          !data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
@@ -419,8 +455,8 @@ export class TaskModel extends BaseModel {
     if (!collection) {
       collection = new Collection(this._schemaName, (data: TaskData) => {
         return data._projectId === _projectId &&
-            !data.isArchived &&
-            data.isDone
+          !data.isArchived &&
+          data.isDone
       }, dbIndex)
       this._collections.set(dbIndex, collection)
     }
