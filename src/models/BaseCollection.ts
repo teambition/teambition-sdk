@@ -7,11 +7,13 @@ import Model from './BaseModel'
 import { forEach, concat } from '../utils/index'
 import { Schema } from '../schemas/schema'
 
-export default class BaseCollection<T> extends Model {
-  protected _data: Map<number, Schema<T>[]>
-  protected _pages: number[]
+export type Page = number | string
 
-  private _singals = new Map<number, Observable<T[]>>()
+export default class BaseCollection<T> extends Model {
+  protected _data: Map<Page, Schema<T>[]>
+  protected _pages: Page[]
+
+  private _singals = new Map<Page, Observable<T[]>>()
 
   constructor(
     private _schemaName: string,
@@ -21,15 +23,15 @@ export default class BaseCollection<T> extends Model {
     private _unionFlag = '_id'
   ) {
     super()
-    this._data = new Map<number, Schema<T>[]>()
+    this._data = new Map<Page, Schema<T>[]>()
     this._pages = []
   }
 
-  hasPage(page: number): boolean {
+  hasPage(page: Page): boolean {
     return this._pages.indexOf(page) !== -1
   }
 
-  addPage(page: number, data: Schema<T>[]): Observable<T[]> {
+  addPage(page: Page, data: Schema<T>[]): Observable<T[]> {
     if (!data) {
       return Observable.of(null)
     }
@@ -84,7 +86,7 @@ export default class BaseCollection<T> extends Model {
       ._switch()
   }
 
-  get(page?: number): Observable<T[]> {
+  get(page?: Page): Observable<T[]> {
     if (page) {
       if (this.hasPage(page)) {
         if (page !== 1) {

@@ -218,7 +218,27 @@ export interface UpdateFavoriteResponse {
   status?: string
 }
 
+export enum TaskScope {
+  executor = 'me:execute',
+  creator = 'me:created',
+  follower = 'me:involves',
+}
+
+export interface TaskQuery {
+  isDone?: boolean
+  orderBy?: keyof TaskData
+  pageToken?: string
+  pageSize?: number
+}
+
 export class TaskFetch extends Fetch {
+  getMyTasksByScope(scope: TaskScope, query?: TaskQuery) {
+    return this.fetch.get<{
+      nextPageToken: string
+      result: TaskData[]
+    }>(`tasks/${scope}`, query)
+  }
+
   getTasksMe(option: TasksMeOptions): Observable<TaskData[]> {
     return this.fetch.get(`v2/tasks/me`, option)
   }
