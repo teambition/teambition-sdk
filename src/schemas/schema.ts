@@ -201,7 +201,7 @@ const getBloodyParentList = (target: object): Array<[string, string, string, boo
     return descriptor.get()
   }
 
-  const bloodyParentList = []
+  const bloodyParentList: Array<[string, string, string, boolean]> = []
 
   Object.defineProperty(target, '$$bloodyParentList', {
     get: () => bloodyParentList
