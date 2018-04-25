@@ -64,7 +64,7 @@ export interface TaskData extends ISchema {
   _taskId?: TaskId
   _taskflowstatusId: TaskflowStatusId | null
   _tasklistId: TasklistId
-  accomplished: null
+  accomplished: string | null
   ancestorIds: TaskId[]
   ancestors?: Partial<TaskData>[]
   attachmentsCount: number
@@ -72,7 +72,7 @@ export interface TaskData extends ISchema {
   content: string
   created: string
   customfields: CustomFieldValue[]
-  dueDate: null
+  dueDate: string | null
   executor: ExecutorOrCreator
   involveMembers: UserId[]
   involvers?: ExecutorOrCreator[]
@@ -94,7 +94,7 @@ export interface TaskData extends ISchema {
   shareStatus: number
   sourceDate: string | null
   stage?: Pick<StageData, '_id' | 'name'>
-  startDate: null
+  startDate: string | null
   storyPoint: null
   subtaskCount: TaskSubtaskCount
   subtasks: Partial<TaskData>[]
@@ -130,7 +130,7 @@ export default class Task extends Schema<TaskData> implements TaskData {
   _taskId?: TaskId
   _taskflowstatusId: TaskflowStatusId | null = undefined
   _tasklistId: TasklistId = undefined
-  accomplished: null = undefined
+  accomplished: string | null = undefined
   ancestorIds: TaskId[] = undefined
   ancestors?: Partial<TaskData>[] = undefined
   attachmentsCount: number = undefined
@@ -138,7 +138,7 @@ export default class Task extends Schema<TaskData> implements TaskData {
   content: string = undefined
   created: string = undefined
   customfields: CustomFieldValue[] = undefined
-  dueDate: null = undefined
+  dueDate: string | null = undefined
   executor: ExecutorOrCreator = undefined
   involveMembers: UserId[] = undefined
   involvers?: ExecutorOrCreator[] = undefined
@@ -157,7 +157,7 @@ export default class Task extends Schema<TaskData> implements TaskData {
   reminder: TaskReminder = undefined
   shareStatus: number = undefined
   sourceDate: string | null = undefined
-  startDate: null = undefined
+  startDate: string | null = undefined
   storyPoint: null = undefined
   subtaskCount: TaskSubtaskCount = undefined
   tagIds: TagId[] = undefined

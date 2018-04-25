@@ -55,7 +55,7 @@ export default class Model {
         delete r['_requested']
         return r
       })
-    : null
+      : null
   }
 
   protected _save<T>(data: Schema<T> & T, unionFlag?: string): Observable<T> {

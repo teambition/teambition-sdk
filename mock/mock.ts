@@ -11,7 +11,7 @@ export interface FetchResult {
 
 export const fetchStack: Map<string, FetchResult[]> = new Map<string, any>()
 
-export function parseObject (query: any): string {
+export function parseObject(query: any): string {
   let _query: any
   try {
     _query = JSON.parse(query)
@@ -77,11 +77,11 @@ export function mockFetch() {
       if (!results) {
         /* istanbul ignore if */
         const definedUri: string[] = []
-        fetchStack.forEach((val, key) => {
+        fetchStack.forEach((_val, key) => {
           definedUri.push(key)
         })
         const error = new TypeError(
-            `nothing expect response from server,
+          `nothing expect response from server,
             uri: ${uri}, method: ${options.method},
             parsedUri: ${uri + method + dataPath}
             body: ${JSON.stringify(options.body, null, 2)},

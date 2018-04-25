@@ -30,22 +30,22 @@ export class MemberFetch extends BaseFetch {
     return this.fetch.delete<void>(`members/${memberId}`)
   }
 
-  getOrgMembers (organizationId: OrganizationId, query?: GetMembersOptions): Observable<MemberData[]> {
+  getOrgMembers(organizationId: OrganizationId, query?: GetMembersOptions): Observable<MemberData[]> {
     return this.fetch.get<MemberData[]>(`V2/organizations/${organizationId}/members`, query)
   }
 
-  getAllOrgMembers (organizationId: OrganizationId): Observable<MemberData[]>
+  getAllOrgMembers(organizationId: OrganizationId): Observable<MemberData[]>
 
-  getAllOrgMembers (organizationId: OrganizationId, page?: number, result?: MemberData[]): Observable<MemberData[]>
+  getAllOrgMembers(organizationId: OrganizationId, page?: number, result?: MemberData[]): Observable<MemberData[]>
 
-  getAllOrgMembers (organizationId: OrganizationId, page = 1, result: MemberData[] = []): Observable<MemberData[]> {
+  getAllOrgMembers(organizationId: OrganizationId, page = 1, result: MemberData[] = []): Observable<MemberData[]> {
     return this.getOrgMembers(organizationId, {
       page, count: MAX_PROJECT_MEMBER_COUNT
     })
       .switchMap(r => {
         concat(result, r)
         if (r.length === MAX_PROJECT_MEMBER_COUNT) {
-          page ++
+          page++
           return (<any>this.getAllOrgMembers)(organizationId, page, result)
         }
         return Observable.of(result)
@@ -67,14 +67,14 @@ export class MemberFetch extends BaseFetch {
       .switchMap(r => {
         concat(result, r)
         if (r.length === MAX_PROJECT_MEMBER_COUNT) {
-          page ++
+          page++
           return (<any>this.getAllProjectMembers)(projectId, page, result)
         }
         return Observable.of(result)
       })
   }
 
-  updateRole(memberId: MemberId, roleId: RoleId): Observable<{roleId: string}> {
+  updateRole(memberId: MemberId, roleId: RoleId): Observable<{ roleId: string }> {
     return this.fetch.put(`members/${memberId}/_roleId`, {
       _roleId: roleId
     })
@@ -84,9 +84,9 @@ export class MemberFetch extends BaseFetch {
 
   addProjectMembers(_id: ProjectId, emails: string[]): Observable<MemberData[]>
 
-  addProjectMembers(_id: ProjectId, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]>
+  addProjectMembers(_id: ProjectId, emails: string | string[]): Observable<MemberData | MemberData[]>
 
-  addProjectMembers(_id: ProjectId, emails: string | string[]): Observable<MemberData> | Observable<MemberData[]> {
+  addProjectMembers(_id: ProjectId, emails: string | string[]): Observable<MemberData | MemberData[]> {
     return this.fetch.post(`v2/projects/${_id}/members`, {
       email: emails
     })

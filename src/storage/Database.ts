@@ -30,7 +30,7 @@ export default class DataBase {
     DataBase.data.clear()
   }
 
-  storeOne <T>(data: Schema<T> & T | T, unionFlag = '_id'): Observable<T> {
+  storeOne<T>(data: Schema<T> & T | T, unionFlag = '_id'): Observable<T> {
     const index = data[unionFlag]
     /* istanbul ignore if */
     if (typeof index === 'undefined') {
@@ -60,7 +60,7 @@ export default class DataBase {
         } else {
           if (!Object.getOwnPropertyDescriptor(cache.data, 'checkSchema')) {
             Object.defineProperty(cache.data, 'checkSchema', {
-              get () {
+              get() {
                 return () => true
               },
               enumerable: false
@@ -74,9 +74,9 @@ export default class DataBase {
       .concatMap((x: Observable<T>) => x)
   }
 
-  storeCollection <T extends ISchema> (
+  storeCollection<T>(
     index: string,
-    data: (Schema<T> | T)[],
+    data: Array<(T & ISchema) | Schema<T>>,
     schemaName?: string,
     condition?: (data: T) => boolean | Observable<boolean>,
     unionFlag?: string
@@ -95,7 +95,7 @@ export default class DataBase {
           const requested = data[0]._requested
           if (requested && requested === cache.requested) {
             return observer.next(cache.get())
-          /* istanbul ignore if */
+            /* istanbul ignore if */
           } else {
             return observer.error(new Error(`Can not store a existed data: ${index}${schemaName ? ' ,schemaName: ' + schemaName : ''}`))
           }
@@ -163,7 +163,7 @@ export default class DataBase {
               collections.splice(pos, 1)
             }
             const models = cache.elements
-            forEach(models, modelName => {
+            forEach(models, _modelName => {
               const model: Model<any> = DataBase.data.get(index)
               model.removeFromCollection(index)
             })
@@ -179,7 +179,7 @@ export default class DataBase {
       .concatMap((x: Observable<void>) => x)
   }
 
-  updateOne <T>(index: string, patch: any): Observable<T> {
+  updateOne<T>(index: string, patch: any): Observable<T> {
     return Observable.create((observer: Observer<T>) => {
       const timer = setTimeout(() => {
         const model: Model<T> = DataBase.data.get(index)
@@ -239,7 +239,7 @@ export default class DataBase {
             observer.error(err)
             return collection.get().take(1)
           })
-          .forEach(dest => {
+          .forEach(_dest => {
             observer.next(result)
             observer.complete()
           })
@@ -273,8 +273,8 @@ export default class DataBase {
         const grandParents = parentModel.parents
         let signal = parentModel.notify()
         if (!(grandParents && grandParents.length && grandParents.indexOf(model.index) !== -1)) {
-          signal = signal.concatMap(result => this._notifyCollections(parentModel))
-            .concatMap(result => this._notifyParents(parentModel))
+          signal = signal.concatMap(_result => this._notifyCollections(parentModel))
+            .concatMap(_result => this._notifyParents(parentModel))
         }
         signals.push(signal)
       })
@@ -285,7 +285,7 @@ export default class DataBase {
     return Observable.of(null)
   }
 
-  private _notifyCollections <T> (model: Model<T>): Observable<T[]> {
+  private _notifyCollections<T>(model: Model<T>): Observable<T[]> {
     const collections = model.collections
     const signals: Observable<T[]>[] = []
     const length = collections.length
@@ -308,7 +308,7 @@ export default class DataBase {
     return Observable.of(null)
   }
 
-  private _judgeModel <T> (model: Model<T>): Observable<T[]> {
+  private _judgeModel<T>(model: Model<T>): Observable<T[]> {
     const schemaName = model.getSchemaName()
     const collections = this._schemaMap.get(schemaName)
     const modelCollections = model.collections
@@ -336,7 +336,7 @@ export default class DataBase {
     return Observable.of(null)
   }
 
-  private _notifySignals <T> (model: Model<T>, x: T): Observable<any> {
+  private _notifySignals<T>(model: Model<T>, _x: T): Observable<any> {
     return Observable.combineLatest(
       model.notify(),
       this._judgeModel(model),
