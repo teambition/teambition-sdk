@@ -74,7 +74,7 @@ export class Fetch {
       throw new Error(`method to decorator is not defined or not allowed: ${method}`)
     }
     const originMethod = this[method]
-    this[method] = function(url: string, queryOrBody: any) {
+    this[method] = function (url: string, queryOrBody: any) {
       const calledArgs = {
         url: url,
         queryOrBody: queryOrBody,
@@ -84,24 +84,24 @@ export class Fetch {
     }
   }
 
-  public get <T>(url: string, query?: any) {
+  public get<T>(url: string, query?: any) {
     const uri = this._buildQuery(url, query)
     return this.createMethod<T>('get')(uri)
   }
 
-  public post <T>(url: string, body?: any) {
+  public post<T>(url: string, body?: any) {
     return this.createMethod<T>('post')(url, body)
   }
 
-  public put <T>(url: string, body?: any) {
+  public put<T>(url: string, body?: any) {
     return this.createMethod<T>('put')(url, body)
   }
 
-  public delete <T>(url: string) {
+  public delete<T>(url: string) {
     return this.createMethod<T>('delete')(url)
   }
 
-  private _buildQuery (url: string, query: any) {
+  private _buildQuery(url: string, query: any) {
     if (typeof query !== 'object' || !query) {
       return url
     }
@@ -124,7 +124,7 @@ export class Fetch {
     return url + _query
   }
 
-  private createMethod<T>(method: AllowedHttpMethod): (url: string, body?: any) => Observable<any> {
+  private createMethod<T>(method: AllowedHttpMethod) {
     return (url: string, body?: any): Observable<T> => {
       if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
         return Observable.ajax({

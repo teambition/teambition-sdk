@@ -42,7 +42,7 @@ export class HttpResponse {
     } else if (typeof data === 'object') {
       data = JSON.stringify(data)
     } else {
-      throw(new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
+      throw (new Error(`Not valid data format, uri: ${this.namespace}, data: ${data}`))
     }
     const result = {
       wait, response: {
@@ -50,16 +50,16 @@ export class HttpResponse {
       }
     }
     if (!fetchStack.has(this.namespace)) {
-      fetchStack.set(this.namespace, [ result ])
+      fetchStack.set(this.namespace, [result])
     } else {
       fetchStack.get(this.namespace).push(result)
     }
   }
 
-  error(message: string, response: ResponseInit, wait?: number | Promise<any>) {
+  error(message: string, response: ResponseInit | number, wait?: number | Promise<any>) {
     const result = {
       wait, response: {
-        data: message, responseInit: response
+        data: message, responseInit: response as ResponseInit
       }
     }
     if (!fetchStack.has(this.namespace)) {

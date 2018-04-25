@@ -17,7 +17,7 @@
     "build_socket": "rm -rf dist/bundle/tbsdk.socket.js && tsc ./src/SocketApp.ts -m commonjs --outDir dist/socket --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom && ts-node ./tools/tasks/bundle.socket.ts",
     "check_circular_dependencies": "madge ./dist/cjs --circular",
     "watch": "npm run watch_test & ts-node ./tools/tasks/test.ts",
-    "watch_test": "tsc test/unit/app.ts -m commonjs --sourcemap --inlineSources --outDir spec-js --target ES2015 --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --types \"node,mocha,chai,sinon,sinon-chai\" --moduleResolution node --skipLibCheck --isolatedModules --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom -w",
+    "watch_test": "tsc test/unit/app.ts -m commonjs --sourcemap --inlineSources --outDir spec-js --target ES2015 --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --types \"node,mocha,chai,sinon,sinon-chai\" --moduleResolution node --skipLibCheck --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom -w",
     "build_bundle": "rm -rf dist/bundle/tbsdk.umd.js && ts-node ./tools/tasks/bundle.sdk.ts",
     "build_mock": "rm -rf dist/mock-es6 && tsc mock/index.ts -m es2015 --outDir dist/mock-es6 --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom && ts-node ./tools/tasks/bundle.mock.ts",
     "build_mock_cjs": "rm -rf dist/mock-cjs && tsc mock/index.ts -m commonjs --outDir dist/mock-cjs --sourcemap --inlineSources --target ES5 -d --diagnostics --pretty --noImplicitAny --noImplicitReturns --experimentalDecorators --suppressImplicitAnyIndexErrors --moduleResolution node --lib es5,es2015.iterable,es2015.collection,es2015.promise,es2015.core,dom",
@@ -46,19 +46,19 @@
   "homepage": "https://github.com/teambition/teambition-sdk#readme",
   "peerDependencies": {
     "core-js": "^2.4.1",
-    "rxjs": "^5.0.3",
+    "rxjs": "5",
     "snapper-consumer": "^1.3.2",
     "tslib": "^1.5.0"
   },
   "dependencies": {
+    "isomorphic-fetch": "^2.2.1",
     "rrule": "github:teambition/rrule#v2.2.4",
-    "snapper-consumer": "^1.3.2",
-    "isomorphic-fetch": "^2.2.1"
+    "snapper-consumer": "^1.3.2"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.33",
-    "@types/node": "^7.0.3",
+    "@types/node": "^9.6.6",
     "@types/sinon": "^1.16.34",
     "@types/sinon-chai": "^2.7.27",
     "chai": "^3.4.1",
@@ -76,15 +76,15 @@
     "rollup-plugin-alias": "^1.2.0",
     "rollup-plugin-commonjs": "^7.0.0",
     "rollup-plugin-node-resolve": "^2.0.0",
-    "rxjs": "^5.4.0",
+    "rxjs": "5",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.8.0",
     "snapper-consumer": "^1.3.2",
     "tman": "^1.6.0",
-    "ts-node": "^2.0.0",
-    "tslib": "^1.7.1",
-    "tslint": "^4.3.1",
-    "typescript": "^2.3.4",
+    "ts-node": "^6.0.0",
+    "tslib": "^1.9.0",
+    "tslint": "^5.9.1",
+    "typescript": "^2.8.3",
     "whatwg-fetch": "^2.0.0"
   }
 }

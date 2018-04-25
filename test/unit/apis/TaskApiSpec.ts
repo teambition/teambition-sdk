@@ -1,6 +1,4 @@
 'use strict'
-// tslint:disable:no-unused-expression
-
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'

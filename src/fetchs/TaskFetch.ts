@@ -328,14 +328,14 @@ export class TaskFetch extends Fetch {
     return this.fetch.post(`tasks/${_taskId}/archive`)
   }
 
-  favorite(_taskId: TaskId): Observable<UpdateFavoriteResponse> {
-    return this.fetch.post(`tasks/${_taskId}/favorite`)
-      .map(resp => {
+  favorite(_taskId: TaskId) {
+    return this.fetch.post<UpdateFavoriteResponse>(`tasks/${_taskId}/favorite`)
+      .map((resp) => {
         return {
           ...resp.data,
           // 需要将新的 `isFavorite` 信息写入 TaskModel 里
           isFavorite: resp.isFavorite
-        }
+        } as UpdateFavoriteResponse
       })
   }
 
@@ -343,11 +343,11 @@ export class TaskFetch extends Fetch {
     return this.fetch.get(`tasks?_ancestorId=${_taskId}`, query)
   }
 
-  unfavorite(_taskId: TaskId): Observable<UpdateFavoriteResponse> {
-    return this.fetch.delete(`tasks/${_taskId}/favorite`)
+  unfavorite(_taskId: TaskId) {
+    return this.fetch.delete<UpdateFavoriteResponse>(`tasks/${_taskId}/favorite`)
       .map((resp) => {
         // 需要将新的 `isFavorite` 信息写入 TaskModel 里
-        return { isFavorite: resp.isFavorite }
+        return { isFavorite: resp.isFavorite } as UpdateFavoriteResponse
       })
   }
 

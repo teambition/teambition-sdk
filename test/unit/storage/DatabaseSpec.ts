@@ -309,7 +309,7 @@ export default describe('database test: ', () => {
         })
     })
 
-    it('ele obj updated, collection include it should be notified', function*() {
+    it('ele obj updated, collection include it should be notified', function* () {
       const col = [
         {
           _id: '30.30',
@@ -402,7 +402,7 @@ export default describe('database test: ', () => {
     describe('change ele to satisfy collection condition: ', () => {
       class TestEle {
         $$schemaName = 'TestEle'
-        constructor(public _id: string, public name: string, public age: number) {}
+        constructor(public _id: string, public name: string, public age: number) { }
       }
 
       it('collection should be updated', function* () {
@@ -951,7 +951,7 @@ export default describe('database test: ', () => {
 
       yield Storage.storeOne(projectSchema)
         .take(1)
-        .do(r => {
+        .do(_r => {
           expect(testSchema.$$data.project.checkSchema()).to.be.true
         })
     })
