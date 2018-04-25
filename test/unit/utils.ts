@@ -1,7 +1,7 @@
 'use strict'
 import * as chai from 'chai'
 import { testable } from '../../src/testable'
-import { forEach } from './index'
+import { forEach, isObject } from './index'
 
 const expect = chai.expect
 
@@ -17,7 +17,17 @@ export function expectDeepEqual(a: any, b: any) {
   const other = isSchema ? a : b
   forEach(origin, (val, key) => {
     if (key !== '_requested' && key !== '$$schemaName') {
-      expect(val).to.deep.equal(other[key])
+      if (Array.isArray(val)) {
+        forEach(val, (x, xi) => {
+          if (x && isObject(x)) {
+            expectDeepEqual(x, other[key][xi])
+          } else {
+            expect(x).to.deep.equal(other[key][xi])
+          }
+        })
+      } else {
+        expect(val).to.deep.equal(other[key])
+      }
     }
   })
 }

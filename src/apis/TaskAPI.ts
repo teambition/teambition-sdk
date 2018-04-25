@@ -276,15 +276,15 @@ export class TaskAPI {
     })
   }
 
-  getTaskCreateByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
+  getTaskCreateByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId }) {
     return TaskFetch.getTaskCreateByMe(options)
   }
 
-  getTaskExecuteByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
+  getTaskExecuteByMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId }) {
     return TaskFetch.getTaskExecuteByMe(options)
   }
 
-  getTaskInvolvesMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId}) {
+  getTaskInvolvesMe(options: { page: 1, count: 40, isDone: boolean, sort: 'dueDate', _projectId?: ProjectId }) {
     return TaskFetch.getTaskInvolvesMe(options)
   }
 
@@ -445,7 +445,7 @@ export class TaskAPI {
 
   delete(_taskId: TaskId): Observable<void> {
     return TaskFetch.delete(_taskId)
-      .concatMap(x =>
+      .concatMap(_x =>
         TaskModel.delete(<string>_taskId)
       )
   }

@@ -1,4 +1,4 @@
-export type visibility = 'project' | 'organization' | 'all' | 'members'
+export type Visibility = 'project' | 'organization' | 'all' | 'members' | 'involves'
 
 export interface LikeSchema {
   isLike: boolean
@@ -226,7 +226,23 @@ export interface ShareId extends String {
 }
 
 export interface CustomFieldId extends String {
-  kind?: 'CustomfieldId'
+  kind?: 'CustomFieldId'
+}
+
+export interface ScenarioFieldConfigId extends String {
+  kind?: 'ScenarioFieldConfigId'
+}
+
+export interface SprintId extends String {
+  kind?: 'SprintId'
+}
+
+export interface TaskflowId extends String {
+  kind?: 'TaskflowId'
+}
+
+export interface TaskflowStatusId extends String {
+  kind?: 'TaskflowStatusId'
 }
 
 export type CustomFieldType = 'text' | 'date' | 'number' | 'multipleChoice' | 'dropDown'

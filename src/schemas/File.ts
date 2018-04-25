@@ -7,7 +7,7 @@ import {
   TagId,
   ProjectId,
   UserId,
-  visibility,
+  Visibility,
   ExecutorOrCreator
 } from '../teambition'
 
@@ -25,7 +25,7 @@ export interface FileData extends ISchema {
   _creatorId: UserId
   creator: ExecutorOrCreator
   tagIds: TagId[]
-  visible: visibility
+  visible: Visibility
   downloadUrl: string
   thumbnail: string
   thumbnailUrl: string
@@ -65,7 +65,7 @@ export default class File extends Schema<FileData> implements FileData {
   _creatorId: UserId = undefined
   creator: ExecutorOrCreator = undefined
   tagIds: TagId[] = undefined
-  visible: visibility = undefined
+  visible: Visibility = undefined
   downloadUrl: string = undefined
   thumbnail: string = undefined
   thumbnailUrl: string = undefined

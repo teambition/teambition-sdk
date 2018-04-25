@@ -41,7 +41,7 @@ export const setSchema = <T>(target: Schema<T>, data: T): T & Schema<T> => {
       if (typeof data[key] === 'undefined' && !target[key]) {
         target.$$keys.add(key)
       }
-      if ( ! (!(key in data) && (key in target)) ) {
+      if (!(!(key in data) && (key in target))) {
         const originSet = Object.getOwnPropertyDescriptor(target, key).set
         Object.defineProperty(target, key, {
           get() {
@@ -75,11 +75,11 @@ export interface ISchema {
   _requested?: number
 }
 
-export class Schema <T> {
+export class Schema<T> {
   $$keys = new Set<string>()
   $$data: T
   $$children: ChildMap
-  $$bloodyParent: BloodyParent
+  $$bloodyParent: BloodyParent[]
   $$unionFlag: string
   $$schemaName: string
   _requested?: number
@@ -87,10 +87,10 @@ export class Schema <T> {
   constructor() {
     let _$$unionFlag: string
     Object.defineProperty(this, '$$unionFlag', {
-      get () {
+      get() {
         return _$$unionFlag
       },
-      set (val: string) {
+      set(val: string) {
         _$$unionFlag = val
       },
       enumerable: false
@@ -99,7 +99,12 @@ export class Schema <T> {
   }
 
   setBloodyParent() {
-    const bloodyParent = this.$$bloodyParent
+    if (this.$$bloodyParent) {
+      this.$$bloodyParent.forEach((one) => this._setBloodyParent(one))
+    }
+  }
+
+  private _setBloodyParent(bloodyParent: BloodyParent) {
     if (bloodyParent) {
       const unionFlag = this[this.$$unionFlag]
       let bloodyParentValue: string = this[bloodyParent.key]
@@ -107,7 +112,7 @@ export class Schema <T> {
       if (bloodyParentValue) {
         const children = bloodyParentMap.get(bloodyParentValue)
         if (!children) {
-          bloodyParentMap.set(bloodyParentValue, [ unionFlag ])
+          bloodyParentMap.set(bloodyParentValue, [unionFlag])
         } else if (children.indexOf(unionFlag) === -1) {
           children.push(unionFlag)
         }
@@ -123,7 +128,7 @@ export class Schema <T> {
           }
           const newArr = bloodyParentMap.get(val)
           if (!newArr) {
-            bloodyParentMap.set(val, [ unionFlag ])
+            bloodyParentMap.set(val, [unionFlag])
           } else if (newArr.indexOf(val) === -1) {
             newArr.push(val)
           }
@@ -141,8 +146,8 @@ export class Schema <T> {
   }
 }
 
-export function schemaName (name: string) {
-  return function(target: any) {
+export function schemaName(name: string) {
+  return function (target: any) {
     target.prototype.$$schemaName = name
   }
 }
@@ -153,8 +158,8 @@ const cacheSchemaMap = new WeakMap<any, ChildMap>()
  * 对 schema 上的属性注解
  * 指定一个 child
  */
-export function child (type: 'Array' | 'Object', schemaName: string, unionFlag = '_id') {
-  return function(target: any, key: string) {
+export function child(type: 'Array' | 'Object', schemaName: string, unionFlag = '_id') {
+  return function (target: any, key: string) {
     if (!target.$$children) {
       Object.defineProperty(target, '$$children', {
         get() {
@@ -169,7 +174,7 @@ export function child (type: 'Array' | 'Object', schemaName: string, unionFlag =
           })
           return weakMap
         },
-        set (val: {
+        set(val: {
           key: string
           type: 'Object' | 'Array',
           schemaName: string
@@ -189,47 +194,71 @@ export function child (type: 'Array' | 'Object', schemaName: string, unionFlag =
   }
 }
 
-/**
- * 用于注解对象上的一个属性，这个属性通常是一个 id
- * 这个 id 代表着是这个被注解对象的血亲
- * 一个对象在它的血亲被删除后也会被删除
- */
-export function bloodyParent(schemaName: string, unionFlag = '_id') {
-  return function (target: any, key: string) {
-    Object.defineProperty(target, '$$bloodyParent', {
-      get() {
+const getBloodyParentList = (target: object): Array<[string, string, string, boolean]> => {
+  const descriptor = Object.getOwnPropertyDescriptor(target, '$$bloodyParentList')
+
+  if (descriptor) {
+    return descriptor.get()
+  }
+
+  const bloodyParentList = []
+
+  Object.defineProperty(target, '$$bloodyParentList', {
+    get: () => bloodyParentList
+  })
+
+  return bloodyParentList
+}
+
+const addToBloodyParentList = (
+  target: object,
+  schemaName: string,
+  unionFlag: string,
+  key: string,
+  isProp = false
+) => {
+  getBloodyParentList(target).push([schemaName, unionFlag, key, isProp])
+}
+
+const defineBloodyParent = (target: object) => {
+  if ('$$bloodyParent' in target) {
+    return
+  }
+  Object.defineProperty(target, '$$bloodyParent', {
+    get() {
+      return getBloodyParentList(target).map(([schemaName, unionFlag, key, isProp]) => {
         return {
           key,
           unionFlag,
-          schemaName,
+          schemaName: isProp ? this[schemaName] : schemaName,
           [unionFlag]: this[key]
         }
-      },
-      enumerable: false,
-      configurable: false
-    })
+      })
+    }
+  })
+}
+
+/**
+* 用于注解对象上的一个属性，这个属性通常是一个 id
+* 这个 id 代表着是这个被注解对象的血亲
+* 一个对象在它的血亲被删除后也会被删除
+*/
+export function bloodyParent(schemaName: string, unionFlag = '_id') {
+  return function (target: any, key: string) {
+    addToBloodyParentList(target, schemaName, unionFlag, key)
+    defineBloodyParent(target)
   }
 }
 
 /**
- * 用于注解对象上的一个属性，这个属性通常是一个 id
- * 这个 id 代表着是这个被注解对象的血亲
- * 一个对象在它的血亲被删除后也会被删除
- * 这个注解对应 schemaName 在运行时才能拿到的情况
- */
+* 用于注解对象上的一个属性，这个属性通常是一个 id
+* 这个 id 代表着是这个被注解对象的血亲
+* 一个对象在它的血亲被删除后也会被删除
+* 这个注解对应 schemaName 在运行时才能拿到的情况
+*/
 export function bloodyParentWithProperty(propertyName: string, unionFlag = '_id') {
   return function (target: any, key: string) {
-    Object.defineProperty(target, '$$bloodyParent', {
-      get() {
-        return {
-          key,
-          unionFlag,
-          schemaName: this[propertyName],
-          [unionFlag]: this[key]
-        }
-      },
-      enumerable: false,
-      configurable: false
-    })
+    addToBloodyParentList(target, propertyName, unionFlag, key, true)
+    defineBloodyParent(target)
   }
 }

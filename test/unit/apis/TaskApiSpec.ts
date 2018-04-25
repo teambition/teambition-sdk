@@ -1,4 +1,6 @@
 'use strict'
+// tslint:disable:no-unused-expression
+
 import * as chai from 'chai'
 import * as sinon from 'sinon'
 import * as sinonChai from 'sinon-chai'
@@ -29,6 +31,7 @@ import { tasklists } from '../../mock/tasklists'
 import { tasksOneDayMe } from '../../mock/tasksOneDayMe'
 import { stageTasksUndone } from '../../mock/stageTasksUndone'
 import { stageTasksDone } from '../../mock/stageTasksDone'
+import { TagId } from '../type'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -57,18 +60,32 @@ export default describe('Task API test: ', () => {
   })
 
   describe('get tasks by tasklist id: ', () => {
-    const tasklistId = tasksDone[0]._tasklistId
+    const tasklistId = 'mocktasklistid'
 
-    const mockTask = clone(tasksUndone[0])
+    const tasksUndoneByTasklistId = tasksUndone.map((one) => {
+      return {
+        ...clone(one),
+        _tasklistId: tasklistId
+      }
+    })
+
+    const tasksDoneByTasklistId = tasksDone.map((one) => {
+      return {
+        ...clone(one),
+        _tasklistId: tasklistId
+      }
+    })
+
+    const mockTask = clone(tasksUndoneByTasklistId[0])
     mockTask._id = 'mocktaskundone'
-    const mockTaskDone = clone(tasksDone[0])
+    const mockTaskDone = clone(tasksDoneByTasklistId[0])
     mockTaskDone._id = 'mocktaskdone'
 
-    const page1 = tasksDone.slice(0, 30)
+    const page1 = tasksDoneByTasklistId.slice(0, 30)
 
     beforeEach(() => {
       httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=false`)
-        .respond(JSON.stringify(tasksUndone))
+        .respond(JSON.stringify(tasksUndoneByTasklistId))
 
       httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)
         .respond(JSON.stringify(mockTask))
@@ -125,9 +142,9 @@ export default describe('Task API test: ', () => {
     })
 
     it('get tasks done next page should ok', function* () {
-      const page1 = clone(tasksDone).slice(0, 30)
+      const page1 = clone(tasksDoneByTasklistId).slice(0, 30)
 
-      const page2 = clone(tasksDone).slice(30)
+      const page2 = clone(tasksDoneByTasklistId).slice(30)
 
       const length = page2.length
 
@@ -158,13 +175,13 @@ export default describe('Task API test: ', () => {
         .do(data => {
           expect(data.length).to.equal(length + 30)
           forEach(data, (task, index) => {
-            expectDeepEqual(task, tasksDone[index])
+            expectDeepEqual(task, tasksDoneByTasklistId[index])
           })
         })
     })
 
     it('get tasks done from cache should ok', function* () {
-      const page1 = clone(tasksDone).slice(0, 30)
+      const page1 = clone(tasksDoneByTasklistId).slice(0, 30)
 
       httpBackend.whenGET(`${apihost}tasklists/${tasklistId}/tasks?isDone=true&page=1&limit=30`)
         .respond(JSON.stringify(page1))
@@ -176,7 +193,7 @@ export default describe('Task API test: ', () => {
         .do(data => {
           expect(data.length).to.equal(30)
           forEach(data, (task, index) => {
-            expectDeepEqual(task, tasksDone[index])
+            expectDeepEqual(task, tasksDoneByTasklistId[index])
           })
           expect(spy).to.be.calledOnce
         })
@@ -200,14 +217,14 @@ export default describe('Task API test: ', () => {
         .do(data => {
           expect(data.length).to.equal(30)
           forEach(data, (task, index) => {
-            expectDeepEqual(task, tasksDone[index])
+            expectDeepEqual(task, tasksDoneByTasklistId[index])
           })
         })
 
     })
 
     it('add task to task undone should ok', function* () {
-      const length = tasksUndone.length
+      const length = tasksUndoneByTasklistId.length
 
       const signal = Task.getTasklistUndone(tasklistId)
         .publish()
@@ -225,7 +242,7 @@ export default describe('Task API test: ', () => {
     })
 
     it('undone task should ok', function* () {
-      const mockDoneTask = clone(tasksDone[0])
+      const mockDoneTask = clone(tasksDoneByTasklistId[0])
       const length = tasksUndone.length
       const updated = new Date().toISOString()
       mockDoneTask.updated = updated
@@ -667,6 +684,7 @@ export default describe('Task API test: ', () => {
 
     it('get should ok', done => {
       Task.getMyDueTasks(_userId)
+        .take(1)
         .subscribe(data => {
           forEach(data, (task, pos) => {
             expectDeepEqual(task, tasksOneDayMe[pos])
@@ -997,7 +1015,7 @@ export default describe('Task API test: ', () => {
       yield signal.take(1)
         .do(data => {
           expect(data.length).to.equal(page1.length + page2.length)
-          forEach(data, (task, pos) => {
+          forEach(data, (task, _pos) => {
             expect(task.isDone).to.equal(false)
           })
         })
@@ -1018,7 +1036,7 @@ export default describe('Task API test: ', () => {
       yield signal.take(1)
         .subscribe(data => {
           expect(data.length).to.equal(donePage1.length + donePage2.length)
-          forEach(data, (task, pos) => {
+          forEach(data, (task, _pos) => {
             expect(task.isDone).to.equal(true)
           })
         })
@@ -2153,7 +2171,7 @@ export default describe('Task API test: ', () => {
     })
 
     it('updateTags should ok', function* () {
-      const tags: any = concat(mockTaskGet.tagIds, ['mocktag1', 'mocktag2'])
+      const tags = concat<TagId>(mockTaskGet.tagIds, ['mocktag1', 'mocktag2'])
       httpBackend.whenPUT(`${apihost}tasks/${mockTaskGet._id}/tagIds`, {
         tagIds: tags
       })

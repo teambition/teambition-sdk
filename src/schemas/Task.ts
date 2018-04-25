@@ -1,124 +1,182 @@
 'use strict'
 import { Schema, ISchema, schemaName, child, bloodyParent } from './schema'
-import Subtask from './Subtask'
 import {
   ExecutorOrCreator,
-  visibility,
+  Visibility,
   TagId,
   TaskId,
   StageId,
   UserId,
   TasklistId,
-  ProjectId
+  ProjectId,
+  OrganizationId,
+  CustomFieldValue,
+  ScenarioFieldConfigId,
+  SprintId,
+  TaskflowStatusId
 } from '../teambition'
+import { StageData } from './Stage'
+import { TasklistData } from './Tasklist'
+import { OrganizationData } from './Organization'
+import { TaskflowStatusData } from './TaskflowStatus'
+import { TagData } from './Tag'
+import { ProjectData } from './Project'
 
-export type TaskPriority = 0 | 1 | 2
+export type TaskPriority = number | 1 | 2
+
+export interface TaskSubtaskCount {
+  done: number
+  total: number
+}
+
+export interface TaskWorkTime {
+  totalTime: number
+  unit?: 'minute'
+  usedTime: number
+}
+
+export interface TaskReminder {
+  _creatorId: UserId | null
+  date: string | null
+  members: UserId[]
+  type: string
+}
+
+export type TaskOrganization = Pick<OrganizationData,
+  | '_id'
+  | 'description'
+  | 'isPublic'
+  | 'logo'
+  | 'name'
+  | 'plan'
+  > & { isExpired: boolean }
 
 export interface TaskData extends ISchema {
-  _id: TaskId
-  content: string
-  note: string
-  accomplished: string
-  startDate?: string
-  dueDate: string
-  priority: TaskPriority
-  isDone: boolean
-  isArchived: boolean
-  created: string
-  customfields?: any[]
-  updated: string
-  visible: visibility
-  _stageId: StageId
   _creatorId: UserId
-  _tasklistId: TasklistId
-  _projectId: ProjectId
   _executorId: UserId
+  _id: TaskId
+  _organizationId: OrganizationId | null
+  _projectId: ProjectId
+  _scenariofieldconfigId: ScenarioFieldConfigId
+  _sourceId: TaskId | null
+  _sprintId: SprintId | null
+  _stageId: StageId
+  _taskId?: TaskId
+  _taskflowstatusId: TaskflowStatusId | null
+  _tasklistId: TasklistId
+  accomplished: null
+  ancestorIds: TaskId[]
+  ancestors?: Partial<TaskData>[]
+  attachmentsCount: number
+  commentsCount: number
+  content: string
+  created: string
+  customfields: CustomFieldValue[]
+  dueDate: null
+  executor: ExecutorOrCreator
   involveMembers: UserId[]
-  tagIds: TagId []
-  recurrence?: string
-  pos?: number
-  _sourceId?: string
-  sourceDate?: string
-  subtasks?: Subtask[]
-  commentsCount?: number
-  attachmentsCount?: number
-  likesCount?: number
-  objectlinksCount?: number
-  // 新版子任务新增字段
-  ancestorIds?: string[]
-  ancestors?: any
-  parent?: any
-  subtaskCount: {
-    total: number
-    done: number
-  }
-  executor?: ExecutorOrCreator
-  stage?: {
-    name: string
-    _id: StageId
-  }
-  tasklist?: {
-    title: string
-    _id: TasklistId
-  }
-  isFavorite?: boolean
-  isInbox?: boolean
-  project?: {
-    _id: ProjectId
-    name: string
-  }
-  uniqueId?: number
+  involvers?: ExecutorOrCreator[]
+  isArchived: boolean
+  isDone: boolean
+  isFavorite: boolean
+  likesCount: number
+  note: string
+  objectlinksCount: number
+  organization: TaskOrganization | null
+  parent: Partial<TaskData> | null
+  pos: number
+  priority: number
+  progress: number
+  project?: Pick<ProjectData, '_id' | 'name' | 'isArchived'> | null
+  rating: number
+  recurrence: string[] | null
+  reminder: TaskReminder
+  shareStatus: number
+  sourceDate: string | null
+  stage?: Pick<StageData, '_id' | 'name'>
+  startDate: null
+  storyPoint: null
+  subtaskCount: TaskSubtaskCount
+  subtasks: Partial<TaskData>[]
+  tagIds: TagId[]
+  tags?: Pick<TagData, '_id' | 'name' | 'color'>[]
+  taskflowstatus?: Pick<TaskflowStatusData, '_id' | '_taskflowId' | 'kind' | 'name' | 'pos' | 'rejectStatusIds'> | null
+  tasklist?: Pick<TasklistData, '_id' | 'title'>
+  uniqueId: number
+  untilDate?: null
+  updated: string
+  visible: Visibility
+  workTime: TaskWorkTime
 }
 
 @schemaName('Task')
 export default class Task extends Schema<TaskData> implements TaskData {
-  _id: TaskId = undefined
-  content: string = undefined
-  note: string = undefined
-  accomplished: string = undefined
-  dueDate: string = undefined
-  priority: TaskPriority = undefined
-  isDone: boolean = undefined
-  isArchived: boolean = undefined
-  created: string = undefined
-  updated: string = undefined
-  visible: visibility = undefined
-  customfields: any[] = undefined
+  @bloodyParent('Organization') _organizationId: OrganizationId | null = undefined
   @bloodyParent('Stage') _stageId: StageId = undefined
+  @child('Array', 'Tag') tags?: Pick<TagData, '_id' | 'name' | 'color'>[]
+  @child('Array', 'Task') subtasks: Partial<TaskData>[] = undefined
+  @child('Object', 'Organization') organization: TaskOrganization | null = undefined
+  @child('Object', 'Project') project?: Pick<ProjectData, '_id' | 'name' | 'isArchived'> | null
+  @child('Object', 'Stage') stage?: Pick<StageData, '_id' | 'name'> = undefined
+  @child('Object', 'TaskflowStatus') taskflowstatus?: TaskData['taskflowstatus'] = undefined
+  @child('Object', 'Tasklist') tasklist?: Pick<TasklistData, '_id' | 'title'> = undefined
   _creatorId: UserId = undefined
-  _tasklistId: TasklistId = undefined
-  _projectId: ProjectId = undefined
   _executorId: UserId = undefined
+  _id: TaskId = undefined
+  _projectId: ProjectId = undefined
+  _scenariofieldconfigId: ScenarioFieldConfigId = undefined
+  _sourceId: TaskId | null = undefined
+  _sprintId: SprintId | null = undefined
+  _taskId?: TaskId
+  _taskflowstatusId: TaskflowStatusId | null = undefined
+  _tasklistId: TasklistId = undefined
+  accomplished: null = undefined
+  ancestorIds: TaskId[] = undefined
+  ancestors?: Partial<TaskData>[] = undefined
+  attachmentsCount: number = undefined
+  commentsCount: number = undefined
+  content: string = undefined
+  created: string = undefined
+  customfields: CustomFieldValue[] = undefined
+  dueDate: null = undefined
+  executor: ExecutorOrCreator = undefined
   involveMembers: UserId[] = undefined
+  involvers?: ExecutorOrCreator[] = undefined
+  isArchived: boolean = undefined
+  isDone: boolean = undefined
+  isFavorite: boolean = undefined
+  likesCount: number = undefined
+  note: string = undefined
+  objectlinksCount: number = undefined
+  parent: Partial<TaskData> | null = undefined
+  pos: number = undefined
+  priority: number = undefined
+  progress: number = undefined
+  rating: number = undefined
+  recurrence: string[] | null = undefined
+  reminder: TaskReminder = undefined
+  shareStatus: number = undefined
+  sourceDate: string | null = undefined
+  startDate: null = undefined
+  storyPoint: null = undefined
+  subtaskCount: TaskSubtaskCount = undefined
   tagIds: TagId[] = undefined
-  subtaskCount: {
-    total: number
-    done: number
-  } = undefined
-  @child('Array', 'Subtask') subtasks?: Subtask[]
-  @child('Object', 'Project') project?: {
-    _id: ProjectId
-    name: string
-  }
-  @child('Object', 'Stage') stage?: {
-    name: string
-    _id: StageId
-  }
-  @child('Object', 'Tasklist') tasklist?: {
-    title: string
-    _id: TasklistId
-  }
+  uniqueId: number = undefined
+  untilDate?: null = undefined
+  updated: string = undefined
+  visible: Visibility = undefined
+  workTime: TaskWorkTime = undefined
 }
 
 export interface TasksMeCount {
-  executedTasksDoneCount?: number,
-  executedTasksUndoneCount?: number,
-  createdTasksDoneCount?: number,
-  createdTasksUndoneCount?: number,
-  involvedTasksDoneCount?: number,
-  involvedTasksUndoneCount?: number,
-  createdSubtasksDoneCount?: number,
-  createdSubtasksUndoneCount?: number,
-  executedSubtasksDoneCount?: number,
-  executedSubtasksUndoneCount?: number
+  executedTasksDoneCount: number
+  executedTasksUndoneCount: number
+  createdTasksDoneCount: number
+  createdTasksUndoneCount: number
+  involvedTasksDoneCount: number
+  involvedTasksUndoneCount: number
+  createdSubtasksDoneCount: number
+  createdSubtasksUndoneCount: number
+  executedSubtasksDoneCount: number
+  executedSubtasksUndoneCount: number
 }

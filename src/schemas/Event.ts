@@ -1,6 +1,6 @@
 'use strict'
 import { Schema, schemaName, ISchema } from './schema'
-import { visibility, EventId, UserId, ProjectId, TagId } from '../teambition'
+import { Visibility, EventId, UserId, ProjectId, TagId } from '../teambition'
 
 export interface EventData extends ISchema {
   _id: EventId
@@ -20,7 +20,7 @@ export interface EventData extends ISchema {
   recurrence?: string[]
   reminders: string[]
   isArchived: boolean
-  visible: visibility
+  visible: Visibility
   isDeleted?: boolean
   created: string
   updated: string
@@ -49,7 +49,7 @@ export default class Event extends Schema<EventData> implements EventData {
   tagIds: TagId[] = undefined
   updated: string = undefined
   created: string = undefined
-  visible: visibility = undefined
+  visible: Visibility = undefined
   isArchived: boolean = undefined
   involveMembers: UserId[] = undefined
   untilDate: string = undefined

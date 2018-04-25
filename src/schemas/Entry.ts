@@ -1,6 +1,6 @@
 'use strict'
 import { Schema, ISchema, schemaName } from './schema'
-import { visibility } from '../teambition'
+import { Visibility } from '../teambition'
 import {
   EntryId,
   EntryCategoryId,
@@ -20,7 +20,7 @@ export interface EntryData extends ISchema {
   amount: number
   status: string
   involveMembers: UserId[]
-  visible: visibility
+  visible: Visibility
   tagIds: TagId[]
   created: string
   updated: string
@@ -39,7 +39,7 @@ export default class EntrySchema extends Schema<EntryData> implements EntryData 
   amount: number = undefined
   status: string = undefined
   involveMembers: UserId[] = undefined
-  visible: visibility = undefined
+  visible: Visibility = undefined
   tagIds: TagId[] = undefined
   created: string = undefined
   updated: string = undefined

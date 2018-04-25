@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import Fetch from './BaseFetch'
 import { TaskData, TasksMeCount, TaskPriority } from '../schemas/Task'
 import {
-  visibility,
+  Visibility,
   ExecutorOrCreator,
   TaskId,
   SubtaskId,
@@ -91,7 +91,7 @@ export interface ImportTaskOptions {
   involveMembers?: UserId[]
   _executorId?: UserId
   dueDate?: string
-  visiable?: visibility
+  visiable?: Visibility
 }
 
 export interface MoveTaskOptions {
@@ -363,7 +363,7 @@ export class TaskFetch extends Fetch {
 
   batchUpdateVisibility(
     stageId: StageId,
-    visible: 'members' | 'involves'
+    _visible: 'members' | 'involves'
   ): Observable<BatchUpdateVisibilityResponse> {
     return this.fetch.put(`stages/${stageId}/tasks/visible`)
   }

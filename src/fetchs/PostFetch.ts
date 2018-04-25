@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
 import { PostData } from '../schemas/Post'
 import {
-  visibility,
+  Visibility,
   PostId,
   ProjectId,
   TagId,
@@ -18,7 +18,7 @@ export interface CreatePostOptions {
   title: string
   content: string
   postMode?: 'html' | 'txt'
-  visiable?: visibility
+  visiable?: Visibility
   attachments?: FileId[]
   involveMembers?: UserId[]
   tagIds?: TagId[]
@@ -36,9 +36,9 @@ export interface UpdatePostOptions {
 export type UpdateInvolves = {
   involveMembers: UserId[]
 } | {
-  addInvolvers?: UserId[]
-  delInvolvers?: UserId[]
-}
+    addInvolvers?: UserId[]
+    delInvolvers?: UserId[]
+  }
 
 export interface ArchivePostResponse {
   isArchived: boolean

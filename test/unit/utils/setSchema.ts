@@ -10,19 +10,26 @@ const expect = chai.expect
 // 因为这里Task Mock的数据是老数据，和表现有出入，以后计划重写
 export default describe('set schema test', () => {
   it('data should deep equal origin after setSchema', () => {
-    const Task = new TaskSchema()
-    const mockTask = clone(tasksUndone[0])
-    const schema = setSchema(Task, <any>mockTask)
+    const schema = new TaskSchema()
+
+    setSchema(schema, {})
     expect(schema.checkSchema()).to.be.false
-    expect(schema.$$keys.size).to.equal(1)
+
+    const task = {}
+    for (const key of schema.$$keys) { task[key] = null }
+    setSchema(schema, task)
+    expect(schema.checkSchema()).to.be.true
+    expect(schema.$$keys.size).to.equal(0)
   })
 
   it('checkSchema should ok', () => {
-    const Task = new TaskSchema()
-    const mockTask = clone(tasksUndone[0])
-    delete mockTask.priority
-    const schema = setSchema(Task, <any>mockTask)
+    const schema = new TaskSchema()
+    setSchema(schema, {})
+    const task = {}
+    for (const key of schema.$$keys) { task[key] = null }
+    delete task['_id']
+    setSchema(schema, task)
     expect(schema.checkSchema()).to.be.false
-    expect(schema.$$keys.size).to.equal(2)
+    expect(schema.$$keys.size).to.equal(1)
   })
 })

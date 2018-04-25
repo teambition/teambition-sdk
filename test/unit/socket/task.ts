@@ -10,7 +10,7 @@ import {
   clone
 } from '../index'
 import { flush, notInclude } from '../utils'
-import { tasksUndone} from '../../mock/tasksUndone'
+import { tasksUndone } from '../../mock/tasksUndone'
 import { tasksOneDayMe } from '../../mock/tasksOneDayMe'
 
 const expect = chai.expect
@@ -38,7 +38,7 @@ export default describe('socket task test: ', () => {
       .publish()
       .refCount()
 
-    yield Socket.emit('change', 'task', mockTask._id, {
+    yield Socket.emit('change', 'task', mockTask._id as string, {
       _id: mockTask._id,
       content: 'mocktask'
     }, signal.take(1))
@@ -59,7 +59,7 @@ export default describe('socket task test: ', () => {
         expect(r).to.be.null
       })
 
-    yield Socket.emit('destroy', 'task', mockTask._id, null, signal.take(1))
+    yield Socket.emit('destroy', 'task', mockTask._id as string, null, signal.take(1))
 
   })
 
@@ -111,7 +111,7 @@ export default describe('socket task test: ', () => {
       yield Socket.emit('new', 'task', '', {
         _id: 'mocktaskid',
         content: 'mock task content',
-        dueDate: moment(dueDate).add(1, 'hour').toISOString() ,
+        dueDate: moment(dueDate).add(1, 'hour').toISOString(),
         _tasklistId: tasksOneDayMe[0]._tasklistId,
         _executorId: tasksOneDayMe[0]._executorId
       }, signal.take(1))

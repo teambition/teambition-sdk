@@ -6,7 +6,7 @@ import { HomeActivityData } from '../schemas/HomeActivity'
 import Event from '../schemas/Event'
 import {
   InviteLinkSchema,
-  visibility,
+  Visibility,
   CreatedInProjectSchema,
   RecommendMemberSchema,
   ProjectStatisticSchema,
@@ -26,7 +26,7 @@ export interface ProjectCreateOptions {
   logo?: string
   category?: string
   dividerIndex?: number
-  visibility?: visibility
+  visibility?: Visibility
 }
 
 export interface ProjectUpdateOptions {
@@ -34,13 +34,13 @@ export interface ProjectUpdateOptions {
   description?: string
   logo?: string
   category?: string
-  visibility?: visibility
+  visibility?: Visibility
 }
 
 export interface ProjectCopyOptions {
   name: string
   _organizationId?: OrganizationId
-  visibility?: visibility
+  visibility?: Visibility
 }
 
 export interface NavigationOptions {
@@ -203,7 +203,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.put(`projects/${_id}/invitelink`)
   }
 
-  setDefaultRole (_id: ProjectId, _roleId?: RoleId): Observable<SetDefaultRoleResponse> {
+  setDefaultRole(_id: ProjectId, _roleId?: RoleId): Observable<SetDefaultRoleResponse> {
     return this.fetch.put(`projects/${_id}/_defaultRoleId`, _roleId ? {
       _roleId: _roleId
     } : null)
@@ -217,7 +217,7 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.delete(`projects/${_projectId}/star`)
   }
 
-  getStatistic (_id: ProjectId, query?: {
+  getStatistic(_id: ProjectId, query?: {
     today: string,
     [index: string]: any
   }): Observable<ProjectStatisticSchema> {
@@ -234,23 +234,23 @@ export class ProjectFetch extends BaseFetch {
     return this.fetch.put(`projects/${_id}/unarchive`)
   }
 
-  navigation(_id: ProjectId, dict: NavigationOptions): Observable<NavigationOptions & {_id: string, updated: string}> {
+  navigation(_id: ProjectId, dict: NavigationOptions): Observable<NavigationOptions & { _id: string, updated: string }> {
     return this.fetch.put(`projects/${_id}/navigation`, dict)
   }
 
-  updatePushStatus (_id: ProjectId, pushStatus: boolean): Observable<{pushStatus: boolean}> {
+  updatePushStatus(_id: ProjectId, pushStatus: boolean): Observable<{ pushStatus: boolean }> {
     return this.fetch.put(`projects/${_id}/pushStatus`, {
       pushStatus: pushStatus
     })
   }
 
-  updateTasklistIds (_id: ProjectId, tasklistIds: string[]): Observable<{tasklistIds: string[]}> {
+  updateTasklistIds(_id: ProjectId, tasklistIds: string[]): Observable<{ tasklistIds: string[] }> {
     return this.fetch.put(`projects/${_id}/tasklistIds`, {
       tasklistIds: tasklistIds
     })
   }
 
-  getReportSummary (_projectId: ProjectId, query?: any): Observable<ReportSummarySchema> {
+  getReportSummary(_projectId: ProjectId, query?: any): Observable<ReportSummarySchema> {
     return this.fetch.get(`projects/${_projectId}/report-summary`, query)
   }
 

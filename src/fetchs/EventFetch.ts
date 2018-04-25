@@ -1,7 +1,7 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
 import BaseFetch from './BaseFetch'
-import { visibility } from '../teambition'
+import { Visibility } from '../teambition'
 import { EventData } from '../schemas/Event'
 import { ActivityData } from '../schemas/Activity'
 import { LikeData } from '../schemas/Like'
@@ -18,7 +18,7 @@ export interface CreateEventOptions {
   content?: string
   recurrence?: string[]
   reminders?: string[]
-  visiable?: visibility
+  visiable?: Visibility
   tagIds?: TagId[]
 }
 
@@ -50,7 +50,7 @@ export interface CommentBody {
   content: string
   attachments?: (FileId | FileRes)[]
   voice?: FileId[]
-  mentions?: {[key: string]: string}
+  mentions?: { [key: string]: string }
 }
 
 export interface LikeRepeatEventResponse {
@@ -76,10 +76,10 @@ export type UpdateEventInvolvesOptions = {
   involveMembers: UserId[]
   occurrenceDate?: number
 } | {
-  addInvolvers?: UserId[]
-  delInvolvers?: UserId[]
-  occurrenceDate?: number
-}
+    addInvolvers?: UserId[]
+    delInvolvers?: UserId[]
+    occurrenceDate?: number
+  }
 
 export interface UpdateEventInvolvesResponse {
   _id: EventId
@@ -133,7 +133,7 @@ export class EventFetch extends BaseFetch {
     return this.fetch.get(`events/${eventId}`, query)
   }
 
-   getByTagId(tagId: string, query?: any): Observable<EventData[]> {
+  getByTagId(tagId: string, query?: any): Observable<EventData[]> {
     return this.fetch.get(`tags/${tagId}/events`, query)
   }
 
@@ -168,8 +168,8 @@ export class EventFetch extends BaseFetch {
       content: string
       occurrenceDate?: number
     } = {
-      content: content
-    }
+        content: content
+      }
     if (occurrenceDate) {
       body.occurrenceDate = occurrenceDate
     }
@@ -185,8 +185,8 @@ export class EventFetch extends BaseFetch {
       reminders: EventReminder[]
       occurrenceDate?: number
     } = {
-      reminders
-    }
+        reminders
+      }
     if (occurrenceDate) {
       body.occurrenceDate = occurrenceDate
     }
@@ -198,8 +198,8 @@ export class EventFetch extends BaseFetch {
       tagIds: TagId[]
       occurrenceDate?: number
     } = {
-      tagIds
-    }
+        tagIds
+      }
     if (occurrenceDate) {
       body.occurrenceDate = occurrenceDate
     }
