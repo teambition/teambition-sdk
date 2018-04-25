@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.17"></a>
+## [0.6.17](https://github.com/teambition/teambition-sdk/compare/v0.6.16...v0.6.17) (2018-04-25)
+
+
+### Bug Fixes
+
+* **schemas/schema:** 明确变量类型，避免 `noImplicitAny` 问题 ([fc1670c](https://github.com/teambition/teambition-sdk/commit/fc1670c))
+
+
+
 <a name="0.6.16"></a>
 ## [0.6.16](https://github.com/teambition/teambition-sdk/compare/v0.6.15...v0.6.16) (2018-04-25)
 
