@@ -1,21 +1,26 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { StageId, ProjectId, TasklistId } from 'teambition-types'
+import { StageId, ProjectId, TasklistId, UserId } from 'teambition-types'
 
 export interface StageSchema {
   _id: StageId
+  _creatorId: UserId
   _projectId: ProjectId
   _tasklistId: TasklistId
   name: string
   order: number
   totalCount: number
   isArchived: boolean
+  isLocked?: boolean
 }
 
 const schema: SchemaDef<StageSchema> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+  _creatorId: {
+    type: RDBType.STRING
   },
   _projectId: {
     type: RDBType.STRING
@@ -24,6 +29,9 @@ const schema: SchemaDef<StageSchema> = {
     type: RDBType.STRING
   },
   isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  isLocked: {
     type: RDBType.BOOLEAN
   },
   name: {
