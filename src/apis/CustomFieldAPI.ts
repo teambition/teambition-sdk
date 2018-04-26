@@ -6,7 +6,7 @@ import CustomFieldModel from '../models/CustomFieldModel'
 import { makeColdSignal } from './utils'
 import { ProjectId } from '../teambition'
 
-export class CustomFieldApi {
+export class CustomFieldAPI {
   getProjectCustomFields(projectId: ProjectId): Observable<CustomFieldData[]> {
     return makeColdSignal<CustomFieldData[]>(() => {
       const cache = CustomFieldModel.getCustomFields(projectId)
@@ -26,4 +26,4 @@ export class CustomFieldApi {
 
 }
 
-export default new CustomFieldApi
+export default new CustomFieldAPI
