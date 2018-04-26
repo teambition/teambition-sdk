@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.20"></a>
+## [0.6.20](https://github.com/teambition/teambition-sdk/compare/v0.6.19...v0.6.20) (2018-04-26)
+
+
+### Bug Fixes
+
+* **api/CustomFieldAPI:** 更正 `CustomFieldAPI` 命名 ([d20831a](https://github.com/teambition/teambition-sdk/commit/d20831a))
+
+
+
 <a name="0.6.19"></a>
 ## [0.6.19](https://github.com/teambition/teambition-sdk/compare/v0.6.18...v0.6.19) (2018-04-26)
 
