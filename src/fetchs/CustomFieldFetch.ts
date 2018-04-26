@@ -11,8 +11,7 @@ export interface CreateOption {
   choices?: { [key: string]: string }[]
 }
 
-export interface UpdateOption {
-  taskId: TaskId
+export interface UpdateOptions {
   values: string[]
   _customfieldId: CustomFieldId
 }
@@ -63,8 +62,8 @@ export class CustomFieldFetch extends BaseFetch {
     return this.fetch.put(`customfields/${customfieldId}/_roleIds`, options)
   }
 
-  updateTaskCustomField(options: UpdateOption): Observable<UpdateResponse> {
-    return this.fetch.put(`tasks/${options.taskId}/customfields`, options)
+  updateTaskCustomField(taskId: TaskId, options: UpdateOptions): Observable<UpdateResponse> {
+    return this.fetch.put<UpdateResponse>(`tasks/${taskId}/customfields`, options)
   }
 }
 export default new CustomFieldFetch

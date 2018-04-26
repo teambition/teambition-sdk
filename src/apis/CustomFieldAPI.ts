@@ -1,10 +1,11 @@
 'use strict'
 import { Observable } from 'rxjs/Observable'
-import { default as CustomFieldFetch, UpdateOption, UpdateResponse } from '../fetchs/CustomFieldFetch'
+import { default as CustomFieldFetch, UpdateOptions, UpdateResponse } from '../fetchs/CustomFieldFetch'
 import { CustomFieldData } from '../schemas/CustomField'
 import CustomFieldModel from '../models/CustomFieldModel'
+import TaskModel from '../models/TaskModel'
 import { makeColdSignal } from './utils'
-import { ProjectId } from '../teambition'
+import { ProjectId, TaskId } from '../teambition'
 
 export class CustomFieldAPI {
   getProjectCustomFields(projectId: ProjectId): Observable<CustomFieldData[]> {
@@ -20,10 +21,14 @@ export class CustomFieldAPI {
     })
   }
 
-  updateTaskCustomField(option: UpdateOption): Observable<UpdateResponse> {
-    return CustomFieldFetch.updateTaskCustomField(option)
+  updateTaskCustomField(taskId: TaskId, options: UpdateOptions): Observable<UpdateResponse> {
+    return makeColdSignal(() => {
+      return CustomFieldFetch.updateTaskCustomField(taskId, options)
+        .concatMap((resp) => {
+          return TaskModel.update(taskId as string, resp)
+        })
+    })
   }
-
 }
 
 export default new CustomFieldAPI
