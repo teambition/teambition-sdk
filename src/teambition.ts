@@ -201,6 +201,15 @@ export interface TagId extends String {
   kind?: 'TagId'
 }
 
+export interface TagCategoryId extends String {
+  kind?: 'TagCategoryId'
+}
+
+export enum TagType {
+  project = 'project',
+  organization = 'organization',
+}
+
 export interface TaskId extends String {
   kind?: 'TaskId'
 }
@@ -307,3 +316,9 @@ export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'worksho
 export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
 
 export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
+
+export enum TaskScope {
+  executor = 'me:execute',
+  creator = 'me:created',
+  follower = 'me:involves',
+}

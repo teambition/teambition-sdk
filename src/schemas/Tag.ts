@@ -1,30 +1,33 @@
 'use strict'
-import { Schema, ISchema, schemaName } from './schema'
-import { TagId, UserId, ProjectId, DefaultColors } from '../teambition'
+import { Schema, ISchema, schemaName, bloodyParent, child } from './schema'
+import { TagId, UserId, OrganizationId, TagCategoryId, ProjectId } from '../teambition'
+import { TagCategoryData } from './TagCategory'
 
 export interface TagData extends ISchema {
   _creatorId: UserId
   _id: TagId
-  _projectId: ProjectId
-  color: DefaultColors
+  _organizationId?: OrganizationId
+  _projectId?: ProjectId
+  color: string
   created: string
   isArchived: boolean
   name: string
+  tagcategories: TagCategoryData[]
+  tagcategoryIds: TagCategoryId[]
   updated: string
-  postsCount?: number
-  tasksCount?: number
-  eventsCount?: number
-  worksCount?: number
 }
 
 @schemaName('Tag')
 export default class TagSchema extends Schema<TagData> implements TagData {
+  @bloodyParent('Organization') _organizationId?: OrganizationId
+  @bloodyParent('Project') _projectId?: ProjectId
+  @child('Array', 'TagCategory') tagcategories: TagCategoryData[] = undefined
   _creatorId: UserId = undefined
   _id: TagId = undefined
-  _projectId: ProjectId = undefined
-  color: DefaultColors = undefined
+  color: string = undefined
   created: string = undefined
   isArchived: boolean = undefined
   name: string = undefined
+  tagcategoryIds: TagCategoryId[] = undefined
   updated: string = undefined
 }

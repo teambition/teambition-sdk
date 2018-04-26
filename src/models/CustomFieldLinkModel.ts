@@ -10,7 +10,7 @@ export class CustomFieldLinkModel extends BaseModel {
 
   saveProjectCustomFieldLinks(projectId: ProjectId, boundType: CustomFieldBoundType, customFieldLinks: CustomFieldLinkData[]) {
     const index = `customfieldlinks:${boundType}/${projectId}`
-    return this._saveCollection<CustomFieldLinkData>(
+    return this._saveCollection(
       index,
       datasToSchemas(customFieldLinks, CustomFieldLink),
       this._schemaName,

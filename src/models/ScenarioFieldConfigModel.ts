@@ -50,7 +50,7 @@ export class ScenarioFieldConfigModel extends BaseModel {
         break
     }
 
-    return this._saveCollection<ScenarioFieldConfigData>(
+    return this._saveCollection(
       index,
       datasToSchemas(configs, schema),
       schemaName,

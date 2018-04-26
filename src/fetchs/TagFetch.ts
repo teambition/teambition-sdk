@@ -13,7 +13,9 @@ import {
   DetailObjectId,
   TagId,
   ProjectId,
-  UserId
+  UserId,
+  OrganizationId,
+  TagType
 } from '../teambition'
 
 export type ObjectSchema = EntryData | FileData | PostData | EventData | TaskData
@@ -86,12 +88,24 @@ export class TagFetch extends BaseFetch {
     return this.fetch.get(`tags/${objectType}s/${_objectId}/tags`, query)
   }
 
-  getByProjectId(_projectId: ProjectId, query?: any): Observable<TagData[]> {
-    return this.fetch.get(`projects/${_projectId}/tags`, query)
+  getTags(objectId: ProjectId, tagType: TagType.project): Observable<TagData[]>
+  getTags(objectId: OrganizationId, tagType: TagType.organization): Observable<TagData[]>
+  getTags(objectId: ProjectId | OrganizationId, tagType: TagType): Observable<TagData[]>
+
+  getTags(objectId: ProjectId | OrganizationId, tagType: TagType): Observable<TagData[]> {
+    const map = {
+      [TagType.project]: '_projectId',
+      [TagType.organization]: '_organizationId',
+    }
+    const query = {
+      tagType: tagType,
+      [map[tagType]]: objectId,
+    }
+    return this.fetch.get<TagData[]>('tags', query)
   }
 
-  getRelated<T extends ObjectSchema>(_tagId: TagId, objectType: DetailObjectType, query?: any): Observable<T[]> {
-    return this.fetch.get(`tags/${_tagId}/${objectType}s`)
+  getRelated<T extends ObjectSchema>(_tagId: TagId, objectType: DetailObjectType, query?: object): Observable<T[]> {
+    return this.fetch.get(`tags/${_tagId}/${objectType}s`, query)
   }
 
   relateTag(_objectId: DetailObjectId, objectType: DetailObjectType, tagId: TagId): Observable<RelateTagResponse> {

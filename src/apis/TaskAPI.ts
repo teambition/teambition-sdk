@@ -22,7 +22,6 @@ import {
   UpdateInvolveMembersResponse,
   UpdateExecutorResponse,
   UpdateFavoriteResponse,
-  TaskScope,
   TaskQuery
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
@@ -33,7 +32,8 @@ import {
   StageId,
   ProjectId,
   TagId,
-  UserId
+  UserId,
+  TaskScope
 } from '../teambition'
 import { UserApi } from '../apis'
 
@@ -41,40 +41,42 @@ export type detailType = 'complete'
 
 export class TaskAPI {
   getMyTasksByScope(scope: TaskScope, query: TaskQuery = {}) {
-    return UserApi.getUserMe()
-      .map(({ _id: userId }) => userId)
-      .distinctUntilChanged()
-      .switchMap((userId) => {
-        const parentIdLike: Partial<TaskData> = 'isDone' in query
-          ? { isDone: query.isDone }
-          : {}
+    return makeColdSignal(() => {
+      return UserApi.getUserMe()
+        .map(({ _id: userId }) => userId)
+        .distinctUntilChanged()
+        .switchMap((userId) => {
+          const parentIdLike: Partial<TaskData> = 'isDone' in query
+            ? { isDone: query.isDone }
+            : {}
 
-        const { pageToken: pageLike = 1 } = query
+          const { pageToken: pageLike = 1 } = query
 
-        const found = TaskModel.getMyTasksByScope(userId, scope, parentIdLike, pageLike)
+          const found = TaskModel.getMyTasksByScope(userId, scope, parentIdLike, pageLike)
 
-        // 不再请求，返回所有
-        if (found) {
-          return TaskModel.getMyTasksByScope(userId, scope, parentIdLike)
-            .map((tasks) => ({
-              nextPageToken: '', // 无法获取下一页了
-              result: tasks
-            }))
-        }
-
-        // 请求
-        return TaskFetch.getMyTasksByScope(scope, query)
-          .concatMap((resp) => {
-            // 保存
-            return TaskModel.saveMyTasksByScope(userId, scope, parentIdLike, pageLike, resp.result)
-              .take(1)
-              // 返回所有
+          // 不再请求，返回所有
+          if (found) {
+            return TaskModel.getMyTasksByScope(userId, scope, parentIdLike)
               .map((tasks) => ({
-                nextPageToken: resp.nextPageToken, // 能够获取下一页
+                nextPageToken: '', // 无法获取下一页了
                 result: tasks
               }))
-          })
-      })
+          }
+
+          // 请求
+          return TaskFetch.getMyTasksByScope(scope, query)
+            .concatMap((resp) => {
+              // 保存
+              return TaskModel.saveMyTasksByScope(userId, scope, parentIdLike, pageLike, resp.result)
+                .take(1)
+                // 返回所有
+                .map((tasks) => ({
+                  nextPageToken: resp.nextPageToken, // 能够获取下一页
+                  result: tasks
+                }))
+            })
+        })
+    })
   }
 
   getTasklistUndone(_tasklistId: TasklistId, query?: any): Observable<TaskData[]> {

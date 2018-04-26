@@ -12,7 +12,8 @@ import {
   StageId,
   TagId,
   ProjectId,
-  OrganizationId
+  OrganizationId,
+  TaskScope
 } from '../teambition'
 
 export interface TasksMeOptions {
@@ -216,12 +217,6 @@ export interface UpdateFavoriteResponse {
   isVisible?: boolean,
   isUpdated?: boolean,
   status?: string
-}
-
-export enum TaskScope {
-  executor = 'me:execute',
-  creator = 'me:created',
-  follower = 'me:involves',
 }
 
 export interface TaskQuery {

@@ -9,7 +9,7 @@ import EventSchema from '../schemas/Event'
 import FileSchema from '../schemas/File'
 import EntrySchema from '../schemas/Entry'
 import { ObjectSchema } from '../fetchs/TagFetch'
-import { TagId, ProjectId, DetailObjectId, DetailObjectType } from '../teambition'
+import { TagId, ProjectId, DetailObjectId, DetailObjectType, TagType, OrganizationId } from '../teambition'
 
 export class TagModel extends Model {
   private _schemaMap: any = {
@@ -46,15 +46,34 @@ export class TagModel extends Model {
     return this._get<TagData>(<any>_id)
   }
 
-  addByProjectId(projectId: ProjectId, tags: TagData[]): Observable<TagData[]> {
-    const result = datasToSchemas<TagData>(tags, TagSchema)
-    return this._saveCollection(`project:tags/${projectId}`, result, this._schemaName, (data: TagData) => {
-      return data._projectId === projectId && !data.isArchived
-    })
+  saveTags(objectId: ProjectId, tagType: TagType.project, tags: TagData[]): Observable<TagData[]>
+  saveTags(objectId: OrganizationId, tagType: TagType.organization, tags: TagData[]): Observable<TagData[]>
+  saveTags(objectId: ProjectId | OrganizationId, tagType: TagType, tags: TagData[]): Observable<TagData[]>
+
+  saveTags(objectId: ProjectId | OrganizationId, tagType: TagType, tags: TagData[]): Observable<TagData[]> {
+    const index = `tags:${tagType}/${objectId}`
+    const map = {
+      [TagType.project]: '_projectId',
+      [TagType.organization]: '_organizationId',
+    }
+    return this._saveCollection(
+      index,
+      datasToSchemas(tags, TagSchema),
+      this._schemaName,
+      (tag) => {
+        return !tag.isArchived &&
+          tag[map[tagType]] === objectId
+      }
+    )
   }
 
-  getByProjectId(projectId: ProjectId): Observable<TagData[]> {
-    return this._get<TagData[]>(`project:tags/${projectId}`)
+  getTags(objectId: ProjectId, tagType: TagType.project): Observable<TagData[]>
+  getTags(objectId: OrganizationId, tagType: TagType.organization): Observable<TagData[]>
+  getTags(objectId: ProjectId | OrganizationId, tagType: TagType): Observable<TagData[]>
+
+  getTags(objectId: ProjectId | OrganizationId, tagType: TagType): Observable<TagData[]> {
+    const index = `tags:${tagType}/${objectId}`
+    return this._get<TagData[]>(index)
   }
 
   addRelated<T extends ObjectSchema>(_tagId: TagId, objectType: DetailObjectType, datas: T[]): Observable<T[]> {

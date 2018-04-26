@@ -13,9 +13,9 @@ import {
   StageId,
   TagId,
   UserId,
-  TaskId
+  TaskId,
+  TaskScope
 } from '../teambition'
-import { TaskScope } from '../fetchs/TaskFetch'
 
 export class TaskModel extends BaseModel {
   private _schemaName = 'Task'

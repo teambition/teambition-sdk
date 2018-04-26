@@ -11,7 +11,7 @@ import TagFetch, {
 } from '../fetchs/TagFetch'
 import { TagData } from '../schemas/Tag'
 import { makeColdSignal } from './utils'
-import { TagId, ProjectId, DetailObjectId, DetailObjectType } from '../teambition'
+import { TagId, ProjectId, DetailObjectId, DetailObjectType, TagType, OrganizationId } from '../teambition'
 
 export class TagAPI {
   create(options: CreateTagOptions): Observable<TagData> {
@@ -63,16 +63,18 @@ export class TagAPI {
       )
   }
 
-  getByProjectId(_projectId: ProjectId, query?: any): Observable<TagData[]> {
-    return makeColdSignal<TagData[]>(() => {
-      const cache = TagModel.getByProjectId(_projectId)
-      if (cache) {
-        return cache
-      }
-      return TagFetch.getByProjectId(_projectId, query)
-        .concatMap(r =>
-          TagModel.addByProjectId(_projectId, r)
-        )
+  getTags(objectId: ProjectId, tagType: TagType.project): Observable<TagData[]>
+  getTags(objectId: OrganizationId, tagType: TagType.organization): Observable<TagData[]>
+  getTags(objectId: ProjectId | OrganizationId, tagType: TagType): Observable<TagData[]>
+
+  getTags(objectId: ProjectId | OrganizationId, tagType: TagType): Observable<TagData[]> {
+    return makeColdSignal(() => {
+      const cache = TagModel.getTags(objectId, tagType)
+      if (cache) return cache
+      return TagFetch.getTags(objectId, tagType)
+        .concatMap((tags) => {
+          return TagModel.saveTags(objectId, tagType, tags)
+        })
     })
   }
 
