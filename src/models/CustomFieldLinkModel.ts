@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Observable'
 import BaseModel from './BaseModel'
 import { CustomFieldLinkData } from '../schemas/CustomFieldLink'
 import CustomFieldLink from '../schemas/CustomFieldLink'
@@ -20,7 +21,7 @@ export class CustomFieldLinkModel extends BaseModel {
     )
   }
 
-  getProjectCustomFieldLinks(projectId: ProjectId, boundType: CustomFieldBoundType) {
+  getProjectCustomFieldLinks(projectId: ProjectId, boundType: CustomFieldBoundType): Observable<CustomFieldLinkData[]> {
     const index = `customfieldlinks:${boundType}/${projectId}`
     return this._get<CustomFieldLinkData[]>(index)
   }
