@@ -8,6 +8,7 @@ export interface OrganizationDividerSchema {
 }
 
 export interface OrganizationPaymentPlan {
+  _objectId: OrganizationId
   expired: string
   isExpired: boolean
   isTrialExpired: boolean
