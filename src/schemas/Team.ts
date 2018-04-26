@@ -4,9 +4,7 @@ import Member from './Member'
 import { ISchema } from './schema'
 import { UserId } from '../teambition'
 import { OrganizationId } from '../teambition'
-import { Schema } from './schema'
 import { TeamId } from '../teambition'
-import { schemaName } from './schema'
 
 export interface TeamData extends ISchema {
   _creatorId: UserId

@@ -159,6 +159,12 @@ export interface UpdateContentResponse {
   updated: string
 }
 
+export type UpdateStartDateResponse = Pick<TaskData,
+  | '_id'
+  | 'startDate'
+  | 'updated'
+  >
+
 export interface UpdateDueDateResponse {
   _id: TaskId
   updated: string
@@ -433,6 +439,12 @@ export class TaskFetch extends Fetch {
   updateContent(_taskId: TaskId, content: string): Observable<UpdateContentResponse> {
     return this.fetch.put(`tasks/${_taskId}/content`, {
       content: content
+    })
+  }
+
+  updateStartDate(_taskId: TaskId, startDate: string): Observable<UpdateStartDateResponse> {
+    return this.fetch.put(`tasks/${_taskId}/startDate`, {
+      startDate: startDate
     })
   }
 

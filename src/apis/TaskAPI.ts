@@ -22,7 +22,8 @@ import {
   UpdateInvolveMembersResponse,
   UpdateExecutorResponse,
   UpdateFavoriteResponse,
-  TaskQuery
+  TaskQuery,
+  UpdateStartDateResponse
 } from '../fetchs/TaskFetch'
 import { OrganizationData } from '../schemas/Organization'
 import { assign, isObject } from '../utils/index'
@@ -70,10 +71,13 @@ export class TaskAPI {
               return TaskModel.saveMyTasksByScope(userId, scope, parentIdLike, pageLike, resp.result)
                 .take(1)
                 // 返回所有
-                .map((tasks) => ({
-                  nextPageToken: resp.nextPageToken, // 能够获取下一页
-                  result: tasks
-                }))
+                .concatMap(() => {
+                  return TaskModel.getMyTasksByScope(userId, scope, parentIdLike)
+                    .map((tasks) => ({
+                      nextPageToken: resp.nextPageToken, // 能够获取下一页
+                      result: tasks
+                    }))
+                })
             })
         })
     })
@@ -498,6 +502,10 @@ export class TaskAPI {
 
   updateContent(_taskId: TaskId, content: string): Observable<UpdateContentResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateContent(_taskId, content))
+  }
+
+  updateStartDate(_taskId: TaskId, startDate: string): Observable<UpdateStartDateResponse> {
+    return this._updateFromRequest(_taskId, TaskFetch.updateStartDate(_taskId, startDate))
   }
 
   updateDueDate(_taskId: TaskId, dueDate: string): Observable<UpdateDueDateResponse> {
