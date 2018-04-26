@@ -229,6 +229,14 @@ export interface CustomFieldId extends String {
   kind?: 'CustomFieldId'
 }
 
+export interface CustomFieldChoiceId extends String {
+  kind?: 'CustomFieldChoiceId'
+}
+
+export interface CustomFieldLinkId extends String {
+  kind?: 'CustomFieldLinkId'
+}
+
 export interface ScenarioFieldConfigId extends String {
   kind?: 'ScenarioFieldConfigId'
 }
@@ -247,15 +255,17 @@ export interface TaskflowStatusId extends String {
 
 export type CustomFieldType = 'text' | 'date' | 'number' | 'multipleChoice' | 'dropDown'
 
+export type CustomFieldBoundType = 'application' | 'project'
+
 export type CommentMode = 'no_comment' | 'isolated_comment' | 'public_comment'
 
 export type DetailObjectId = TaskId | PostId | EventId | FileId | EntryId
 
 export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
 
-export type CustomFieldChoice = {
-  value: string,
-  _id: string
+export interface CustomFieldChoice {
+  _id: CustomFieldChoiceId
+  value: string
 }
 
 export interface CustomFieldValue {

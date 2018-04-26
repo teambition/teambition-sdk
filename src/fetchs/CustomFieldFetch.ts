@@ -8,7 +8,7 @@ export interface CreateOption {
   name?: string
   type: CustomFieldType
   _projectId: ProjectId
-  choices?: {[key: string]: string}[]
+  choices?: { [key: string]: string }[]
 }
 
 export interface UpdateOption {
@@ -28,6 +28,7 @@ export interface UpdateResponse {
 }
 
 export class CustomFieldFetch extends BaseFetch {
+
   getProjectCustomFields(projectId: ProjectId): Observable<CustomFieldData[]> {
     return this.fetch.get(`customfields?_projectId=${projectId}`)
   }
@@ -42,22 +43,23 @@ export class CustomFieldFetch extends BaseFetch {
 
   updateProjectCustomFieldsOrder(
     customfieldId: CustomFieldId, options: {
-    _nextId: string
-  }): Observable<{id: CustomFieldId, updated?: string, pos?: string }> {
+      _nextId: string
+    }): Observable<{ id: CustomFieldId, updated?: string, pos?: string }> {
     return this.fetch.put(`customfields/${customfieldId}/move`, options)
   }
 
   updateProjectCustomFieldDisplay(
     customfieldId: CustomFieldId,
-    options: { display: boolean
-  }): Observable<{id: CustomFieldId, updated?: string, display: boolean}> {
+    options: {
+      display: boolean
+    }): Observable<{ id: CustomFieldId, updated?: string, display: boolean }> {
     return this.fetch.put(`customfields/${customfieldId}/displayed`, options)
   }
 
   updateProjectSingelCustomFieldPermission(
     customfieldId: CustomFieldId,
     options: { _roleIds: string[] }
-  ): Observable<{id: CustomFieldId, updated?: string, _roleIds: string[]}> {
+  ): Observable<{ id: CustomFieldId, updated?: string, _roleIds: string[] }> {
     return this.fetch.put(`customfields/${customfieldId}/_roleIds`, options)
   }
 
