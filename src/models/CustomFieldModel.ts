@@ -7,7 +7,7 @@ import { ProjectId } from '../teambition'
 
 export class CustomFieldModel extends BaseModel {
 
-  private _schemaName = 'CustomFieldSchema'
+  private _schemaName = 'CustomField'
 
   addCustomFields(projectId: ProjectId, customFields: CustomFieldData[]): Observable<CustomFieldData[]> {
     const result = datasToSchemas<CustomFieldData>(customFields, CustomFieldSchema)
