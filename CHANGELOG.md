@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.18"></a>
+## [0.6.18](https://github.com/teambition/teambition-sdk/compare/v0.6.17...v0.6.18) (2018-04-26)
+
+
+### Features
+
+* **apis/CustomFieldLinkAPI:** 添加 `getProjectCustomFieldLinks()` 接口 ([161d6ea](https://github.com/teambition/teambition-sdk/commit/161d6ea))
+* **apis/TaskAPI:** 添加 `getMyTasksByType()` 接口 ([6d05817](https://github.com/teambition/teambition-sdk/commit/6d05817))
+
+
+
 <a name="0.6.17"></a>
 ## [0.6.17](https://github.com/teambition/teambition-sdk/compare/v0.6.16...v0.6.17) (2018-04-25)
 
