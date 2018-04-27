@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.21"></a>
+## [0.6.21](https://github.com/teambition/teambition-sdk/compare/v0.6.20...v0.6.21) (2018-04-27)
+
+
+### Bug Fixes
+
+* **apis/CustomFieldAPI:** 确保将 `updateTaskCustomField()` 返回结果存入缓存 ([c32d44a](https://github.com/teambition/teambition-sdk/commit/c32d44a))
+
+
+### Features
+
+* **apis/ScenarioFieldConfigAPI:** 添加 `getScenarioFieldConfigs()` 接口 ([18295d5](https://github.com/teambition/teambition-sdk/commit/18295d5))
+* **apis/TagAPI:** 添加 `getTags()` 接口 ([078a8b7](https://github.com/teambition/teambition-sdk/commit/078a8b7))
+* **apis/TaskAPI:** 添加 `updateStartDate()` 接口 ([c2e398b](https://github.com/teambition/teambition-sdk/commit/c2e398b))
+
+
+
 <a name="0.6.20"></a>
 ## [0.6.20](https://github.com/teambition/teambition-sdk/compare/v0.6.19...v0.6.20) (2018-04-26)
 
