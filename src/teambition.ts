@@ -201,6 +201,15 @@ export interface TagId extends String {
   kind?: 'TagId'
 }
 
+export interface TagCategoryId extends String {
+  kind?: 'TagCategoryId'
+}
+
+export enum TagType {
+  project = 'project',
+  organization = 'organization',
+}
+
 export interface TaskId extends String {
   kind?: 'TaskId'
 }
@@ -235,6 +244,10 @@ export interface CustomFieldChoiceId extends String {
 
 export interface CustomFieldLinkId extends String {
   kind?: 'CustomFieldLinkId'
+}
+
+export interface ScenarioFieldId extends String {
+  kind?: 'ScenarioFieldId'
 }
 
 export interface ScenarioFieldConfigId extends String {
@@ -276,4 +289,36 @@ export interface CustomFieldValue {
 
 export interface TeamId extends String {
   kind?: 'TeamId'
+}
+
+export type ScenarioFieldConfigObjectType = 'task' | 'event'
+
+export type CustomScenarioFieldType = 'customfield'
+export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
+export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
+
+export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
+
+export interface ScenarioField<T = ScenarioFieldType> {
+  _id: ScenarioFieldId
+  _roleIds: RoleId[]
+  displayed: boolean
+  fieldType: T
+  required: boolean
+}
+
+export interface CustomScenarioField extends ScenarioField<CustomScenarioFieldType> { _customfieldId: CustomFieldId }
+export type TaskScenarioField = CustomScenarioField | ScenarioField<TaskOfficialScenarioFieldType>
+export type EventScenarioField = CustomScenarioField | ScenarioField<EventOfficialScenarioFieldType>
+
+export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask'
+export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
+export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
+
+export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
+
+export enum TaskScope {
+  executor = 'me:execute',
+  creator = 'me:created',
+  follower = 'me:involves',
 }

@@ -58,10 +58,6 @@ export * from './apis'
 
 import { SocketClient as Client } from './sockets/SocketClient'
 
-declare const global: any
-
-const ctx = typeof global === 'undefined' ? window : global
-
 export interface SDK {
   readonly version: '0.6.11'
   readonly socket: Client

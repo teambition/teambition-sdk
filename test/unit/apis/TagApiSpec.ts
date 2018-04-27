@@ -9,9 +9,10 @@ import {
   Backend,
   forEach,
   clone,
-  BaseFetch
+  BaseFetch,
+  TagType
 } from '../index'
-import { tags, task } from '../../mock/tags'
+import { tags } from '../../mock/tags'
 import { relatedTagTasks } from '../../mock/relatedTagTasks'
 import { flush, expectDeepEqual, notInclude } from '../utils'
 
@@ -23,26 +24,29 @@ export default describe('Tag API test:', () => {
   let TagApi: TagAPI
   let httpBackend: Backend
 
-  let spy: sinon.SinonSpy
-
   const projectId = tags[0]._projectId
+  const taskId = 'mocktaskid'
 
   beforeEach(() => {
     flush()
-    spy = sinon.spy(BaseFetch.fetch, 'get')
+    sinon.spy(BaseFetch.fetch, 'get')
     TaskApi = new TaskAPI()
     TagApi = new TagAPI()
     httpBackend = new Backend()
 
-    httpBackend.whenGET(`${apihost}tasks/${task._id}/tags`)
+    httpBackend.whenGET(`${apihost}tasks/${taskId}/tags`)
       .respond(JSON.stringify(tags))
 
-    httpBackend.whenGET(`${apihost}projects/${projectId}/tags`)
+    httpBackend.whenGET(`${apihost}tags?tagType=project&_projectId=${projectId}`)
       .respond(JSON.stringify(tags))
   })
 
   afterEach(() => {
     BaseFetch.fetch.get['restore']()
+  })
+
+  after(() => {
+    httpBackend.restore()
   })
 
   it('create tag should ok', function* () {
@@ -55,13 +59,13 @@ export default describe('Tag API test:', () => {
     })
       .respond(JSON.stringify(mockTag))
 
-    const signal = TagApi.getByProjectId(projectId)
+    const signal = TagApi.getTags(projectId, TagType.project)
       .publish()
       .refCount()
 
     yield signal.take(1)
 
-    yield TagApi.create({_projectId: projectId})
+    yield TagApi.create({ _projectId: projectId })
 
     yield signal.take(1)
       .do(r => {
@@ -103,7 +107,7 @@ export default describe('Tag API test:', () => {
     httpBackend.whenDELETE(`${apihost}tags/${tagId}`)
       .respond({})
 
-    const signal = TagApi.getByProjectId(projectId)
+    const signal = TagApi.getTags(projectId, TagType.project)
       .publish()
       .refCount()
 
@@ -130,7 +134,7 @@ export default describe('Tag API test:', () => {
         _projectId: projectId
       })
 
-    const signal = TagApi.getByProjectId(projectId)
+    const signal = TagApi.getTags(projectId, TagType.project)
       .publish()
       .refCount()
 
@@ -165,7 +169,7 @@ export default describe('Tag API test:', () => {
     yield TagApi.get(<any>'mocktag')
       .take(1)
 
-    const signal = TagApi.getByProjectId(projectId)
+    const signal = TagApi.getTags(projectId, TagType.project)
       .publish()
       .refCount()
 

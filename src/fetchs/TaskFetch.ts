@@ -12,7 +12,8 @@ import {
   StageId,
   TagId,
   ProjectId,
-  OrganizationId
+  OrganizationId,
+  TaskScope
 } from '../teambition'
 
 export interface TasksMeOptions {
@@ -158,6 +159,12 @@ export interface UpdateContentResponse {
   updated: string
 }
 
+export type UpdateStartDateResponse = Pick<TaskData,
+  | '_id'
+  | 'startDate'
+  | 'updated'
+  >
+
 export interface UpdateDueDateResponse {
   _id: TaskId
   updated: string
@@ -216,12 +223,6 @@ export interface UpdateFavoriteResponse {
   isVisible?: boolean,
   isUpdated?: boolean,
   status?: string
-}
-
-export enum TaskScope {
-  executor = 'me:execute',
-  creator = 'me:created',
-  follower = 'me:involves',
 }
 
 export interface TaskQuery {
@@ -438,6 +439,12 @@ export class TaskFetch extends Fetch {
   updateContent(_taskId: TaskId, content: string): Observable<UpdateContentResponse> {
     return this.fetch.put(`tasks/${_taskId}/content`, {
       content: content
+    })
+  }
+
+  updateStartDate(_taskId: TaskId, startDate: string): Observable<UpdateStartDateResponse> {
+    return this.fetch.put(`tasks/${_taskId}/startDate`, {
+      startDate: startDate
     })
   }
 
