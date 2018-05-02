@@ -46,7 +46,7 @@ export class TableInfoByMessageType {
 
     return {
       tabName,
-      pkName: this.schemaColl.getSchema(tabName).pkName
+      pkName: this.schemaColl.getSchemaPKName(tabName)
     }
   }
 }

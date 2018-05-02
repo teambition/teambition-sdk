@@ -6,8 +6,10 @@
 import { Database, SchemaDef } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
 
+export type GeneralSchemaDef = SchemaDef<{}>
+
 export type SchemaColl = {
-  schema: SchemaDef<any>,
+  schema: GeneralSchemaDef,
   name: string,
   pkName: string
 }[]

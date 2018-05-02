@@ -20,7 +20,7 @@ export class SDK {
   fetch = new SDKFetch
 
   socketClient: socket.Client
-  database: Database
+  database: Database | undefined
   socketProxy: socket.Proxy
 
   lift: typeof Net.prototype.lift = (ApiResult: any): any => {
@@ -40,7 +40,7 @@ export class SDK {
   initReactiveDB (db: Database): Observable<void[]> {
     this.database = db
     forEach(this.schemas, d => {
-      this.database.defineSchema(d.name, d.schema)
+      this.database!.defineSchema(d.name, d.schema)
     })
     this.database.connect()
 

@@ -11,15 +11,15 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 import {
   Database,
-  SchemaDef,
   Query,
   Predicate,
   ExecutorResult,
   JoinMode
  } from 'reactivedb'
 
-import { forEach, ParsedWSMsg, WSMsgToDBHandler } from '../utils'
+import { forEach, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
+
 export enum CacheStrategy {
   Request = 200,
   Cache
@@ -84,7 +84,7 @@ export class Net {
   private requestMap = new Map<string, boolean>()
   private primaryKeys = new Map<string, string>()
   public persistedDataBuffer: BufferObject[] = []
-  private msgToDB: WSMsgToDBHandler
+  private msgToDB: WSMsgToDBHandler | undefined
 
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
     const { tableName, required, padding } = result
@@ -116,14 +116,14 @@ export class Net {
     return fn
   }
 
-  constructor(schemas: { schema: SchemaDef<any>, name: string }[]) {
+  constructor(schemas: { schema: GeneralSchemaDef, name: string }[]) {
     forEach(schemas, d => {
       this.fields.set(
         d.name,
         Object.keys(d.schema).filter(k => !d.schema[k].virtual)
       )
       forEach(d.schema, (val, key) => {
-        if (val.primaryKey) {
+        if (val['primaryKey']) {
           this.primaryKeys.set(d.name, key)
           return false
         }
@@ -201,10 +201,12 @@ export class Net {
 
       switch (v.kind) {
         case 'CUD':
-          p = database[(v as CUDBufferObject).method](v.tableName, v.value)
+          p = database[v.method](v.tableName, v.value)
           break
         case 'SocketCUD':
-          p = this.msgToDB(v.socketMessage, database)
+          if (this.msgToDB) {
+            p = this.msgToDB(v.socketMessage, database)
+          }
           break
         case 'Selector':
           const cacheControl$ = v.proxySelector
