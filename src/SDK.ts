@@ -4,6 +4,7 @@ import { Net } from './Net'
 import { forEach } from './utils'
 import { SDKFetch } from './SDKFetch'
 import * as socket from './sockets'
+import * as socketInterceptor from './sockets/interceptor'
 import { schemaColl } from './schemas'
 import { SchemaColl } from './utils/internalTypes'
 
@@ -33,6 +34,7 @@ export class SDK {
       socket.mapMsgTypeToTable
     )
     this.socketProxy = this.socketClient.proxy
+    this.socketClient.interceptors.append(socketInterceptor.redirectLike)
   }
 
   initReactiveDB (db: Database): Observable<void[]> {
