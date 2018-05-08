@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.22"></a>
+## [0.6.22](https://github.com/teambition/teambition-sdk/compare/v0.6.21...v0.6.22) (2018-05-08)
+
+
+### Bug Fixes
+
+* **schemas/UserMe:** 使用 `userMe.tcmToken` 连接 WebSocket 服务 ([34dd51a](https://github.com/teambition/teambition-sdk/commit/34dd51a))
+
+
+
 <a name="0.6.21"></a>
 ## [0.6.21](https://github.com/teambition/teambition-sdk/compare/v0.6.20...v0.6.21) (2018-04-27)
 
