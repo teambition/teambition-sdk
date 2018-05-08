@@ -84,7 +84,7 @@ export const userMe: any = {
       id: '55c02018fd0360a44c93ff98'
     }
   ],
-  snapperToken: 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0Njk1ODU1MTEsInVzZXJJZCI6IjU1YzAyMDE4ZmQwMzYwYTQ0YzkzZmY5NyIsInNvdXJjZSI6InRlYW1iaXRpb24ifQ.9a05JWVUJnL0PUW53k_gKo7utg2T762R529rrQR82Ps',
+  tcmToken: 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0Njk1ODU1MTEsInVzZXJJZCI6IjU1YzAyMDE4ZmQwMzYwYTQ0YzkzZmY5NyIsInNvdXJjZSI6InRlYW1iaXRpb24ifQ.9a05JWVUJnL0PUW53k_gKo7utg2T762R529rrQR82Ps',
   badge: 0,
   normal: 0,
   ated: 0,

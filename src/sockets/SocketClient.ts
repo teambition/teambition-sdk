@@ -56,7 +56,7 @@ export class SocketClient {
     this._client.onopen = this._onopen.bind(this)
     this._client['getToken'] = () => {
       if (this._me) {
-        return this._me.snapperToken as string
+        return this._me.tcmToken as string
       } else {
         return null
       }
@@ -115,7 +115,7 @@ export class SocketClient {
     this._client
       .connect(this._socketUrl, {
         path: '/websocket',
-        token: <any>this._me.snapperToken
+        token: this._me.tcmToken as string
       })
     return Promise.resolve()
   }
@@ -138,7 +138,7 @@ export class SocketClient {
     if (!this._me) {
       this._getToken()
     } else {
-      const auth = this._me.snapperToken.split('.')[1]
+      const auth = this._me.tcmToken.split('.')[1]
       const token: {
         exp: number
         userId: string
@@ -160,7 +160,7 @@ export class SocketClient {
       })
   }
 
-  private _join (room: string, consumerId: string): Promise<any> {
+  private _join(room: string, consumerId: string): Promise<any> {
     this._consumerId = consumerId
     return SocketFetch.join(room, consumerId)
       .then(() => {

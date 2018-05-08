@@ -32,6 +32,10 @@ export interface SnapperToken extends String {
   kind?: 'SnapperToken'
 }
 
+export interface TcmToken extends String {
+  kind?: 'TcmToken'
+}
+
 export interface UserMe extends ISchema {
   _id: UserId
   email: string
@@ -82,6 +86,7 @@ export interface UserMe extends ISchema {
   enabledGoogleTwoFactor?: boolean
   emails: UserEmail[]
   snapperToken: SnapperToken
+  tcmToken: TcmToken
   badge: number
   normal?: number
   ated: number
@@ -128,6 +133,7 @@ export default class User extends Schema<UserMe> implements UserMe {
   enabledGoogleTwoFactor?: boolean = undefined
   emails: UserEmail[] = undefined
   snapperToken: SnapperToken = undefined
+  tcmToken: TcmToken = undefined
   badge: number = undefined
   normal?: number = undefined
   ated: number = undefined
