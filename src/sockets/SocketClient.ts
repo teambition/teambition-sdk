@@ -65,7 +65,7 @@ export class SocketClient {
     this._client.onopen = this._onopen.bind(this)
     this._getUserMeStream.subscribe(u => {
       this._client.getToken = () => {
-        return u.snapperToken as string
+        return u.tcmToken as string
       }
     })
   }
@@ -81,7 +81,7 @@ export class SocketClient {
     const userMe = await this._getUserMeStream
       .take(1)
       .toPromise()
-    const auth = userMe.snapperToken.split('.')[1]
+    const auth = userMe.tcmToken.split('.')[1]
     const token: {
       exp: number
       userId: string
@@ -140,7 +140,7 @@ export class SocketClient {
         this._client
           .connect(this._socketUrl, {
             path: '/websocket',
-            token: userMe.snapperToken as string
+            token: userMe.tcmToken as string
           })
       })
   }
