@@ -27,6 +27,10 @@ export interface SnapperToken extends String {
   kind?: 'SnapperToken'
 }
 
+export interface TcmToken extends String {
+  kind?: 'TcmToken'
+}
+
 export interface UserMe {
   _id: UserId
   email: string
@@ -104,6 +108,7 @@ export interface UserMe {
   enabledGoogleTwoFactor?: boolean
   emails: UserEmail[]
   snapperToken: SnapperToken
+  tcmToken: TcmToken
   badge: number
   normal?: number
   ated: number
@@ -234,6 +239,9 @@ const Schema: SchemaDef<UserMe> = {
     type: RDBType.STRING
   },
   snapperToken: {
+    type: RDBType.STRING
+  },
+  tcmToken: {
     type: RDBType.STRING
   },
   strikerAuth: {

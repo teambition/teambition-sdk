@@ -95,7 +95,8 @@ export default {
       id: '56a517ed8b9a8ce835c51228'
     }
   ],
-  snapperToken: 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0ODU0MTM5NTEsInVzZXJJZCI6IjU2OTg2ZDQzNTQyY2UxYTI3OThjOGNmYiIsInNvdXJjZSI6InRlYW1iaXRpb24ifQ.lP-AJ72aSV3wX8t11cXuyYnYx_rkr6eZ-nJyZQ4jxqU',
+  snapperToken: '',
+  tcmToken: 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0ODU0MTM5NTEsInVzZXJJZCI6IjU2OTg2ZDQzNTQyY2UxYTI3OThjOGNmYiIsInNvdXJjZSI6InRlYW1iaXRpb24ifQ.lP-AJ72aSV3wX8t11cXuyYnYx_rkr6eZ-nJyZQ4jxqU',
   crossNotify: {
     badge: 0
   },
