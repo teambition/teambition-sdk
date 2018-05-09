@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { OrganizationId, ProjectId, RoleId, UserId } from 'teambition-types'
+import { OrganizationId, ProjectId, RoleId, UserId, CollectionId } from 'teambition-types'
 import { schemaColl } from './schemas'
 
 export interface OrganizationDividerSchema {
@@ -22,6 +22,7 @@ export interface OrganizationPaymentPlan {
 
 export interface OrganizationSchema {
   _creatorId: UserId
+  _defaultCollectionId: CollectionId
   _defaultRoleId: RoleId | null
   _id: OrganizationId
   _roleId: RoleId
@@ -43,6 +44,7 @@ export interface OrganizationSchema {
 
 const Schema: SchemaDef<OrganizationSchema> = {
   _creatorId: { type: RDBType.STRING },
+  _defaultCollectionId: { type: RDBType.STRING },
   _defaultRoleId: { type: RDBType.STRING },
   _id: { type: RDBType.STRING, primaryKey: true },
   _roleId: { type: RDBType.STRING },
