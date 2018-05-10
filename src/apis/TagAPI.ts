@@ -76,6 +76,13 @@ export class TagAPI {
     })
   }
 
+  getByProjectIdFetch(
+    _projectId: ProjectId,
+    query?: any
+  ): Observable<TagData[]> {
+    return TagFetch.getByProjectId(_projectId, query)
+  }
+
   getRelated<T extends ObjectSchema>(
     _tagId: TagId,
     objectType: DetailObjectType,
