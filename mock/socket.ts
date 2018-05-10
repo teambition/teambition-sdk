@@ -1,5 +1,8 @@
 'use strict'
 
+import { SocketClient } from '../src/sockets/SocketClient'
+import { BaseFetch } from '../test/unit'
+
 declare const global: any
 
 // copy from snapper-consumer.d.ts
@@ -17,22 +20,32 @@ export interface RequestEvent {
 }
 
 export type SocketEventType = 'activity' | 'message' | 'project' | 'task' | 'subtask' |
-                              'post' | 'work' | 'tasklist' | 'stage' |
-                              'collection' | 'tag' | 'user' | 'preference' | 'member' |
-                              'event' | 'subscriber' | 'feedback' | 'homeActivity'
+  'post' | 'work' | 'tasklist' | 'stage' |
+  'collection' | 'tag' | 'user' | 'preference' | 'member' |
+  'event' | 'subscriber' | 'feedback' | 'homeActivity'
 
 export interface ToPromiseObject {
   toPromise: () => Promise<any>
 }
 
+const ctx = typeof global === 'undefined' ? window : global
+
+ctx.atob = ctx.atob || require('atob')
+
 export class SocketMock {
   onmessage: (e: RequestEvent) => Promise<any>
 
-  private _ctx = typeof global === 'undefined' ? window : global
   private _id = 1
 
-  constructor(SocketClient: any) {
-    SocketClient.initClient(this)
+  constructor(SocketClient: SocketClient) {
+    SocketClient.initClient(this as any)
+  }
+
+  connect(url: string, options: { path: string, token: string }) {
+    const apiHost = BaseFetch.fetch.getAPIHost()
+    BaseFetch.fetch.setAPIHost('')
+    BaseFetch.fetch.get(url + options.path, { token: options.token }).subscribe()
+    BaseFetch.fetch.setAPIHost(apiHost)
   }
 
   emit(
@@ -70,7 +83,7 @@ export class SocketMock {
         id: this._id,
         jsonrpc: '2.0',
         method: 'publish',
-        params: [ JSON.stringify(params) ]
+        params: [JSON.stringify(params)]
       }
     }
     if (typeof delay === 'number') {

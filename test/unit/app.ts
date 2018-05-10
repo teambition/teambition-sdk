@@ -38,6 +38,7 @@ export * from './apis/FeedbackApiSpec'
 export * from './apis/ReportApiSpec'
 export * from './apis/LikeApiSpec'
 
+export * from './socket/socket-client'
 export * from './socket/activity'
 export * from './socket/message'
 export * from './socket/preference'

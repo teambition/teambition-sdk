@@ -61,6 +61,7 @@
     "@types/node": "^9.6.6",
     "@types/sinon": "^1.16.34",
     "@types/sinon-chai": "^2.7.27",
+    "atob": "^2.1.1",
     "chai": "^3.4.1",
     "core-js": "^2.4.1",
     "coveralls": "^2.11.15",

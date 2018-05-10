@@ -13,6 +13,7 @@ import SocketFetch from '../fetchs/SocketFetch'
 import { socketHandler } from './EventMaps'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
+import * as URL from 'url'
 
 declare const global: any
 
@@ -112,9 +113,12 @@ export class SocketClient {
   }
 
   private _connect(): Promise<void> {
+    const url = URL.parse(this._socketUrl)
+    const host = URL.format({ ...url, pathname: undefined })
+    const path = (url.pathname || '') + '/websocket'
     this._client
-      .connect(this._socketUrl, {
-        path: '/websocket',
+      .connect(host, {
+        path: path,
         token: this._me.tcmToken as string
       })
     return Promise.resolve()
@@ -143,7 +147,7 @@ export class SocketClient {
         exp: number
         userId: string
         source: 'teambition'
-      } = JSON.parse(window.atob(auth))
+      } = JSON.parse(ctx.atob(auth))
       const expire = token.exp * 1000 - 3600000
       // token.exp * 1000 - 1 * 60 * 60 * 1000
       if (expire < Date.now()) {
