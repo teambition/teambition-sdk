@@ -23,12 +23,12 @@ export interface ToPromiseObject {
 }
 
 export class SocketMock {
-  onmessage: (e: RequestEvent) => Promise<any>
+  onmessage!: ((e: RequestEvent) => Promise<any>)
 
   private _id = 1
 
   constructor(SocketClient: any) {
-    SocketClient.initClient(this, {})
+    SocketClient.initClient(this, {}) // 会初始化 this.onmessage
   }
 
   public makeMessage = (data: RequestObject): RequestEvent => {

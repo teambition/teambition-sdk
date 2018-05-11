@@ -1,4 +1,5 @@
 import 'rxjs/add/observable/dom/ajax'
+import 'rxjs/add/observable/empty'
 import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/map'
 import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
@@ -128,7 +129,7 @@ export const getHttpWithResponseHeaders = <T>(
 export class Http<T> {
   private errorAdapter$: Subject<HttpErrorMessage>
   private cloned = false
-  private request: Observable<T>
+  private request: Observable<T> | undefined
   public mapFn: (v$: Observable<T>) => Observable<any> = (dist$ => dist$)
 
   private static get = createMethod('get')
@@ -207,7 +208,7 @@ export class Http<T> {
   }
 
   send(): Observable<T> {
-    return this.mapFn(this.request)
+    return this.request ? this.mapFn(this.request) : Observable.empty()
   }
 
   clone() {

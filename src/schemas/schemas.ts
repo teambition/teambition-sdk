@@ -1,23 +1,22 @@
-import { SchemaDef } from 'reactivedb'
-import { forEach, SchemaColl, Dict } from '../utils'
+import { forEach, GeneralSchemaDef, SchemaColl, Dict } from '../utils'
 
-const getPKNameinSchema = (schema: SchemaDef<any>): string => {
+const getPKNameinSchema = (schema: GeneralSchemaDef): string => {
   let pkName = ''
 
   const [next, stop] = [true, false]
   forEach(schema, (v, k) => {
-    return (!v.primaryKey && next) || ((pkName = k) && stop)
+    return (!v['primaryKey'] && next) || ((pkName = k) && stop)
   })
 
   return pkName
 }
 
-type SchemaCollectionValue = { pkName: string, schema: SchemaDef<any> }
+type SchemaCollectionValue = { pkName: string, schema: GeneralSchemaDef }
 
 export class SchemaCollection {
   private dict: Dict<SchemaCollectionValue> = {}
 
-  add(schemaInfo: { schema: SchemaDef<any>, name: string }) {
+  add(schemaInfo: { schema: GeneralSchemaDef, name: string }) {
     this.dict[schemaInfo.name] = {
       schema: schemaInfo.schema,
       pkName: getPKNameinSchema(schemaInfo.schema)
@@ -32,8 +31,8 @@ export class SchemaCollection {
     return schemas
   }
 
-  getSchema(tableName: string) {
-    return this.dict[tableName]
+  getSchemaPKName(tableName: string): string {
+    return this.dict[tableName] ? this.dict[tableName].pkName : ''
   }
 
   listTableNames() {

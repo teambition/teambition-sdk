@@ -25,11 +25,11 @@ const ctx = typeof global === 'undefined' ? window : global
 export class SocketClient {
   private _isDebug = false
 
-  private _client: Consumer
+  private _client: Consumer | undefined
 
   private _socketUrl = 'wss://push.teambition.com'
 
-  private _consumerId: string
+  private _consumerId: string | undefined
 
   private _getUserMeStream = new ReplaySubject<UserMe>(1)
 
@@ -50,7 +50,7 @@ export class SocketClient {
   private handleMsgToDB: WSMsgToDBHandler
   private handleMsg: WSMsgHandler
 
-  private database: Database
+  private database: Database | undefined
 
   constructor(
     private fetch: SDKFetch,
@@ -93,7 +93,7 @@ export class SocketClient {
     this._client.onmessage = this._onmessage.bind(this)
     this._client.onopen = this._onopen.bind(this)
     this._getUserMeStream.subscribe(u => {
-      this._client.getToken = () => {
+      this._client!.getToken = () => {
         return u.tcmToken as string
       }
     })
@@ -128,7 +128,10 @@ export class SocketClient {
    * uri 格式: :type/:id
    * eg: projects, organizations/554c83b1b2c809b4715d17b0
    */
-  join(uri: string): Consumer {
+  join(uri: string): Consumer | undefined {
+    if (!this._client) {
+      return undefined
+    }
     if (this._joinedRoom.has(uri)) {
       return this._client
     }
@@ -157,7 +160,7 @@ export class SocketClient {
   // override Consumer onopen
   private _onopen(): void {
     this._joinedRoom.forEach(r => {
-      this.fetch.joinRoom(r, this._consumerId)
+      this.fetch.joinRoom(r, this._consumerId!)
     })
   }
 
@@ -166,11 +169,15 @@ export class SocketClient {
       .take(1)
       .toPromise()
       .then(userMe => {
-        this._client
-          .connect(this._socketUrl, {
-            path: '/websocket',
-            token: userMe.tcmToken as string
-          })
+        if (this._client) {
+          this._client
+            .connect(this._socketUrl, {
+              path: '/websocket',
+              token: userMe.tcmToken as string
+            })
+        } else {
+          throw new Error('_client is undefined')
+        }
       })
   }
 
