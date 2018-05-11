@@ -51,7 +51,7 @@ export class TableInfoByMessageType {
   }
 }
 
-export const mapWSMsgTypeToTable = new TableInfoByMessageType(
+export const mapMsgTypeToTable = new TableInfoByMessageType(
   globalSchemaColl,
   globalTableAlias
 )

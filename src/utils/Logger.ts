@@ -1,5 +1,6 @@
 import { Logger, Level, ContextLogger } from 'reactivedb/shared'
 
+/* istanbul ignore next */
 const envify = () => {
   const env = (process && process.env && process.env.NODE_ENV) || 'production'
   switch (env) {
@@ -12,6 +13,7 @@ const envify = () => {
   }
 }
 
+/* istanbul ignore next */
 export const SDKLogger: ContextLogger = Logger.get('teambition-sdk', (name, _, message) => {
   return `${name}: at ${new Date().toLocaleString()} \r\n    ` + message
 })

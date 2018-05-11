@@ -1,7 +1,7 @@
 'use strict'
 import 'isomorphic-fetch'
 
-process.env.NODE_ENV = 'production'
+process.env.NODE_ENV = 'test'
 
 export { run, setExit, reset, mocha } from 'tman'
 export * from './utils/utils'

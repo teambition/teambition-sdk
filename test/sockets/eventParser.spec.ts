@@ -26,7 +26,8 @@ describe('eventParser', () => {
       method: 'change',
       id: '574bdf1c09bf88bd4f1dbb02',
       type: 'project',
-      data: { uniqueIdPrefix: 'QYGz' }
+      data: { uniqueIdPrefix: 'QYGz' },
+      source: ':change:project/574bdf1c09bf88bd4f1dbb02'
     }])
   })
 
@@ -37,7 +38,8 @@ describe('eventParser', () => {
       method: 'system',
       id: '',
       type: 'notifications',
-      data: { name: 'taskUniqueId', status: 'success' }
+      data: { name: 'taskUniqueId', status: 'success' },
+      source: ':system:notifications'
     }])
   })
 
@@ -58,6 +60,7 @@ describe('eventParser', () => {
       method: 'change',
       id: '59105f93280a100cffc678b3',
       type: 'event',
+      source: ':change:event/59105f93280a100cffc678b3',
       data: {
         commentsCount: 7,
         attachmentsCount: 0,

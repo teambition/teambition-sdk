@@ -6,14 +6,17 @@ import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/toPromise'
 import 'rxjs/add/operator/concatMap'
 import 'rxjs/add/operator/take'
+import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
-import { socketHandler } from './EventMaps'
+import { socketHandler, createMsgToDBHandler, createMsgHandler } from './EventMaps'
+import { Interceptors, Proxy } from './Middleware'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import { TableInfoByMessageType } from './MapToTable'
+import { WSMsgToDBHandler, WSMsgHandler } from '../utils'
 
 declare const global: any
 
@@ -33,12 +36,38 @@ export class SocketClient {
   private _joinedRoom = new Set<string>()
   private _leavedRoom = new Set<string>()
 
+  /**
+   * 拦截器序列。如果需要在消息接触 db 之前对起进行额外的过滤、变换
+   * 等操作，可以在这里添加相应 handler。
+   */
+  public interceptors: Interceptors
+  /**
+   * 代理。如果需要获得不会接触 db 的消息（与数据模型无关），比如界面
+   * 状态变更的消息等，可以在这里注册相应 handler。
+   */
+  public proxy: Proxy
+
+  private handleMsgToDB: WSMsgToDBHandler
+  private handleMsg: WSMsgHandler
+
   private database: Database
+
   constructor(
     private fetch: SDKFetch,
     private net: Net,
     private mapToTable: TableInfoByMessageType
-  ) {}
+  ) {
+    this.proxy = new Proxy()
+    this.handleMsg = createMsgHandler(this.proxy)
+
+    this.interceptors = new Interceptors(createMsgToDBHandler(mapToTable))
+    this.handleMsgToDB = (msg, db) => {
+      const ret = this.interceptors.apply(msg, db)
+      return ret instanceof Observable ? ret : Observable.of(null)
+    }
+
+    this.net.initMsgToDBHandler(this.handleMsgToDB)
+  }
 
   destroy() {
     this._getUserMeStream.complete()
@@ -150,7 +179,15 @@ export class SocketClient {
       // 避免被插件清除掉
       ctx['console']['log'](JSON.stringify(event, null, 2))
     }
-    return socketHandler(this.net, event, this.mapToTable, this.database)
+
+    return socketHandler(
+      this.net,
+      event,
+      this.handleMsgToDB,
+      this.handleMsg,
+      this.mapToTable,
+      this.database
+    )
       .toPromise()
       .then(null, (err: any) => ctx['console']['error'](err))
   }

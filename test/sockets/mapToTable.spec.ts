@@ -1,6 +1,6 @@
 import { describe, it } from 'tman'
 import { expect } from 'chai'
-import { schemaColl } from '../../src/SDK'
+import { schemaColl as realSchemaColl } from '../../src/SDK'
 import tableAlias from '../../src/sockets/TableAlias'
 import { TableInfoByMessageType } from '../../src/sockets/MapToTable'
 import { SchemaCollection } from '../../src/schemas'
@@ -67,7 +67,7 @@ describe('TableInfoByMessageType spec', () => {
 
 describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
 
-  const mapToTable = new TableInfoByMessageType(schemaColl, tableAlias)
+  const mapToTable = new TableInfoByMessageType(realSchemaColl, tableAlias)
 
   it('should map `work(s)`(case-insensitive) to `File`', () => {
     [

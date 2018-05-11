@@ -3,7 +3,8 @@
  * 有多个文件需要用到的，可以放此处。
  */
 
-import { SchemaDef } from 'reactivedb'
+import { Database, SchemaDef } from 'reactivedb'
+import { Observable } from 'rxjs/Observable'
 
 export type SchemaColl = {
   schema: SchemaDef<any>,
@@ -32,10 +33,10 @@ export interface SqlPagingQuery {
   limit: number
 }
 
-export interface ParsedWSMessage {
+export interface ParsedWSMsg {
   // new change destroy refresh ...
   method: string
-
+  // data id
   id: string
 
   // schema types: task, post, event, file, etc...
@@ -43,4 +44,13 @@ export interface ParsedWSMessage {
 
   // optional data, null in delete
   data: any
+  // original socket event string
+  source: string
 }
+
+export type WSMsgToDBHandler = (
+  msg: ParsedWSMsg,
+  db: Database,
+) => Observable<any>
+
+export type WSMsgHandler = (msg: ParsedWSMsg) => Observable<any>
