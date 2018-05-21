@@ -5,6 +5,7 @@ declare module 'teambition-types' {
   export interface ActivityId extends String { kind?: 'ActivityId' }
   export interface ApplicationId extends String { kind?: 'ApplicationId' }
   export interface CollectionId extends String { kind?: 'CollectionId' }
+  export interface CustomFieldCategoryId extends String { kind?: 'CustomFieldCategoryId' }
   export interface CustomFieldChoiceId extends String { kind?: 'CustomFieldChoiceId' }
   export interface CustomFieldId extends String { kind?: 'CustomFieldId' }
   export interface CustomFieldLinkId extends String { kind?: 'CustomFieldLinkId' }
