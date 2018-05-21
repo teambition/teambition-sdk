@@ -115,4 +115,12 @@ describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
     })
   })
 
+  it('should map `CustomFieldCategories`(case-insensitive) to `CustomFieldCategory`', () => {
+    ['CustomFieldCategories', 'customfieldcategories'].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'CustomFieldCategory'
+      })
+    })
+  })
+
 })
