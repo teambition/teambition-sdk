@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable'
-import { Query, QueryToken, OrderDescription } from 'reactivedb'
+import { QueryToken, OrderDescription } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TagId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
@@ -43,7 +43,7 @@ export function getByTagId (
   const urlQuery = queryPair.forUrl as GetPostsByTagIdUrlQuery
   const { skip, limit } = queryPair.forSql
 
-  const selectStmt: Query<PostSchema> = {
+  const selectStmt = {
     where: {
       isArchived: false,
       tagIds: {

@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken, OrderDescription, Query } from 'reactivedb'
+import { QueryToken, OrderDescription } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId } from 'teambition-types'
@@ -48,7 +48,7 @@ export function getAllProjectPosts (
   const urlQuery = queryPair.forUrl as GetPostsUrlQuery<'all'>
   const { skip, limit } = queryPair.forSql
 
-  const selectStmt: Query<PostSchema> = {
+  const selectStmt = {
     where: {
       _projectId,
       isArchived: false,
