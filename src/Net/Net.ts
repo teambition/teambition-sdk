@@ -28,11 +28,29 @@ export enum CacheStrategy {
 
 export interface ApiResult<T, U extends CacheStrategy> {
   request: Observable<T> | Observable<T[]>
-  query: Query<T>
+  /**
+   * 使用 fields 指定需要查询的字段，where 指定查询条件，
+   * orderBy 指定结果排序规则。更多支持的选项请见具体类型定义。
+   */
+  query: Query<T> & { fields?: Array<keyof T> }
   tableName: string
   cacheValidate: U
   required?: (keyof T)[]
+  /**
+   * 指定需要关联其他数据模型（M）查询获得的字段，以及
+   * 该字段对应值应该包含的 M 里的字段，如：
+   * {
+   *   creator: ['_id', 'name'],
+   *   executor: ['_id', 'name', 'avatarUrl']
+   * }
+   */
   assocFields?: AssocField<T>
+  /**
+   * 指定不希望出现在查询结果里的字段。
+   * 注：ApiResult.query.fields 中指定的希望出现的字段
+   * 拥有更高优先级，除非 ApiResult.query.fields 未定义
+   * 或为空（[]）。
+   */
   excludeFields?: string[]
   padding?: (missedId: string) => Observable<T | null>
 }
@@ -79,6 +97,15 @@ export type BufferObject = CUDBufferObject | SocketCUDBufferObject | SelectorBuf
 const dbGetWithSelfJoinEnabled =
   <T>(db: Database, table: string, query: Query<T>): QueryToken<T> => {
     return db.get(table, query, JoinMode.explicit)
+  }
+
+const fieldsPred =
+  (include: string[] = [], exclude: string[] = []) => {
+    if (include.length > 0) {
+      return (field: string) => include.indexOf(field) >= 0
+    } else {
+      return (field: string) => exclude.indexOf(field) < 0
+    }
   }
 
 export class Net {
@@ -342,21 +369,20 @@ export class Net {
       assocFields,
       excludeFields
     } = result as ApiResult<T, CacheStrategy>
+
     const preDefinedFields = this.fields.get(tableName)
     if (!preDefinedFields) {
       throw new TypeError(`table: ${tableName} is not defined`)
     }
-    const fields: string[] = []
-    if (assocFields) {
-      fields.push(assocFields as any)
+
+    const fieldNames = preDefinedFields
+      .filter(fieldsPred(query.fields, excludeFields))
+
+    const q: Query<T> = {
+      ...query,
+      fields: assocFields ? [assocFields as any, ...fieldNames] : fieldNames
     }
-    const set = new Set(excludeFields)
-    forEach(this.fields.get(tableName), f => {
-      if (!set.has(f)) {
-        fields.push(f)
-      }
-    })
-    const q: Query<T> = { ...query, fields }
+
     return { request, q, cacheValidate, tableName }
   }
 }

@@ -511,6 +511,84 @@ describe('Net test', () => {
       expect(fn).to.throw('table: __NOT_EXIST__ is not defined')
     })
 
+    it('should allow query.fields to specify field names to be selected', function* () {
+      httpBackend.whenGET(`${apiHost}/${path}`)
+        .respond(normalEvent)
+      yield net.lift({
+        cacheValidate: CacheStrategy.Cache,
+        request: sdkFetch.get(path),
+        query: {
+          where: { _id: normalEvent._id },
+          fields: ['_id']
+        },
+        tableName: 'Event'
+      } as ApiResult<EventSchema, CacheStrategy.Cache>)
+        .values()
+        .do(([r]) => {
+          expect(r).to.deep.equal({ _id: normalEvent._id })
+        })
+    })
+
+    it(`should allow query.fields to specify field names to be selected, ignoring 'excludeFields'`, function* () {
+      httpBackend.whenGET(`${apiHost}/${path}`)
+        .respond(normalEvent)
+      yield net.lift({
+        cacheValidate: CacheStrategy.Cache,
+        request: sdkFetch.get(path),
+        query: {
+          where: { _id: normalEvent._id },
+          fields: ['_id', 'title']
+        },
+        tableName: 'Event',
+        excludeFields: ['title']
+      } as ApiResult<EventSchema, CacheStrategy.Cache>)
+        .values()
+        .do(([r]) => {
+          expect(r).to.deep.equal({
+            _id: normalEvent._id,
+            title: normalEvent.title
+          })
+        })
+    })
+
+    it(`should allow query.fields to specify field names to be selected, ignoring non-existing ones`, function* () {
+      httpBackend.whenGET(`${apiHost}/${path}`)
+        .respond(normalEvent)
+      yield net.lift({
+        cacheValidate: CacheStrategy.Cache,
+        request: sdkFetch.get(path),
+        query: {
+          where: { _id: normalEvent._id },
+          fields: ['_id', 'noSuchFieldname']
+        },
+        tableName: 'Event'
+      } as ApiResult<EventSchema, CacheStrategy.Cache>)
+        .values()
+        .do(([r]) => {
+          expect(r).to.deep.equal({
+            _id: normalEvent._id
+          })
+        })
+    })
+
+    it(`should ignore empty query.fields, i.e. []`, function* () {
+      httpBackend.whenGET(`${apiHost}/${path}`)
+        .respond(normalEvent)
+      yield net.lift({
+        cacheValidate: CacheStrategy.Cache,
+        request: sdkFetch.get(path),
+        query: {
+          where: { _id: normalEvent._id },
+          fields: []
+        },
+        tableName: 'Event'
+      } as ApiResult<EventSchema, CacheStrategy.Cache>)
+        .values()
+        .do(([r]) => {
+          expectToDeepEqualForFieldsOfTheExpected(r, normalEvent, 'creator')
+        })
+    })
+
   })
 
 })

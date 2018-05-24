@@ -1,4 +1,4 @@
-import { Query, QueryToken } from 'reactivedb'
+import { QueryToken } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { ProjectId, UserId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'
@@ -16,7 +16,7 @@ export function getMyProjectPosts (
   const urlQuery = queryPair.forUrl as GetPostsUrlQuery<'my'>
   const { skip, limit } = queryPair.forSql
 
-  const selectStmt: Query<PostSchema> = {
+  const selectStmt = {
     where: {
       _projectId,
       isArchived: false,
