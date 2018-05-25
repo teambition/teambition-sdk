@@ -32,7 +32,7 @@ export interface ApiResult<T, U extends CacheStrategy> {
    * 使用 fields 指定需要查询的字段，where 指定查询条件，
    * orderBy 指定结果排序规则。更多支持的选项请见具体类型定义。
    */
-  query: Query<T> & { fields?: Array<keyof T> }
+  query: Query<T>
   tableName: string
   cacheValidate: U
   required?: (keyof T)[]
@@ -376,7 +376,7 @@ export class Net {
     }
 
     const fieldNames = preDefinedFields
-      .filter(fieldsPred(query.fields, excludeFields))
+      .filter(fieldsPred(query.fields as string[], excludeFields))
 
     const q: Query<T> = {
       ...query,
