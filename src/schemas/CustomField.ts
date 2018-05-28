@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { CustomFieldType, CustomFieldBoundType } from 'teambition-types'
+import { CustomFieldType, CustomFieldBoundType, CustomFieldCategoryId } from 'teambition-types'
 import { CustomFieldId, OrganizationId, ProjectId, RoleId, UserId } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
@@ -12,8 +12,10 @@ export interface CustomFieldSchema {
   _projectId?: ProjectId
   _roleIds: RoleId[]
   boundType: CustomFieldBoundType
+  categoryIds: CustomFieldCategoryId[]
   choices: CustomFieldChoiceSchema[]
   created: string
+  description: string
   displayed: boolean
   name: string
   pos: number
@@ -41,11 +43,17 @@ const schema: SchemaDef<CustomFieldSchema> = {
   boundType: {
     type: RDBType.STRING
   },
+  categoryIds: {
+    type: RDBType.LITERAL_ARRAY
+  },
   choices: {
     type: RDBType.OBJECT
   },
   created: {
     type: RDBType.DATE_TIME
+  },
+  description: {
+    type: RDBType.STRING
   },
   displayed: {
     type: RDBType.BOOLEAN
