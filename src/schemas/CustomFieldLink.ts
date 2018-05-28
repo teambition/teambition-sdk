@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { CustomFieldType } from 'teambition-types'
+import { CustomFieldType, CustomFieldBoundType } from 'teambition-types'
 import { CustomFieldId, CustomFieldLinkId, ProjectId, RoleId } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
@@ -15,6 +15,7 @@ export interface CustomFieldLinkSchema {
   name: string
   pos: number
   type: CustomFieldType
+  boundType: CustomFieldBoundType
 }
 
 const schema: SchemaDef<CustomFieldLinkSchema> = {
@@ -46,6 +47,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   type: {
     type: RDBType.STRING
   },
+  boundType: {
+    type: RDBType.STRING
+  }
 }
 
 schemaColl.add({ schema, name: 'CustomFieldLink' })
