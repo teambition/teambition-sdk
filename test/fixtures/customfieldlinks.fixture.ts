@@ -1,4 +1,5 @@
 export const customFieldLink = {
+  boundType: 'application',
   pos: 65536,
   _roleIds: [],
   _projectId: '5a977492a4e7b30012b6436b',

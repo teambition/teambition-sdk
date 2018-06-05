@@ -11,8 +11,8 @@ export function getCustomFieldLinksFetch(
   this: SDKFetch,
   projectId: ProjectId,
   boundType: CustomFieldBoundType
-): Observable<CustomFieldLinkSchema> {
-  return this.get<CustomFieldLinkSchema>(
+): Observable<CustomFieldLinkSchema[]> {
+  return this.get<CustomFieldLinkSchema[]>(
     `projects/${projectId}/customfieldlinks`,
     { boundType }
   )
@@ -35,7 +35,12 @@ export function getCustomFieldLinks(
     cacheValidate: CacheStrategy.Request,
     tableName: 'CustomFieldLink',
     request: this.fetch.getCustomFieldLinks(projectId, boundType),
-    query: { where: [{ _projectId: projectId }] }
+    query: {
+      where: { _projectId: projectId, boundType: boundType },
+      orderBy: [
+        { fieldName: 'pos', orderBy: 'ASC' }
+      ],
+    }
   })
 }
 
