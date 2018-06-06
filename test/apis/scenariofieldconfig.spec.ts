@@ -2,7 +2,7 @@ import { describe, before, beforeEach, afterEach, it, after } from 'tman'
 import { Scheduler } from 'rxjs'
 import { expect } from 'chai'
 
-import { SDKFetch, createSdk, SDK } from '../'
+import { SDKFetch, createSdk, SDK, ScenarioFieldConfigSchema } from '../'
 import {
   taskScenarioFieldConfig,
   eventScenarioFieldConfig,
@@ -35,7 +35,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   })
 
   it('should return a TaskScenarioFieldConfig array', function* () {
-    const projectId = taskScenarioFieldConfig._projectId
+    const projectId = taskScenarioFieldConfig._projectId as ProjectId
     const configs = [taskScenarioFieldConfig]
     const url = `/projects/${projectId}/scenariofieldconfigs?objectType=task&withTaskflowstatus=true&_=666`
 
@@ -47,7 +47,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   })
 
   it('should return an EventScenarioFieldConfig array', function* () {
-    const projectId = eventScenarioFieldConfig._projectId
+    const projectId = eventScenarioFieldConfig._projectId as ProjectId
     const configs = [eventScenarioFieldConfig]
     const url = `/projects/${projectId}/scenariofieldconfigs?objectType=event&withTaskflowstatus=true&_=666`
 
@@ -146,7 +146,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   })
 
   it('should return an array of Project using the ScenarioFieldConfig', function* () {
-    const sfcId = 'mock-sf-config-id'
+    const sfcId = 'mock-sf-config-id' as ScenarioFieldConfigId
     const resp = { totalSize: 10, result: ['p1', 'p2'] }
 
     fetchMock.once(`/scenariofieldconfigs/${sfcId}/projects?_=666`, resp)
@@ -159,8 +159,8 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   })
 
   it('should create a new ScenarioFieldConfig', function* () {
-    const configId = 'mock-sfc-id'
-    const config = { ...orgTaskScenarioFieldConfig, _id: configId }
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const config = { ...orgTaskScenarioFieldConfig, _id: configId } as any
     const orgId = config._boundToObjectId as OrganizationId
 
     fetchMock.postOnce(`/organizations/${orgId}/scenariofieldconfigs`, config)
@@ -173,7 +173,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   })
 
   it('should return Boolean as the validation result', function* () {
-    const orgId = 'mock-org-id'
+    const orgId = 'mock-org-id' as OrganizationId
     const objectType = 'task'
     const name = 'mock-sfc-name'
     const resp = { exists: true }
@@ -202,7 +202,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should return a TaskScenarioFieldConfig array', function* () {
-    const projectId = taskScenarioFieldConfig._projectId
+    const projectId = taskScenarioFieldConfig._projectId as ProjectId
     const configs = [{ ...taskScenarioFieldConfig, taskflowstatuses: undefined }]
 
     mockResponse(configs)
@@ -216,7 +216,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should return an EventScenarioFieldConfig array', function* () {
-    const projectId = eventScenarioFieldConfig._projectId
+    const projectId = eventScenarioFieldConfig._projectId as ProjectId
     const configs = [eventScenarioFieldConfig]
 
     mockResponse(configs)
@@ -258,7 +258,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should add a TaskScenarioFieldConfig array to Project', function* () {
-    const configId = 'mock-task-sf-config-id'
+    const configId = 'mock-task-sf-config-id' as ScenarioFieldConfigId
     const config = { ...taskScenarioFieldConfig, _id: configId, taskflowstatuses: undefined }
     const projectId = config._boundToObjectId as ProjectId
     const configIds = [configId]
@@ -288,7 +288,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should add an EventScenarioFieldConfig array to Project', function* () {
-    const configId = 'mock-event-sf-config-id'
+    const configId = 'mock-event-sf-config-id' as ScenarioFieldConfigId
     const config = { ...eventScenarioFieldConfig, _id: configId }
     const projectId = config._boundToObjectId as ProjectId
     const configIds = [configId]
@@ -318,7 +318,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should restore ScenarioFieldConfig to the Base', function* () {
-    const configId = 'mock-event-sf-config-id'
+    const configId = 'mock-event-sf-config-id' as ScenarioFieldConfigId
     const config = { ...eventScenarioFieldConfig, _id: configId }
     const configBase = { ...config, name: 'mock-event-sf-config-name' }
     const projectId = config._boundToObjectId as ProjectId
@@ -361,8 +361,8 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should create a new ScenarioFieldConfig', function* () {
-    const configId = 'mock-sfc-id'
-    const orgId = 'mock-org-id'
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const orgId = 'mock-org-id' as OrganizationId
     const objectType = 'task'
     const config = { _id: configId, _boundToObjectId: orgId, objectType }
 

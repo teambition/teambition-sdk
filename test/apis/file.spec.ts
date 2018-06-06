@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, FileSchema } from '../index'
 import * as Fixture from '../fixtures/files.fixture'
 import { mock, restore, looseDeepEqual, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { FileId } from 'teambition-types'
 
 describe('FileApi request spec', () => {
   let sdk: SDK
@@ -21,7 +22,7 @@ describe('FileApi request spec', () => {
     const [ fixture ] = Fixture.projectFiles
     mockResponse(fixture)
 
-    yield sdk.getFile(fixture._id)
+    yield sdk.getFile(fixture._id as FileId)
       .values()
       .do(([r]) => {
         expectToDeepEqualForFieldsOfTheExpected(r, fixture)

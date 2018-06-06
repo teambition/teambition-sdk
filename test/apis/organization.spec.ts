@@ -9,6 +9,7 @@ import {
   getStarredOrganizationProjects,
   getUngroupedOrganizationProjects
 } from '../../src/apis/organization/projects'
+import { OrganizationId, TagId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
 
@@ -17,7 +18,7 @@ describe('get organization projects', () => {
 
     let sdkFetch: SDKFetch
     let projects: any[]
-    const sampleOrgId = '56f0d51e3cd13a5b537c3a12'
+    const sampleOrgId = '56f0d51e3cd13a5b537c3a12' as OrganizationId
     const getOrganizationProjectsFns = () => [
       { fn: getAllOrganizationProjects, namespace: 'all' },
       { fn: getJoinedOrganizationProjects, namespace: 'joined' },
@@ -71,7 +72,7 @@ describe('get organization projects', () => {
     })
 
     it('getOrganizationProjectByTagId should make correctly formatted request to target url and return response as it is', function* () {
-      const sampleTagId = '3'
+      const sampleTagId = '3' as TagId
       const expectedUrl = `/organizations/${sampleOrgId}/projecttags/${sampleTagId}/projects?_=666`
       const expectedResponse = projects.filter(({ tagId }) => tagId === sampleTagId)
 
