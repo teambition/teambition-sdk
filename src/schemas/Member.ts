@@ -20,7 +20,7 @@ export interface MemberProfileSchema {
 
 export interface MemberSchema {
   _boundToObjectId: ProjectId | OrganizationId
-  _id: String // 兼容新（MemberId）和旧（UserId），当完成迁移，换为更准确的 MemberId
+  _id: string // 兼容新（MemberId）和旧（UserId），当完成迁移，换为更准确的 MemberId
   _memberId: MemberId
   _roleId: RoleId
   _userId: UserId

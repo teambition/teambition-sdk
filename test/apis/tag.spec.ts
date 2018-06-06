@@ -30,7 +30,7 @@ describe('TagApi request spec: ', () => {
   })
 
   it('should return a Project Tag array', function* () {
-    const projectId: ProjectId = projectTag._projectId
+    const projectId = projectTag._projectId as ProjectId
     const tags = [projectTag]
     const url = `/tags?tagType=project&_projectId=${projectId}&_=666`
 
@@ -42,7 +42,7 @@ describe('TagApi request spec: ', () => {
   })
 
   it('should return an Organization Tag array', function* () {
-    const orgId: OrganizationId = organizationTag._organizationId
+    const orgId = organizationTag._organizationId as OrganizationId
     const tags = [projectTag]
     const url = `/tags?tagType=organization&_organizationId=${orgId}&_=666`
 
@@ -64,7 +64,7 @@ describe('TagApi spec: ', () => {
   })
 
   it('should return a Project Tag array', function* () {
-    const projectId: ProjectId = projectTag._projectId
+    const projectId = projectTag._projectId as ProjectId
     const tags = [projectTag]
     mockResponse(tags)
 
@@ -77,7 +77,7 @@ describe('TagApi spec: ', () => {
   })
 
   it('should return an Organization Tag array', function* () {
-    const orgId: OrganizationId = organizationTag._organizationId
+    const orgId = organizationTag._organizationId as OrganizationId
     const tags = [organizationTag]
     mockResponse(tags)
 

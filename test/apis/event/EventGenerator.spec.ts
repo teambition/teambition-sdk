@@ -10,6 +10,7 @@ import {
 } from '../../fixtures/events.fixture'
 import { EventGenerator } from '../../../src/apis/event/EventGenerator'
 import { clone } from '../../index'
+import { EventId } from 'teambition-types'
 
 describe('EventGenerator spec', () => {
   let eventGenerator: EventGenerator
@@ -297,31 +298,31 @@ describe('EventGenerator spec', () => {
 
   it('findByEventId() should work on a normal event', () => {
     const _eventGenerator = new EventGenerator(normalEvent as any)
-    const targetId = normalEvent._id
+    const targetId = normalEvent._id as EventId
     const invalidId = normalEvent._id + 'asdf'
 
     expect(_eventGenerator.findByEventId(targetId)).to.deep.equal(normalEvent)
-    expect(_eventGenerator.findByEventId(invalidId)).to.be.null
+    expect(_eventGenerator.findByEventId(invalidId as EventId)).to.be.null
   })
 
   it('findByEventId() should return null for a recurrent event with an un-timestamped id', () => {
-    const targetId = recurrenceByMonth._id
+    const targetId = recurrenceByMonth._id as EventId
 
     expect(eventGenerator.findByEventId(targetId)).to.be.null
   })
 
   it('findByEventId() should work on a recurrent event', () => {
     let timestamp = new Date(recurrenceByMonth.startDate).valueOf()
-    let targetId = recurrenceByMonth._id + '_' + timestamp
+    let targetId = recurrenceByMonth._id + '_' + timestamp as EventId
     expect(eventGenerator.findByEventId(targetId)).to.deep.equal(eventGenerator.next().value)
 
     timestamp = Moment(recurrenceByMonth.startDate).add(2, 'months').valueOf()
-    targetId = recurrenceByMonth._id + '_' + timestamp
+    targetId = (recurrenceByMonth._id + '_' + timestamp) as EventId
     eventGenerator.next()
     expect(eventGenerator.findByEventId(targetId)).to.deep.equal(eventGenerator.next().value)
 
     const timestampExDate = new Date(recurrenceStartAtAnExcludedDate.startDate).valueOf()
-    const targetIdExDate = recurrenceStartAtAnExcludedDate._id + '_' + timestampExDate
+    const targetIdExDate = recurrenceStartAtAnExcludedDate._id + '_' + timestampExDate as EventId
     const eventGeneratorExDate = new EventGenerator(recurrenceStartAtAnExcludedDate as any)
     expect(eventGeneratorExDate.findByEventId(targetIdExDate)).to.be.null
   })
