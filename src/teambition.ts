@@ -1,52 +1,52 @@
 // id
 
 declare module 'teambition-types' {
-  export interface ActivenessId extends String { kind?: 'ActivenessId' }
-  export interface ActivityId extends String { kind?: 'ActivityId' }
-  export interface ApplicationId extends String { kind?: 'ApplicationId' }
-  export interface CollectionId extends String { kind?: 'CollectionId' }
-  export interface CustomFieldCategoryId extends String { kind?: 'CustomFieldCategoryId' }
-  export interface CustomFieldChoiceId extends String { kind?: 'CustomFieldChoiceId' }
-  export interface CustomFieldId extends String { kind?: 'CustomFieldId' }
-  export interface CustomFieldLinkId extends String { kind?: 'CustomFieldLinkId' }
-  export interface CustomFieldValueId extends String { kind?: 'CustomFieldValueId' }
-  export interface CustomRoleId extends String { kind?: 'CustomRoleId' }
-  export interface EntryCategoryId extends String { kind?: 'EntryCategoryId' }
-  export interface EntryId extends String { kind?: 'EntryId' }
-  export interface EventId extends String { kind?: 'EventId' }
-  export interface FeedbackId extends String { kind?: 'FeedbackId' }
-  export interface FileId extends String { kind?: 'FileId' }
-  export interface GroupId extends String { kind?: 'GroupId' }
-  export interface HomeActivityId extends String { kind?: 'HomeActivityId' }
-  export interface MemberId extends String { kind?: 'MemberId' }
-  export interface MessageId extends String { kind?: 'MessageId' }
-  export interface ObjectLinkId extends String { kind?: 'ObjectLinkId' }
-  export interface OrganizationId extends String { kind?: 'OrganizationId' }
-  export interface PostId extends String { kind?: 'PostId' }
-  export interface PreferenceId extends String { kind?: 'PreferenceId' }
-  export interface ProjectBoardId extends String { kind?: 'ProjectBoardId' }
-  export interface ProjectId extends String { kind?: 'ProjectId' }
-  export interface ProjectTagId extends String { kind?: 'ProjectTagId' }
-  export interface RoomId extends String { kind?: 'RoomId' }
-  export interface ScenarioFieldId extends String { kind?: 'ScenarioFieldId' }
-  export interface ScenarioFieldConfigId extends String { kind?: 'ScenarioFieldConfigId' }
-  export interface SmartGroupId extends String { kind?: 'SmartGroupId' }
-  export interface SprintId extends String { kind?: 'SprintId' }
-  export interface StageId extends String { kind?: 'StageId' }
-  export interface SubscribeId extends String { kind?: 'SubscribeId' }
-  export interface SubtaskId extends String { kind?: 'SubtaskId' }
-  export interface TagCategoryId extends String { kind?: 'TagCategoryId' }
-  export interface TagId extends String { kind?: 'TagId' }
-  export interface TapChartId extends String { kind?: 'TapChartId' }
-  export interface TapDashboardId extends String { kind?: 'TapDashboardId' }
-  export interface TaskflowId extends String { kind?: 'TaskflowId' }
-  export interface TaskflowStatusId extends String { kind?: 'TaskflowStatusId' }
-  export interface TaskId extends String { kind?: 'TaskId' }
-  export interface TasklistId extends String { kind?: 'TasklistId' }
-  export interface TeamId extends String { kind?: 'TeamId' }
-  export interface UserId extends String { kind?: 'UserId' }
-  export interface VersionId extends String { kind?: 'VersionId' }
-  export interface WorkId extends String { kind?: 'WorkId' }
+  export type ActivenessId = string & { kind: 'ActivenessId' }
+  export type ActivityId = string & { kind: 'ActivityId' }
+  export type ApplicationId = string & { kind: 'ApplicationId' }
+  export type CollectionId = string & { kind: 'CollectionId' }
+  export type CustomFieldCategoryId = string & { kind: 'CustomFieldCategoryId' }
+  export type CustomFieldChoiceId = string & { kind: 'CustomFieldChoiceId' }
+  export type CustomFieldId = string & { kind: 'CustomFieldId' }
+  export type CustomFieldLinkId = string & { kind: 'CustomFieldLinkId' }
+  export type CustomFieldValueId = string & { kind: 'CustomFieldValueId' }
+  export type CustomRoleId = string & { kind: 'CustomRoleId' }
+  export type EntryCategoryId = string & { kind: 'EntryCategoryId' }
+  export type EntryId = string & { kind: 'EntryId' }
+  export type EventId = string & { kind: 'EventId' }
+  export type FeedbackId = string & { kind: 'FeedbackId' }
+  export type FileId = string & { kind: 'FileId' }
+  export type GroupId = string & { kind: 'GroupId' }
+  export type HomeActivityId = string & { kind: 'HomeActivityId' }
+  export type MemberId = string & { kind: 'MemberId' }
+  export type MessageId = string & { kind: 'MessageId' }
+  export type ObjectLinkId = string & { kind: 'ObjectLinkId' }
+  export type OrganizationId = string & { kind: 'OrganizationId' }
+  export type PostId = string & { kind: 'PostId' }
+  export type PreferenceId = string & { kind: 'PreferenceId' }
+  export type ProjectBoardId = string & { kind: 'ProjectBoardId' }
+  export type ProjectId = string & { kind: 'ProjectId' }
+  export type ProjectTagId = string & { kind: 'ProjectTagId' }
+  export type RoomId = string & { kind: 'RoomId' }
+  export type ScenarioFieldId = string & { kind: 'ScenarioFieldId' }
+  export type ScenarioFieldConfigId = string & { kind: 'ScenarioFieldConfigId' }
+  export type SmartGroupId = string & { kind: 'SmartGroupId' }
+  export type SprintId = string & { kind: 'SprintId' }
+  export type StageId = string & { kind: 'StageId' }
+  export type SubscribeId = string & { kind: 'SubscribeId' }
+  export type SubtaskId = string & { kind: 'SubtaskId' }
+  export type TagCategoryId = string & { kind: 'TagCategoryId' }
+  export type TagId = string & { kind: 'TagId' }
+  export type TapChartId = string & { kind: 'TapChartId' }
+  export type TapDashboardId = string & { kind: 'TapDashboardId' }
+  export type TaskflowId = string & { kind: 'TaskflowId' }
+  export type TaskflowStatusId = string & { kind: 'TaskflowStatusId' }
+  export type TaskId = string & { kind: 'TaskId' }
+  export type TasklistId = string & { kind: 'TasklistId' }
+  export type TeamId = string & { kind: 'TeamId' }
+  export type UserId = string & { kind: 'UserId' }
+  export type VersionId = string & { kind: 'VersionId' }
+  export type WorkId = string & { kind: 'WorkId' }
 }
 
 // computed id

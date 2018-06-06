@@ -5,6 +5,7 @@ import { expect } from 'chai'
 import { SDKFetch, createSdk, SDK } from '../'
 import { taskScenariofieldConfig, eventScenariofieldConfig } from '../fixtures/scenariofieldconfigs.fixture'
 import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { ProjectId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
 
@@ -29,7 +30,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   })
 
   it('should return a TaskScenariofieldConfig array', function* () {
-    const projectId = taskScenariofieldConfig._projectId
+    const projectId = taskScenariofieldConfig._projectId as ProjectId
     const configs = [taskScenariofieldConfig]
     const url = `/projects/${projectId}/scenariofieldconfigs?objectType=task&withTaskflowstatus=true&_=666`
 
@@ -41,7 +42,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
   })
 
   it('should return an EventScenariofieldConfig array', function* () {
-    const projectId = eventScenariofieldConfig._projectId
+    const projectId = eventScenariofieldConfig._projectId as ProjectId
     const configs = [eventScenariofieldConfig]
     const url = `/projects/${projectId}/scenariofieldconfigs?objectType=event&withTaskflowstatus=true&_=666`
 
@@ -63,7 +64,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should return a TaskScenariofieldConfig array', function* () {
-    const projectId = taskScenariofieldConfig._projectId
+    const projectId = taskScenariofieldConfig._projectId as ProjectId
     const configs = [{
       ...taskScenariofieldConfig,
       taskflowstatuses: undefined
@@ -79,7 +80,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
   })
 
   it('should return an EventScenariofieldConfig array', function* () {
-    const projectId = eventScenariofieldConfig._projectId
+    const projectId = eventScenariofieldConfig._projectId as ProjectId
     const configs = [eventScenariofieldConfig]
     mockResponse(configs)
 

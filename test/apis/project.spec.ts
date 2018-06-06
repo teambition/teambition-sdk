@@ -7,6 +7,7 @@ import {
 import { SDKFetch, createSdk, SDK } from '../'
 import { normalProject } from '../fixtures/projects.fixture'
 import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { ProjectId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
 
@@ -108,7 +109,7 @@ describe('ProjectApi request spec: ', () => {
 
   it('getProject() should return a project', function* () {
     const project = normalProject
-    const projectId = project._id
+    const projectId = project._id as ProjectId
     const url = `/projects/${projectId}?_=666`
 
     fetchMock.getOnce(url, project)
@@ -133,7 +134,7 @@ describe('ProjectApi spec: ', () => {
     const fixture = normalProject
     mockResponse(fixture)
 
-    yield sdk.getProject(fixture._id)
+    yield sdk.getProject(fixture._id as ProjectId)
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([project]) => {

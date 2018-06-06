@@ -4,9 +4,10 @@ import { createSdk, SDK, TaskSchema } from '../index'
 import { EventGenerator } from '../../src/apis/event/EventGenerator'
 import * as Fixture from '../fixtures/my.fixture'
 import { mock, restore, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { UserId } from 'teambition-types'
 
 describe('MyApi request spec', () => {
-  const userId = Fixture.myRecent[0]['_executorId']
+  const userId = Fixture.myRecent[0]['_executorId'] as UserId
   let sdk: SDK
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
 

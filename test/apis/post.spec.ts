@@ -4,6 +4,7 @@ import { createSdk, SDK, PostSchema, SocketMock } from '../index'
 import { projectPosts, myProjectPosts, tagPosts } from '../fixtures/posts.fixture'
 import { mock, restore, equals } from '../utils'
 import { shuffle } from 'lodash'
+import { PostId, ProjectId, TagId, UserId } from 'teambition-types'
 
 describe('PostApi request spec', () => {
   let sdk: SDK
@@ -29,7 +30,7 @@ describe('PostApi request spec', () => {
 
     mockResponse(fixture)
 
-    yield sdk.getPost(fixture._id)
+    yield sdk.getPost(fixture._id as PostId)
       .values()
       .do(([r]) => {
         expect(r).to.deep.equal(fixture)
@@ -37,7 +38,7 @@ describe('PostApi request spec', () => {
   })
 
   it('getAllProjects should response correct data', function* () {
-    const projectId = projectPosts[0]._projectId
+    const projectId = projectPosts[0]._projectId as ProjectId
     const fixture = projectPosts.slice(0, 20)
 
     mockResponse(fixture)
@@ -68,7 +69,7 @@ describe('PostApi request spec', () => {
   })
 
   it('getAllProjects should response ordered data', function* () {
-    const projectId = projectPosts[0]._projectId
+    const projectId = projectPosts[0]._projectId as ProjectId
     const fixture = projectPosts.slice(0, 20)
     const unordered = shuffle(fixture)
 
@@ -88,8 +89,8 @@ describe('PostApi request spec', () => {
 
   it('getMyProjectPosts should response correct data', function* () {
     const fixture = myProjectPosts.slice(0, 20)
-    const userId = fixture[0]._creatorId
-    const projectId = fixture[0]._projectId
+    const userId = fixture[0]._creatorId as UserId
+    const projectId = fixture[0]._projectId as ProjectId
 
     mockResponse(fixture)
 
@@ -118,8 +119,8 @@ describe('PostApi request spec', () => {
 
   it('getMyProjectPosts should response ordered data', function* () {
     const fixture = myProjectPosts.slice(0, 20)
-    const userId = fixture[0]._creatorId
-    const projectId = fixture[0]._projectId
+    const userId = fixture[0]._creatorId as UserId
+    const projectId = fixture[0]._projectId as ProjectId
     const unordered = shuffle(fixture)
 
     mockResponse(unordered)
@@ -137,7 +138,7 @@ describe('PostApi request spec', () => {
   })
 
   it('getPostsByTagId should response correct data', function* () {
-    const fixture = '569de6be18bfe350733e2443'
+    const fixture = '569de6be18bfe350733e2443' as TagId
 
     mockResponse(tagPosts)
 
@@ -150,7 +151,7 @@ describe('PostApi request spec', () => {
   })
 
   it('getPostsByTagId should response ordered data', function* () {
-    const fixture = '569de6be18bfe350733e2443'
+    const fixture = '569de6be18bfe350733e2443' as TagId
     const unordered = shuffle(tagPosts)
 
     mockResponse(unordered)
@@ -169,7 +170,7 @@ describe('PostApi request spec', () => {
     mockResponse(fixture)
 
     yield sdk.createPost({
-      _projectId: fixture._projectId,
+      _projectId: fixture._projectId as ProjectId,
       title: fixture.title,
       content: fixture.content,
       tagIds: fixture.tagIds,
@@ -189,7 +190,7 @@ describe('PostApi request spec', () => {
     yield sdk.database.insert('Post', placeholder)
 
     const fixture = {
-      _id: placeholder._id,
+      _id: placeholder._id as PostId,
       title: 'new title'
     }
 
@@ -209,7 +210,7 @@ describe('PostApi request spec', () => {
 
     mockResponse({})
 
-    yield sdk.deletePost(placeholder._id)
+    yield sdk.deletePost(placeholder._id as PostId)
 
     yield sdk.database.get('Post', { where: { _id: placeholder._id } })
       .values()
@@ -220,16 +221,10 @@ describe('PostApi request spec', () => {
 describe('PostsAPI socket spec', () => {
   let sdk: SDK
   let socket: SocketMock
-  let defaultOrderBy: any
 
   beforeEach(() => {
     sdk = createSdk()
     socket = new SocketMock(sdk.socketClient)
-    defaultOrderBy = [
-      { fieldName: 'pin', orderBy: 'DESC' },
-      { fieldName: 'created', orderBy: 'DESC' },
-      { fieldName: 'lastCommentedAt', orderBy: 'DESC' }
-    ]
   })
 
   afterEach(() => {

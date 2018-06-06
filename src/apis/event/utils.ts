@@ -191,5 +191,5 @@ export function timeToDate(date: string, returnValue?: boolean) {
  * 使用该函数根据实例上的 _id 获得原 _id。
  */
 export const originEventId = (id: EventId): EventId => {
-  return id.split('_', 1)[0]
+  return id.split('_', 1)[0] as EventId
 }
