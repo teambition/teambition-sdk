@@ -11,6 +11,7 @@ declare module 'teambition-types' {
   export interface CustomFieldLinkId extends String { kind?: 'CustomFieldLinkId' }
   export interface CustomFieldValueId extends String { kind?: 'CustomFieldValueId' }
   export interface CustomRoleId extends String { kind?: 'CustomRoleId' }
+  export interface DashboardCardId extends String { kind?: 'DashboardCardId' }
   export interface EntryCategoryId extends String { kind?: 'EntryCategoryId' }
   export interface EntryId extends String { kind?: 'EntryId' }
   export interface EventId extends String { kind?: 'EventId' }
