@@ -61,6 +61,8 @@ import './Tag'
 export * from './Tag'
 import './CustomField'
 export * from './CustomField'
+import './CustomFieldCategory'
+export * from './CustomFieldCategory'
 // import './CustomFieldChoice' // 目前不需建表
 export * from './CustomFieldChoice'
 import './CustomFieldLink'
