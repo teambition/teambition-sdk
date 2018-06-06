@@ -29,9 +29,7 @@ export interface TapCoordination {
   size?: TapCoordSize
 }
 
-export interface TapDashboardSectionId extends String {
-  kind?: 'TapDashboardSectionId'
-}
+export type TapDashboardSectionId = string & { kind: 'TapDashboardSectionId' }
 
 export interface TapDashboardSection {
   _id: TapDashboardSectionId

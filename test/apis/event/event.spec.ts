@@ -4,6 +4,7 @@ import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, EventSchema } from '../../index'
 import * as Fixture from '../../fixtures/events.fixture'
 import { mock, restore, equals, looseDeepEqual, clone } from '../../utils'
+import { EventId } from 'teambition-types'
 
 describe('EventApi request spec', () => {
   let sdk: SDK
@@ -22,7 +23,7 @@ describe('EventApi request spec', () => {
     const fixture = Fixture.normalEvent
     mockResponse(fixture)
 
-    yield sdk.getEvent(fixture._id)
+    yield sdk.getEvent(fixture._id as EventId)
       .values()
       .do(([r]) => {
         const result = r.next().value
@@ -34,7 +35,7 @@ describe('EventApi request spec', () => {
     const fixture = Fixture.recurrenceByMonth
     mockResponse(fixture)
 
-    yield sdk.getEvent(fixture._id)
+    yield sdk.getEvent(fixture._id as EventId)
       .values()
       .do(([r]) => {
         const result = r.next().value
@@ -58,7 +59,7 @@ describe('EventApi request spec', () => {
     const fixture = Fixture.recurrenceByMonth
     mockResponse(fixture)
 
-    const signal = sdk.getEvent(fixture._id)
+    const signal = sdk.getEvent(fixture._id as EventId)
       .changes()
 
     signal.subscribe()
@@ -83,13 +84,13 @@ describe('EventApi request spec', () => {
     const fixture = Fixture.recurrenceByMonth
     mockResponse(fixture)
 
-    const token1 = sdk.getEvent(fixture._id)
+    const token1 = sdk.getEvent(fixture._id as EventId)
 
     const f2 = clone(fixture)
     f2._id = 'mockF2Id'
     mockResponse(f2)
 
-    const token2 = sdk.getEvent(f2._id)
+    const token2 = sdk.getEvent(f2._id as EventId)
 
     yield token1.combine(token2)
       .values()

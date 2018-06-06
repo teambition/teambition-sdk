@@ -18,9 +18,9 @@ export interface MemberProfileSchema {
   teamIds: TeamId[]
 }
 
-export interface MemberSchema {
+export interface GeneralMemberSchema {
   _boundToObjectId: ProjectId | OrganizationId
-  _id: String // 兼容新（MemberId）和旧（UserId），当完成迁移，换为更准确的 MemberId
+  _id: string // 兼容新（MemberId）和旧（UserId），当完成迁移，换为更准确的 MemberId
   _memberId: MemberId
   _roleId: RoleId
   _userId: UserId
@@ -52,11 +52,15 @@ export interface MemberSchema {
   website: string
 }
 
-export interface LegacyMemberSchema extends MemberSchema {
+export interface MemberSchema extends GeneralMemberSchema {
+  _id: MemberId
+}
+
+export interface LegacyMemberSchema extends GeneralMemberSchema {
   _id: UserId
 }
 
-const Schema: SchemaDef<MemberSchema> = {
+const Schema: SchemaDef<GeneralMemberSchema> = {
   _boundToObjectId: { type: RDBType.STRING },
   _id: { type: RDBType.STRING, primaryKey: true },
   _memberId: { type: RDBType.STRING },
