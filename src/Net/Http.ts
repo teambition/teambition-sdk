@@ -213,6 +213,7 @@ export class Http<T> {
       result.cloned = true
     }
     result.request = this.request
+    result.mapFn = this.mapFn
     return result
   }
 
