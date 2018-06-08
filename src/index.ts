@@ -22,6 +22,6 @@ export { Socket, eventToRE as socketEventToRE }
 
 export { SDK } from './SDK'
 export { SDKFetch } from './SDKFetch'
-export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$ } from './Net'
+export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$, Page } from './Net'
 
 // export const SocketClient: Client = sdk.socket
