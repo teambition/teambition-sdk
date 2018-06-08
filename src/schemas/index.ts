@@ -6,7 +6,7 @@ export * from './Collection'
 import './CustomRole'
 export * from './CustomRole'
 // import './DashboardCard' // 目前不需建表
-export { DashboardCardSchema } from './DashboardCard'
+export * from './DashboardCard'
 import './DefaultRole'
 export * from './DefaultRole'
 import './Event'
