@@ -10,33 +10,57 @@ export interface State<T = {}> {
   paginationNextPageToken: PageToken
   paginationTotalSize?: number
   paginationResult: T[]
+
+  paginationNextPage: number
+  paginationHasMore: boolean
+
+  paginationPageSize?: number
+  paginationUrlQuery?: {}
 }
 
 export type NestedState<T, K extends string, S extends State<T> = State<T>> = {
   [key in K]: S
 }
 
-export function defaultState<T, K = undefined, E extends { [key: string]: any } = {}>(
+export function defaultState<T>(
   urlPath: string,
-  namespace?: keyof K,
-  extra?: E
-): (K extends undefined ? State<T> : NestedState<T, keyof K, State<T> & E>) {
+  options: { pageSize?: number, urlQuery?: {} } = {}
+): State<T> {
   const raw = {
     paginationUrlPath: urlPath,
     paginationNextPageToken: emptyPageToken,
     paginationTotalSize: 0,
-    paginationResult: []
+    paginationResult: [],
+
+    paginationNextPage: 1,
+    paginationHasMore: true
   }
-  return (!namespace ? raw : { [namespace]: Object.assign(raw, extra) }) as any
+  if (options.pageSize) {
+    Object.assign(raw, { paginationPageSize: options.pageSize })
+  }
+  if (options.urlQuery) {
+    Object.assign(raw, { paginationUrlQuery: options.urlQuery })
+  }
+  return raw
 }
 
 export function getState<T>(local: State<T>): State<T> {
-  return {
+  const raw =  {
     paginationUrlPath: local.paginationUrlPath,
     paginationNextPageToken: local.paginationNextPageToken,
     paginationTotalSize: local.paginationTotalSize,
-    paginationResult: local.paginationResult
+    paginationResult: local.paginationResult,
+
+    paginationNextPage: local.paginationNextPage,
+    paginationHasMore: local.paginationHasMore
   }
+  if (local.paginationPageSize) {
+    Object.assign(raw, { paginationPageSize: local.paginationPageSize })
+  }
+  if (local.paginationUrlQuery) {
+    Object.assign(raw, { paginationUrlQuery: local.paginationUrlQuery })
+  }
+  return raw
 }
 
 export type OriginalResponse<T> = {
@@ -48,26 +72,30 @@ export type OriginalResponse<T> = {
 export function nextPage<T, K = T>(
   sdkFetch: SDKFetch,
   state: State<K>,
-  pageSize: number,
-  urlQuery: {} = {},
-  mapFn?: (value: T, index?: number, array?: T[], headers?: any) => K
+  options: {
+    pageSize?: number,
+    urlQuery?: {},
+    mapFn?: (value: T, index?: number, array?: T[], headers?: any) => K
+  } = {}
 ): Observable<State<K>> {
+  const pageSize = options.pageSize || state.paginationPageSize || 50
+  const stateUrlQuery = state.paginationUrlQuery || {}
+  const urlQuery = options.urlQuery ? { ...stateUrlQuery, ...options.urlQuery } : stateUrlQuery
+  const paginationUrlQuery = { ...urlQuery, pageSize, pageToken: state.paginationNextPageToken }
   return sdkFetch
-    .get<OriginalResponse<T>>(state.paginationUrlPath, {
-      ...urlQuery,
-      pageSize,
-      pageToken: state.paginationNextPageToken
-    }, { includeHeaders: true })
+    .get<OriginalResponse<T>>(state.paginationUrlPath, paginationUrlQuery, { includeHeaders: true })
     .map(({ headers, body: { nextPageToken, totalSize, result } }) => {
       return {
         ...state,
         paginationNextPageToken: nextPageToken,
         paginationTotalSize: totalSize,
         paginationResult: state.paginationResult.concat(
-          !mapFn
+          !options.mapFn
             ? result as any as K[]
-            : result.map((x, i, arr) => mapFn(x, i, arr, headers))
-        )
+            : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers))
+        ),
+        paginationNextPage: state.paginationNextPage + 1,
+        paginationHasMore: Boolean(nextPageToken)
       }
     })
 }

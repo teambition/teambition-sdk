@@ -16,16 +16,6 @@ describe.only('Pagination Spec', () => {
     expect(app2remains).to.deep.equal(page.defaultState(urlPath))
   })
 
-  it(`${page.defaultState.name} should allow namespacing`, () => {
-    const nested = page.defaultState(urlPath, 'nested')
-    expect(nested.nested).to.deep.equal(page.defaultState(urlPath))
-  })
-
-  it(`${page.defaultState.name} should allow namespaced state to include extra custom states`, () => {
-    const nested = page.defaultState(urlPath, 'nested', { page: 1 })
-    expect(nested.nested).to.deep.equal({ ...page.defaultState(urlPath), page: 1 })
-  })
-
   it(`${page.getState.name} should get pagination state from current app state`, () => {
     const pageState: page.State = {
       ...page.defaultState(urlPath),
@@ -56,9 +46,9 @@ describe.only('Pagination Spec', () => {
         throws: 'paging fails'
       })
 
-      const initial = page.defaultState(urlPath)
+      const initial = page.defaultState(urlPath, { pageSize: 5 })
       return page
-        .nextPage(sdkFetch, initial, 5)
+        .nextPage(sdkFetch, initial)
         .toPromise()
         .then(() => {
           throw new Error('should not emit new state when request fails')
@@ -75,16 +65,19 @@ describe.only('Pagination Spec', () => {
         result: [1, 2, 3, 4, 5]
       })
 
-      const initial = page.defaultState(urlPath)
+      const initial = page.defaultState(urlPath, { pageSize: 5 })
       return page
-        .nextPage(sdkFetch, initial, 5)
+        .nextPage(sdkFetch, initial)
         .toPromise()
         .then((resultState) => {
           expect(resultState).to.deep.equal({
             paginationUrlPath: urlPath,
             paginationNextPageToken: 'asdf',
             paginationTotalSize: 66,
-            paginationResult: [1, 2, 3, 4, 5]
+            paginationResult: [1, 2, 3, 4, 5],
+            paginationNextPage: 2,
+            paginationHasMore: true,
+            paginationPageSize: 5
           })
         })
     })
@@ -100,17 +93,21 @@ describe.only('Pagination Spec', () => {
         paginationUrlPath: urlPath,
         paginationNextPageToken: 'asdf' as page.PageToken,
         paginationTotalSize: 66,
-        paginationResult: [1, 2, 3, 4, 5]
+        paginationResult: [1, 2, 3, 4, 5],
+        paginationNextPage: 2,
+        paginationHasMore: true
       }
       return page
-        .nextPage(sdkFetch, currState, 5)
+        .nextPage(sdkFetch, currState, { pageSize: 5 })
         .toPromise()
         .then((resultState) => {
           expect(resultState).to.deep.equal({
             paginationUrlPath: urlPath,
             paginationNextPageToken: 'ghjk',
             paginationTotalSize: 66,
-            paginationResult: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            paginationResult: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            paginationNextPage: 3,
+            paginationHasMore: true
           })
         })
     })
@@ -126,17 +123,25 @@ describe.only('Pagination Spec', () => {
         paginationUrlPath: urlPath,
         paginationNextPageToken: 'asdf' as page.PageToken,
         paginationTotalSize: 66,
-        paginationResult: [0, 1, 2, 3, 4]
+        paginationResult: [0, 1, 2, 3, 4],
+        paginationNextPage: 2,
+        paginationHasMore: true
       }
       return page
-        .nextPage<number>(sdkFetch, currState, 5, {}, (i) => i - 1)
+        .nextPage<number>(sdkFetch, currState, {
+          pageSize: 5,
+          urlQuery: {},
+          mapFn: (i) => i - 1
+        })
         .toPromise()
         .then((resultState) => {
           expect(resultState).to.deep.equal({
             paginationUrlPath: urlPath,
             paginationNextPageToken: 'ghjk',
             paginationTotalSize: 66,
-            paginationResult: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+            paginationResult: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            paginationNextPage: 3,
+            paginationHasMore: true
           })
         })
     })
@@ -161,18 +166,22 @@ describe.only('Pagination Spec', () => {
           { value: 2, sessionId: '20180607' },
           { value: 3, sessionId: '20180607' },
           { value: 4, sessionId: '20180607' },
-        ]
+        ],
+        paginationNextPage: 2,
+        paginationHasMore: true
       }
       return page
         .nextPage<number, { value: number, sessionId: string }>(
           sdkFetch,
           currState,
-          5,
-          {},
-          (i, _1, _2, headers) => ({
-            value: i - 1,
-            sessionId: headers['x-request-id'] as string
-          })
+          {
+            pageSize: 5,
+            urlQuery: {},
+            mapFn: (i, _1, _2, headers) => ({
+              value: i - 1,
+              sessionId: headers['x-request-id'] as string
+            })
+          }
         )
         .toPromise()
         .then((resultState) => {
@@ -190,7 +199,10 @@ describe.only('Pagination Spec', () => {
               { value: 6, sessionId: '20180608' },
               { value: 7, sessionId: '20180608' },
               { value: 8, sessionId: '20180608' },
-              { value: 9, sessionId: '20180608' }]
+              { value: 9, sessionId: '20180608' }
+            ],
+            paginationNextPage: 3,
+            paginationHasMore: true
           })
         })
     })
