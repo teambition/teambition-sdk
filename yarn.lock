@@ -2067,9 +2067,9 @@ rc@1.2.5:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-reactivedb@~0.10.2:
-  version "0.10.2"
-  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.10.2.tgz#297c0b05599b5c4fab4f7bf6c82cb81e50915b43"
+reactivedb@~0.9.13:
+  version "0.9.16"
+  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.9.16.tgz#3d53b156663bb6d1e79e4246240a3781c612e7e6"
   dependencies:
     "@types/lovefield" "^2.1.1"
     lovefield "2.1.12"
