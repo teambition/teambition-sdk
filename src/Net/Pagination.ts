@@ -5,17 +5,20 @@ export type PageToken = string & { kind: 'PageToken' }
 
 export const emptyPageToken = '' as PageToken
 
-export interface State<T = {}> {
-  paginationUrlPath: string,
-  paginationNextPageToken: PageToken
-  paginationTotalSize?: number
-  paginationResult: T[]
+export interface DynamicState<T = {}> {
+  nextPageToken: PageToken
+  totalSize?: number
+  result: T[]
 
-  paginationNextPage: number
-  paginationHasMore: boolean
+  nextPage: number
+  hasMore: boolean
+}
 
-  paginationPageSize?: number
-  paginationUrlQuery?: {}
+export interface State<T = {}> extends DynamicState<T> {
+  urlPath: string
+
+  pageSize?: number
+  urlQuery?: {}
 }
 
 export type NestedState<T, K extends string, S extends State<T> = State<T>> = {
@@ -24,80 +27,92 @@ export type NestedState<T, K extends string, S extends State<T> = State<T>> = {
 
 export function defaultState<T>(
   urlPath: string,
-  options: { pageSize?: number, urlQuery?: {} } = {}
+  options: {
+    pageSize?: number
+    urlQuery?: {}
+  } = {}
 ): State<T> {
   const raw = {
-    paginationUrlPath: urlPath,
-    paginationNextPageToken: emptyPageToken,
-    paginationTotalSize: 0,
-    paginationResult: [],
+    urlPath: urlPath,
+    nextPageToken: emptyPageToken,
+    totalSize: 0,
+    result: [],
 
-    paginationNextPage: 1,
-    paginationHasMore: true
+    nextPage: 1,
+    hasMore: true
   }
   if (options.pageSize) {
-    Object.assign(raw, { paginationPageSize: options.pageSize })
+    Object.assign(raw, { pageSize: options.pageSize })
   }
   if (options.urlQuery) {
-    Object.assign(raw, { paginationUrlQuery: options.urlQuery })
+    Object.assign(raw, { urlQuery: options.urlQuery })
   }
   return raw
 }
 
 export function getState<T>(local: State<T>): State<T> {
   const raw =  {
-    paginationUrlPath: local.paginationUrlPath,
-    paginationNextPageToken: local.paginationNextPageToken,
-    paginationTotalSize: local.paginationTotalSize,
-    paginationResult: local.paginationResult,
+    urlPath: local.urlPath,
+    nextPageToken: local.nextPageToken,
+    totalSize: local.totalSize,
+    result: local.result,
 
-    paginationNextPage: local.paginationNextPage,
-    paginationHasMore: local.paginationHasMore
+    nextPage: local.nextPage,
+    hasMore: local.hasMore
   }
-  if (local.paginationPageSize) {
-    Object.assign(raw, { paginationPageSize: local.paginationPageSize })
+  if (local.pageSize) {
+    Object.assign(raw, { pageSize: local.pageSize })
   }
-  if (local.paginationUrlQuery) {
-    Object.assign(raw, { paginationUrlQuery: local.paginationUrlQuery })
+  if (local.urlQuery) {
+    Object.assign(raw, { urlQuery: local.urlQuery })
   }
   return raw
 }
 
 export type OriginalResponse<T> = {
-  nextPageToken: PageToken,
-  result: T[],
+  nextPageToken: PageToken
+  result: T[]
   totalSize?: number
 }
 
-export function nextPage<T, K = T>(
-  sdkFetch: SDKFetch,
+export function next<T, K = T>(
+  this: SDKFetch,
   state: State<K>,
   options: {
-    pageSize?: number,
-    urlQuery?: {},
+    pageSize?: number
+    urlQuery?: {}
     mapFn?: (value: T, index?: number, array?: T[], headers?: any) => K
   } = {}
 ): Observable<State<K>> {
-  const pageSize = options.pageSize || state.paginationPageSize || 50
-  const stateUrlQuery = state.paginationUrlQuery || {}
+  const pageSize = options.pageSize || state.pageSize || 50
+  const stateUrlQuery = state.urlQuery || {}
   const urlQuery = options.urlQuery ? { ...stateUrlQuery, ...options.urlQuery } : stateUrlQuery
-  const paginationUrlQuery = { ...urlQuery, pageSize, pageToken: state.paginationNextPageToken }
-  return sdkFetch
-    .get<OriginalResponse<T>>(state.paginationUrlPath, paginationUrlQuery, { includeHeaders: true })
+  const paginationUrlQuery = { ...urlQuery, pageSize, pageToken: state.nextPageToken }
+  return this
+    .get<OriginalResponse<T>>(state.urlPath, paginationUrlQuery, { includeHeaders: true })
     .map(({ headers, body: { nextPageToken, totalSize, result } }) => {
-      return {
-        ...state,
-        paginationNextPageToken: nextPageToken,
-        paginationTotalSize: totalSize,
-        paginationResult: state.paginationResult.concat(
+      const nextState: DynamicState<K> = {
+        nextPageToken: nextPageToken,
+        totalSize: totalSize,
+        result: state.result.concat(
           !options.mapFn
             ? result as any as K[]
             : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers))
         ),
-        paginationNextPage: state.paginationNextPage + 1,
-        paginationHasMore: Boolean(nextPageToken)
+        nextPage: state.nextPage + 1,
+        hasMore: Boolean(nextPageToken) && result.length === pageSize
       }
+      return { ...state, ...nextState }
     })
 }
 
 // todo(dingwen): reset()
+
+SDKFetch.prototype.nextPage = next
+
+declare module '../SDKFetch' {
+  // tslint:disable no-shadowed-variable
+  interface SDKFetch {
+    nextPage: typeof next
+  }
+}

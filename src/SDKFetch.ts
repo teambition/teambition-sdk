@@ -8,6 +8,7 @@ import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net
 import { UserMe } from './schemas/UserMe'
 import { forEach, isEmptyObject } from './utils'
 import { SDKLogger } from './utils/Logger'
+import * as page from './Net/Pagination'
 
 export type SDKFetchOptions = {
   apiHost?: string,
