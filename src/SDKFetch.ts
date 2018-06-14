@@ -54,6 +54,8 @@ export const defaultSDKFetchHeaders = () => ({
   'x-timezone': - new Date().getTimezoneOffset() / 60
 })
 
+export const SIMPLE_READ_REQUEST = 'SYMBOL_GET'
+
 export class SDKFetch {
 
   constructor(
@@ -65,6 +67,28 @@ export class SDKFetch {
 
   static FetchStack = new Map<string, Observable<any>>()
   static fetchTail: string | undefined | 0
+  static MemorizedFetch = new Map<string, any>()
+
+  memorized<T>(request: Observable<T>) {
+    if (!request[SIMPLE_READ_REQUEST]) {
+      SDKLogger.warn('Only Raw GET request can be memorized.')
+      return request
+    }
+
+    if (SDKFetch.MemorizedFetch.has(request[SIMPLE_READ_REQUEST])) {
+      return request
+    }
+
+    const alternate = request.do((ret) => {
+      SDKFetch.MemorizedFetch.set(request[SIMPLE_READ_REQUEST], ret)
+    })
+
+    return alternate
+  }
+
+  clearMemory() {
+    SDKFetch.MemorizedFetch.clear()
+  }
 
   get<T>(path: string, query: any, options: SDKFetchOptions & {
     wrapped: true, includeHeaders: true
@@ -84,28 +108,37 @@ export class SDKFetch {
     const url = this.urlWithPath(path, options.apiHost)
     const urlWithQuery = query ? SDKFetch.buildQuery(url, query) : url
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    const isSimpleRequest = !options.wrapped && !options.includeHeaders
     let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
 
     this.setOptionsPerRequest(http, options)
 
-    if (!SDKFetch.FetchStack.has(urlWithQuery)) {
-      const tail = SDKFetch.fetchTail || Date.now()
-      const urlWithTail = query && !isEmptyObject(query)
-        ? `${ urlWithQuery }&_=${ tail }`
-        : `${ urlWithQuery }?_=${ tail }`
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get()
-        .send()
-        .publishReplay<any>(1)
-        .refCount()
-      )
+    if (isSimpleRequest && SDKFetch.MemorizedFetch.has(urlWithQuery)) {
+      dist = Observable.of(SDKFetch.MemorizedFetch.get(urlWithQuery))
+    } else {
+      if (!SDKFetch.FetchStack.has(urlWithQuery)) {
+        const tail = SDKFetch.fetchTail || Date.now()
+        const urlWithTail = query && !isEmptyObject(query)
+          ? `${ urlWithQuery }&_=${ tail }`
+          : `${ urlWithQuery }?_=${ tail }`
+        dist = Observable.defer(() =>
+          http.setUrl(urlWithTail).get()
+            .send()
+            .publishReplay<any>(1)
+            .refCount()
+        )
         .finally(() => {
           SDKFetch.FetchStack.delete(urlWithQuery)
         })
 
-      SDKFetch.FetchStack.set(urlWithQuery, dist)
+        SDKFetch.FetchStack.set(urlWithQuery, dist)
+      }
     }
 
     dist = SDKFetch.FetchStack.get(urlWithQuery)!
+    if (isSimpleRequest) {
+      dist[SIMPLE_READ_REQUEST] = urlWithQuery
+    }
 
     if (options.wrapped) {
       http['request'] = dist
