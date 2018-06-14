@@ -120,25 +120,30 @@ export class Net {
     const hasPaddingFunction = typeof padding === 'function'
     const pk = this.primaryKeys.get(tableName)
 
-    const fn = (stream$: Observable<T[]>) =>
-      stream$.switchMap(data => !data.length
+    const fn = (stream$: Observable<T[]>) => {
+      if (!hasRequiredFields || !hasPaddingFunction || !pk) {
+        return stream$
+      }
+
+      return stream$.switchMap(data => !data.length
         ? Observable.of(data)
         : Observable.forkJoin(
-          Observable.from(data)
-            .mergeMap(datum => {
-              if (!hasRequiredFields || !hasPaddingFunction || !pk ||
-                required!.every(k => typeof datum[k] !== 'undefined')
-              ) {
-                return Observable.of(datum)
-              }
-              const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
-              return patch
-                .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
-                .do(r => Object.assign(datum, r))
-            })
+            Observable.from(data)
+              .mergeMap(datum => {
+                if (!hasRequiredFields || !hasPaddingFunction || !pk ||
+                  required!.every(k => typeof datum[k] !== 'undefined')
+                ) {
+                  return Observable.of(datum)
+                }
+                const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
+                return patch
+                  .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
+                  .do(r => Object.assign(datum, r))
+              })
         )
-          .mapTo(data)
+        .mapTo(data)
       )
+    }
     fn.toString = () => 'SDK_VALIDATE'
     return fn
   }
