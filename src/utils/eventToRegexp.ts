@@ -124,10 +124,10 @@ const tokenToRegexp = (tokens: EventToken[], option: Option = {}) => {
         ? `(?:${token.pattern})(?:${p}(?:${token.pattern}))*`
         : token.pattern
 
-      if (token.optional) {
-        if (token.partial) {
-          ret += `${p}(${capture})`
-        }
+      if (token.optional && !token.partial) {
+        ret += `(?:${p}(${capture}))`
+      } else {
+        ret += `${p}(${capture})`
       }
     }
   }
