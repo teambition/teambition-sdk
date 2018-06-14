@@ -5,6 +5,7 @@ declare module 'teambition-types' {
   export interface ActivityId extends String { kind?: 'ActivityId' }
   export interface ApplicationId extends String { kind?: 'ApplicationId' }
   export interface CollectionId extends String { kind?: 'CollectionId' }
+  export interface AdvancedCustomFieldId extends String { kind?: 'AdvancedCustomFieldId' }
   export interface CustomFieldCategoryId extends String { kind?: 'CustomFieldCategoryId' }
   export interface CustomFieldChoiceId extends String { kind?: 'CustomFieldChoiceId' }
   export interface CustomFieldId extends String { kind?: 'CustomFieldId' }
@@ -61,7 +62,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
-  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text'
+  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup'
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
@@ -88,9 +89,26 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
 
+  export interface AdvancedCustomField {
+    _id: AdvancedCustomFieldId
+    icon: string
+    name: string
+    objectType: string
+    type: CustomFieldType
+  }
+
+  export interface AdvancedCustomFieldValue {
+    _id: string
+    description: string
+    thumbUrl: string
+    title: string
+    url: string
+  }
+
   export interface CustomFieldValue {
     _customfieldId: CustomFieldId
     type: CustomFieldType
+    value: {}
     values: string[]
   }
 
