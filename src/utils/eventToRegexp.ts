@@ -127,7 +127,11 @@ const tokenToRegexp = (tokens: EventToken[], option: Option = {}) => {
       if (token.optional) {
         if (token.partial) {
           ret += `${p}(${capture})`
+        } else {
+          ret += `(?:${p}(${capture}))`
         }
+      } else {
+        ret += `${p}(${capture})`
       }
     }
   }
