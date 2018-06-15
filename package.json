@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.3",
+  "version": "0.12.4-alpha.0-dbcard-wsproxy",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
