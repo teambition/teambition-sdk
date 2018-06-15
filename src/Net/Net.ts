@@ -165,6 +165,8 @@ export class Net {
 
   lift<T>(result: ApiResult<T, CacheStrategy.Request>): QueryToken<T>
 
+  lift<T>(result: ApiResult<T, CacheStrategy>): QueryToken<T>
+
   lift<T>(result: CUDApiResult<T>): Observable<T>
 
   lift<T>(result: ApiResult<T, CacheStrategy> | CUDApiResult<T>) {

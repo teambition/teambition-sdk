@@ -1,8 +1,14 @@
-export const taskScenariofieldConfig = {
+import { TaskScenarioFieldConfigSchema, EventScenarioFieldConfigSchema } from '..'
+
+export const taskScenarioFieldConfig: TaskScenarioFieldConfigSchema = {
   _id: '5a977492a4e7b30012b6437c',
+  _originalId: '5a977492a4e7b30012b6437a',
   name: '需求',
   _creatorId: '5795ae540add8b24078fcb7d',
+  type: 'official',
   objectType: 'task',
+  boundToObjectType: 'project',
+  _boundToObjectId: '5a977492a4e7b30012b6436b',
   _projectId: '5a977492a4e7b30012b6436b',
   _taskflowId: '5a977492a4e7b30012b6436c',
   icon: 'requirement',
@@ -53,6 +59,7 @@ export const taskScenariofieldConfig = {
   ],
   created: '2018-03-01T03:33:38.829Z',
   updated: '2018-03-02T05:50:48.968Z',
+  hasChanged: false,
   isDefault: true,
   displayed: true,
   taskflowstatuses: [
@@ -115,11 +122,15 @@ export const taskScenariofieldConfig = {
   ]
 }
 
-export const eventScenariofieldConfig = {
+export const eventScenarioFieldConfig: EventScenarioFieldConfigSchema = {
   _id: '59fa8b97d564c422688da661',
+  _originalId: '59fa8b97d564c422688da660',
   name: '日程',
   _creatorId: '56efaff50e5a879506e2dbb4',
+  type: 'official',
   objectType: 'event',
+  boundToObjectType: 'project',
+  _boundToObjectId: '59ef11dfb29c94454cd453d7',
   _projectId: '59ef11dfb29c94454cd453d7',
   _taskflowId: null,
   icon: 'event',
@@ -149,6 +160,19 @@ export const eventScenariofieldConfig = {
   ],
   created: '2017-11-02T03:05:59.121Z',
   updated: '2017-11-02T03:05:59.121Z',
+  hasChanged: false,
   isDefault: true,
   displayed: false
+}
+
+export const orgTaskScenarioFieldConfig: TaskScenarioFieldConfigSchema = {
+  ...taskScenarioFieldConfig,
+  boundToObjectType: 'organization',
+  _boundToObjectId: 'mock-organization-id'
+}
+
+export const orgEventScenarioFieldConfig: EventScenarioFieldConfigSchema = {
+  ...eventScenarioFieldConfig,
+  boundToObjectType: 'organization',
+  _boundToObjectId: 'mock-organization-id'
 }

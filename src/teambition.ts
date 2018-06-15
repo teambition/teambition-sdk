@@ -235,7 +235,7 @@ declare module 'teambition-types' {
     isRequired: boolean
     dataType: D
     refData?: U
-    defaultValue?: U,
+    defaultValue?: U
   }
 
   export interface TapGenericFilterRequest {
@@ -312,6 +312,6 @@ declare module 'teambition-types' {
     TapFilterTarget<'weekend', 'type/Number', number[]> |
     TapFilterTarget<'holiday', 'type/DateCollection', string[]> |
     TapFilterTarget<'groupField', 'type/String', string>
-    >
+  >
 
 }

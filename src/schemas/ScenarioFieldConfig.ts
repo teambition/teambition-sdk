@@ -10,25 +10,27 @@ import {
   TaskflowId,
   TaskScenarioFieldIcon,
   UserId,
+  OrganizationId
 } from 'teambition-types'
-import {
-  ScenarioFieldSchema,
-  EventScenarioFieldSchema,
-  TaskScenarioFieldSchema,
-} from './ScenarioField'
+import { ScenarioFieldSchema, EventScenarioFieldSchema, TaskScenarioFieldSchema } from './ScenarioField'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface ScenarioFieldConfigSchema {
+  _boundToObjectId: OrganizationId | ProjectId | null
   _creatorId: UserId
   _id: ScenarioFieldConfigId
+  _originalId: ScenarioFieldConfigId | null
   _projectId: ProjectId
+  boundToObjectType: 'organization' | 'project'
   created: string
   displayed: boolean
+  hasChanged: boolean
   icon: ScenarioFieldConfigIcon
   isDefault: boolean
   name: string
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
+  type: 'default' | 'official' | 'normal'
   updated: string
 }
 
@@ -40,24 +42,31 @@ export interface TaskScenarioFieldConfigSchema extends ScenarioFieldConfigSchema
   // pro fields
   proTemplateConfigType: ScenarioProTemplateConfigType
   _taskflowId: TaskflowId
-  taskflowstatuses: TaskflowStatusSnippet[]
+  taskflowstatuses?: TaskflowStatusSnippet[]
 }
 
 export interface EventScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
   icon: EventScenarioFieldIcon
   objectType: 'event'
   scenariofields: EventScenarioFieldSchema[]
+  _taskflowId: null
+  proTemplateConfigType: null
 }
 
 const schema: SchemaDef<
   TaskScenarioFieldConfigSchema
-  | EventScenarioFieldConfigSchema
-  > = {
+  | EventScenarioFieldConfigSchema> = {
+    _boundToObjectId: {
+      type: RDBType.STRING
+    },
+    _creatorId: {
+      type: RDBType.STRING
+    },
     _id: {
       type: RDBType.STRING,
       primaryKey: true
     },
-    _creatorId: {
+    _originalId: {
       type: RDBType.STRING
     },
     _projectId: {
@@ -66,11 +75,17 @@ const schema: SchemaDef<
     _taskflowId: {
       type: RDBType.STRING
     },
+    boundToObjectType: {
+      type: RDBType.STRING
+    },
     created: {
       type: RDBType.DATE_TIME
     },
     displayed: {
-      type: RDBType.BOOLEAN,
+      type: RDBType.BOOLEAN
+    },
+    hasChanged: {
+      type: RDBType.BOOLEAN
     },
     icon: {
       type: RDBType.STRING
@@ -98,6 +113,9 @@ const schema: SchemaDef<
           _taskflowId: taskflowStatusTable._taskflowId
         })
       }
+    },
+    type: {
+      type: RDBType.STRING
     },
     updated: {
       type: RDBType.DATE_TIME
