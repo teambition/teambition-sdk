@@ -250,6 +250,8 @@ declare module 'teambition-types' {
 
   export type TapSupportedRelative = 'all' | 'past7days' | 'pastmonth' | 'past3months'
 
+  export type TapSupportedDateSeries = '0to3' | '3to6' | '6to10' | '10to14' | '14plus'
+
   export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType, U> = {
     refType: R
     isRequired: boolean
@@ -294,6 +296,9 @@ declare module 'teambition-types' {
     weekend?: number[]
     holiday?: string[]
     groupField?: string
+    taskflowId?: TaskflowId[]
+    taskflowstatusId?: TaskflowStatusId[]
+    dateSeries?: string[]
   }
 
   export type TapGenericFilterResponse = Array<
@@ -331,7 +336,10 @@ declare module 'teambition-types' {
     TapFilterTarget<'sprintId', 'type/MongoId', SprintId[]> |
     TapFilterTarget<'weekend', 'type/Number', number[]> |
     TapFilterTarget<'holiday', 'type/DateCollection', string[]> |
-    TapFilterTarget<'groupField', 'type/String', string>
+    TapFilterTarget<'groupField', 'type/String', string> |
+    TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
+    TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
+    TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]>
   >
 
 }

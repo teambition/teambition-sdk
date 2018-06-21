@@ -53,6 +53,7 @@ export interface TapGraphCoordGridDisplay {
       scale: 'linear'
       label: string | null
       range: 'auto'
+      linkedTo?: 'y'
     }
   }
   // should be filled by client
@@ -64,7 +65,9 @@ export interface TapGraphLineDisplay extends TapGraphCoordGridDisplay, TapGraphS
   showPointMarker: boolean,
 }
 
-export interface TapGraphBarDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay {}
+export interface TapGraphBarDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay {
+  colorSequence?: string[] | 'v2'
+}
 
 export interface TapGraphPieDisplay {
   showLegend: boolean
@@ -73,6 +76,13 @@ export interface TapGraphPieDisplay {
 }
 
 export type TapGraphLineBarPreset = {
+  name: 'burnup'
+  colorScheme: 'blue'
+  idealLineCol: number
+  actualLineCol: number
+  scopeLineCol: number
+  barColumns: number[]
+} | {
   name: 'burndown'
   colorScheme: 'blue'
   idealLineCol: number
