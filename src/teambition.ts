@@ -73,7 +73,7 @@ declare module 'teambition-types' {
   export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
   export type ScenarioFieldConfigObjectType = 'task' | 'event'
   export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
-  export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
+  export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'task'
   export type SmartGroupType = 'story' | 'sprint' | 'bug'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban'
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
