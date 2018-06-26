@@ -3,11 +3,13 @@ import {
   CustomScenarioFieldType,
   EventOfficialScenarioFieldType,
   RoleId,
+  ScenarioFieldId,
   ScenarioFieldType,
-  TaskOfficialScenarioFieldType,
+  TaskOfficialScenarioFieldType
 } from 'teambition-types'
 
 export interface ScenarioFieldSchema<T = ScenarioFieldType> {
+  _id: ScenarioFieldId
   fieldType: T
   _roleIds: RoleId[]
   displayed: boolean
