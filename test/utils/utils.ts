@@ -347,4 +347,84 @@ export default describe('utils test', () => {
     expect(() => eventToRE('')).to.throw('Invalid socket event')
     expect(() => eventToRE('\*')).to.throw('Invalid socket event')
   })
+
+  it('eventToRE should build regexp correctly', () => {
+    const fixture = [
+      {
+        target: ':change:task',
+        event: ':change:task',
+        result: true
+      },
+      {
+        target: ':change:task/(\\d)',
+        event: ':change:task',
+        result: false,
+      },
+      {
+        target: ':change:task/(\\d+)',
+        event: ':change:task/00000',
+        result: true
+      },
+      {
+        target: ':change:task/(\\d?)',
+        event: ':change:task/',
+        result: true
+      },
+      {
+        target: ':change:task/(\\W)',
+        event: 'change:task/123',
+        result: false
+      },
+      {
+        target: ':change:task/(\\w+)',
+        event: ':change:task/abcd',
+        result: true
+      },
+      {
+        target: ':new:task/abcd',
+        event: ':new:task/abcd',
+        result: true
+      },
+      {
+        target: ':new:task/abcd',
+        event: ':new:task/bcad',
+        result: false
+      },
+      {
+        target: ':new:(event|task)',
+        event: ':new:event',
+        result: true
+      },
+      {
+        target: ':new:(event|task)',
+        event: ':new:task',
+        result: true
+      },
+      {
+        target: ':new:(event|task)',
+        event: ':new:activity',
+        result: false
+      },
+      {
+        target: ':new:(event|task)',
+        event: ':change:task',
+        result: false
+      },
+      {
+        target: ':change:(event|task)',
+        event: ':change:file',
+        result: false
+      },
+      {
+        target: ':change:(event|task)/(\\.*)',
+        event: ':change:task/abcdefghijkl-=',
+        result: true
+      }
+    ]
+
+    for (const { result, event, target } of fixture) {
+      const expectPred = result ? expect(event) : expect(event).not
+      expectPred.match(eventToRE(target))
+    }
+  })
 })
