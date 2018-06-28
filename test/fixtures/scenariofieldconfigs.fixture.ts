@@ -1,6 +1,4 @@
-import { TaskScenarioFieldConfigSchema, EventScenarioFieldConfigSchema } from '..'
-
-export const taskScenarioFieldConfig: TaskScenarioFieldConfigSchema = {
+export const taskScenarioFieldConfig = {
   _id: '5a977492a4e7b30012b6437c',
   _originalId: '5a977492a4e7b30012b6437a',
   name: '需求',
@@ -122,7 +120,7 @@ export const taskScenarioFieldConfig: TaskScenarioFieldConfigSchema = {
   ]
 }
 
-export const eventScenarioFieldConfig: EventScenarioFieldConfigSchema = {
+export const eventScenarioFieldConfig = {
   _id: '59fa8b97d564c422688da661',
   _originalId: '59fa8b97d564c422688da660',
   name: '日程',
@@ -165,13 +163,13 @@ export const eventScenarioFieldConfig: EventScenarioFieldConfigSchema = {
   displayed: false
 }
 
-export const orgTaskScenarioFieldConfig: TaskScenarioFieldConfigSchema = {
+export const orgTaskScenarioFieldConfig = {
   ...taskScenarioFieldConfig,
   boundToObjectType: 'organization',
   _boundToObjectId: 'mock-organization-id'
 }
 
-export const orgEventScenarioFieldConfig: EventScenarioFieldConfigSchema = {
+export const orgEventScenarioFieldConfig = {
   ...eventScenarioFieldConfig,
   boundToObjectType: 'organization',
   _boundToObjectId: 'mock-organization-id'

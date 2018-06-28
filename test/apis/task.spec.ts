@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, TaskSchema } from '../index'
 import * as Fixture from '../fixtures/tasks.fixture'
 import { mock, restore, looseDeepEqual, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { TaskId } from 'teambition-types'
 
 describe('TaskApi request Spec', () => {
   let sdk: SDK
@@ -21,7 +22,7 @@ describe('TaskApi request Spec', () => {
     const fixture = Fixture.task
     mockResponse(fixture)
 
-    yield sdk.getTask(fixture._id)
+    yield sdk.getTask(fixture._id as TaskId)
       .values()
       .do(([r]) => {
         expectToDeepEqualForFieldsOfTheExpected(r, fixture, 'subtasks', 'ancestors')

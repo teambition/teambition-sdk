@@ -9,6 +9,7 @@ import {
   LikeSchema,
   SocketMock
 } from '../index'
+import { PostId, TaskId, UserId } from 'teambition-types'
 import { projectPosts } from '../fixtures/posts.fixture'
 import like from '../fixtures/like.fixture'
 import userMe from '../fixtures/user.fixture'
@@ -23,7 +24,7 @@ describe('Async load reactivedb Spec', () => {
   let mockResponse: <T>(m: T, delay?: number | Promise<any>) => void
   let socket: SocketMock
 
-  const userId = myFixture.myRecent[0]['_executorId']
+  const userId = myFixture.myRecent[0]['_executorId'] as UserId
 
   beforeEach(() => {
     sdk = createSdkWithoutRDB()
@@ -43,7 +44,7 @@ describe('Async load reactivedb Spec', () => {
       const [fixture] = projectPosts
 
       mockResponse(fixture)
-      yield sdk.getPost(fixture._id)
+      yield sdk.getPost(fixture._id as PostId)
         .values()
         .do(([r]) => {
           expect(r).to.deep.equal(fixture)
@@ -53,7 +54,7 @@ describe('Async load reactivedb Spec', () => {
 
     it('getLike should response correct data without reactivedb', done => {
       mockResponse(like)
-      sdk.getLike('task', 'mocktask')
+      sdk.getLike('task', 'mocktask' as TaskId)
         .values()
         .subscribe(([r]) => {
           delete r._id
@@ -75,7 +76,7 @@ describe('Async load reactivedb Spec', () => {
     it('getTask should response correct data without reactivedb', function* () {
       const fixture = task
       mockResponse(fixture)
-      yield sdk.getTask(fixture._id)
+      yield sdk.getTask(fixture._id as TaskId)
         .values()
         .do(([r]) => {
           expect(r).to.deep.equal(fixture)
@@ -128,7 +129,7 @@ describe('Async load reactivedb Spec', () => {
       const [fixture] = projectPosts
 
       mockResponse(fixture)
-      yield sdk.getPost(fixture._id)
+      yield sdk.getPost(fixture._id as PostId)
         .values()
 
       yield loadRDB(sdk)
@@ -145,10 +146,10 @@ describe('Async load reactivedb Spec', () => {
         ...like, isLike: false, _id: 'mocktask:like'
       })
 
-      yield sdk.getLike('task', 'mocktask')
+      yield sdk.getLike('task', 'mocktask' as TaskId)
         .values()
 
-      yield sdk.toggleLike('task', 'mocktask', true)
+      yield sdk.toggleLike('task', 'mocktask' as TaskId, true)
 
       yield loadRDB(sdk)
 
@@ -167,7 +168,7 @@ describe('Async load reactivedb Spec', () => {
 
         mockResponse(fixture)
 
-        yield sdk.getPost(fixture._id)
+        yield sdk.getPost(fixture._id as PostId)
           .values()
 
         yield socket.emit('destroy', 'post', fixture._id)
@@ -185,7 +186,7 @@ describe('Async load reactivedb Spec', () => {
         const [fixture] = projectPosts
 
         mockResponse(fixture)
-        yield sdk.getPost(fixture._id)
+        yield sdk.getPost(fixture._id as PostId)
           .values()
 
         yield socket.emit('change', 'post', fixture._id, {

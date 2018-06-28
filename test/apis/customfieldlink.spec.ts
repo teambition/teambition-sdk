@@ -5,6 +5,7 @@ import { expect } from 'chai'
 import { SDKFetch, createSdk, SDK } from '../'
 import { customFieldLink } from '../fixtures/customfieldlinks.fixture'
 import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { ProjectId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
 
@@ -29,7 +30,7 @@ describe('CustomFieldLinkApi request spec: ', () => {
   })
 
   it('should return a CustomFieldLink array', function* () {
-    const projectId = customFieldLink._projectId
+    const projectId = customFieldLink._projectId as ProjectId
     const customFieldLinks = [customFieldLink]
     const url = `/projects/${projectId}/customfieldlinks?boundType=application&_=666`
 
@@ -51,7 +52,7 @@ describe('CustomFieldLinkApi spec: ', () => {
   })
 
   it('should return a CustomFieldLink array', function* () {
-    const projectId = customFieldLink._projectId
+    const projectId = customFieldLink._projectId as ProjectId
     const customFieldLinks = [customFieldLink]
     mockResponse(customFieldLinks)
 

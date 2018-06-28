@@ -10,6 +10,7 @@ import {
   buildPath as buildPathForMemberSearching
 } from '../../src/apis/search/members'
 import { SDKFetch } from '../'
+import { GroupId, OrganizationId, ProjectId, TeamId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
 
@@ -33,22 +34,22 @@ describe('search for members', () => {
       const sampleId = '58de087921efc137f43cef3c'
       expect(buildPathForMemberSearching({
         type: ScopeType.Team,
-        id: sampleId
+        id: sampleId as TeamId
       })).to.equal(`teams/${sampleId}/members/search`)
 
       expect(buildPathForMemberSearching({
         type: ScopeType.Project,
-        id: sampleId
+        id: sampleId as ProjectId
       })).to.equal(`projects/${sampleId}/members/search`)
 
       expect(buildPathForMemberSearching({
         type: ScopeType.Organization,
-        id: sampleId
+        id: sampleId as OrganizationId
       })).to.equal(`organizations/${sampleId}/members/search`)
 
       expect(buildPathForMemberSearching({
         type: ScopeType.Group,
-        id: sampleId
+        id: sampleId as GroupId
       })).to.equal(`groups/${sampleId}/members/search`)
     })
   })

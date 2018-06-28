@@ -19,13 +19,9 @@ export interface UserPaymentPlan {
   status: string
 }
 
-export interface StrikerToken extends String {
-  kind?: 'StrikerToken'
-}
+export type StrikerToken = string & { kind: 'StrikerToken' }
 
-export interface TcmToken extends String {
-  kind?: 'TcmToken'
-}
+export type TcmToken = string & { kind: 'TcmToken' }
 
 export interface UserMe {
   _id: UserId
