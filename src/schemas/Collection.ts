@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { CollectionId, UserId } from 'teambition-types'
+import { CollectionId, UserId, VisibleOption, ExecutorOrCreator } from 'teambition-types'
 
 export interface CollectionSchema {
   _id: CollectionId
@@ -13,6 +13,11 @@ export interface CollectionSchema {
   isArchived: boolean
   created: string
   updated: string
+  visible: VisibleOption
+  isConfigurable: boolean
+  involveMembers: UserId[]
+  involvers: ExecutorOrCreator[]
+  lockedConfigurabilityBy: 'children' | 'parent' | null
 }
 
 const schema: SchemaDef<CollectionSchema> = {
@@ -45,6 +50,21 @@ const schema: SchemaDef<CollectionSchema> = {
     type: RDBType.STRING
   },
   updated: {
+    type: RDBType.STRING
+  },
+  visible: {
+    type: RDBType.STRING
+  },
+  isConfigurable: {
+    type: RDBType.BOOLEAN
+  },
+  involveMembers: {
+    type: RDBType.LITERAL_ARRAY
+  },
+  involvers: {
+    type: RDBType.OBJECT
+  },
+  lockedConfigurabilityBy: {
     type: RDBType.STRING
   }
 }
