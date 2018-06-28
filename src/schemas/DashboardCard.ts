@@ -1,6 +1,6 @@
 import { DashboardCardId, UserId } from 'teambition-types'
 
-export enum OfficialKey {
+export enum DashboardOfficialKey {
   Recent = 'recent',
   TaskExecuted = 'task_executed',
   TaskInvolved = 'task_involved',
@@ -12,17 +12,17 @@ export enum OfficialKey {
   Apps = 'apps'
 }
 
-export enum CardCategory {
+export enum DashboardCardCategory {
   Custom = 'custom',
   Official = 'official'
 }
 
-export enum DataSource {
+export enum DashboardDataSource {
   Tql = 'tql',
   Api = 'api'
 }
 
-export enum CardType {
+export enum DashboardCardType {
   ListPlain = 'list.plain',
   ListPage = 'list.page',
   ListModal = 'list.modal'
@@ -30,16 +30,16 @@ export enum CardType {
 
 export interface DashboardCardSchema {
   _id: DashboardCardId
-  category: CardCategory
+  category: DashboardCardCategory
   created: string
-  dataSource: DataSource
+  dataSource: DashboardDataSource
   dataUrl: string
   description: string
   isDeleted: boolean
   name: string
-  officialKey?: OfficialKey
+  officialKey?: DashboardOfficialKey
   pos: number
   updated: string
-  viewType: CardType
+  viewType: DashboardCardType
   _userId: UserId
 }
