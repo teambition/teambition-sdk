@@ -15,7 +15,7 @@ interface EventSchema {
   startDate: string
   endDate: string
   untilDate: string
-  involveMembers: string []
+  involveMembers: UserId[]
   _projectId: ProjectId
   _sourceId: EventId
   sourceDate: string

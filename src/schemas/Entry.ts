@@ -17,7 +17,7 @@ export interface EntryData {
   note: string
   amount: number
   status: string
-  involveMembers: string[]
+  involveMembers: UserId[]
   visible: VisibleOption
   tagIds: TagId[]
   created: string

@@ -33,7 +33,7 @@ export interface FileSchema {
   thumbnailUrl: string
   description: string
   source: string
-  involveMembers: string[]
+  involveMembers: UserId[]
   created: string
   updated: string
   lastVersionTime: string
