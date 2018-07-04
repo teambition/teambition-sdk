@@ -1,5 +1,5 @@
 import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
-import { CustomFieldValue, ExecutorOrCreator } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { OrganizationPaymentPlan } from './Organization'
@@ -53,7 +53,7 @@ export interface ProjectSchema {
   pushStatus: boolean
   py: string
   shortLink?: string
-  sortMethod: 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'custom'
+  sortMethod: TaskSortMethod
   starsCount: number
   syncCountsAt: string //  a Date
   tagsCount: number
