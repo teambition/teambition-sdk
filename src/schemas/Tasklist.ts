@@ -1,24 +1,27 @@
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 import { StageSchema } from '../schemas/Stage'
-import { TasklistId, StageId, ProjectId, UserId } from 'teambition-types'
+import { TasklistId, TaskSortMethod, ScenarioFieldConfigId, StageId, ProjectId, UserId } from 'teambition-types'
 
 export interface TasklistSchema {
   _id: TasklistId
-  title: string
-  _projectId: ProjectId
   _creatorId: UserId
-  description: string
-  isArchived: boolean
+  _defaultScenariofieldconfigId: ScenarioFieldConfigId | null
+  _projectId: ProjectId
   created: string
-  updated: string
-  stageIds: StageId[]
+  description: string
   doneCount: number
-  undoneCount: number
   expiredCount: number
-  recentCount: number
-  totalCount: number
+  isArchived: boolean
   hasStages: StageSchema[]
+  pos: number
+  recentCount: number
+  sortMethod: TaskSortMethod | ''
+  stageIds: StageId[]
+  title: string
+  totalCount: number
+  undoneCount: number
+  updated: string
 }
 
 const schema: SchemaDef<TasklistSchema> = {
@@ -28,6 +31,9 @@ const schema: SchemaDef<TasklistSchema> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+  _defaultScenariofieldconfigId: {
+    type: RDBType.STRING
   },
   _projectId: {
     type: RDBType.STRING
@@ -56,8 +62,14 @@ const schema: SchemaDef<TasklistSchema> = {
   isArchived: {
     type: RDBType.BOOLEAN
   },
+  pos: {
+    type: RDBType.NUMBER
+  },
   recentCount: {
     type: RDBType.NUMBER
+  },
+  sortMethod: {
+    type: RDBType.STRING
   },
   stageIds: {
     type: RDBType.LITERAL_ARRAY
