@@ -15,6 +15,13 @@ export interface DateInfo {
 
 export type InstanceCreator<T> = (source: T, timeframe?: Timeframe) => T
 
+type CmpOption = 'byStartDate' | 'byEndDate'
+
+type TimeframeFrom = {
+  startDateFrom: Date
+  include: boolean
+}
+
 export class RecurrenceFactory<T extends DateInfo> implements IterableIterator<T | undefined> {
   readonly type: string
 
@@ -103,15 +110,29 @@ export class RecurrenceFactory<T extends DateInfo> implements IterableIterator<T
       : null
   }
 
+  private takePred = (from: Date, fromCmpOption: CmpOption) =>
+    (eSpan?: Timeframe): boolean | TimeframeFrom => {
+      switch (fromCmpOption) {
+        case 'byStartDate':
+          // 用开始时间来判断一个实例是否应该出现在当前区间的话，它可以晚于或等于 from
+          return eSpan ? eSpan.startDate >= from : {
+            startDateFrom: from,
+            include: true
+          }
+        case 'byEndDate':
+          // 用结束时间来判断一个实例是否应该出现在当前区间的话，它必须要严格晚于 from
+          return eSpan ? eSpan.endDate > from : {
+            startDateFrom: new Date(from.valueOf() - this.duration),
+            include: false
+          }
+      }
+    }
+
   private slice(
-    from: Date, fromCmpOption: 'byStartDate' | 'byEndDate',
-    to: Date, toCmpOption: 'byStartDate' | 'byEndDate'
+    from: Date, fromCmpOption: CmpOption,
+    to: Date, toCmpOption: CmpOption
   ): Timeframe[] {
-    const skipPred = (eSpan: Timeframe): boolean =>
-      // 用开始时间来判断一个实例是否应该出现在当前区间的话，它可以晚于或等于 from
-      fromCmpOption === 'byStartDate' && eSpan.startDate < from
-    // 用结束时间来判断一个实例是否应该出现在当前区间的话，它必须要严格晚于 from
-      || fromCmpOption === 'byEndDate' && eSpan.endDate <= from
+    const takePred = this.takePred(from, fromCmpOption)
 
     const stopPred = (eSpan: Timeframe): boolean => {
       // 用开始时间来判断一个实例是否应该出现在当前区间的话，它必须严格早于 to
@@ -128,7 +149,7 @@ export class RecurrenceFactory<T extends DateInfo> implements IterableIterator<T
         startDate: new Date(this.source.startDate),
         endDate: new Date(this.source.endDate)
       }
-      if (!skipPred(initialEventSpan) && !stopPred(initialEventSpan)) {
+      if (takePred(initialEventSpan) as boolean && !stopPred(initialEventSpan)) {
         // eventSpan 在时间范围内
         result.push(initialEventSpan)
       }
@@ -136,7 +157,11 @@ export class RecurrenceFactory<T extends DateInfo> implements IterableIterator<T
     }
     // this.isRecurrence is truthy
 
-    initialEventSpan = this.getOneTimeframeFromRecurrence(new Date(this.source.startDate))
+    {
+      const { startDateFrom, include } = takePred() as TimeframeFrom
+      initialEventSpan = this.getOneTimeframeFromRecurrence(startDateFrom, include)
+    }
+
     if (!initialEventSpan) {
       return []
     }
@@ -147,13 +172,10 @@ export class RecurrenceFactory<T extends DateInfo> implements IterableIterator<T
       curr !== null;
       curr = this.getOneTimeframeFromRecurrence(curr.startDate, false)
     ) {
-      if (stopPred(curr)) { // 优先检查停止条件
+      // note: 任何一个 time frame 都需要通过 stopPred 才可以用，initialEventSpan 也不例外
+      if (stopPred(curr)) {
         break
       }
-      if (skipPred(curr)) { // 其次检查忽略条件
-        continue
-      }
-
       result.push(curr)
     }
 
