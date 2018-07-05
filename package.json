@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.7",
+  "version": "0.12.8-alpha.0-pagination",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
