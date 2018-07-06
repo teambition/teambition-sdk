@@ -1,11 +1,11 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { CustomFieldType, CustomFieldBoundType, AdvancedCustomField } from 'teambition-types'
+import { CustomFieldType, CustomFieldBoundType, AdvancedCustomField, CustomFieldSubtype } from 'teambition-types'
 import { CustomFieldId, CustomFieldLinkId, ProjectId, RoleId, CustomFieldCategoryId } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
 
-export interface CustomFieldLinkSchema {
+export interface CustomFieldLinkBaseSchema {
   _customfieldId: CustomFieldId
   _id: CustomFieldLinkId
   _projectId: ProjectId
@@ -20,6 +20,17 @@ export interface CustomFieldLinkSchema {
   pos: number
   type: CustomFieldType
 }
+
+export interface NormalCustomFieldLinkSchema extends CustomFieldLinkBaseSchema {
+  type: Exclude<CustomFieldType, 'commongroup'>
+}
+
+export interface CommonGroupCustomFieldLinkSchema extends CustomFieldLinkBaseSchema {
+  type: 'commongroup'
+  subtype: CustomFieldSubtype
+}
+
+export type CustomFieldLinkSchema = NormalCustomFieldLinkSchema | CommonGroupCustomFieldLinkSchema
 
 const schema: SchemaDef<CustomFieldLinkSchema> = {
   _id: {
@@ -60,6 +71,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
     type: RDBType.NUMBER
   },
   type: {
+    type: RDBType.STRING
+  },
+  subtype: {
     type: RDBType.STRING
   }
 }
