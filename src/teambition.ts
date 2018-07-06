@@ -6,6 +6,7 @@ declare module 'teambition-types' {
   export type AdvancedCustomFieldId = string & { kind: 'AdvancedCustomFieldId' }
   export type ApplicationId = string & { kind: 'ApplicationId' }
   export type CollectionId = string & { kind: 'CollectionId' }
+  export type CommonGroupId = string & { kind: 'CommonGroupId' }
   export type CustomFieldCategoryId = string & { kind: 'CustomFieldCategoryId' }
   export type CustomFieldChoiceId = string & { kind: 'CustomFieldChoiceId' }
   export type CustomFieldId = string & { kind: 'CustomFieldId' }
@@ -63,7 +64,8 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
-  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup'
+  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup'
+  export type CustomFieldSubtype = 'story'
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
