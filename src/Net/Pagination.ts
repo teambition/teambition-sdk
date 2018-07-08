@@ -69,7 +69,10 @@ export function defaultSDKState<T>(
   return { ...fetchState, ...sdkState, pageSize: fetchState.pageSize || 50 }
 }
 
-export const expandResult = <T>(state: State<T>, resp: OriginalResponse<T>): State<T> => {
+export const expandResult = <T>(
+  state: State<T>,
+  resp: OriginalResponse<T>,
+): State<T> => {
   return {
     ...state,
     totalSize: resp.totalSize,
@@ -83,7 +86,7 @@ export const expandResult = <T>(state: State<T>, resp: OriginalResponse<T>): Sta
 export const loadAndExpand = <T>(
   step: (curr: State<T>) => Observable<OriginalResponse<T>>,
   initState: State<T>,
-  loadMore$: Observable<{}>
+  loadMore$: Observable<{}> = Observable.empty()
 ): Observable<State<T>> => {
   return loadMore$.startWith({})
     .pipe(expand(step, initState))

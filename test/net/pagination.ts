@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDKFetch } from '..'
 import * as page from '../../src/Net/Pagination'
-import { next } from '../../src/apis/pagination'
+import { expandPage } from '../../src/apis/pagination'
 
 const fetchMock = require('fetch-mock')
 
@@ -17,7 +17,7 @@ describe('Pagination Spec', () => {
     expect(app2remains).to.deep.equal(page.defaultState(urlPath))
   })
 
-  describe(`${next.name}`, () => {
+  describe(`${expandPage.name}`, () => {
     let sdkFetch: SDKFetch
     const apiHost = 'https://www.teambition.com/api'
     const testUrl = `${apiHost}/${urlPath}`
@@ -37,7 +37,7 @@ describe('Pagination Spec', () => {
       })
 
       const initial = page.defaultState(urlPath, { pageSize: 5 })
-      return sdkFetch.nextPage(initial)
+      return sdkFetch.expandPage(initial)
         .toPromise()
         .then(() => {
           throw new Error('should not emit new state when request fails')
@@ -55,7 +55,7 @@ describe('Pagination Spec', () => {
       })
 
       const initial = page.defaultState(urlPath, { pageSize: 5 })
-      return sdkFetch.nextPage(initial)
+      return sdkFetch.expandPage(initial)
         .toPromise()
         .then((resultState) => {
           expect(resultState).to.deep.equal({
@@ -85,7 +85,7 @@ describe('Pagination Spec', () => {
         nextPage: 2,
         hasMore: true
       }
-      return sdkFetch.nextPage(currState, { pageSize: 5 })
+      return sdkFetch.expandPage(currState, { pageSize: 5 })
         .toPromise()
         .then((resultState) => {
           expect(resultState).to.deep.equal({
@@ -114,7 +114,7 @@ describe('Pagination Spec', () => {
         nextPage: 2,
         hasMore: true
       }
-      return sdkFetch.nextPage<number>(currState, {
+      return sdkFetch.expandPage<number>(currState, {
         pageSize: 5,
         urlQuery: {},
         mapFn: (i) => i - 1
@@ -156,7 +156,7 @@ describe('Pagination Spec', () => {
         nextPage: 2,
         hasMore: true
       }
-      return sdkFetch.nextPage<number, { value: number, sessionId: string }>(
+      return sdkFetch.expandPage<number, { value: number, sessionId: string }>(
         currState,
         {
           pageSize: 5,

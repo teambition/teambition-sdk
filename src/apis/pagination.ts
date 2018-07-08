@@ -3,7 +3,7 @@ import { SDKFetch, SDKFetchOptions } from '../SDKFetch'
 import { SDK } from '../SDK'
 import { Page } from '../Net'
 
-export function request<T, K = T>(
+export function page<T, K = T>(
   this: SDKFetch,
   state: Page.State<K>,
   options: SDKFetchOptions & {
@@ -37,56 +37,44 @@ export function request<T, K = T>(
     })
 }
 
-// todo(dingwen): remove it
-export function next<T, K = T>(
+/**
+ * 结合当前分页状态，发起下一页请求，获得返回结果，并推出新的分页状态。
+ * @param state 当前分页的状态
+ * @param options 主要用于自定义每一次调用需要的请求参数。另外，如果
+ * `mutate` 为 true，传入的 `state` 对象将自动得到更新，不需要在外部
+ * 自行 `.do((nextState) => state = nextState)`（注：推出的对象依然是
+ * 全新的）。
+ */
+export function expandPage<T, K = T>(
   this: SDKFetch,
   state: Page.State<K>,
-  options: {
+  options: SDKFetchOptions & {
     pageSize?: number
     urlQuery?: {}
     mapFn?: (value: T, index?: number, array?: T[], headers?: any) => K
+    includeHeaders?: true
+    wrapped?: false
+    mutate?: boolean
   } = {}
 ): Observable<Page.State<K>> {
-  const pageSize = options.pageSize || state.pageSize || 50
-  const stateUrlQuery = state.urlQuery || {}
-  const urlQuery = options.urlQuery ? { ...stateUrlQuery, ...options.urlQuery } : stateUrlQuery
-  const paginationUrlQuery = { ...urlQuery, pageSize, pageToken: state.nextPageToken }
-  if (!state.hasMore) { // 只有在 hasMore 为 false 时停住，nextPage 的值才能保持准确
-    return Observable.of(state)
-  }
-  return this
-    .get<Page.OriginalResponse<T>>(state.urlPath, paginationUrlQuery, {
-      includeHeaders: true
-    })
-    .map(({ headers, body: { nextPageToken, totalSize, result } }) => {
-      const nextState: Page.DynamicState<K> = {
-        nextPageToken: nextPageToken,
-        totalSize: totalSize,
-        result: state.result.concat(
-          !options.mapFn
-            ? result as any as K[]
-            : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers))
-        ),
-        nextPage: state.nextPage + 1,
-        hasMore: Boolean(nextPageToken) && result.length === pageSize
-      }
-      return { ...state, ...nextState }
-    })
+  const { mutate, ...requestOptions } = options
+  return Page.loadAndExpand((s) => this.page(s, requestOptions), state)
+    .do((nextState) => Object.assign(state, nextState))
 }
 
-SDKFetch.prototype.nextPage = next
-SDKFetch.prototype.page = request
+SDKFetch.prototype.expandPage = expandPage
+SDKFetch.prototype.page = page
 
 declare module '../SDKFetch' {
   // tslint:disable no-shadowed-variable
   interface SDKFetch {
-    nextPage: typeof next // todo(dingwen): remove it completely
-    page: typeof request
+    expandPage: typeof expandPage
+    page: typeof page
   }
 }
 
 export function sdkNext<T>(this: SDK, state: Page.StateUseCache<T>): Observable<Page.StateUseCache<T>> {
-  const fetch$ = this.fetch.nextPage(state).publishReplay(1).refCount()
+  const fetch$ = this.fetch.expandPage(state).publishReplay(1).refCount()
   const resultChanges$ = this.lift<T>({
     tableName: state.tableName,
     cacheValidate: state.cacheValidate as any,
