@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.24"></a>
+## [0.6.24](https://github.com/teambition/teambition-sdk/compare/v0.6.23...v0.6.24) (2018-07-10)
+
+
+### Features
+
+* **TaskAPI:** 添加 `updateRating()` 接口 ([d8c9d59](https://github.com/teambition/teambition-sdk/commit/d8c9d59))
+
+
+
 <a name="0.6.23"></a>
 ## [0.6.23](https://github.com/teambition/teambition-sdk/compare/v0.6.22...v0.6.23) (2018-05-10)
 
