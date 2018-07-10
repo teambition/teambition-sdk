@@ -17,6 +17,7 @@ import {
   UpdateNoteResponse,
   UpdateTagsResponse,
   UpdateStatusResponse,
+  UpdateRatingResponse,
   UpdateContentResponse,
   UpdateDueDateResponse,
   UpdateInvolveMembersResponse,
@@ -530,6 +531,10 @@ export class TaskAPI {
 
   updateStatus(_taskId: TaskId, status: boolean): Observable<UpdateStatusResponse> {
     return this._updateFromRequest(_taskId, TaskFetch.updateStatus(_taskId, status))
+  }
+
+  updateRating(_taskId: TaskId, rating: number): Observable<UpdateRatingResponse> {
+    return this._updateFromRequest(_taskId, TaskFetch.updateRating(_taskId, rating))
   }
 
   update<T extends UpdateTaskOptions>(_taskId: TaskId, patch: T): Observable<T> {

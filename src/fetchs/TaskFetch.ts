@@ -153,6 +153,12 @@ export interface UpdateStatusResponse {
   isDone: boolean
 }
 
+export interface UpdateRatingResponse {
+  _id: TaskId
+  updated: string
+  rating: number
+}
+
 export interface UpdateContentResponse {
   _id: TaskId
   content: string
@@ -479,6 +485,12 @@ export class TaskFetch extends Fetch {
   updateStatus(_taskId: TaskId, status: boolean): Observable<UpdateStatusResponse> {
     return this.fetch.put(`tasks/${_taskId}/isDone`, {
       isDone: status
+    })
+  }
+
+  updateRating(_taskId: TaskId, rating: number): Observable<UpdateRatingResponse> {
+    return this.fetch.put(`tasks/${_taskId}/rating`, {
+      rating: rating
     })
   }
 
