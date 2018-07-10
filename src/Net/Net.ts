@@ -9,13 +9,8 @@ import 'rxjs/add/operator/filter'
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
-import {
-  Database,
-  Query,
-  Predicate,
-  ExecutorResult,
-  JoinMode
- } from 'reactivedb'
+import { JoinMode } from 'reactivedb/interface'
+import { Database, Query, Predicate, ExecutorResult } from 'reactivedb'
 
 import { forEach, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
