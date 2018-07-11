@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.25"></a>
+## [0.6.25](https://github.com/teambition/teambition-sdk/compare/v0.6.24...v0.6.25) (2018-07-11)
+
+
+### Bug Fixes
+
+* 解决 `mock` 构建失败问题，避免直接引入 `src` 或 `test` 模块 ([5530b19](https://github.com/teambition/teambition-sdk/commit/5530b19))
+
+
+
 <a name="0.6.24"></a>
 ## [0.6.24](https://github.com/teambition/teambition-sdk/compare/v0.6.23...v0.6.24) (2018-07-10)
 
