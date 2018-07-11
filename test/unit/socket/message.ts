@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { apihost, MessageAPI, SocketMock, SocketClient, Backend, clone, uuid } from '../index'
+import { apihost, MessageAPI, SocketMock, SocketClient, Backend, clone, uuid, BaseFetch } from '../index'
 import { flush } from '../utils'
 import { messages } from '../../mock/messages'
 
@@ -23,7 +23,7 @@ export default describe('socket message test: ', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock(SocketClient)
+    Socket = new SocketMock(SocketClient, BaseFetch)
     MessageApi = new MessageAPI()
 
     httpBackend.whenGET(`${apihost}v2/messages?type=normal&sort=normal&count=10&page=1`)

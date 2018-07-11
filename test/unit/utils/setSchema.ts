@@ -1,9 +1,7 @@
 'use strict'
 import * as chai from 'chai'
-import { clone } from '../index'
 import { setSchema } from '../../../src/schemas/schema'
 import { default as TaskSchema } from '../../../src/schemas/Task'
-import { tasksUndone } from '../../mock/tasksUndone'
 
 const expect = chai.expect
 

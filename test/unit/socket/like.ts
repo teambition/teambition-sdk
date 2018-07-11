@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { Backend, SocketMock, LikeAPI, apihost, SocketClient } from '../index'
+import { Backend, SocketMock, LikeAPI, apihost, SocketClient, BaseFetch } from '../index'
 import { flush } from '../utils'
 import { like } from '../../mock/like'
 
@@ -15,7 +15,7 @@ export default describe('like socket', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock(SocketClient)
+    Socket = new SocketMock(SocketClient, BaseFetch)
     LikeApi = new LikeAPI()
 
     httpBackend.whenGET(`${apihost}tasks/mocktask/like?all=1`)

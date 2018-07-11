@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { TaskAPI, Backend, apihost, clone, SocketMock, SocketClient } from '../index'
+import { TaskAPI, Backend, apihost, clone, SocketMock, SocketClient, BaseFetch } from '../index'
 import { tasksOneDayMe } from '../../mock/tasksOneDayMe'
 import { like } from '../../mock/like'
 import { flush } from '../utils'
@@ -17,10 +17,10 @@ export default describe('Dirty APIs Spec', () => {
 
     httpBackend = new Backend()
     TaskApi = new TaskAPI()
-    Socket = new SocketMock(SocketClient)
+    Socket = new SocketMock(SocketClient, BaseFetch)
   })
 
-  it ('get tasks from my task api should ok', done => {
+  it('get tasks from my task api should ok', done => {
     const mockTask = clone(tasksOneDayMe[0])
     mockTask.subtaskCount = {
       total: 10,

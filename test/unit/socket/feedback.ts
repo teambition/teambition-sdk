@@ -1,6 +1,6 @@
 'use strict'
 import * as chai from 'chai'
-import { Backend, SocketMock, SocketClient, apihost, FeedbackAPI, clone } from '../index'
+import { Backend, SocketMock, SocketClient, apihost, FeedbackAPI, clone, BaseFetch } from '../index'
 import { projectFeedbacks } from '../../mock/projectFeedbacks'
 import { flush, expectDeepEqual } from '../utils'
 
@@ -18,7 +18,7 @@ export default describe('feedback socket: ', () => {
   beforeEach(() => {
     flush()
 
-    Socket = new SocketMock(SocketClient)
+    Socket = new SocketMock(SocketClient, BaseFetch)
     httpBackend = new Backend()
     FeedbackApi = new FeedbackAPI()
     httpBackend.whenGET(`${apihost}projects/${projectId}/feedbacks?count=1&page=1&from=${from}&to=${to}`)

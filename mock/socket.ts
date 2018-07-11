@@ -1,8 +1,5 @@
 'use strict'
 
-import { SocketClient } from '../src/sockets/SocketClient'
-import { BaseFetch } from '../test/unit'
-
 declare const global: any
 
 // copy from snapper-consumer.d.ts
@@ -37,11 +34,15 @@ export class SocketMock {
 
   private _id = 1
 
-  constructor(SocketClient: SocketClient) {
+  constructor(
+    SocketClient: any,
+    private _BaseFetch: any
+  ) {
     SocketClient.initClient(this as any)
   }
 
   connect(url: string, options: { path: string, token: string }) {
+    const { _BaseFetch: BaseFetch } = this
     const apiHost = BaseFetch.fetch.getAPIHost()
     BaseFetch.fetch.setAPIHost('')
     BaseFetch.fetch.get(url + options.path, { token: options.token }).subscribe()

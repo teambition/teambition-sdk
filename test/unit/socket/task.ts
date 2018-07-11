@@ -7,7 +7,8 @@ import {
   SocketMock,
   SocketClient,
   Backend,
-  clone
+  clone,
+  BaseFetch
 } from '../index'
 import { flush, notInclude } from '../utils'
 import { tasksUndone } from '../../mock/tasksUndone'
@@ -25,7 +26,7 @@ export default describe('socket task test: ', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock(SocketClient)
+    Socket = new SocketMock(SocketClient, BaseFetch)
     TaskApi = new TaskAPI()
 
     httpBackend.whenGET(`${apihost}tasks/${mockTask._id}`)

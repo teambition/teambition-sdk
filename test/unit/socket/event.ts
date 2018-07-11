@@ -10,7 +10,8 @@ import {
   Backend,
   clone,
   concat,
-  EventSchema
+  EventSchema,
+  BaseFetch
 } from '../index'
 import { flush, expectDeepEqual } from '../utils'
 import { myEvents } from '../../mock/myEvents'
@@ -28,7 +29,7 @@ export default describe('socket event test: ', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock(SocketClient)
+    Socket = new SocketMock(SocketClient, BaseFetch)
     EventApi = new EventAPI()
 
     httpBackend.whenGET(`${apihost}events/${event._id}`)
@@ -107,10 +108,10 @@ export default describe('socket event test: ', () => {
       yield signal.take(1)
 
       yield Socket.emit('change', 'event', eventId, {
-          _id: eventId,
-          title: 'new title',
-          updated: new Date().toISOString()
-        })
+        _id: eventId,
+        title: 'new title',
+        updated: new Date().toISOString()
+      })
 
       yield signal.take(1)
         .do(r => {

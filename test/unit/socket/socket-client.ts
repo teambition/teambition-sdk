@@ -12,7 +12,7 @@ export default describe('SocketClient', () => {
     flush()
 
     httpBackend = new Backend()
-    new SocketMock(SocketClient)
+    new SocketMock(SocketClient, BaseFetch)
     spy = sinon.spy(BaseFetch.fetch, 'get')
 
     httpBackend.whenGET(`${apihost}users/me`)

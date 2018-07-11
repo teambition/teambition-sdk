@@ -7,7 +7,8 @@ import {
   MemberAPI,
   MemberSchema,
   uuid,
-  apihost
+  apihost,
+  BaseFetch
 } from '../index'
 import { members } from '../../mock/members'
 import { flush, expectDeepEqual } from '../utils'
@@ -24,7 +25,7 @@ export default describe('socket member test', () => {
     flush()
 
     httpBackend = new Backend()
-    Socket = new SocketMock(SocketClient)
+    Socket = new SocketMock(SocketClient, BaseFetch)
     MemberApi = new MemberAPI
   })
 
