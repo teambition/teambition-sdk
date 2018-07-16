@@ -65,7 +65,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
-  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup'
+  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work'
   export type CustomFieldSubtype = 'story'
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
@@ -114,7 +114,7 @@ declare module 'teambition-types' {
   export interface CustomFieldValue {
     _customfieldId: CustomFieldId
     type: CustomFieldType
-    value: {}
+    value: {}   // 可能为数组，或者其他值。根据具体业务场景而定。
     values: string[]
   }
 
