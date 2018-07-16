@@ -1,5 +1,3 @@
-import { FileSchema } from './schemas/File'
-
 // id
 
 declare module 'teambition-types' {
@@ -115,7 +113,15 @@ declare module 'teambition-types' {
     type: CustomFieldType
     value: {}   // 可能为数组，或者其他值。根据具体业务场景而定。
     values: string[]
-    works?: Pick<FileSchema, '_id' | 'fileType' | 'fileName' | 'fileSize' | 'thumbnail' | 'thumbnailUrl' | 'fileCategory'>[]
+    works?: Array<{
+      _id: FileId
+      fileType: string
+      fileName: string
+      fileSize: number
+      thumbnail: string
+      thumbnailUrl: string
+      fileCategory: string
+    }>
   }
 
   export interface Reminder {
