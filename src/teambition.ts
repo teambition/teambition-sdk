@@ -1,3 +1,5 @@
+import { FileSchema } from './schemas/File'
+
 // id
 
 declare module 'teambition-types' {
@@ -63,7 +65,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
-  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup'
+  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'work'
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
@@ -111,8 +113,9 @@ declare module 'teambition-types' {
   export interface CustomFieldValue {
     _customfieldId: CustomFieldId
     type: CustomFieldType
-    value: {}
+    value: {}   // 可能为数组，或者其他值。根据具体业务场景而定。
     values: string[]
+    works?: Pick<FileSchema, '_id' | 'fileType' | 'fileName' | 'fileSize' | 'thumbnail' | 'thumbnailUrl' | 'fileCategory'>[]
   }
 
   export interface Reminder {
