@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.26"></a>
+## [0.6.26](https://github.com/teambition/teambition-sdk/compare/v0.6.25...v0.6.26) (2018-07-18)
+
+
+### Bug Fixes
+
+* **sockets:** 修复“双`//`路径”问题 ([3361af3](https://github.com/teambition/teambition-sdk/commit/3361af3))
+
+
+
 <a name="0.6.25"></a>
 ## [0.6.25](https://github.com/teambition/teambition-sdk/compare/v0.6.24...v0.6.25) (2018-07-11)
 
