@@ -23,7 +23,19 @@ export default describe('SocketClient', () => {
     BaseFetch.fetch.get['restore']()
   })
 
-  it('should connect to target URL', () => {
+  it('should connect to target URL (HTTP)', () => {
+    const socketUrl = 'http://localhost:1111'
+
+    httpBackend.whenGET(`${socketUrl}/websocket?token=${userMe.tcmToken}`)
+      .respond(JSON.stringify({}))
+
+    SocketClient.setSocketUrl(socketUrl)
+    SocketClient.connect()
+
+    expect(spy).to.be.calledTwice
+  })
+
+  it('should connect to target URL (WS)', () => {
     const socketUrl = 'ws://localhost:1111'
 
     httpBackend.whenGET(`${socketUrl}/websocket?token=${userMe.tcmToken}`)
@@ -35,7 +47,19 @@ export default describe('SocketClient', () => {
     expect(spy).to.be.calledTwice
   })
 
-  it('should allow SocketURL including path', () => {
+  it('should allow SocketURL (HTTP) including path', () => {
+    const socketUrl = 'http://localhost:1111/messaging'
+
+    httpBackend.whenGET(`${socketUrl}/websocket?token=${userMe.tcmToken}`)
+      .respond(JSON.stringify({}))
+
+    SocketClient.setSocketUrl(socketUrl)
+    SocketClient.connect()
+
+    expect(spy).to.be.calledTwice
+  })
+
+  it('should allow SocketURL (WS) including path', () => {
     const socketUrl = 'ws://localhost:1111/messaging'
 
     httpBackend.whenGET(`${socketUrl}/websocket?token=${userMe.tcmToken}`)

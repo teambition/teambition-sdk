@@ -14,6 +14,7 @@ import { socketHandler } from './EventMaps'
 import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import * as URL from 'url'
+import * as PATH from 'path'
 
 declare const global: any
 
@@ -115,12 +116,16 @@ export class SocketClient {
   private _connect(): Promise<void> {
     const url = URL.parse(this._socketUrl)
     const host = URL.format({ ...url, pathname: undefined })
-    const path = (url.pathname || '') + '/websocket'
+    // 1. _socketUrl 若是 http 协议，那么 `pathname` 有值，至少是 `/`
+    // 2. _socketUrl 若是 ws 协议，那么 `pathname` 可能没有值
+    const path = PATH.join(url.pathname || '', '/websocket')
+
     this._client
       .connect(host, {
         path: path,
         token: this._me.tcmToken as string
       })
+
     return Promise.resolve()
   }
 

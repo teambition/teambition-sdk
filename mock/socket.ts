@@ -44,8 +44,11 @@ export class SocketMock {
   connect(url: string, options: { path: string, token: string }) {
     const { _BaseFetch: BaseFetch } = this
     const apiHost = BaseFetch.fetch.getAPIHost()
+    // 临时重置 API-HOST 配置
     BaseFetch.fetch.setAPIHost('')
+    // 连接 WS 服务
     BaseFetch.fetch.get(url + options.path, { token: options.token }).subscribe()
+    // 恢复重置 API-HOST 配置
     BaseFetch.fetch.setAPIHost(apiHost)
   }
 
