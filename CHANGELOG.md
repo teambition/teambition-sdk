@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.6.27"></a>
+## [0.6.27](https://github.com/teambition/teambition-sdk/compare/v0.6.26...v0.6.27) (2018-07-20)
+
+
+### Bug Fixes
+
+* 移除不再使用的 `isInbox` 字段 ([edda72f](https://github.com/teambition/teambition-sdk/commit/edda72f))
+
+
+
 <a name="0.6.26"></a>
 ## [0.6.26](https://github.com/teambition/teambition-sdk/compare/v0.6.25...v0.6.26) (2018-07-18)
 
