@@ -21,7 +21,6 @@ export interface FavoriteData extends ISchema {
   created: string
   updated: string
   refType: DetailObjectType
-  isInbox?: boolean
   isVisible: boolean
   isUpdated: boolean
   status: 'deleted' | 'invisible' | 'archived' | 'updated' | ''
