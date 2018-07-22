@@ -1,0 +1,27 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run: echo 'export PATH=${PATH}:${HOME}/${CIRCLE_PROJECT_REPONAME}/node_modules/.bin' >> $BASH_ENV
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: yarn-with-greenkeeper
+          command: |
+            sudo yarn global add greenkeeper-lockfile@1
+            yarn
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ~/.cache/yarn
+      - run: greenkeeper-lockfile-update
+      - run:
+          name: test
+          command: yarn test
+      - run:
+          name: report-coverage
+          command: cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+      - run: greenkeeper-lockfile-upload
