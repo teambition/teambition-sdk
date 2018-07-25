@@ -1,14 +1,16 @@
-import { SchemaDef, RDBType } from 'reactivedb/interface'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { TaskflowId, UserId } from 'teambition-types'
+import { TaskflowId, UserId, ProjectId, OrganizationId } from 'teambition-types'
+import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface TaskflowSchema {
   _id: TaskflowId
-  name: string
-  _boundToObjectId: string
-  boundToObjectType: 'project' | 'organization'
+  _boundToObjectId: ProjectId | OrganizationId
   _creatorId: UserId
+  boundToObjectType: 'project' | 'organization'
   created: string
+  name: string
+  taskflowstatuses?: TaskflowStatusSnippet[]
   updated: string
 }
 
@@ -32,9 +34,18 @@ const schema: SchemaDef<TaskflowSchema> = {
   name: {
     type: RDBType.STRING
   },
+  taskflowstatuses: {
+    type: Relationship.oneToMany,
+    virtual: {
+      name: 'TaskflowStatus',
+      where: (taskflowStatusTable: any) => ({
+        _id: taskflowStatusTable._taskflowId
+      })
+    }
+  },
   updated: {
     type: RDBType.DATE_TIME
-  }
+  },
 }
 
 schemaColl.add({ schema, name: 'Taskflow' })
