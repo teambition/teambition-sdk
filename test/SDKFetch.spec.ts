@@ -56,6 +56,21 @@ describe('SDKFetch setters and getters', () => {
     getterSetterGood('getOptions', 'setOptions', newOption, { ...options, ...newOption })
   })
 
+  it('setHeaders should support set-by-merge: false by default', () => {
+    const headers = { hello: 'world' }
+    sdkFetch.setHeaders(headers)
+    expect(sdkFetch.getHeaders()).to.deep.equal(headers)
+  })
+
+  it('setHeaders should support set-by-merge: true', () => {
+    const headersA = { hello: 'world' }
+    sdkFetch.setHeaders(headersA)
+
+    const headersB = { goodbye: 'world' }
+    sdkFetch.setHeaders(headersB, true)
+    expect(sdkFetch.getHeaders()).to.deep.equal({ ...headersA, ...headersB })
+  })
+
   it('getHeaders should return a deep copy of the current headers object', () => {
     const originalHeaders = { hello: 'world' }
 
@@ -292,7 +307,7 @@ describe('SDKFetch options', () => {
 
   allowedMethods.forEach((httpMethod1: string) => {
     allowedMethods.forEach((httpMethod2: string) => {
-      it(`setter' effect should be kept across requests: ${httpMethod1} then ${httpMethod2}`, function* () {
+      it(`setters' effect should be kept across requests: ${httpMethod1} then ${httpMethod2}`, function* () {
         yield requestOptionsGood(httpMethod2, () => {
           sdkFetch
             .setAPIHost(newHost)

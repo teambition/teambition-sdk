@@ -204,8 +204,8 @@ export class SDKFetch {
     return this.apiHost
   }
 
-  setHeaders(headers: {}) {
-    this.headers = headers
+  setHeaders(headers: {}, merge: boolean = false) {
+    this.headers = merge ? Object.assign(this.headers, headers) : headers
     return this
   }
 
