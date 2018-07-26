@@ -4,11 +4,11 @@ import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDKFetch, forEach, Http } from '.'
 import { clone } from './'
 
-import { defaultSDKFetchHeaders } from '../src/SDKFetch'
+import { defaultSDKFetchHeaders, headerXRequestId } from '../src/SDKFetch'
 
 const fetchMock = require('fetch-mock')
 
-const allowedMethods: ReadonlyArray<string> = ['get', 'post', 'put', 'delete']
+const allowedMethods: ['get', 'post', 'put', 'delete'] = ['get', 'post', 'put', 'delete']
 
 const path = 'test'
 
@@ -274,7 +274,7 @@ describe('SDKFetch options', () => {
     expect(defaultSDKFetchHeaders()).to.deep.equal(headersClone)
   })
 
-  allowedMethods.forEach((httpMethod: string) => {
+  allowedMethods.forEach((httpMethod) => {
     it(`use default headers when headers are not set: ${httpMethod}`, function* () {
       fetchMock.mock(new RegExp(''), {})
 
@@ -282,7 +282,7 @@ describe('SDKFetch options', () => {
         .setAPIHost(newHost)
         .setOptions(newOption)
 
-      yield sdkFetch[httpMethod](path)
+      yield sdkFetch[httpMethod](path, undefined, { disableRequestId: true } )
         .subscribeOn(Scheduler.asap)
         .do(() => {
           expect(fetchMock.lastOptions().headers).to.deep.equal({
@@ -292,7 +292,7 @@ describe('SDKFetch options', () => {
     })
   })
 
-  allowedMethods.forEach((httpMethod: string) => {
+  allowedMethods.forEach((httpMethod) => {
     it(`setters should take effect in ${httpMethod} request`, function* () {
       yield requestOptionsGood(httpMethod, () => {
         sdkFetch
@@ -305,8 +305,8 @@ describe('SDKFetch options', () => {
     })
   })
 
-  allowedMethods.forEach((httpMethod1: string) => {
-    allowedMethods.forEach((httpMethod2: string) => {
+  allowedMethods.forEach((httpMethod1) => {
+    allowedMethods.forEach((httpMethod2) => {
       it(`setters' effect should be kept across requests: ${httpMethod1} then ${httpMethod2}`, function* () {
         yield requestOptionsGood(httpMethod2, () => {
           sdkFetch
@@ -322,7 +322,7 @@ describe('SDKFetch options', () => {
     })
   })
 
-  allowedMethods.forEach((httpMethod: string) => {
+  allowedMethods.forEach((httpMethod) => {
     it(`per request setting should work for ${httpMethod}`, function* () {
       yield requestOptionsGood(httpMethod, () => {
         return sdkFetch[httpMethod](path, undefined, {
@@ -335,7 +335,7 @@ describe('SDKFetch options', () => {
     })
   })
 
-  allowedMethods.forEach((httpMethod: string) => {
+  allowedMethods.forEach((httpMethod) => {
     it(`per request header setting in merge mode should work: ${httpMethod}`, function* () {
       fetchMock.mock(new RegExp(''), {})
 
@@ -351,7 +351,7 @@ describe('SDKFetch options', () => {
     })
   })
 
-  allowedMethods.forEach((httpMethod1: string) => {
+  allowedMethods.forEach((httpMethod1) => {
     allowedMethods.forEach((httpMethod2: string) => {
       it(`per request setting should not take effect across requests: ${httpMethod1} then ${httpMethod2}`, function* () {
         yield requestOptionsGood(httpMethod2, () => {
@@ -374,6 +374,44 @@ describe('SDKFetch options', () => {
       })
     })
   })
+
+  allowedMethods.forEach((httpMethod) => {
+    it(`per (${httpMethod}) request setting should attach X-Request-Id to headers`, function* () {
+      fetchMock.mock(new RegExp(newHost), {})
+
+      sdkFetch
+        .setAPIHost(newHost)
+        .setHeaders({ hello: 'world' })
+
+      yield sdkFetch[httpMethod](path)
+        .subscribeOn(Scheduler.asap)
+        .do(() => {
+          expect(Boolean(fetchMock.lastOptions().headers[headerXRequestId])).to.be.true
+        })
+    })
+  })
+
+  allowedMethods.forEach((httpMethod) => {
+    it(`per (${httpMethod}) request setting should allow user defined X-Request-Id header`, function* () {
+      fetchMock.mock(new RegExp(newHost), {})
+
+      sdkFetch
+        .setAPIHost(newHost)
+        .setHeaders({ hello: 'world' })
+
+      yield sdkFetch[httpMethod](path, undefined, { headers: {
+        merge: true,
+        [headerXRequestId]: 2
+      } })
+        .subscribeOn(Scheduler.asap)
+        .do(() => {
+          expect(fetchMock.lastOptions().headers).to.deep.equal({
+            hello: 'world', [headerXRequestId]: 2
+          })
+        })
+    })
+  })
+
 })
 
 describe('SDKFetch.buildQuery', () => {

@@ -6,14 +6,14 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { forEach, isEmptyObject } from './utils'
+import { forEach, isEmptyObject, uuid } from './utils'
 import { SDKLogger } from './utils/Logger'
 
 export type SDKFetchOptions = {
-  apiHost?: string,
-  token?: string,
+  apiHost?: string
+  token?: string
   headers?: {
-    [header: string]: any,
+    [header: string]: any
     /**
      * 指定 headers 字段的数据是否以 merge 模式设置到
      * 最终要生成的 headers 上。若为 true，使用 merge
@@ -25,24 +25,27 @@ export type SDKFetchOptions = {
      */
     merge?: boolean
   },
-  [fetchOption: string]: any,
+  disableRequestId?: boolean
+  [fetchOption: string]: any
 
   /**
    * 当需要使用某些高级功能（如不能通过 Observable 实现的中间件），
    * 设置为 true，会令 get/post/put/delete 请求返回 SDK Http
    * 对象，提供额外功能。默认为 false。
    */
-  wrapped?: boolean,
+  wrapped?: boolean
   /**
    * 当设置为 true，get/post/put/delete 返回的值中会包含
    * response headers。默认为 false，仅返回 response body。
    */
-  includeHeaders?: boolean,
+  includeHeaders?: boolean
 }
 
-const getUnnamedOptions = (options: SDKFetchOptions): {} => {
+export const headerXRequestId = 'X-Request-Id'
+
+const getUnnamedOptions = (options: SDKFetchOptions) => {
   const {
-    apiHost, token, headers, wrapped, includeHeaders,
+    apiHost, token, headers, wrapped, includeHeaders, disableRequestId,
     ...unnamed
   } = options
   return unnamed
@@ -235,28 +238,24 @@ export class SDKFetch {
     http: Http<any>,
     fetchOptions: SDKFetchOptions
   ): void {
-    let headers: any
-
+    const headers = fetchOptions.disableRequestId ? {} : { [headerXRequestId]: uuid() }
     if (fetchOptions.headers) {
       const { merge, ...hdrs } = fetchOptions.headers
-
-      headers = merge ? { ...this.headers, ...hdrs } : hdrs
+      Object.assign(headers, merge ? this.headers : null, hdrs)
     } else {
-      headers = this.headers
+      Object.assign(headers, this.headers)
     }
+    http.setHeaders(headers)
 
     const token = fetchOptions.token || this.token
+    if (token) {
+      http.setToken(token)
+    }
 
     let options = getUnnamedOptions(fetchOptions)
     if (Object.keys(options).length === 0) {
       options = this.options
     }
-
-    http.setHeaders(headers)
-    if (token) {
-      http.setToken(token)
-    }
-
     if (Object.keys(options).length > 0) {
       http.setOpts(options)
     }
