@@ -6,7 +6,7 @@ import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
-import { parseHeaders, headers2Object } from '../utils/index'
+import { parseHeaders } from '../utils/index'
 import { testable } from '../testable'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
@@ -16,10 +16,11 @@ export interface HttpErrorMessage {
   url: string
   error: Response
   body?: any
+  [userDefinedKey: string]: any
 }
 
 export interface HttpResponseWithHeaders<T = any> {
-  headers: any,
+  headers: Headers,
   body: T
 }
 
@@ -50,29 +51,23 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
         if (!includeHeaders) {
           return respBody
         }
-        let respHeaders: any
-        try {
-          respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
-        } catch (e) {
-          respHeaders = null
-        }
+        const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
         return { headers: respHeaders, body: respBody }
       })
       .catch((e: AjaxError) => {
         const headers = e.xhr.getAllResponseHeaders()
-        const sdkError: HttpErrorMessage = {
-          error: new Response(new Blob([JSON.stringify(e.xhr.response)]), {
-            status: e.xhr.status,
-            statusText: e.xhr.statusText,
-            headers: headers.length ? new Headers(parseHeaders(headers)) : new Headers()
-          }),
-          method, url, body
-        }
+        const errorResponse = new Response(new Blob([JSON.stringify(e.xhr.response)]), {
+          status: e.xhr.status,
+          statusText: e.xhr.statusText,
+          headers: headers.length ? parseHeaders(headers) : new Headers()
+        })
+        const requestInfo = { method, url, body }
+        const errorResponseClone = errorResponse.clone()
 
         setTimeout(() => {
-          errorAdapter$.next(sdkError)
+          errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
         }, 10)
-        return Observable.throw(sdkError)
+        return Observable.throw({ ...requestInfo, error: errorResponse })
       })
   } else { // 测试用分支
     return Observable.create((observer: Observer<any>) => {
@@ -97,23 +92,21 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
           let result: any
           try {
             const respBody = JSON.parse(respText)
-            result = !includeHeaders ? respBody : { headers: headers2Object(headers), body: respBody }
+            result = !includeHeaders ? respBody : { headers, body: respBody }
           } catch (e) {
             result = respText
           }
           observer.next(result)
           observer.complete()
         })
-        .catch((e: Response) => {
-          const sdkError: HttpErrorMessage = {
-            error: e,
-            method, url, body
-          }
+        .catch((errorResponse: Response) => {
+          const requestInfo = { method, url, body }
+          const errorResponseClone = errorResponse.clone()
 
           setTimeout(() => {
-            errorAdapter$.next(sdkError)
+            errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
           }, 10)
-          observer.error(sdkError)
+          observer.error({ ...requestInfo, error: errorResponse })
         })
     })
   }
@@ -156,10 +149,11 @@ export class Http<T> {
 
   private _opts: any = Http.defaultOpts()
 
-  map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
-    this.mapFn = fn
-    return this as any as Http<U>
-  }
+  // todo(dingwen): 实现更可控、支持多层叠加的 interceptor
+  // map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
+  //   this.mapFn = fn
+  //   return this as any as Http<U>
+  // }
 
   setUrl(url: string) {
     this.url = url
