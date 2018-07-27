@@ -1,4 +1,5 @@
 import { PagingQuery, UrlPagingQuery, SqlPagingQuery } from './internalTypes'
+import * as uuidv4 from 'uuid/v4'
 
 export function forEach<T> (target: Array<T>, eachFunc: (val: T, key: number) => void, inverse?: boolean): void
 
@@ -84,23 +85,7 @@ export const concat = <T>(target: T[], patch: T[]): T[] => {
   return target
 }
 
-const s4 = () => {
-  return Math.floor((1 + Math.random()) * 0x10000)
-    .toString(16)
-    .substring(1)
-}
-
-const uuidStack: string[] = []
-
-export const uuid = () => {
-  let UUID = s4() + s4()
-  /* istanbul ignore next */
-  while (uuidStack.indexOf(UUID) !== -1) {
-    UUID = s4() + s4()
-  }
-  uuidStack.push(UUID)
-  return UUID
-}
+export const uuid = uuidv4
 
 export function dropEle<T>(ele: T, arr: T[]): T[] {
   forEach(arr, (_ele, pos) => {
