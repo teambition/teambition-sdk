@@ -16,6 +16,7 @@ export interface HttpErrorMessage {
   url: string
   error: Response
   body?: any
+  [userDefinedKey: string]: any
 }
 
 export interface HttpResponseWithHeaders<T = any> {

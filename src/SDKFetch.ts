@@ -4,7 +4,7 @@ import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/publishReplay'
 import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
-import { Http, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
+import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
 import { forEach, isEmptyObject, uuid } from './utils'
 import { SDKLogger } from './utils/Logger'
@@ -110,12 +110,8 @@ export class SDKFetch {
 
     dist = SDKFetch.FetchStack.get(urlWithQuery)!
 
-    if (options.wrapped) {
-      http['request'] = dist
-      return http
-    } else {
-      return dist
-    }
+    http['request'] = dist
+    return options.wrapped ? http : http.send()
   }
 
   private urlWithPath(path: string, apiHost?: string): string {
@@ -145,7 +141,7 @@ export class SDKFetch {
 
     http.setUrl(url).post(body)
 
-    return options.wrapped ? http : http['request']
+    return options.wrapped ? http : http.send()
   }
 
   put<T>(path: string, body: any, options: SDKFetchOptions & {
@@ -170,7 +166,7 @@ export class SDKFetch {
 
     http.setUrl(url).put(body)
 
-    return options.wrapped ? http : http['request']
+    return options.wrapped ? http : http.send()
   }
 
   delete<T>(path: string, body: any, options: SDKFetchOptions & {
@@ -195,7 +191,7 @@ export class SDKFetch {
 
     http.setUrl(url).delete(body)
 
-    return options.wrapped ? http : http['request']
+    return options.wrapped ? http : http.send()
   }
 
   setAPIHost(host: string) {
@@ -259,6 +255,15 @@ export class SDKFetch {
     if (Object.keys(options).length > 0) {
       http.setOpts(options)
     }
+
+    http.map((source) => {
+      return source.catch((error: HttpErrorMessage) => {
+        if (!fetchOptions.disableRequestId) {
+          error['requestId'] = headers[headerXRequestId]
+        }
+        return Observable.throw(error)
+      })
+    })
   }
 
   // 注意：当该方法相关逻辑发生修改，请至 mock/mock.ts 做相应修改。
