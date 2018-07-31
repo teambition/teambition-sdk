@@ -256,7 +256,8 @@ export class SDKFetch {
       http.setOpts(options)
     }
 
-    http.map((source) => {
+    // todo(dingwen): 待实现更有效的 HTTP interceptor，替换这里的实现。
+    http['mapFn'] = ((source) => {
       return source.catch((error: HttpErrorMessage) => {
         if (!fetchOptions.disableRequestId) {
           error['requestId'] = headers[headerXRequestId]

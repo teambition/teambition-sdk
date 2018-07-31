@@ -157,10 +157,11 @@ export class Http<T> {
 
   private _opts: any = Http.defaultOpts()
 
-  map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
-    this.mapFn = fn
-    return this as any as Http<U>
-  }
+  // todo(dingwen): 实现更可控、支持多层叠加的 interceptor
+  // map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
+  //   this.mapFn = fn
+  //   return this as any as Http<U>
+  // }
 
   setUrl(url: string) {
     this.url = url
