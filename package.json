@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.10",
+  "version": "0.12.11-alpha.1-rid",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
