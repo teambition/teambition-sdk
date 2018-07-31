@@ -69,6 +69,16 @@ export class SDKFetch {
   static FetchStack = new Map<string, Observable<any>>()
   static fetchTail: string | undefined | 0
 
+  // todo(dingwen): 注释
+  static wrapHeaders(commonHeaders: {}, moreHeaders: {} = {}, options: {
+    merge?: boolean
+    disableRequestId?: boolean
+  } = {}) {
+    const headers = options.disableRequestId ? {} : { [headerXRequestId]: uuid() }
+    Object.assign(headers, options.merge ? commonHeaders : null, moreHeaders)
+    return headers
+  }
+
   get<T>(path: string, query: any, options: SDKFetchOptions & {
     wrapped: true, includeHeaders: true
   }): Http<HttpResponseWithHeaders<T>>
@@ -234,13 +244,10 @@ export class SDKFetch {
     http: Http<any>,
     fetchOptions: SDKFetchOptions
   ): void {
-    const headers = fetchOptions.disableRequestId ? {} : { [headerXRequestId]: uuid() }
-    if (fetchOptions.headers) {
-      const { merge, ...hdrs } = fetchOptions.headers
-      Object.assign(headers, merge ? this.headers : null, hdrs)
-    } else {
-      Object.assign(headers, this.headers)
-    }
+    const { disableRequestId } = fetchOptions
+    const headerOptions = fetchOptions.headers || { merge: true }
+    const { merge, ...customHeaders } = headerOptions
+    const headers = SDKFetch.wrapHeaders(this.headers, customHeaders, { merge, disableRequestId })
     http.setHeaders(headers)
 
     const token = fetchOptions.token || this.token
