@@ -152,7 +152,7 @@ export default describe('net/http', () => {
         .subscribeOn(Scheduler.asap)
         .do((resp: any) => {
           expect(resp.body).to.deep.equal(responseData)
-          expect(resp.headers['x-request-id']).to.equal(sampleValue)
+          expect(resp.headers.get('x-request-id')).to.equal(sampleValue)
         })
     })
   })

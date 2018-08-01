@@ -110,23 +110,29 @@ export function capitalizeFirstLetter(str?: string | null) {
 }
 
 /**
- * refer to https://github.com/github/fetch/blob/v1.0.0/fetch.js#L313
+ * refer to https://github.com/github/fetch/blob/v2.0.4/fetch.js#L359
  * XmlHttpRequest's getAllResponseHeaders() method returns a string of response
  * headers according to the format described here:
  * http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders-method
  * This method parses that string into a user-friendly key/value pair object.
- * Now this method also can window.Headers
  */
-export function parseHeaders(rawHeader: string) {
-    const head = Object.create(null)
-    const pairs = rawHeader.trim().split('\n')
-    pairs.forEach(header => {
-      const split = header.trim().split(':')
-      const key = split.shift()!.trim()
-      const value = split.join(':').trim()
-      head[key] = value
-    })
-    return head
+export function parseHeaders(rawHeaders: string): Headers {
+  const headers = new Headers()
+  // replace instances of \r\n and \n followed by at least one space or horizontal tab with a space
+  // https://tools.ietf.org/html/rfc7230#section-3.2
+  const preProcessedHeaders = rawHeaders.replace(/\r?\n[\t ]+/g, ' ')
+  preProcessedHeaders.split(/\r?\n/).forEach((line) => {
+    const parts = line.split(':')
+    // 上面的 split 只会在 `''.split('')` 的情况下才会返回空数组。
+    // `''.split(':')` 的情况会返回 `['']`，所以下面不用担心 shift 会
+    // 得到 undefined，不用担心出现“undefined 上面找不到 trim 方法”的报错。
+    const key = parts.shift()!.trim()
+    if (key) {
+      const value = parts.join(':').trim()
+      headers.append(key, value)
+    }
+  })
+  return headers
 }
 
 export function headers2Object(headers: Headers): Object {

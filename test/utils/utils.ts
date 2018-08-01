@@ -8,6 +8,7 @@ import {
   concat,
   dropEle,
   capitalizeFirstLetter,
+  headers2Object,
   parseHeaders,
   normPagingQuery,
   isEmptyObject,
@@ -239,20 +240,49 @@ export default describe('utils test', () => {
     expect(capitalizeFirstLetter(str1)).to.equal(str1)
   })
 
-  it('parseResponseHeaders should ok', () => {
-    const rawHeader = `Server: nginx
-      Date: Sun, 09 Oct 2016 08:31:00 GMT
-      Content-Type: application/json;charset=UTF-8
-      Content-Length: 151
-      Connection: keep-alive
-      Api-Server-IP: 10.75.0.71`
-    expect(parseHeaders(rawHeader)).to.deep.equal({
-      'Server': 'nginx',
-      'Date': 'Sun, 09 Oct 2016 08:31:00 GMT',
-      'Content-Type': 'application/json;charset=UTF-8',
-      'Content-Length': '151',
-      'Connection': 'keep-alive',
-      'Api-Server-IP': '10.75.0.71'
+  it(`${parseHeaders.name} result should support get('_case_insensitive_field_name_')`, () => {
+    const rawHeaders = 'Server: nginx\r\n' +
+      'Date: Sun, 09 Oct 2016 08:31:00 GMT\r\n' +
+      'Content-Type: application/json;charset=UTF-8\r\n' +
+      'Content-Length: 151\r\n' +
+      'Connection: keep-alive\r\n' +
+      'Api-Server-IP: 10.75.0.71'
+    const parsedHeaders = parseHeaders(rawHeaders)
+
+    expect(parsedHeaders.get('Server')).to.equal('nginx')
+    expect(parsedHeaders.get('Date')).to.equal('Sun, 09 Oct 2016 08:31:00 GMT')
+    expect(parsedHeaders.get('Content-Type')).to.equal('application/json;charset=UTF-8')
+    expect(parsedHeaders.get('Content-Length')).to.equal('151')
+    expect(parsedHeaders.get('Connection')).to.equal('keep-alive')
+    expect(parsedHeaders.get('Api-Server-IP')).to.equal('10.75.0.71')
+
+    expect(parsedHeaders.get('server')).to.equal('nginx')
+    expect(parsedHeaders.get('dAte')).to.equal('Sun, 09 Oct 2016 08:31:00 GMT')
+    expect(parsedHeaders.get('coNtent-type')).to.equal('application/json;charset=UTF-8')
+    expect(parsedHeaders.get('conTent-length')).to.equal('151')
+    expect(parsedHeaders.get('connEction')).to.equal('keep-alive')
+    expect(parsedHeaders.get('api-sErver-ip')).to.equal('10.75.0.71')
+  })
+
+  it(`${headers2Object.name} should convert Headers to plain object, with all lower-case keys`, () => {
+    expect(headers2Object(new Headers())).to.deep.equal({})
+
+    expect(headers2Object(
+      parseHeaders(
+        'Server: nginx\r\n' +
+        'Date: Sun, 09 Oct 2016 08:31:00 GMT\r\n' +
+        'Content-Type: application/json;charset=UTF-8\r\n' +
+        'Content-Length: 151\r\n' +
+        'Connection: keep-alive\r\n' +
+        'Api-Server-IP: 10.75.0.71'
+      )
+    )).to.deep.equal({
+      'server': 'nginx',
+      'date': 'Sun, 09 Oct 2016 08:31:00 GMT',
+      'content-type': 'application/json;charset=UTF-8',
+      'content-length': '151',
+      'connection': 'keep-alive',
+      'api-server-ip': '10.75.0.71'
     })
   })
 

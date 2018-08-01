@@ -220,7 +220,7 @@ describe('SDKFetch', () => {
         .subscribeOn(Scheduler.asap)
         .do((resp) => {
           expect(resp.body).to.deep.equal(responseData)
-          expect(resp.headers['x-request-id']).to.equal(sampleValue)
+          expect(resp.headers.get('x-request-id')).to.equal(sampleValue)
         })
     })
   })

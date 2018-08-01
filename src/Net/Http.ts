@@ -6,7 +6,7 @@ import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
-import { parseHeaders, headers2Object } from '../utils/index'
+import { parseHeaders } from '../utils/index'
 import { testable } from '../testable'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
@@ -20,7 +20,7 @@ export interface HttpErrorMessage {
 }
 
 export interface HttpResponseWithHeaders<T = any> {
-  headers: any,
+  headers: Headers,
   body: T
 }
 
@@ -51,12 +51,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
         if (!includeHeaders) {
           return respBody
         }
-        let respHeaders: any
-        try {
-          respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
-        } catch (e) {
-          respHeaders = null
-        }
+        const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
         return { headers: respHeaders, body: respBody }
       })
       .catch((e: AjaxError) => {
@@ -65,7 +60,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
           error: new Response(new Blob([JSON.stringify(e.xhr.response)]), {
             status: e.xhr.status,
             statusText: e.xhr.statusText,
-            headers: headers.length ? new Headers(parseHeaders(headers)) : new Headers()
+            headers: headers.length ? parseHeaders(headers) : new Headers()
           }),
           method, url, body
         }
@@ -98,7 +93,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
           let result: any
           try {
             const respBody = JSON.parse(respText)
-            result = !includeHeaders ? respBody : { headers: headers2Object(headers), body: respBody }
+            result = !includeHeaders ? respBody : { headers, body: respBody }
           } catch (e) {
             result = respText
           }
