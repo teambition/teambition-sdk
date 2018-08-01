@@ -4,7 +4,7 @@ import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDKFetch, forEach, Http, HttpErrorMessage } from '.'
 import { clone } from './'
 
-import { defaultSDKFetchHeaders, Header } from '../src/SDKFetch'
+import { defaultSDKFetchHeaders, HttpHeaders } from '../src/SDKFetch'
 
 const fetchMock = require('fetch-mock')
 
@@ -251,7 +251,7 @@ describe('SDKFetch', () => {
             } else {
               expect(info.body).to.deep.equal(body)
             }
-            expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[Header.Key.RequestId])
+            expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[HttpHeaders.Key.RequestId])
             return Observable.empty()
           })
           .subscribeOn(Scheduler.asap)
@@ -266,14 +266,14 @@ describe('SDKFetch options', () => {
 
   const newHost = 'https://www.example.com'
   const newHeader = {
-    [Header.Key.RequestId]: '2333' // 固定 x-request-id 这个头字段，方便测试
+    [HttpHeaders.Key.RequestId]: '2333' // 固定 x-request-id 这个头字段，方便测试
   }
   const newToken = '1234567890'
   const newOption = { responseType: 'arraybuffer' }
   const newMockOptions = {
     headers: {
       'Authorization': 'OAuth2 1234567890',
-      [Header.Key.RequestId]: '2333'
+      [HttpHeaders.Key.RequestId]: '2333'
     },
     responseType: 'arraybuffer'
   }
@@ -420,7 +420,7 @@ describe('SDKFetch options', () => {
       yield sdkFetch[httpMethod](path)
         .subscribeOn(Scheduler.asap)
         .do(() => {
-          expect(Boolean(fetchMock.lastOptions().headers[Header.Key.RequestId])).to.be.true
+          expect(Boolean(fetchMock.lastOptions().headers[HttpHeaders.Key.RequestId])).to.be.true
         })
     })
   })
@@ -436,12 +436,12 @@ describe('SDKFetch options', () => {
 
       yield sdkFetch[httpMethod](path, undefined, { headers: {
         merge: true,
-        [Header.Key.RequestId]: userDefinedRequestId
+        [HttpHeaders.Key.RequestId]: userDefinedRequestId
       } })
         .subscribeOn(Scheduler.asap)
         .do(() => {
           expect(fetchMock.lastOptions().headers).to.deep.equal({
-            hello: 'world', [Header.Key.RequestId]: userDefinedRequestId
+            hello: 'world', [HttpHeaders.Key.RequestId]: userDefinedRequestId
           })
         })
     })
@@ -458,7 +458,7 @@ describe('SDKFetch options', () => {
 
       yield sdkFetch[httpMethod](path, undefined, { headers: {
         merge: true,
-        [Header.Key.RequestId]: userDefinedRequestId
+        [HttpHeaders.Key.RequestId]: userDefinedRequestId
       } })
         .catch((info: HttpErrorMessage) => {
           expect(info.requestId).to.equal(String(userDefinedRequestId))
@@ -470,22 +470,22 @@ describe('SDKFetch options', () => {
 
 })
 
-describe('Header', () => {
-  it(`${Header.create.name} currently doesn't normalize 'commonHeaders'`, () => {
-    expect(Header.create({ 'AbCd': 14 }, undefined, { merge: true, disableRequestId: true }))
+describe('HttpHeaders', () => {
+  it(`${HttpHeaders.create.name} currently doesn't normalize 'commonHeaders'`, () => {
+    expect(HttpHeaders.create({ 'AbCd': 14 }, undefined, { merge: true, disableRequestId: true }))
       .to.deep.equal({ 'AbCd': 14 })
   })
 
-  it(`${Header.create.name} should normalize 'moreHeaders': key -> lower-case, value -> string`, () => {
-    expect(Header.create({}, { 'AbCd': 14 }, { merge: true, disableRequestId: true }))
+  it(`${HttpHeaders.create.name} should normalize 'moreHeaders': key -> lower-case, value -> string`, () => {
+    expect(HttpHeaders.create({}, { 'AbCd': 14 }, { merge: true, disableRequestId: true }))
       .to.deep.equal({ 'abcd': '14' })
   })
 
-  it(`${Header.create.name} should allow user-defined 'x-request-id'(case-insensitive)`, () => {
+  it(`${HttpHeaders.create.name} should allow user-defined 'x-request-id'(case-insensitive)`, () => {
     const samples = [{ 'X-Request-Id': '0' }, { 'X-Request-ID': '0' }, { 'x-request-id': '0' }]
 
     samples.forEach((sample) => {
-      expect(Header.create({}, sample, { merge: true })).to.deep.equal({ [Header.Key.RequestId]: '0' })
+      expect(HttpHeaders.create({}, sample, { merge: true })).to.deep.equal({ [HttpHeaders.Key.RequestId]: '0' })
     })
   })
 })
