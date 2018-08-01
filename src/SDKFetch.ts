@@ -41,7 +41,9 @@ export type SDKFetchOptions = {
   includeHeaders?: boolean
 }
 
-export const headerXRequestId = 'X-Request-Id'
+export const enum HttpHeader {
+  RequestId = 'x-request-id'
+}
 
 const getUnnamedOptions = (options: SDKFetchOptions) => {
   const {
@@ -74,7 +76,7 @@ export class SDKFetch {
     merge?: boolean
     disableRequestId?: boolean
   } = {}) {
-    const headers = options.disableRequestId ? {} : { [headerXRequestId]: uuid() }
+    const headers = options.disableRequestId ? {} : { [HttpHeader.RequestId]: uuid() }
     Object.assign(headers, options.merge ? commonHeaders : null, moreHeaders)
     return headers
   }
@@ -267,7 +269,7 @@ export class SDKFetch {
     http['mapFn'] = ((source) => {
       return source.catch((error: HttpErrorMessage) => {
         if (!fetchOptions.disableRequestId) {
-          error['requestId'] = headers[headerXRequestId]
+          error['requestId'] = headers[HttpHeader.RequestId]
         }
         return Observable.throw(error)
       })

@@ -4,7 +4,7 @@ import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDKFetch, forEach, Http, HttpErrorMessage } from '.'
 import { clone } from './'
 
-import { defaultSDKFetchHeaders, headerXRequestId } from '../src/SDKFetch'
+import { defaultSDKFetchHeaders, HttpHeader } from '../src/SDKFetch'
 
 const fetchMock = require('fetch-mock')
 
@@ -251,7 +251,7 @@ describe('SDKFetch', () => {
             } else {
               expect(info.body).to.deep.equal(body)
             }
-            expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[headerXRequestId])
+            expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[HttpHeader.RequestId])
             return Observable.empty()
           })
           .subscribeOn(Scheduler.asap)
@@ -265,13 +265,15 @@ describe('SDKFetch options', () => {
   let sdkFetch: SDKFetch
 
   const newHost = 'https://www.example.com'
-  const newHeader = { 'X-Request-Id': '2333' }
+  const newHeader = {
+    [HttpHeader.RequestId]: '2333' // 固定 x-request-id 这个头字段，方便测试
+  }
   const newToken = '1234567890'
   const newOption = { responseType: 'arraybuffer' }
   const newMockOptions = {
     headers: {
       'Authorization': 'OAuth2 1234567890',
-      'X-Request-Id': '2333'
+      [HttpHeader.RequestId]: '2333'
     },
     responseType: 'arraybuffer'
   }
@@ -418,7 +420,7 @@ describe('SDKFetch options', () => {
       yield sdkFetch[httpMethod](path)
         .subscribeOn(Scheduler.asap)
         .do(() => {
-          expect(Boolean(fetchMock.lastOptions().headers[headerXRequestId])).to.be.true
+          expect(Boolean(fetchMock.lastOptions().headers[HttpHeader.RequestId])).to.be.true
         })
     })
   })
@@ -433,12 +435,12 @@ describe('SDKFetch options', () => {
 
       yield sdkFetch[httpMethod](path, undefined, { headers: {
         merge: true,
-        [headerXRequestId]: 2
+        [HttpHeader.RequestId]: 2
       } })
         .subscribeOn(Scheduler.asap)
         .do(() => {
           expect(fetchMock.lastOptions().headers).to.deep.equal({
-            hello: 'world', [headerXRequestId]: 2
+            hello: 'world', [HttpHeader.RequestId]: 2
           })
         })
     })
@@ -455,7 +457,7 @@ describe('SDKFetch options', () => {
 
       yield sdkFetch[httpMethod](path, undefined, { headers: {
         merge: true,
-        [headerXRequestId]: userDefinedRequestId
+        [HttpHeader.RequestId]: userDefinedRequestId
       } })
         .catch((info: HttpErrorMessage) => {
           expect(info.requestId).to.equal(userDefinedRequestId)
