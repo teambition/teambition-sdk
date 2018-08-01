@@ -56,19 +56,18 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
       })
       .catch((e: AjaxError) => {
         const headers = e.xhr.getAllResponseHeaders()
-        const sdkError: HttpErrorMessage = {
-          error: new Response(new Blob([JSON.stringify(e.xhr.response)]), {
-            status: e.xhr.status,
-            statusText: e.xhr.statusText,
-            headers: headers.length ? parseHeaders(headers) : new Headers()
-          }),
-          method, url, body
-        }
+        const errorResponse = new Response(new Blob([JSON.stringify(e.xhr.response)]), {
+          status: e.xhr.status,
+          statusText: e.xhr.statusText,
+          headers: headers.length ? parseHeaders(headers) : new Headers()
+        })
+        const requestInfo = { method, url, body }
+        const errorResponseClone = errorResponse.clone()
 
         setTimeout(() => {
-          errorAdapter$.next(sdkError)
+          errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
         }, 10)
-        return Observable.throw(sdkError)
+        return Observable.throw({ ...requestInfo, error: errorResponse })
       })
   } else { // 测试用分支
     return Observable.create((observer: Observer<any>) => {
@@ -100,16 +99,14 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
           observer.next(result)
           observer.complete()
         })
-        .catch((e: Response) => {
-          const sdkError: HttpErrorMessage = {
-            error: e,
-            method, url, body
-          }
+        .catch((errorResponse: Response) => {
+          const requestInfo = { method, url, body }
+          const errorResponseClone = errorResponse.clone()
 
           setTimeout(() => {
-            errorAdapter$.next(sdkError)
+            errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
           }, 10)
-          observer.error(sdkError)
+          observer.error({ ...requestInfo, error: errorResponse })
         })
     })
   }
