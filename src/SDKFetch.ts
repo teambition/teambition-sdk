@@ -41,8 +41,29 @@ export type SDKFetchOptions = {
   includeHeaders?: boolean
 }
 
-export const enum HttpHeader {
-  RequestId = 'x-request-id'
+export namespace Header {
+
+  export const enum Key { RequestId = 'x-request-id' }
+
+  export function create(
+    commonHeaders: {},
+    moreHeaders?: {},
+    options: { merge?: boolean, disableRequestId?: boolean } = {}
+  ): Record<string, string> {
+    const headers = options.disableRequestId ? {} : {
+      [Key.RequestId]: uuid()
+    } as Record<string, string>
+
+    Object.assign(headers, options.merge ? commonHeaders : null)
+    if (moreHeaders) {
+      const hdrs = new Headers(moreHeaders)
+      hdrs.forEach((val: string, key: string) => {
+        headers[key] = val
+      })
+    }
+    return headers
+  }
+
 }
 
 const getUnnamedOptions = (options: SDKFetchOptions) => {
@@ -56,7 +77,7 @@ const getUnnamedOptions = (options: SDKFetchOptions) => {
 export const defaultSDKFetchHeaders = () => ({
   'Accept': 'application/json',
   'Content-Type': 'application/json',
-  'x-timezone': - new Date().getTimezoneOffset() / 60
+  'x-timezone': String(- new Date().getTimezoneOffset() / 60)
 })
 
 export class SDKFetch {
@@ -70,16 +91,6 @@ export class SDKFetch {
 
   static FetchStack = new Map<string, Observable<any>>()
   static fetchTail: string | undefined | 0
-
-  // todo(dingwen): 注释
-  static wrapHeaders(commonHeaders: {}, moreHeaders: {} = {}, options: {
-    merge?: boolean
-    disableRequestId?: boolean
-  } = {}) {
-    const headers = options.disableRequestId ? {} : { [HttpHeader.RequestId]: uuid() }
-    Object.assign(headers, options.merge ? commonHeaders : null, moreHeaders)
-    return headers
-  }
 
   get<T>(path: string, query: any, options: SDKFetchOptions & {
     wrapped: true, includeHeaders: true
@@ -249,7 +260,7 @@ export class SDKFetch {
     const { disableRequestId } = fetchOptions
     const headerOptions = fetchOptions.headers || { merge: true }
     const { merge, ...customHeaders } = headerOptions
-    const headers = SDKFetch.wrapHeaders(this.headers, customHeaders, { merge, disableRequestId })
+    const headers = Header.create(this.headers, customHeaders, { merge, disableRequestId })
     http.setHeaders(headers)
 
     const token = fetchOptions.token || this.token
@@ -269,7 +280,7 @@ export class SDKFetch {
     http['mapFn'] = ((source) => {
       return source.catch((error: HttpErrorMessage) => {
         if (!fetchOptions.disableRequestId) {
-          error['requestId'] = headers[HttpHeader.RequestId]
+          error['requestId'] = headers[Header.Key.RequestId]
         }
         return Observable.throw(error)
       })

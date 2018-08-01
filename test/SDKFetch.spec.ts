@@ -4,7 +4,7 @@ import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDKFetch, forEach, Http, HttpErrorMessage } from '.'
 import { clone } from './'
 
-import { defaultSDKFetchHeaders, HttpHeader } from '../src/SDKFetch'
+import { defaultSDKFetchHeaders, Header } from '../src/SDKFetch'
 
 const fetchMock = require('fetch-mock')
 
@@ -251,7 +251,7 @@ describe('SDKFetch', () => {
             } else {
               expect(info.body).to.deep.equal(body)
             }
-            expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[HttpHeader.RequestId])
+            expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[Header.Key.RequestId])
             return Observable.empty()
           })
           .subscribeOn(Scheduler.asap)
@@ -266,14 +266,14 @@ describe('SDKFetch options', () => {
 
   const newHost = 'https://www.example.com'
   const newHeader = {
-    [HttpHeader.RequestId]: '2333' // 固定 x-request-id 这个头字段，方便测试
+    [Header.Key.RequestId]: '2333' // 固定 x-request-id 这个头字段，方便测试
   }
   const newToken = '1234567890'
   const newOption = { responseType: 'arraybuffer' }
   const newMockOptions = {
     headers: {
       'Authorization': 'OAuth2 1234567890',
-      [HttpHeader.RequestId]: '2333'
+      [Header.Key.RequestId]: '2333'
     },
     responseType: 'arraybuffer'
   }
@@ -420,7 +420,7 @@ describe('SDKFetch options', () => {
       yield sdkFetch[httpMethod](path)
         .subscribeOn(Scheduler.asap)
         .do(() => {
-          expect(Boolean(fetchMock.lastOptions().headers[HttpHeader.RequestId])).to.be.true
+          expect(Boolean(fetchMock.lastOptions().headers[Header.Key.RequestId])).to.be.true
         })
     })
   })
@@ -428,6 +428,7 @@ describe('SDKFetch options', () => {
   allowedMethods.forEach((httpMethod) => {
     it(`per (${httpMethod}) request setting should allow user defined X-Request-Id header`, function* () {
       fetchMock.mock(new RegExp(newHost), {})
+      const userDefinedRequestId = '2'
 
       sdkFetch
         .setAPIHost(newHost)
@@ -435,12 +436,12 @@ describe('SDKFetch options', () => {
 
       yield sdkFetch[httpMethod](path, undefined, { headers: {
         merge: true,
-        [HttpHeader.RequestId]: 2
+        [Header.Key.RequestId]: userDefinedRequestId
       } })
         .subscribeOn(Scheduler.asap)
         .do(() => {
           expect(fetchMock.lastOptions().headers).to.deep.equal({
-            hello: 'world', [HttpHeader.RequestId]: 2
+            hello: 'world', [Header.Key.RequestId]: userDefinedRequestId
           })
         })
     })
@@ -449,7 +450,7 @@ describe('SDKFetch options', () => {
   allowedMethods.forEach((httpMethod) => {
     it(`per (${httpMethod}) request setting should attach user defined X-Request-Id header to error thrown`, function* () {
       fetchMock.mock(new RegExp(newHost), { status: 500 })
-      const userDefinedRequestId = 2
+      const userDefinedRequestId = '2'
 
       sdkFetch
         .setAPIHost(newHost)
@@ -457,16 +458,36 @@ describe('SDKFetch options', () => {
 
       yield sdkFetch[httpMethod](path, undefined, { headers: {
         merge: true,
-        [HttpHeader.RequestId]: userDefinedRequestId
+        [Header.Key.RequestId]: userDefinedRequestId
       } })
         .catch((info: HttpErrorMessage) => {
-          expect(info.requestId).to.equal(userDefinedRequestId)
+          expect(info.requestId).to.equal(String(userDefinedRequestId))
           return Observable.empty()
         })
         .subscribeOn(Scheduler.asap)
     })
   })
 
+})
+
+describe('Header', () => {
+  it(`${Header.create.name} currently doesn't normalize 'commonHeaders'`, () => {
+    expect(Header.create({ 'AbCd': 14 }, undefined, { merge: true, disableRequestId: true }))
+      .to.deep.equal({ 'AbCd': 14 })
+  })
+
+  it(`${Header.create.name} should normalize 'moreHeaders': key -> lower-case, value -> string`, () => {
+    expect(Header.create({}, { 'AbCd': 14 }, { merge: true, disableRequestId: true }))
+      .to.deep.equal({ 'abcd': '14' })
+  })
+
+  it(`${Header.create.name} should allow user-defined 'x-request-id'(case-insensitive)`, () => {
+    const samples = [{ 'X-Request-Id': '0' }, { 'X-Request-ID': '0' }, { 'x-request-id': '0' }]
+
+    samples.forEach((sample) => {
+      expect(Header.create({}, sample, { merge: true })).to.deep.equal({ [Header.Key.RequestId]: '0' })
+    })
+  })
 })
 
 describe('SDKFetch.buildQuery', () => {

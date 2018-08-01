@@ -21,7 +21,7 @@ import * as Socket from './sockets'
 export { Socket, eventToRE as socketEventToRE }
 
 export { SDK } from './SDK'
-export { SDKFetch, HttpHeader } from './SDKFetch'
+export { SDKFetch, Header as HttpHeader } from './SDKFetch'
 export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$ } from './Net'
 
 // export const SocketClient: Client = sdk.socket
