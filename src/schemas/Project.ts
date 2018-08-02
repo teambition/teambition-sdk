@@ -35,6 +35,7 @@ export interface ProjectSchema {
   isDeleted: boolean
   isPublic: boolean
   isStar: boolean
+  isSuspended: boolean
   logo: string
   membersCount: number
   name: string
@@ -145,6 +146,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.BOOLEAN
   },
   isStar: {
+    type: RDBType.BOOLEAN
+  },
+  isSuspended: {
     type: RDBType.BOOLEAN
   },
   logo: {
