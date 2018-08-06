@@ -43,7 +43,7 @@ export type SDKFetchOptions = {
 
 export namespace HttpHeaders {
 
-  export const enum Key { RequestId = 'x-request-id' }
+  export enum Key { RequestId = 'x-request-id' }
 
   export function create(headers: {}, options: {
     customHeaders?: {},
