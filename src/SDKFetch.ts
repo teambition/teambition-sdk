@@ -45,23 +45,23 @@ export namespace HttpHeaders {
 
   export const enum Key { RequestId = 'x-request-id' }
 
-  export function create(
-    commonHeaders: {},
-    moreHeaders?: {},
-    options: { merge?: boolean, disableRequestId?: boolean } = {}
-  ): Record<string, string> {
-    const headers = options.disableRequestId ? {} : {
+  export function create(headers: {}, options: {
+    customHeaders?: {},
+    disableRequestId?: boolean
+  } = {}): Record<string, string> {
+    const hdrs = options.disableRequestId ? {} : {
       [Key.RequestId]: uuid()
     } as Record<string, string>
 
-    Object.assign(headers, options.merge ? commonHeaders : null)
-    if (moreHeaders) {
-      const hdrs = new Headers(moreHeaders)
-      hdrs.forEach((val: string, key: string) => {
-        headers[key] = val
+    (new Headers(headers)).forEach((val: string, key: string) => {
+      hdrs[key] = val
+    })
+    if (options.customHeaders) {
+      (new Headers(options.customHeaders)).forEach((val: string, key: string) => {
+        hdrs[key] = val
       })
     }
-    return headers
+    return hdrs
   }
 
 }
@@ -75,8 +75,8 @@ const getUnnamedOptions = (options: SDKFetchOptions) => {
 }
 
 export const defaultSDKFetchHeaders = () => ({
-  'Accept': 'application/json',
-  'Content-Type': 'application/json',
+  'accept': 'application/json',
+  'content-type': 'application/json',
   'x-timezone': String(- new Date().getTimezoneOffset() / 60)
 })
 
@@ -260,7 +260,9 @@ export class SDKFetch {
     const { disableRequestId } = fetchOptions
     const headerOptions = fetchOptions.headers || { merge: true }
     const { merge, ...customHeaders } = headerOptions
-    const headers = HttpHeaders.create(this.headers, customHeaders, { merge, disableRequestId })
+    const headers = merge
+      ? HttpHeaders.create(this.headers, { customHeaders: customHeaders, disableRequestId })
+      : HttpHeaders.create(customHeaders, { disableRequestId })
     http.setHeaders(headers)
 
     const token = fetchOptions.token || this.token

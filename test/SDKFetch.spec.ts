@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { Observable, Scheduler } from 'rxjs'
 import { describe, it, beforeEach, afterEach } from 'tman'
-import { SDKFetch, forEach, Http, HttpErrorMessage } from '.'
+import { SDKFetch, forEach, Http, HttpErrorMessage, headers2Object } from '.'
 import { clone } from './'
 
 import { defaultSDKFetchHeaders, HttpHeaders } from '../src/SDKFetch'
@@ -308,6 +308,13 @@ describe('SDKFetch options', () => {
     expect(defaultSDKFetchHeaders()).to.deep.equal(headersClone)
   })
 
+  it('defaultSDKFetchHeaders should return normalized headers', () => {
+    const headers = defaultSDKFetchHeaders()
+    const normalizedHeaders = headers2Object(new Headers(headers))
+
+    expect(headers).to.deep.equal(normalizedHeaders)
+  })
+
   allowedMethods.forEach((httpMethod) => {
     it(`use default headers when headers are not set: ${httpMethod}`, function* () {
       fetchMock.mock(new RegExp(''), {})
@@ -471,21 +478,26 @@ describe('SDKFetch options', () => {
 })
 
 describe('HttpHeaders', () => {
-  it(`${HttpHeaders.create.name} currently doesn't normalize 'commonHeaders'`, () => {
-    expect(HttpHeaders.create({ 'AbCd': 14 }, undefined, { merge: true, disableRequestId: true }))
-      .to.deep.equal({ 'AbCd': 14 })
-  })
-
-  it(`${HttpHeaders.create.name} should normalize 'moreHeaders': key -> lower-case, value -> string`, () => {
-    expect(HttpHeaders.create({}, { 'AbCd': 14 }, { merge: true, disableRequestId: true }))
+  it(`${HttpHeaders.create.name}() should normalize 'headers': key -> lower-case, value -> string`, () => {
+    expect(HttpHeaders.create({ 'AbCd': 14 }, { disableRequestId: true }))
       .to.deep.equal({ 'abcd': '14' })
   })
 
-  it(`${HttpHeaders.create.name} should allow user-defined 'x-request-id'(case-insensitive)`, () => {
+  it(`${HttpHeaders.create.name}() should normalize 'options.mergeHeaders': key -> lower-case, value -> string`, () => {
+    expect(HttpHeaders.create({}, { customHeaders: { 'AbCd': 14 }, disableRequestId: true }))
+      .to.deep.equal({ 'abcd': '14' })
+  })
+
+  it(`${HttpHeaders.create.name}() should allow key-value pairs in 'options.mergeHeader' to override the corresponding pairs in 'headers'`, () => {
+    expect(HttpHeaders.create({ 'aBcD': 24 }, { customHeaders: { 'AbCd': 14 }, disableRequestId: true }))
+      .to.deep.equal({ 'abcd': '14' })
+  })
+
+  it(`${HttpHeaders.create.name}() should allow custom-defined 'x-request-id'(case-insensitive)`, () => {
     const samples = [{ 'X-Request-Id': '0' }, { 'X-Request-ID': '0' }, { 'x-request-id': '0' }]
 
     samples.forEach((sample) => {
-      expect(HttpHeaders.create({}, sample, { merge: true })).to.deep.equal({ [HttpHeaders.Key.RequestId]: '0' })
+      expect(HttpHeaders.create({}, { customHeaders: sample })).to.deep.equal({ [HttpHeaders.Key.RequestId]: '0' })
     })
   })
 })
