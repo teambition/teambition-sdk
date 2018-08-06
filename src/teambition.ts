@@ -74,7 +74,9 @@ declare module 'teambition-types' {
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works'
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
-  export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'
+  export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
+  export type ReminderRuleType = 'startDate' | 'dueDate' | 'customize' | 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'
+  export type ReminderUnit = 'minute' | 'hour' | 'day'
   export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
   export type ScenarioFieldConfigObjectType = 'task' | 'event'
   export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
@@ -118,10 +120,32 @@ declare module 'teambition-types' {
     values: string[]
   }
 
-  export interface Reminder {
+  export interface OnTimeReminderRule {
+    type: Extract<ReminderRuleType, 'startDate' | 'dueDate'>
+    date: null
+  }
+
+  export interface AbsoluteReminderRule {
+    type: Extract<ReminderRuleType, 'customize'>
     date: string
+  }
+
+  export interface RelativeReminderRule {
+    type: Extract<ReminderRuleType, 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'>
+    date: null
+    relative: {
+      unit: ReminderUnit
+      value: number
+    }
+  }
+
+  export type ReminderRule = OnTimeReminderRule | AbsoluteReminderRule | RelativeReminderRule
+
+  export interface Reminder {
+    date: string  // 兼容旧版本，新功能开发请使用 rules
+    type: ReminderType  // 兼容旧版本，新功能开发请使用 rules
     members: UserId[]
-    type: ReminderType
+    rules: ReminderRule[]
     _creatorId: UserId
   }
 
