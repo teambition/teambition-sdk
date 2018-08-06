@@ -5,7 +5,10 @@ import { schemaColl } from './schemas'
 
 export interface TagCategorySchema {
   _id: TagCategoryId
+  _creatorId: UserId
+  _organizationId: OrganizationId
   name: string
+  created: string
   updated: string
   isDefault?: boolean
 }
