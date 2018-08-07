@@ -70,7 +70,7 @@ declare module 'teambition-types' {
   export type CustomFieldSubtype = 'story'
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
-  export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple' | 'cyan'
+  export type DefaultColors = 'cyan' | 'red' | 'yellow' | 'green' | 'blue' | 'purple'
   export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work'
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works'
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
