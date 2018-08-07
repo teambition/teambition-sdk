@@ -28,7 +28,7 @@ export interface TagSchema {
   eventsCount?: number
   worksCount?: number
   tagcategoryIds?: TagCategoryId[]
-  tagcategories?: TagCategorySchema[]
+  tagcategories?: Pick<TagCategorySchema, '_id' | 'name'>[]
 }
 
 const schema: SchemaDef<TagSchema> = {
