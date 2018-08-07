@@ -1,9 +1,8 @@
 import { RDBType, SchemaDef } from 'reactivedb/interface'
 import {
-  ProjectId, ScenarioFieldConfigId, TestplanId,
+  ProjectId, ScenarioFieldConfigId, CustomFieldValue, TestplanId,
   TestcaseId, TestcaseflowStatusId, TestcaseType, UserId } from 'teambition-types'
 import { schemaColl } from './schemas'
-import { CustomFieldSchema } from './CustomField'
 
 export interface TestcaseSchema {
   _id: TestcaseId
@@ -15,7 +14,7 @@ export interface TestcaseSchema {
   _scenariofieldconfigId: ScenarioFieldConfigId
   accomplished: string
   caseType: TestcaseType
-  customfields: CustomFieldSchema[]
+  customfields: CustomFieldValue[]
   involveMembers: UserId[]
   isArchived: boolean
   isDeleted: boolean
