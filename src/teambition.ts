@@ -47,6 +47,9 @@ declare module 'teambition-types' {
   export type TaskId = string & { kind: 'TaskId' }
   export type TasklistId = string & { kind: 'TasklistId' }
   export type TeamId = string & { kind: 'TeamId' }
+  export type TestcaseId = string & { kind: 'TestcaseId' }
+  export type TestcaseflowStatusId = string & { kind: 'TestcaseflowStatusId' }
+  export type TestplanId = string & { kind: 'TestplanId' }
   export type UserId = string & { kind: 'UserId' }
   export type VersionId = string & { kind: 'VersionId' }
   export type WorkId = string & { kind: 'WorkId' }
@@ -89,6 +92,7 @@ declare module 'teambition-types' {
   export type TaskPriority = 0 | 1 | 2
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
+  export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
   export type VisibleOption = 'members' | 'involves'
 }
 
