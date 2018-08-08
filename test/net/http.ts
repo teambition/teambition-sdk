@@ -1,4 +1,4 @@
-import { Observable, Scheduler } from 'rxjs'
+import { Observable, Scheduler, Subject } from 'rxjs'
 import { expect } from 'chai'
 import { describe, it, beforeEach, afterEach } from 'tman'
 
@@ -152,7 +152,7 @@ export default describe('net/http', () => {
         .subscribeOn(Scheduler.asap)
         .do((resp: any) => {
           expect(resp.body).to.deep.equal(responseData)
-          expect(resp.headers['x-request-id']).to.equal(sampleValue)
+          expect(resp.headers.get('x-request-id')).to.equal(sampleValue)
         })
     })
   })
@@ -177,6 +177,36 @@ export default describe('net/http', () => {
           .subscribeOn(Scheduler.asap)
       })
     })
+  })
+
+  it('should emit usable error: Response at both original$ and errorAdaptor$', function* () {
+    const status = 429
+    const body = { text: 'busy' }
+    fetchMock.mock(url, { body, method: 'get', status })
+
+    const errorAdaptor$ = new Subject<HttpErrorMessage>()
+    const fetchInstance2 = new Http(url, errorAdaptor$)
+
+    const caught$ = fetchInstance2.get()
+      .send()
+      .catch((res: HttpErrorMessage) => Observable.of(res)) as Observable<HttpErrorMessage>
+
+    yield Observable.zip(caught$, errorAdaptor$)
+      .flatMap(([caught, adaptor]) => {
+        return Observable.zip(
+          Observable.fromPromise(caught.error.json()),
+          Observable.fromPromise(adaptor.error.json())
+        )
+      })
+      .do(([caught, errorMsg]) => {
+        expect(caught).to.deep.equal(body)
+        expect(errorMsg).to.deep.equal(body)
+      })
+      .catch(() => {
+        expect('Should not reach here!').to.equal('')
+        return Observable.empty()
+      })
+      .subscribeOn(Scheduler.asap)
   })
 
   it('createMethod() should give response text when it cannot be parsed successfully', function* () {
