@@ -8,6 +8,7 @@ import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
 import { parseHeaders } from '../utils/index'
 import { testable } from '../testable'
+import { forEach } from '../utils'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
 
@@ -32,6 +33,27 @@ type MethodParams = {
   includeHeaders: boolean
 }
 
+const rxAjaxDefaultHeaderKey2NormKey = {
+  'X-Requested-With': 'x-requested-with',
+  'Content-Type': 'content-type'
+}
+
+/**
+ * Observable.ajax 目前的实现，对请求头字段的已有设置检查没有遵循
+ * 头字段 key 不区分大小写的原则，比如：如果用户已經设置 `content-type`，
+ * Observable.ajax 内部会发现 `Content-Type` 没有设置，结果会
+ * 额外添加一个 `Content-Type` 字段，结果导致浏览器发现请求头字段里
+ * 既有 `content-type` 又有 `Content-Type`，出现问题。
+ */
+const coverRxAjaxHeadersBug = (normHeaders: {}) => {
+  forEach(rxAjaxDefaultHeaderKey2NormKey, (val, key) => {
+    if (normHeaders[val] != null) {
+      normHeaders[key] = normHeaders[val]
+      delete normHeaders[val]
+    }
+  })
+}
+
 export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
 
 export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): Observable<any> => {
@@ -39,6 +61,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
 
   /* istanbul ignore if */
   if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
+    coverRxAjaxHeadersBug(_opts.headers)
     return Observable.ajax({
       url, body, method,
       headers: _opts.headers,
