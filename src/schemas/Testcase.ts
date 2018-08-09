@@ -1,4 +1,4 @@
-import { RDBType, SchemaDef } from 'reactivedb/interface'
+import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import {
   ProjectId, ScenarioFieldConfigId, CustomFieldValue, ExecutorOrCreator, TestplanId,
   TestcaseId, TestcaseflowStatusId, TestcaseType, UserId } from 'teambition-types'
@@ -15,6 +15,7 @@ export interface TestcaseSchema {
   accomplished: string
   caseType: TestcaseType
   customfields: CustomFieldValue[]
+  executor: ExecutorOrCreator
   involveMembers: UserId[]
   involvers: ExecutorOrCreator[]
   isArchived: boolean
@@ -62,6 +63,15 @@ const schema: SchemaDef<TestcaseSchema> = {
   },
   customfields: {
     type: RDBType.OBJECT
+  },
+  executor: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _executorId: userTable._id
+      })
+    }
   },
   involveMembers: {
     type: RDBType.LITERAL_ARRAY
