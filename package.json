@@ -15,7 +15,7 @@
     "build_test": "rm -rf spec-js && tsc test/app.ts -m commonjs --sourcemap --inlineSources --outDir spec-js --target ES2015 --diagnostics --pretty --experimentalDecorators --suppressImplicitAnyIndexErrors --types \"node,chai,sinon,sinon-chai\" --moduleResolution node",
     "check_circular_dependencies": "npm run build_cjs && madge ./dist/cjs --circular",
     "copy_files": "cp README.md package.json ./dist/cjs/",
-    "cover": "export TZ=\"EST+5\"; npm run build_test && rm -rf ./coverage && nyc --reporter=html --reporter=lcov --exclude=node_modules --exclude=spec-js/test --exclude=spec-js/mock --exclude=spec-js/src/sockets/SocketClient.js tman --mocha spec-js/test/app.js",
+    "cover": "export TZ=\"EST+5\"; npm run build_test && rm -rf ./coverage && nyc --reporter=html --reporter=lcov --exclude=node_modules --exclude=spec-js/test --exclude=spec-js/mock --exclude=spec-js/src/sockets/SocketClient.js --exclude=spec-js/src/Net/Headers.js tman --mocha spec-js/test/app.js",
     "lint": "tslint ./src/**/*.ts ./mock/**/*.ts ./test/*.ts ./test/apis/**/*.ts ./test/mock/**/*.ts ./test/utils/**/*.ts",
     "publish_sdk": "npm run build_all && npm run copy_files && npm publish ./dist/cjs",
     "publish_all": "npm run publish_sdk && ts-node --type-check ./tools/tasks/publish.ts && cp -r ./dist/mock-cjs/** ./.tmp/mock && cp -r ./dist/socket/** ./.tmp/socket && npm publish .tmp/mock/ && npm publish .tmp/socket/",
