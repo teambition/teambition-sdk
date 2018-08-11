@@ -84,7 +84,7 @@
     "tslib": "^1.9.0",
     "tslint": "^5.10.0",
     "tslint-eslint-rules": "^5.2.0",
-    "typescript": "^2.8.3",
+    "typescript": "^3.0.1",
     "uuid": "^3.3.2"
   }
 }
