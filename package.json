@@ -85,5 +85,8 @@
     "tslint-eslint-rules": "^5.2.0",
     "typescript": "^2.8.3",
     "uuid": "^3.3.2"
+  },
+  "optionalDependencies": {
+    "whatwg-fetch": ">=0.10.0"
   }
 }
