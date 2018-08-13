@@ -82,4 +82,30 @@ describe.only('interceptor spec', () => {
         expect(x).to.equal('divided-by-zero')
       })
   })
+
+  it('wrap: one-value Observable to multi-value Observable conversion', function* () {
+    const cache = new Map([['leo', '你好，里奥']])
+    const interceptor = (options: { cacheThenRefresh: boolean }, gateFn: any, gateArgs: any[]) => {
+      const request$ = gateFn(...gateArgs)
+      if (options.cacheThenRefresh) {
+        const userName = gateArgs[0]
+        const requestAndCache = request$.do((hello: string) => cache.set(userName, hello))
+        return cache.has(userName)
+          ? requestAndCache.startWith(cache.get(userName))
+          : requestAndCache
+      } else {
+        return request$
+      }
+    }
+    const gate = (userName: string) => {
+      return Observable.of(`hello ${userName}`)
+    }
+    const wrapped = ix.wrap(gate, interceptor)
+    const intercepted = wrapped({ cacheThenRefresh: true })
+    yield intercepted('leo').take(2).toArray()
+      .do((xs) => {
+        expect(xs).to.deep.equal(['你好，里奥', 'hello leo'])
+        expect(cache.get('leo')).to.equal('hello leo')
+      })
+  })
 })
