@@ -17,7 +17,7 @@
     "copy_files": "cp README.md package.json ./dist/cjs/",
     "cover": "export TZ=\"EST+5\"; npm run build_test && rm -rf ./coverage && nyc --reporter=html --reporter=lcov --exclude=node_modules --exclude=spec-js/test --exclude=spec-js/mock --exclude=spec-js/src/sockets/SocketClient.js tman --mocha spec-js/test/app.js",
     "lint": "tslint ./src/**/*.ts ./mock/**/*.ts ./test/*.ts ./test/apis/**/*.ts ./test/mock/**/*.ts ./test/utils/**/*.ts",
-    "publish_sdk": "npm run build_all && npm run copy_files && npm publish ./dist/cjs",
+    "publish_sdk": "npm run build_all && npm run copy_files && ts-node tools/tasks/npm-publish.ts ./dist/cjs",
     "publish_all": "npm run publish_sdk && ts-node --type-check ./tools/tasks/publish.ts && cp -r ./dist/mock-cjs/** ./.tmp/mock && cp -r ./dist/socket/** ./.tmp/socket && npm publish .tmp/mock/ && npm publish .tmp/socket/",
     "test": "npm run lint && npm run check_circular_dependencies && npm run cover",
     "preversion": "ts-node tools/tasks/version.ts preversion",
