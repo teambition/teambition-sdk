@@ -90,7 +90,8 @@ declare module 'teambition-types' {
   export type TagType = 'organization' | 'project'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = 0 | 1 | 2
-  export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask'
+  export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
+    | 'forum'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
   export type VisibleOption = 'members' | 'involves'
 }
