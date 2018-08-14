@@ -49,7 +49,8 @@ export interface EventSchema {
     _id: ProjectId
     name: string
   }
-  type: 'event'
+  objectType: 'event'
+  type: 'event' // todo(dingwen): deprecate
   url: string
 }
 
@@ -128,6 +129,9 @@ const schema: SchemaDef<EventSchema> = {
   },
   objectlinksCount: {
     type: RDBType.NUMBER
+  },
+  objectType: {
+    type: RDBType.STRING
   },
   project: {
     type: Relationship.oneToOne,
