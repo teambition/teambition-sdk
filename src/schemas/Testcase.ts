@@ -1,7 +1,7 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import {
   ProjectId, ScenarioFieldConfigId, CustomFieldValue, ExecutorOrCreator, TestplanId,
-  TestcaseId, TestcaseflowStatusId, TestcaseType, UserId,
+  TestcaseId, TestcaseType, UserId, TaskflowStatusId,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -9,7 +9,7 @@ export interface TestcaseSchema {
   _id: TestcaseId
   _creatorId: UserId
   _executorId: UserId
-  _flowstatusId: TestcaseflowStatusId
+  _flowstatusId: TaskflowStatusId
   _projectId: ProjectId
   _testplanId: TestplanId
   _scenariofieldconfigId: ScenarioFieldConfigId

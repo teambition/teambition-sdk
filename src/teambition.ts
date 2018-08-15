@@ -48,7 +48,6 @@ declare module 'teambition-types' {
   export type TasklistId = string & { kind: 'TasklistId' }
   export type TeamId = string & { kind: 'TeamId' }
   export type TestcaseId = string & { kind: 'TestcaseId' }
-  export type TestcaseflowStatusId = string & { kind: 'TestcaseflowStatusId' }
   export type TestplanId = string & { kind: 'TestplanId' }
   export type UserId = string & { kind: 'UserId' }
   export type VersionId = string & { kind: 'VersionId' }
