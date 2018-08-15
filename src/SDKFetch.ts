@@ -119,11 +119,9 @@ export class SDKFetch {
       const urlWithTail = query && !isEmptyObject(query)
         ? `${ urlWithQuery }&_=${ tail }`
         : `${ urlWithQuery }?_=${ tail }`
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get()
-        .send()
+      dist = Observable.defer(() => http.setUrl(urlWithTail).get().send() as any)
         .publishReplay<any>(1)
         .refCount()
-      )
         .finally(() => {
           SDKFetch.FetchStack.delete(urlWithQuery)
         })

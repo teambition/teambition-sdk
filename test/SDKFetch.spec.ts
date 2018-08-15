@@ -146,21 +146,36 @@ describe('SDKFetch', () => {
       })
   })
 
-  it.skip('get should re-use observable for matching request', () => {
+  it('should re-use a matching request A if A is in progress', function* () {
+    fetchMock.mock(urlMatcher, { body: { 'A': 'aaaa' } })
+
+    const getA = sdkFetch.get(path, { value: 'A' }).delay(20)
+    const getAImmediatelyAfter = sdkFetch.get(path, { value: 'A' })
+
+    yield Observable.merge(getA, getAImmediatelyAfter)
+      .take(2)
+      .subscribeOn(Scheduler.asap)
+
+    yield Observable.of(fetchMock.calls(urlMatcher).length)
+      .do((numberOfRequestsReceived) => {
+        expect(numberOfRequestsReceived).to.equal(1)
+      })
+  })
+
+  it('shouldn not re-use a matching request A if A is in finished', function* () {
+    fetchMock.mock(urlMatcher, { body: { 'A': 'aaaa' } })
+
     const getA = sdkFetch.get(path, { value: 'A' })
-    const anotherGetA = sdkFetch.get(path, { value: 'A' })
-    const getB = sdkFetch.get(path, { value: 'B' })
+    const getAAWhileAfter = Observable.defer(() => sdkFetch.get(path, { value: 'A' }))
 
-    // 确定目标值不是 undefined
-    expect(getA).not.undefined
-    expect(anotherGetA).not.undefined
-    expect(getB).not.undefined
+    yield Observable.concat(getA, Observable.timer(40), getAAWhileAfter)
+      .take(3)
+      .subscribeOn(Scheduler.asap)
 
-    // anotherGetA 应该重用 getA 里的 request observable
-    expect(anotherGetA).equal(getA)
-
-    // getB 应该使用自己的 request observable
-    expect(getB).not.equal(getA)
+    yield Observable.of(fetchMock.calls(urlMatcher).length)
+      .do((numberOfRequestsReceived) => {
+        expect(numberOfRequestsReceived).to.equal(2)
+      })
   })
 
   allowedMethods.forEach((httpMethod: string) => {
