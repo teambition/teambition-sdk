@@ -1,7 +1,9 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import {
   ProjectId, ScenarioFieldConfigId, CustomFieldValue, ExecutorOrCreator, TestplanId,
-  TestcaseId, TestcaseflowStatusId, TestcaseType, UserId } from 'teambition-types'
+  TestcaseId, TestcaseflowStatusId, TestcaseType, UserId,
+} from 'teambition-types'
+import { TestcaseflowStatusSchema } from './TestcaseflowStatus'
 import { schemaColl } from './schemas'
 
 export interface TestcaseSchema {
@@ -16,6 +18,7 @@ export interface TestcaseSchema {
   caseType: TestcaseType
   customfields: CustomFieldValue[]
   executor: ExecutorOrCreator
+  flowStatus: TestcaseflowStatusSchema
   involveMembers: UserId[]
   involvers: ExecutorOrCreator[]
   isArchived: boolean
@@ -72,6 +75,9 @@ const schema: SchemaDef<TestcaseSchema> = {
         _executorId: userTable._id
       })
     }
+  },
+  flowStatus: {
+    type: RDBType.OBJECT
   },
   involveMembers: {
     type: RDBType.LITERAL_ARRAY
