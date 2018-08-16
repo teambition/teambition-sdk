@@ -29,6 +29,7 @@ declare module 'teambition-types' {
   export type PreferenceId = string & { kind: 'PreferenceId' }
   export type ProjectBoardId = string & { kind: 'ProjectBoardId' }
   export type ProjectId = string & { kind: 'ProjectId' }
+  export type ProjectOrder = 'updated' | 'name' | 'recentVisit'
   export type ProjectTagId = string & { kind: 'ProjectTagId' }
   export type RoomId = string & { kind: 'RoomId' }
   export type ScenarioFieldId = string & { kind: 'ScenarioFieldId' }

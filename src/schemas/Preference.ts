@@ -3,6 +3,7 @@ import {
   PreferenceId,
   UserId,
   ProjectId,
+  ProjectOrder,
   OrganizationId
 } from 'teambition-types'
 import { RDBType, SchemaDef } from 'reactivedb/interface'
@@ -33,6 +34,7 @@ export interface PreferenceSchema {
   libraryOrder: string
   messageType: string
   portalMode: string
+  projectOrder: ProjectOrder
   inboxSortMode: string
   openWindowMode: string
   postMode: 'html' | 'markdown'
@@ -107,6 +109,9 @@ const Schema: SchemaDef<PreferenceSchema> = {
     type: RDBType.OBJECT
   },
   portalMode: {
+    type: RDBType.STRING
+  },
+  projectOrder: {
     type: RDBType.STRING
   },
   postMode: {
