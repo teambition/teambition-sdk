@@ -3,18 +3,18 @@ import { SDKFetch } from '../../SDKFetch'
 import { MessageSchema } from '../../schemas/Message'
 import { MessageId } from 'teambition-types'
 
-export function getMessagesFetch(
-  this: SDKFetch,
-  query?: any
-): Observable<MessageSchema> {
-  return this.get<MessageSchema>(`v2/messages`, query)
-}
-
 export function getMessageFetch(
   this: SDKFetch,
   messageId: MessageId
 ): Observable<MessageSchema> {
   return this.get<MessageSchema>(`v2/messages/${messageId}`)
+}
+
+export function getMessagesFetch(
+  this: SDKFetch,
+  query?: any
+): Observable<MessageSchema[]> {
+  return this.get<MessageSchema[]>(`v2/messages`, query)
 }
 
 export namespace MarkRead {
