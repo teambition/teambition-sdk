@@ -43,6 +43,7 @@ declare module 'teambition-types' {
   export type TagId = string & { kind: 'TagId' }
   export type TapChartId = string & { kind: 'TapChartId' }
   export type TapDashboardId = string & { kind: 'TapDashboardId' }
+  export type TaskDependencyId = string & { kind: 'TaskDependencyId' }
   export type TaskflowId = string & { kind: 'TaskflowId' }
   export type TaskflowStatusId = string & { kind: 'TaskflowStatusId' }
   export type TaskId = string & { kind: 'TaskId' }
@@ -88,6 +89,7 @@ declare module 'teambition-types' {
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
     | 'taskType' | 'rating' | 'storyPoint'
   export type TagType = 'organization' | 'project'
+  export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = 0 | 1 | 2
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
@@ -370,6 +372,6 @@ declare module 'teambition-types' {
     TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
     TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
     TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]>
-  >
+    >
 
 }

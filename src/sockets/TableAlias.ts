@@ -16,7 +16,9 @@ export default {
   Activities: 'Activity',
   HomeActivities: 'Activity',
   TaskflowStatus: 'TaskflowStatus', // 会被作为复数形式去除最后的s
-  CustomFieldCategories: 'CustomFieldCategory'
+  CustomFieldCategories: 'CustomFieldCategory',
+  Dependency: 'TaskDependency',
+  Dependencies: 'TaskDependency',
 }
 // 如添加条目，请配合相关项目调试，并在
 // test/sockets/mapToTable.spec.ts 添加相应测试。
