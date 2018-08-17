@@ -123,4 +123,20 @@ describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
     })
   })
 
+  it('should map `Dependency`(case-insensitive) to `TaskDependency`', () => {
+    ['Dependency', 'dependency'].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'TaskDependency'
+      })
+    })
+  })
+
+  it('should map `Dependencies`(case-insensitive) to `TaskDependency`', () => {
+    ['Dependencies', 'dependencies'].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'TaskDependency'
+      })
+    })
+  })
+
 })
