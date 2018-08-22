@@ -1,3 +1,4 @@
+import 'rxjs/add/observable/throw'
 import 'rxjs/add/observable/dom/ajax'
 import 'rxjs/add/observable/empty'
 import 'rxjs/add/operator/catch'

@@ -1,3 +1,4 @@
+import 'rxjs/add/observable/throw'
 import 'rxjs/add/operator/startWith'
 import 'rxjs/add/operator/withLatestFrom'
 import { Observable } from 'rxjs/Observable'
