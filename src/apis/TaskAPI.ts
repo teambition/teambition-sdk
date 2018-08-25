@@ -37,7 +37,7 @@ import {
   UserId,
   TaskScope
 } from '../teambition'
-import { UserApi } from '../apis'
+import UserApi from './UserAPI'
 
 export type detailType = 'complete'
 
