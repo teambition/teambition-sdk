@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-legacy-{{ checksum "yarn.lock" }}
+      - run:
+          name: yarn
+          command: yarn
+      - save_cache:
+          key: dependency-cache-legacy-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: code-check
+          command: |
+            npm run lint
+            npm run build_cjs
+            npm run check_circular_dependencies
+      - run:
+          name: test
+          command: sudo npm run cover
+      - run:
+          name: report-coverage
+          command: cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
