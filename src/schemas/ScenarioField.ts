@@ -16,10 +16,21 @@ export interface ScenarioFieldSchema<T = ScenarioFieldType> {
   required: boolean
 }
 
+export interface NoteScenarioFieldSchema extends ScenarioFieldSchema {
+  fieldType: 'note'
+  default: string
+}
+
 export interface CustomScenarioFieldSchema extends ScenarioFieldSchema<CustomScenarioFieldType> {
   _customfieldId: CustomFieldId
 }
 
-export type TaskScenarioFieldSchema = CustomScenarioFieldSchema | ScenarioFieldSchema<TaskOfficialScenarioFieldType>
+export type TaskScenarioFieldSchema =
+  CustomScenarioFieldSchema |
+  NoteScenarioFieldSchema |
+  ScenarioFieldSchema<TaskOfficialScenarioFieldType>
 
-export type EventScenarioFieldSchema = CustomScenarioFieldSchema | ScenarioFieldSchema<EventOfficialScenarioFieldType>
+export type EventScenarioFieldSchema =
+  CustomScenarioFieldSchema |
+  NoteScenarioFieldSchema |
+  ScenarioFieldSchema<EventOfficialScenarioFieldType>
