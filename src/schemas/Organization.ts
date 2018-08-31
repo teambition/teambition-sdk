@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { OrganizationId, ProjectId, RoleId, UserId, CollectionId } from 'teambition-types'
+import { OrganizationId, ProjectId, RoleId, UserId, CollectionId, ExecutorOrCreator } from 'teambition-types'
 import { schemaColl } from './schemas'
 
 export interface OrganizationDividerSchema {
@@ -25,6 +25,7 @@ export interface OrganizationSchema {
   _defaultCollectionId: CollectionId
   _defaultRoleId: RoleId | null
   _id: OrganizationId
+  _ownerId?: UserId
   _roleId: RoleId
   background: string
   category: string
@@ -34,6 +35,7 @@ export interface OrganizationSchema {
   isPublic: boolean
   logo: string
   name: string
+  owner?: ExecutorOrCreator
   pinyin: string
   plan: OrganizationPaymentPlan
   positions: string[]
@@ -47,6 +49,7 @@ const Schema: SchemaDef<OrganizationSchema> = {
   _defaultCollectionId: { type: RDBType.STRING },
   _defaultRoleId: { type: RDBType.STRING },
   _id: { type: RDBType.STRING, primaryKey: true },
+  _ownerId: { type: RDBType.STRING },
   _roleId: { type: RDBType.STRING },
   background: { type: RDBType.STRING },
   category: { type: RDBType.STRING },
@@ -56,6 +59,7 @@ const Schema: SchemaDef<OrganizationSchema> = {
   isPublic: { type: RDBType.BOOLEAN },
   logo: { type: RDBType.STRING },
   name: { type: RDBType.STRING },
+  owner: { type: RDBType.OBJECT },
   pinyin: { type: RDBType.STRING },
   plan: { type: RDBType.OBJECT },
   positions: { type: RDBType.OBJECT },
