@@ -136,14 +136,21 @@ describe('SDKFetch', () => {
   it('get with empty query object should work correctly', function* () {
     fetchMock.get(urlMatcher, {})
 
-    yield sdkFetch.get(path, {})
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
-        const delimiter = '?_='
-        const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
-        expect(prefix).to.equal(testUrl)
-        expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
-      })
+    const emptyQueryObjects = [
+      {},
+      { key: undefined },
+      { key: [] },
+      { key1: undefined, key2: [] }
+    ]
+
+    for (const query of emptyQueryObjects) {
+      yield sdkFetch.get(path, query)
+        .subscribeOn(Scheduler.asap)
+        .do(() => {
+          const [beforeTimestamp] = fetchMock.lastUrl(urlMatcher).split('_=')
+          expect(beforeTimestamp).to.equal(testUrl + '?')
+        })
+    }
   })
 
   it('should re-use a matching request A if A is in progress', function* () {
@@ -559,6 +566,11 @@ describe('SDKFetch.buildQuery', () => {
     expect(SDKFetch.buildQuery('?', { optional: undefined, required: true })).to.equal('?required=true')
     expect(SDKFetch.buildQuery('', { optional: undefined })).to.equal('')
     expect(SDKFetch.buildQuery('', { optional: undefined, required: true })).to.equal('?required=true')
+  })
+
+  it('should prevent `&` from being added for query { key: [] }', () => {
+    expect(SDKFetch.buildQuery('', { maybeEmpty: [] })).to.equal('')
+    expect(SDKFetch.buildQuery('', { maybeEmpty: [], required: true })).to.equal('?required=true')
   })
 
   it('should encode query correctly', () => {

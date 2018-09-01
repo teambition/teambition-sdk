@@ -7,7 +7,7 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { forEach, isEmptyObject, uuid } from './utils'
+import { forEach, uuid } from './utils'
 import { SDKLogger } from './utils/Logger'
 
 export type SDKFetchOptions = {
@@ -117,7 +117,7 @@ export class SDKFetch {
 
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
-      const urlWithTail = query && !isEmptyObject(query)
+      const urlWithTail = urlWithQuery.indexOf('?') !== -1
         ? `${ urlWithQuery }&_=${ tail }`
         : `${ urlWithQuery }?_=${ tail }`
       dist = Observable.defer(() => http.setUrl(urlWithTail).get().send() as any)
