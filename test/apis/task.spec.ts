@@ -51,6 +51,7 @@ describe('TaskApi socket spec', () => {
     yield sdk.database.get<TaskSchema>('Task', { where: { _id: fixture._id } })
       .values()
       .do(([r]) => {
+        delete r.creator
         delete r.project
         looseDeepEqual(r, fixture)
       })
