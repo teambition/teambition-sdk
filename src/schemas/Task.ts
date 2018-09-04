@@ -32,6 +32,7 @@ export interface TaskSchema {
   isArchived: boolean
   isDeleted: boolean
   created: string
+  creator?: ExecutorOrCreator
   updated: string
   visible: VisibleOption
   _organizationId: OrganizationId | null
@@ -144,6 +145,15 @@ const schema: SchemaDef<TaskSchema> = {
   },
   created: {
     type: RDBType.DATE_TIME
+  },
+  creator: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _creatorId: userTable._id
+      })
+    }
   },
   customfields: {
     type: RDBType.OBJECT
