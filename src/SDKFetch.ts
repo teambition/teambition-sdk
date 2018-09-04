@@ -109,7 +109,7 @@ export class SDKFetch {
 
   get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
     const url = this.urlWithPath(path, options.apiHost)
-    const urlWithQuery = query ? SDKFetch.buildQuery(url, query) : url
+    const urlWithQuery = appendQueryString(url, toQueryString(query))
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
     let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
 
@@ -117,9 +117,7 @@ export class SDKFetch {
 
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
-      const urlWithTail = urlWithQuery.indexOf('?') !== -1
-        ? `${ urlWithQuery }&_=${ tail }`
-        : `${ urlWithQuery }?_=${ tail }`
+      const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
       dist = Observable.defer(() => http.setUrl(urlWithTail).get().send() as any)
         .publishReplay<any>(1)
         .refCount()
@@ -290,38 +288,43 @@ export class SDKFetch {
 
   // 注意：当该方法相关逻辑发生修改，请至 mock/mock.ts 做相应修改。
   static buildQuery(url: string, query: any) {
-    if (typeof query !== 'object' || !query) {
-      return url
-    }
-    const result: string[] = []
-    const pushKVToResult = pushKVEncoded(result)
-    forEach(query, (val: any, key: string) => {
-      if (key === '_') {
-        SDKLogger.warn('query should not contain key \'_\', it will be ignored')
-        return
-      }
-      if (Array.isArray(val)) {
-        val.forEach(_val => pushKVToResult(key, _val))
-        return
-      }
-      pushKVToResult(key, val)
-    })
-    let _query: string
-    if (url.indexOf('?') !== -1) {
-      const hasExistingQueryInUrl = url.slice(-1) !== '?'
-      const additionalQuery = result.join('&')
-      _query = hasExistingQueryInUrl && additionalQuery
-        ? '&' + additionalQuery
-        : additionalQuery
-    } else {
-      _query = result.length ? '?' + result.join('&') : ''
-    }
-    return url + _query
+    return appendQueryString(url, toQueryString(query))
   }
 
   getUserMe() {
     return this.get<UserMe>('users/me')
   }
+}
+
+const appendQueryString = (url: string, queryString: string) => {
+  if (!queryString) {
+    return url
+  }
+  if (url.slice(-1) === '?') { // '?' 是最后一个字符
+    return `${url}${queryString}`
+  }
+  return url.indexOf('?') === -1
+    ? `${url}?${queryString}`  // '?' 不存在
+    : `${url}&${queryString}`  // '?' 存在，其后还有其他字符
+}
+
+const toQueryString = (query: any) => {
+  if (typeof query !== 'object' || !query) {
+    return ''
+  }
+  const result: string[] = []
+  forEach(query, (val: any, key: string) => {
+    if (key === '_') {
+      SDKLogger.warn('query should not contain key \'_\', it will be ignored')
+    } else if (Array.isArray(val)) {
+      val.forEach(_val => {
+        result.push(`${key}=${encoded(_val)}`)
+      })
+    } else if (typeof val !== 'undefined') {
+      result.push(`${key}=${encoded(val)}`)
+    }
+  })
+  return result.join('&')
 }
 
 /**
@@ -334,15 +337,9 @@ export class SDKFetch {
 const encodedRegExp = /^(%(\d|[a-fA-F]){2}|[a-zA-Z0-9]|-|_|\.|!|~|\*|'|\(|\))*$/
 //                       ^percent-encoded^ ^^^^^^^^^^^^^escaped^^^^^^^^^^^^^w
 
-const pushKVEncoded = (array: string[]) => (key: string, value: any): void => {
-  if (typeof value === 'undefined') {
-    return
-  }
-
+const encoded = (value: {} | null): string => {
   const maybeEncoded = String(value)
-  const encoded = encodedRegExp.test(maybeEncoded)
+  return encodedRegExp.test(maybeEncoded)
     ? maybeEncoded
     : encodeURIComponent(maybeEncoded)
-
-  array.push(`${key}=${encoded}`)
 }
