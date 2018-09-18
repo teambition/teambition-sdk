@@ -15,8 +15,48 @@ import { Database, Query, Predicate, ExecutorResult } from 'reactivedb'
 import { forEach, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
 
+/**
+ * 用于 SDK 非更新 `lift()` 接口 `CacheValidate` 字段的
+ * 定义。常见的各种 getXXX 都属于非更新接口。（对用于更新的
+ * `lift()` 接口，即所有 `method` 字段为 `'create' |
+ * 'update' | 'delete'` 的，如常见的 updateXXX，无效。）
+ *
+ * 决定 SDK 非更新 `lift()` 接口内 `request` 字段对应的
+ * Observable（一般是一个网络请求），在多次“同样的”调用下的
+ * 缓存行为。
+ *
+ * Note: 两次非更新 `lift()` 调用是否是“同样的”，决定于它们
+ * 的目标结果集是否相同。而对于一个规范的非更新 `lift()` 接口，
+ * 其目标结果集的描述来自查询相关字段，如：`query`, `tableName`,
+ * `fields` 等。这些字段会被用来生成缓存键。当两次非更新 `lift()`
+ * 调用所得到的缓存键相同，这两次调用就被认为是“同样的”。
+ * （缓存键的生成与 `request` 字段对应的 HTTP 请求信息无关。）
+ */
 export enum CacheStrategy {
+  /**
+   * 在多次同样的 `lift()` 调用里，仅第一次会执行 `request` 字段
+   * 对应的 Observable。
+   *
+   * 如果我们相信第一次 `request` 得到的数据，结合后续来自其他
+   * 更新源（如 websocket）的更新可以保证查询对应的结果集一直
+   * 完整可用，使用该选项，以省略不必要的网络请求。
+   */
   Request = 200,
+  /**
+   * 在多次同样的 `lift()` 调用里，每次都会执行 `request` 字段
+   * 对应的 Observable。
+   *
+   * 如果第一次 `request` 得到的数据，结合后续来自其他更新源
+   * （如 websocket）的更新，不足以保证查询对应的结果集一直完整
+   * 可用；但同时，又有理由相信，其他更新源不完整的更新数据
+   * （在 cache，即 rdb 里）依然能改善产品的数据同步，使用该选项，
+   * 确保每次同样的 `lift()` 调用都会重新做网络请求，将结果集
+   * 数据完整性保持在可控范围，并依赖来自其他更新源的数据提供
+   * 产品上需要的同步能力。
+   *
+   * Note: 如果来自其他更新源的数据在产品上的价值微乎其微，可以
+   * 选择直接使用 fetch 接口代替 `lift()` 接口。
+   */
   Cache
 }
 
