@@ -142,7 +142,7 @@ const schema: SchemaDef<ActivitySchema> = {
   },
   content: {
     type: RDBType.OBJECT
-  },
+},
   created: {
     type: RDBType.DATE_TIME
   },
