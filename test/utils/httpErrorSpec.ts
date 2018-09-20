@@ -1,6 +1,8 @@
 import * as chai from 'chai'
-import { Observable, Scheduler, Subject } from 'rxjs'
 import { describe, it, beforeEach, afterEach } from 'tman'
+import { of, zip, Subject } from 'rxjs'
+import { catchError, concat, skip } from 'rxjs/operators'
+import { tapAsap } from '../utils'
 
 import { Http, Backend, HttpErrorMessage } from '../index'
 
@@ -10,7 +12,7 @@ export default describe('HttpError$ test: ', () => {
   const url = 'www.example.com'
 
   const silentRequest = (req: Http<any>) =>
-    req.get().send().catch(() => Observable.of(null))
+    req.get().send().pipe(catchError(() => of(null)))
 
   let httpBackend: Backend
   let mockFetch: Http<any>
@@ -32,16 +34,15 @@ export default describe('HttpError$ test: ', () => {
         status: 400
       })
 
-    yield Observable.zip(
+    yield zip(
       silentRequest(mockFetch),
       error$,
       (_, { error }) => error
     )
-      .subscribeOn(Scheduler.asap)
-      .do(({ statusText, body }) => {
+      .pipe(tapAsap(({ statusText, body }) => {
         expect(statusText).to.equal('Bad Request')
         expect(body).equal('testing')
-      })
+      }))
   })
 
   it('handler sequence error should ok', function* () {
@@ -55,16 +56,17 @@ export default describe('HttpError$ test: ', () => {
         status: 400
       })
 
-    yield Observable.zip(
-      silentRequest(mockFetch).concat(silentRequest(mockFetch)),
+    yield zip(
+      silentRequest(mockFetch).pipe(concat(silentRequest(mockFetch))),
       error$,
       (_, { error }) => error
     )
-      .skip(1)
-      .subscribeOn(Scheduler.asap)
-      .do(({ statusText, body }) => {
-        expect(statusText).to.equal('Bad Request')
-        expect(body).to.equal('testing 2')
-      })
+      .pipe(
+        skip(1),
+        tapAsap(({ statusText, body }) => {
+          expect(statusText).to.equal('Bad Request')
+          expect(body).to.equal('testing 2')
+        })
+      )
   })
 })

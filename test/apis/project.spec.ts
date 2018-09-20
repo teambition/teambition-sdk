@@ -1,12 +1,12 @@
 import { describe, before, beforeEach, it, afterEach, after } from 'tman'
 import { expect } from 'chai'
-import { Scheduler } from 'rxjs'
+import { asapScheduler } from 'rxjs'
 import {
   GetPersonalProjectsQueryParams
 } from '../../src/apis/project/personal'
 import { SDKFetch, createSdk, SDK } from '../'
 import { normalProject } from '../fixtures/projects.fixture'
-import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { mock, expectToDeepEqualForFieldsOfTheExpected, tapAsap } from '../utils'
 import { ProjectId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
@@ -78,10 +78,9 @@ describe('get personal projects', () => {
         }
 
         yield sdkFetch.getPersonalProjects(params as any)
-          .subscribeOn(Scheduler.asap)
-          .do((x: any) => {
-            expect(x).to.deep.equal(expectedResponse)
-          })
+          .pipe(tapAsap(
+            (x: any) => expect(x).to.deep.equal(expectedResponse)
+          ))
       })
     })
   })
@@ -115,8 +114,9 @@ describe('ProjectApi request spec: ', () => {
     fetchMock.getOnce(url, project)
 
     yield sdkFetch.getProject(projectId)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(project))
+      .pipe(tapAsap(
+        (result) => expect(result).to.deep.equal(project)
+      ))
   })
 })
 
@@ -136,9 +136,8 @@ describe('ProjectApi spec: ', () => {
 
     yield sdk.getProject(fixture._id as ProjectId)
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([project]) => {
-        expectToDeepEqualForFieldsOfTheExpected(project, fixture, 'organization', 'role', 'creator', 'isTemplate')
-      })
+      .pipe(tapAsap(
+        ([ project ]) => expectToDeepEqualForFieldsOfTheExpected(project, fixture, 'organization', 'role', 'creator', 'isTemplate')
+      ))
   })
 })

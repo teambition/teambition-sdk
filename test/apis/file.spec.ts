@@ -1,5 +1,6 @@
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
+import { tap } from 'rxjs/operators'
 import { createSdk, SDK, SocketMock, FileSchema } from '../index'
 import * as Fixture from '../fixtures/files.fixture'
 import { mock, restore, looseDeepEqual, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
@@ -24,9 +25,9 @@ describe('FileApi request spec', () => {
 
     yield sdk.getFile(fixture._id as FileId)
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expectToDeepEqualForFieldsOfTheExpected(r, fixture)
-      })
+      }))
   })
 })
 
@@ -50,9 +51,9 @@ describe('FileApi socket spec', () => {
 
     yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         looseDeepEqual(r, fixture)
-      })
+      }))
   })
 
   it('update file should change cache', function* () {
@@ -67,7 +68,7 @@ describe('FileApi socket spec', () => {
 
     yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => expect(r.fileName).to.equal('fixture'))
+      .pipe(tap(([r]) => expect(r.fileName).to.equal('fixture')))
   })
 
   it('delete file should delete cache', function* () {
@@ -79,6 +80,6 @@ describe('FileApi socket spec', () => {
 
     yield sdk.database.get<FileSchema>('File', { where: { _id: fixture._id } })
       .values()
-      .do((r) => expect(r.length).to.equal(0))
+      .pipe(tap((r) => expect(r.length).to.equal(0)))
   })
 })

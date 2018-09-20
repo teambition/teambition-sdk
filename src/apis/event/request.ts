@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
 import { SDKFetch } from '../../SDKFetch'
 import { EventSchema } from '../../schemas/Event'
 import { EventId, ProjectId, UserId } from 'teambition-types'
@@ -40,7 +41,7 @@ export function commentsRepeatEvent(
   options: CommentsRepeatEvent.Options
 ): Observable<CommentsRepeatEvent.Response> {
   return this.post<CommentsRepeatEvent.Response>(`events/${_id}/comments_repeat_event`, options)
-    .map(CommentsRepeatEvent.api.parse)
+    .pipe(map(CommentsRepeatEvent.api.parse))
 }
 
 export namespace UpdateInvolveMembers {
@@ -77,7 +78,7 @@ export function fetchAnEvent(
   query?: any
 ): Observable<EventSchema> {
   return this.get<EventSchema>(`events/${eventId}`, query)
-    .map(eventMarshaler.parse)
+    .pipe(map(eventMarshaler.parse))
 }
 
 export function fetchProjectEventsCount(
@@ -94,7 +95,7 @@ export function fetchProjectEvents(
   query: EventSpan
 ): Observable<EventSchema[]> {
   return this.get<EventSchema[]>(`projects/${_projectId}/events`, query)
-    .map((rawEvents) => rawEvents.map(eventMarshaler.parse))
+    .pipe(map((rawEvents) => rawEvents.map(eventMarshaler.parse)))
 }
 
 SDKFetch.prototype.commentsRepeatEvent = commentsRepeatEvent

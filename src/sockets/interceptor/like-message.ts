@@ -1,5 +1,4 @@
-import 'rxjs/add/observable/forkJoin'
-import { Observable } from 'rxjs/Observable'
+import { forkJoin, Observable } from 'rxjs'
 import { ExecutorResult } from 'reactivedb'
 import { MsgToDBHandler } from '../Middleware'
 import { mapMsgTypeToTable } from '../MapToTable'
@@ -32,5 +31,5 @@ export const redirectLike: MsgToDBHandler = (msg, db) => {
     ops.push(db.upsert(task.tabName, { ...data, [task.pkName]: id }))
   }
 
-  return Observable.forkJoin(ops)
+  return forkJoin(ops)
 }

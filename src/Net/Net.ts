@@ -1,18 +1,10 @@
-import 'rxjs/add/observable/forkJoin'
-import 'rxjs/add/observable/of'
-import 'rxjs/add/operator/concatAll'
-import 'rxjs/add/operator/do'
-import 'rxjs/add/operator/mapTo'
-import 'rxjs/add/operator/mergeMap'
-import 'rxjs/add/operator/switchMap'
-import 'rxjs/add/operator/filter'
-import { Observable } from 'rxjs/Observable'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { empty, from, of, BehaviorSubject, Observable } from 'rxjs'
+import { concatAll, concatMap, filter, mapTo, mergeMap, reduce, switchMap, tap } from 'rxjs/operators'
 import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 import { JoinMode } from 'reactivedb/interface'
 import { Database, Query, Predicate, ExecutorResult } from 'reactivedb'
 
-import { forEach, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
+import { forEach, identity, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
 
 /**
@@ -148,32 +140,27 @@ export class Net {
   public persistedDataBuffer: BufferObject[] = []
   private msgToDB: WSMsgToDBHandler | undefined
 
-  private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
-    const { tableName, required, padding } = result
-
-    const hasRequiredFields = Array.isArray(required)
-    const hasPaddingFunction = typeof padding === 'function'
+  private validate = <T>({ tableName, required, padding }: ApiResult<T, CacheStrategy>) => {
     const pk = this.primaryKeys.get(tableName)
+    const noRequiredPadding = !Array.isArray(required) || typeof padding !== 'function' || !pk
 
-    const fn = (stream$: Observable<T[]>) =>
-      stream$.switchMap(data => !data.length
-        ? Observable.of(data)
-        : Observable.forkJoin(
-          Observable.from(data)
-            .mergeMap(datum => {
-              if (!hasRequiredFields || !hasPaddingFunction || !pk ||
-                required!.every(k => typeof datum[k] !== 'undefined')
-              ) {
-                return Observable.of(datum)
-              }
-              const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
-              return patch
-                .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
-                .do(r => Object.assign(datum, r))
-            })
+    const fn = switchMap<T[], T[]>((results) => {
+      return !results.length
+        ? of([])
+        : from(results).pipe(
+          mergeMap((result) => {
+            return noRequiredPadding || required!.every(k => typeof result[k] !== 'undefined')
+              ? empty()
+              : padding!(result[pk!]).pipe(
+                filter((r): r is T => r != null),
+                concatMap((r) => this.database!.upsert(tableName, r).pipe(
+                  tap(() => Object.assign(result, r))
+                ))
+              )
+          }),
+          reduce<any, T[]>(identity, results)
         )
-          .mapTo(data)
-      )
+    })
     fn.toString = () => 'SDK_VALIDATE'
     return fn
   }
@@ -232,25 +219,24 @@ export class Net {
 
     const database = this.database!
 
-    const { request, method, tableName } = result as CUDApiResult<T>
-    let destination: Observable<ExecutorResult> | Observable<T | T[]>
-    return request
-      .concatMap(v => {
-        switch (method) {
-          case 'create':
-            destination = database.upsert<T>(tableName, v)
-            break
-          case 'update':
-            destination = database.upsert(tableName, v)
-            break
-          case 'delete':
-            destination = database.delete<T>(tableName, (result as UDResult<T>).clause)
-            break
-          default:
-            throw new Error()
-        }
-        return destination.mapTo<ExecutorResult | T | T[], T>(v)
-      })
+    const { request, method, tableName } = result
+    let destination: Observable<ExecutorResult>
+    return request.pipe(concatMap(v => {
+      switch (method) {
+        case 'create':
+          destination = database.upsert<T>(tableName, v)
+          break
+        case 'update':
+          destination = database.upsert(tableName, v)
+          break
+        case 'delete':
+          destination = database.delete<T>(tableName, (result as UDResult<T>).clause)
+          break
+        default:
+          throw new Error()
+      }
+      return destination.pipe(mapTo(v))
+    }))
   }
 
   persist(database: Database) {
@@ -277,12 +263,11 @@ export class Net {
           const token = this.handleRequestCache(v.realSelectorInfo)
           const selector$ = token.selector$
 
-          p = selector$
-            .do({
-              next(selector) {
-                cacheControl$.next(selector)
-              }
-            })
+          p = selector$.pipe(tap({
+            next(selector) {
+              cacheControl$.next(selector)
+            }
+          }))
           break
         default:
           break
@@ -295,12 +280,15 @@ export class Net {
 
     this.persistedDataBuffer.length = 0
 
-    return Observable.from(asyncQueue).concatAll().do({
-      error: async (err: Observable<Error>) => {
-        const errObj = await err.toPromise()
-        SDKLogger.error(errObj.message)
-      }
-    })
+    return from(asyncQueue).pipe(
+      concatAll(),
+      tap({
+        error: async (err: Observable<Error>) => {
+          const errObj = await err.toPromise()
+          SDKLogger.error(errObj.message)
+        }
+      })
+    )
   }
 
   bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
@@ -323,15 +311,14 @@ export class Net {
 
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
     const { request, method, tableName } = result as CUDApiResult<T>
-    return request
-      .do((v: T | T[]) => {
+    return request.pipe(tap((v: T | T[]) => {
       this.persistedDataBuffer.push({
         kind: 'CUD',
         tableName,
         method: (method === 'create' || method === 'update') ? 'upsert' : method,
         value: method === 'delete' ? (result as UDResult<T>).clause : v
       })
-    })
+    }))
   }
 
   bufferSocketPush(socketMessage: ParsedWSMsg) {
@@ -339,7 +326,7 @@ export class Net {
       kind: 'SocketCUD',
       socketMessage
     })
-    return Observable.of(null)
+    return of(null)
   }
 
   private genCacheKey<T>(tableName: string, q: Readonly<Query<T>>) {
@@ -366,10 +353,11 @@ export class Net {
       case CacheStrategy.Request:
         if (!requestCache) {
           /*tslint:disable no-shadowed-variable*/
-          const selector$ = response$
-            .concatMap(v => database.upsert(tableName, v))
-            .do(() => this.requestMap.set(cacheKey, true))
-            .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+          const selector$ = response$.pipe(
+            concatMap(v => database.upsert(tableName, v)),
+            tap(() => this.requestMap.set(cacheKey, true)),
+            concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+          )
           token = new QueryToken(selector$)
         } else {
           token = dbGetWithSelfJoinEnabled<T>(database, tableName, q)
@@ -377,9 +365,10 @@ export class Net {
         token.map(this.validate(result))
         break
       case CacheStrategy.Cache:
-        const selector$ = response$
-          .concatMap(v => database.upsert(tableName, v))
-          .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+        const selector$ = response$.pipe(
+          concatMap(v => database.upsert(tableName, v)),
+          concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+        )
         return new QueryToken(selector$)
       default:
         throw new TypeError('unreachable code path')

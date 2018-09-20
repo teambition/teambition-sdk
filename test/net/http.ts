@@ -1,8 +1,10 @@
-import { Observable, Scheduler, Subject } from 'rxjs'
 import { expect } from 'chai'
 import { describe, it, beforeEach, afterEach } from 'tman'
+import { asapScheduler, empty, forkJoin, from, of, zip, Observable, Subject } from 'rxjs'
+import { catchError, flatMap, subscribeOn, tap } from 'rxjs/operators'
 
 import { HttpErrorMessage, Http } from '../index'
+import { tapAsap } from '../utils'
 import * as http from '../../src/Net/Http'
 
 const fetchMock = require('fetch-mock')
@@ -28,8 +30,7 @@ export default describe('net/http', () => {
     const data = { test: 'test' }
     fetchMock.mock(url, data)
     yield fetchInstance.get().send()
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
+      .pipe(tapAsap(() => {
         expect(fetchMock.calls().matched.length).to.equal(1)
         expect(fetchMock.lastUrl()).to.equal(url)
         expect(fetchMock.lastOptions()).to.deep.equal({
@@ -37,7 +38,7 @@ export default describe('net/http', () => {
           headers: {},
           credentials: 'include'
         })
-      })
+      }))
   })
 
   it('should set headers', function* () {
@@ -46,8 +47,7 @@ export default describe('net/http', () => {
     fetchMock.mock(url, {})
     yield fetchInstance.get()
       .send()
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
+      .pipe(tapAsap(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
           headers: {
@@ -55,7 +55,7 @@ export default describe('net/http', () => {
           },
           credentials: 'include'
         })
-      })
+      }))
   })
 
   it('should set headers with copy of the input headers', function* () {
@@ -69,10 +69,9 @@ export default describe('net/http', () => {
     fetchMock.mock(url, {})
     yield fetchInstance.get()
       .send()
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
+      .pipe(tapAsap(() => {
         expect(fetchMock.lastOptions().headers).to.deep.equal({})
-      })
+      }))
   })
 
   it('should set token', function* () {
@@ -81,15 +80,14 @@ export default describe('net/http', () => {
     fetchMock.mock(url, {})
     yield fetchInstance.get()
       .send()
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
+      .pipe(tapAsap(() => {
         expect(fetchMock.lastOptions()).to.deep.equal({
           method: 'get',
           headers: {
             'Authorization': `OAuth2 ${token}`
           }
         })
-      })
+      }))
   })
 
   allowedMethods.forEach(httpMethod => {
@@ -102,14 +100,13 @@ export default describe('net/http', () => {
 
       yield fetchInstance[httpMethod](httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
-        .subscribeOn(Scheduler.asap)
-        .do((res: any) => {
+        .pipe(tapAsap((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal(httpMethod)
           expect(res).to.deep.equal(responseData)
           if (httpMethod === 'put' || httpMethod === 'post') {
             expect(fetchMock.lastOptions().body).to.deep.equal(body)
           }
-        })
+        }))
     })
   })
 
@@ -122,12 +119,11 @@ export default describe('net/http', () => {
 
       yield fetchInstance.delete(body)
         .send()
-        .subscribeOn(Scheduler.asap)
-        .do((res: any) => {
+        .pipe(tapAsap((res: any) => {
           expect(fetchMock.lastOptions().method).to.equal('delete')
           expect(fetchMock.lastOptions().body).to.deep.equal(body)
           expect(res).to.deep.equal(responseData)
-        })
+        }))
     })
 
   allowedMethods.forEach(httpMethod => {
@@ -149,11 +145,10 @@ export default describe('net/http', () => {
 
       yield fetchInstance2[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
         .send()
-        .subscribeOn(Scheduler.asap)
-        .do((resp: any) => {
+        .pipe(tapAsap((resp: any) => {
           expect(resp.body).to.deep.equal(responseData)
           expect(resp.headers.get('x-request-id')).to.equal(sampleValue)
-        })
+        }))
     })
   })
 
@@ -163,18 +158,20 @@ export default describe('net/http', () => {
         const responseData = { body: { test: 'test' }, method: httpMethod, status }
         const body = { body: 'body' }
         fetchMock.mock(url, responseData )
-        yield fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
+        yield (fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body) as Http<{}>)
           .send()
-          .catch((res: HttpErrorMessage) => {
-            if (fetchMock.lastOptions()) {
-              expect(fetchMock.lastOptions().method).to.equal(httpMethod)
-            }
-            expect(res.error.status).to.equal(status)
-            expect(res.method).to.equal(httpMethod)
-            expect(res.url).to.equal(url)
-            return Observable.empty()
-          })
-          .subscribeOn(Scheduler.asap)
+          .pipe(
+            catchError((res: HttpErrorMessage) => {
+              if (fetchMock.lastOptions()) {
+                expect(fetchMock.lastOptions().method).to.equal(httpMethod)
+              }
+              expect(res.error.status).to.equal(status)
+              expect(res.method).to.equal(httpMethod)
+              expect(res.url).to.equal(url)
+              return empty()
+            }),
+            subscribeOn(asapScheduler)
+          )
       })
     })
   })
@@ -189,24 +186,26 @@ export default describe('net/http', () => {
 
     const caught$ = fetchInstance2.get()
       .send()
-      .catch((res: HttpErrorMessage) => Observable.of(res)) as Observable<HttpErrorMessage>
+      .pipe(catchError((res: HttpErrorMessage) => of(res))) as Observable<HttpErrorMessage>
 
-    yield Observable.zip(caught$, errorAdaptor$)
-      .flatMap(([caught, adaptor]) => {
-        return Observable.zip(
-          Observable.fromPromise(caught.error.json()),
-          Observable.fromPromise(adaptor.error.json())
-        )
-      })
-      .do(([caught, errorMsg]) => {
-        expect(caught).to.deep.equal(body)
-        expect(errorMsg).to.deep.equal(body)
-      })
-      .catch(() => {
-        expect('Should not reach here!').to.equal('')
-        return Observable.empty()
-      })
-      .subscribeOn(Scheduler.asap)
+    yield zip(caught$, errorAdaptor$)
+      .pipe(
+        flatMap(([caught, adaptor]) => {
+          return zip(
+            from(caught.error.json()),
+            from(adaptor.error.json())
+          )
+        }),
+        tap(([caught, errorMsg]) => {
+          expect(caught).to.deep.equal(body)
+          expect(errorMsg).to.deep.equal(body)
+        }),
+        catchError(() => {
+          expect('Should not reach here!').to.equal('')
+          return empty()
+        }),
+        subscribeOn(asapScheduler)
+      )
   })
 
   it('createMethod() should give response text when it cannot be parsed successfully', function* () {
@@ -214,10 +213,9 @@ export default describe('net/http', () => {
     fetchMock.getOnce(url, letJSONparseThrow)
 
     yield http.createMethod('get')({ url } as any)
-      .subscribeOn(Scheduler.asap)
-      .do((x: any) => {
+      .pipe(tapAsap((x: any) => {
         expect(x).to.equal(letJSONparseThrow)
-      })
+      }))
   })
 
   it('correctly clone-ed Http instance should use cached response', function* () {
@@ -233,19 +231,18 @@ export default describe('net/http', () => {
 
     fetchMock.get(url, { body: JSON.stringify(expectedResp) })
 
-    yield Observable.forkJoin(
+    yield forkJoin(
       fetchInstance.send(),
       fetchInstanceClone1.send(),
       fetchInstanceClone2.send(),
       fetchInstanceClone1Clone.send()
     )
-    .subscribeOn(Scheduler.asap)
-    .do(([res, resClone1, resClone2, resClone1Clone]) => {
+    .pipe(tapAsap(([res, resClone1, resClone2, resClone1Clone]) => {
       expect(res).to.deep.equal(expectedResp)
       expect(resClone1).to.deep.equal(expectedResp)
       expect(resClone2).to.deep.equal(expectedResp)
       expect(resClone1Clone).to.deep.equal(expectedResp)
       expect(fetchMock.calls(url)).lengthOf(1)
-    })
+    }))
   })
 })

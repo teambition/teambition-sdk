@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
 import { QueryToken } from 'reactivedb'
 import { LikeSchema } from '../../schemas/Like'
 import { SDKFetch } from '../../SDKFetch'
@@ -12,7 +13,7 @@ export function getLikeFetch (
 ): Observable<LikeSchema> {
   const fetchNamespace = objectType !== 'entry' ? `${objectType}s` : 'entries'
   return this.get<LikeSchema>(`${fetchNamespace}/${objectId}/like`, { all: '1' })
-    .map(r => ({ ...r, _id: `${objectId}:like` }))
+    .pipe(map(r => ({ ...r, _id: `${objectId}:like` })))
 }
 
 SDKFetch.prototype.getLike = getLikeFetch

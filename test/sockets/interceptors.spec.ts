@@ -1,7 +1,7 @@
 import { describe, it } from 'tman'
 import { expect } from 'chai'
 
-import { Observable } from 'rxjs/Observable'
+import { of, Observable } from 'rxjs'
 import { QueryToken } from 'reactivedb'
 
 import { redirectLike } from '../../src/sockets/interceptor'
@@ -100,11 +100,11 @@ const createTest = (
 }
 
 /**
- * 利用 Observable.of() 会默认使用同步（非异步） scheduer 的特性，方便测试
+ * 利用 of() 会默认使用同步（非异步） scheduer 的特性，方便测试
  */
 const synchronousDB: MockDatabase = {
   upsert: (tabName: string, data: any) => {
-    return Observable.of({
+    return of({
       table: tabName,
       row: data,
       kind: 'upsert'
@@ -113,7 +113,7 @@ const synchronousDB: MockDatabase = {
   get: () => {
     return {
       values: () => {
-        return Observable.of([])
+        return of([])
       }
     } as any
   }

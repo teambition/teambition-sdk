@@ -1,12 +1,6 @@
-import 'rxjs/add/observable/throw'
-import 'rxjs/add/observable/dom/ajax'
-import 'rxjs/add/observable/empty'
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/map'
-import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
-import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
-import { Subject } from 'rxjs/Subject'
+import { empty, throwError, Observable, Observer, Subject } from 'rxjs'
+import { catchError, map, publishReplay, refCount } from 'rxjs/operators'
+import { ajax, AjaxError } from 'rxjs/ajax'
 import { parseHeaders } from '../utils/index'
 import { testable } from '../testable'
 import { forEach } from '../utils'
@@ -40,9 +34,9 @@ const rxAjaxDefaultHeaderKey2NormKey = {
 }
 
 /**
- * Observable.ajax 目前的实现，对请求头字段的已有设置检查没有遵循
+ * rxjs ajax 目前的实现，对请求头字段的已有设置检查没有遵循
  * 头字段 key 不区分大小写的原则，比如：如果用户已經设置 `content-type`，
- * Observable.ajax 内部会发现 `Content-Type` 没有设置，结果会
+ * rxjs ajax 内部会发现 `Content-Type` 没有设置，结果会
  * 额外添加一个 `Content-Type` 字段，结果导致浏览器发现请求头字段里
  * 既有 `content-type` 又有 `Content-Type`，出现问题。
  */
@@ -63,36 +57,38 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
   /* istanbul ignore if */
   if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
     coverRxAjaxHeadersBug(_opts.headers)
-    return Observable.ajax({
+    return ajax({
       url, body, method,
       headers: _opts.headers,
       withCredentials: _opts.credentials === 'include',
       responseType: _opts.responseType || 'json',
       crossDomain: typeof _opts.crossDomain !== 'undefined' ? !!_opts.crossDomain : true
     })
-      .map(value => {
-        const respBody = value.response
-        if (!includeHeaders) {
-          return respBody
-        }
-        const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
-        return { headers: respHeaders, body: respBody }
-      })
-      .catch((e: AjaxError) => {
-        const headers = e.xhr.getAllResponseHeaders()
-        const errorResponse = new Response(new Blob([JSON.stringify(e.xhr.response)]), {
-          status: e.xhr.status,
-          statusText: e.xhr.statusText,
-          headers: headers.length ? parseHeaders(headers) : new Headers()
-        })
-        const requestInfo = { method, url, body }
-        const errorResponseClone = errorResponse.clone()
+      .pipe(
+        map(value => {
+          const respBody = value.response
+          if (!includeHeaders) {
+            return respBody
+          }
+          const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
+          return { headers: respHeaders, body: respBody }
+        }),
+        catchError((e: AjaxError) => {
+          const headers = e.xhr.getAllResponseHeaders()
+          const errorResponse = new Response(new Blob([JSON.stringify(e.xhr.response)]), {
+            status: e.xhr.status,
+            statusText: e.xhr.statusText,
+            headers: headers.length ? parseHeaders(headers) : new Headers()
+          })
+          const requestInfo = { method, url, body }
+          const errorResponseClone = errorResponse.clone()
 
-        setTimeout(() => {
-          errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
-        }, 10)
-        return Observable.throw({ ...requestInfo, error: errorResponse })
-      })
+          setTimeout(() => {
+            errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
+          }, 10)
+          return throwError({ ...requestInfo, error: errorResponse })
+        })
+      )
   } else { // 测试用分支
     return Observable.create((observer: Observer<any>) => {
       const _options = {
@@ -226,13 +222,13 @@ export class Http<T> {
   }
 
   send(): Observable<T> {
-    return this.request ? this.mapFn(this.request) : Observable.empty()
+    return this.request ? this.mapFn(this.request) : empty()
   }
 
   clone() {
     const result = new Http<T>(this.url, this.errorAdapter$)
     if (!this.cloned && this.request) {
-      this.request = this.request.publishReplay(1).refCount()
+      this.request = this.request.pipe(publishReplay(1), refCount())
       this.cloned = true
       result.cloned = true
     }

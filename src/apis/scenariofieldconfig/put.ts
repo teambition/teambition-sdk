@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
 
 import { ScenarioFieldConfigId } from 'teambition-types'
 import { SDK } from '../../SDK'
@@ -56,7 +57,7 @@ export function syncScenarioFieldConfig(
     method: 'update',
     request: this.fetch.syncScenarioFieldConfig(
       scenarioFieldConfigId
-    ).map(() => ({ _id: scenarioFieldConfigId })),
+    ).pipe(map(() => ({ _id: scenarioFieldConfigId }))),
     clause: {}
   })
 }

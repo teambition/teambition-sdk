@@ -1,10 +1,9 @@
 import { describe, before, beforeEach, afterEach, it, after } from 'tman'
-import { Scheduler } from 'rxjs'
 import { expect } from 'chai'
 
 import { SDKFetch, createSdk, SDK } from '../'
 import { customFieldLink } from '../fixtures/customfieldlinks.fixture'
-import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { mock, expectToDeepEqualForFieldsOfTheExpected, tapAsap } from '../utils'
 import { ProjectId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
@@ -37,8 +36,9 @@ describe('CustomFieldLinkApi request spec: ', () => {
     fetchMock.once(url, customFieldLinks)
 
     yield sdkFetch.getCustomFieldLinks(projectId, 'application')
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(customFieldLinks))
+      .pipe(tapAsap(
+        (result) => expect(result).to.deep.equal(customFieldLinks))
+      )
   })
 })
 
@@ -58,9 +58,8 @@ describe('CustomFieldLinkApi spec: ', () => {
 
     yield sdk.getCustomFieldLinks(projectId, 'application')
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, customFieldLinks[0])
-      })
+      .pipe(tapAsap(
+        ([ result ]) => expectToDeepEqualForFieldsOfTheExpected(result, customFieldLinks[0])
+      ))
   })
 })

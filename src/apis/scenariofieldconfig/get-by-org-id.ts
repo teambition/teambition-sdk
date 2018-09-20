@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
 import { QueryToken } from 'reactivedb'
 
 import { OrganizationId, ScenarioFieldConfigObjectType } from 'teambition-types'
@@ -37,7 +38,7 @@ export function getOrgScenarioFieldConfigsFetch(
   return this.get<{ nextPageToken: string, result: ScenarioFieldConfigSchema[] }>(
     `organizations/${organizationId}/scenariofieldconfigs`,
     { ...query, objectType },
-  ).map(({ result }) => result)
+  ).pipe(map(({ result }) => result))
 }
 
 declare module '../../SDKFetch' {

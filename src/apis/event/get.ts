@@ -1,4 +1,4 @@
-import 'rxjs/add/operator/toArray'
+import { map } from 'rxjs/operators'
 import { QueryToken } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { EventSchema } from '../../schemas/Event'
@@ -23,7 +23,7 @@ export function getEvent(
     excludeFields: [ 'project' ]
   })
 
-  return token.map(e$ => e$.map(events => events.map(e => new EventGenerator(e))))
+  return token.map(map(events => events.map(e => new EventGenerator(e))))
 }
 
 SDK.prototype.getEvent = getEvent

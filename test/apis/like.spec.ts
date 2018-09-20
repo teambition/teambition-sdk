@@ -1,6 +1,7 @@
 'use strict'
 import { expect } from 'chai'
 import { describe, it, beforeEach, afterEach } from 'tman'
+import { tap } from 'rxjs/operators'
 import { createSdk, SDK, LikeSchema } from '../index'
 import like from '../fixtures/like.fixture'
 import { mock, restore } from '../utils'
@@ -26,10 +27,10 @@ describe('LikeApi request spec: ', () => {
 
     yield sdk.getLike('task', mockTaskId)
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         delete r._id
         expect(r).to.deep.equal(like)
-      })
+      }))
   })
 
   it('toggle like should pass', function* () {
@@ -46,9 +47,9 @@ describe('LikeApi request spec: ', () => {
       where: { _id: mockTaskLikeId }
     })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect(r.isLike).to.be.false
-      })
+      }))
 
     mockResponse({ ...like, isLike: true })
 
@@ -58,8 +59,8 @@ describe('LikeApi request spec: ', () => {
       where: { _id: mockTaskLikeId }
     })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect(r.isLike).to.be.true
-      })
+      }))
   })
 })

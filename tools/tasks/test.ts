@@ -1,5 +1,6 @@
 import * as path from 'path'
-import { Observable, Observer } from 'rxjs'
+import { from, Observable, Observer } from 'rxjs'
+import { debounceTime, flatMap, map } from 'rxjs/operators'
 
 const fileWatcher = require('node-watch')
 const testDir = path.join(process.cwd(), 'spec-js/test')
@@ -20,15 +21,17 @@ export function runTman() {
 }
 
 function watch (paths: string[]) {
-  return Observable.from(paths)
-    .map(p => path.join(process.cwd(), p))
-    .flatMap(path => Observable.create((observer: Observer<string>) => {
-      fileWatcher(path, { recursive: true }, (_: any, fileName: string) => {
-        observer.next(fileName)
-      })
-      return () => fileWatcher.close()
-    }))
-    .debounceTime(500)
+  return from(paths)
+    .pipe(
+      map(p => path.join(process.cwd(), p)),
+      flatMap(path => Observable.create((observer: Observer<string>) => {
+        fileWatcher(path, { recursive: true }, (_: any, fileName: string) => {
+          observer.next(fileName)
+        })
+        return () => fileWatcher.close()
+      })),
+      debounceTime(500)
+    )
 }
 
 watch(['spec-js'])
@@ -44,7 +47,7 @@ process.on('uncaughtException', (err: any) => {
 
 process.on('SIGINT', () => {
   const watchCompilePid = Number(process.argv[2])
-  if (watchCompilePid){
+  if (watchCompilePid) {
     process.kill(watchCompilePid)
   }
   process.exit()

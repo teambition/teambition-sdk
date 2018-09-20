@@ -1,10 +1,9 @@
 import { describe, before, beforeEach, afterEach, it, after } from 'tman'
-import { Scheduler } from 'rxjs'
 import { expect } from 'chai'
 
 import { SDKFetch, createSdk, SDK } from '../'
 import { projectTag, organizationTag } from '../fixtures/tags.fixture'
-import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { mock, expectToDeepEqualForFieldsOfTheExpected, tapAsap } from '../utils'
 import { OrganizationId, ProjectId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
@@ -37,8 +36,7 @@ describe('TagApi request spec: ', () => {
     fetchMock.once(url, tags)
 
     yield sdkFetch.getTags(projectId)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(tags))
+      .pipe(tapAsap((result) => expect(result).to.deep.equal(tags)))
   })
 
   it('should return an Organization Tag array', function* () {
@@ -49,8 +47,7 @@ describe('TagApi request spec: ', () => {
     fetchMock.once(url, tags)
 
     yield sdkFetch.getTags(orgId, 'organization')
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(tags))
+      .pipe(tapAsap((result) => expect(result).to.deep.equal(tags)))
   })
 })
 
@@ -70,10 +67,9 @@ describe('TagApi spec: ', () => {
 
     yield sdk.getTags(projectId)
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
+      .pipe(tapAsap(([result]) => {
         expectToDeepEqualForFieldsOfTheExpected(result, tags[0])
-      })
+      }))
   })
 
   it('should return an Organization Tag array', function* () {
@@ -83,9 +79,8 @@ describe('TagApi spec: ', () => {
 
     yield sdk.getTags(orgId, 'organization')
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
+      .pipe(tapAsap(([result]) => {
         expectToDeepEqualForFieldsOfTheExpected(result, tags[0])
-      })
+      }))
   })
 })

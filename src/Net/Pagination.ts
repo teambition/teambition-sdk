@@ -1,9 +1,5 @@
-import 'rxjs/add/observable/throw'
-import 'rxjs/add/operator/startWith'
-import 'rxjs/add/operator/withLatestFrom'
-import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
-import { OperatorFunction } from 'rxjs/interfaces'
+import { empty, throwError, Observable, Observer, OperatorFunction } from 'rxjs'
+import { catchError, finalize, map, mergeAll,  startWith, tap } from 'rxjs/operators'
 
 export type PageToken = string & { kind: 'PageToken' }
 
@@ -72,11 +68,14 @@ export const accumulateResultByConcat = <T>(state: State<T>, resp: OriginalRespo
 export const loadAndExpand = <T>(
   step: (curr: State<T>) => Observable<OriginalResponse<T>>,
   initState: State<T>,
-  loadMore$: Observable<{}> = Observable.empty()
+  loadMore$: Observable<{}> = empty()
 ): Observable<State<T>> => {
-  return loadMore$.startWith({})
-    .pipe(expand(step, accumulateResultByConcat, initState))
-    .mergeAll()
+  return loadMore$
+    .pipe(
+      startWith({}),
+      expand(step, accumulateResultByConcat, initState),
+      mergeAll()
+    )
 }
 
 export const expand = <T>(
@@ -99,10 +98,12 @@ export const expand = <T>(
         if (!isLoading) {
           isLoading = true
           observer.next(step(state)
-            .map((stepResult) => accumulator(state, stepResult))
-            .do((expanded) => Object.assign(state, expanded))
-            .catch((err) => Observable.throw(err))
-            .finally(() => { isLoading = false })
+            .pipe(
+              map((stepResult) => accumulator(state, stepResult)),
+              tap((expanded) => Object.assign(state, expanded)),
+              catchError((err) => throwError(err)),
+              finalize(() => { isLoading = false })
+            )
           )
         }
       },

@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs'
 import { Database } from 'reactivedb'
 import { Net } from './Net'
 import { forEach } from './utils'

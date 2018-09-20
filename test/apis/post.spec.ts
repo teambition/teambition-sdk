@@ -1,5 +1,6 @@
-import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
+import { describe, beforeEach, afterEach, it } from 'tman'
+import { tap } from 'rxjs/operators'
 import { createSdk, SDK, PostSchema, SocketMock } from '../index'
 import { projectPosts, myProjectPosts, tagPosts } from '../fixtures/posts.fixture'
 import { mock, restore, equals } from '../utils'
@@ -32,9 +33,9 @@ describe('PostApi request spec', () => {
 
     yield sdk.getPost(fixture._id as PostId)
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect(r).to.deep.equal(fixture)
-      })
+      }))
   })
 
   it('getAllProjects should response correct data', function* () {
@@ -49,9 +50,9 @@ describe('PostApi request spec', () => {
       count: 20
     })
       .values()
-      .do(r => {
+      .pipe(tap(r => {
         expect(r).to.deep.equal(fixture)
-      })
+      }))
 
     const fixture2 = projectPosts.slice(20, 40)
 
@@ -63,9 +64,9 @@ describe('PostApi request spec', () => {
       count: 20
     })
       .values()
-      .do(r => {
+      .pipe(tap(r => {
         expect(r).to.deep.equal(fixture2)
-      })
+      }))
   })
 
   it('getAllProjects should response ordered data', function* () {
@@ -82,9 +83,9 @@ describe('PostApi request spec', () => {
       orderBy: defaultOrderBy
     })
       .values()
-      .do(r => {
+      .pipe(tap(r => {
         expect(r).to.deep.equal(fixture)
-      })
+      }))
   })
 
   it('getMyProjectPosts should response correct data', function* () {
@@ -100,9 +101,9 @@ describe('PostApi request spec', () => {
       type: 'my'
     })
       .values()
-      .do(r => {
+      .pipe(tap(r => {
         expect(r).to.deep.equal(fixture)
-      })
+      }))
 
     const fixture2 = myProjectPosts.slice(20)
 
@@ -114,7 +115,7 @@ describe('PostApi request spec', () => {
       type: 'my'
     })
       .values()
-      .do(r => expect(r).to.deep.equal(fixture2))
+      .pipe(tap(r => expect(r).to.deep.equal(fixture2)))
   })
 
   it('getMyProjectPosts should response ordered data', function* () {
@@ -132,9 +133,9 @@ describe('PostApi request spec', () => {
       orderBy: defaultOrderBy
     })
       .values()
-      .do(r => {
+      .pipe(tap(r => {
         expect(r).to.deep.equal(fixture)
-      })
+      }))
   })
 
   it('getPostsByTagId should response correct data', function* () {
@@ -147,7 +148,7 @@ describe('PostApi request spec', () => {
       count: 500
     })
       .values()
-      .do(r => expect(r).to.deep.equal(tagPosts))
+      .pipe(tap(r => expect(r).to.deep.equal(tagPosts)))
   })
 
   it('getPostsByTagId should response ordered data', function* () {
@@ -162,7 +163,7 @@ describe('PostApi request spec', () => {
       orderBy: defaultOrderBy
     })
       .values()
-      .do(r => expect(r).to.deep.equal(tagPosts))
+      .pipe(tap(r => expect(r).to.deep.equal(tagPosts)))
   })
 
   it('createPost should create new post', function* () {
@@ -179,9 +180,9 @@ describe('PostApi request spec', () => {
 
     yield sdk.database.get('Post', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         equals(r, fixture)
-      })
+      }))
   })
 
   it('updatePost should update cache in ReactiveDB', function* () {
@@ -200,7 +201,7 @@ describe('PostApi request spec', () => {
 
     yield sdk.database.get<PostSchema>('Post', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => expect(r.title).to.equal(fixture.title))
+      .pipe(tap(([r]) => expect(r.title).to.equal(fixture.title)))
   })
 
   it('deletePost should delete cache in ReactiveDB', function* () {
@@ -214,7 +215,7 @@ describe('PostApi request spec', () => {
 
     yield sdk.database.get('Post', { where: { _id: placeholder._id } })
       .values()
-      .do(r => expect(r.length).to.equal(0))
+      .pipe(tap(r => expect(r.length).to.equal(0)))
   })
 })
 
@@ -238,7 +239,7 @@ describe('PostsAPI socket spec', () => {
 
     yield sdk.database.get('Post', { where: { _id: fixture._id } })
       .values()
-      .do((r) => equals(r, [ fixture ]))
+      .pipe(tap((r) => equals(r, [ fixture ])))
   })
 
   it('should do response for socket::change', function* () {
@@ -254,7 +255,7 @@ describe('PostsAPI socket spec', () => {
 
     yield sdk.database.get<PostSchema>('Post', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => expect(r.content).to.equal('fixture'))
+      .pipe(tap(([r]) => expect(r.content).to.equal('fixture')))
   })
 
   it('should do response for socket::destory', function* () {
@@ -266,6 +267,6 @@ describe('PostsAPI socket spec', () => {
 
     yield sdk.database.get<PostSchema>('Post', { where: { _id: fixture._id } })
       .values()
-      .do((r) => expect(r.length).to.equal(0))
+      .pipe(tap((r) => expect(r.length).to.equal(0)))
   })
 })

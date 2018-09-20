@@ -1,6 +1,5 @@
-import 'rxjs/add/observable/from'
-import 'rxjs/add/operator/mergeAll'
-import { Observable } from 'rxjs/Observable'
+import { from, of, merge, Observable } from 'rxjs'
+import { mergeAll } from 'rxjs/operators'
 import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { Net } from '../Net'
@@ -22,7 +21,7 @@ export const createMsgHandler = (
   msg: ParsedWSMsg
 ): Observable<any> => {
   proxy.apply(msg)
-  return Observable.of(null)
+  return of(null)
 }
 
 /**
@@ -37,7 +36,7 @@ export const createMsgToDBHandler = (
 ): Observable<any> => {
   const tabInfo = mapToTable.getTableInfo(msg.type)
   if (!tabInfo) {
-    return Observable.of(null)
+    return of(null)
   }
 
   const { method, id, data } = msg
@@ -61,7 +60,7 @@ export const createMsgToDBHandler = (
         where: Array.isArray(data) ? { [pkName]: { $in: data } } : { [pkName]: data }
       })
     default:
-      return Observable.of(null)
+      return of(null)
   }
 }
 
@@ -87,14 +86,13 @@ export function socketHandler(
     let interceptorsTask$: Observable<any>
     if (!db) {
       net.bufferSocketPush(msg)
-      interceptorsTask$ = Observable.of(null)
+      interceptorsTask$ = of(null)
     } else {
       interceptorsTask$ = handleMsgToDb(msg, db)
     }
 
-    return Observable.merge(interceptorsTask$, proxyTask$)
+    return merge(interceptorsTask$, proxyTask$)
   })
 
-  return Observable.from(signals)
-    .mergeAll()
+  return from(signals).pipe(mergeAll())
 }

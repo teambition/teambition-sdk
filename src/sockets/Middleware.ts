@@ -1,13 +1,6 @@
-import 'rxjs/add/operator/publish'
-import 'rxjs/add/operator/takeUntil'
-import 'rxjs/add/operator/takeLast'
-import 'rxjs/add/observable/merge'
+import { merge, ConnectableObservable, Observable, Observer, Subject, Subscription } from 'rxjs'
+import { publish, refCount, switchMap, takeLast, takeUntil } from 'rxjs/operators'
 import { Database } from 'reactivedb'
-import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
-import { Subscription } from 'rxjs/Subscription'
-import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
-import { Subject } from 'rxjs/Subject'
 
 import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
 
@@ -175,7 +168,7 @@ export class Proxy {
         // 当订阅数降到 0 时，移除该条目
         this.publishedHandler.delete(pattern)
       })
-      this.publishedHandler.set(pattern, source.publish().refCount())
+      this.publishedHandler.set(pattern, source.pipe(publish(), refCount()))
     }
     return this.publishedHandler.get(pattern)!
   }
@@ -217,10 +210,10 @@ export class Proxy {
     const start$ = new Subject()
     const suspend$ = new Subject()
 
-    const published$ = Observable.merge(
-      suspend$.switchMap(() => this.createMsg$(pattern).takeUntil(start$).takeLast(1)),
-      start$.switchMap(() => this.createMsg$(pattern).takeUntil(suspend$))
-    ).publish()
+    const published$ = merge(
+      suspend$.pipe(switchMap(() => this.createMsg$(pattern).pipe(takeUntil(start$), takeLast(1)))),
+      start$.pipe(switchMap(() => this.createMsg$(pattern).pipe(takeUntil(suspend$))))
+    ).pipe(publish()) as ConnectableObservable<ParsedWSMsg>
 
     const connection = published$.connect()
 

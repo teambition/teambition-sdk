@@ -1,10 +1,5 @@
-import 'rxjs/add/observable/defer'
-import 'rxjs/add/observable/throw'
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/publishReplay'
-import 'rxjs/add/operator/finally'
-import { Observable } from 'rxjs/Observable'
+import { defer, throwError, Observable } from 'rxjs'
+import { catchError, finalize, publishReplay, refCount } from 'rxjs/operators'
 import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
 import { forEach, uuid } from './utils'
@@ -118,12 +113,18 @@ export class SDKFetch {
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
       const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get().send() as any)
-        .publishReplay<any>(1)
-        .refCount()
-        .finally(() => {
+      dist = defer(() => {
+        const request = http.setUrl(urlWithTail).get()
+        // 将 Observable<T> | Observable<HttpResponsewithheaders<T>> 弱化
+        // 为 Observable<T | HttpResponsewithheaders<T>>
+        return request.send() as Observable<T | HttpResponseWithHeaders<T>>
+      }).pipe(
+        publishReplay(1),
+        refCount(),
+        finalize(() => {
           SDKFetch.FetchStack.delete(urlWithQuery)
         })
+      ) as Observable<T> | Observable<HttpResponseWithHeaders<T>>
 
       SDKFetch.FetchStack.set(urlWithQuery, dist)
     }
@@ -277,12 +278,12 @@ export class SDKFetch {
 
     // todo(dingwen): 待实现更有效的 HTTP interceptor，替换这里的实现。
     http['mapFn'] = ((source) => {
-      return source.catch((error: HttpErrorMessage) => {
+      return source.pipe(catchError((error: HttpErrorMessage) => {
         if (!fetchOptions.disableRequestId) {
           error['requestId'] = headers[HttpHeaders.Key.RequestId]
         }
-        return Observable.throw(error)
-      })
+        return throwError(error)
+      }))
     })
   }
 

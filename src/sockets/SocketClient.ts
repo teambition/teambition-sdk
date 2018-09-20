@@ -1,13 +1,5 @@
-/**
- * bundle socket 的时候，这个文件是 tsc 的一个 entry
- * import 一下需要的 Rx 操作符
- */
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/toPromise'
-import 'rxjs/add/operator/concatMap'
-import 'rxjs/add/operator/take'
-import { Observable } from 'rxjs/Observable'
-import { ReplaySubject } from 'rxjs/ReplaySubject'
+import { of, Observable, ReplaySubject } from 'rxjs'
+import { take } from 'rxjs/operators'
 import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
@@ -63,7 +55,7 @@ export class SocketClient {
     this.interceptors = new Interceptors(createMsgToDBHandler(mapToTable))
     this.handleMsgToDB = (msg, db) => {
       const ret = this.interceptors.apply(msg, db)
-      return ret instanceof Observable ? ret : Observable.of(null)
+      return ret instanceof Observable ? ret : of(null)
     }
 
     this.net.initMsgToDBHandler(this.handleMsgToDB)
@@ -107,9 +99,7 @@ export class SocketClient {
   }
 
   async connect(): Promise<void> {
-    const userMe = await this._getUserMeStream
-      .take(1)
-      .toPromise()
+    const userMe = await this._getUserMeStream.pipe(take(1)).toPromise()
     const auth = userMe.tcmToken.split('.')[1]
     const token: {
       exp: number
@@ -165,8 +155,7 @@ export class SocketClient {
   }
 
   private _connect(): Promise<void> {
-    return this._getUserMeStream
-      .take(1)
+    return this._getUserMeStream.pipe(take(1))
       .toPromise()
       .then(userMe => {
         if (this._client) {

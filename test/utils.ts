@@ -1,6 +1,8 @@
 'use strict'
 import { expect } from 'chai'
 import { capitalize } from 'lodash'
+import { asapScheduler, OperatorFunction } from 'rxjs'
+import { subscribeOn, tap } from 'rxjs/operators'
 import { forEach, SDK, SDKFetch } from './index'
 import { MockFetch } from './mock/MockFetch'
 
@@ -108,3 +110,10 @@ export function forEachFalsyValueOfProperty(
    { [prop]: NaN }
   ].forEach(f)
 }
+
+export const tapAsap = <T>(tapFn: (emitted: T) => any): OperatorFunction<T, T> =>
+  (source$) => source$
+    .pipe(
+      subscribeOn(asapScheduler),
+      tap(tapFn)
+    )

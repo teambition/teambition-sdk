@@ -1,4 +1,5 @@
-import { Backend, SDKFetch } from '../index'
+import { Backend } from '../index'
+import { SDKFetch } from '../../src/SDKFetch'
 
 function throwIfSlashPath(path: string) {
   if (path.charAt(0) === '/') {
