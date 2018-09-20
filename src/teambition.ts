@@ -30,10 +30,12 @@ declare module 'teambition-types' {
   export type ProjectBoardId = string & { kind: 'ProjectBoardId' }
   export type ProjectId = string & { kind: 'ProjectId' }
   export type ProjectOrder = 'updated' | 'name' | 'recentVisit'
+  export type ProjectStatusActivityId = string & { kind: 'ProjectStatusActivityId' }
   export type ProjectTagId = string & { kind: 'ProjectTagId' }
+  export type ProjectTemplateId = string & { kind: 'ProjectTemplateId' }
   export type RoomId = string & { kind: 'RoomId' }
-  export type ScenarioFieldId = string & { kind: 'ScenarioFieldId' }
   export type ScenarioFieldConfigId = string & { kind: 'ScenarioFieldConfigId' }
+  export type ScenarioFieldId = string & { kind: 'ScenarioFieldId' }
   export type SmartGroupId = string & { kind: 'SmartGroupId' }
   export type SprintId = string & { kind: 'SprintId' }
   export type StageId = string & { kind: 'StageId' }
@@ -51,7 +53,6 @@ declare module 'teambition-types' {
   export type UserId = string & { kind: 'UserId' }
   export type VersionId = string & { kind: 'VersionId' }
   export type WorkId = string & { kind: 'WorkId' }
-  export type ProjectTemplateId = string & { kind: 'ProjectTemplateId' }
 }
 
 // computed id
@@ -75,6 +76,7 @@ declare module 'teambition-types' {
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works'
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
+  export type ProjectDegree = 'normal' | 'risky' | 'urgent'
   export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
   export type ReminderRuleType = 'startDate' | 'dueDate' | 'customize' | 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'
   export type ReminderUnit = 'minute' | 'hour' | 'day'
