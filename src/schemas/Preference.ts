@@ -10,7 +10,7 @@ import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 
 export interface PreferenceTipMap {
-  [key: string]: boolean | PreferenceTipMap
+  [key: string]: boolean | string
 }
 
 export interface PreferenceSchema {
