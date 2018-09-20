@@ -31,6 +31,8 @@ import './ProjectTag'
 export * from './ProjectTag'
 // import './ProjectTemplate' // 目前不需建表
 export * from './ProjectTemplate'
+import './ProjectStatusActivity'
+export * from './ProjectStatusActivity'
 import './Post'
 export * from './Post'
 import './SmartGroup'
