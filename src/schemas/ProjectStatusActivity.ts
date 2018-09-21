@@ -3,7 +3,11 @@ import { schemaColl } from './schemas'
 import { UserId, ProjectStatusActivityId, ProjectDegree } from 'teambition-types'
 
 export interface ProjectStatusActivitySchema {
-  _creatorId: UserId
+  creator: {
+    avatarUrl: string
+    _id: UserId
+    name: string
+  },
   _id: ProjectStatusActivityId
   action: string
   boundToObjects: Array<{
@@ -27,7 +31,7 @@ export interface ProjectStatusActivitySchema {
 }
 
 const schema: SchemaDef<ProjectStatusActivitySchema> = {
-  _creatorId: { type: RDBType.STRING },
+  creator: { type: RDBType.STRING },
   _id: { type: RDBType.STRING, primaryKey: true },
   action: { type: RDBType.STRING },
   boundToObjects: { type: RDBType.OBJECT },
