@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { map, Observable } from '../../rx'
 import { LikeSchema } from '../../schemas/Like'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK } from '../../SDK'

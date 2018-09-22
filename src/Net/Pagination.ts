@@ -1,5 +1,4 @@
-import { empty, throwError, Observable, Observer, OperatorFunction } from 'rxjs'
-import { catchError, finalize, map, mergeAll,  startWith, tap } from 'rxjs/operators'
+import * as rx from '../rx'
 
 export type PageToken = string & { kind: 'PageToken' }
 
@@ -66,29 +65,29 @@ export const accumulateResultByConcat = <T>(state: State<T>, resp: OriginalRespo
 }
 
 export const loadAndExpand = <T>(
-  step: (curr: State<T>) => Observable<OriginalResponse<T>>,
+  step: (curr: State<T>) => rx.Observable<OriginalResponse<T>>,
   initState: State<T>,
-  loadMore$: Observable<{}> = empty()
-): Observable<State<T>> => {
+  loadMore$: rx.Observable<{}> = rx.empty()
+): rx.Observable<State<T>> => {
   return loadMore$
     .pipe(
-      startWith({}),
+      rx.startWith({}),
       expand(step, accumulateResultByConcat, initState),
-      mergeAll()
+      rx.mergeAll()
     )
 }
 
 export const expand = <T>(
-  step: (curr: State<T>) => Observable<OriginalResponse<T>>,
+  step: (curr: State<T>) => rx.Observable<OriginalResponse<T>>,
   accumulator: (state: State<T>, resp: OriginalResponse<T>) => State<T>,
   initState: State<T>
-): OperatorFunction<{}, Observable<State<T>>> => (
+): rx.OperatorFunction<{}, rx.Observable<State<T>>> => (
   source$
 ) => {
   const state = { ...initState }
   let isLoading = false
 
-  return Observable.create((observer: Observer<Observable<State<T>>>) => {
+  return new rx.Observable((observer) => {
     const subs = source$.subscribe({
       next: (_) => {
         if (!state.hasMore) {
@@ -99,10 +98,10 @@ export const expand = <T>(
           isLoading = true
           observer.next(step(state)
             .pipe(
-              map((stepResult) => accumulator(state, stepResult)),
-              tap((expanded) => Object.assign(state, expanded)),
-              catchError((err) => throwError(err)),
-              finalize(() => { isLoading = false })
+              rx.map((stepResult) => accumulator(state, stepResult)),
+              rx.tap((expanded) => Object.assign(state, expanded)),
+              rx.catch((err) => rx.throw(err)),
+              rx.finalize(() => { isLoading = false })
             )
           )
         }
@@ -119,5 +118,5 @@ export const expand = <T>(
     return () => {
       subs.unsubscribe()
     }
-  }) as Observable<Observable<State<T>>>
+  })
 }

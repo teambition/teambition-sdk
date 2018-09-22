@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable } from '../../rx'
 import { UserId, TeamId, ProjectId, OrganizationId, GroupId } from 'teambition-types'
 import { SDKFetch } from '../../SDKFetch'
 

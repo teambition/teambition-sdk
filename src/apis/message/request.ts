@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable } from '../../rx'
 import { SDKFetch } from '../../SDKFetch'
 import { MessageSchema } from '../../schemas/Message'
 import { MessageId } from 'teambition-types'

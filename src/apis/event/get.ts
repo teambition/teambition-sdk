@@ -1,4 +1,4 @@
-import { map } from 'rxjs/operators'
+import { map } from '../../rx'
 import { QueryToken } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { EventSchema } from '../../schemas/Event'

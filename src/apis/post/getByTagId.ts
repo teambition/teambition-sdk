@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable } from '../../rx'
 import { QueryToken, OrderDescription } from 'reactivedb'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TagId } from 'teambition-types'

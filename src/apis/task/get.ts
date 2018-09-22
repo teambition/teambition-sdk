@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable } from '../../rx'
 import { QueryToken } from 'reactivedb'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'

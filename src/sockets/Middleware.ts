@@ -1,5 +1,4 @@
-import { merge, ConnectableObservable, Observable, Observer, Subject, Subscription } from 'rxjs'
-import { publish, refCount, switchMap, takeLast, takeUntil } from 'rxjs/operators'
+import { merge,  publish, refCount, switchMap, takeLast, takeUntil, ConnectableObservable, Observable, Subject, Subscription } from '../rx'
 import { Database } from 'reactivedb'
 
 import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
@@ -183,16 +182,16 @@ export class Proxy {
     if (!/^:refresh:/.test(pattern)) {
       pattern  = `:refresh:${pattern}`
     }
-    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+    return new Observable<ParsedWSMsg>((observer) => {
       return this.onRefreshEvent(pattern, appNamespace, (msg) => observer.next(msg))
-    }) as Observable<ParsedWSMsg>
+    })
   }
 
   /**
    * 结合 on/off 方法，创建一个监听符合 pattern 事件的流，并包含 teardown 逻辑。
    */
   private createMsg$(pattern: string, teardown?: MsgHandlerRemoval): Observable<ParsedWSMsg> {
-    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+    return new Observable<ParsedWSMsg>((observer) => {
       const nexter: MsgHandler = (msg) => observer.next(msg)
 
       const off = this.on(pattern, nexter)

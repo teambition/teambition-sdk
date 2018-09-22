@@ -4,7 +4,7 @@
  */
 
 import { Database, SchemaDef } from 'reactivedb'
-import { Observable } from 'rxjs'
+import { Observable } from '../rx'
 
 export type GeneralSchemaDef = SchemaDef<{}>
 

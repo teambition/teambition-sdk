@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { map, Observable } from '../../rx'
 import { QueryToken } from 'reactivedb'
 
 import { OrganizationId, ScenarioFieldConfigObjectType } from 'teambition-types'

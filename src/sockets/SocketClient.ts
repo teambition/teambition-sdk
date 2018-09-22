@@ -1,5 +1,4 @@
-import { of, Observable, ReplaySubject } from 'rxjs'
-import { take } from 'rxjs/operators'
+import { of, take, Observable, ReplaySubject } from '../rx'
 import { Net } from '../Net'
 import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'

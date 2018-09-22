@@ -1,5 +1,4 @@
-import { empty, from, of, BehaviorSubject, Observable } from 'rxjs'
-import { concatAll, concatMap, filter, mapTo, mergeMap, reduce, switchMap, tap } from 'rxjs/operators'
+import * as rx from '../rx'
 import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 import { JoinMode } from 'reactivedb/interface'
 import { Database, Query, Predicate, ExecutorResult } from 'reactivedb'
@@ -53,7 +52,7 @@ export enum CacheStrategy {
 }
 
 export interface ApiResult<T, U extends CacheStrategy> {
-  request: Observable<T> | Observable<T[]>
+  request: rx.Observable<T> | rx.Observable<T[]>
   /**
    * 使用 fields 指定需要查询的字段，where 指定查询条件，
    * orderBy 指定结果排序规则。更多支持的选项请见具体类型定义。
@@ -78,19 +77,19 @@ export interface ApiResult<T, U extends CacheStrategy> {
    * 或为空（[]）。
    */
   excludeFields?: string[]
-  padding?: (missedId: string) => Observable<T | null>
+  padding?: (missedId: string) => rx.Observable<T | null>
 }
 
 export type AssocField<T> = { [P in keyof T]?: AssocField<T[P]> | string[] }
 
 export interface CApiResult<T> {
-  request: Observable<T>
+  request: rx.Observable<T>
   tableName: string
   method: 'create'
 }
 
 export interface UDResult<T> {
-  request: Observable<T>
+  request: rx.Observable<T>
   tableName: string
   method: 'update' | 'delete'
   clause: Predicate<T>
@@ -113,7 +112,7 @@ export type SocketCUDBufferObject = {
 export type SelectorBufferObject = {
   kind: 'Selector'
   realSelectorInfo: ApiResult<any, CacheStrategy>
-  proxySelector: BehaviorSubject<SelectorMeta<any>>
+  proxySelector: rx.BehaviorSubject<SelectorMeta<any>>
 }
 
 export type BufferObject = CUDBufferObject | SocketCUDBufferObject | SelectorBufferObject
@@ -144,21 +143,21 @@ export class Net {
     const pk = this.primaryKeys.get(tableName)
     const noRequiredPadding = !Array.isArray(required) || typeof padding !== 'function' || !pk
 
-    const fn = switchMap<T[], T[]>((results) => {
+    const fn = rx.switchMap<T[], T[]>((results) => {
       return !results.length
-        ? of([])
-        : from(results).pipe(
-          mergeMap((result) => {
+        ? rx.of([])
+        : rx.from(results).pipe(
+          rx.mergeMap((result) => {
             return noRequiredPadding || required!.every(k => typeof result[k] !== 'undefined')
-              ? empty()
+              ? rx.empty()
               : padding!(result[pk!]).pipe(
-                filter((r): r is T => r != null),
-                concatMap((r) => this.database!.upsert(tableName, r).pipe(
-                  tap(() => Object.assign(result, r))
+                rx.filter((r): r is T => r != null),
+                rx.concatMap((r) => this.database!.upsert(tableName, r).pipe(
+                  rx.tap(() => Object.assign(result, r))
                 ))
               )
           }),
-          reduce<any, T[]>(identity, results)
+          rx.reduce<any, T[]>(identity, results)
         )
     })
     fn.toString = () => 'SDK_VALIDATE'
@@ -191,7 +190,7 @@ export class Net {
 
   lift<T>(result: ApiResult<T, CacheStrategy>): QueryToken<T>
 
-  lift<T>(result: CUDApiResult<T>): Observable<T>
+  lift<T>(result: CUDApiResult<T>): rx.Observable<T>
 
   lift<T>(result: ApiResult<T, CacheStrategy> | CUDApiResult<T>) {
     if ((result as ApiResult<T, CacheStrategy>).cacheValidate) {
@@ -220,8 +219,8 @@ export class Net {
     const database = this.database!
 
     const { request, method, tableName } = result
-    let destination: Observable<ExecutorResult>
-    return request.pipe(concatMap(v => {
+    let destination: rx.Observable<ExecutorResult>
+    return request.pipe(rx.concatMap(v => {
       switch (method) {
         case 'create':
           destination = database.upsert<T>(tableName, v)
@@ -235,7 +234,7 @@ export class Net {
         default:
           throw new Error()
       }
-      return destination.pipe(mapTo(v))
+      return destination.pipe(rx.mapTo(v))
     }))
   }
 
@@ -244,10 +243,10 @@ export class Net {
       this.database = database
     }
 
-    const asyncQueue: Observable<any>[] = []
+    const asyncQueue: rx.Observable<any>[] = []
 
     forEach(this.persistedDataBuffer, (v: BufferObject) => {
-      let p: Observable<any> | null = null
+      let p: rx.Observable<any> | null = null
 
       switch (v.kind) {
         case 'CUD':
@@ -263,7 +262,7 @@ export class Net {
           const token = this.handleRequestCache(v.realSelectorInfo)
           const selector$ = token.selector$
 
-          p = selector$.pipe(tap({
+          p = selector$.pipe(rx.tap({
             next(selector) {
               cacheControl$.next(selector)
             }
@@ -280,10 +279,10 @@ export class Net {
 
     this.persistedDataBuffer.length = 0
 
-    return from(asyncQueue).pipe(
-      concatAll(),
-      tap({
-        error: async (err: Observable<Error>) => {
+    return rx.from(asyncQueue).pipe(
+      rx.concatAll(),
+      rx.tap({
+        error: async (err: rx.Observable<Error>) => {
           const errObj = await err.toPromise()
           SDKLogger.error(errObj.message)
         }
@@ -299,7 +298,7 @@ export class Net {
       q,
       tableName
     )
-    const cacheControl$ = new BehaviorSubject<SelectorMeta<T>>(proxySelector)
+    const cacheControl$ = new rx.BehaviorSubject<SelectorMeta<T>>(proxySelector)
     this.persistedDataBuffer.push({
       kind: 'Selector',
       realSelectorInfo: result,
@@ -311,7 +310,7 @@ export class Net {
 
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
     const { request, method, tableName } = result as CUDApiResult<T>
-    return request.pipe(tap((v: T | T[]) => {
+    return request.pipe(rx.tap((v: T | T[]) => {
       this.persistedDataBuffer.push({
         kind: 'CUD',
         tableName,
@@ -326,7 +325,7 @@ export class Net {
       kind: 'SocketCUD',
       socketMessage
     })
-    return of(null)
+    return rx.of(null)
   }
 
   private genCacheKey<T>(tableName: string, q: Readonly<Query<T>>) {
@@ -344,7 +343,7 @@ export class Net {
     } = this.getInfoFromResult(result)
 
     // 将类型 Observalbe<T> | Observable<T[]> 弱化为 Observable<T | T[]>
-    const response$: Observable<T | T[]> = request
+    const response$: rx.Observable<T | T[]> = request
     const cacheKey = this.genCacheKey(tableName, q)
     const requestCache = this.requestMap.get(cacheKey)
 
@@ -354,9 +353,9 @@ export class Net {
         if (!requestCache) {
           /*tslint:disable no-shadowed-variable*/
           const selector$ = response$.pipe(
-            concatMap(v => database.upsert(tableName, v)),
-            tap(() => this.requestMap.set(cacheKey, true)),
-            concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+            rx.concatMap(v => database.upsert(tableName, v)),
+            rx.tap(() => this.requestMap.set(cacheKey, true)),
+            rx.concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
           )
           token = new QueryToken(selector$)
         } else {
@@ -366,8 +365,8 @@ export class Net {
         break
       case CacheStrategy.Cache:
         const selector$ = response$.pipe(
-          concatMap(v => database.upsert(tableName, v)),
-          concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+          rx.concatMap(v => database.upsert(tableName, v)),
+          rx.concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
         )
         return new QueryToken(selector$)
       default:

@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs'
-import { map, tap } from 'rxjs/operators'
+import { map, tap, Observable } from '../rx'
 import { SDKFetch, SDKFetchOptions } from '../SDKFetch'
 import { Page } from '../Net'
 

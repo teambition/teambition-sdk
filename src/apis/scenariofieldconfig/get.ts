@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable } from '../../rx'
 
 import { ScenarioFieldConfigId, OrganizationId, ScenarioFieldConfigObjectType } from 'teambition-types'
 import { SDKFetch } from '../../SDKFetch'

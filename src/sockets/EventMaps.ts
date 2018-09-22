@@ -1,5 +1,4 @@
-import { from, of, merge, Observable } from 'rxjs'
-import { mergeAll } from 'rxjs/operators'
+import { from, of, merge, mergeAll, Observable } from '../rx'
 import { RequestEvent } from 'snapper-consumer'
 import { Database } from 'reactivedb'
 import { Net } from '../Net'

@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs'
-import { map, tap } from 'rxjs/operators'
+import { map, tap, Observable } from '../../rx'
 import { QueryToken } from 'reactivedb'
 import { forEach } from '../../utils'
 import { SDKFetch } from '../../SDKFetch'

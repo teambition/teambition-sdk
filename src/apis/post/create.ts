@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs'
+import { Observable } from '../../rx'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { PostModeOptions, PostSchema } from '../../schemas/Post'

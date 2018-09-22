@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { map, Observable } from '../../rx'
 import { SDKFetch } from '../../SDKFetch'
 import { EventSchema } from '../../schemas/Event'
 import { EventId, ProjectId, UserId } from 'teambition-types'

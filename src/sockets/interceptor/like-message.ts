@@ -1,4 +1,4 @@
-import { forkJoin, Observable } from 'rxjs'
+import { forkJoin, Observable } from '../../rx'
 import { ExecutorResult } from 'reactivedb'
 import { MsgToDBHandler } from '../Middleware'
 import { mapMsgTypeToTable } from '../MapToTable'
