@@ -1,5 +1,5 @@
 import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
-import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { OrganizationPaymentPlan } from './Organization'
@@ -11,6 +11,7 @@ export interface ProjectSchema {
   _defaultRoleId: RoleId | null
   _id: ProjectId
   _orgRoleId: RoleId | null
+  _ownerId?: UserId
   _organizationId: OrganizationId | null
   _parendId: ProjectId
   _roleId: RoleId | null
@@ -25,7 +26,7 @@ export interface ProjectSchema {
   cover: string
   created: string
   creator: ExecutorOrCreator
-  customfields: CustomFieldValue[],
+  customfields: CustomFieldValue[]
   description: string
   eventsCount: number
   hasOrgRight: number
@@ -49,6 +50,7 @@ export interface ProjectSchema {
     name: string
     plan: OrganizationPaymentPlan
   }
+  owner?: UserSnippet
   plan?: UserPaymentPlan
   pinyin: string
   postsCount: number
@@ -86,6 +88,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.STRING
   },
   _orgRoleId: {
+    type: RDBType.STRING
+  },
+  _ownerId: {
     type: RDBType.STRING
   },
   _parendId: {
@@ -170,6 +175,15 @@ const Schema: SchemaDef<ProjectSchema> = {
       name: 'Organization',
       where: (organizationTable: any) => ({
         _organizationId: organizationTable._id
+      })
+    }
+  },
+  owner: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _ownerId: userTable._id
       })
     }
   },

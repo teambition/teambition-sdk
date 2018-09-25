@@ -4,7 +4,7 @@ import { Scheduler } from 'rxjs'
 import {
   GetPersonalProjectsQueryParams
 } from '../../src/apis/project/personal'
-import { SDKFetch, createSdk, SDK } from '../'
+import { SDKFetch, createSdk, SDK, ProjectSchema } from '../'
 import { normalProject } from '../fixtures/projects.fixture'
 import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 import { ProjectId } from 'teambition-types'
@@ -135,6 +135,21 @@ describe('ProjectApi spec: ', () => {
     mockResponse(fixture)
 
     yield sdk.getProject(fixture._id as ProjectId)
+      .values()
+      .subscribeOn(Scheduler.asap)
+      .do(([project]) => {
+        expectToDeepEqualForFieldsOfTheExpected(project, fixture, 'organization', 'owner', 'role', 'creator', 'isTemplate')
+
+        const owner: keyof Pick<ProjectSchema, 'owner'> = 'owner'
+        expect(project).not.to.have.property(owner)
+      })
+  })
+
+  it('should return a project with owner on { withOwner: true }', function* () {
+    const fixture = normalProject
+    mockResponse(fixture)
+
+    yield sdk.getProject(fixture._id as ProjectId, { withOwner: true })
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([project]) => {

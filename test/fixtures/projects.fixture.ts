@@ -2,8 +2,7 @@ export const normalProject = {
   _id: '562dd8861f1446bb44c71b73',
   name: '朕的排序项目',
   _creatorId: '55f684cf1cfbf2945d0673a0',
-  logo:
-  'http://striker.project.ci/thumbnail/010g91ce2db9abfeb46512ea81673f90b931/w/600/h/300',
+  logo: 'http://striker.project.ci/thumbnail/010g91ce2db9abfeb46512ea81673f90b931/w/600/h/300',
   py: 'zdpxxm',
   pinyin: 'zhen de pai xu xiang mu',
   description: '谁敢乱改追刑事责任',
@@ -39,6 +38,12 @@ export const normalProject = {
       isTrialExpired: true
     }
   },
+  _ownerId: '569ee653f87e2d3e6ece85b8',
+  owner: {
+    _id: '569ee653f87e2d3e6ece85b8',
+    name: '^^',
+    avatarUrl: 'http://tcs.project.ci/thumbnail/01133f2afcf9e418f413e6e4926fd02fdb51/w/200/h/200'
+  },
   _defaultRoleId: null,
   _rootCollectionId: '562dd8861f1446bb44c71b74',
   _defaultCollectionId: '562dd8861f1446bb44c71b75',
@@ -54,23 +59,23 @@ export const normalProject = {
   membersCount: 0,
   applications: [
     {
-    _id: '56a861e87ee8ab16694d9635',
-    name: 'tasks',
-    type: 1,
-    order: 0
-  },
+      _id: '56a861e87ee8ab16694d9635',
+      name: 'tasks',
+      type: 1,
+      order: 0
+    },
     {
-    _id: '56aad022443d43a60a1c7755',
-    name: 'posts',
-    type: 1,
-    order: 1
-  },
+      _id: '56aad022443d43a60a1c7755',
+      name: 'posts',
+      type: 1,
+      order: 1
+    },
     {
-    _id: '56aad022443d43a60a1c7756',
-    name: 'events',
-    type: 1,
-    order: 3
-  }
+      _id: '56aad022443d43a60a1c7756',
+      name: 'events',
+      type: 1,
+      order: 3
+    }
   ],
   _roleId: '5874c001a84ddc0c85c4054e',
   _orgRoleId: 1,
@@ -113,8 +118,7 @@ export const normalProject = {
   creator: {
     _id: '55f684cf1cfbf2945d0673a0',
     name: 'qiuming',
-    avatarUrl:
-    'http://striker.project.ci/thumbnail/010s4dfa2dcaa6564cbcbc456dfea81f77cb/w/100/h/100'
+    avatarUrl: 'http://striker.project.ci/thumbnail/010s4dfa2dcaa6564cbcbc456dfea81f77cb/w/100/h/100'
   },
   starsCount: 7,
   isStar: false,
