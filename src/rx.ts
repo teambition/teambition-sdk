@@ -1,3 +1,5 @@
+import 'rxjs/internal/symbol/observable'
+
 export { defer } from 'rxjs/internal/observable/defer'
 export { empty } from 'rxjs/internal/observable/empty'
 export { forkJoin } from 'rxjs/internal/observable/forkJoin'

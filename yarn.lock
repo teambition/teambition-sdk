@@ -2449,9 +2449,10 @@ rc@1.2.5:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-reactivedb@~0.11.0:
-  version "0.11.0"
-  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.11.0.tgz#de0952b908455fb83094d38631462062c9f60fd4"
+reactivedb@0.11.1-alpha.0-rxnotreeshake:
+  version "0.11.1-alpha.0-rxnotreeshake"
+  resolved "https://registry.npmjs.org/reactivedb/-/reactivedb-0.11.1-alpha.0-rxnotreeshake.tgz#35ab43d561f039d063bb6ef06f00c511396c51f2"
+  integrity sha512-PtRRrdWTfO6FBoeiFq9iZet4ALu+n1z/WmYDJ2BVQBaM2T31cHgJu+t3uxV0INleE4mVKI8lkVkuKLu+bxoRgA==
   dependencies:
     "@types/lovefield" "^2.1.1"
     lovefield "2.1.12"
