@@ -1,10 +1,4 @@
-import 'rxjs/add/observable/defer'
-import 'rxjs/add/observable/throw'
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/publishReplay'
-import 'rxjs/add/operator/finally'
-import { Observable } from 'rxjs/Observable'
+import * as rx from './rx'
 import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
 import { forEach, uuid } from './utils'
@@ -90,7 +84,7 @@ export class SDKFetch {
     private options: {} = {}
   ) {}
 
-  static FetchStack = new Map<string, Observable<any>>()
+  static FetchStack = new Map<string, rx.Observable<any>>()
   static fetchTail: string | undefined | 0
 
   get<T>(path: string, query: any, options: SDKFetchOptions & {
@@ -103,27 +97,33 @@ export class SDKFetch {
 
   get<T>(path: string, query: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): rx.Observable<HttpResponseWithHeaders<T>>
 
-  get<T>(path: string, query?: any, options?: SDKFetchOptions): Observable<T>
+  get<T>(path: string, query?: any, options?: SDKFetchOptions): rx.Observable<T>
 
   get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
     const url = this.urlWithPath(path, options.apiHost)
     const urlWithQuery = appendQueryString(url, toQueryString(query))
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
-    let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
+    let dist: rx.Observable<T> | rx.Observable<HttpResponseWithHeaders<T>>
 
     this.setOptionsPerRequest(http, options)
 
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
       const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get().send() as any)
-        .publishReplay<any>(1)
-        .refCount()
-        .finally(() => {
+      dist = rx.defer(() => {
+        const request = http.setUrl(urlWithTail).get()
+        // 将 Observable<T> | Observable<HttpResponsewithheaders<T>> 弱化
+        // 为 Observable<T | HttpResponsewithheaders<T>>
+        return request.send() as rx.Observable<T | HttpResponseWithHeaders<T>>
+      }).pipe(
+        rx.publishReplay(1),
+        rx.refCount(),
+        rx.finalize(() => {
           SDKFetch.FetchStack.delete(urlWithQuery)
         })
+      ) as rx.Observable<T> | rx.Observable<HttpResponseWithHeaders<T>>
 
       SDKFetch.FetchStack.set(urlWithQuery, dist)
     }
@@ -149,9 +149,9 @@ export class SDKFetch {
 
   post<T>(path: string, body: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): rx.Observable<HttpResponseWithHeaders<T>>
 
-  post<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+  post<T>(path: string, body?: any, options?: SDKFetchOptions): rx.Observable<T>
 
   post<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
@@ -174,9 +174,9 @@ export class SDKFetch {
 
   put<T>(path: string, body: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): rx.Observable<HttpResponseWithHeaders<T>>
 
-  put<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+  put<T>(path: string, body?: any, options?: SDKFetchOptions): rx.Observable<T>
 
   put<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
@@ -199,9 +199,9 @@ export class SDKFetch {
 
   delete<T>(path: string, body: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): rx.Observable<HttpResponseWithHeaders<T>>
 
-  delete<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
+  delete<T>(path: string, body?: any, options?: SDKFetchOptions): rx.Observable<T>
 
   delete<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
@@ -277,12 +277,12 @@ export class SDKFetch {
 
     // todo(dingwen): 待实现更有效的 HTTP interceptor，替换这里的实现。
     http['mapFn'] = ((source) => {
-      return source.catch((error: HttpErrorMessage) => {
+      return source.pipe(rx.catch((error: HttpErrorMessage) => {
         if (!fetchOptions.disableRequestId) {
           error['requestId'] = headers[HttpHeaders.Key.RequestId]
         }
-        return Observable.throw(error)
-      })
+        return rx.throw(error)
+      }))
     })
   }
 

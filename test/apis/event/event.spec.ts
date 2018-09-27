@@ -1,4 +1,5 @@
 import * as moment from 'moment'
+import { take, tap } from 'rxjs/operators'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, EventSchema } from '../../index'
@@ -25,10 +26,10 @@ describe('EventApi request spec', () => {
 
     yield sdk.getEvent(fixture._id as EventId)
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         const result = r.next().value
         equals(result, fixture)
-      })
+      }))
   })
 
   it('should get recurrnece event', function* () {
@@ -37,22 +38,22 @@ describe('EventApi request spec', () => {
 
     yield sdk.getEvent(fixture._id as EventId)
       .values()
-      .do(([r]) => {
-        const result = r.next().value
+      .pipe(tap(([r]) => {
+        const result = r.next().value!
         const _id = fixture._id
         delete result._id
         delete fixture._id
         equals(result, fixture)
-        const next = r.next().value
+        const next = r.next().value!
         expect(next.sourceDate).to.equal(fixture.startDate)
         expect(next.startDate).to.equal(moment(fixture.startDate).add(1, 'month').toISOString())
         expect(next.endDate).to.equal(moment(fixture.endDate).add(1, 'month').toISOString())
-        const next2 = r.next().value
+        const next2 = r.next().value!
         expect(next2.sourceDate).to.equal(fixture.startDate)
         expect(next2.startDate).to.equal(moment(fixture.startDate).add(2, 'month').toISOString())
         expect(next2.endDate).to.equal(moment(fixture.endDate).add(2, 'month').toISOString())
         fixture._id = _id
-      })
+      }))
   })
 
   it('should observe recurrnece event change', function* () {
@@ -64,7 +65,7 @@ describe('EventApi request spec', () => {
 
     signal.subscribe()
 
-    yield signal.take(1)
+    yield signal.pipe(take(1))
 
     const mockContent = 'mockContent'
 
@@ -74,10 +75,12 @@ describe('EventApi request spec', () => {
       content: mockContent
     })
 
-    yield signal.take(1)
-      .do(([r]) => {
+    yield signal.pipe(
+      take(1),
+      tap(([r]) => {
         expect(r.next().value.content).to.equal(mockContent)
       })
+    )
   })
 
   it('should combine two QueryToken', function* () {
@@ -94,13 +97,13 @@ describe('EventApi request spec', () => {
 
     yield token1.combine(token2)
       .values()
-      .do(([r1, r2]) => {
-        const result1 = r1.next().value
-        const result2 = r2.next().value
+      .pipe(tap(([r1, r2]) => {
+        const result1 = r1.next().value!
+        const result2 = r2.next().value!
         delete result1._id
         delete result2._id
         expect(result1).to.deep.equal(result2)
-      })
+      }))
   })
 })
 
@@ -124,9 +127,9 @@ describe('EventsAPI socket spec', () => {
 
     yield sdk.database.get<EventSchema>('Event', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         looseDeepEqual(r, fixture)
-      })
+      }))
   })
 
   it('update event should change cache', function* () {
@@ -141,7 +144,7 @@ describe('EventsAPI socket spec', () => {
 
     yield sdk.database.get<EventSchema>('Event', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => expect(r.content).to.equal('fixture'))
+      .pipe(tap(([r]) => expect(r.content).to.equal('fixture')))
   })
 
   it('delete event should delete cache', function* () {
@@ -153,6 +156,6 @@ describe('EventsAPI socket spec', () => {
 
     yield sdk.database.get<EventSchema>('Event', { where: { _id: fixture._id } })
       .values()
-      .do((r) => expect(r.length).to.equal(0))
+      .pipe(tap((r) => expect(r.length).to.equal(0)))
   })
 })

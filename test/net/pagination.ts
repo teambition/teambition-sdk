@@ -1,7 +1,9 @@
 import { expect } from 'chai'
 import { describe, it, beforeEach, afterEach } from 'tman'
-import { Observable, Scheduler } from 'rxjs'
+import { empty, from, interval, of, throwError, timer } from 'rxjs'
+import { catchError, delay, mergeAll, mergeMap, take, takeUntil, tap, retry, publishReplay, refCount } from 'rxjs/operators'
 import { SDKFetch } from '..'
+import { tapAsap } from '../utils'
 import * as page from '../../src/Net/Pagination'
 import { expandPage } from '../../src/apis/pagination'
 
@@ -38,22 +40,21 @@ describe('Pagination Spec', () => {
   })
 
   it(`${page.expand.name} should complete on source$ completion`, function* () {
-    const source$ = Observable.empty()
+    const source$ = empty()
     const expandOp = page.expand(
-      () => Observable.of(sampleResponse),
+      () => of(sampleResponse),
       page.accumulateResultByConcat,
       page.defaultState('')
     )
     let isCompleted = false
-    yield source$.pipe(expandOp).mergeAll().do({
+    yield source$.pipe(expandOp, mergeAll(), tap({
       complete: () => {
         isCompleted = true
       }
-    })
-    yield Observable.of(isCompleted)
-      .do((x) => {
-        expect(x).to.be.true
-      })
+    }))
+    yield of(isCompleted).pipe(tap((x) => {
+      expect(x).to.be.true
+    }))
   })
 
   it(`${page.expand.name} should complete on hasMore: false`, function* () {
@@ -66,97 +67,93 @@ describe('Pagination Spec', () => {
       () => {
         if (!hasMore) {
           hasMore = false
-          return Observable.of(sampleHasNoMoreResponse)
+          return of(sampleHasNoMoreResponse)
         }
-        return Observable.of(sampleResponse)
+        return of(sampleResponse)
       },
       page.accumulateResultByConcat,
       page.defaultState('')
     )
     let isCompleted = false
-    const infiniteSource$ = Observable.interval()
-    yield infiniteSource$.pipe(expandOp).mergeAll().do({
-      complete: () => {
+    const infiniteSource$ = interval()
+    yield infiniteSource$.pipe(
+      expandOp,
+      mergeAll(),
+      take(10), // 避免出错时，由 infiniteSource$ 造成的无限溢出的问题
+      tap({ complete: () => {
         isCompleted = true
-      }
-    }).take(10) // 避免出错时，由 infiniteSource$ 造成的无限溢出的问题
-    yield Observable.of(isCompleted)
-      .do((x) => {
-        expect(x).to.be.true
-      })
+      } }))
+    yield of(isCompleted).pipe(tap((x) => {
+      expect(x).to.be.true
+    }))
   })
 
   it(`${page.expand.name} should error on source$ error`, function* () {
     const sampleError = new Error('source$ error')
-    const source$ = Observable.throw(sampleError)
+    const source$ = throwError(sampleError)
     const expandOp = page.expand(
-      () => Observable.of(sampleResponse),
+      () => of(sampleResponse),
       page.accumulateResultByConcat,
       page.defaultState('')
     )
     let isErrorPassedThrough = false
-    yield source$.pipe(expandOp).mergeAll().do({
+    yield source$.pipe(expandOp, mergeAll(), tap({
       error: () => {
         isErrorPassedThrough = true
       }
-    }).catch(() => Observable.empty())
-    yield Observable.of(isErrorPassedThrough)
-      .do((x) => {
-        expect(x).to.be.true
-      })
+    }), catchError(() => empty()))
+    yield of(isErrorPassedThrough).pipe(tap((x) => {
+      expect(x).to.be.true
+    }))
   })
 
   it(`${page.expand.name} should allow retry on source$ error`, function* () {
     const sampleError = new Error('source$ error')
     let hasThrown = false
-    const source$ = Observable.of('fail at first, succeed for the rest').do(() => {
+    const source$ = of('fail at first, succeed for the rest').pipe(tap(() => {
       if (!hasThrown) {
         hasThrown = true
         throw sampleError
       }
-    })
+    }))
     const expandOp = page.expand(
-      () => Observable.of(sampleResponse),
+      () => of(sampleResponse),
       page.accumulateResultByConcat,
       page.defaultState('')
     )
-    yield source$.pipe(expandOp).mergeAll().do((x) => {
+    yield source$.pipe(expandOp, mergeAll(), tap((x) => {
       expect(x.nextPageToken).to.equal('456')
       expect(x.result.slice(-pageSize)).to.deep.equal([1, 2, 3])
-    }).retry(2)
+    }), retry(2))
   })
 
   // todo(dingwen): use marble test instead
   it(`${page.expand.name} should ignore source$ when the current load is yet to be completed`, function* () {
-    const source$ = Observable.interval(10).take(3)
+    const source$ = interval(10).pipe(take(3))
     const expandOp = page.expand(
-      () => Observable.of(sampleResponse).delay(25),
+      () => of(sampleResponse).pipe<page.OriginalResponse<number>>(delay(25)),
       page.accumulateResultByConcat,
       page.defaultState('')
     )
-    const page$ = source$.pipe(expandOp).mergeAll().publishReplay(1).refCount()
+    const page$ = source$.pipe(expandOp, mergeAll(), publishReplay(1), refCount())
 
     let earliestFirst: any = null
-    const earliestFirst$ = page$.takeUntil(Observable.timer(40))
-    yield earliestFirst$
-      .do((x) => {
-        earliestFirst = x
-      })
-    yield Observable.of(earliestFirst)
-      .do((x) => {
-        expect(x.result).to.deep.equal([1, 2, 3])
-      })
+    const earliestFirst$ = page$.pipe(takeUntil(timer(40)))
+    yield earliestFirst$.pipe(tap((x) => {
+      earliestFirst = x
+    }))
+    yield of(earliestFirst).pipe(tap((x) => {
+      expect(x.result).to.deep.equal([1, 2, 3])
+    }))
 
     let emitOnlyOnce: any = null
-    const emitOnlyOnce$ = page$.takeUntil(Observable.timer(60))
-    yield emitOnlyOnce$
-      .do((x) => {
-        emitOnlyOnce = x
-      })
-    yield Observable.of(emitOnlyOnce)
-      .do((x) => {
-        expect(x.result).to.deep.equal([1, 2, 3])
-      })
+    const emitOnlyOnce$ = page$.pipe(takeUntil(timer(60)))
+    yield emitOnlyOnce$.pipe(tap((x) => {
+      emitOnlyOnce = x
+    }))
+    yield of(emitOnlyOnce).pipe(tap((x) => {
+      expect(x.result).to.deep.equal([1, 2, 3])
+    }))
   })
 
   it(`${page.expand.name} should not block second load when the first load has failed`, function* () {
@@ -166,22 +163,22 @@ describe('Pagination Spec', () => {
       () => {
         if (!hasThrown) {
           hasThrown = true
-          return Observable.throw(sampleError)
+          return throwError(sampleError)
         }
-        return Observable.of(sampleResponse)
+        return of(sampleResponse)
       },
       page.accumulateResultByConcat,
       page.defaultState('')
     )
-    yield Observable.from(['first load', 'second load'])
-      .pipe(expandOp)
-      .mergeMap((stream) => stream.catch(() => Observable.empty()))
-      .take(1)
-      .subscribeOn(Scheduler.asap)
-      .do((state: any) => {
-        expect(state.nextPageToken).to.equal(sampleResponse.nextPageToken)
-        expect(state.result.slice(-pageSize)).to.deep.equal(sampleResponse.result)
-      })
+    yield from(['first load', 'second load'])
+      .pipe(
+        expandOp,
+        mergeMap((stream) => stream.pipe(catchError(() => empty()))),
+        tapAsap((state: any) => {
+          expect(state.nextPageToken).to.equal(sampleResponse.nextPageToken)
+          expect(state.result.slice(-pageSize)).to.deep.equal(sampleResponse.result)
+        })
+      )
   })
 
   it(`${page.expand.name} should not block next load when current load has failed`, function* () {
@@ -195,9 +192,9 @@ describe('Pagination Spec', () => {
       () => {
         if (!hasThrown) {
           hasThrown = true
-          return Observable.throw(sampleError)
+          return throwError(sampleError)
         }
-        return Observable.of(sampleNextResponse)
+        return of(sampleNextResponse)
       },
       page.accumulateResultByConcat,
       {
@@ -207,15 +204,16 @@ describe('Pagination Spec', () => {
         result: [1, 2, 3]
       }
     )
-    yield Observable.from(['current load', 'next load'])
-      .pipe(expandOp)
-      .mergeMap((stream) => stream.catch(() => Observable.empty()))
-      .take(1)
-      .subscribeOn(Scheduler.asap)
-      .do((state: any) => {
-        expect(state.nextPageToken).to.equal(sampleNextResponse.nextPageToken)
-        expect(state.result.slice(-pageSize)).to.deep.equal(sampleNextResponse.result)
-      })
+    yield from(['current load', 'next load'])
+      .pipe(
+        expandOp,
+        mergeMap((stream) => stream.pipe(catchError(() => empty()))),
+        take(1),
+        tapAsap((state: any) => {
+          expect(state.nextPageToken).to.equal(sampleNextResponse.nextPageToken)
+          expect(state.result.slice(-pageSize)).to.deep.equal(sampleNextResponse.result)
+        })
+      )
   })
 
 })
@@ -256,8 +254,7 @@ describe(`${expandPage.name}`, () => {
     })
 
     const initial = page.defaultState(urlPath, { pageSize: 5 })
-    return sdkFetch.expandPage(initial)
-      .take(1)
+    return sdkFetch.expandPage(initial).pipe(take(1))
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
@@ -288,8 +285,7 @@ describe(`${expandPage.name}`, () => {
       hasMore: true,
       pageSize: 5
     }
-    return sdkFetch.expandPage(currState)
-      .take(1)
+    return sdkFetch.expandPage(currState).pipe(take(1))
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
@@ -312,8 +308,7 @@ describe(`${expandPage.name}`, () => {
     })
 
     const initial = page.defaultState(urlPath, { pageSize: 5 })
-    return sdkFetch.expandPage(initial, { mutate: true })
-      .take(1)
+    return sdkFetch.expandPage(initial, { mutate: true }).pipe(take(1))
       .toPromise()
       .then(() => {
         expect(initial).to.deep.equal({
@@ -348,7 +343,7 @@ describe(`${expandPage.name}`, () => {
       urlQuery: {},
       mapFn: (i) => i - 1
     })
-      .take(1)
+      .pipe(take(1))
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
@@ -398,7 +393,7 @@ describe(`${expandPage.name}`, () => {
         })
       }
     )
-      .take(1)
+      .pipe(take(1))
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({

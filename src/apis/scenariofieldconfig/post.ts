@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from '../../rx'
 
 import { ProjectId, ScenarioFieldConfigObjectType, ScenarioFieldConfigId, OrganizationId } from 'teambition-types'
 import { SDK } from '../../SDK'

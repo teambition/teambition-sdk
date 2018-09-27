@@ -1,12 +1,4 @@
-import 'rxjs/add/observable/throw'
-import 'rxjs/add/observable/dom/ajax'
-import 'rxjs/add/observable/empty'
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/map'
-import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
-import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
-import { Subject } from 'rxjs/Subject'
+import * as rx from '../rx'
 import { parseHeaders } from '../utils/index'
 import { testable } from '../testable'
 import { forEach } from '../utils'
@@ -30,7 +22,7 @@ type MethodParams = {
   url: string,
   body?: any,
   _opts: any,
-  errorAdapter$: Subject<HttpErrorMessage>,
+  errorAdapter$: rx.Subject<HttpErrorMessage>,
   includeHeaders: boolean
 }
 
@@ -40,9 +32,9 @@ const rxAjaxDefaultHeaderKey2NormKey = {
 }
 
 /**
- * Observable.ajax 目前的实现，对请求头字段的已有设置检查没有遵循
+ * rxjs ajax 目前的实现，对请求头字段的已有设置检查没有遵循
  * 头字段 key 不区分大小写的原则，比如：如果用户已經设置 `content-type`，
- * Observable.ajax 内部会发现 `Content-Type` 没有设置，结果会
+ * rxjs ajax 内部会发现 `Content-Type` 没有设置，结果会
  * 额外添加一个 `Content-Type` 字段，结果导致浏览器发现请求头字段里
  * 既有 `content-type` 又有 `Content-Type`，出现问题。
  */
@@ -55,46 +47,48 @@ const coverRxAjaxHeadersBug = (normHeaders: {}) => {
   })
 }
 
-export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
+export const HttpError$ = new rx.Subject<HttpErrorMessage>() as any as rx.Observable<HttpErrorMessage>
 
-export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): Observable<any> => {
+export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): rx.Observable<any> => {
   const { url, body, _opts, errorAdapter$, includeHeaders } = params
 
   /* istanbul ignore if */
   if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
     coverRxAjaxHeadersBug(_opts.headers)
-    return Observable.ajax({
+    return rx.ajax({
       url, body, method,
       headers: _opts.headers,
       withCredentials: _opts.credentials === 'include',
       responseType: _opts.responseType || 'json',
       crossDomain: typeof _opts.crossDomain !== 'undefined' ? !!_opts.crossDomain : true
     })
-      .map(value => {
-        const respBody = value.response
-        if (!includeHeaders) {
-          return respBody
-        }
-        const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
-        return { headers: respHeaders, body: respBody }
-      })
-      .catch((e: AjaxError) => {
-        const headers = e.xhr.getAllResponseHeaders()
-        const errorResponse = new Response(new Blob([JSON.stringify(e.xhr.response)]), {
-          status: e.xhr.status,
-          statusText: e.xhr.statusText,
-          headers: headers.length ? parseHeaders(headers) : new Headers()
-        })
-        const requestInfo = { method, url, body }
-        const errorResponseClone = errorResponse.clone()
+      .pipe(
+        rx.map(value => {
+          const respBody = value.response
+          if (!includeHeaders) {
+            return respBody
+          }
+          const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
+          return { headers: respHeaders, body: respBody }
+        }),
+        rx.catch((e: rx.AjaxError) => {
+          const headers = e.xhr.getAllResponseHeaders()
+          const errorResponse = new Response(new Blob([JSON.stringify(e.xhr.response)]), {
+            status: e.xhr.status,
+            statusText: e.xhr.statusText,
+            headers: headers.length ? parseHeaders(headers) : new Headers()
+          })
+          const requestInfo = { method, url, body }
+          const errorResponseClone = errorResponse.clone()
 
-        setTimeout(() => {
-          errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
-        }, 10)
-        return Observable.throw({ ...requestInfo, error: errorResponse })
-      })
+          setTimeout(() => {
+            errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
+          }, 10)
+          return rx.throw({ ...requestInfo, error: errorResponse })
+        })
+      )
   } else { // 测试用分支
-    return Observable.create((observer: Observer<any>) => {
+    return new rx.Observable((observer) => {
       const _options = {
         ... _opts,
         method: method
@@ -138,16 +132,16 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
 
 export const getHttpWithResponseHeaders = <T>(
   url?: string,
-  errorAdapter$?: Subject<HttpErrorMessage>
+  errorAdapter$?: rx.Subject<HttpErrorMessage>
 ): Http<HttpResponseWithHeaders<T>> => {
   return new Http<HttpResponseWithHeaders<T>>(url, errorAdapter$, true)
 }
 
 export class Http<T> {
-  private errorAdapter$: Subject<HttpErrorMessage>
+  private errorAdapter$: rx.Subject<HttpErrorMessage>
   private cloned = false
-  private request: Observable<T> | undefined
-  public mapFn: (v$: Observable<T>) => Observable<any> = (dist$ => dist$)
+  private request: rx.Observable<T> | undefined
+  public mapFn: (v$: rx.Observable<T>) => rx.Observable<any> = (dist$ => dist$)
 
   private static get = createMethod('get')
   private static put = createMethod('put')
@@ -161,13 +155,13 @@ export class Http<T> {
 
   constructor(
     private url: string = '',
-    errorAdapter$?: Subject<HttpErrorMessage>,
+    errorAdapter$?: rx.Subject<HttpErrorMessage>,
     private readonly includeHeaders: boolean = false
   ) {
     if (errorAdapter$) {
       this.errorAdapter$ = errorAdapter$
     } else {
-      this.errorAdapter$ = HttpError$ as Subject<HttpErrorMessage>
+      this.errorAdapter$ = HttpError$ as rx.Subject<HttpErrorMessage>
     }
   }
 
@@ -225,14 +219,14 @@ export class Http<T> {
     return this
   }
 
-  send(): Observable<T> {
-    return this.request ? this.mapFn(this.request) : Observable.empty()
+  send(): rx.Observable<T> {
+    return this.request ? this.mapFn(this.request) : rx.empty()
   }
 
   clone() {
     const result = new Http<T>(this.url, this.errorAdapter$)
     if (!this.cloned && this.request) {
-      this.request = this.request.publishReplay(1).refCount()
+      this.request = this.request.pipe(rx.publishReplay(1), rx.refCount())
       this.cloned = true
       result.cloned = true
     }

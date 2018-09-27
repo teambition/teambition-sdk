@@ -1,5 +1,6 @@
-import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
+import { describe, beforeEach, afterEach, it } from 'tman'
+import { tap } from 'rxjs/operators'
 import {
   createSdkWithoutRDB,
   loadRDB,
@@ -46,9 +47,9 @@ describe('Async load reactivedb Spec', () => {
       mockResponse(fixture)
       yield sdk.getPost(fixture._id as PostId)
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expect(r).to.deep.equal(fixture)
-        })
+        }))
 
     })
 
@@ -68,9 +69,9 @@ describe('Async load reactivedb Spec', () => {
 
       yield sdk.getUserMe()
         .values()
-        .do(([user]) => {
+        .pipe(tap(([user]) => {
           expect(user).to.deep.equal(userMe)
-        })
+        }))
     })
 
     it('getTask should response correct data without reactivedb', function* () {
@@ -78,9 +79,9 @@ describe('Async load reactivedb Spec', () => {
       mockResponse(fixture)
       yield sdk.getTask(fixture._id as TaskId)
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expect(r).to.deep.equal(fixture)
-        })
+        }))
     })
   })
   describe('ReactiveDB async load in', () => {
@@ -95,7 +96,7 @@ describe('Async load reactivedb Spec', () => {
 
       yield loadRDB(sdk)
       yield result$
-        .do(r => {
+        .pipe(tap(r => {
           const compareFn = (x: any, y: any) => {
             return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
               + new Date(x.created).valueOf() - new Date(y.created).valueOf()
@@ -122,7 +123,7 @@ describe('Async load reactivedb Spec', () => {
           expected.forEach((expectedResult, i) => {
             expectToDeepEqualForFieldsOfTheExpected(actual[i], expectedResult)
           })
-        })
+        }))
     })
 
     it('response cache should work when reactivedb async load in', function* () {
@@ -136,9 +137,9 @@ describe('Async load reactivedb Spec', () => {
 
       yield sdk.database.get<PostSchema>('Post', { where: { _id: fixture._id } })
         .values()
-        .do((r) => {
+        .pipe(tap((r) => {
           expect(r.length).to.equal(1)
-        })
+        }))
     })
 
     it('reactiveDb opearator should work when reactivedb load in', function* () {
@@ -157,9 +158,9 @@ describe('Async load reactivedb Spec', () => {
         where: { _id: 'mocktask:like' }
       })
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expect(r.isLike).to.be.false
-        })
+        }))
     })
 
     describe('Socket spec when reactivedb async load in', () => {
@@ -177,9 +178,9 @@ describe('Async load reactivedb Spec', () => {
 
         yield sdk.database.get<PostSchema>('Post', { where: { _id: fixture._id } })
           .values()
-          .do((r) => {
+          .pipe(tap((r) => {
             expect(r.length).to.equal(0)
-          })
+          }))
       })
 
       it('socket::change should work when reactivedb load in', function* () {
@@ -199,7 +200,7 @@ describe('Async load reactivedb Spec', () => {
 
         yield sdk.database.get<PostSchema>('Post', { where: { _id: fixture._id } })
           .values()
-          .do(([r]) => expect(r.content).to.equal('fixture'))
+          .pipe(tap(([r]) => expect(r.content).to.equal('fixture')))
       })
 
       it('socket::new should work when reactivedb load in', function* () {
@@ -211,7 +212,7 @@ describe('Async load reactivedb Spec', () => {
 
         yield sdk.database.get('Post', { where: { _id: fixture._id } })
           .values()
-          .do((r) => equals(r, [fixture]))
+          .pipe(tap((r) => equals(r, [fixture])))
       })
     })
 

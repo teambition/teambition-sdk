@@ -1,8 +1,10 @@
 import { expect } from 'chai'
-import { Observable, Scheduler } from 'rxjs'
 import { describe, it, beforeEach, afterEach } from 'tman'
+import { asapScheduler, concat, defer, empty, forkJoin, merge, of, timer, Observable } from 'rxjs'
+import { catchError, delay, subscribeOn, switchMap, tap, take } from 'rxjs/operators'
 import { SDKFetch, forEach, Http, HttpErrorMessage, headers2Object } from '.'
 import { clone } from './'
+import { tapAsap } from './utils'
 
 import { defaultSDKFetchHeaders, HttpHeaders } from '../src/SDKFetch'
 
@@ -111,26 +113,25 @@ describe('SDKFetch', () => {
     fetchMock.get(urlMatcher, {})
 
     // 无 query 的 GET
-    yield sdkFetch.get(path)
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
+    yield sdkFetch.get(path).pipe(
+      tapAsap(() => {
         const delimiter = '?_='
         const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
         expect(prefix).to.equal(testUrl)
         expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
       })
+    )
 
     // 带 query 的 GET
     const query = { value: 'A' }
     const urlWithQuery = testUrl + '?value=A'
-    yield sdkFetch.get(path, query)
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
+    yield sdkFetch.get(path, query).pipe(
+      tapAsap(() => {
         const delimiter = '&_='
         const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
         expect(prefix).to.equal(urlWithQuery)
         expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
-      })
+      }))
   })
 
   it('get with empty query object should work correctly', function* () {
@@ -145,44 +146,49 @@ describe('SDKFetch', () => {
 
     for (const query of emptyQueryObjects) {
       yield sdkFetch.get(path, query)
-        .subscribeOn(Scheduler.asap)
-        .do(() => {
-          const [beforeTimestamp] = fetchMock.lastUrl(urlMatcher).split('_=')
-          expect(beforeTimestamp).to.equal(testUrl + '?')
-        })
+        .pipe(
+          tapAsap(() => {
+            const [beforeTimestamp] = fetchMock.lastUrl(urlMatcher).split('_=')
+            expect(beforeTimestamp).to.equal(testUrl + '?')
+          })
+        )
     }
   })
 
   it('should re-use a matching request A if A is in progress', function* () {
     fetchMock.mock(urlMatcher, { body: { 'A': 'aaaa' } })
 
-    const getA = sdkFetch.get(path, { value: 'A' }).delay(20)
+    const getA = sdkFetch.get(path, { value: 'A' }).pipe(delay(20))
     const getAImmediatelyAfter = sdkFetch.get(path, { value: 'A' })
 
-    yield Observable.merge(getA, getAImmediatelyAfter)
-      .take(2)
-      .subscribeOn(Scheduler.asap)
+    yield merge(getA, getAImmediatelyAfter)
+      .pipe(
+        take(2),
+        subscribeOn(asapScheduler)
+      )
 
-    yield Observable.of(fetchMock.calls(urlMatcher).length)
-      .do((numberOfRequestsReceived) => {
+    yield of(fetchMock.calls(urlMatcher).length)
+      .pipe(tap((numberOfRequestsReceived) => {
         expect(numberOfRequestsReceived).to.equal(1)
-      })
+      }))
   })
 
   it('shouldn not re-use a matching request A if A is in finished', function* () {
     fetchMock.mock(urlMatcher, { body: { 'A': 'aaaa' } })
 
     const getA = sdkFetch.get(path, { value: 'A' })
-    const getAAWhileAfter = Observable.defer(() => sdkFetch.get(path, { value: 'A' }))
+    const getAAWhileAfter = defer(() => sdkFetch.get(path, { value: 'A' }))
 
-    yield Observable.concat(getA, Observable.timer(40), getAAWhileAfter)
-      .take(3)
-      .subscribeOn(Scheduler.asap)
+    yield concat(getA, timer(40), getAAWhileAfter)
+      .pipe(
+        take(3),
+        subscribeOn(asapScheduler)
+      )
 
-    yield Observable.of(fetchMock.calls(urlMatcher).length)
-      .do((numberOfRequestsReceived) => {
+    yield of(fetchMock.calls(urlMatcher).length)
+      .pipe(tap((numberOfRequestsReceived) => {
         expect(numberOfRequestsReceived).to.equal(2)
-      })
+      }))
   })
 
   allowedMethods.forEach((httpMethod: string) => {
@@ -204,11 +210,12 @@ describe('SDKFetch', () => {
           break
       }
 
-      yield Observable.forkJoin(httpObj.send(), raw)
-        .subscribeOn(Scheduler.asap)
-        .do(([respFromHttpObj, respFromRaw]) => {
-          expect(respFromHttpObj).to.deep.equal(respFromRaw)
-        })
+      yield forkJoin(httpObj.send(), raw)
+        .pipe(
+          tapAsap(([respFromHttpObj, respFromRaw]) => {
+            expect(respFromHttpObj).to.deep.equal(respFromRaw)
+          })
+        )
     })
   })
 
@@ -239,11 +246,12 @@ describe('SDKFetch', () => {
       }
 
       yield withRespHeaders$
-        .subscribeOn(Scheduler.asap)
-        .do((resp) => {
-          expect(resp.body).to.deep.equal(responseData)
-          expect(resp.headers.get('x-request-id')).to.equal(sampleValue)
-        })
+        .pipe(
+          tapAsap((resp) => {
+            expect(resp.body).to.deep.equal(responseData)
+            expect(resp.headers.get('x-request-id')).to.equal(sampleValue)
+          })
+        )
     })
   })
 
@@ -263,20 +271,22 @@ describe('SDKFetch', () => {
           .setAPIHost(apiHost)
 
         yield sdkFetch[httpMethod](path, httpMethod === 'get' ? null : body)
-          .catch((info: HttpErrorMessage) => {
-            expect(info.error.status).to.equal(status)
-            expect(info.error.headers.get('hello')).to.equal('world')
-            expect(info.method).to.equal(httpMethod)
-            expect(info.url).to.equal(fetchMock.lastUrl(urlMatcher))
-            if (httpMethod === 'get') {
-              expect(info.body).to.be.undefined
-            } else {
-              expect(info.body).to.deep.equal(body)
-            }
-            expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[HttpHeaders.Key.RequestId])
-            return Observable.empty()
-          })
-          .subscribeOn(Scheduler.asap)
+          .pipe(
+            catchError((info: HttpErrorMessage) => {
+              expect(info.error.status).to.equal(status)
+              expect(info.error.headers.get('hello')).to.equal('world')
+              expect(info.method).to.equal(httpMethod)
+              expect(info.url).to.equal(fetchMock.lastUrl(urlMatcher))
+              if (httpMethod === 'get') {
+                expect(info.body).to.be.undefined
+              } else {
+                expect(info.body).to.deep.equal(body)
+              }
+              expect(info.requestId).to.equal(fetchMock.lastOptions(urlMatcher).headers[HttpHeaders.Key.RequestId])
+              return empty()
+            }),
+            subscribeOn(asapScheduler)
+          )
       })
     })
   })
@@ -304,13 +314,14 @@ describe('SDKFetch options', () => {
     fetchMock.mock(new RegExp(newHost), {})
 
     yield getCustomizedRequest()
-      .subscribeOn(Scheduler.asap)
-      .do(() => {
-        expect(fetchMock.lastOptions()).to.deep.equal({
-          method: httpMethod,
-          ...newMockOptions
+      .pipe(
+        tapAsap(() => {
+          expect(fetchMock.lastOptions()).to.deep.equal({
+            method: httpMethod,
+            ...newMockOptions
+          })
         })
-      })
+      )
   }
 
   beforeEach(() => {
@@ -346,12 +357,13 @@ describe('SDKFetch options', () => {
         .setOptions(newOption)
 
       yield sdkFetch[httpMethod](path, undefined, { disableRequestId: true } )
-        .subscribeOn(Scheduler.asap)
-        .do(() => {
-          expect(fetchMock.lastOptions().headers).to.deep.equal({
-            ...defaultSDKFetchHeaders()
+        .pipe(
+          tapAsap(() => {
+            expect(fetchMock.lastOptions().headers).to.deep.equal({
+              ...defaultSDKFetchHeaders()
+            })
           })
-        })
+        )
     })
   })
 
@@ -379,7 +391,7 @@ describe('SDKFetch options', () => {
             .setOptions(newOption)
 
           return sdkFetch[httpMethod1](path)
-            .switchMap(() => sdkFetch[httpMethod2](path))
+            .pipe(switchMap(() => sdkFetch[httpMethod2](path)))
         })
       })
     })
@@ -405,12 +417,13 @@ describe('SDKFetch options', () => {
       yield sdkFetch[httpMethod](path, undefined, {
         headers: { ...newHeader, merge: true },
       })
-        .subscribeOn(Scheduler.asap)
-        .do(() => {
-          expect(fetchMock.lastOptions().headers).to.deep.equal({
-            ...defaultSDKFetchHeaders(), ...newHeader
+        .pipe(
+          tapAsap(() => {
+            expect(fetchMock.lastOptions().headers).to.deep.equal({
+              ...defaultSDKFetchHeaders(), ...newHeader
+            })
           })
-        })
+        )
     })
   })
 
@@ -432,7 +445,7 @@ describe('SDKFetch options', () => {
             .setOptions(newOption)
 
           return sdkFetch[httpMethod1](path, undefined, perRequestOptions)
-            .switchMap(() => sdkFetch[httpMethod2](path))
+            .pipe(switchMap(() => sdkFetch[httpMethod2](path)))
         })
       })
     })
@@ -447,10 +460,11 @@ describe('SDKFetch options', () => {
         .setHeaders({ hello: 'world' })
 
       yield sdkFetch[httpMethod](path)
-        .subscribeOn(Scheduler.asap)
-        .do(() => {
-          expect(Boolean(fetchMock.lastOptions().headers[HttpHeaders.Key.RequestId])).to.be.true
-        })
+        .pipe(
+          tapAsap(() => {
+            expect(Boolean(fetchMock.lastOptions().headers[HttpHeaders.Key.RequestId])).to.be.true
+          })
+        )
     })
   })
 
@@ -467,12 +481,13 @@ describe('SDKFetch options', () => {
         merge: true,
         [HttpHeaders.Key.RequestId]: userDefinedRequestId
       } })
-        .subscribeOn(Scheduler.asap)
-        .do(() => {
-          expect(fetchMock.lastOptions().headers).to.deep.equal({
-            hello: 'world', [HttpHeaders.Key.RequestId]: userDefinedRequestId
+        .pipe(
+          tapAsap(() => {
+            expect(fetchMock.lastOptions().headers).to.deep.equal({
+              hello: 'world', [HttpHeaders.Key.RequestId]: userDefinedRequestId
+            })
           })
-        })
+        )
     })
   })
 
@@ -489,11 +504,13 @@ describe('SDKFetch options', () => {
         merge: true,
         [HttpHeaders.Key.RequestId]: userDefinedRequestId
       } })
-        .catch((info: HttpErrorMessage) => {
-          expect(info.requestId).to.equal(String(userDefinedRequestId))
-          return Observable.empty()
-        })
-        .subscribeOn(Scheduler.asap)
+        .pipe(
+          catchError((info: HttpErrorMessage) => {
+            expect(info.requestId).to.equal(String(userDefinedRequestId))
+            return empty()
+          }),
+          subscribeOn(asapScheduler)
+        )
     })
   })
 

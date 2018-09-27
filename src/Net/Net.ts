@@ -1,18 +1,9 @@
-import 'rxjs/add/observable/forkJoin'
-import 'rxjs/add/observable/of'
-import 'rxjs/add/operator/concatAll'
-import 'rxjs/add/operator/do'
-import 'rxjs/add/operator/mapTo'
-import 'rxjs/add/operator/mergeMap'
-import 'rxjs/add/operator/switchMap'
-import 'rxjs/add/operator/filter'
-import { Observable } from 'rxjs/Observable'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import * as rx from '../rx'
 import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 import { JoinMode } from 'reactivedb/interface'
 import { Database, Query, Predicate, ExecutorResult } from 'reactivedb'
 
-import { forEach, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
+import { forEach, identity, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
 
 /**
@@ -61,7 +52,7 @@ export enum CacheStrategy {
 }
 
 export interface ApiResult<T, U extends CacheStrategy> {
-  request: Observable<T> | Observable<T[]>
+  request: rx.Observable<T> | rx.Observable<T[]>
   /**
    * 使用 fields 指定需要查询的字段，where 指定查询条件，
    * orderBy 指定结果排序规则。更多支持的选项请见具体类型定义。
@@ -86,19 +77,19 @@ export interface ApiResult<T, U extends CacheStrategy> {
    * 或为空（[]）。
    */
   excludeFields?: string[]
-  padding?: (missedId: string) => Observable<T | null>
+  padding?: (missedId: string) => rx.Observable<T | null>
 }
 
 export type AssocField<T> = { [P in keyof T]?: AssocField<T[P]> | string[] }
 
 export interface CApiResult<T> {
-  request: Observable<T>
+  request: rx.Observable<T>
   tableName: string
   method: 'create'
 }
 
 export interface UDResult<T> {
-  request: Observable<T>
+  request: rx.Observable<T>
   tableName: string
   method: 'update' | 'delete'
   clause: Predicate<T>
@@ -121,7 +112,7 @@ export type SocketCUDBufferObject = {
 export type SelectorBufferObject = {
   kind: 'Selector'
   realSelectorInfo: ApiResult<any, CacheStrategy>
-  proxySelector: BehaviorSubject<SelectorMeta<any>>
+  proxySelector: rx.BehaviorSubject<SelectorMeta<any>>
 }
 
 export type BufferObject = CUDBufferObject | SocketCUDBufferObject | SelectorBufferObject
@@ -148,32 +139,27 @@ export class Net {
   public persistedDataBuffer: BufferObject[] = []
   private msgToDB: WSMsgToDBHandler | undefined
 
-  private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
-    const { tableName, required, padding } = result
-
-    const hasRequiredFields = Array.isArray(required)
-    const hasPaddingFunction = typeof padding === 'function'
+  private validate = <T>({ tableName, required, padding }: ApiResult<T, CacheStrategy>) => {
     const pk = this.primaryKeys.get(tableName)
+    const noRequiredPadding = !Array.isArray(required) || typeof padding !== 'function' || !pk
 
-    const fn = (stream$: Observable<T[]>) =>
-      stream$.switchMap(data => !data.length
-        ? Observable.of(data)
-        : Observable.forkJoin(
-          Observable.from(data)
-            .mergeMap(datum => {
-              if (!hasRequiredFields || !hasPaddingFunction || !pk ||
-                required!.every(k => typeof datum[k] !== 'undefined')
-              ) {
-                return Observable.of(datum)
-              }
-              const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
-              return patch
-                .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
-                .do(r => Object.assign(datum, r))
-            })
+    const fn = rx.switchMap<T[], T[]>((results) => {
+      return !results.length
+        ? rx.of([])
+        : rx.from(results).pipe(
+          rx.mergeMap((result) => {
+            return noRequiredPadding || required!.every(k => typeof result[k] !== 'undefined')
+              ? rx.empty()
+              : padding!(result[pk!]).pipe(
+                rx.filter((r): r is T => r != null),
+                rx.concatMap((r) => this.database!.upsert(tableName, r).pipe(
+                  rx.tap(() => Object.assign(result, r))
+                ))
+              )
+          }),
+          rx.reduce<any, T[]>(identity, results)
         )
-          .mapTo(data)
-      )
+    })
     fn.toString = () => 'SDK_VALIDATE'
     return fn
   }
@@ -204,7 +190,7 @@ export class Net {
 
   lift<T>(result: ApiResult<T, CacheStrategy>): QueryToken<T>
 
-  lift<T>(result: CUDApiResult<T>): Observable<T>
+  lift<T>(result: CUDApiResult<T>): rx.Observable<T>
 
   lift<T>(result: ApiResult<T, CacheStrategy> | CUDApiResult<T>) {
     if ((result as ApiResult<T, CacheStrategy>).cacheValidate) {
@@ -232,25 +218,24 @@ export class Net {
 
     const database = this.database!
 
-    const { request, method, tableName } = result as CUDApiResult<T>
-    let destination: Observable<ExecutorResult> | Observable<T | T[]>
-    return request
-      .concatMap(v => {
-        switch (method) {
-          case 'create':
-            destination = database.upsert<T>(tableName, v)
-            break
-          case 'update':
-            destination = database.upsert(tableName, v)
-            break
-          case 'delete':
-            destination = database.delete<T>(tableName, (result as UDResult<T>).clause)
-            break
-          default:
-            throw new Error()
-        }
-        return destination.mapTo<ExecutorResult | T | T[], T>(v)
-      })
+    const { request, method, tableName } = result
+    let destination: rx.Observable<ExecutorResult>
+    return request.pipe(rx.concatMap(v => {
+      switch (method) {
+        case 'create':
+          destination = database.upsert<T>(tableName, v)
+          break
+        case 'update':
+          destination = database.upsert(tableName, v)
+          break
+        case 'delete':
+          destination = database.delete<T>(tableName, (result as UDResult<T>).clause)
+          break
+        default:
+          throw new Error()
+      }
+      return destination.pipe(rx.mapTo(v))
+    }))
   }
 
   persist(database: Database) {
@@ -258,10 +243,10 @@ export class Net {
       this.database = database
     }
 
-    const asyncQueue: Observable<any>[] = []
+    const asyncQueue: rx.Observable<any>[] = []
 
     forEach(this.persistedDataBuffer, (v: BufferObject) => {
-      let p: Observable<any> | null = null
+      let p: rx.Observable<any> | null = null
 
       switch (v.kind) {
         case 'CUD':
@@ -277,12 +262,11 @@ export class Net {
           const token = this.handleRequestCache(v.realSelectorInfo)
           const selector$ = token.selector$
 
-          p = selector$
-            .do({
-              next(selector) {
-                cacheControl$.next(selector)
-              }
-            })
+          p = selector$.pipe(rx.tap({
+            next(selector) {
+              cacheControl$.next(selector)
+            }
+          }))
           break
         default:
           break
@@ -295,12 +279,15 @@ export class Net {
 
     this.persistedDataBuffer.length = 0
 
-    return Observable.from(asyncQueue).concatAll().do({
-      error: async (err: Observable<Error>) => {
-        const errObj = await err.toPromise()
-        SDKLogger.error(errObj.message)
-      }
-    })
+    return rx.from(asyncQueue).pipe(
+      rx.concatAll(),
+      rx.tap({
+        error: async (err: rx.Observable<Error>) => {
+          const errObj = await err.toPromise()
+          SDKLogger.error(errObj.message)
+        }
+      })
+    )
   }
 
   bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
@@ -311,7 +298,7 @@ export class Net {
       q,
       tableName
     )
-    const cacheControl$ = new BehaviorSubject<SelectorMeta<T>>(proxySelector)
+    const cacheControl$ = new rx.BehaviorSubject<SelectorMeta<T>>(proxySelector)
     this.persistedDataBuffer.push({
       kind: 'Selector',
       realSelectorInfo: result,
@@ -323,15 +310,14 @@ export class Net {
 
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
     const { request, method, tableName } = result as CUDApiResult<T>
-    return request
-      .do((v: T | T[]) => {
+    return request.pipe(rx.tap((v: T | T[]) => {
       this.persistedDataBuffer.push({
         kind: 'CUD',
         tableName,
         method: (method === 'create' || method === 'update') ? 'upsert' : method,
         value: method === 'delete' ? (result as UDResult<T>).clause : v
       })
-    })
+    }))
   }
 
   bufferSocketPush(socketMessage: ParsedWSMsg) {
@@ -339,7 +325,7 @@ export class Net {
       kind: 'SocketCUD',
       socketMessage
     })
-    return Observable.of(null)
+    return rx.of(null)
   }
 
   private genCacheKey<T>(tableName: string, q: Readonly<Query<T>>) {
@@ -357,7 +343,7 @@ export class Net {
     } = this.getInfoFromResult(result)
 
     // 将类型 Observalbe<T> | Observable<T[]> 弱化为 Observable<T | T[]>
-    const response$: Observable<T | T[]> = request
+    const response$: rx.Observable<T | T[]> = request
     const cacheKey = this.genCacheKey(tableName, q)
     const requestCache = this.requestMap.get(cacheKey)
 
@@ -366,10 +352,11 @@ export class Net {
       case CacheStrategy.Request:
         if (!requestCache) {
           /*tslint:disable no-shadowed-variable*/
-          const selector$ = response$
-            .concatMap(v => database.upsert(tableName, v))
-            .do(() => this.requestMap.set(cacheKey, true))
-            .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+          const selector$ = response$.pipe(
+            rx.concatMap(v => database.upsert(tableName, v)),
+            rx.tap(() => this.requestMap.set(cacheKey, true)),
+            rx.concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+          )
           token = new QueryToken(selector$)
         } else {
           token = dbGetWithSelfJoinEnabled<T>(database, tableName, q)
@@ -377,9 +364,10 @@ export class Net {
         token.map(this.validate(result))
         break
       case CacheStrategy.Cache:
-        const selector$ = response$
-          .concatMap(v => database.upsert(tableName, v))
-          .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+        const selector$ = response$.pipe(
+          rx.concatMap(v => database.upsert(tableName, v)),
+          rx.concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+        )
         return new QueryToken(selector$)
       default:
         throw new TypeError('unreachable code path')

@@ -1,5 +1,6 @@
-import { describe, it, beforeEach, afterEach } from 'tman'
 import { expect } from 'chai'
+import { describe, it, beforeEach, afterEach } from 'tman'
+import { tap } from 'rxjs/operators'
 import { createSdk, SDK, TaskSchema } from '../index'
 import { EventGenerator } from '../../src/apis/event/EventGenerator'
 import * as Fixture from '../fixtures/my.fixture'
@@ -29,7 +30,7 @@ describe('MyApi request spec', () => {
     })
 
     yield token.values()
-      .do(r => {
+      .pipe(tap(r => {
         const compareFn = (x: any, y: any) => {
           return new Date(x.updated).valueOf() - new Date(y.updated).valueOf()
             + new Date(x.created).valueOf() - new Date(y.created).valueOf()
@@ -56,7 +57,7 @@ describe('MyApi request spec', () => {
         expected.forEach((expectedResult, i) => {
           expectToDeepEqualForFieldsOfTheExpected(actual[i], expectedResult)
         })
-      })
+      }))
   })
 
   it('should get my count', function* () {

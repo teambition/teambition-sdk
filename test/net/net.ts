@@ -1,5 +1,6 @@
-import { Observable, Subscription, Scheduler } from 'rxjs'
 import { describe, beforeEach, afterEach, it } from 'tman'
+import { asapScheduler, defer, of } from 'rxjs'
+import { subscribeOn, take, tap } from 'rxjs/operators'
 import { Database, DataStoreType } from 'reactivedb'
 import { expect, use } from 'chai'
 import { spy } from 'sinon'
@@ -11,7 +12,7 @@ import { ApiResult } from '../../src/Net/Net'
 import { createMsgToDBHandler } from '../../src/sockets/EventMaps'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
 
-import { expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { expectToDeepEqualForFieldsOfTheExpected, tapAsap } from '../utils'
 import { mapMsgTypeToTable } from '../../src/sockets/MapToTable'
 
 use(SinonChai)
@@ -21,7 +22,6 @@ describe('Net test', () => {
   let httpBackend: Backend
   let database: Database
   let version = 1
-  let subscription: Subscription | undefined
   let spyFetch: sinon.SinonSpy
 
   const sdkFetch = new SDKFetch()
@@ -45,9 +45,6 @@ describe('Net test', () => {
   afterEach(function* () {
     httpBackend.restore()
     spyFetch && spyFetch.restore()
-    if (subscription instanceof Subscription) {
-      subscription.unsubscribe()
-    }
     yield database.dispose()
   })
 
@@ -68,9 +65,9 @@ describe('Net test', () => {
         excludeFields: ['isDeleted', 'source', 'type', 'url']
       } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expectToDeepEqualForFieldsOfTheExpected(r, normalEvent)
-        })
+        }))
     })
 
     it('should handle Object type response and consumed by `changes`', function* () {
@@ -90,10 +87,9 @@ describe('Net test', () => {
         excludeFields: ['isDeleted', 'source', 'type', 'url']
       } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .changes()
-        .take(1)
-        .do(([r]) => {
+        .pipe(take(1), tap(([r]) => {
           expectToDeepEqualForFieldsOfTheExpected(r, normalEvent)
-        })
+        }))
     })
 
     it('should handle Object type response and get changes', function* () {
@@ -114,9 +110,7 @@ describe('Net test', () => {
       })
         .changes()
 
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
+      yield stream$.pipe(take(1))
 
       const newLocation = 'test_new_location'
 
@@ -127,10 +121,9 @@ describe('Net test', () => {
       })
 
       yield stream$
-        .take(1)
-        .do(([r]) => {
+        .pipe(take(1), tap(([r]) => {
           expect(r.location).to.deep.equal(newLocation)
-        })
+        }))
     })
 
     it('should handle Array type response and consumed by `values`', function* () {
@@ -150,11 +143,11 @@ describe('Net test', () => {
         ]
       })
         .values()
-        .do(rs => {
+        .pipe(tap(rs => {
           projectEvents.forEach((expected, i) => {
             expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
           })
-        })
+        }))
     })
 
     it('should handle Array type response and consumed by `changes`', function* () {
@@ -174,12 +167,14 @@ describe('Net test', () => {
         ]
       })
         .changes()
-        .take(1)
-        .do(rs => {
-          projectEvents.forEach((expected, i) => {
-            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+        .pipe(
+          take(1),
+          tap(rs => {
+            projectEvents.forEach((expected, i) => {
+              expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+            })
           })
-        })
+        )
     })
 
     it('should handle Array type response and get changes', function* () {
@@ -200,9 +195,7 @@ describe('Net test', () => {
       } as ApiResult<EventSchema, CacheStrategy.Request>)
         .changes()
 
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
+      yield stream$.pipe(take(1))
 
       const newLocation = 'new_event_location'
 
@@ -212,10 +205,9 @@ describe('Net test', () => {
         location: newLocation
       })
 
-      yield stream$.take(1)
-        .do(([e]) => {
-          expect(e.location).to.equal(newLocation)
-        })
+      yield stream$.pipe(take(1), tap(([e]) => {
+        expect(e.location).to.equal(newLocation)
+      }))
     })
 
     it('should handle Array type response and validate cache', function* () {
@@ -248,9 +240,7 @@ describe('Net test', () => {
       })
         .changes()
 
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
+      yield stream$.pipe(take(1))
 
       httpBackend.whenGET(`${apiHost}/api/events/${partialEvent._id}`)
         .respond({ ...projectEvents[0], ...partialEvent })
@@ -258,13 +248,10 @@ describe('Net test', () => {
       yield database.insert('Event', partialEvent)
 
       yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do((events: typeof projectEvents) => {
+        .pipe(take(1), tapAsap((events: typeof projectEvents) => {
           expect(spyFetch.callCount).to.equal(2)
           expect(events.length).to.equal(projectEvents.length + 1)
-        })
-
+        }))
     })
 
     it('should handle empty Array', function* () {
@@ -297,9 +284,7 @@ describe('Net test', () => {
       })
         .changes()
 
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
+      yield stream$.pipe(take(1))
 
       httpBackend.whenGET(`${apiHost}/api/events/${partialEvent._id}`)
         .respond({ ...projectEvents[0], ...partialEvent })
@@ -307,12 +292,13 @@ describe('Net test', () => {
       yield database.insert('Event', partialEvent)
 
       yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do((events: typeof projectEvents) => {
-          expect(spyFetch.callCount).to.equal(2)
-          expect(events.length).to.equal(1)
-        })
+        .pipe(
+          take(1),
+          tapAsap((events: typeof projectEvents) => {
+            expect(spyFetch.callCount).to.equal(2)
+            expect(events.length).to.equal(1)
+          })
+        )
     })
 
     it('should get result from cached Response and consumed by `values`', function* () {
@@ -334,19 +320,19 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(rs => {
+        .pipe(tap(rs => {
           projectEvents.forEach((expected, i) => {
             expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
           })
-        })
+        }))
 
       yield getToken()
         .values()
-        .do(rs => {
+        .pipe(tap(rs => {
           projectEvents.forEach((expected, i) => {
             expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
           })
-        })
+        }))
     })
 
     it('should get result from cached Response and consumed by `changes`', function* () {
@@ -368,20 +354,19 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(rs => {
+        .pipe(tap(rs => {
           projectEvents.forEach((expected, i) => {
             expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
           })
-        })
+        }))
 
       yield getToken()
         .changes()
-        .take(1)
-        .do(rs => {
+        .pipe(take(1), tap(rs => {
           projectEvents.forEach((expected, i) => {
             expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
           })
-        })
+        }))
     })
 
     it('should get result from cached Response and get changes', function* () {
@@ -403,18 +388,16 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(rs => {
+        .pipe(tap(rs => {
           projectEvents.forEach((expected, i) => {
             expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
           })
-        })
+        }))
 
       const stream$ = getToken()
         .changes()
 
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
+      yield stream$.pipe(take(1))
 
       const newLocation = 'new_event_location'
 
@@ -424,10 +407,10 @@ describe('Net test', () => {
         location: newLocation
       })
 
-      yield stream$.take(1)
-        .do(([r]) => {
+      yield stream$
+        .pipe(take(1), tap(([r]) => {
           expect(r.location).to.equal(newLocation)
-        })
+        }))
     })
 
     it('should get result from cached Response and validate cache', function* () {
@@ -451,11 +434,11 @@ describe('Net test', () => {
 
       yield getToken()
         .values()
-        .do(rs => {
+        .pipe(tap(rs => {
           projectEvents.forEach((expected, i) => {
             expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
           })
-        })
+        }))
 
       spyFetch = spy(sdkFetch, 'get')
 
@@ -467,30 +450,22 @@ describe('Net test', () => {
         location: newLocation
       }
 
-      const stream$ = getToken()
-        .changes()
+      const stream$ = getToken().changes()
 
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
+      yield stream$.pipe(take(1))
 
       httpBackend.whenGET(`${apiHost}/api/events/${partialEvent._id}`)
         .respond({ ...projectEvents[0], ...partialEvent })
 
       yield database.insert('Event', partialEvent)
 
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
+      yield stream$.pipe(subscribeOn(asapScheduler), take(1))
 
       // 多请求一次，保证 padding 被执行之后，再次从 ReactiveDB 里面拿数据的时候应该能拿到完整的数据
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do((events: typeof projectEvents) => {
-           expect(spyFetch.callCount).to.equal(2)
-           expect(events.length).to.equal(projectEvents.length + 1)
-        })
+      yield stream$.pipe(take(1), tapAsap((events: typeof projectEvents) => {
+        expect(spyFetch.callCount).to.equal(2)
+        expect(events.length).to.equal(projectEvents.length + 1)
+      }))
 
       http.restore()
     })
@@ -527,9 +502,9 @@ describe('Net test', () => {
         tableName: 'Event'
       } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expect(r).to.deep.equal({ _id: normalEvent._id })
-        })
+        }))
     })
 
     it(`should allow query.fields to specify field names to be selected, ignoring 'excludeFields'`, function* () {
@@ -546,12 +521,12 @@ describe('Net test', () => {
         excludeFields: ['title']
       } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expect(r).to.deep.equal({
             _id: normalEvent._id,
             title: normalEvent.title
           })
-        })
+        }))
     })
 
     it(`should allow query.fields to specify field names to be selected, ignoring non-existing ones`, function* () {
@@ -567,11 +542,11 @@ describe('Net test', () => {
         tableName: 'Event'
       } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expect(r).to.deep.equal({
             _id: normalEvent._id
           })
-        })
+        }))
     })
 
     it(`should ignore empty query.fields, i.e. []`, function* () {
@@ -587,9 +562,9 @@ describe('Net test', () => {
         tableName: 'Event'
       } as ApiResult<EventSchema, CacheStrategy.Cache>)
         .values()
-        .do(([r]) => {
+        .pipe(tap(([r]) => {
           expectToDeepEqualForFieldsOfTheExpected(r, normalEvent, 'creator')
-        })
+        }))
     })
 
   })
@@ -614,11 +589,11 @@ describe('Net CacheStrategy Spec', () => {
     })
     database.connect()
 
-    server = spy(() => Observable.of(projectEvents[0]))
+    server = spy(() => of(projectEvents[0]))
     getEventOptions = (strategy: CacheStrategy, options = {}): any => {
       const defaultOptions = {
         cacheValidate: strategy,
-        request: Observable.defer(server),
+        request: defer(server),
         tableName: 'Event',
         query: {
           where: {

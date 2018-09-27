@@ -1,7 +1,7 @@
 import { describe, before, beforeEach, it, afterEach, after } from 'tman'
 import { expect } from 'chai'
-import { Scheduler } from 'rxjs'
 import { SDKFetch } from '../'
+import { tapAsap } from '../utils'
 import {
   getAllOrganizationProjects,
   getJoinedOrganizationProjects,
@@ -64,10 +64,9 @@ describe('get organization projects', () => {
         fetchMock.getOnce(expectedUrl, expectedResponse)
 
         yield fn.call(sdkFetch, sampleOrgId)
-          .subscribeOn(Scheduler.asap)
-          .do((x: any) => {
-            expect(x).to.deep.equal(expectedResponse)
-          })
+          .pipe(tapAsap(
+            (x: any) => expect(x).to.deep.equal(expectedResponse)
+          ))
       })
     })
 
@@ -79,10 +78,9 @@ describe('get organization projects', () => {
       fetchMock.getOnce(expectedUrl, expectedResponse)
 
       yield sdkFetch.getOrganizationProjectsByTagId(sampleOrgId, sampleTagId)
-        .subscribeOn(Scheduler.asap)
-        .do((x: any) => {
-          expect(x).to.deep.equal(expectedResponse)
-        })
+        .pipe(tapAsap(
+          (x: any) => expect(x).to.deep.equal(expectedResponse)
+        ))
     })
 
   })

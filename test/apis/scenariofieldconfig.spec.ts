@@ -1,15 +1,14 @@
 import { describe, before, beforeEach, afterEach, it, after } from 'tman'
-import { Scheduler } from 'rxjs'
 import { expect } from 'chai'
 
-import { SDKFetch, createSdk, SDK, ScenarioFieldConfigSchema } from '../'
+import { SDKFetch, createSdk, SDK } from '../'
 import {
   taskScenarioFieldConfig,
   eventScenarioFieldConfig,
   orgTaskScenarioFieldConfig,
   orgEventScenarioFieldConfig
 } from '../fixtures/scenariofieldconfigs.fixture'
-import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
+import { mock, expectToDeepEqualForFieldsOfTheExpected, tapAsap } from '../utils'
 import { OrganizationId, ProjectId, ScenarioFieldConfigId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
@@ -42,8 +41,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.once(url, configs)
 
     yield sdkFetch.getScenarioFieldConfigs(projectId, 'task', true)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(configs))
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(configs))))
   })
 
   it('should return an EventScenarioFieldConfig array', function* () {
@@ -54,8 +52,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.once(url, configs)
 
     yield sdkFetch.getScenarioFieldConfigs(projectId, 'event', true)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(configs))
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(configs))))
   })
 
   it('should return a TaskScenarioFieldConfig array bound to Organization', function* () {
@@ -66,8 +63,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.once(url, { result: configs, nextPageToken: '' })
 
     yield sdkFetch.getOrgScenarioFieldConfigs(orgId, 'task', { sort: 'project_desc' })
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(configs))
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(configs))))
   })
 
   it('should return an EventScenarioFieldConfig array bound to Organization', function* () {
@@ -78,8 +74,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.once(url, { result: configs, nextPageToken: '' })
 
     yield sdkFetch.getOrgScenarioFieldConfigs(orgId, 'event')
-      .subscribeOn(Scheduler.asap)
-      .do((result) => expect(result).to.deep.equal(configs))
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(configs))))
   })
 
   it('should add a TaskScenarioFieldConfig array to Project', function* () {
@@ -95,10 +90,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     }, configs)
 
     yield sdkFetch.bulkAddScenarioFieldConfigs(projectId, 'task', configIds)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal(configs)
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(configs))))
   })
 
   it('should add an EventScenarioFieldConfig array to Project', function* () {
@@ -114,10 +106,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     }, configs)
 
     yield sdkFetch.bulkAddScenarioFieldConfigs(projectId, 'event', configIds)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal(configs)
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(configs))))
   })
 
   it('should restore ScenarioFieldConfig to the Base', function* () {
@@ -127,10 +116,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.putOnce(`/scenariofieldconfigs/${configId}/restore`, config)
 
     yield sdkFetch.restoreScenarioFieldConfig(configId)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal(config)
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(config))))
   })
 
   it('should save ScenarioFieldConfig as the Base', function* () {
@@ -139,10 +125,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.putOnce(`/scenariofieldconfigs/${configId}/sync`, {})
 
     yield sdkFetch.syncScenarioFieldConfig(configId)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal({})
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal({}))))
   })
 
   it('should return an array of Project using the ScenarioFieldConfig', function* () {
@@ -152,10 +135,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.once(`/scenariofieldconfigs/${sfcId}/projects?_=666`, resp)
 
     yield sdkFetch.getOrgScenarioFieldConfigProjects(sfcId)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal(resp)
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(resp))))
   })
 
   it('should create a new ScenarioFieldConfig', function* () {
@@ -166,10 +146,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.postOnce(`/organizations/${orgId}/scenariofieldconfigs`, config)
 
     yield sdkFetch.createOrgScenarioFieldConfig(orgId, config)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal(config)
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(config))))
   })
 
   it('should return Boolean as the validation result', function* () {
@@ -185,10 +162,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
       objectType,
       name
     )
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal(resp)
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(resp))))
   })
 })
 
@@ -209,10 +183,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     yield sdk.getScenarioFieldConfigs(projectId, 'task')
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-      })
+      .pipe(tapAsap((([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0]))))
   })
 
   it('should return an EventScenarioFieldConfig array', function* () {
@@ -223,10 +194,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     yield sdk.getScenarioFieldConfigs(projectId, 'event')
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-      })
+      .pipe(tapAsap((([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0]))))
   })
 
   it('should return a TaskScenarioFieldConfig array bound to Organization', function* () {
@@ -237,10 +205,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     yield sdk.getOrgScenarioFieldConfigs(organizationId, 'task')
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-      })
+      .pipe(tapAsap((([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0]))))
   })
 
   it('should return an EventScenarioFieldConfig array bound to Organization', function* () {
@@ -251,10 +216,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     yield sdk.getOrgScenarioFieldConfigs(organizationId, 'event')
       .values()
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-      })
+      .pipe(tapAsap((([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0]))))
   })
 
   it('should add a TaskScenarioFieldConfig array to Project', function* () {
@@ -268,23 +230,17 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     const configs$ = sdk.getScenarioFieldConfigs(projectId, 'task')
       .values()
-      .subscribeOn(Scheduler.asap)
 
-    yield configs$.do((result) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, [])
-    })
+    yield configs$
+      .pipe(tapAsap((result) => expectToDeepEqualForFieldsOfTheExpected(result, [])))
 
     mockResponse(configs)
 
     yield sdk.bulkAddScenarioFieldConfigs(projectId, 'task', configIds)
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-      })
+      .pipe(tapAsap((([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0]))))
 
-    yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-    })
+    yield configs$
+      .pipe(tapAsap(([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0])))
   })
 
   it('should add an EventScenarioFieldConfig array to Project', function* () {
@@ -298,23 +254,17 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     const configs$ = sdk.getScenarioFieldConfigs(projectId, 'event')
       .values()
-      .subscribeOn(Scheduler.asap)
 
-    yield configs$.do((result) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, [])
-    })
+    yield configs$
+      .pipe(tapAsap(((result) => expectToDeepEqualForFieldsOfTheExpected(result, []))))
 
     mockResponse(configs)
 
     yield sdk.bulkAddScenarioFieldConfigs(projectId, 'event', configIds)
-      .subscribeOn(Scheduler.asap)
-      .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-      })
+      .pipe(tapAsap((([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0]))))
 
-    yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-    })
+    yield configs$
+      .pipe(tapAsap(([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0])))
   })
 
   it('should restore ScenarioFieldConfig to the Base', function* () {
@@ -329,23 +279,17 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     const configs$ = sdk.getScenarioFieldConfigs(projectId, 'event')
       .values()
-      .subscribeOn(Scheduler.asap)
 
-    yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
-    })
+    yield configs$
+      .pipe(tapAsap((([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configs[0]))))
 
     mockResponse(configBase)
 
     yield sdk.restoreScenarioFieldConfig(configId)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configBase)
-      })
+      .pipe(tapAsap(((result) => expectToDeepEqualForFieldsOfTheExpected(result, configBase))))
 
-    yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configsBase[0])
-    })
+    yield configs$
+      .pipe(tapAsap(([result]) => expectToDeepEqualForFieldsOfTheExpected(result, configsBase[0])))
   })
 
   it('should save ScenarioFieldConfig as the Base', function* () {
@@ -354,10 +298,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     mockResponse({})
 
     yield sdk.syncScenarioFieldConfig(configId)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal({ _id: configId })
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal({ _id: configId }))))
   })
 
   it('should create a new ScenarioFieldConfig', function* () {
@@ -370,22 +311,16 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     const configs$ = sdk.getOrgScenarioFieldConfigs(orgId, objectType)
       .values()
-      .subscribeOn(Scheduler.asap)
 
-    yield configs$.do((result) => {
-      expect(result).to.deep.equal([])
-    })
+    yield configs$
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal([]))))
 
     mockResponse(config)
 
     yield sdk.createOrgScenarioFieldConfig(orgId, { _boundToObjectId: orgId, objectType } as any)
-      .subscribeOn(Scheduler.asap)
-      .do((result) => {
-        expect(result).to.deep.equal(config)
-      })
+      .pipe(tapAsap(((result) => expect(result).to.deep.equal(config))))
 
-    yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, config)
-    })
+    yield configs$
+      .pipe(tapAsap(([result]) => expectToDeepEqualForFieldsOfTheExpected(result, config)))
   })
 })

@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from '../../rx'
 import { SDKFetch } from '../../SDKFetch'
 import { ActivitySchema } from '../../schemas'
 import { ActivityId } from 'teambition-types'

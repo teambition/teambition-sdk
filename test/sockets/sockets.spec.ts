@@ -1,6 +1,7 @@
-import { Observable } from 'rxjs/Observable'
-import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
+import { describe, beforeEach, afterEach, it } from 'tman'
+import { of } from 'rxjs'
+import { tap } from 'rxjs/operators'
 import { createSdk, SDK, SocketMock, SDKFetch, Socket } from '../'
 import * as midware from '../../src/sockets/Middleware'
 import { restore, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
@@ -63,13 +64,13 @@ describe('Socket handling Spec', () => {
 
     yield sdk.database.get('Task', { where: { isDone: true } })
       .values()
-      .do((rs) => {
+      .pipe(tap((rs) => {
         expect(rs).to.have.lengthOf(taskDone.length)
         rs.forEach((r: any) => {
           const expectedTask = { ...taskUndone.find(({ _id }) => _id === r._id), isDone: true }
           expectToDeepEqualForFieldsOfTheExpected(r, expectedTask)
         })
-      })
+      }))
   })
 
   it('should do db:remove for all the PKs to be deleted in { e: ":remove:{modelType}s/{boundToObjectId}", d: "[pk1, pk2, ...]"}', function* () {
@@ -86,11 +87,11 @@ describe('Socket handling Spec', () => {
 
     yield sdk.database.get('Task')
       .values()
-      .do((rs) => {
+      .pipe(tap((rs) => {
         expect(rs).to.have.lengthOf(1)
         const [r] = rs
         expectToDeepEqualForFieldsOfTheExpected(r, tasks[2])
-      })
+      }))
   })
 
   it('should do db:remove on { e: ":destroy:{modelType}/{modelId}", d: "" }', function* () {
@@ -106,7 +107,7 @@ describe('Socket handling Spec', () => {
 
     yield sdk.database.get('Post', { where: { _id: modelId } })
       .values()
-      .do((r) => expect(r.length).to.equal(0))
+      .pipe(tap((r) => expect(r.length).to.equal(0)))
   })
 
   it('should do db:remove on { e: ":remove:{collectionType}/{collectionId}", d: "{modelId}" }', function* () {
@@ -123,7 +124,7 @@ describe('Socket handling Spec', () => {
 
     yield sdk.database.get('Stage', { where: { _id: modelId } })
       .values()
-      .do((r) => expect(r.length).to.equal(0))
+      .pipe(tap((r) => expect(r.length).to.equal(0)))
   })
 
   it('should do db:remove on { e: ":remove:{collectionType}", d: "{modelId}" }', function* () {
@@ -139,7 +140,7 @@ describe('Socket handling Spec', () => {
 
     yield sdk.database.get('Activity', { where: { _id: modelId } })
       .values()
-      .do((r) => expect(r.length).to.equal(0))
+      .pipe(tap((r) => expect(r.length).to.equal(0)))
   })
 })
 
@@ -179,23 +180,23 @@ describe('Socket interceptors', () => {
     // 添加 message title 字段有效：得到数据库中相应行的 title 为 'hello'
     yield sdk.database.get('Event', { where: { _id: modelId } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect((r as any).title).to.equal('hello')
-      })
+      }))
 
     yield server.emit('change', 'event' as any, modelId, { title: 'hello world' })
 
     // 删除 message title 字段有效：使得数据库中相应行的 title 保持不变，为 'hello'
     yield sdk.database.get('Event', { where: { _id: modelId } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect((r as any).title).to.equal('hello')
-      })
+      }))
   })
 
   it('should allow interceptor to ignore default DB ops', function* () {
     client.interceptors.append((_) => {
-      return Observable.of(null)
+      return of(null)
     })
 
     const server = new SocketMock(client)
@@ -206,9 +207,9 @@ describe('Socket interceptors', () => {
 
     yield sdk.database.get('Activity', { where: { _id: modelId } })
       .values()
-      .do((r) => {
+      .pipe(tap((r) => {
         expect(r.length).to.equal(1)
-      })
+      }))
   })
 
   it('should allow an interceptor to shortcircuit a sequence of interceptors', function* () {
@@ -231,9 +232,9 @@ describe('Socket interceptors', () => {
 
     yield sdk.database.get('Event', { where: { _id: modelId } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect((r as any).title).to.equal('hello world')
-      })
+      }))
   })
 
   it('should not allow a UserFunc to mutate message when mutateMessage flag is not set', function* () {
@@ -249,11 +250,11 @@ describe('Socket interceptors', () => {
 
     yield sdk.database.get('Event', { where: { _id: modelId } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect((r as any).title).to.be.undefined
         expect(stub).called
         stub.restore()
-      })
+      }))
   })
 
   it('should allow a UserFunc to give up control flow flags set on interceptor creation', function* () {
@@ -276,17 +277,17 @@ describe('Socket interceptors', () => {
 
     yield sdk.database.get('Event', { where: { _id: modelId } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expect((r as any).title).to.equal('hello')
-      })
+      }))
 
     yield server.emit('change', 'event', modelId, { title: 'hello' })
 
     yield sdk.database.get('Event', { where: { _id: modelId } })
     .values()
-    .do(([r]) => {
+    .pipe(tap(([r]) => {
       expect((r as any).title).to.equal('hello world')
-    })
+    }))
   })
 
 })

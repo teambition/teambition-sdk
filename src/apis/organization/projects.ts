@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from '../../rx'
 import { OrganizationId, TagId } from 'teambition-types'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectSchema } from '../../schemas/Project'

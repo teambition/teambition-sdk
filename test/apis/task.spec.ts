@@ -1,3 +1,4 @@
+import { tap } from 'rxjs/operators'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, TaskSchema } from '../index'
@@ -24,9 +25,9 @@ describe('TaskApi request Spec', () => {
 
     yield sdk.getTask(fixture._id as TaskId)
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         expectToDeepEqualForFieldsOfTheExpected(r, fixture, 'subtasks', 'ancestors')
-      })
+      }))
   })
 })
 
@@ -50,11 +51,11 @@ describe('TaskApi socket spec', () => {
 
     yield sdk.database.get<TaskSchema>('Task', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => {
+      .pipe(tap(([r]) => {
         delete r.creator
         delete r.project
         looseDeepEqual(r, fixture)
-      })
+      }))
   })
 
   it('update task should change cache', function* () {
@@ -69,7 +70,7 @@ describe('TaskApi socket spec', () => {
 
     yield sdk.database.get<TaskSchema>('Task', { where: { _id: fixture._id } })
       .values()
-      .do(([r]) => expect(r.content).to.equal('fixture'))
+      .pipe(tap(([r]) => expect(r.content).to.equal('fixture')))
   })
 
   it('delete task should delete cache', function* () {
@@ -81,6 +82,6 @@ describe('TaskApi socket spec', () => {
 
     yield sdk.database.get<TaskSchema>('Task', { where: { _id: fixture._id } })
       .values()
-      .do((r) => expect(r.length).to.equal(0))
+      .pipe(tap((r) => expect(r.length).to.equal(0)))
   })
 })

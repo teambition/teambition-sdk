@@ -1,6 +1,5 @@
 import { describe, before, beforeEach, it, afterEach, after } from 'tman'
 import { expect } from 'chai'
-import { Scheduler } from 'rxjs'
 import {
   searchMembersInTeam,
   searchMembersInProject,
@@ -10,6 +9,7 @@ import {
   buildPath as buildPathForMemberSearching
 } from '../../src/apis/search/members'
 import { SDKFetch } from '../'
+import { tapAsap } from '../utils'
 import { GroupId, OrganizationId, ProjectId, TeamId } from 'teambition-types'
 
 const fetchMock = require('fetch-mock')
@@ -103,10 +103,9 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, '')
-          .subscribeOn(Scheduler.asap)
-          .do((x: any) => {
+          .pipe(tapAsap((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
-          })
+          }))
       })
     })
 
@@ -116,10 +115,9 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=nonExistence&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, 'nonExistence')
-          .subscribeOn(Scheduler.asap)
-          .do((x: any) => {
+          .pipe(tapAsap((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
-          })
+          }))
       })
     })
 
@@ -129,10 +127,9 @@ describe('search for members', () => {
         fetchMock.getOnce(`/${namespace}/${sampleId}/members/search?q=shuai&_=666`, expectedResultSet)
 
         yield fn.call(sdkFetch, sampleId as any, 'shuai')
-          .subscribeOn(Scheduler.asap)
-          .do((x: any) => {
+          .pipe(tapAsap((x: any) => {
             expect(x).to.deep.equal(expectedResultSet)
-          })
+          }))
       })
     })
 
@@ -140,20 +137,18 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=&_=666', allMembers)
 
       yield sdkFetch.searchMembers('')
-        .subscribeOn(Scheduler.asap)
-        .do((x) => {
+        .pipe(tapAsap((x) => {
           expect(x).to.deep.equal(allMembers)
-        })
+        }))
     })
 
     it('searchMembers should return empty result set as it is', function* () {
       fetchMock.get('/members/search?q=nonExistence&_=666', [])
 
       yield sdkFetch.searchMembers('nonExistence')
-        .subscribeOn(Scheduler.asap)
-        .do((x) => {
+        .pipe(tapAsap((x) => {
           expect(x).to.deep.equal([])
-        })
+        }))
     })
 
     it('searchMembers should handle normal cases correctly', function* () {
@@ -161,10 +156,9 @@ describe('search for members', () => {
       fetchMock.get('/members/search?q=shuai&_=666', expectedResultSet)
 
       yield sdkFetch.searchMembers('shuai')
-        .subscribeOn(Scheduler.asap)
-        .do((x) => {
+        .pipe(tapAsap((x) => {
           expect(x).to.deep.equal(expectedResultSet)
-        })
+        }))
     })
   })
 })

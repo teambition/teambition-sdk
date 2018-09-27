@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable'
+import { map, tap, Observable } from '../../rx'
 import { QueryToken } from 'reactivedb'
 import { forEach } from '../../utils'
 import { SDKFetch } from '../../SDKFetch'
@@ -53,7 +53,7 @@ export function getMyRecent(
     cacheValidate: CacheStrategy.Request,
     tableName: 'Task',
     request: this.fetch.getMyRecent(query)
-              .map(r => r.filter(t => t.type === 'task')),
+              .pipe(map(r => r.filter(t => t.type === 'task'))),
     query: {
       where: {
         dueDate: {
@@ -80,9 +80,9 @@ export function getMyRecent(
   })
 
   taskToken = taskToken.map(task$ => task$
-    .do(tasks => forEach(tasks, task => {
+    .pipe(tap(tasks => forEach(tasks, task => {
       task.type = 'task'
-    })
+    }))
   ))
 
   const eventQuery = {
@@ -120,7 +120,7 @@ export function getMyRecent(
     cacheValidate: CacheStrategy.Request,
     tableName: 'Event',
     request: this.fetch.getMyRecent(query)
-               .map(r => r.filter(t => t.type === 'event')),
+               .pipe(map(r => r.filter(t => t.type === 'event'))),
     query: eventQuery,
     assocFields: {
       project: ['_id', 'name', 'isArchived']
@@ -137,13 +137,13 @@ export function getMyRecent(
     ]
   })
 
-  eventToken = eventToken.map(e$ => e$.map(events => events.map(e => new EventGenerator(e))))
+  eventToken = eventToken.map(map(events => events.map(e => new EventGenerator(e))))
 
   let subtaskToken = this.lift<RecentData>({
     cacheValidate: CacheStrategy.Request,
     tableName: 'Subtask',
     request: this.fetch.getMyRecent(query)
-              .map(r => r.filter(t => t.type === 'subtask')),
+              .pipe(map(r => r.filter(t => t.type === 'subtask'))),
     query: {
       where: {
         _executorId: userId,
@@ -160,9 +160,9 @@ export function getMyRecent(
   })
 
   subtaskToken = subtaskToken.map(task$ => task$
-    .do(subtasks => forEach(subtasks, subtask => {
+    .pipe(tap(subtasks => forEach(subtasks, subtask => {
       subtask.type = 'subtask'
-    })
+    }))
   ))
 
   return <any>taskToken.combine(eventToken, subtaskToken)

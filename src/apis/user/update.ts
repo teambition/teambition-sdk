@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from '../../rx'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 

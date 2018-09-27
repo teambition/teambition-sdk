@@ -1,8 +1,7 @@
-import { describe, it, beforeEach, afterEach } from 'tman'
-import { Observable } from 'rxjs/Observable'
-import { Subject } from 'rxjs/Subject'
-import { Subscription } from 'rxjs/Subscription'
 import { expect } from 'chai'
+import { describe, it, beforeEach, afterEach } from 'tman'
+import { of, Observable, Subject, Subscription } from 'rxjs'
+import { scan, tap } from 'rxjs/operators'
 import * as sinon from 'sinon'
 import { clone } from '../utils'
 import * as midware from '../../src/sockets/Middleware'
@@ -90,23 +89,23 @@ describe('Socket interceptor creator', () => {
     const expectedResult = { say: 'hello' }
     const interceptor: any = midware.createInterceptor((message) => {
       simpleTransFn(message)
-      return Observable.of(expectedResult)
+      return of(expectedResult)
     })
 
     const result = interceptor(msg)
 
     expect(msg).to.deep.equal(msgClone)
     expect(errStub).to.called
-    return (result as Observable<any>).do((x) => {
+    return (result as Observable<any>).pipe(tap((x) => {
       expect(x).to.deep.equal(expectedResult)
-    })
+    }))
   })
 
   it('mutateMessage + Observable', () => {
     const expectedResult = { say: 'world' }
     const intercept: any = midware.createInterceptor((message) => {
       simpleTransFn(message)
-      return Observable.of(expectedResult)
+      return of(expectedResult)
     }, {
       mutate: true
     })
@@ -117,9 +116,9 @@ describe('Socket interceptor creator', () => {
 
     msg.data.key = 'value'
     expect(msg).to.deep.equal(msgClone)
-    return (result as Observable<any>).do((x) => {
+    return (result as Observable<any>).pipe(tap((x) => {
       expect(x).to.deep.equal(expectedResult)
-    })
+    }))
   })
 })
 
@@ -207,7 +206,7 @@ describe('Socket Interceptors', () => {
   it('should shortcircuit when an interceptor returns an Observable', () => {
     interceptors.append((message: any) => {
       transDataKey(message)
-      return Observable.of(null)
+      return of(null)
     }, { mutate: true })
     interceptors.append(transType, { mutate: true })
 
@@ -516,14 +515,14 @@ describe('WSProxy fromRefresh() method', () => {
   })
 
   afterEach(() => {
-    for (let [key] of proxy['daemonManager'].entries()) {
+    for (const [key] of proxy['daemonManager'].entries()) {
       proxy.stopDaemon(key)
     }
   })
 
   it('should trigger callback after first being activated', marbles((m) => {
     const wsMsg$ =    m.hot('^-a-b---c-----d--e-', matchingMessages)
-    const daemon =   m.cold('-------u-----------', daemonStatusChange).scan(onStatusChange('test1'), null)
+    const daemon =   m.cold('-------u-----------', daemonStatusChange).pipe(scan(onStatusChange('test1'), null))
     const expected = m.cold('--------c-----d--e-', matchingMessages)
 
     wsMsg$.subscribe(proxy.apply)
@@ -534,7 +533,7 @@ describe('WSProxy fromRefresh() method', () => {
 
   it('should not trigger callback after suspension', marbles((m) => {
     const wsMsg$ =    m.hot('^-a-b---c-----d--e-', matchingMessages)
-    const daemon =   m.cold('-------u-----d-----', daemonStatusChange).scan(onStatusChange('test1'), null)
+    const daemon =   m.cold('-------u-----d-----', daemonStatusChange).pipe(scan(onStatusChange('test1'), null))
     const expected = m.cold('--------c----------', matchingMessages)
 
     wsMsg$.subscribe(proxy.apply)
@@ -545,7 +544,7 @@ describe('WSProxy fromRefresh() method', () => {
 
   it('should not trigger callback after re-activation if there is no matching message during suspension', marbles((m) => {
     const wsMsg$ =    m.hot('^-a-b---c----------', matchingMessages)
-    const daemon =   m.cold('-------u-----d---u-', daemonStatusChange).scan(onStatusChange('test1'), null)
+    const daemon =   m.cold('-------u-----d---u-', daemonStatusChange).pipe(scan(onStatusChange('test1'), null))
     const expected = m.cold('--------c----------', matchingMessages)
 
     wsMsg$.subscribe(proxy.apply)
@@ -556,7 +555,7 @@ describe('WSProxy fromRefresh() method', () => {
 
   it('should trigger callback after re-activation if there is one matching message during suspension', marbles((m) => {
     const wsMsg$ =    m.hot('^-a-b---c------d---', matchingMessages)
-    const daemon =   m.cold('-------u-----d---u-', daemonStatusChange).scan(onStatusChange('test1'), null)
+    const daemon =   m.cold('-------u-----d---u-', daemonStatusChange).pipe(scan(onStatusChange('test1'), null))
     const expected = m.cold('--------c--------d-', matchingMessages)
 
     wsMsg$.subscribe(proxy.apply)
@@ -567,7 +566,7 @@ describe('WSProxy fromRefresh() method', () => {
 
   it('should trigger callback after re-activation with the last of the matching messages during suspension', marbles((m) => {
     const wsMsg$ =    m.hot('^-a-b---c-----d-e--', matchingMessages)
-    const daemon =   m.cold('-------u-----d---u-', daemonStatusChange).scan(onStatusChange('test1'), null)
+    const daemon =   m.cold('-------u-----d---u-', daemonStatusChange).pipe(scan(onStatusChange('test1'), null))
     const expected = m.cold('--------c--------e-', matchingMessages)
 
     wsMsg$.subscribe(proxy.apply)
@@ -579,7 +578,7 @@ describe('WSProxy fromRefresh() method', () => {
   it(`overall, should trigger callback actively when the daemon is active,
   \tand select the last matching during suspension to trigger callback on re-activation`, marbles((m) => {
     const wsMsg$ =    m.hot('^-a-b---c-----d-e--f---g-----h-', matchingMessages)
-    const daemon =   m.cold('-------u-----d---u---d-----u---', daemonStatusChange).scan(onStatusChange('test1'), null)
+    const daemon =   m.cold('-------u-----d---u---d-----u---', daemonStatusChange).pipe(scan(onStatusChange('test1'), null))
     const expected = m.cold('--------c--------e-f-------g-h-', matchingMessages)
 
     wsMsg$.subscribe(proxy.apply)
@@ -590,11 +589,11 @@ describe('WSProxy fromRefresh() method', () => {
 
   it('should allow more than one differently namespaced callers to work independently', marbles((m) => {
     const wsMsg$ =     m.hot('^-a-b---c-----d-e--f---g-----h-', matchingMessages)
-    const daemon1 =   m.cold('-------u-----d---u---d-----u---', daemonStatusChange).scan(onStatusChange('test1'), null)
+    const daemon1 =   m.cold('-------u-----d---u---d-----u---', daemonStatusChange).pipe(scan(onStatusChange('test1'), null))
     const expected1 = m.cold('--------c--------e-f-------g-h-', matchingMessages)
-    const daemon2 =   m.cold('-u----d------u----d----------u-', daemonStatusChange).scan(onStatusChange('test2'), null)
+    const daemon2 =   m.cold('-u----d------u----d----------u-', daemonStatusChange).pipe(scan(onStatusChange('test2'), null))
     const expected2 = m.cold('--a-b--------cd-e------------(gh)-', matchingMessages)
-    const daemon3 =   m.cold('----------u------d----------u--', daemonStatusChange).scan(onStatusChange('test3'), null)
+    const daemon3 =   m.cold('----------u------d----------u--', daemonStatusChange).pipe(scan(onStatusChange('test3'), null))
     const expected3 = m.cold('--------------d-e-----------gh-', matchingMessages)
 
     wsMsg$.subscribe(proxy.apply)

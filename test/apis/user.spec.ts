@@ -1,3 +1,4 @@
+import { tap } from 'rxjs/operators'
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, UserMe } from '../index'
@@ -23,9 +24,9 @@ describe('UserApi request spec', () => {
 
     yield sdk.getUserMe()
       .values()
-      .do(([user]) => {
+      .pipe(tap(([user]) => {
         expect(user).to.deep.equal(userMe)
-      })
+      }))
   })
 
   it('update should update cache', function* () {
@@ -43,9 +44,9 @@ describe('UserApi request spec', () => {
 
     yield sdk.database.get<UserMe>('User')
       .values()
-      .do(([user]) => {
+      .pipe(tap(([user]) => {
         expect(user.name).to.equal(newName)
-      })
+      }))
   })
 
   it('addEmail should add email to cache', function* () {
@@ -69,9 +70,9 @@ describe('UserApi request spec', () => {
 
     yield sdk.database.get<UserMe>('User')
       .values()
-      .do(([user]) => {
+      .pipe(tap(([user]) => {
         expect(user.emails).to.deep.equal(newEmail)
-      })
+      }))
   })
 })
 
@@ -101,8 +102,8 @@ describe('UserAPI socket spec', () => {
 
     yield sdk.database.get<UserMe>('User')
       .values()
-      .do(([user]) => {
+      .pipe(tap(([user]) => {
         expect(user.name).to.equal(newName)
-      })
+      }))
   })
 })

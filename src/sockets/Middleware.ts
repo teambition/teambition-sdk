@@ -1,13 +1,5 @@
-import 'rxjs/add/operator/publish'
-import 'rxjs/add/operator/takeUntil'
-import 'rxjs/add/operator/takeLast'
-import 'rxjs/add/observable/merge'
+import { merge,  publish, refCount, switchMap, takeLast, takeUntil, ConnectableObservable, Observable, Subject, Subscription } from '../rx'
 import { Database } from 'reactivedb'
-import { Observable } from 'rxjs/Observable'
-import { Observer } from 'rxjs/Observer'
-import { Subscription } from 'rxjs/Subscription'
-import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
-import { Subject } from 'rxjs/Subject'
 
 import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
 
@@ -175,7 +167,7 @@ export class Proxy {
         // 当订阅数降到 0 时，移除该条目
         this.publishedHandler.delete(pattern)
       })
-      this.publishedHandler.set(pattern, source.publish().refCount())
+      this.publishedHandler.set(pattern, source.pipe(publish(), refCount()))
     }
     return this.publishedHandler.get(pattern)!
   }
@@ -190,16 +182,16 @@ export class Proxy {
     if (!/^:refresh:/.test(pattern)) {
       pattern  = `:refresh:${pattern}`
     }
-    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+    return new Observable<ParsedWSMsg>((observer) => {
       return this.onRefreshEvent(pattern, appNamespace, (msg) => observer.next(msg))
-    }) as Observable<ParsedWSMsg>
+    })
   }
 
   /**
    * 结合 on/off 方法，创建一个监听符合 pattern 事件的流，并包含 teardown 逻辑。
    */
   private createMsg$(pattern: string, teardown?: MsgHandlerRemoval): Observable<ParsedWSMsg> {
-    return Observable.create((observer: Observer<ParsedWSMsg>) => {
+    return new Observable<ParsedWSMsg>((observer) => {
       const nexter: MsgHandler = (msg) => observer.next(msg)
 
       const off = this.on(pattern, nexter)
@@ -217,10 +209,10 @@ export class Proxy {
     const start$ = new Subject()
     const suspend$ = new Subject()
 
-    const published$ = Observable.merge(
-      suspend$.switchMap(() => this.createMsg$(pattern).takeUntil(start$).takeLast(1)),
-      start$.switchMap(() => this.createMsg$(pattern).takeUntil(suspend$))
-    ).publish()
+    const published$ = merge(
+      suspend$.pipe(switchMap(() => this.createMsg$(pattern).pipe(takeUntil(start$), takeLast(1)))),
+      start$.pipe(switchMap(() => this.createMsg$(pattern).pipe(takeUntil(suspend$))))
+    ).pipe(publish()) as ConnectableObservable<ParsedWSMsg>
 
     const connection = published$.connect()
 
