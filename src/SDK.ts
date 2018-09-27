@@ -6,7 +6,7 @@ import { SDKFetch } from './SDKFetch'
 import * as socket from './sockets'
 import * as socketInterceptor from './sockets/interceptor'
 import { schemaColl } from './schemas'
-import { SchemaColl } from './utils/internalTypes'
+import { SchemaColl, Variables, GraphQLRequest, GraphQLResponse, GraphQLClientOption } from './utils/internalTypes'
 
 export const schemas: SchemaColl = []
 
@@ -15,9 +15,10 @@ export { CacheStrategy } from './Net'
 
 export class SDK {
   private schemas = schemaColl.toArray()
+  private graphQLClientOption: GraphQLClientOption | null = null
 
   net = new Net(this.schemas)
-  fetch = new SDKFetch
+  fetch = new SDKFetch()
 
   socketClient: socket.Client
   database: Database | undefined
@@ -47,6 +48,41 @@ export class SDK {
     this.socketClient.initReactiveDB(this.database)
 
     return this.net.persist(this.database)
+  }
+
+  setGraphQLEndpoint(endpoint: string, requestOptions: GraphQLRequest = {}) {
+    this.graphQLClientOption = {
+      host: endpoint,
+      headers: {
+        ...requestOptions,
+        ['Content-Type']: 'application/json'
+      }
+    }
+  }
+
+  graph<T extends object>(query: string, variables?: Variables, withHeaders: boolean = false) {
+    if (this.graphQLClientOption == null) {
+      throw Error('GraphQL server should be specified.')
+    }
+
+    const requestBody = JSON.stringify({
+      query,
+      variables: variables ? variables : undefined,
+    })
+
+    return this.fetch
+      .post<GraphQLResponse<T>>(
+        this.graphQLClientOption.host,
+        requestBody,
+        { ...this.graphQLClientOption, includeHeaders: true }
+      )
+      .map(({ headers, body }) => {
+        if (withHeaders) {
+          const data: object = body.data
+          return  ({ ...data, headers: headers })
+        }
+        return body.data
+      })
   }
 
 }
