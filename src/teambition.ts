@@ -49,6 +49,10 @@ declare module 'teambition-types' {
   export type TaskId = string & { kind: 'TaskId' }
   export type TasklistId = string & { kind: 'TasklistId' }
   export type TeamId = string & { kind: 'TeamId' }
+  export type TestcaseId = string & { kind: 'TestcaseId' }
+  export type TesthubId = string & { kind: 'TesthubId' }
+  export type TestplanId = string & { kind: 'TestplanId' }
+  export type TestcaseStepId = string & { kind: 'TestcaseStepId' }
   export type UserId = string & { kind: 'UserId' }
   export type VersionId = string & { kind: 'VersionId' }
   export type WorkId = string & { kind: 'WorkId' }
@@ -59,7 +63,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type DefaultRoleId = -1 | 0 | 1 | 2
-  export type DetailObjectId = TaskId | PostId | EventId | FileId
+  export type DetailObjectId = TaskId | PostId | EventId | FileId | TestcaseId
   export type RoleId = DefaultRoleId | CustomRoleId
 }
 
@@ -72,8 +76,8 @@ declare module 'teambition-types' {
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple' | 'cyan'
-  export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work'
-  export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works'
+  export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work' | 'testcase'
+  export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works' | 'testcases'
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
   export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
@@ -96,6 +100,13 @@ declare module 'teambition-types' {
     | 'forum'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
   export type VisibleOption = 'members' | 'involves'
+  export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
+  export type TestcasePriority = 0 | 1 | 2 | 3 | 4 | 5
+  export type TestcaseStepType = {
+    _id: TestcaseStepId
+    desc: string
+    expected: string
+  }
 }
 
 declare module 'teambition-types' {
