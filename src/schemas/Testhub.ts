@@ -1,12 +1,14 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
-import { TesthubId, UserId } from 'teambition-types'
+import { OrganizationId, TesthubId, UserId, ExecutorOrCreator } from 'teambition-types'
 import { CommonGroupSchema } from './CommonGroup'
 import { schemaColl } from './schemas'
 
 export interface TesthubSchema {
   _id: TesthubId
   _creatorId: UserId
+  _organizationId: OrganizationId
   created: string
+  creator: ExecutorOrCreator
   description: string
   groups: CommonGroupSchema[]
   logo: string
@@ -22,8 +24,20 @@ const schema: SchemaDef<TesthubSchema> = {
     type: RDBType.STRING,
     primaryKey: true,
   },
+  _organizationId: {
+    type: RDBType.STRING,
+  },
   created: {
     type: RDBType.DATE_TIME
+  },
+  creator: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _creatorId: userTable._id
+      })
+    }
   },
   description: {
     type: RDBType.STRING
