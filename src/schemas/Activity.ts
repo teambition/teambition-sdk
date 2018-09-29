@@ -1,12 +1,6 @@
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import {
-  ExecutorOrCreator,
-  ActivityId,
-  DetailObjectTypes,
-  DetailObjectId,
-  UserId
-} from 'teambition-types'
+import { ExecutorOrCreator, ActivityId, DetailObjectTypes, DetailObjectId, UserId } from 'teambition-types'
 
 export interface Locales {
   en: {
@@ -14,7 +8,7 @@ export interface Locales {
   }
   zh: {
     title: string
-  },
+  }
   ko: {
     title: string
   }

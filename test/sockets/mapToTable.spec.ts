@@ -99,10 +99,10 @@ describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
     })
   })
 
-  it('should map `homeActivities`(case-insensitive) to `Activity`', () => {
+  it('should map `homeActivities`(case-insensitive) to `HomeActivity`', () => {
     ['homeActivities', 'homeactivities', 'HomeActivities'].forEach((msgType) => {
       expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
-        pkName: '_id', tabName: 'Activity'
+        pkName: '_id', tabName: 'HomeActivity'
       })
     })
   })
