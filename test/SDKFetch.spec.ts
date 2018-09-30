@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { Observable, Scheduler } from 'rxjs'
 import { describe, it, beforeEach, afterEach } from 'tman'
-import { SDKFetch, forEach, Http, HttpErrorMessage, headers2Object } from '.'
+import { SDK, SDKFetch, forEach, Http, HttpErrorMessage, headers2Object, createSdk } from '.'
 import { clone } from './'
 
 import { defaultSDKFetchHeaders, HttpHeaders } from '../src/SDKFetch'
@@ -497,6 +497,60 @@ describe('SDKFetch options', () => {
     })
   })
 
+})
+
+describe('graphql request/response', () => {
+  let sdk: SDK
+  let errorThrown: boolean
+  const url = 'https://www.example.com/graphql'
+
+  beforeEach(() => {
+    sdk = createSdk()
+    sdk.fetch.setAPIHost('https://www.example.com')
+    sdk.setGraphQLEndpoint('graphql')
+    errorThrown = false
+  })
+
+  afterEach(() => {
+    fetchMock.restore()
+  })
+
+  it('should throw error on failed HTTP connection', function* () {
+    fetchMock.mock(new RegExp(url), { status: 404 })
+    yield sdk.graph('')
+      .catch((info: HttpErrorMessage) => {
+        expect(info.error.status).to.equal(404)
+        errorThrown = true
+        return Observable.empty()
+      })
+      .subscribeOn(Scheduler.asap)
+    expect(errorThrown).to.be.true
+  })
+
+  it('should throw error on failed backend execution', function* () {
+    fetchMock.mock(new RegExp(url), {
+      data: {}, // data 与 errors 字段根据标准是可以同时存在的
+      errors: [{ message: 'error!' }, { message: 'sorry!' }]
+    })
+    yield sdk.graph('')
+      .catch((info) => {
+        expect(info.message).to.equal(`error!\nsorry!`)
+        errorThrown = true
+        return Observable.empty()
+      })
+      .subscribeOn(Scheduler.asap)
+    expect(errorThrown).to.be.true
+  })
+
+  it('should emit `data` when `errors` is not present', function* () {
+    const data = { recommend: { organization: { _id: '123', name: 'test' } } }
+    fetchMock.mock(new RegExp(url), { data })
+    yield sdk.graph('')
+      .do((resp) => {
+        expect(resp).to.deep.equal(data)
+      })
+      .subscribeOn(Scheduler.asap)
+  })
 })
 
 describe('HttpHeaders', () => {
