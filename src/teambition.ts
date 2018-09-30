@@ -1,3 +1,17 @@
+// abstract
+
+declare module 'teambition-types' {
+  /**
+   * 可以用于获取 schema 类型上一些对象类型字段的键名，如：
+   * 用 `NestedKeys<TaskSchema, 'executor'>` 匹配
+   * `[ '_id', 'name', 'avatarUrl' ]` 这样的数组值。对于 optional
+   * 或者可能为 `null` 的字段，如 TaskSchema 上的 `executor`，
+   * 会排除 optional 或 `null` 的影响，给出当有值时该对象应该
+   * 有的字段。
+   */
+  export type NestedKeys<T, K extends keyof T> = Array<keyof NonNullable<Required<T>[K]>>
+}
+
 // id
 
 declare module 'teambition-types' {

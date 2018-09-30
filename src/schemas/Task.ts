@@ -25,8 +25,8 @@ export interface TaskSchema {
   note: string
   accomplished: string
   ancestorIds: TaskId[]
-  startDate: string
-  dueDate: string
+  startDate: string | null
+  dueDate: string | null
   priority: TaskPriority
   isDone: boolean
   isArchived: boolean
@@ -41,16 +41,16 @@ export interface TaskSchema {
   _creatorId: UserId
   _tasklistId: TasklistId
   _projectId: ProjectId | null
-  _executorId: UserId
+  _executorId: UserId | null
   _scenariofieldconfigId?: ScenarioFieldConfigId
   _taskflowstatusId?: TaskflowStatusId
   involveMembers: UserId[]
   tagIds: TagId[]
   tags?: Array<Pick<TagSchema, '_id' | 'name' | 'color'>>
-  recurrence: string[]
+  recurrence: string[] | null
   pos: number
   _sourceId: string
-  sourceDate: string
+  sourceDate: string | null
   subtaskIds: SubtaskId[]
   source: string
   customfields: CustomFieldValue[]
@@ -65,7 +65,7 @@ export interface TaskSchema {
     total: number
     done: number
   }
-  executor: ExecutorOrCreator
+  executor: ExecutorOrCreator | null
   _taskId: TaskId // id of the parent task
   parent: Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
   progress: number
