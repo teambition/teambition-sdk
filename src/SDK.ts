@@ -60,6 +60,9 @@ export class SDK {
     }
   }
 
+  graph<T extends object>(query: string, variables: Variables, withHeaders: true): Observable<T & { headers: Headers }>
+  graph<T extends object>(query: string, variables: Variables, withHeaders: false): Observable<T>
+  graph<T extends object>(query: string): Observable<T>
   graph<T extends object>(query: string, variables?: Variables, withHeaders: boolean = false) {
     if (this.graphQLClientOption == null) {
       throw Error('GraphQL server should be specified.')
@@ -77,11 +80,12 @@ export class SDK {
         { ...this.graphQLClientOption, includeHeaders: true }
       )
       .map(({ headers, body }) => {
-        if (withHeaders) {
-          const data: object = body.data
-          return  ({ ...data, headers: headers })
+        const { errors, data } = body
+        if (errors) {
+          const errmsg = errors.map(({ message }) => `${message}`)
+          throw new Error(errmsg.join('\n'))
         }
-        return body.data
+        return withHeaders ? { ...(data! as any), headers } : data!
       })
   }
 

@@ -64,9 +64,18 @@ export interface GraphQLRequestContext {
   variables?: Variables
 }
 
-export interface GraphQLResponse<T = any> {
-  data: T
-  errors?: Error[]
+// see: http://facebook.github.io/graphql/June2018/#sec-Errors
+export type GraphQLError = {
+  message: string
+  path?: Array<string | number>
+  locations?: Array<{ line: number, column: number }>
+  extensions?: { [key: string ]: any }
+}
+
+// see: http://facebook.github.io/graphql/June2018/#sec-Response-Format
+export interface GraphQLResponse<T = { [key: string]: any }> {
+  data?: T | null // see: http://facebook.github.io/graphql/June2018/#sec-Data
+  errors?: GraphQLError[] // see: http://facebook.github.io/graphql/June2018/#sec-Errors
   extensions?: any
   status: number
   [key: string]: any
