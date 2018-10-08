@@ -138,7 +138,7 @@ export namespace HomeActivityType {
   export type Team = {
     type: 'team'
     content: Common & {
-      team: Pick<TeamSchema, '_id' | 'name' | 'type'>
+      team: Pick<TeamSchema, '_id' | 'name' | 'type' | 'style'>
     }
   }
 
