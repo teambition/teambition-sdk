@@ -1,5 +1,7 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
-import { OrganizationId, ProjectId, RoleId, UserId, CollectionId, ExecutorOrCreator, Role } from 'teambition-types'
+import { OrganizationId, ProjectId, RoleId, UserId, CollectionId, ExecutorOrCreator } from 'teambition-types'
+
+import { Role } from './CustomRole'
 import { schemaColl } from './schemas'
 
 export interface OrganizationDividerSchema {
