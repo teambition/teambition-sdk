@@ -4,7 +4,8 @@ import {
   UserId,
   ProjectId,
   ProjectOrder,
-  OrganizationId
+  OrganizationId,
+  ProjectPortalMode
 } from 'teambition-types'
 import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
@@ -33,7 +34,7 @@ export interface PreferenceSchema {
   myFileOrder: string
   libraryOrder: string
   messageType: string
-  portalMode: string
+  portalMode: ProjectPortalMode
   projectOrder: ProjectOrder
   inboxSortMode: string
   openWindowMode: string
