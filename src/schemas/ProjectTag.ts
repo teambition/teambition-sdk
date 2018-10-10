@@ -11,7 +11,9 @@ export interface ProjectTagSchema {
   childProjectIds: ProjectId[] // 该分组子分组（递归）下的项目的 ids
   _creatorId?: UserId
   isDeleted: boolean
+  isStar: boolean
   hasChild: boolean
+  projectCount: number
   ancestorIds: ProjectTagId[]
   style: string
   color: DefaultColors
@@ -48,10 +50,16 @@ const schema: SchemaDef<ProjectTagSchema> = {
   isDeleted: {
     type: RDBType.BOOLEAN
   },
+  isStar: {
+    type: RDBType.BOOLEAN
+  },
   name: {
     type: RDBType.STRING
   },
   pos: {
+    type: RDBType.NUMBER
+  },
+  projectCount: {
     type: RDBType.NUMBER
   },
   projectIds: {
