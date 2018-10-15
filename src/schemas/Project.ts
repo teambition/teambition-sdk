@@ -1,6 +1,6 @@
 import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
 import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet } from 'teambition-types'
-import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
+import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId, Role } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { OrganizationPaymentPlan } from './Organization'
 import { UserPaymentPlan } from './UserMe'
@@ -56,6 +56,7 @@ export interface ProjectSchema {
   postsCount: number
   pushStatus: boolean
   py: string
+  role: Role
   shortLink?: string
   sortMethod: TaskSortMethod
   starsCount: number
@@ -204,6 +205,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   py: {
     type: RDBType.STRING
+  },
+  role: {
+    type: RDBType.OBJECT
   },
   shortLink: {
     type: RDBType.STRING
