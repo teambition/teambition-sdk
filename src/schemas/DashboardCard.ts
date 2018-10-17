@@ -17,9 +17,10 @@ export enum DashboardCardCategory {
   Official = 'official'
 }
 
-export enum DashboardDataSource {
+export enum DashboardDataBehavior {
   Tql = 'tql',
-  Api = 'api'
+  Api = 'api',
+  Jump = 'jump'
 }
 
 export enum DashboardCardType {
@@ -32,7 +33,7 @@ export interface DashboardCardSchema {
   _id: DashboardCardId
   category: DashboardCardCategory
   created: string
-  dataSource: DashboardDataSource
+  dataSource: DashboardDataBehavior
   dataUrl: string
   description: string
   isDeleted: boolean
