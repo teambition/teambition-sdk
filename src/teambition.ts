@@ -359,6 +359,7 @@ declare module 'teambition-types' {
     taskflowId?: TaskflowId[]
     taskflowstatusId?: TaskflowStatusId[]
     dateSeries?: string[]
+    testplanId?: TestplanId
   }
 
   export type TapGenericFilterResponse = Array<
@@ -399,7 +400,7 @@ declare module 'teambition-types' {
     TapFilterTarget<'groupField', 'type/String', string> |
     TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
     TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
-    TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]>
+    TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]> |
+    TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]>
     >
-
 }
