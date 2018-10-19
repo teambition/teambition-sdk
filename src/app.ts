@@ -59,12 +59,12 @@ export * from './apis'
 import { SocketClient as Client } from './sockets/SocketClient'
 
 export interface SDK {
-  readonly version: '0.6.11'
+  readonly version: '0.6.28'
   readonly socket: Client
 }
 
 const sdk = {
-  version: '0.6.11',
+  version: '0.6.28',
   socket: new Client()
 }
 
