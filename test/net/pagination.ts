@@ -3,7 +3,7 @@ import { describe, it, beforeEach, afterEach } from 'tman'
 import { Observable, Scheduler } from 'rxjs'
 import { SDKFetch } from '..'
 import * as page from '../../src/Net/Pagination'
-import { expandPage } from '../../src/apis/pagination'
+import { expandPage, KindB } from '../../src/apis/pagination'
 
 const fetchMock = require('fetch-mock')
 
@@ -15,26 +15,26 @@ describe('Pagination Spec', () => {
     nextPageToken: '456' as page.PageToken
   }
 
-  it(`${page.defaultState.name} should be immutable`, () => {
-    const app1Changes = page.defaultState(urlPath)
-    const app2remains = page.defaultState(urlPath)
+  it(`${KindB.defaultState.name} should be immutable`, () => {
+    const app1Changes = KindB.defaultState(urlPath)
+    const app2remains = KindB.defaultState(urlPath)
     Object.assign(app1Changes, { paginationUrlPath: 'event' })
     Object.assign(app1Changes, { additional: 'info' })
-    expect(app2remains).to.deep.equal(page.defaultState(urlPath))
+    expect(app2remains).to.deep.equal(KindB.defaultState(urlPath))
   })
 
-  it(`${page.defaultState.name} should allow options: pageSize`, () => {
-    expect(page.defaultState(urlPath, { pageSize: 11 }).pageSize).to.equal(11)
+  it(`${KindB.defaultState.name} should allow options: pageSize`, () => {
+    expect(KindB.defaultState(urlPath, { pageSize: 11 }).pageSize).to.equal(11)
   })
 
-  it(`${page.defaultState.name} should allow options: urlQuery`, () => {
-    expect(page.defaultState(urlPath, { urlQuery: {} }).urlQuery).to.deep.equal({})
-    expect(page.defaultState(urlPath, { urlQuery: { q: 'haha' } }).urlQuery).to.deep.equal({ q: 'haha' })
+  it(`${KindB.defaultState.name} should allow options: urlQuery`, () => {
+    expect(KindB.defaultState(urlPath, { urlQuery: {} }).urlQuery).to.deep.equal({})
+    expect(KindB.defaultState(urlPath, { urlQuery: { q: 'haha' } }).urlQuery).to.deep.equal({ q: 'haha' })
   })
 
-  it(`${page.defaultState.name} should allow pageSize be specified in options.urlQuery`, () => {
-    expect(page.defaultState(urlPath, { urlQuery: { pageSize: 11 } }).pageSize).to.equal(11)
-    expect(page.defaultState(urlPath, { pageSize: 11, urlQuery: { pageSize: 22 } }).pageSize).to.equal(11)
+  it(`${KindB.defaultState.name} should allow pageSize be specified in options.urlQuery`, () => {
+    expect(KindB.defaultState(urlPath, { urlQuery: { pageSize: 11 } }).pageSize).to.equal(11)
+    expect(KindB.defaultState(urlPath, { pageSize: 11, urlQuery: { pageSize: 22 } }).pageSize).to.equal(11)
   })
 
   it(`${page.expand.name} should complete on source$ completion`, function* () {
@@ -42,7 +42,7 @@ describe('Pagination Spec', () => {
     const expandOp = page.expand(
       () => Observable.of(sampleResponse),
       page.accumulateResultByConcat,
-      page.defaultState('')
+      KindB.defaultState('')
     )
     let isCompleted = false
     yield source$.pipe(expandOp).mergeAll().do({
@@ -71,7 +71,7 @@ describe('Pagination Spec', () => {
         return Observable.of(sampleResponse)
       },
       page.accumulateResultByConcat,
-      page.defaultState('')
+      KindB.defaultState('')
     )
     let isCompleted = false
     const infiniteSource$ = Observable.interval()
@@ -92,7 +92,7 @@ describe('Pagination Spec', () => {
     const expandOp = page.expand(
       () => Observable.of(sampleResponse),
       page.accumulateResultByConcat,
-      page.defaultState('')
+      KindB.defaultState('')
     )
     let isErrorPassedThrough = false
     yield source$.pipe(expandOp).mergeAll().do({
@@ -118,7 +118,7 @@ describe('Pagination Spec', () => {
     const expandOp = page.expand(
       () => Observable.of(sampleResponse),
       page.accumulateResultByConcat,
-      page.defaultState('')
+      KindB.defaultState('')
     )
     yield source$.pipe(expandOp).mergeAll().do((x) => {
       expect(x.nextPageToken).to.equal('456')
@@ -132,7 +132,7 @@ describe('Pagination Spec', () => {
     const expandOp = page.expand(
       () => Observable.of(sampleResponse).delay(25),
       page.accumulateResultByConcat,
-      page.defaultState('')
+      KindB.defaultState('')
     )
     const page$ = source$.pipe(expandOp).mergeAll().publishReplay(1).refCount()
 
@@ -171,7 +171,7 @@ describe('Pagination Spec', () => {
         return Observable.of(sampleResponse)
       },
       page.accumulateResultByConcat,
-      page.defaultState('')
+      KindB.defaultState('')
     )
     yield Observable.from(['first load', 'second load'])
       .pipe(expandOp)
@@ -201,7 +201,7 @@ describe('Pagination Spec', () => {
       },
       page.accumulateResultByConcat,
       {
-        ...page.defaultState(''),
+        ...KindB.defaultState(''),
         nextPage: 2,
         nextPageToken: '456' as page.PageToken,
         result: [1, 2, 3]
@@ -237,7 +237,7 @@ describe(`${expandPage.name}`, () => {
   it('should not emit new state when request fails', () => {
     fetchMock.get(new RegExp(testUrl), { status: 404 })
 
-    const initial = page.defaultState(urlPath, { pageSize: 5 })
+    const initial = KindB.defaultState(urlPath, { pageSize: 5 })
     return sdkFetch.expandPage(initial)
       .toPromise()
       .then(() => {
@@ -255,7 +255,7 @@ describe(`${expandPage.name}`, () => {
       result: [1, 2, 3, 4, 5]
     })
 
-    const initial = page.defaultState(urlPath, { pageSize: 5 })
+    const initial = KindB.defaultState(urlPath, { pageSize: 5 })
     return sdkFetch.expandPage(initial)
       .take(1)
       .toPromise()
@@ -311,7 +311,7 @@ describe(`${expandPage.name}`, () => {
       result: [1, 2, 3, 4, 5]
     })
 
-    const initial = page.defaultState(urlPath, { pageSize: 5 })
+    const initial = KindB.defaultState(urlPath, { pageSize: 5 })
     return sdkFetch.expandPage(initial, { mutate: true })
       .take(1)
       .toPromise()

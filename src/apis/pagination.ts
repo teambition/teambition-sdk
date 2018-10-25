@@ -2,6 +2,106 @@ import { Observable } from 'rxjs/Observable'
 import { SDKFetch, SDKFetchOptions } from '../SDKFetch'
 import { Page } from '../Net'
 
+abstract class PageUtil<T, S extends Page.State<T>> {
+  protected readonly state: S
+
+  constructor(state: S) {
+    this.state = state
+  }
+
+  abstract toUrlQuery(pageSize?: number): {}
+  abstract normResponse(body: unknown, headers: Headers, mapFn?: unknown): {}
+  abstract acc(resp: unknown): S
+}
+
+class KindA<T> extends PageUtil<T, Page.State<T>> {
+  toUrlQuery(pageSize?: number) {
+    return {
+      count: pageSize || this.state.pageSize || 50,
+      page: this.state.nextPage
+    }
+  }
+
+  normResponse<K>(body: T[], headers: Headers, mapFn?: MapFunc<T, K>) {
+    return !mapFn
+      ? body as any as K[]
+      : body.map((x, i, arr) => mapFn(x, i, arr, headers))
+  }
+
+  acc(resp: T[]) {
+    return {
+      ...this.state,
+      result: this.state.result.concat(resp),
+      nextPage: this.state.nextPage + 1,
+      hasMore: resp.length === this.state.pageSize
+    }
+  }
+}
+
+export class KindB<T> extends PageUtil<T, Page.State<T>> {
+
+  static defaultState<T>(
+    urlPath: string,
+    options: {
+      pageSize?: number
+      urlQuery?: {}
+    } = {}
+  ): Page.State<T> {
+    const raw: Page.State<T> = {
+      urlPath: urlPath,
+      nextPageToken: Page.emptyPageToken,
+      totalSize: undefined,
+      result: [],
+
+      nextPage: 1,
+      hasMore: true
+    }
+    if (options.pageSize) {
+      Object.assign(raw, { pageSize: options.pageSize })
+    }
+    if (options.urlQuery) {
+      const { pageSize, ...nonPaginationQuery } = options.urlQuery as any
+      Object.assign(raw, { urlQuery: nonPaginationQuery })
+      if (!raw.pageSize && pageSize) {
+        raw.pageSize = pageSize
+      }
+    }
+    return raw
+  }
+
+  toUrlQuery(pageSize?: number) {
+    return {
+      pageSize: pageSize || this.state.pageSize || 50,
+      pageToken: this.state.nextPageToken
+    }
+  }
+
+  normResponse<K>(body: Page.OriginalResponse<T>, headers: Headers, mapFn?: MapFunc<T, K>) {
+    return {
+      nextPageToken: body.nextPageToken,
+      totalSize: body.totalSize,
+      result: !mapFn
+        ? body.result as any as K[]
+        : body.result.map((x, i, arr) => mapFn(x, i, arr, headers))
+    }
+  }
+
+  acc(resp: Page.OriginalResponse<T>) {
+    return {
+      ...this.state,
+      totalSize: resp.totalSize,
+      nextPageToken: resp.nextPageToken,
+      result: this.state.result.concat(resp.result),
+      nextPage: this.state.nextPage + 1,
+      hasMore: Boolean(resp.nextPageToken) && resp.result.length === this.state.pageSize
+    }
+  }
+}
+
+function factory<T>(state: Page.State<T>): KindB<T> {
+  return new KindB(state)
+}
+
 export type MapFunc<T, K = T> = (value: T, index: number, array: T[], headers: Headers) => K
 
 export function page<T, K = T>(
@@ -17,24 +117,20 @@ export function page<T, K = T>(
 ): Observable<Page.OriginalResponse<K>> {
   const { pageSize, urlQuery, mapFn, ...requestOptions } = options
   const stateUrlQuery = state.urlQuery || {}
+  const a = factory(state)
   const paginationUrlQuery = {
     ...(urlQuery ? { ...stateUrlQuery, ...urlQuery } : stateUrlQuery),
-    pageSize: pageSize || state.pageSize || 50,
-    pageToken: state.nextPageToken
+    ...a.toUrlQuery(pageSize)
+    // pageSize: pageSize || state.pageSize || 50,
+    // pageToken: state.nextPageToken
   }
 
   return this
     .get<Page.OriginalResponse<T>>(state.urlPath, paginationUrlQuery, {
       ...requestOptions, wrapped: false, includeHeaders: true
     })
-    .map(({ headers, body: { nextPageToken, totalSize, result } }) => {
-      return {
-        nextPageToken,
-        totalSize,
-        result: !options.mapFn
-            ? result as any as K[]
-            : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers)),
-      }
+    .map(({ headers, body }) => {
+      return a.normResponse<K>(body, headers, options.mapFn)
     })
 }
 
