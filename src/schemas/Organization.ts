@@ -32,6 +32,7 @@ export interface OrganizationSchema {
   created: string
   description: string
   dividers: OrganizationDividerSchema[]
+  isExpired: boolean
   isPublic: boolean
   logo: string
   name: string
@@ -56,6 +57,7 @@ const Schema: SchemaDef<OrganizationSchema> = {
   created: { type: RDBType.DATE_TIME },
   description: { type: RDBType.STRING },
   dividers: { type: RDBType.OBJECT },
+  isExpired: { type: RDBType.BOOLEAN },
   isPublic: { type: RDBType.BOOLEAN },
   logo: { type: RDBType.STRING },
   name: { type: RDBType.STRING },
