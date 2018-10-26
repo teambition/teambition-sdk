@@ -51,6 +51,7 @@ export interface ProjectSchema {
     | 'name'
     | 'plan'
     >,
+  orgLevel: number
   owner?: UserSnippet
   permissionBinding?: {
     level: number
@@ -174,6 +175,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   name: {
     type: RDBType.STRING
+  },
+  orgLevel: {
+    type: RDBType.NUMBER
   },
   organization: {
     type: Relationship.oneToOne,
