@@ -70,7 +70,7 @@ export interface TaskSchema {
   parent: Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
   progress: number
   rating: 0 | 1 | 2 | 3 | 4 | 5
-  stage: Pick<StageSchema, '_id' | 'name'>
+  stage: Pick<StageSchema, '_id' | 'name' | 'order'>
   storyPoint: string
   sprint?: SprintSchema
   tasklist?: {
