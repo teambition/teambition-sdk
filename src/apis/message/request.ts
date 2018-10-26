@@ -5,9 +5,10 @@ import { MessageId } from 'teambition-types'
 
 export function getMessageFetch(
   this: SDKFetch,
-  messageId: MessageId
+  messageId: MessageId,
+  query?: {}
 ): Observable<MessageSchema> {
-  return this.get<MessageSchema>(`v2/messages/${messageId}`)
+  return this.get<MessageSchema>(`v2/messages/${messageId}`, query)
 }
 
 export function getMessagesFetch(
