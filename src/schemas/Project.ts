@@ -42,6 +42,7 @@ export interface ProjectSchema {
   logo: string
   membersCount: number
   name: string
+  orgLevel: number
   organization?: {
     _id: OrganizationId
     description: string
@@ -170,6 +171,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   name: {
     type: RDBType.STRING
+  },
+  orgLevel: {
+    type: RDBType.NUMBER
   },
   organization: {
     type: Relationship.oneToOne,
