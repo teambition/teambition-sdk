@@ -18,6 +18,8 @@ export type Dict<T> = {
   [key: string]: T
 }
 
+export type Omit<T, U> = Pick<T, Exclude<keyof T, U>>
+
 export type TableInfo = {
   tabName: string,
   pkName: string
