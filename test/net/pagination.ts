@@ -41,8 +41,8 @@ describe('Pagination Spec', () => {
     const source$ = Observable.empty()
     const expandOp = page.expand(
       () => Observable.of(sampleResponse),
-      page.accumulateResultByConcat,
-      page.defaultState('')
+      page.acc,
+      page.defaultState<number>('')
     )
     let isCompleted = false
     yield source$.pipe(expandOp).mergeAll().do({
@@ -70,8 +70,8 @@ describe('Pagination Spec', () => {
         }
         return Observable.of(sampleResponse)
       },
-      page.accumulateResultByConcat,
-      page.defaultState('')
+      page.acc,
+      page.defaultState<number>('')
     )
     let isCompleted = false
     const infiniteSource$ = Observable.interval()
@@ -91,8 +91,8 @@ describe('Pagination Spec', () => {
     const source$ = Observable.throw(sampleError)
     const expandOp = page.expand(
       () => Observable.of(sampleResponse),
-      page.accumulateResultByConcat,
-      page.defaultState('')
+      page.acc,
+      page.defaultState<number>('')
     )
     let isErrorPassedThrough = false
     yield source$.pipe(expandOp).mergeAll().do({
@@ -117,8 +117,8 @@ describe('Pagination Spec', () => {
     })
     const expandOp = page.expand(
       () => Observable.of(sampleResponse),
-      page.accumulateResultByConcat,
-      page.defaultState('')
+      page.acc,
+      page.defaultState<number>('')
     )
     yield source$.pipe(expandOp).mergeAll().do((x) => {
       expect(x.nextPageToken).to.equal('456')
@@ -131,8 +131,8 @@ describe('Pagination Spec', () => {
     const source$ = Observable.interval(10).take(3)
     const expandOp = page.expand(
       () => Observable.of(sampleResponse).delay(25),
-      page.accumulateResultByConcat,
-      page.defaultState('')
+      page.acc,
+      page.defaultState<number>('')
     )
     const page$ = source$.pipe(expandOp).mergeAll().publishReplay(1).refCount()
 
@@ -170,8 +170,8 @@ describe('Pagination Spec', () => {
         }
         return Observable.of(sampleResponse)
       },
-      page.accumulateResultByConcat,
-      page.defaultState('')
+      page.acc,
+      page.defaultState<number>('')
     )
     yield Observable.from(['first load', 'second load'])
       .pipe(expandOp)
@@ -199,7 +199,7 @@ describe('Pagination Spec', () => {
         }
         return Observable.of(sampleNextResponse)
       },
-      page.accumulateResultByConcat,
+      page.acc,
       {
         ...page.defaultState(''),
         nextPage: 2,
@@ -261,13 +261,16 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
+          kind: page.Kind.B,
           urlPath,
           nextPageToken: 'asdf',
           totalSize: 66,
           result: [1, 2, 3, 4, 5],
           nextPage: 2,
           hasMore: true,
-          pageSize: 5
+          pageSize: 5,
+          urlQuery: undefined,
+          limit: 5
         })
       })
   })
@@ -279,27 +282,33 @@ describe(`${expandPage.name}`, () => {
       result: [6, 7, 8, 9, 10]
     })
 
-    const currState: page.State = {
+    const currState: page.StateB = {
+      kind: page.Kind.B,
       urlPath,
       nextPageToken: 'asdf' as page.PageToken,
       totalSize: 66,
       result: [1, 2, 3, 4, 5],
       nextPage: 2,
       hasMore: true,
-      pageSize: 5
+      pageSize: 5,
+      limit: 5,
+      urlQuery: undefined
     }
     return sdkFetch.expandPage(currState)
       .take(1)
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
+          kind: page.Kind.B,
           urlPath: urlPath,
           nextPageToken: 'ghjk',
           totalSize: 66,
           result: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
           nextPage: 3,
           hasMore: true,
-          pageSize: 5
+          pageSize: 5,
+          urlQuery: undefined,
+          limit: 10
         })
       })
   })
@@ -317,13 +326,16 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then(() => {
         expect(initial).to.deep.equal({
+          kind: page.Kind.B,
           urlPath,
           nextPageToken: 'asdf',
           totalSize: 66,
           result: [1, 2, 3, 4, 5],
           nextPage: 2,
           hasMore: true,
-          pageSize: 5
+          pageSize: 5,
+          limit: 5,
+          urlQuery: undefined
         })
       })
   })
@@ -335,14 +347,16 @@ describe(`${expandPage.name}`, () => {
       result: [6, 7, 8, 9, 10]
     })
 
-    const currState: page.State<number> = {
+    const currState: page.StateB<number> = {
+      kind: page.Kind.B,
       urlPath,
       nextPageToken: 'asdf' as page.PageToken,
       totalSize: 66,
       result: [0, 1, 2, 3, 4],
       nextPage: 2,
       hasMore: true,
-      pageSize: 5
+      pageSize: 5,
+      limit: 5
     }
     return sdkFetch.expandPage<number>(currState, {
       urlQuery: {},
@@ -352,13 +366,15 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
+          kind: page.Kind.B,
           urlPath,
           nextPageToken: 'ghjk',
           totalSize: 66,
           result: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
           nextPage: 3,
           hasMore: true,
-          pageSize: 5
+          pageSize: 5,
+          limit: 10
         })
       })
   })
@@ -373,7 +389,8 @@ describe(`${expandPage.name}`, () => {
       }
     })
 
-    const currState: page.State<{ value: number, sessionId: string }> = {
+    const currState: page.StateB<{ value: number, sessionId: string }> = {
+      kind: page.Kind.B,
       urlPath,
       nextPageToken: 'asdf' as page.PageToken,
       totalSize: 66,
@@ -386,7 +403,8 @@ describe(`${expandPage.name}`, () => {
       ],
       nextPage: 2,
       hasMore: true,
-      pageSize: 5
+      pageSize: 5,
+      limit: 5
     }
     return sdkFetch.expandPage<number, { value: number, sessionId: string }>(
       currState,
@@ -402,6 +420,7 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
+          kind: page.Kind.B,
           urlPath,
           nextPageToken: 'ghjk',
           totalSize: 66,
@@ -419,7 +438,8 @@ describe(`${expandPage.name}`, () => {
           ],
           nextPage: 3,
           hasMore: true,
-          pageSize: 5
+          pageSize: 5,
+          limit: 10
         })
       })
   })
