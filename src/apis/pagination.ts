@@ -4,39 +4,99 @@ import { Page } from '../Net'
 
 export type MapFunc<T, K = T> = (value: T, index: number, array: T[], headers: Headers) => K
 
+export type RequestOptions<T, K> = SDKFetchOptions & {
+  pageSize?: number
+  urlQuery?: {}
+  mapFn?: MapFunc<T, K>
+  includeHeaders?: true
+  wrapped?: false
+}
+
+function toUrlQuery<T>(state: Page.PolyState<T>, perRequestPageSize?: number, perRequestUrlQuery?: {}): {} {
+  const urlQuery = { ...state.urlQuery, ...perRequestUrlQuery }
+
+  const pageSize = perRequestPageSize
+    || (urlQuery && (urlQuery['pageSize'] || urlQuery['count']))
+    || state.pageSize
+
+  switch (state.kind) {
+    case Page.Kind.PageCount:
+      urlQuery['page'] = state.nextPage
+      urlQuery['count'] = pageSize
+      break
+    case Page.Kind.PageToken:
+      urlQuery['pageToken'] = state.nextPageToken
+      urlQuery['pageSize'] = pageSize
+      break
+  }
+  return urlQuery
+}
+
+export function page<T, K = T>(this: SDKFetch, state: Page.PageCountState<K>, options?: RequestOptions<T, K>): Observable<K[]>
+export function page<T, K = T>(this: SDKFetch, state: Page.PageTokenState<K>, options?: RequestOptions<T, K>): Observable<Page.OriginalResponse<K>>
+export function page<T, K = T>(
+  this: SDKFetch, state: Page.PolyState<K>, options?: RequestOptions<T, K>
+): Observable<K[]> | Observable<Page.OriginalResponse<K>>
 export function page<T, K = T>(
   this: SDKFetch,
-  state: Page.State<K>,
-  options: SDKFetchOptions & {
-    pageSize?: number
-    urlQuery?: {}
-    mapFn?: MapFunc<T, K>
-    includeHeaders?: true
-    wrapped?: false
-  } = {}
-): Observable<Page.OriginalResponse<K>> {
+  state: Page.PolyState<K>,
+  options: RequestOptions<T, K> = {}
+): Observable<any> {
   const { pageSize, urlQuery, mapFn, ...requestOptions } = options
-  const stateUrlQuery = state.urlQuery || {}
-  const paginationUrlQuery = {
-    ...(urlQuery ? { ...stateUrlQuery, ...urlQuery } : stateUrlQuery),
-    pageSize: pageSize || state.pageSize || 50,
-    pageToken: state.nextPageToken
-  }
+  const paginationUrlQuery = toUrlQuery(state, pageSize, urlQuery)
 
   return this
-    .get<Page.OriginalResponse<T>>(state.urlPath, paginationUrlQuery, {
+    .get<T[] | Page.OriginalResponse<T>>(state.urlPath, paginationUrlQuery, {
       ...requestOptions, wrapped: false, includeHeaders: true
     })
-    .map(({ headers, body: { nextPageToken, totalSize, result } }) => {
-      return {
-        nextPageToken,
-        totalSize,
-        result: !options.mapFn
+    .map(({ headers, body }) => {
+      switch (state.kind) {
+        case Page.Kind.PageCount: {
+          const result = body as T[]
+          return !options.mapFn
             ? result as any as K[]
-            : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers)),
+            : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers))
+        }
+        case Page.Kind.PageToken: {
+          const resp = body as Page.OriginalResponse<T>
+          const result = resp.result
+          return {
+            nextPageToken: resp.nextPageToken,
+            totalSize: resp.totalSize,
+            result: !options.mapFn
+              ? result as any as K[]
+              : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers))
+          }
+        }
+        default:
+          return body
       }
     })
 }
+
+export type ExpandPageOptions<T, K> = RequestOptions<T, K> & {
+  mutate?: boolean
+  loadMore$?: Observable<{}>
+  skipConcat?: boolean
+}
+
+export function expandPage<T, K = T>(
+  this: SDKFetch,
+  state: Page.PageCountState<K>,
+  options?: ExpandPageOptions<T, K>
+): Observable<Page.PageCountState<K>>
+
+export function expandPage<T, K = T>(
+  this: SDKFetch,
+  state: Page.PageTokenState<K>,
+  options?: ExpandPageOptions<T, K>
+): Observable<Page.PageTokenState<K>>
+
+export function expandPage<T, K = T>(
+  this: SDKFetch,
+  state: Page.PolyState<K>,
+  options?: ExpandPageOptions<T, K>
+): Observable<Page.PolyState<K>>
 
 /**
  * 结合当前分页状态，发起下一页请求，获得返回结果，并推出新的分页状态。
@@ -48,19 +108,18 @@ export function page<T, K = T>(
  */
 export function expandPage<T, K = T>(
   this: SDKFetch,
-  state: Page.State<K>,
-  options: SDKFetchOptions & {
-    pageSize?: number
-    urlQuery?: {}
-    mapFn?: MapFunc<T, K>
-    includeHeaders?: true
-    wrapped?: false
-    mutate?: boolean
-    loadMore$?: Observable<{}>
-  } = {}
-): Observable<Page.State<K>> {
-  const { mutate, loadMore$, ...requestOptions } = options
-  const page$ = Page.loadAndExpand((s) => this.page(s, requestOptions), state, loadMore$)
+  state: Page.PolyState<K>,
+  options: ExpandPageOptions<T, K> = {}
+): Observable<Page.PolyState<K>> {
+  const { mutate, loadMore$, skipConcat, ...requestOptions } = options
+  const page$ = (loadMore$ || Observable.empty())
+    .startWith({})
+    .pipe(Page.expand<K>(
+      (s) => this.page(s, requestOptions),
+      skipConcat ? Page.accWithoutConcat : Page.acc,
+      state
+    ))
+    .mergeAll()
   return !mutate ? page$ : page$.do((nextState) => Object.assign(state, nextState))
 }
 
