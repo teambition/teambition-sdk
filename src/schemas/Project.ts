@@ -2,7 +2,7 @@ import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
 import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
-import { OrganizationPaymentPlan } from './Organization'
+import { OrganizationSchema } from './Organization'
 import { UserPaymentPlan } from './UserMe'
 
 export interface ProjectSchema {
@@ -41,18 +41,22 @@ export interface ProjectSchema {
   logo: string
   membersCount: number
   name: string
-  organization?: {
-    _id: OrganizationId
-    description: string
-    isExpired: boolean
-    isPublic: boolean
-    logo: string
-    name: string
-    plan: OrganizationPaymentPlan
-  }
+  organization?: Pick<OrganizationSchema,
+    | '_id'
+    | 'description'
+    | 'isExpired'
+    | 'isPublic'
+    | 'logo'
+    | 'name'
+    | 'plan'
+    >,
   owner?: UserSnippet
-  plan?: UserPaymentPlan
+  permissionBinding?: {
+    level: number
+    permissions: string[]
+  }
   pinyin: string
+  plan?: UserPaymentPlan
   postsCount: number
   pushStatus: boolean
   py: string
@@ -187,11 +191,14 @@ const Schema: SchemaDef<ProjectSchema> = {
       })
     }
   },
-  plan: {
+  permissionBinding: {
     type: RDBType.OBJECT
   },
   pinyin: {
     type: RDBType.STRING
+  },
+  plan: {
+    type: RDBType.OBJECT
   },
   postsCount: {
     type: RDBType.NUMBER
