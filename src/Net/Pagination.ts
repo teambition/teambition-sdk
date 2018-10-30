@@ -49,6 +49,15 @@ export type StateOptions = {
   urlQuery?: {}
 }
 
+export type InitOptions<T extends {} = {}> = Omit<StateOptions, 'kind'> & {
+  urlQuery?: T
+}
+
+export type Update<T> = {
+  patch?: T[]
+  limit?: number
+}
+
 export function defaultState<T>(urlPath: string, options: StateOptions & { kind: Kind.A }): StateA<T>
 export function defaultState<T>(urlPath: string): StateB<T>
 export function defaultState<T>(urlPath: string, options: Omit<StateOptions, 'kind'>): StateB<T>
