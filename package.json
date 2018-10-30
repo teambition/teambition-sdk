@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.33-alpha.1-polypage",
+  "version": "0.12.33-alpha.2-polypage",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
