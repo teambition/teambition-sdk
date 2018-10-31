@@ -2,7 +2,6 @@ import 'rxjs/add/observable/forkJoin'
 import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/concatAll'
 import 'rxjs/add/operator/do'
-import 'rxjs/add/operator/exhaustMap'
 import 'rxjs/add/operator/mapTo'
 import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/switchMap'
@@ -156,17 +155,15 @@ export class Net {
     const hasPaddingFunction = typeof padding === 'function'
     const pk = this.primaryKeys.get(tableName)
 
-    let fn: (stream$: Observable<T[]>) => Observable<T[]>
-
-    if (!hasRequiredFields || !hasPaddingFunction || !pk) {
-      fn = (stream$) => stream$ // pass through
-    } else {
-      fn = (stream$) =>
-        stream$.exhaustMap(data => !data.length
-          ? Observable.of(data)
-          : Observable.from(data)
+    const fn = (stream$: Observable<T[]>) =>
+      stream$.switchMap(data => !data.length
+        ? Observable.of(data)
+        : Observable.forkJoin(
+          Observable.from(data)
             .mergeMap(datum => {
-              if (required!.every(k => typeof datum[k] !== 'undefined')) {
+              if (!hasRequiredFields || !hasPaddingFunction || !pk ||
+                required!.every(k => typeof datum[k] !== 'undefined')
+              ) {
                 return Observable.of(datum)
               }
               const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
@@ -174,9 +171,9 @@ export class Net {
                 .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
                 .do(r => Object.assign(datum, r))
             })
-            .mapTo(data)
         )
-    }
+          .mapTo(data)
+      )
     fn.toString = () => 'SDK_VALIDATE'
     return fn
   }
