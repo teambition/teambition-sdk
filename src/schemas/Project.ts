@@ -4,6 +4,7 @@ import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId 
 import { schemaColl } from './schemas'
 import { OrganizationSchema } from './Organization'
 import { UserPaymentPlan } from './UserMe'
+import { Role } from './CustomRole'
 
 export interface ProjectSchema {
   _creatorId: UserId
@@ -50,6 +51,7 @@ export interface ProjectSchema {
     | 'name'
     | 'plan'
     >,
+  orgLevel: number
   owner?: UserSnippet
   permissionBinding?: {
     level: number
@@ -60,6 +62,7 @@ export interface ProjectSchema {
   postsCount: number
   pushStatus: boolean
   py: string
+  role: Role
   shortLink?: string
   sortMethod: TaskSortMethod
   starsCount: number
@@ -173,6 +176,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   name: {
     type: RDBType.STRING
   },
+  orgLevel: {
+    type: RDBType.NUMBER
+  },
   organization: {
     type: Relationship.oneToOne,
     virtual: {
@@ -211,6 +217,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   py: {
     type: RDBType.STRING
+  },
+  role: {
+    type: RDBType.OBJECT
   },
   shortLink: {
     type: RDBType.STRING

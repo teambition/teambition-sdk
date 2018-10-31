@@ -1,5 +1,7 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { OrganizationId, ProjectId, RoleId, UserId, CollectionId, ExecutorOrCreator } from 'teambition-types'
+
+import { Role } from './CustomRole'
 import { schemaColl } from './schemas'
 
 export interface OrganizationDividerSchema {
@@ -43,6 +45,7 @@ export interface OrganizationSchema {
   projectIds: ProjectId[]
   py: string
   staffTypes: string[]
+  role: Role
 }
 
 const Schema: SchemaDef<OrganizationSchema> = {
@@ -67,7 +70,8 @@ const Schema: SchemaDef<OrganizationSchema> = {
   positions: { type: RDBType.OBJECT },
   projectIds: { type: RDBType.LITERAL_ARRAY },
   py: { type: RDBType.STRING },
-  staffTypes: { type: RDBType.OBJECT },
+  role: { type: RDBType.OBJECT },
+  staffTypes: { type: RDBType.OBJECT }
 }
 
 schemaColl.add({ name: 'Organization', schema: Schema })

@@ -9,9 +9,13 @@ export interface CustomRoleSchema<T extends CustomRoleType = CustomRoleType> {
   _organizationId: OrganizationId
   updated: string
   created: string
+  isDefault: boolean
+  level: number
   permissions: string[]
   type: T
 }
+
+export type Role = CustomRoleSchema<'project' | 'organization'>
 
 const schema: SchemaDef<CustomRoleSchema> = {
   _creatorId: {
@@ -38,6 +42,12 @@ const schema: SchemaDef<CustomRoleSchema> = {
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  isDefault: {
+    type: RDBType.BOOLEAN
+  },
+  level: {
+    type: RDBType.NUMBER
   }
 }
 
