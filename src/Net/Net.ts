@@ -3,7 +3,6 @@ import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/concatAll'
 import 'rxjs/add/operator/do'
 import 'rxjs/add/operator/exhaustMap'
-import 'rxjs/add/operator/last'
 import 'rxjs/add/operator/mapTo'
 import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/switchMap'
@@ -163,10 +162,10 @@ export class Net {
       fn = (stream$) => stream$ // pass through
     } else {
       fn = (stream$) =>
-        stream$.exhaustMap((data) => !data.length
+        stream$.exhaustMap(data => !data.length
           ? Observable.of(data)
           : Observable.from(data)
-            .mergeMap((datum) => {
+            .mergeMap(datum => {
               if (required!.every(k => typeof datum[k] !== 'undefined')) {
                 return Observable.of(datum)
               }
@@ -175,7 +174,6 @@ export class Net {
                 .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
                 .do(r => Object.assign(datum, r))
             })
-            .last()
             .mapTo(data)
         )
     }

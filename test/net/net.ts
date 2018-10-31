@@ -315,68 +315,6 @@ describe('Net test', () => {
         })
     })
 
-    it('padding: should emit once for one change update on a result set of size >= 2', function* () {
-      httpBackend.whenGET(`${apiHost}/${path}`)
-        .respond([])
-
-      spyFetch = spy(sdkFetch, 'get')
-
-      const eventData = projectEvents[0]
-      const _projectId = projectEvents[0]._projectId
-
-      const partialEvent1 = { _id: uuid(), _projectId }
-      const partialEvent2 = { _id: uuid(), _projectId }
-      const completeEvent1 = { ...eventData, ...partialEvent1 }
-      const completeEvent2 = { ...eventData, ...partialEvent2 }
-
-      const stream$ = net.lift({
-        cacheValidate: CacheStrategy.Request,
-        request: sdkFetch.get<any>(path),
-        query: {
-          where: { _projectId },
-        },
-        tableName: 'Event',
-        excludeFields: [
-          'isDeleted', 'source', 'type', 'url', 'attachmentsCount', 'commentsCount',
-          'involvers', 'likesCount'
-        ],
-        required: ['startDate'],
-        padding: (id: string) => sdkFetch.get<any>(`api/events/${id}`)
-      })
-        .changes()
-
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
-
-      httpBackend.whenGET(`${apiHost}/api/events/${partialEvent1._id}`).respond(completeEvent1)
-      httpBackend.whenGET(`${apiHost}/api/events/${partialEvent2._id}`).respond(completeEvent2)
-
-      yield database.insert('Event', [partialEvent1, partialEvent2])
-
-      let emitCount = 0
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .do((events) => {
-          emitCount++
-          // 确认推出的数据个数和内容是正确的
-          expect(events).to.have.lengthOf(2)
-          events.forEach((event) => {
-            if (event._id === partialEvent1._id) {
-              expectToDeepEqualForFieldsOfTheExpected(event, completeEvent1)
-            } else if (event._id === partialEvent2._id) {
-              expectToDeepEqualForFieldsOfTheExpected(event, completeEvent2)
-            } else {
-              throw new Error('should emit padded data')
-            }
-          })
-        })
-        .takeUntil(Observable.timer(100)) // 给一个较长的时间，确定没有再推出数据
-        .do({ complete: () => {
-          expect(emitCount).to.equal(1)
-        } })
-    })
-
     it('should get result from cached Response and consumed by `values`', function* () {
       httpBackend.whenGET(`${apiHost}/${path}`)
         .respond(projectEvents)
