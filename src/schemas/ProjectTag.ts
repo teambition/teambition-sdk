@@ -19,6 +19,10 @@ export interface ProjectTagSchema {
   color: DefaultColors
   created: string
   updated: string
+  permissionBinding?: {
+    level: number
+    permissions: string[]
+  }
 }
 
 const schema: SchemaDef<ProjectTagSchema> = {
@@ -55,6 +59,9 @@ const schema: SchemaDef<ProjectTagSchema> = {
   },
   name: {
     type: RDBType.STRING
+  },
+  permissionBinding: {
+    type: RDBType.OBJECT
   },
   pos: {
     type: RDBType.NUMBER
