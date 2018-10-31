@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.34-alpha.1-rollbackpadding",
+  "version": "0.12.34-alpha.2-rollbackpaddingperm",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
