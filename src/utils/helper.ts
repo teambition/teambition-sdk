@@ -195,3 +195,7 @@ export const hasMorePages = <T>(
 
   return data.length >= pageSize * (nextPage - 1)
 }
+
+export const isNonNullable = <T>(x: T): x is NonNullable<T> => {
+  return x != null
+}

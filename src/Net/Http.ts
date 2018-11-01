@@ -7,9 +7,8 @@ import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
-import { parseHeaders } from '../utils/index'
 import { testable } from '../testable'
-import { forEach } from '../utils'
+import { forEach, isNonNullable, parseHeaders } from '../utils'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
 
@@ -48,7 +47,7 @@ const rxAjaxDefaultHeaderKey2NormKey = {
  */
 const coverRxAjaxHeadersBug = (normHeaders: {}) => {
   forEach(rxAjaxDefaultHeaderKey2NormKey, (val, key) => {
-    if (normHeaders[val] != null) {
+    if (isNonNullable(normHeaders[val])) {
       normHeaders[key] = normHeaders[val]
       delete normHeaders[val]
     }
