@@ -2,19 +2,20 @@ import 'rxjs/add/observable/forkJoin'
 import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/concatAll'
 import 'rxjs/add/operator/do'
-import 'rxjs/add/operator/exhaustMap'
 import 'rxjs/add/operator/last'
 import 'rxjs/add/operator/mapTo'
 import 'rxjs/add/operator/mergeMap'
 import 'rxjs/add/operator/switchMap'
 import 'rxjs/add/operator/filter'
 import { Observable } from 'rxjs/Observable'
+import { OperatorFunction } from 'rxjs/interfaces'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import { exhaustMap } from 'rxjs/operators/exhaustMap'
 import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
 import { JoinMode } from 'reactivedb/interface'
 import { Database, Query, Predicate, ExecutorResult } from 'reactivedb'
 
-import { forEach, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
+import { forEach, isNonNullable, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
 
 /**
@@ -142,6 +143,9 @@ const fieldsPred =
     }
   }
 
+const hasFields = <T>(datum: T, fields: Array<keyof T>) =>
+  fields.every((field) => typeof datum[field] !== 'undefined')
+
 export class Net {
   public fields = new Map<string, string[]>()
   public database: Database | undefined
@@ -153,31 +157,30 @@ export class Net {
   private validate = <T>(result: ApiResult<T, CacheStrategy>) => {
     const { tableName, required, padding } = result
 
-    const hasRequiredFields = Array.isArray(required)
-    const hasPaddingFunction = typeof padding === 'function'
     const pk = this.primaryKeys.get(tableName)
 
-    let fn: (stream$: Observable<T[]>) => Observable<T[]>
+    let fn: OperatorFunction<T[], T[]>
 
-    if (!hasRequiredFields || !hasPaddingFunction || !pk) {
+    if (!required || !padding || !pk) {
       fn = (stream$) => stream$ // pass through
     } else {
-      fn = (stream$) =>
-        stream$.exhaustMap((data) => !data.length
-          ? Observable.of(data)
-          : Observable.from(data)
-            .mergeMap((datum) => {
-              if (required!.every(k => typeof datum[k] !== 'undefined')) {
-                return Observable.of(datum)
-              }
-              const patch = padding!(datum[pk]).filter(r => r != null) as Observable<T>
-              return patch
-                .concatMap(r => this.database!.upsert(tableName, r).mapTo(r))
-                .do(r => Object.assign(datum, r))
-            })
-            .last()
-            .mapTo(data)
-        )
+      fn = exhaustMap((resultSet) => {
+        if (!resultSet.length) {
+          return Observable.of(resultSet)
+        }
+        return Observable.from(resultSet)
+          .mergeMap((resultItem) => {
+            if (hasFields(resultItem, required)) {
+              return Observable.of(resultItem)
+            }
+            return padding(resultItem[pk])
+              .filter(isNonNullable)
+              .concatMap((resp) => this.database!.upsert(tableName, resp).mapTo(resp))
+              .do((resp) => Object.assign(resultItem, resp))
+          })
+          .last()
+          .mapTo(resultSet)
+      })
     }
     fn.toString = () => 'SDK_VALIDATE'
     return fn

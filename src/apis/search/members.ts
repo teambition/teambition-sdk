@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import { UserId, TeamId, ProjectId, OrganizationId, GroupId } from 'teambition-types'
 import { SDKFetch } from '../../SDKFetch'
+import { isNonNullable } from '../../utils'
 
 /**
  * 后端从 members/search 接口正常返回的数据结构。
@@ -31,7 +32,7 @@ export const buildPath = (scope: Scope): string | null => {
     return suffix
   }
 
-  if (scope.id && scope.type != null) {
+  if (scope.id && isNonNullable(scope.type)) {
     const pathSegments = [suffix]
     const id = scope.id as string
     switch (scope.type) {
