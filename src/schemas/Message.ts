@@ -31,7 +31,7 @@ export interface MessageSchema {
   isRead: boolean
   unreadActivitiesCount: number
   boundToObjectUpdated: string
-  creator?: ExecutorOrCreator
+  creator?: ExecutorOrCreator // 不能对应到 User 表，因为有些插件相关消息包含外部用户信息，他们没有 _id
   title: string
   subtitle: string
   _latestActivityId?: ActivityId
