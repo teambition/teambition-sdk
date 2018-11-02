@@ -116,6 +116,14 @@ export interface UserMe {
   region: string
 }
 
+/*
+ * 描述用户相关的完整信息，一般只有当前用户自身的
+ * 相应条目各个字段都有值，其他条目多来自其他表
+ * 关联的 creator, executor 字段。是与 UserMe
+ * 同等的类型，名字与其他 schema 类型更一致。
+ */
+export interface UserSchema extends UserMe {}
+
 const Schema: SchemaDef<UserMe> = {
   _id: {
     type: RDBType.STRING,
