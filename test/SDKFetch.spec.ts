@@ -1,10 +1,15 @@
-import { expect } from 'chai'
+import * as chai from 'chai'
 import { Observable, Scheduler } from 'rxjs'
+import * as sinon from 'sinon'
+import * as sinonChai from 'sinon-chai'
 import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDK, SDKFetch, forEach, Http, HttpErrorMessage, headers2Object, createSdk } from '.'
 import { clone } from './'
 
 import { defaultSDKFetchHeaders, HttpHeaders } from '../src/SDKFetch'
+
+const expect = chai.expect
+chai.use(sinonChai)
 
 const fetchMock = require('fetch-mock')
 
@@ -495,6 +500,87 @@ describe('SDKFetch options', () => {
         })
         .subscribeOn(Scheduler.asap)
     })
+  })
+
+})
+
+describe('after pipe', () => {
+  let sdk: SDK
+  const url = 'https://www.example.com/v2/project'
+
+  beforeEach(() => {
+    sdk = createSdk()
+    sdk.fetch.setAPIHost('https://www.example.com')
+  })
+
+  afterEach(() => {
+    fetchMock.restore()
+  })
+
+  it('should execute callback 1', function* () {
+    fetchMock.mock(new RegExp(url), { data: [{ _projectId: 1 }] })
+    const spy = sinon.spy()
+    sdk.fetch.after('\/v2\/project', spy)
+
+    yield sdk.fetch.get('v2/project')
+      .subscribeOn(Scheduler.asap)
+
+    expect(spy).to.be.calledWith({ data: [{ _projectId: 1 }] })
+    expect(spy).to.be.calledOnce
+  })
+
+  it('should execute callback 2', function* () {
+    fetchMock.mock(new RegExp(url), { data: [{ _projectId: 1 }] })
+    const spy = sinon.spy()
+    sdk.fetch.after('\/v2\/project', spy)
+
+    yield sdk.fetch.get('v2/project', {}, { includeHeaders: true })
+      .subscribeOn(Scheduler.asap)
+
+    expect(spy).to.be.calledWith({ data: [{ _projectId: 1 }] })
+    expect(spy).to.be.calledOnce
+  })
+
+  it('should execute all callbacks', function* () {
+    fetchMock.mock(new RegExp(url), { data: [{ _projectId: 1 }] })
+    const spy1 = sinon.spy()
+    const spy2 = sinon.spy()
+    const spy3 = sinon.spy()
+    const spy4 = sinon.spy()
+    const spy5 = sinon.spy()
+
+    sdk.fetch
+      .after('\/v2\/project', spy1)
+      .after('\/v2\/project', spy2)
+      .after('\/v2\/project', spy3)
+      .after('\/v2\/project', spy4)
+      .after('\/v2\/project', spy5)
+
+    yield sdk.fetch.get('v2/project')
+      .subscribeOn(Scheduler.asap)
+
+    expect(spy1).to.be.calledWith({ data: [{ _projectId: 1 }] })
+    expect(spy1).to.be.calledOnce
+    expect(spy2).to.be.calledWith({ data: [{ _projectId: 1 }] })
+    expect(spy2).to.be.calledOnce
+    expect(spy3).to.be.calledWith({ data: [{ _projectId: 1 }] })
+    expect(spy3).to.be.calledOnce
+    expect(spy4).to.be.calledWith({ data: [{ _projectId: 1 }] })
+    expect(spy4).to.be.calledOnce
+    expect(spy5).to.be.calledWith({ data: [{ _projectId: 1 }] })
+    expect(spy5).to.be.calledOnce
+  })
+
+  it('should not execute callback', function* () {
+    fetchMock.mock(new RegExp(url), { data: [{ _projectId: 1 }] })
+    const spy1 = sinon.spy()
+
+    sdk.fetch.after('\/v2\/kkkkk', spy1)
+
+    yield sdk.fetch.get('v2/project')
+      .subscribeOn(Scheduler.asap)
+
+    expect(spy1).to.be.not.called
   })
 
 })

@@ -7,8 +7,13 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { forEach, uuid } from './utils'
+import { forEach, uuid, pathToRE, clone } from './utils'
 import { SDKLogger } from './utils/Logger'
+
+export interface AfterPipe {
+  re: RegExp,
+  effect: Function
+}
 
 export type SDKFetchOptions = {
   apiHost?: string
@@ -88,7 +93,9 @@ export class SDKFetch {
     private token: string = '',
     private headers: {} = defaultSDKFetchHeaders(),
     private options: {} = {}
-  ) {}
+  ) { }
+
+  private afterPipes: AfterPipe[] = []
 
   static FetchStack = new Map<string, Observable<any>>()
   static fetchTail: string | undefined | 0
@@ -118,7 +125,27 @@ export class SDKFetch {
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
       const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get().send() as any)
+      dist = Observable.defer(() => {
+        return http.setUrl(urlWithTail)
+          .get()
+          .send() as any
+      })
+        .do((result) => {
+          for (let i = 0; i < this.afterPipes.length; i++) {
+            const pipe = this.afterPipes[i]
+            if (!pipe.re.test(urlWithQuery)) {
+              continue
+            }
+
+            try {
+              const payload = options.includeHeaders
+                ? (result as HttpResponseWithHeaders<T>).body
+                : result
+
+              pipe.effect(clone(payload))
+            } catch { /* ignore */ }
+          }
+        })
         .publishReplay<any>(1)
         .refCount()
         .finally(() => {
@@ -248,6 +275,17 @@ export class SDKFetch {
 
   getOptions() {
     return { ...this.options }
+  }
+
+  after(urlPath: string, effect: Function) {
+    const re = pathToRE(urlPath, { prefix: false, fromStart: false })
+
+    this.afterPipes.push({
+      re,
+      effect
+    })
+
+    return this
   }
 
   private setOptionsPerRequest(

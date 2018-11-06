@@ -1,9 +1,11 @@
 const DELIMITER = '/'
 const DELIMITERS = './'
 
-interface Option {
+export interface Option {
   delimiter?: string
   delimiters?: string
+  prefix: boolean
+  fromStart: boolean
 }
 
 type EventToken = string | {
@@ -25,7 +27,7 @@ const escape = {
   group: (s: string) => s.replace(/([=!:$/()])/g, '\\$1')
 }
 
-const tokenizer = (str: string, option?: Option) => {
+const tokenizer = (str: string, option: Option) => {
 
   const tokens: EventToken[] = []
   const defaultDelimiter = (option && option.delimiter) || DELIMITER
@@ -34,19 +36,21 @@ const tokenizer = (str: string, option?: Option) => {
   let prefix: string = ''
   let prefixRes: RegExpExecArray | null
 
-  while ((prefixRes = prefixRE.exec(str)) !== null) {
-    if (prefix !== '') {
+  if (option.prefix === true) {
+    while ((prefixRes = prefixRE.exec(str)) !== null) {
+      if (prefix !== '') {
+        throw new Error('Invalid socket event')
+      }
+      prefix = prefixRes[1]
+      str = str.slice(prefix.length)
+    }
+
+    if (prefix === '') {
       throw new Error('Invalid socket event')
     }
-    prefix = prefixRes[1]
-    str = str.slice(prefix.length)
-  }
 
-  if (prefix === '') {
-    throw new Error('Invalid socket event')
+    tokens.push(prefix)
   }
-
-  tokens.push(prefix)
 
   let key = 0
   let index = 0
@@ -109,7 +113,7 @@ const tokenizer = (str: string, option?: Option) => {
   return tokens
 }
 
-const tokenToRegexp = (tokens: EventToken[], option: Option = {}) => {
+const tokenToRegexp = (tokens: EventToken[], option: Option) => {
   const delimiter = escape.string(option.delimiter || DELIMITER)
 
   let ret = ''
@@ -133,11 +137,12 @@ const tokenToRegexp = (tokens: EventToken[], option: Option = {}) => {
   }
 
   ret += `(?:${delimiter})?`
-  return new RegExp('^' + ret, 'ig')
+  const re = option.fromStart ? '^' + ret : ret
+  return new RegExp(re, 'ig')
 }
 
-export const eventToRegexp = (str: string) => {
-  const tokens = tokenizer(str)
-  const re = tokenToRegexp(tokens)
+export const pathToRegexp = (str: string, option: Option = { prefix: true, fromStart: true }) => {
+  const tokens = tokenizer(str, option)
+  const re = tokenToRegexp(tokens, option)
   return re
 }

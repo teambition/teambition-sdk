@@ -13,7 +13,7 @@ import {
   normPagingQuery,
   isEmptyObject,
   hasMorePages,
-  eventToRE
+  pathToRE
 } from '../index'
 
 const expect = chai.expect
@@ -373,12 +373,12 @@ export default describe('utils test', () => {
     expect(hasMorePages(gen(27), size2, 3, { page: 3, hasMore: true })).to.be.true
   })
 
-  it('eventToRE does NOT support wild card, for now', () => {
-    expect(() => eventToRE('')).to.throw('Invalid socket event')
-    expect(() => eventToRE('\*')).to.throw('Invalid socket event')
+  it('pathToRE does NOT support wild card, for now', () => {
+    expect(() => pathToRE('')).to.throw('Invalid socket event')
+    expect(() => pathToRE('\*')).to.throw('Invalid socket event')
   })
 
-  it('eventToRE should build regexp correctly', () => {
+  it('pathToRE should build regexp correctly', () => {
     const fixture = [
       {
         target: ':change:task',
@@ -454,7 +454,7 @@ export default describe('utils test', () => {
 
     for (const { result, event, target } of fixture) {
       const expectPred = result ? expect(event) : expect(event).not
-      expectPred.match(eventToRE(target))
+      expectPred.match(pathToRE(target))
     }
   })
 })

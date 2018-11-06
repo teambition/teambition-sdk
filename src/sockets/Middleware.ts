@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs/Subscription'
 import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
 import { Subject } from 'rxjs/Subject'
 
-import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
+import { forEach, ParsedWSMsg, createProxy, pathToRE, WSMsgToDBHandler } from '../utils'
 
 export type Flags = {
   /**
@@ -155,7 +155,7 @@ export class Proxy {
    * 返回函数用于移除所注册的回调。
    */
   on(pattern: string, handler: MsgHandler): MsgHandlerRemoval {
-    const re = eventToRE(pattern)
+    const re = pathToRE(pattern)
 
     return this.register((msg: ParsedWSMsg) => {
       if (msg.source && re.test(msg.source)) {
