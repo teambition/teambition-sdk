@@ -136,7 +136,7 @@ export class SDKFetch {
             if (!pipe.re.test(urlWithQuery)) {
               continue
             }
-
+            pipe.re.lastIndex = 0
             try {
               const payload = options.includeHeaders
                 ? (result as HttpResponseWithHeaders<T>).body
