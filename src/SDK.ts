@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import { Database } from 'reactivedb'
 import { Net } from './Net'
-import { forEach } from './utils'
+import { forEach, isNonNullable } from './utils'
 import { SDKFetch } from './SDKFetch'
 import * as socket from './sockets'
 import * as socketInterceptor from './sockets/interceptor'
@@ -65,7 +65,7 @@ export class SDK {
   graph<T extends object>(query: string, variables?: Variables): Observable<T>
   graph<T extends object>(query: string): Observable<T>
   graph<T extends object>(query: string, variables?: Variables, withHeaders: boolean = false) {
-    if (this.graphQLClientOption == null) {
+    if (!isNonNullable(this.graphQLClientOption)) {
       throw Error('GraphQL server should be specified.')
     }
 
