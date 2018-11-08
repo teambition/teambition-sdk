@@ -49,6 +49,12 @@ const schema: SchemaDef<ProjectTagSchema> = {
   created: {
     type: RDBType.DATE_TIME
   },
+  description: {
+    type: RDBType.STRING
+  },
+  dueDate: {
+    type: RDBType.DATE_TIME
+  },
   hasChild: {
     type: RDBType.BOOLEAN
   },
@@ -57,6 +63,9 @@ const schema: SchemaDef<ProjectTagSchema> = {
   },
   isStar: {
     type: RDBType.BOOLEAN
+  },
+  masters: {
+    type: RDBType.OBJECT
   },
   name: {
     type: RDBType.STRING
@@ -73,6 +82,9 @@ const schema: SchemaDef<ProjectTagSchema> = {
   projectIds: {
     type: RDBType.LITERAL_ARRAY
   },
+  startDate: {
+    type: RDBType.DATE_TIME
+  },
   style: {
     type: RDBType.STRING
   },
@@ -80,18 +92,6 @@ const schema: SchemaDef<ProjectTagSchema> = {
     type: RDBType.DATE_TIME
   },
   visibility: {
-    type: RDBType.STRING
-  },
-  masters: {
-    type: RDBType.OBJECT
-  },
-  startDate: {
-    type: RDBType.STRING
-  },
-  dueDate: {
-    type: RDBType.STRING
-  },
-  description: {
     type: RDBType.STRING
   }
 }
