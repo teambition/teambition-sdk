@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { OrganizationId, ProjectId, ProjectTagId, UserId, DefaultColors } from 'teambition-types'
+import { OrganizationId, ProjectId, ProjectTagId, UserId } from 'teambition-types'
 
 export interface ProjectTagSchema {
   _id: ProjectTagId
@@ -16,9 +16,13 @@ export interface ProjectTagSchema {
   projectCount: number
   ancestorIds: ProjectTagId[]
   style: string
-  color: DefaultColors
   created: string
   updated: string
+  visibility?: string
+  masters?: UserId[]
+  startDate?: string
+  dueDate?: string
+  description?: string
   permissionBinding?: {
     level: number
     permissions: string[]
@@ -41,9 +45,6 @@ const schema: SchemaDef<ProjectTagSchema> = {
   },
   childProjectIds: {
     type: RDBType.LITERAL_ARRAY
-  },
-  color: {
-    type: RDBType.STRING
   },
   created: {
     type: RDBType.DATE_TIME
@@ -77,6 +78,21 @@ const schema: SchemaDef<ProjectTagSchema> = {
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  visibility: {
+    type: RDBType.STRING
+  },
+  masters: {
+    type: RDBType.OBJECT
+  },
+  startDate: {
+    type: RDBType.STRING
+  },
+  dueDate: {
+    type: RDBType.STRING
+  },
+  description: {
+    type: RDBType.STRING
   }
 }
 
