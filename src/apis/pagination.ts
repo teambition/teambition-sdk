@@ -20,13 +20,13 @@ function toUrlQuery<T>(state: Page.PolyState<T>, perRequestPageSize?: number, pe
     || state.pageSize
 
   switch (state.kind) {
-    case Page.Kind.A:
+    case Page.Kind.PageCount:
       return {
         ...urlQuery,
         page: state.nextPage,
         count: pageSize
       }
-    case Page.Kind.B:
+    case Page.Kind.PageToken:
       return {
         ...urlQuery,
         pageSize,
@@ -37,8 +37,8 @@ function toUrlQuery<T>(state: Page.PolyState<T>, perRequestPageSize?: number, pe
   }
 }
 
-export function page<T, K = T>(this: SDKFetch, state: Page.StateA<K>, options?: RequestOptions<T, K>): Observable<K[]>
-export function page<T, K = T>(this: SDKFetch, state: Page.StateB<K>, options?: RequestOptions<T, K>): Observable<Page.OriginalResponse<K>>
+export function page<T, K = T>(this: SDKFetch, state: Page.PageCountState<K>, options?: RequestOptions<T, K>): Observable<K[]>
+export function page<T, K = T>(this: SDKFetch, state: Page.PageTokenState<K>, options?: RequestOptions<T, K>): Observable<Page.OriginalResponse<K>>
 export function page<T, K = T>(
   this: SDKFetch, state: Page.PolyState<K>, options?: RequestOptions<T, K>
 ): Observable<K[]> | Observable<Page.OriginalResponse<K>>
@@ -56,13 +56,13 @@ export function page<T, K = T>(
     })
     .map(({ headers, body }) => {
       switch (state.kind) {
-        case Page.Kind.A: {
+        case Page.Kind.PageCount: {
           const result = body as T[]
           return !options.mapFn
             ? result as any as K[]
             : result.map((x, i, arr) => options.mapFn!(x, i, arr, headers))
         }
-        case Page.Kind.B: {
+        case Page.Kind.PageToken: {
           const resp = body as Page.OriginalResponse<T>
           const result = resp.result
           return {
@@ -85,9 +85,24 @@ export type ExpandPageOptions<T, K> = RequestOptions<T, K> & {
   doNotConcat?: boolean
 }
 
-export function expandPage<T, K = T>(this: SDKFetch, state: Page.StateA<K>, options?: ExpandPageOptions<T, K>): Observable<Page.StateA<K>>
-export function expandPage<T, K = T>(this: SDKFetch, state: Page.StateB<K>, options?: ExpandPageOptions<T, K>): Observable<Page.StateB<K>>
-export function expandPage<T, K = T>(this: SDKFetch, state: Page.PolyState<K>, options?: ExpandPageOptions<T, K>): Observable<Page.PolyState<K>>
+export function expandPage<T, K = T>(
+  this: SDKFetch,
+  state: Page.PageCountState<K>,
+  options?: ExpandPageOptions<T, K>
+): Observable<Page.PageCountState<K>>
+
+export function expandPage<T, K = T>(
+  this: SDKFetch,
+  state: Page.PageTokenState<K>,
+  options?: ExpandPageOptions<T, K>
+): Observable<Page.PageTokenState<K>>
+
+export function expandPage<T, K = T>(
+  this: SDKFetch,
+  state: Page.PolyState<K>,
+  options?: ExpandPageOptions<T, K>
+): Observable<Page.PolyState<K>>
+
 /**
  * 结合当前分页状态，发起下一页请求，获得返回结果，并推出新的分页状态。
  * @param state 当前分页的状态

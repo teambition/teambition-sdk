@@ -25,13 +25,13 @@ describe('Pagination Spec', () => {
       expect(app2remains).to.deep.equal(page.defaultState(urlPath))
     })
 
-    it(`should default to kind '${page.Kind.B}'`, () => {
-      expect(page.defaultState(urlPath).kind).to.equal(page.Kind.B)
+    it(`should default to kind '${page.Kind.PageToken}'`, () => {
+      expect(page.defaultState(urlPath).kind).to.equal(page.Kind.PageToken)
     })
 
     it(`should allow options: kind`, () => {
-      expect(page.defaultState(urlPath, { kind: page.Kind.A }).kind).to.equal(page.Kind.A)
-      expect(page.defaultState(urlPath, { kind: page.Kind.B }).kind).to.equal(page.Kind.B)
+      expect(page.defaultState(urlPath, { kind: page.Kind.PageCount }).kind).to.equal(page.Kind.PageCount)
+      expect(page.defaultState(urlPath, { kind: page.Kind.PageToken }).kind).to.equal(page.Kind.PageToken)
     })
 
     it(`should allow options: pageSize`, () => {
@@ -50,7 +50,7 @@ describe('Pagination Spec', () => {
 
     it(`should produce expected state shape for each kind`, () => {
       const expectedKindAState = {
-        kind: page.Kind.A,
+        kind: page.Kind.PageCount,
         urlPath,
         result: [],
         nextPage: 1,
@@ -60,7 +60,7 @@ describe('Pagination Spec', () => {
         limit: 0
       }
       const expectedKindBState = {
-        kind: page.Kind.B,
+        kind: page.Kind.PageToken,
         urlPath,
         result: [],
         nextPage: 1,
@@ -71,9 +71,9 @@ describe('Pagination Spec', () => {
         nextPageToken: page.emptyPageToken,
         totalSize: undefined
       }
-      expect(page.defaultState(urlPath, { kind: page.Kind.A })).to.deep.equal(expectedKindAState)
+      expect(page.defaultState(urlPath, { kind: page.Kind.PageCount })).to.deep.equal(expectedKindAState)
       expect(page.defaultState(urlPath)).to.deep.equal(expectedKindBState)
-      expect(page.defaultState(urlPath, { kind: page.Kind.B })).to.deep.equal(expectedKindBState)
+      expect(page.defaultState(urlPath, { kind: page.Kind.PageToken })).to.deep.equal(expectedKindBState)
     })
   })
 
@@ -267,8 +267,8 @@ describe(`${expandPage.name}`, () => {
   const urlPath = 'task'
   const testUrl = `${apiHost}/${urlPath}`
   const pageSize = 5
-  const initStateA = Object.freeze(page.defaultState(urlPath, { pageSize, kind: page.Kind.A }))
-  const initStateB = Object.freeze(page.defaultState(urlPath, { pageSize, kind: page.Kind.B }))
+  const initStateA = Object.freeze(page.defaultState(urlPath, { pageSize, kind: page.Kind.PageCount }))
+  const initStateB = Object.freeze(page.defaultState(urlPath, { pageSize, kind: page.Kind.PageToken }))
   const initStates = [initStateA, initStateB]
 
   beforeEach(() => {
@@ -294,7 +294,7 @@ describe(`${expandPage.name}`, () => {
     })
   })
 
-  it(`state kind ${page.Kind.A}: should emit new state (based on initial state) on successful request`, () => {
+  it(`state kind ${page.Kind.PageCount}: should emit new state (based on initial state) on successful request`, () => {
     fetchMock.get(new RegExp(testUrl), [1, 2, 3, 4, 5])
 
     return sdkFetch.expandPage(initStateA)
@@ -302,7 +302,7 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
-          kind: page.Kind.A,
+          kind: page.Kind.PageCount,
           urlPath,
           result: [1, 2, 3, 4, 5],
           nextPage: 2,
@@ -314,7 +314,7 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.B}: should emit new state (based on initial state) on successful request`, () => {
+  it(`state kind ${page.Kind.PageToken}: should emit new state (based on initial state) on successful request`, () => {
     fetchMock.get(new RegExp(testUrl), {
       nextPageToken: 'asdf',
       totalSize: 66,
@@ -326,7 +326,7 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
-          kind: page.Kind.B,
+          kind: page.Kind.PageToken,
           urlPath,
           nextPageToken: 'asdf',
           totalSize: 66,
@@ -340,11 +340,11 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.A}: should emit new state (based on non-initial state) on successful request`, () => {
+  it(`state kind ${page.Kind.PageCount}: should emit new state (based on non-initial state) on successful request`, () => {
     fetchMock.get(new RegExp(testUrl), [6, 7, 8, 9, 10])
 
-    const currState: page.StateA = {
-      kind: page.Kind.A,
+    const currState: page.PageCountState = {
+      kind: page.Kind.PageCount,
       urlPath,
       result: [1, 2, 3, 4, 5],
       nextPage: 2,
@@ -358,7 +358,7 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
-          kind: page.Kind.A,
+          kind: page.Kind.PageCount,
           urlPath: urlPath,
           result: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
           nextPage: 3,
@@ -370,15 +370,15 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.B}: should emit new state (based on non-initial state) on successful request`, () => {
+  it(`state kind ${page.Kind.PageToken}: should emit new state (based on non-initial state) on successful request`, () => {
     fetchMock.get(new RegExp(testUrl), {
       nextPageToken: 'ghjk',
       totalSize: 66,
       result: [6, 7, 8, 9, 10]
     })
 
-    const currState: page.StateB = {
-      kind: page.Kind.B,
+    const currState: page.PageTokenState = {
+      kind: page.Kind.PageToken,
       urlPath,
       nextPageToken: 'asdf' as page.PageToken,
       totalSize: 66,
@@ -394,7 +394,7 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
-          kind: page.Kind.B,
+          kind: page.Kind.PageToken,
           urlPath: urlPath,
           nextPageToken: 'ghjk',
           totalSize: 66,
@@ -408,7 +408,7 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.A}: should expand on options.loadMore$`, function* () {
+  it(`state kind ${page.Kind.PageCount}: should expand on options.loadMore$`, function* () {
     fetchMock.get(new RegExp(testUrl), (url, options) => {
       const pageNums = ['1', '2', '3']
       const i = url.indexOf('?')
@@ -442,7 +442,7 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.B}: should expand on options.loadMore$`, function* () {
+  it(`state kind ${page.Kind.PageToken}: should expand on options.loadMore$`, function* () {
     fetchMock.get(new RegExp(testUrl), (url, options) => {
       const pageTokens = ['', 'a', 'b', 'c']
       const i = url.indexOf('?')
@@ -482,11 +482,11 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.A}: should disable default concat behavior on options.doNotConcat: true`, () => {
+  it(`state kind ${page.Kind.PageCount}: should disable default concat behavior on options.doNotConcat: true`, () => {
     fetchMock.get(new RegExp(testUrl), [6, 7, 8, 9, 10])
 
-    const currState: page.StateA = {
-      kind: page.Kind.A,
+    const currState: page.PageCountState = {
+      kind: page.Kind.PageCount,
       urlPath,
       result: [1, 2, 3, 4, 5],
       nextPage: 2,
@@ -506,15 +506,15 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.B}: should disable default concat behavior on options.doNotConcat: true`, () => {
+  it(`state kind ${page.Kind.PageToken}: should disable default concat behavior on options.doNotConcat: true`, () => {
     fetchMock.get(new RegExp(testUrl), {
       nextPageToken: 'ghjk',
       totalSize: 66,
       result: [6, 7, 8, 9, 10]
     })
 
-    const currState: page.StateB = {
-      kind: page.Kind.B,
+    const currState: page.PageTokenState = {
+      kind: page.Kind.PageToken,
       urlPath,
       nextPageToken: 'asdf' as page.PageToken,
       totalSize: 66,
@@ -536,7 +536,7 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.A}: should mutate state on successful request on options.mutate: true`, () => {
+  it(`state kind ${page.Kind.PageCount}: should mutate state on successful request on options.mutate: true`, () => {
     fetchMock.get(new RegExp(testUrl), [1, 2, 3, 4])
     const initial = { ...initStateA }
     return sdkFetch.expandPage(initial, { mutate: true })
@@ -549,7 +549,7 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.B}: should mutate state on successful request on options.mutate: true`, () => {
+  it(`state kind ${page.Kind.PageToken}: should mutate state on successful request on options.mutate: true`, () => {
     fetchMock.get(new RegExp(testUrl), {
       nextPageToken: 'asdf',
       totalSize: 4,
@@ -568,11 +568,11 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.A}: should allow mapFn to be applied to all the items in result`, () => {
+  it(`state kind ${page.Kind.PageCount}: should allow mapFn to be applied to all the items in result`, () => {
     fetchMock.get(new RegExp(testUrl), [6, 7, 8, 9, 10])
 
-    const currState: page.StateA<number> = {
-      kind: page.Kind.A,
+    const currState: page.PageCountState<number> = {
+      kind: page.Kind.PageCount,
       urlPath,
       result: [0, 1, 2, 3, 4],
       nextPage: 2,
@@ -591,15 +591,15 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
-  it(`state kind ${page.Kind.B}: should allow mapFn to be applied to all the items in result`, () => {
+  it(`state kind ${page.Kind.PageToken}: should allow mapFn to be applied to all the items in result`, () => {
     fetchMock.get(new RegExp(testUrl), {
       nextPageToken: 'ghjk',
       totalSize: 66,
       result: [6, 7, 8, 9, 10]
     })
 
-    const currState: page.StateB<number> = {
-      kind: page.Kind.B,
+    const currState: page.PageTokenState<number> = {
+      kind: page.Kind.PageToken,
       urlPath,
       nextPageToken: 'asdf' as page.PageToken,
       totalSize: 66,
@@ -630,8 +630,8 @@ describe(`${expandPage.name}`, () => {
       }
     })
 
-    const currState: page.StateB<{ value: number, sessionId: string }> = {
-      kind: page.Kind.B,
+    const currState: page.PageTokenState<{ value: number, sessionId: string }> = {
+      kind: page.Kind.PageToken,
       urlPath,
       nextPageToken: 'asdf' as page.PageToken,
       totalSize: 66,
@@ -661,7 +661,7 @@ describe(`${expandPage.name}`, () => {
       .toPromise()
       .then((resultState) => {
         expect(resultState).to.deep.equal({
-          kind: page.Kind.B,
+          kind: page.Kind.PageToken,
           urlPath,
           nextPageToken: 'ghjk',
           totalSize: 66,
@@ -760,7 +760,7 @@ describe(`${expandPage.name}`, () => {
       })
       .mergeMap((grouped$) => {
         const key = grouped$.key
-        const init: page.StateB<number> = { ...initStateB, urlPath: key, result: [] }
+        const init: page.PageTokenState<number> = { ...initStateB, urlPath: key, result: [] }
         const firstPage$ = grouped$.filter(({ signal }) => signal === 'initial load')
         const restPages$ = grouped$.filter(({ signal }) => signal === 'load more')
 

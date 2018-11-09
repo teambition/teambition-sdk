@@ -10,8 +10,8 @@ export type PageToken = string & { kind: 'PageToken' }
 export const emptyPageToken = '' as PageToken
 
 export enum Kind {
-  A = 'a',
-  B = 'b'
+  PageCount = 'PageCount',
+  PageToken = 'PageToken'
 }
 
 export type CommonState<T = {}> = {
@@ -29,19 +29,19 @@ export type CommonState<T = {}> = {
   limit: number
 }
 
-export type StateA<T = {}> = CommonState<T> & {
-  kind: Kind.A
+export type PageCountState<T = {}> = CommonState<T> & {
+  kind: Kind.PageCount
 }
 
-export type StateB<T = {}> = CommonState<T> & {
-  kind: Kind.B
+export type PageTokenState<T = {}> = CommonState<T> & {
+  kind: Kind.PageToken
   nextPageToken: PageToken
   totalSize?: number
 }
 
-export type State<T = {}> = StateB<T>
+export type State<T = {}> = PageTokenState<T>
 
-export type PolyState<T = {}> = StateA<T> | StateB<T>
+export type PolyState<T = {}> = PageCountState<T> | PageTokenState<T>
 
 export type StateOptions = {
   kind?: Kind
@@ -58,17 +58,17 @@ export type Update<T> = {
   limit?: number
 }
 
-export function defaultState<T>(urlPath: string, options: StateOptions & { kind: Kind.A }): StateA<T>
-export function defaultState<T>(urlPath: string): StateB<T>
-export function defaultState<T>(urlPath: string, options: Omit<StateOptions, 'kind'>): StateB<T>
-export function defaultState<T>(urlPath: string, options: StateOptions & { kind: Kind.B }): StateB<T>
+export function defaultState<T>(urlPath: string, options: StateOptions & { kind: Kind.PageCount }): PageCountState<T>
+export function defaultState<T>(urlPath: string): PageTokenState<T>
+export function defaultState<T>(urlPath: string, options: Omit<StateOptions, 'kind'>): PageTokenState<T>
+export function defaultState<T>(urlPath: string, options: StateOptions & { kind: Kind.PageToken }): PageTokenState<T>
 export function defaultState<T>(urlPath: string, options: StateOptions): PolyState<T>
 export function defaultState<T>(
   urlPath: string,
   options: StateOptions = {}
 ): PolyState<T> {
   const state: CommonState<T> = {
-    kind: options.kind || Kind.B,
+    kind: options.kind || Kind.PageToken,
     urlPath,
     result: [],
     nextPage: 1,
@@ -85,9 +85,9 @@ export function defaultState<T>(
   }
   state.pageSize = options.pageSize || state.pageSize
 
-  return state.kind === Kind.A
-    ? state as StateA<T>
-    : { ...state, nextPageToken: emptyPageToken, totalSize: undefined } as StateB<T>
+  return state.kind === Kind.PageCount
+    ? state as PageCountState<T>
+    : { ...state, nextPageToken: emptyPageToken, totalSize: undefined } as PageTokenState<T>
 }
 
 export type OriginalResponse<T> = {
@@ -96,8 +96,8 @@ export type OriginalResponse<T> = {
   totalSize?: number
 }
 
-export function accWithoutConcat<T>(state: StateA<T>, resp: T[]): StateA<T>
-export function accWithoutConcat<T>(state: StateB<T>, resp: OriginalResponse<T>): StateB<T>
+export function accWithoutConcat<T>(state: PageCountState<T>, resp: T[]): PageCountState<T>
+export function accWithoutConcat<T>(state: PageTokenState<T>, resp: OriginalResponse<T>): PageTokenState<T>
 export function accWithoutConcat<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T>
 export function accWithoutConcat<T>(
   state: PolyState<T>,
@@ -107,13 +107,13 @@ export function accWithoutConcat<T>(
   const limit = state.nextPage * state.pageSize
 
   switch (state.kind) {
-    case Kind.A: {
+    case Kind.PageCount: {
       const r = resp as T[]
       const hasMore = r.length === state.pageSize
       const result = r
       return { ...state, nextPage, limit, hasMore, result }
     }
-    case Kind.B: {
+    case Kind.PageToken: {
       const r = resp as OriginalResponse<T>
       const hasMore = Boolean(r.nextPageToken) && r.result.length === state.pageSize
       const result = r.result
@@ -126,8 +126,8 @@ export function accWithoutConcat<T>(
   }
 }
 
-export function acc<T>(state: StateA<T>, resp: T[]): StateA<T>
-export function acc<T>(state: StateB<T>, resp: OriginalResponse<T>): StateB<T>
+export function acc<T>(state: PageCountState<T>, resp: T[]): PageCountState<T>
+export function acc<T>(state: PageTokenState<T>, resp: OriginalResponse<T>): PageTokenState<T>
 export function acc<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T>
 export function acc<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T> {
   const nextState = accWithoutConcat(state, resp)
@@ -139,16 +139,16 @@ export function acc<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): Po
 }
 
 export function expand<T>(
-  step: (curr: StateA<T>) => Observable<T[]>,
-  accumulate: (state: StateA<T>, resp: T[]) => StateA<T>,
-  initState: StateA<T>
-): OperatorFunction<{}, Observable<StateA<T>>>
+  step: (curr: PageCountState<T>) => Observable<T[]>,
+  accumulate: (state: PageCountState<T>, resp: T[]) => PageCountState<T>,
+  initState: PageCountState<T>
+): OperatorFunction<{}, Observable<PageCountState<T>>>
 
 export function expand<T>(
-  step: (curr: StateB<T>) => Observable<OriginalResponse<T>>,
-  accumulate: (state: StateB<T>, resp: OriginalResponse<T>) => StateB<T>,
-  initState: StateB<T>
-): OperatorFunction<{}, Observable<StateB<T>>>
+  step: (curr: PageTokenState<T>) => Observable<OriginalResponse<T>>,
+  accumulate: (state: PageTokenState<T>, resp: OriginalResponse<T>) => PageTokenState<T>,
+  initState: PageTokenState<T>
+): OperatorFunction<{}, Observable<PageTokenState<T>>>
 
 export function expand<T>(
   step: ((curr: PolyState<T>) => Observable<unknown>),
