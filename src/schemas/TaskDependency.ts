@@ -1,4 +1,4 @@
-import { RDBType, SchemaDef } from 'reactivedb/interface'
+import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
 import {
   TaskDependencyId,
   TaskDependencyKind,
@@ -6,8 +6,9 @@ import {
   UserId,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
+import { TaskSchema } from './Task'
 
-export interface TaskDependencySchema {
+export type TaskDependencySchema<T = ''> = {
   _id: TaskDependencyId
   _fromId: TaskId
   _toId: TaskId
@@ -15,9 +16,12 @@ export interface TaskDependencySchema {
   kind: TaskDependencyKind
   created: string
   updated: string
-}
+} & (T extends 'with-task' ? {
+  from: TaskSchema
+  to: TaskSchema
+} : {})
 
-const schema: SchemaDef<TaskDependencySchema> = {
+const schema: SchemaDef<TaskDependencySchema<'with-task'>> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true
@@ -31,11 +35,29 @@ const schema: SchemaDef<TaskDependencySchema> = {
   _creatorId: {
     type: RDBType.STRING,
   },
+  created: {
+    type: RDBType.DATE_TIME,
+  },
+  from: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'Task',
+      where: (taskTable: any) => ({
+        _fromId: taskTable._id
+      })
+    }
+  },
   kind: {
     type: RDBType.STRING,
   },
-  created: {
-    type: RDBType.DATE_TIME,
+  to: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'Task',
+      where: (taskTable: any) => ({
+        _toId: taskTable._id
+      })
+    }
   },
   updated: {
     type: RDBType.DATE_TIME,
