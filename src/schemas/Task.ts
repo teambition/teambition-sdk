@@ -1,5 +1,5 @@
 import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
-import { CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption, OrganizationId } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption, OrganizationId, TaskDivisionType } from 'teambition-types'
 import {
   ProjectId,
   ScenarioFieldConfigId,
@@ -26,6 +26,7 @@ export interface TaskSchema {
   accomplished: string
   ancestorIds: TaskId[]
   startDate: string | null
+  divisions?: TaskDivisionType[]
   dueDate: string | null
   priority: TaskPriority
   isDone: boolean
@@ -156,6 +157,9 @@ const schema: SchemaDef<TaskSchema> = {
     }
   },
   customfields: {
+    type: RDBType.OBJECT
+  },
+  divisions: {
     type: RDBType.OBJECT
   },
   dueDate: {
