@@ -4,7 +4,8 @@ import {
   UserId,
   TagId,
   ProjectId,
-  FileId
+  FileId,
+  VisibleOption
 } from 'teambition-types'
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
@@ -32,7 +33,7 @@ export interface PostSchema {
   tagIds: TagId[]
   title: string
   updated: string
-  visible: string
+  visible: VisibleOption
   likesCount: number
   objectlinksCount: number
   shareStatus: number
