@@ -23,7 +23,7 @@ describe('TaskDivision Request', () => {
     const divisions = ['scenariofields'] as TaskDivisionType[]
 
     const url = `/tasks/${taskId}/divisions`
-    fetchMock.once(url, { divisions })
+    fetchMock.putOnce(url, { divisions })
 
     yield sdkFetch
       .updateTaskDivisions(taskId, divisions)
