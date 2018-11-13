@@ -90,6 +90,11 @@ export function defaultState<T>(
     : { ...state, nextPageToken: emptyPageToken, totalSize: undefined } as PageTokenState<T>
 }
 
+// todo: test, doc
+export function queryInfo<T>(state: CommonState<T>): Update<T> {
+  return { patch: state.result, limit: state.limit }
+}
+
 export type OriginalResponse<T> = {
   nextPageToken: PageToken
   result: T[]
