@@ -19,6 +19,7 @@ export interface CustomFieldSchema {
   created: string
   description: string
   displayed: boolean
+  externalUrl: string
   name: string
   pos: number
   type: CustomFieldType
@@ -65,6 +66,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   displayed: {
     type: RDBType.BOOLEAN
+  },
+  externalUrl: {
+    type: RDBType.STRING
   },
   name: {
     type: RDBType.STRING

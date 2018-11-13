@@ -16,6 +16,7 @@ export interface CustomFieldLinkBaseSchema {
   choices: CustomFieldChoiceSchema[]
   description: string
   displayed: boolean
+  externalUrl?: string // 可能字段不存在
   name: string
   pos: number
   type: CustomFieldType
@@ -63,6 +64,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   },
   displayed: {
     type: RDBType.BOOLEAN
+  },
+  externalUrl: {
+    type: RDBType.STRING
   },
   name: {
     type: RDBType.STRING
