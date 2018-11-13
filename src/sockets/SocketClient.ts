@@ -9,7 +9,6 @@ import 'rxjs/add/operator/take'
 import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Net } from '../Net'
-import { Database } from 'reactivedb'
 import { SDKFetch } from '../SDKFetch'
 import { socketHandler, createMsgToDBHandler, createMsgHandler } from './EventMaps'
 import { Interceptors, Proxy } from './Middleware'
@@ -17,6 +16,7 @@ import * as Consumer from 'snapper-consumer'
 import { UserMe } from '../schemas/UserMe'
 import { TableInfoByMessageType } from './MapToTable'
 import { WSMsgToDBHandler, WSMsgHandler } from '../utils'
+import { WorkerClient } from '../worker/WorkerClient'
 
 declare const global: any
 
@@ -50,7 +50,7 @@ export class SocketClient {
   private handleMsgToDB: WSMsgToDBHandler
   private handleMsg: WSMsgHandler
 
-  private database: Database | undefined
+  private rdbWorker?: WorkerClient
 
   constructor(
     private fetch: SDKFetch,
@@ -99,8 +99,8 @@ export class SocketClient {
     })
   }
 
-  initReactiveDB(database: Database) {
-    this.database = database
+  initRDBWorker(worker: WorkerClient) {
+    this.rdbWorker = worker
     if (this._client) {
       this._client.onmessage = this._onmessage.bind(this)
     }
@@ -193,7 +193,7 @@ export class SocketClient {
       this.handleMsgToDB,
       this.handleMsg,
       this.mapToTable,
-      this.database
+      this.rdbWorker,
     )
       .toPromise()
       .then(null, (err: any) => ctx['console']['error'](err))

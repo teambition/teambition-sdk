@@ -10,6 +10,7 @@ import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
 import { Subject } from 'rxjs/Subject'
 
 import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
+import { WorkerClient } from '../worker/WorkerClient'
 
 export type Flags = {
   /**
@@ -76,7 +77,7 @@ class Sequence {
 
 }
 
-export type MsgToDBHandler = (msg: ParsedWSMsg, db: Database) => void | ControlFlow | Observable<any>
+export type MsgToDBHandler = (msg: ParsedWSMsg, worker: WorkerClient) => void | ControlFlow | Observable<any>
 
 /**
  * websocket 拦截器的序列。

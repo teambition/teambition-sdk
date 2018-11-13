@@ -3,8 +3,9 @@
  * 有多个文件需要用到的，可以放此处。
  */
 
-import { Database, SchemaDef } from 'reactivedb'
+import { SchemaDef } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
+import { WorkerClient } from '../worker/WorkerClient'
 
 export type GeneralSchemaDef = SchemaDef<{}>
 
@@ -52,7 +53,7 @@ export interface ParsedWSMsg {
 
 export type WSMsgToDBHandler = (
   msg: ParsedWSMsg,
-  db: Database,
+  rdbWorker: WorkerClient
 ) => Observable<any>
 
 export type WSMsgHandler = (msg: ParsedWSMsg) => Observable<any>

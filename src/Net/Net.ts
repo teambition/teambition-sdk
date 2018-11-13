@@ -17,6 +17,7 @@ import { Database, Query, Predicate, ExecutorResult } from 'reactivedb'
 
 import { forEach, isNonNullable, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
+import { WorkerClient } from '../worker/WorkerClient'
 
 /**
  * 用于 SDK 非更新 `lift()` 接口 `CacheValidate` 字段的
@@ -130,8 +131,8 @@ export type SelectorBufferObject = {
 export type BufferObject = CUDBufferObject | SocketCUDBufferObject | SelectorBufferObject
 
 const dbGetWithSelfJoinEnabled =
-  <T>(db: Database, table: string, query: Query<T>): QueryToken<T> => {
-    return db.get(table, query, JoinMode.explicit)
+  <T>(worker: WorkerClient, table: string, query: Query<T>): QueryToken<T> => {
+    return new QueryToken(worker.postMessage<ProxySelector<T>>('get', [table, query, JoinMode.explicit]))
   }
 
 const fieldsPred =
@@ -148,7 +149,7 @@ const hasFields = <T>(datum: T, fields: Array<keyof T>) =>
 
 export class Net {
   public fields = new Map<string, string[]>()
-  public database: Database | undefined
+  public rdbWorker: WorkerClient | undefined
   private requestMap = new Map<string, boolean>()
   private primaryKeys = new Map<string, string>()
   public persistedDataBuffer: BufferObject[] = []
@@ -175,7 +176,7 @@ export class Net {
             }
             return padding(resultItem[pk])
               .filter(isNonNullable)
-              .concatMap((resp) => this.database!.upsert(tableName, resp).mapTo(resp))
+              .delayWhen(resp => this.rdbWorker!.postMessage('upsert', [tableName, resp]))
               .do((resp) => Object.assign(resultItem, resp))
           })
           .last()
@@ -225,8 +226,7 @@ export class Net {
   handleApiResult<T>(
     result: ApiResult<T, CacheStrategy>
   ): QueryToken<T> {
-    const database = this.database
-    if (!database) {
+    if (!this.rdbWorker) {
       return this.bufferResponse(result)
     }
 
@@ -234,11 +234,11 @@ export class Net {
   }
 
   handleCUDAResult<T>(result: CUDApiResult<T>) {
-    if (!this.database) {
+    if (!this.rdbWorker) {
       return this.bufferCUDResponse(result)
     }
 
-    const database = this.database!
+    const rdbWorker = this.rdbWorker!
 
     const { request, method, tableName } = result as CUDApiResult<T>
     let destination: Observable<ExecutorResult> | Observable<T | T[]>
@@ -246,13 +246,13 @@ export class Net {
       .concatMap(v => {
         switch (method) {
           case 'create':
-            destination = database.upsert<T>(tableName, v)
+            destination = rdbWorker.postMessage<T>('upsert', [tableName, v])
             break
           case 'update':
-            destination = database.upsert(tableName, v)
+            destination = rdbWorker.postMessage<T>('upsert', [tableName, v])
             break
           case 'delete':
-            destination = database.delete<T>(tableName, (result as UDResult<T>).clause)
+            destination = rdbWorker.postMessage<T>('delete', [tableName, (result as UDResult<T>).clause])
             break
           default:
             throw new Error()
@@ -261,55 +261,55 @@ export class Net {
       })
   }
 
-  persist(database: Database) {
-    if (!this.database) {
-      this.database = database
-    }
+  // persist(database: Database) {
+  //   if (!this.database) {
+  //     this.database = database
+  //   }
 
-    const asyncQueue: Observable<any>[] = []
+  //   const asyncQueue: Observable<any>[] = []
 
-    forEach(this.persistedDataBuffer, (v: BufferObject) => {
-      let p: Observable<any> | null = null
+  //   forEach(this.persistedDataBuffer, (v: BufferObject) => {
+  //     let p: Observable<any> | null = null
 
-      switch (v.kind) {
-        case 'CUD':
-          p = database[v.method](v.tableName, v.value)
-          break
-        case 'SocketCUD':
-          if (this.msgToDB) {
-            p = this.msgToDB(v.socketMessage, database)
-          }
-          break
-        case 'Selector':
-          const cacheControl$ = v.proxySelector
-          const token = this.handleRequestCache(v.realSelectorInfo)
-          const selector$ = token.selector$
+  //     switch (v.kind) {
+  //       case 'CUD':
+  //         p = database[v.method](v.tableName, v.value)
+  //         break
+  //       case 'SocketCUD':
+  //         if (this.msgToDB) {
+  //           p = this.msgToDB(v.socketMessage, database)
+  //         }
+  //         break
+  //       case 'Selector':
+  //         const cacheControl$ = v.proxySelector
+  //         const token = this.handleRequestCache(v.realSelectorInfo)
+  //         const selector$ = token.selector$
 
-          p = selector$
-            .do({
-              next(selector) {
-                cacheControl$.next(selector)
-              }
-            })
-          break
-        default:
-          break
-      }
+  //         p = selector$
+  //           .do({
+  //             next(selector) {
+  //               cacheControl$.next(selector)
+  //             }
+  //           })
+  //         break
+  //       default:
+  //         break
+  //     }
 
-      if (p) {
-        asyncQueue.push(p)
-      }
-    })
+  //     if (p) {
+  //       asyncQueue.push(p)
+  //     }
+  //   })
 
-    this.persistedDataBuffer.length = 0
+  //   this.persistedDataBuffer.length = 0
 
-    return Observable.from(asyncQueue).concatAll().do({
-      error: async (err: Observable<Error>) => {
-        const errObj = await err.toPromise()
-        SDKLogger.error(errObj.message)
-      }
-    })
-  }
+  //   return Observable.from(asyncQueue).concatAll().do({
+  //     error: async (err: Observable<Error>) => {
+  //       const errObj = await err.toPromise()
+  //       SDKLogger.error(errObj.message)
+  //     }
+  //   })
+  // }
 
   bufferResponse<T>(result: ApiResult<T, CacheStrategy>) {
 
@@ -356,7 +356,7 @@ export class Net {
   }
 
   private handleRequestCache<T>(result: ApiResult<T, CacheStrategy>) {
-    const database = this.database!
+    const rdbWorker = this.rdbWorker!
     const {
       request,
       q,
@@ -375,19 +375,19 @@ export class Net {
         if (!requestCache) {
           /*tslint:disable no-shadowed-variable*/
           const selector$ = response$
-            .concatMap(v => database.upsert(tableName, v))
+            .concatMap(v => rdbWorker.postMessage('upsert', [tableName, v]))
             .do(() => this.requestMap.set(cacheKey, true))
-            .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+            .concatMap(() => dbGetWithSelfJoinEnabled<T>(rdbWorker, tableName, q).selector$)
           token = new QueryToken(selector$)
         } else {
-          token = dbGetWithSelfJoinEnabled<T>(database, tableName, q)
+          token = dbGetWithSelfJoinEnabled<T>(rdbWorker, tableName, q)
         }
         token.map(this.validate(result))
         break
       case CacheStrategy.Cache:
         const selector$ = response$
-          .concatMap(v => database.upsert(tableName, v))
-          .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
+          .concatMap(v => rdbWorker.postMessage('upsert', [tableName, v]))
+          .concatMap(() => dbGetWithSelfJoinEnabled<T>(rdbWorker, tableName, q).selector$)
         return new QueryToken(selector$)
       default:
         throw new TypeError('unreachable code path')

@@ -8,6 +8,7 @@ import { eventParser } from './EventParser'
 import { ParsedWSMsg, WSMsgHandler, WSMsgToDBHandler } from '../utils'
 import { TableInfoByMessageType } from './MapToTable'
 import { Proxy } from './Middleware'
+import { WorkerClient } from '../worker/WorkerClient'
 
 const methodMap: any = {
   'change': 'upsert',
@@ -33,7 +34,7 @@ export const createMsgToDBHandler = (
   mapToTable: TableInfoByMessageType
 ) => (
   msg: ParsedWSMsg,
-  db: Database
+  rdbWorker: WorkerClient
 ): Observable<any> => {
   const tabInfo = mapToTable.getTableInfo(msg.type)
   if (!tabInfo) {
@@ -43,23 +44,28 @@ export const createMsgToDBHandler = (
   const { method, id, data } = msg
   const { tabName, pkName } = tabInfo
 
-  const dbMethod = db[methodMap[method]]
+  const dbMethod = methodMap[method]
 
   switch (method) {
     case 'new':
-      return dbMethod.call(db, tabName, data)
+      return rdbWorker.postMessage(dbMethod, [tabName, data])
     case 'change':
-      return dbMethod.call(db, tabName,
-        Array.isArray(data) ? data : { ...data, [pkName]: id }
-      )
+      return rdbWorker.postMessage(dbMethod, [
+        tabName,
+        Array.isArray(data) ? data : { ...data, [pkName]: id },
+      ])
     case 'destroy':
-      return dbMethod.call(db, tabName, {
-        where: { [pkName]: id }
-      })
+      return rdbWorker.postMessage(dbMethod, [
+        tabName,
+        { where: { [pkName]: id } },
+      ])
     case 'remove':
-      return dbMethod.call(db, tabName, {
-        where: Array.isArray(data) ? { [pkName]: { $in: data } } : { [pkName]: data }
-      })
+      return rdbWorker.postMessage(dbMethod, [
+        tabName,
+        {
+          where: Array.isArray(data) ? { [pkName]: { $in: data } } : { [pkName]: data }
+        }
+      ])
     default:
       return Observable.of(null)
   }
@@ -71,7 +77,7 @@ export function socketHandler(
   handleMsgToDb: WSMsgToDBHandler,
   handleMsg: WSMsgHandler,
   mapToTable: TableInfoByMessageType,
-  db?: Database
+  worker?: WorkerClient
 ): Observable<any> {
   const parsedMsgs = eventParser(event)
 
@@ -85,11 +91,11 @@ export function socketHandler(
     }
 
     let interceptorsTask$: Observable<any>
-    if (!db) {
+    if (!worker) {
       net.bufferSocketPush(msg)
       interceptorsTask$ = Observable.of(null)
     } else {
-      interceptorsTask$ = handleMsgToDb(msg, db)
+      interceptorsTask$ = handleMsgToDb(msg, worker)
     }
 
     return Observable.merge(interceptorsTask$, proxyTask$)

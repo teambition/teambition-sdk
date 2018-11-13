@@ -22,7 +22,7 @@ export class WorkerClient {
 
   private constructor(private worker: Worker) { }
 
-  postMessage<T>(method: string, params: any): Observable<T> {
+  postMessage<T>(method: string, params?: any): Observable<T> {
     const id = this.nextId++
     return Observable.create((observer: Observer<T>): TeardownLogic => {
       const msgHandler = (resp: MessageEvent) => {

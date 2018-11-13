@@ -7,6 +7,7 @@ import * as socket from './sockets'
 import * as socketInterceptor from './sockets/interceptor'
 import { schemaColl } from './schemas'
 import { SchemaColl, Variables, GraphQLRequest, GraphQLResponse, GraphQLClientOption } from './utils/internalTypes'
+import { WorkerClient } from './worker/WorkerClient'
 
 export const schemas: SchemaColl = []
 
@@ -21,8 +22,9 @@ export class SDK {
   fetch = new SDKFetch()
 
   socketClient: socket.Client
-  database: Database | undefined
+  // database: Database | undefined
   socketProxy: socket.Proxy
+  rdbWorker: WorkerClient | undefined
 
   lift: typeof Net.prototype.lift = (ApiResult: any): any => {
     return this.net.lift(ApiResult)
@@ -38,16 +40,26 @@ export class SDK {
     this.socketClient.interceptors.append(socketInterceptor.redirectLike)
   }
 
-  initReactiveDB (db: Database): Observable<void[]> {
-    this.database = db
+  // initReactiveDB (db: Database): Observable<void[]> {
+  //   this.database = db
+  //   forEach(this.schemas, d => {
+  //     this.database!.defineSchema(d.name, d.schema)
+  //   })
+  //   this.database.connect()
+
+  //   this.socketClient.initReactiveDB(this.database)
+
+  //   return this.net.persist(this.database)
+  // }
+
+  initRDBWorker(worker: WorkerClient) {
+    this.rdbWorker = worker
     forEach(this.schemas, d => {
-      this.database!.defineSchema(d.name, d.schema)
+      this.rdbWorker!.postMessage('defineSchema', [d.name, d.schema])
     })
-    this.database.connect()
+    this.rdbWorker.postMessage('connect')
 
-    this.socketClient.initReactiveDB(this.database)
-
-    return this.net.persist(this.database)
+    this.socketClient.initRDBWorker(this.rdbWorker)
   }
 
   setGraphQLEndpoint(endpoint: string, requestOptions: GraphQLRequest = {}) {
