@@ -19,7 +19,7 @@ export interface CustomFieldSchema {
   created: string
   description: string
   displayed: boolean
-  externalUrl: string
+  externalUrl?: string
   name: string
   pos: number
   type: CustomFieldType
