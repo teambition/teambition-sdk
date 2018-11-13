@@ -495,7 +495,7 @@ describe(`${expandPage.name}`, () => {
       limit: 5,
       urlQuery: undefined
     }
-    return sdkFetch.expandPage(currState, { doNotConcat: true })
+    return sdkFetch.expandPage(currState, { skipConcat: true })
       .take(1)
       .toPromise()
       .then((resultState) => {
@@ -525,7 +525,7 @@ describe(`${expandPage.name}`, () => {
       limit: 5,
       urlQuery: undefined
     }
-    return sdkFetch.expandPage(currState, { doNotConcat: true })
+    return sdkFetch.expandPage(currState, { skipConcat: true })
       .take(1)
       .toPromise()
       .then((resultState) => {

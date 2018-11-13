@@ -21,20 +21,15 @@ function toUrlQuery<T>(state: Page.PolyState<T>, perRequestPageSize?: number, pe
 
   switch (state.kind) {
     case Page.Kind.PageCount:
-      return {
-        ...urlQuery,
-        page: state.nextPage,
-        count: pageSize
-      }
+      urlQuery['page'] = state.nextPage
+      urlQuery['count'] = pageSize
+      break
     case Page.Kind.PageToken:
-      return {
-        ...urlQuery,
-        pageSize,
-        pageToken: state.nextPageToken
-      }
-    default:
-      return {}
+      urlQuery['pageToken'] = state.nextPageToken
+      urlQuery['pageSize'] = pageSize
+      break
   }
+  return urlQuery
 }
 
 export function page<T, K = T>(this: SDKFetch, state: Page.PageCountState<K>, options?: RequestOptions<T, K>): Observable<K[]>
@@ -82,7 +77,7 @@ export function page<T, K = T>(
 export type ExpandPageOptions<T, K> = RequestOptions<T, K> & {
   mutate?: boolean
   loadMore$?: Observable<{}>
-  doNotConcat?: boolean
+  skipConcat?: boolean
 }
 
 export function expandPage<T, K = T>(
@@ -116,12 +111,12 @@ export function expandPage<T, K = T>(
   state: Page.PolyState<K>,
   options: ExpandPageOptions<T, K> = {}
 ): Observable<Page.PolyState<K>> {
-  const { mutate, loadMore$, doNotConcat, ...requestOptions } = options
+  const { mutate, loadMore$, skipConcat, ...requestOptions } = options
   const page$ = (loadMore$ || Observable.empty())
     .startWith({})
     .pipe(Page.expand<K>(
       (s) => this.page(s, requestOptions),
-      doNotConcat ? Page.accWithoutConcat : Page.acc,
+      skipConcat ? Page.accWithoutConcat : Page.acc,
       state
     ))
     .mergeAll()
