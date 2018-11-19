@@ -75,6 +75,8 @@ export interface ProjectSchema {
   visibility: 'project' | 'organization' | 'all'
   worksCount: number
   proTemplateType?: 'scrum'
+  normalType: 'taskflow' | null
+  windowModeOfAddTask: 'large' | 'default'
 }
 
 const Schema: SchemaDef<ProjectSchema> = {
@@ -212,6 +214,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   proTemplateType: {
     type: RDBType.STRING
   },
+  normalType: {
+    type: RDBType.STRING
+  },
   pushStatus: {
     type: RDBType.BOOLEAN
   },
@@ -253,7 +258,10 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   worksCount: {
     type: RDBType.NUMBER
-  }
+  },
+  windowModeOfAddTask: {
+    type: RDBType.STRING
+  },
 }
 
 schemaColl.add({ name: 'Project', schema: Schema })
