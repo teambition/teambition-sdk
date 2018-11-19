@@ -142,10 +142,16 @@ export namespace HomeActivityType {
     }
   }
 
+  // 未知
+  export type Unknown = {
+    type: 'unknown'
+    content: Common
+  }
+
   export type Union =
     | User | Invite
     | Task | Post | Event | Work | Works | Collection | Entry
-    | Tasklist | Tag | Project | Application | Organization | Team
+    | Tasklist | Tag | Project | Application | Organization | Team | Unknown
 }
 
 export type HomeActivityBase = {
@@ -176,6 +182,7 @@ export type TagHomeActivity = HomeActivityBase & HomeActivityType.Tag
 export type TaskHomeActivity = HomeActivityBase & HomeActivityType.Task
 export type TasklistHomeActivity = HomeActivityBase & HomeActivityType.Tasklist
 export type TeamHomeActivity = HomeActivityBase & HomeActivityType.Team
+export type UnknownHomeActivity = HomeActivityBase & HomeActivityType.Unknown
 export type UserHomeActivity = HomeActivityBase & HomeActivityType.User
 export type WorkHomeActivity = HomeActivityBase & HomeActivityType.Work
 export type WorksHomeActivity = HomeActivityBase & HomeActivityType.Works
