@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { OrganizationId, ProjectId, ProjectTagId, UserId, DefaultColors } from 'teambition-types'
+import { OrganizationId, ProjectId, ProjectTagId, UserId, DefaultColors, PermissionBinding } from 'teambition-types'
 
 export interface ProjectTagSchema {
   _id: ProjectTagId
@@ -19,10 +19,7 @@ export interface ProjectTagSchema {
   color: DefaultColors
   created: string
   updated: string
-  permissionBinding?: {
-    level: number
-    permissions: string[]
-  }
+  permissionBinding?: PermissionBinding
 }
 
 const schema: SchemaDef<ProjectTagSchema> = {
