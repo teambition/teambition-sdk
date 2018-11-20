@@ -1,5 +1,5 @@
 import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
-import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet, PermissionBinding } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { OrganizationSchema } from './Organization'
@@ -53,10 +53,7 @@ export interface ProjectSchema {
     >,
   orgLevel: number
   owner?: UserSnippet
-  permissionBinding?: {
-    level: number
-    permissions: string[]
-  }
+  permissionBinding?: PermissionBinding
   pinyin: string
   plan?: UserPaymentPlan
   postsCount: number

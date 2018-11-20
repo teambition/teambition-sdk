@@ -96,6 +96,7 @@ declare module 'teambition-types' {
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works' | 'testcases'
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
+  export type JoinProjectRole = 'default' | 'owner'
   export type ProjectStatusDegree = 'normal' | 'risky' | 'urgent'
   export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
   export type ReminderRuleType = 'startDate' | 'dueDate' | 'customize' | 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'
@@ -198,6 +199,14 @@ declare module 'teambition-types' {
     projectId: ProjectId
     invitorId: string
     signCode: string
+  }
+
+  export interface PermissionBinding {
+    isJoined: boolean
+    joinProjectRole: JoinProjectRole
+    level: number
+    orgLevel: number
+    permissions: string[]
   }
 
   export interface UserSnippet {
