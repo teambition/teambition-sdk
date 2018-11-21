@@ -11,28 +11,28 @@ export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: 'task',
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: 'event',
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): Observable<EventScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): Observable<ScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ) {
   return this.get<{ nextPageToken: string, result: ScenarioFieldConfigSchema[] }>(
     `organizations/${organizationId}/scenariofieldconfigs`,
@@ -52,28 +52,28 @@ export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: 'task',
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): QueryToken<TaskScenarioFieldConfigSchema>
 
 export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: 'event',
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): QueryToken<EventScenarioFieldConfigSchema>
 
 export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): QueryToken<ScenarioFieldConfigSchema>
 
 export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
   // todo: 待 RDB 类型修复后，将 any 移除
 ): any {
   return this.lift({
@@ -101,3 +101,8 @@ declare module '../../SDK' {
 }
 
 SDK.prototype.getOrgScenarioFieldConfigs = getOrgScenarioFieldConfigs
+
+export interface GetOrgScenarioFieldConfigsOptions {
+  sort?: string
+  withCustomfields?: boolean
+}

@@ -2,7 +2,7 @@ import { describe, before, beforeEach, afterEach, it, after } from 'tman'
 import { Scheduler } from 'rxjs'
 import { expect } from 'chai'
 
-import { SDKFetch, createSdk, SDK, ScenarioFieldConfigSchema } from '../'
+import { SDKFetch, createSdk, SDK } from '../'
 import {
   taskScenarioFieldConfig,
   eventScenarioFieldConfig,
@@ -41,7 +41,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
 
     fetchMock.once(url, configs)
 
-    yield sdkFetch.getScenarioFieldConfigs(projectId, 'task', true)
+    yield sdkFetch.getScenarioFieldConfigs(projectId, 'task', { withTaskflowstatus: true })
       .subscribeOn(Scheduler.asap)
       .do((result) => expect(result).to.deep.equal(configs))
   })
@@ -53,7 +53,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
 
     fetchMock.once(url, configs)
 
-    yield sdkFetch.getScenarioFieldConfigs(projectId, 'event', true)
+    yield sdkFetch.getScenarioFieldConfigs(projectId, 'event', { withTaskflowstatus: true })
       .subscribeOn(Scheduler.asap)
       .do((result) => expect(result).to.deep.equal(configs))
   })

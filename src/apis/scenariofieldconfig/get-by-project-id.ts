@@ -11,32 +11,35 @@ export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: 'task',
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: 'event',
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): Observable<EventScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): Observable<ScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus = false
+  options: GetScenarioFieldConfigsOptions = {}
 ) {
+  const withTaskflowstatus = options.withTaskflowstatus
+  const withCustomfields = options.withCustomfields
+
   return this.get<ScenarioFieldConfigSchema[]>(
     `projects/${projectId}/scenariofieldconfigs`,
-    { objectType, withTaskflowstatus },
+    { objectType, withTaskflowstatus, withCustomfields }
   )
 }
 
@@ -53,28 +56,28 @@ export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: 'task',
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): QueryToken<TaskScenarioFieldConfigSchema>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: 'event',
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): QueryToken<EventScenarioFieldConfigSchema>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): QueryToken<ScenarioFieldConfigSchema>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus = false
+  options: GetScenarioFieldConfigsOptions = {}
   // todo: 待 RDB 类型修复后，将 any 移除
 ): any {
   return this.lift({
@@ -83,7 +86,7 @@ export function getScenarioFieldConfigs(
     request: this.fetch.getScenarioFieldConfigs(
       projectId,
       objectType,
-      withTaskflowstatus
+      options
     ),
     query: {
       where: [
@@ -93,7 +96,7 @@ export function getScenarioFieldConfigs(
     },
     assocFields: {
       ...(
-        withTaskflowstatus
+        options.withTaskflowstatus
           ? { taskflowstatuses: ['_id', '_taskflowId', 'name', 'kind', 'rejectStatusIds', 'pos'] }
           : {}
       )
@@ -109,3 +112,8 @@ declare module '../../SDK' {
 }
 
 SDK.prototype.getScenarioFieldConfigs = getScenarioFieldConfigs
+
+export interface GetScenarioFieldConfigsOptions {
+  withTaskflowstatus?: boolean
+  withCustomfields?: boolean
+}
