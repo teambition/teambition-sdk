@@ -13,6 +13,7 @@ export interface TasklistSchema {
   doneCount: number
   expiredCount: number
   isArchived: boolean
+  isStageLocked: boolean
   hasStages: StageSchema[]
   pos: number
   recentCount: number
@@ -60,6 +61,9 @@ const schema: SchemaDef<TasklistSchema> = {
     }
   },
   isArchived: {
+    type: RDBType.BOOLEAN
+  },
+  isStageLocked: {
     type: RDBType.BOOLEAN
   },
   pos: {
