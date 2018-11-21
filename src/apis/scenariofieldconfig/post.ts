@@ -1,9 +1,18 @@
 import { Observable } from 'rxjs/Observable'
 
-import { ProjectId, ScenarioFieldConfigObjectType, ScenarioFieldConfigId, OrganizationId } from 'teambition-types'
+import {
+  ProjectId,
+  ScenarioFieldConfigObjectType,
+  ScenarioFieldConfigId,
+  OrganizationId
+} from 'teambition-types'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { TaskScenarioFieldConfigSchema, EventScenarioFieldConfigSchema, ScenarioFieldConfigSchema } from '../../schemas'
+import {
+  TaskScenarioFieldConfigSchema,
+  EventScenarioFieldConfigSchema,
+  ScenarioFieldConfigSchema
+} from '../../schemas'
 
 export function bulkAddScenarioFieldConfigsFetch(
   this: SDKFetch,
@@ -34,7 +43,7 @@ export function bulkAddScenarioFieldConfigsFetch(
 ) {
   return this.post<ScenarioFieldConfigSchema[]>(
     `projects/${projectId}/scenariofieldconfigs/bulk`,
-    { objectType, scenariofieldconfigIds },
+    { objectType, scenariofieldconfigIds }
   )
 }
 
@@ -95,12 +104,12 @@ SDK.prototype.bulkAddScenarioFieldConfigs = bulkAddScenarioFieldConfigs
 export function createOrgScenarioFieldConfigFetch(
   this: SDKFetch,
   orgId: OrganizationId,
-  payload: Pick<ScenarioFieldConfigSchema, 'objectType' | 'name' | 'icon' | 'scenariofields'>
+  config: Partial<ScenarioFieldConfigSchema>
 ): Observable<ScenarioFieldConfigSchema> {
-  return this.post(
-    `organizations/${orgId}/scenariofieldconfigs`,
-    payload
-  )
+  const url = `organizations/${orgId}/scenariofieldconfigs`
+  const body = config
+
+  return this.post<ScenarioFieldConfigSchema>(url, body)
 }
 
 declare module '../../SDKFetch' {
@@ -114,15 +123,12 @@ SDKFetch.prototype.createOrgScenarioFieldConfig = createOrgScenarioFieldConfigFe
 export function createOrgScenarioFieldConfig(
   this: SDK,
   orgId: OrganizationId,
-  payload: Pick<ScenarioFieldConfigSchema, 'objectType' | 'name' | 'icon' | 'scenariofields'>
-) {
+  config: Partial<ScenarioFieldConfigSchema>
+): Observable<ScenarioFieldConfigSchema> {
   return this.lift({
     tableName: 'ScenarioFieldConfig',
     method: 'create',
-    request: this.fetch.createOrgScenarioFieldConfig(
-      orgId,
-      payload
-    )
+    request: this.fetch.createOrgScenarioFieldConfig(orgId, config)
   })
 }
 
