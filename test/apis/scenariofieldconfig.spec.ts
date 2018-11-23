@@ -208,7 +208,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.restore()
   })
 
-  const equalToScenarioFieldConfig = (
+  const assertScenarioFieldConfig = (
     actual: any,
     expected: any,
     { withCustomfields = false } = {}
@@ -243,7 +243,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        equalToScenarioFieldConfig(result, configs[0])
+        assertScenarioFieldConfig(result, configs[0])
       })
   })
 
@@ -257,7 +257,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        equalToScenarioFieldConfig(result, configs[0], { withCustomfields: true })
+        assertScenarioFieldConfig(result, configs[0], { withCustomfields: true })
       })
   })
 
@@ -271,7 +271,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        equalToScenarioFieldConfig(result, configs[0])
+        assertScenarioFieldConfig(result, configs[0])
       })
   })
 
@@ -285,7 +285,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        equalToScenarioFieldConfig(result, configs[0])
+        assertScenarioFieldConfig(result, configs[0])
       })
   })
 
@@ -299,7 +299,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        equalToScenarioFieldConfig(result, configs[0])
+        assertScenarioFieldConfig(result, configs[0])
       })
   })
 
@@ -329,7 +329,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       })
 
     yield configs$.do(([result]) => {
-      equalToScenarioFieldConfig(result, configs[0])
+      assertScenarioFieldConfig(result, configs[0])
     })
   })
 
@@ -359,7 +359,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       })
 
     yield configs$.do(([result]) => {
-      equalToScenarioFieldConfig(result, configs[0])
+      assertScenarioFieldConfig(result, configs[0])
     })
   })
 
@@ -378,7 +378,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .subscribeOn(Scheduler.asap)
 
     yield configs$.do(([result]) => {
-      equalToScenarioFieldConfig(result, configs[0])
+      assertScenarioFieldConfig(result, configs[0])
     })
 
     mockResponse(configBase)
@@ -390,7 +390,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       })
 
     yield configs$.do(([result]) => {
-      equalToScenarioFieldConfig(result, configsBase[0])
+      assertScenarioFieldConfig(result, configsBase[0])
     })
   })
 
