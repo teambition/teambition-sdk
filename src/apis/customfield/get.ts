@@ -42,7 +42,8 @@ export function getCustomField(
     cacheValidate: CacheStrategy.Request,
     request: req,
     query: {
-      where: { _id: customFieldId }
+      where: { _id: customFieldId },
+      ...{ cacheOnly: options.cacheOnly } // 把 cacheOnly 作为缓存条件
     }
   })
 }
