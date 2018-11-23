@@ -97,6 +97,17 @@ export function getScenarioFieldConfigs(
       where: [{ _boundToObjectId: projectId }, { objectType }]
     },
     assocFields: {
+      scenariofields: [
+        '_customfieldId',
+        '_id',
+        '_roleIds',
+        '_scenariofieldconfigId',
+        'default',
+        'displayed',
+        'fieldType',
+        'required',
+        ...(options.withCustomfields ? ['customfield'] : [])
+      ],
       ...(options.withTaskflowstatus
         ? {
             taskflowstatuses: [

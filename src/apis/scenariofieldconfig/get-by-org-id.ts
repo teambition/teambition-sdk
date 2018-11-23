@@ -81,7 +81,7 @@ export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: GetOrgScenarioFieldConfigsOptions
+  query: GetOrgScenarioFieldConfigsOptions = {}
   // todo: 待 RDB 类型修复后，将 any 移除
 ): any {
   const req = this.fetch
@@ -94,6 +94,19 @@ export function getOrgScenarioFieldConfigs(
     request: req,
     query: {
       where: [{ _boundToObjectId: organizationId }, { objectType }]
+    },
+    assocFields: {
+      scenariofields: [
+        '_customfieldId',
+        '_id',
+        '_roleIds',
+        '_scenariofieldconfigId',
+        'default',
+        'displayed',
+        'fieldType',
+        'required',
+        ...(query.withCustomfields ? ['customfield'] : [])
+      ]
     },
     excludeFields: ['taskflowstatuses'] // 企业接口不关心该字段
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)

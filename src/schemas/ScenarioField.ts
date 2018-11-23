@@ -45,6 +45,7 @@ export type EventScenarioFieldSchema =
 const schema: SchemaDef<
   ScenarioFieldSchema | CustomScenarioFieldSchema | NoteScenarioFieldSchema
 > = {
+  _customfieldId: { type: RDBType.STRING },
   _id: { type: RDBType.STRING, primaryKey: true },
   _roleIds: { type: RDBType.LITERAL_ARRAY },
   _scenariofieldconfigId: { type: RDBType.STRING },

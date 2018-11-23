@@ -90,8 +90,10 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     const configs = [config]
 
     fetchMock.postOnce((url: string, opts: any) => {
-      return url === `/projects/${projectId}/scenariofieldconfigs/bulk` &&
+      return (
+        url === `/projects/${projectId}/scenariofieldconfigs/bulk` &&
         opts.body.objectType === 'task'
+      )
     }, configs)
 
     yield sdkFetch.bulkAddScenarioFieldConfigs(projectId, 'task', configIds)
@@ -109,8 +111,10 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     const configs = [config]
 
     fetchMock.postOnce((url: string, opts: any) => {
-      return url === `/projects/${projectId}/scenariofieldconfigs/bulk` &&
+      return (
+        url === `/projects/${projectId}/scenariofieldconfigs/bulk` &&
         opts.body.objectType === 'event'
+      )
     }, configs)
 
     yield sdkFetch.bulkAddScenarioFieldConfigs(projectId, 'event', configIds)
@@ -178,13 +182,12 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     const name = 'mock-sfc-name'
     const resp = { exists: true }
 
-    fetchMock.once(`/scenariofieldconfigs/name/verify?_organizationId=${orgId}&objectType=${objectType}&name=${name}&_=666`, resp)
-
-    yield sdkFetch.verifyOrgScenarioFieldConfigName(
-      orgId,
-      objectType,
-      name
+    fetchMock.once(
+      `/scenariofieldconfigs/name/verify?_organizationId=${orgId}&objectType=${objectType}&name=${name}&_=666`,
+      resp
     )
+
+    yield sdkFetch.verifyOrgScenarioFieldConfigName(orgId, objectType, name)
       .subscribeOn(Scheduler.asap)
       .do((result) => {
         expect(result).to.deep.equal(resp)
@@ -201,6 +204,35 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     mockResponse = mock(sdk)
   })
 
+  afterEach(() => {
+    fetchMock.restore()
+  })
+
+  const equalToScenarioFieldConfig = (
+    actual: any,
+    expected: any,
+    { withCustomfields = false } = {}
+  ) => {
+    expectToDeepEqualForFieldsOfTheExpected(actual, expected, 'scenariofields')
+
+    actual.scenariofields.forEach((sf: any, index: number) => {
+      expectToDeepEqualForFieldsOfTheExpected(
+        sf,
+        expected.scenariofields[index],
+        'customfield'
+      )
+
+      // 断言 customfield 数据存在
+      const customfieldExpected = expected.scenariofields[index].customfield
+      if (withCustomfields && customfieldExpected) {
+        expectToDeepEqualForFieldsOfTheExpected(
+          customfieldExpected,
+          sf.customfield
+        )
+      }
+    })
+  }
+
   it('should return a TaskScenarioFieldConfig array', function* () {
     const projectId = taskScenarioFieldConfig._projectId as ProjectId
     const configs = [{ ...taskScenarioFieldConfig, taskflowstatuses: undefined }]
@@ -211,7 +243,21 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
+        equalToScenarioFieldConfig(result, configs[0])
+      })
+  })
+
+  it('should return a TaskScenarioFieldConfig array with CustomField', function* () {
+    const projectId = taskScenarioFieldConfig._projectId as ProjectId
+    const configs = [{ ...taskScenarioFieldConfig, taskflowstatuses: undefined }]
+
+    mockResponse(configs)
+
+    yield sdk.getScenarioFieldConfigs(projectId, 'task', { withCustomfields: true })
+      .values()
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        equalToScenarioFieldConfig(result, configs[0], { withCustomfields: true })
       })
   })
 
@@ -225,7 +271,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
+        equalToScenarioFieldConfig(result, configs[0])
       })
   })
 
@@ -239,7 +285,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
+        equalToScenarioFieldConfig(result, configs[0])
       })
   })
 
@@ -253,7 +299,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
+        equalToScenarioFieldConfig(result, configs[0])
       })
   })
 
@@ -283,7 +329,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       })
 
     yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
+      equalToScenarioFieldConfig(result, configs[0])
     })
   })
 
@@ -313,7 +359,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       })
 
     yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
+      equalToScenarioFieldConfig(result, configs[0])
     })
   })
 
@@ -332,7 +378,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .subscribeOn(Scheduler.asap)
 
     yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configs[0])
+      equalToScenarioFieldConfig(result, configs[0])
     })
 
     mockResponse(configBase)
@@ -344,7 +390,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       })
 
     yield configs$.do(([result]) => {
-      expectToDeepEqualForFieldsOfTheExpected(result, configsBase[0])
+      equalToScenarioFieldConfig(result, configsBase[0])
     })
   })
 
@@ -366,6 +412,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     const objectType = 'task'
     const config = { _id: configId, _boundToObjectId: orgId, objectType }
 
+    fetchMock.once('*', { result: [] })
     mockResponse([])
 
     const configs$ = sdk.getOrgScenarioFieldConfigs(orgId, objectType)
@@ -376,6 +423,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       expect(result).to.deep.equal([])
     })
 
+    fetchMock.once('*', config)
     mockResponse(config)
 
     yield sdk.createOrgScenarioFieldConfig(orgId, { _boundToObjectId: orgId, objectType } as any)
