@@ -224,7 +224,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
       // 断言 customfield 数据存在
       const customfieldExpected = expected.scenariofields[index].customfield
-      if (withCustomfields && customfieldExpected) {
+      if (withCustomfields && sf.fieldType === 'customfield') {
         expectToDeepEqualForFieldsOfTheExpected(
           customfieldExpected,
           sf.customfield
