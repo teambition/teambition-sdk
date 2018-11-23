@@ -2,9 +2,9 @@ import { Observable } from 'rxjs/Observable'
 import { of } from 'rxjs/observable/of'
 import { QueryToken } from 'reactivedb'
 
+import { CustomFieldId } from 'teambition-types'
 import { CacheStrategy } from '../../Net'
 import { CustomFieldSchema } from '../../schemas'
-import { CustomFieldId } from 'teambition-types'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 

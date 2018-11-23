@@ -4,8 +4,13 @@ import { QueryToken } from 'reactivedb'
 import { ProjectId, ScenarioFieldConfigObjectType } from 'teambition-types'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { ScenarioFieldConfigSchema, TaskScenarioFieldConfigSchema, EventScenarioFieldConfigSchema } from '../../schemas'
+import {
+  ScenarioFieldConfigSchema,
+  TaskScenarioFieldConfigSchema,
+  EventScenarioFieldConfigSchema
+} from '../../schemas'
 import { ApiResult } from '../../Net'
+import { normalizeScenarioFieldConfigs } from './with-custom-fields'
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
@@ -80,26 +85,30 @@ export function getScenarioFieldConfigs(
   options: GetScenarioFieldConfigsOptions = {}
   // todo: 待 RDB 类型修复后，将 any 移除
 ): any {
+  const req = this.fetch
+    .getScenarioFieldConfigs(projectId, objectType, options)
+    .pipe(normalizeScenarioFieldConfigs)
+
   return this.lift({
     cacheValidate: CacheStrategy.Request,
     tableName: 'ScenarioFieldConfig',
-    request: this.fetch.getScenarioFieldConfigs(
-      projectId,
-      objectType,
-      options
-    ),
+    request: req,
     query: {
-      where: [
-        { _boundToObjectId: projectId },
-        { objectType },
-      ],
+      where: [{ _boundToObjectId: projectId }, { objectType }]
     },
     assocFields: {
-      ...(
-        options.withTaskflowstatus
-          ? { taskflowstatuses: ['_id', '_taskflowId', 'name', 'kind', 'rejectStatusIds', 'pos'] }
-          : {}
-      )
+      ...(options.withTaskflowstatus
+        ? {
+            taskflowstatuses: [
+              '_id',
+              '_taskflowId',
+              'name',
+              'kind',
+              'rejectStatusIds',
+              'pos'
+            ]
+          }
+        : {})
     }
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)
 }

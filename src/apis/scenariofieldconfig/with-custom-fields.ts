@@ -2,6 +2,7 @@ import { Observable } from 'rxjs/Observable'
 import { of } from 'rxjs/observable/of'
 import { combineLatest } from 'rxjs/observable/combineLatest'
 import { map } from 'rxjs/operators'
+import { MonoTypeOperatorFunction } from 'rxjs/interfaces'
 
 import { ScenarioFieldConfigSchema, ScenarioFieldSchema } from '../../schemas'
 import { isCustomScenarioField } from './util'
@@ -59,6 +60,33 @@ export const withCustomField = <T extends ScenarioFieldSchema>(
       nextScenarioField.customfield = customField
 
       return nextScenarioField
+    })
+  )
+}
+
+export const withScenarioFieldConfigId = <T extends ScenarioFieldConfigSchema>(
+  config: T
+): T => {
+  // 填补 _scenariofieldconfigId 字段
+  const scenarioFields = config.scenariofields.map((scenarioField) => {
+    return {
+      ...scenarioField,
+      _scenariofieldconfigId: config._id
+    } as typeof scenarioField
+  })
+
+  return {
+    ...(config as object),
+    scenariofields: scenarioFields
+  } as typeof config
+}
+
+export const normalizeScenarioFieldConfigs: MonoTypeOperatorFunction<
+  ScenarioFieldConfigSchema[]
+> = (configs$) => {
+  return configs$.pipe(
+    map((configs) => {
+      return configs.map(withScenarioFieldConfigId)
     })
   )
 }

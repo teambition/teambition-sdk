@@ -4,8 +4,13 @@ import { QueryToken } from 'reactivedb'
 import { OrganizationId, ScenarioFieldConfigObjectType } from 'teambition-types'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { ScenarioFieldConfigSchema, TaskScenarioFieldConfigSchema, EventScenarioFieldConfigSchema } from '../../schemas'
+import {
+  ScenarioFieldConfigSchema,
+  TaskScenarioFieldConfigSchema,
+  EventScenarioFieldConfigSchema
+} from '../../schemas'
 import { ApiResult } from '../../Net'
+import { normalizeScenarioFieldConfigs } from './with-custom-fields'
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
@@ -34,10 +39,13 @@ export function getOrgScenarioFieldConfigsFetch(
   objectType: ScenarioFieldConfigObjectType,
   query?: GetOrgScenarioFieldConfigsOptions
 ) {
-  return this.get<{ nextPageToken: string, result: ScenarioFieldConfigSchema[] }>(
-    `organizations/${organizationId}/scenariofieldconfigs`,
-    { ...query, objectType },
-  ).map(({ result }) => result)
+  return this.get<{
+    nextPageToken: string
+    result: ScenarioFieldConfigSchema[]
+  }>(`organizations/${organizationId}/scenariofieldconfigs`, {
+    ...query,
+    objectType
+  }).map(({ result }) => result)
 }
 
 declare module '../../SDKFetch' {
@@ -76,19 +84,16 @@ export function getOrgScenarioFieldConfigs(
   query?: GetOrgScenarioFieldConfigsOptions
   // todo: 待 RDB 类型修复后，将 any 移除
 ): any {
+  const req = this.fetch
+    .getOrgScenarioFieldConfigs(organizationId, objectType, query)
+    .pipe(normalizeScenarioFieldConfigs)
+
   return this.lift({
     cacheValidate: CacheStrategy.Request,
     tableName: 'ScenarioFieldConfig',
-    request: this.fetch.getOrgScenarioFieldConfigs(
-      organizationId,
-      objectType,
-      query
-    ),
+    request: req,
     query: {
-      where: [
-        { _boundToObjectId: organizationId },
-        { objectType },
-      ],
+      where: [{ _boundToObjectId: organizationId }, { objectType }]
     },
     excludeFields: ['taskflowstatuses'] // 企业接口不关心该字段
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)

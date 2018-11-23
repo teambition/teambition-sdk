@@ -103,7 +103,13 @@ const schema: SchemaDef<
       type: RDBType.STRING
     },
     scenariofields: {
-      type: RDBType.OBJECT
+      type: Relationship.oneToMany,
+      virtual: {
+        name: 'ScenarioField',
+        where: ((scenarioField: ScenarioFieldSchema): Partial<ScenarioFieldConfigSchema> => ({
+          _id: scenarioField._scenariofieldconfigId
+        })) as any
+      }
     },
     taskflowstatuses: {
       type: Relationship.oneToMany,
