@@ -35,6 +35,11 @@ export interface TapGraphStackDisplay {
   stack: false | 'stack'
 }
 
+export interface TapGraphChartTypeDisplay {
+  colorPreset?: 'pieTheme'
+  chartType?: 'bugTaskflow'
+}
+
 export interface TapGraphCoordGridDisplay {
   axes: {
     x: {
@@ -65,7 +70,7 @@ export interface TapGraphLineDisplay extends TapGraphCoordGridDisplay, TapGraphS
   showPointMarker: boolean,
 }
 
-export interface TapGraphBarDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay {
+export interface TapGraphBarDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay, TapGraphChartTypeDisplay {
   colorSequence?: string[] | 'v2'
 }
 
