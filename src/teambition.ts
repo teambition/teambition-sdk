@@ -94,6 +94,7 @@ declare module 'teambition-types' {
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple' | 'cyan'
   export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work' | 'testcase'
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works' | 'testcases'
+  export type DivisionType = TaskDivisionType
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
   export type JoinProjectRole = 'default' | 'owner'
@@ -112,6 +113,7 @@ declare module 'teambition-types' {
     | 'taskType' | 'rating' | 'storyPoint'
   export type TagType = 'organization' | 'project'
   export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
+  export type TaskDivisionType = 'scenariofields' | 'subtasks' | 'links'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = 0 | 1 | 2
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
