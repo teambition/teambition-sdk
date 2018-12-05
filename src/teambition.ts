@@ -122,6 +122,7 @@ declare module 'teambition-types' {
   export type VisibleOption = 'members' | 'involves'
   export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
   export type TestcasePriority = 0 | 1 | 2 | 3 | 4 | 5
+  export type UserLevel = -2 | -1 | 0 | 1 | 2
   export type TestcaseStepType = {
     _id: TestcaseStepId
     desc: string
@@ -204,11 +205,15 @@ declare module 'teambition-types' {
   }
 
   export interface PermissionBinding {
+    level: UserLevel
+    orgLevel: UserLevel
+    permissions: string[]
+    type: 'project' | 'organization'
+    _projectId: ProjectId
     isJoined: boolean
     joinProjectRole: JoinProjectRole
-    level: number
-    orgLevel: number
-    permissions: string[]
+    externalRoleIds: string[]   // 项目分组所授予的项目角色 id 列表
+    memberRoleId: string | null  // 项目成员的项目角色 id
   }
 
   export interface UserSnippet {
