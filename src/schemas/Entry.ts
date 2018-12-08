@@ -4,22 +4,26 @@ import {
   ProjectId,
   UserId,
   VisibleOption,
-  TagId
+  TagId,
+  EntryType,
+  EntryStatus
 } from 'teambition-types'
 
-export interface EntryData {
+export interface EntrySchema {
   _id: EntryId
   _projectId: ProjectId
   _creatorId: UserId
   _entryCategoryId: EntryCategoryId
-  type: number
+  objectType: 'entry'
+  type: EntryType
   content: string
   note: string
   amount: number
-  status: string
+  status: EntryStatus
   involveMembers: UserId[]
   visible: VisibleOption
   tagIds: TagId[]
+  date: string
   created: string
   updated: string
   isArchived: boolean

@@ -95,6 +95,8 @@ declare module 'teambition-types' {
   export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work' | 'testcase'
   export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works' | 'testcases'
   export type DivisionType = TaskDivisionType
+  export type EntryStatus = 'confirmed' | 'approved'
+  export type EntryType = 1 | -1
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
   export type JoinProjectRole = 'default' | 'owner'
