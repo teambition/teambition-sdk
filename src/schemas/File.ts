@@ -44,6 +44,7 @@ export interface FileSchema {
   attachmentsCount: number
   commentsCount: number
   objectlinksCount: number
+  objectType: 'work'
   pinyin: string
   py: string
   class: string
@@ -142,6 +143,9 @@ const schema: SchemaDef<FileSchema> = {
   },
   objectlinksCount: {
     type: RDBType.NUMBER
+  },
+  objectType: {
+    type: RDBType.STRING
   },
   pinyin: {
     type: RDBType.NUMBER
