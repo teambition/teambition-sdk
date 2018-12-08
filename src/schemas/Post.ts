@@ -4,11 +4,11 @@ import {
   UserId,
   TagId,
   ProjectId,
-  FileId,
   VisibleOption
 } from 'teambition-types'
 import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
+import { FileSchema } from './File'
 
 export type PostModeOptions = 'md' | 'html'
 
@@ -16,7 +16,7 @@ export interface PostSchema {
   _id: PostId
   _projectId: ProjectId
   _creatorId: UserId
-  attachments: FileId[]
+  attachments: FileSchema[]
   attachmentsCount?: number
   commentsCount?: number
   content: string
@@ -36,6 +36,7 @@ export interface PostSchema {
   visible: VisibleOption
   likesCount: number
   objectlinksCount: number
+  objectType: 'post'
   shareStatus: number
 }
 
@@ -51,7 +52,7 @@ const Schema: SchemaDef<PostSchema> = {
     type: RDBType.STRING
   },
   attachments: {
-    type: RDBType.LITERAL_ARRAY
+    type: RDBType.OBJECT
   },
   attachmentsCount: {
     type: RDBType.NUMBER
@@ -112,6 +113,9 @@ const Schema: SchemaDef<PostSchema> = {
   },
   objectlinksCount: {
     type: RDBType.NUMBER
+  },
+  objectType: {
+    type: RDBType.STRING
   },
   likesCount: {
     type: RDBType.NUMBER
