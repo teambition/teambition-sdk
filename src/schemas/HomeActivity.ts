@@ -2,7 +2,7 @@ import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 import { ApplicationSchema } from './Application'
 import { CollectionSchema } from './Collection'
-import { EntryData } from './Entry'
+import { EntrySchema } from './Entry'
 import { EventSchema } from './Event'
 import { FileSchema } from './File'
 import { OrganizationSchema } from './Organization'
@@ -82,7 +82,7 @@ export namespace HomeActivityType {
   export type Entry = {
     type: 'entry'
     content: Common & {
-      entry: Pick<EntryData, '_id' | 'content' | 'amount' | 'type'>
+      entry: Pick<EntrySchema, '_id' | 'content' | 'amount' | 'type'>
     }
   }
 

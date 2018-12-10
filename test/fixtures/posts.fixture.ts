@@ -28,6 +28,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -60,6 +61,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -92,6 +94,7 @@ export const projectPosts = [
     lastCommentedAt: '2016-11-09T03:44:49.000Z',
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -124,6 +127,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -156,6 +160,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -188,6 +193,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -220,6 +226,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -252,6 +259,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -284,6 +292,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -316,6 +325,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -348,6 +358,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -380,6 +391,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -412,6 +424,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -444,6 +457,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -476,6 +490,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -508,6 +523,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -540,6 +556,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -572,6 +589,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -604,6 +622,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -636,6 +655,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -669,6 +689,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -701,6 +722,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -733,6 +755,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -765,6 +788,7 @@ export const projectPosts = [
     lastCommentedAt: '2016-11-09T03:11:23.000Z',
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -797,6 +821,7 @@ export const projectPosts = [
     lastCommentedAt: '2016-11-09T03:11:33.000Z',
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -829,6 +854,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -861,6 +887,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -893,6 +920,7 @@ export const projectPosts = [
     lastCommentedAt: '2016-11-08T08:21:24.000Z',
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -925,6 +953,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -957,6 +986,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -989,6 +1019,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1021,6 +1052,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1053,6 +1085,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1085,6 +1118,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1117,6 +1151,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1149,6 +1184,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1181,6 +1217,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1213,6 +1250,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1245,6 +1283,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1277,6 +1316,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1309,6 +1349,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1341,6 +1382,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1373,6 +1415,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1405,6 +1448,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1437,6 +1481,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1469,6 +1514,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1501,6 +1547,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1533,6 +1580,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1565,6 +1613,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1597,6 +1646,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1629,6 +1679,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1661,6 +1712,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1693,6 +1745,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1725,6 +1778,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1757,6 +1811,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1789,6 +1844,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1821,6 +1877,7 @@ export const projectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   }
@@ -1856,6 +1913,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1888,6 +1946,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1920,6 +1979,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1952,6 +2012,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -1984,6 +2045,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2016,6 +2078,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2048,6 +2111,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2080,6 +2144,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2112,6 +2177,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2144,6 +2210,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2176,6 +2243,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2208,6 +2276,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2240,6 +2309,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2272,6 +2342,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2304,6 +2375,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2338,6 +2410,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2372,6 +2445,7 @@ export const myProjectPosts = [
     lastCommentedAt: '2016-10-18T08:38:57.000Z',
     likesCount: 2,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2404,6 +2478,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2436,6 +2511,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2468,6 +2544,7 @@ export const myProjectPosts = [
     lastCommentedAt: '2016-10-18T05:53:38.000Z',
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2500,6 +2577,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2534,6 +2612,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2566,6 +2645,7 @@ export const myProjectPosts = [
     lastCommentedAt: '2016-10-18T05:53:33.000Z',
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2598,6 +2678,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2632,6 +2713,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2664,6 +2746,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2696,6 +2779,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2731,6 +2815,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 1,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   },
@@ -2763,6 +2848,7 @@ export const myProjectPosts = [
     lastCommentedAt: null,
     likesCount: 0,
     objectlinksCount: 0,
+    objectType: 'post',
     isFavorite: false,
     shareStatus: 0
   }
@@ -2797,7 +2883,8 @@ export const tagPosts = [
       avatarUrl: 'https://striker.teambition.net/thumbnail/110g9deb6b90c1a34e5f8e2f5f7e5cf97aa9/w/200/h/200'
     },
     commentsCount: 0,
-    attachmentsCount: 0
+    attachmentsCount: 0,
+    objectType: 'post'
   },
   {
     _id: '580582bef269088a418f9308',
@@ -2826,7 +2913,8 @@ export const tagPosts = [
       avatarUrl: 'https://striker.teambition.net/thumbnail/110gd5022ed1adea9f5516be8e2d55f86a24/w/200/h/200'
     },
     commentsCount: 0,
-    attachmentsCount: 0
+    attachmentsCount: 0,
+    objectType: 'post'
   },
   {
     _id: '580582b8f269088a418f9301',
@@ -2855,7 +2943,8 @@ export const tagPosts = [
       avatarUrl: 'https://striker.teambition.net/thumbnail/110gd5022ed1adea9f5516be8e2d55f86a24/w/200/h/200'
     },
     commentsCount: 1,
-    attachmentsCount: 0
+    attachmentsCount: 0,
+    objectType: 'post'
   },
   {
     _id: '58057febb9912c7041ea90df',
@@ -2884,7 +2973,8 @@ export const tagPosts = [
       avatarUrl: 'https://striker.teambition.net/thumbnail/110gd5022ed1adea9f5516be8e2d55f86a24/w/200/h/200'
     },
     commentsCount: 0,
-    attachmentsCount: 0
+    attachmentsCount: 0,
+    objectType: 'post'
   },
   {
     _id: '580470dcb9912c7041ea8944',
@@ -2913,7 +3003,8 @@ export const tagPosts = [
       avatarUrl: 'https://striker.teambition.net/thumbnail/110gd5022ed1adea9f5516be8e2d55f86a24/w/200/h/200'
     },
     commentsCount: 0,
-    attachmentsCount: 0
+    attachmentsCount: 0,
+    objectType: 'post'
   },
   {
     _id: '57fb2968b057c9a3287494d0',
@@ -2943,7 +3034,8 @@ export const tagPosts = [
       avatarUrl: 'https://striker.teambition.net/thumbnail/110g422c61261bc58ef11056140d99a01aab/w/200/h/200'
     },
     commentsCount: 6,
-    attachmentsCount: 0
+    attachmentsCount: 0,
+    objectType: 'post'
   },
   {
     _id: '5772316b0cf6e25b5be02bf7',
@@ -2973,6 +3065,7 @@ export const tagPosts = [
       avatarUrl: 'https://striker.teambition.net/thumbnail/110gd5022ed1adea9f5516be8e2d55f86a24/w/200/h/200'
     },
     commentsCount: 0,
-    attachmentsCount: 0
+    attachmentsCount: 0,
+    objectType: 'post'
   }
 ]

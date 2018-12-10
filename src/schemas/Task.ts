@@ -25,6 +25,7 @@ export interface TaskSchema {
   note: string
   accomplished: string
   ancestorIds: TaskId[]
+  ancestors?: Pick<TaskSchema, '_id' | 'content'>[]
   startDate: string | null
   divisions?: TaskDivisionType[]
   dueDate: string | null
@@ -134,6 +135,9 @@ const schema: SchemaDef<TaskSchema> = {
   },
   ancestorIds: {
     type: RDBType.LITERAL_ARRAY
+  },
+  ancestors: {
+    type: RDBType.OBJECT
   },
   attachmentsCount: {
     type: RDBType.NUMBER

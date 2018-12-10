@@ -30,6 +30,7 @@ export interface TestcaseSchema {
   isArchived: boolean
   isDeleted: boolean
   isDone: boolean
+  objectType: 'testcase'
   precondition: string
   priority: TestcasePriority
   steps: TestcaseStepType[]
@@ -121,6 +122,9 @@ const schema: SchemaDef<TestcaseSchema> = {
   },
   isDone: {
     type: RDBType.BOOLEAN
+  },
+  objectType: {
+    type: RDBType.STRING
   },
   priority: {
     type: RDBType.NUMBER
