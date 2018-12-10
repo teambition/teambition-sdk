@@ -10,21 +10,21 @@ import {
 } from 'teambition-types'
 
 export interface EntrySchema {
-  _creatorId: UserId
-  _entryCategoryId: EntryCategoryId
   _id: EntryId
   _projectId: ProjectId
-  amount: number
-  content: string
-  created: string
-  date: string
-  involveMembers: UserId[]
-  isArchived: boolean
-  note: string
+  _creatorId: UserId
+  _entryCategoryId: EntryCategoryId
   objectType: 'entry'
-  status: EntryStatus
-  tagIds: TagId[]
   type: EntryType
-  updated: string
+  content: string
+  note: string
+  amount: number
+  status: EntryStatus
+  involveMembers: UserId[]
   visible: VisibleOption
+  tagIds: TagId[]
+  date: string
+  created: string
+  updated: string
+  isArchived: boolean
 }
