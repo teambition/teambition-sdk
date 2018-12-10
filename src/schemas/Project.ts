@@ -1,5 +1,5 @@
 import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
-import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet, PermissionBinding } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet, PermissionBinding, TasklistId } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { OrganizationSchema } from './Organization'
@@ -65,6 +65,10 @@ export interface ProjectSchema {
   starsCount: number
   syncCountsAt: string //  a Date
   tagsCount: number
+  taskDefaultInvolvesVisibility: {
+    involvesVisibility: 'all' | 'partial' | 'none'
+    tasklistIds: TasklistId[]
+  }
   tasksCount: number
   uniqueIdPrefix: string
   unreadCount: number
@@ -237,6 +241,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   tagsCount: {
     type: RDBType.NUMBER
+  },
+  taskDefaultInvolvesVisibility: {
+    type: RDBType.OBJECT
   },
   tasksCount: {
     type: RDBType.NUMBER
