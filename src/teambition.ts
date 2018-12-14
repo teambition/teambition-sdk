@@ -123,7 +123,7 @@ declare module 'teambition-types' {
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
   export type VisibleOption = 'members' | 'involves'
   export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
-  export type TestcasePriority = 0 | 1 | 2 | 3 | 4 | 5
+  export type TestcasePriority = -1 | 0 | 1 | 2 | 3 | 4 | 5
   export type TestcaseStepType = {
     _id: TestcaseStepId
     desc: string

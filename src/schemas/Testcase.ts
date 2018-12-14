@@ -31,6 +31,7 @@ export interface TestcaseSchema {
   isDeleted: boolean
   isDone: boolean
   objectType: 'testcase'
+  pos?: number // 暂时只服务于测试计划，等待用例库完成去掉 optional
   precondition: string
   priority: TestcasePriority
   steps: TestcaseStepType[]
