@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { ApplicationId, CommonGroupId, OrganizationId, ProjectId, TesthubId, UserId } from 'teambition-types'
+import { ApplicationId, CommonGroupId, OrganizationId, ProjectId, TesthubId, UserId, TestplanId } from 'teambition-types'
 
 export enum CommonGroupBoundToObjectType {
   Story = 'story',
@@ -23,6 +23,7 @@ export type CommonGroupSchema = {
   _boundToObjectId: ApplicationId | TesthubId
   _creatorId: UserId
   _projectId: ProjectId
+  _testplanId: TestplanId
   ancestorIds: CommonGroupId[]
   boundToObject: BoundToStoryObject | BoundToTesthubObject
   boundToObjectType: CommonGroupBoundToObjectType.Story | CommonGroupBoundToObjectType.Testhub
@@ -59,6 +60,9 @@ const schema: SchemaDef<CommonGroupSchema> = {
     type: RDBType.STRING
   },
   _projectId: {
+    type: RDBType.STRING
+  },
+  _testplanId: {
     type: RDBType.STRING
   },
   ancestorIds: {
