@@ -5,6 +5,7 @@ import {
   SmartGroupId,
   SmartGroupViewType,
   SwimAxisLane,
+  SmartGroupPredefinedIcon,
   SmartGroupType,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
@@ -15,6 +16,7 @@ export interface SmartGroupSchema {
   _creatorId: UserId
   name: string
   description: string
+  icon: SmartGroupPredefinedIcon | null
   taskCount?: {
     total: number
   }
@@ -44,6 +46,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
     type: RDBType.DATE_TIME,
   },
   description: {
+    type: RDBType.STRING,
+  },
+  icon: {
     type: RDBType.STRING,
   },
   filter: {
