@@ -15,6 +15,7 @@ export interface SmartGroupSchema {
   _creatorId: UserId
   name: string
   description: string
+  icon: string | null
   type?: SmartGroupType
   view: {
     type: SmartGroupViewType
@@ -41,6 +42,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
     type: RDBType.DATE_TIME,
   },
   description: {
+    type: RDBType.STRING,
+  },
+  icon: {
     type: RDBType.STRING,
   },
   filter: {
