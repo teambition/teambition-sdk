@@ -9,12 +9,21 @@ import {
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
+export enum SmartGroupPredefinedIcon {
+  TaskToday = 'taskToday',
+  TaskUndone = 'taskUndone',
+  TaskDone = 'taskDone',
+  TaskNotAssigned = 'taskNotAssigned',
+  TaskMyExecuted = 'taskMyExecuted'
+}
+
 export interface SmartGroupSchema {
   _id: SmartGroupId
   _projectId: ProjectId
   _creatorId: UserId
   name: string
   description: string
+  icon: SmartGroupPredefinedIcon | null
   taskCount?: {
     total: number
   }
@@ -44,6 +53,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
     type: RDBType.DATE_TIME,
   },
   description: {
+    type: RDBType.STRING,
+  },
+  icon: {
     type: RDBType.STRING,
   },
   filter: {
