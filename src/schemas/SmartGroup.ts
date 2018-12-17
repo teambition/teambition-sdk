@@ -9,13 +9,21 @@ import {
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
+export enum SmartGroupPredefinedIcon {
+  TaskToday = 'taskToday',
+  TaskUndone = 'taskUndone',
+  TaskDone = 'taskDone',
+  TaskNotAssigned = 'taskNotAssigned',
+  TaskMyExecuted = 'taskMyExecuted'
+}
+
 export interface SmartGroupSchema {
   _id: SmartGroupId
   _projectId: ProjectId
   _creatorId: UserId
   name: string
   description: string
-  icon: string | null
+  icon: SmartGroupPredefinedIcon | null
   type?: SmartGroupType
   view: {
     type: SmartGroupViewType
