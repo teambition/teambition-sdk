@@ -127,6 +127,9 @@ const schema: SchemaDef<TestcaseSchema> = {
   objectType: {
     type: RDBType.STRING
   },
+  pos: {
+    type: RDBType.NUMBER
+  },
   priority: {
     type: RDBType.NUMBER
   },
