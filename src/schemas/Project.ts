@@ -52,7 +52,7 @@ export interface ProjectSchema {
     | 'plan'
     >,
   orgLevel: number
-  owner?: UserSnippet
+  owner?: UserSnippet[]
   permissionBinding?: PermissionBinding
   pinyin: string
   plan?: UserPaymentPlan
