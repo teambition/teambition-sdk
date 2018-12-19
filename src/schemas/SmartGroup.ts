@@ -7,6 +7,7 @@ import {
   SwimAxisLane,
   SmartGroupPredefinedIcon,
   SmartGroupType,
+  TaskSortMethod
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -23,9 +24,10 @@ export interface SmartGroupSchema {
   type?: SmartGroupType
   view: {
     type: SmartGroupViewType
-    vertical: SwimAxisLane
-    horizontal: SwimAxisLane
+    vertical?: SwimAxisLane
+    horizontal?: SwimAxisLane
   },
+  orderBy?: TaskSortMethod
   filter: string
   created: string
   updated: string
@@ -55,6 +57,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
     type: RDBType.STRING,
   },
   name: {
+    type: RDBType.STRING,
+  },
+  orderBy: {
     type: RDBType.STRING,
   },
   taskCount: {
