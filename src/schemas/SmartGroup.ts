@@ -17,6 +17,16 @@ export enum SmartGroupPredefinedIcon {
   TaskMyExecuted = 'taskMyExecuted'
 }
 
+export enum TaskSortMethod {
+  CUSTOM = 'custom',
+  PRIORITY = 'priority',
+  STARTDATE = 'startdate',
+  STARTDATE_DESC = 'startdate_desc',
+  DUEDATE = 'duedate',
+  CREATED_ASC = 'created_asc',
+  CREATED_DESC = 'created_desc',
+}
+
 export interface SmartGroupSchema {
   _id: SmartGroupId
   _projectId: ProjectId
@@ -27,9 +37,10 @@ export interface SmartGroupSchema {
   type?: SmartGroupType
   view: {
     type: SmartGroupViewType
-    vertical: SwimAxisLane
-    horizontal: SwimAxisLane
+    vertical?: SwimAxisLane
+    horizontal?: SwimAxisLane
   },
+  orderBy: TaskSortMethod
   filter: string
   created: string
   updated: string
@@ -59,6 +70,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
     type: RDBType.STRING,
   },
   name: {
+    type: RDBType.STRING,
+  },
+  orderBy: {
     type: RDBType.STRING,
   },
   type: {
