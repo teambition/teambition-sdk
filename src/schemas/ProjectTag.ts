@@ -8,7 +8,7 @@ export interface ProjectTagSchema {
   name: string
   pos: number
   projectIds: ProjectId[] // 该分组下的项目的 ids
-  childProjectIds: ProjectId[] // 该分组子分组（递归）下的项目的 ids
+  childProjectIds?: ProjectId[] // 该分组子分组（递归）下的项目的 ids
   _creatorId?: UserId
   isDeleted: boolean
   isStar: boolean
