@@ -136,6 +136,7 @@ declare module 'teambition-types' {
   export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
   export type UserLevel = -2 | -1 | 0 | 1 | 2
   export type VisibleOption = 'members' | 'involves'
+  export type TapChartName = string & { kind: 'TapChartName' }
 }
 
 declare module 'teambition-types' {
@@ -336,13 +337,41 @@ declare module 'teambition-types' {
 
   export type TapSupportedDateSeries = '0to3' | '3to6' | '6to10' | '10to14' | '14plus'
 
-  export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType, U> = {
-    refType: R
-    isRequired?: boolean
+  export type TapFilterComponent = 'member' | 'singleSprint' | 'Mixed'
+
+  export type TapSelectSection = 'storypoint' | 'worktime'
+
+  export type TapDateSeries = 'day' | 'week' | 'month' | 'year'
+
+  export type TapChartType = 'pie' | 'bar' | 'line'
+
+  export type TapDimensionBaseDataType = 'string' | 'datetime' | 'dropDown' | 'text' | 'boolean' | 'int'
+
+  export type TapChartOperator = '~' | '=' | '<' | '>=' | 'in'
+
+  export type TapCustomFieldChoiceItem = { _id: string, value: string }
+
+  type TapDimensionType = {
+    dataType: TapDimensionBaseDataType
+    column: TapBaseRefType
+    format: null | TapDateSeries
+    name: string
+    choices: null | TapCustomFieldChoiceItem[]
+  }
+
+  export interface TapDashboardSection {
+    section: TapSelectSection
+    name: string
+  }
+
+  export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType | TapDimensionBaseDataType, U> = {
+    component: TapFilterComponent
+    column: R
     dataType: D
-    refData?: U
-    defaultValue?: U
-    selectType?: R
+    refData: U
+    name: string
+    choices?: null | TapCustomFieldChoiceItem[]
+    op?: TapChartOperator
   }
 
   export interface TapGenericFilterRequest {
@@ -371,7 +400,7 @@ declare module 'teambition-types' {
     rangeRelative?: string
     isDone?: boolean
     isArchived?: boolean
-    priority?: number
+    priority?: TaskPriority
     isOverdue?: boolean
     limit?: number
     isSubtask?: boolean
@@ -385,50 +414,64 @@ declare module 'teambition-types' {
     taskflowstatusId?: TaskflowStatusId[]
     dateSeries?: string[]
     testplanId?: TestplanId
-    sprintIdV2?: SprintId[]
-    isSprintIdSelectAll?: boolean
+    accomplished?: string
+    created?: string
+    startDate?: string
+    involveMembers?: UserId[]
+    scenariofieldconfigId?: ScenarioFieldConfigId
+    tagIds?: string[]
+    isDue?: boolean
+    proTemplateConfigType?: ScenarioProTemplateConfigType
   }
 
-  export type TapGenericFilterResponse = Array<
-    TapFilterTarget<'projectId', 'type/MongoId', ProjectId[]> |
-    TapFilterTarget<'executorId', 'type/MongoId', UserId[]> |
-    TapFilterTarget<'executorGroup', 'type/MongoId', TeamId[]> |
-    TapFilterTarget<'stageId', 'type/MongoId', StageId[]> |
-    TapFilterTarget<'organizationId', 'type/MongoId', OrganizationId[]> |
-    TapFilterTarget<'creatorId', 'type/MongoId', UserId[]> |
-    TapFilterTarget<'creatorGroup', 'type/MongoId', TeamId[]> |
-    TapFilterTarget<'tasklistId', 'type/MongoId', TasklistId[]> |
-    TapFilterTarget<'createBegin', 'type/Date', string> |
-    TapFilterTarget<'createEnd', 'type/Date', string> |
-    TapFilterTarget<'createRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'dueBegin', 'type/Date', string> |
-    TapFilterTarget<'dueEnd', 'type/Date', string> |
-    TapFilterTarget<'dueRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'accBegin', 'type/Date', string> |
-    TapFilterTarget<'accEnd', 'type/Date', string> |
-    TapFilterTarget<'accRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'startBegin', 'type/Date', string> |
-    TapFilterTarget<'startEnd', 'type/Date', string> |
-    TapFilterTarget<'startRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'rangeBegin', 'type/Date', string> |
-    TapFilterTarget<'rangeEnd', 'type/Date', string> |
-    TapFilterTarget<'rangeRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'isDone', 'type/Boolean', boolean> |
-    TapFilterTarget<'isArchived', 'type/Boolean', boolean> |
-    TapFilterTarget<'priority', 'type/Number', number> |
-    TapFilterTarget<'isOverdue', 'type/Boolean', boolean> |
-    TapFilterTarget<'limit', 'type/Number', number> |
-    TapFilterTarget<'isSubtask', 'type/Boolean', boolean> |
-    TapFilterTarget<'pageCount', 'type/Number', number> |
-    TapFilterTarget<'pageNum', 'type/Number', number> |
-    TapFilterTarget<'sprintId', 'type/MongoId', SprintId[]> |
-    TapFilterTarget<'weekend', 'type/Number', number[]> |
-    TapFilterTarget<'holiday', 'type/DateCollection', string[]> |
-    TapFilterTarget<'groupField', 'type/String', string> |
-    TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
-    TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
-    TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]> |
-    TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]> |
-    TapFilterTarget<'isSprintIdSelectAll', 'type/Boolean', boolean>
-    >
+  export type TapFilterItem =
+    | TapFilterTarget<'projectId', 'type/MongoId', ProjectId[]>
+    | TapFilterTarget<'executorId', 'type/MongoId', UserId[]>
+    | TapFilterTarget<'executorGroup', 'type/MongoId', TeamId[]>
+    | TapFilterTarget<'stageId', 'type/MongoId', StageId[]>
+    | TapFilterTarget<'organizationId', 'type/MongoId', OrganizationId[]>
+    | TapFilterTarget<'creatorId', 'type/MongoId', UserId[]>
+    | TapFilterTarget<'creatorGroup', 'type/MongoId', TeamId[]>
+    | TapFilterTarget<'tasklistId', 'type/MongoId', TasklistId[]>
+    | TapFilterTarget<'createBegin', 'type/Date', string>
+    | TapFilterTarget<'createEnd', 'type/Date', string>
+    | TapFilterTarget<'createRelative', 'type/String', TapSupportedRelative>
+    | TapFilterTarget<'dueBegin', 'type/Date', string>
+    | TapFilterTarget<'dueEnd', 'type/Date', string>
+    | TapFilterTarget<'dueRelative', 'type/String', TapSupportedRelative>
+    | TapFilterTarget<'accBegin', 'type/Date', string>
+    | TapFilterTarget<'accEnd', 'type/Date', string>
+    | TapFilterTarget<'accRelative', 'type/String', TapSupportedRelative>
+    | TapFilterTarget<'startBegin', 'type/Date', string>
+    | TapFilterTarget<'startEnd', 'type/Date', string>
+    | TapFilterTarget<'startRelative', 'type/String', TapSupportedRelative>
+    | TapFilterTarget<'rangeBegin', 'type/Date', string>
+    | TapFilterTarget<'rangeEnd', 'type/Date', string>
+    | TapFilterTarget<'rangeRelative', 'type/String', TapSupportedRelative>
+    | TapFilterTarget<'isDone', 'type/Boolean', boolean>
+    | TapFilterTarget<'isArchived', 'type/Boolean', boolean>
+    | TapFilterTarget<'priority', 'type/Number', TaskPriority>
+    | TapFilterTarget<'isOverdue', 'type/Boolean', boolean>
+    | TapFilterTarget<'limit', 'type/Number', number>
+    | TapFilterTarget<'isSubtask', 'type/Boolean', boolean>
+    | TapFilterTarget<'pageCount', 'type/Number', number>
+    | TapFilterTarget<'pageNum', 'type/Number', number>
+    | TapFilterTarget<'sprintId', 'type/MongoId', SprintId[]>
+    | TapFilterTarget<'weekend', 'type/Number', number[]>
+    | TapFilterTarget<'holiday', 'type/DateCollection', string[]>
+    | TapFilterTarget<'groupField', 'type/String', string>
+    | TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]>
+    | TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]>
+    | TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]>
+    | TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]>
+    | TapFilterTarget<'accomplished', 'datetime', string>
+    | TapFilterTarget<'startDate', 'datetime', string>
+    | TapFilterTarget<'created', 'datetime', string>
+    | TapFilterTarget<'involveMembers', 'string', UserId[]>
+    | TapFilterTarget<'scenariofieldconfigId', 'int', ScenarioFieldConfigId>
+    | TapFilterTarget<'tagIds', 'string', string>
+    | TapFilterTarget<'isDue', 'boolean', boolean>
+    | TapFilterTarget<'proTemplateConfigType', 'string', ScenarioProTemplateConfigType>
+
+  export type TapGenericFilterResponse = TapFilterItem[]
 }

@@ -1,18 +1,18 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
+import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 
 import {
-  UserId,
   ProjectId,
   TapChartId,
   TapDashboardId,
-  ExecutorOrCreator,
+  TapSelectSection,
+  TapDashboardSection,
   TapGenericFilterRequest as FilterRequest,
   TapGenericFilterResponse as FilterResponse
 } from 'teambition-types'
 
 import {
-  TapChart
+  TapGraphData
 } from './TapChart'
 
 export type TapDashboardDisplay = {
@@ -29,42 +29,21 @@ export interface TapCoordination {
   size?: TapCoordSize
 }
 
-export type TapDashboardSectionId = string & { kind: 'TapDashboardSectionId' }
-
-export interface TapDashboardSection {
-  _id: TapDashboardSectionId
-  name: string
-}
+export type TapExhibit =  'big' | 'small'
 
 export interface TapDashboard<T extends FilterRequest | FilterResponse> {
   _id: TapDashboardId
-
   _projectId: ProjectId
-
-  _creatorId: UserId
-  creator?: ExecutorOrCreator
-
-  _ancestorId: TapDashboardId | null
-  ancestor?: TapDashboard<FilterResponse>
 
   name: string
   desc: string
-  display: TapDashboardDisplay
-  coords: TapCoordination[]
-  coverChart?: TapChart<FilterResponse>
-
+  exhibit: TapExhibit
   sections: TapDashboardSection[]
-  _selectedSectionId: TapDashboardSectionId
+  selectedSection: TapSelectSection
 
   filter: T
-  filterList: FilterResponse
 
-  thumbnail: string
-
-  tapcharts: TapChart<FilterResponse>[]
-  tapdashboards: TapDashboard<FilterResponse>[]
-
-  lastRefreshed: string
+  graphData: TapGraphData[]
 }
 
 const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
@@ -77,88 +56,32 @@ const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {
     type: RDBType.STRING
   },
 
-  _creatorId: {
-    type: RDBType.STRING
-  },
-  creator: {
-    type: Relationship.oneToOne,
-    virtual: {
-      name: 'User',
-      where: (userTable: any) => ({
-        _creatorId: userTable._id
-      })
-    }
-  },
-
-  _ancestorId: {
-    type: RDBType.STRING
-  },
-  ancestor: {
-    type: Relationship.oneToOne,
-    virtual: {
-      name: 'TapDashboard',
-      where: (tapDashboardTable: any) => ({
-        _ancestorId: tapDashboardTable._id
-      })
-    }
-  },
-
   name: {
     type: RDBType.STRING
   },
+
   desc: {
     type: RDBType.STRING
   },
-  display: {
-    type: RDBType.OBJECT
-  },
-  coords: {
-    type: RDBType.OBJECT
-  },
-  coverChart: {
-    type: RDBType.OBJECT
+
+  exhibit: {
+    type: RDBType.STRING
   },
 
   sections: {
     type: RDBType.OBJECT
   },
 
-  _selectedSectionId: {
-    type: RDBType.STRING
+  selectedSection: {
+    type: RDBType.OBJECT
   },
 
   filter: {
     type: RDBType.OBJECT
   },
 
-  filterList: {
+  graphData: {
     type: RDBType.OBJECT
-  },
-
-  thumbnail: {
-    type: RDBType.STRING
-  },
-
-  tapcharts: {
-    type: Relationship.oneToMany,
-    virtual: {
-      name: 'TapChart',
-      where: (tapChartTable: any) => ({
-        _id: tapChartTable._tapdashboardId
-      })
-    }
-  },
-  tapdashboards: {
-    type: Relationship.oneToMany,
-    virtual: {
-      name: 'TapDashboard',
-      where: (tapDashboardTable: any) => ({
-        _id: tapDashboardTable._ancestorId
-      })
-    }
-  },
-  lastRefreshed: {
-    type: RDBType.DATE_TIME
   }
 }
 
