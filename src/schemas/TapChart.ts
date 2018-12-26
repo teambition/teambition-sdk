@@ -3,27 +3,30 @@ import { schemaColl } from './schemas'
 import { Moment } from 'moment'
 
 import {
-  UserId,
   TapChartId,
-  TapDashboardId,
-  ExecutorOrCreator,
+  TapSelectSection,
+  TapDashboardSection,
   TapGenericFilterRequest as FilterRequest,
   TapGenericFilterResponse as FilterResponse
 } from 'teambition-types'
 
-export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details'
+export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview'
 
 // tapGraph definition
 export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String'
+
+export type TapChartExhibitType = 'small' | 'big'
 
 export interface TapGraphCol {
   name: string
   baseType: TapGraphColType
 }
 
-export type TapGraphData = {
-  cols: TapGraphCol[],
-  rows: any[][]
+export type GraphData = {
+  name: string
+  cols: TapGraphCol[];
+  rows: any[][];
+  visualizationSettings: TapGraphVisualizationSettingsSet;
 }
 
 export interface TapGraphNullableDimDisplay {
@@ -124,6 +127,10 @@ export interface TapGraphDetailsDisplay extends TapGraphTableDisplay {
   preset: string
 }
 
+export interface TapGraphOverviewDisplay {
+
+}
+
 export type TapDisplaySet = TapGraphLineDisplay | TapGraphBarDisplay | TapGraphPieDisplay | TapGraphLineBarDisplay |
                             TapGraphNumberDisplay | TapGraphTableDisplay | TapGraphDetailsDisplay
 
@@ -140,31 +147,26 @@ export type TapGraphVisualizationSettingsSet =
   TapGraphVisualizationSettings<'linebar', TapGraphLineBarDisplay> |
   TapGraphVisualizationSettings<'number', TapGraphNumberDisplay> |
   TapGraphVisualizationSettings<'table', TapGraphTableDisplay> |
-  TapGraphVisualizationSettings<'details', TapGraphDetailsDisplay>
+  TapGraphVisualizationSettings<'details', TapGraphDetailsDisplay> |
+  TapGraphVisualizationSettings<'overview', TapGraphOverviewDisplay>
 
 // tapChart definition
 export interface TapChart<T extends FilterRequest | FilterResponse> {
   _id: TapChartId
 
-  _creatorId: UserId
-  creator?: ExecutorOrCreator
+  exhibit: TapChartExhibitType
 
-  _tapdashboardId: TapDashboardId
-  tapdashboard?: {
-    _id: TapDashboardId,
-    name: string
-  }
+  sections: TapDashboardSection[]
+  selectedSection: TapSelectSection
+
+  report: string
 
   name: string
   desc: string
 
-  created: string
-  updated: string
-
   filter: T
-  filterList: FilterResponse
 
-  graphData: TapGraphData
+  graphData: GraphData
   visualizationSettings: TapGraphVisualizationSettingsSet
 }
 
@@ -174,56 +176,38 @@ const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
     primaryKey: true
   },
 
-  _creatorId: {
+  exhibit: {
     type: RDBType.STRING
-  },
-  creator: {
-    type: Relationship.oneToOne,
-    virtual: {
-      name: 'User',
-      where: (userTable: any) => ({
-        _creatorId: userTable._id
-      })
-    }
   },
 
-  _tapdashboardId: {
+  selectedSection: {
     type: RDBType.STRING
   },
-  tapdashboard: {
-    type: Relationship.oneToOne,
-    virtual: {
-      name: 'TapDashboard',
-      where: (dashboardTable: any) => ({
-        _tapdashboardId: dashboardTable._id
-      })
-    }
+
+  report: {
+    type: RDBType.STRING
+  },
+
+  sections: {
+    type: RDBType.OBJECT
   },
 
   name: {
     type: RDBType.STRING
   },
+
   desc: {
     type: RDBType.STRING
   },
 
-  created: {
-    type: RDBType.DATE_TIME
-  },
-  updated: {
-    type: RDBType.DATE_TIME
-  },
-
   filter: {
-    type: RDBType.OBJECT
-  },
-  filterList: {
     type: RDBType.OBJECT
   },
 
   graphData: {
     type: RDBType.OBJECT
   },
+
   visualizationSettings: {
     type: RDBType.OBJECT
   }
