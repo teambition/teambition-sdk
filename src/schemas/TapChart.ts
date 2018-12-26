@@ -1,4 +1,4 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
+import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
 import { Moment } from 'moment'
 
