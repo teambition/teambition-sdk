@@ -330,13 +330,20 @@ declare module 'teambition-types' {
 
   export type TapSupportedDateSeries = '0to3' | '3to6' | '6to10' | '10to14' | '14plus'
 
+  export type TapFilterComponent = 'member' | 'singleSprint' | 'Mixed'
+
+  export type TapSelectSection = 'storypoint' | 'worktime'
+
+  export interface TapDashboardSection {
+    _id: TapSelectSection
+    name: string
+  }
+
   export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType, U> = {
-    refType: R
-    isRequired?: boolean
+    component: TapFilterComponent
+    column: R
     dataType: D
-    refData?: U
-    defaultValue?: U
-    selectType?: R
+    refData: U
   }
 
   export interface TapGenericFilterRequest {
@@ -379,8 +386,6 @@ declare module 'teambition-types' {
     taskflowstatusId?: TaskflowStatusId[]
     dateSeries?: string[]
     testplanId?: TestplanId
-    sprintIdV2?: SprintId[]
-    isSprintIdSelectAll?: boolean
   }
 
   export type TapGenericFilterResponse = Array<
@@ -422,7 +427,6 @@ declare module 'teambition-types' {
     TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
     TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
     TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]> |
-    TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]> |
-    TapFilterTarget<'isSprintIdSelectAll', 'type/Boolean', boolean>
+    TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]>
     >
 }
