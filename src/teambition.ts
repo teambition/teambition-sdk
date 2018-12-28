@@ -121,15 +121,15 @@ declare module 'teambition-types' {
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
     | 'forum'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
-  export type VisibleOption = 'members' | 'involves'
-  export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
-  export type TestcasePriority = 0 | 1 | 2 | 3 | 4 | 5
-  export type UserLevel = -2 | -1 | 0 | 1 | 2
+  export type TestcasePriority = -1 | 0 | 1 | 2 | 3 | 4 | 5
   export type TestcaseStepType = {
     _id: TestcaseStepId
     desc: string
     expected: string
   }
+  export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
+  export type UserLevel = -2 | -1 | 0 | 1 | 2
+  export type VisibleOption = 'members' | 'involves'
 }
 
 declare module 'teambition-types' {
