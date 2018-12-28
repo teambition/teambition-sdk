@@ -116,7 +116,7 @@ export function expandPage<T, K = T>(
     .startWith({})
     .pipe(Page.expand<K>(
       (s) => this.page(s, requestOptions),
-      skipConcat ? Page.accWithoutConcat : Page.acc,
+      skipConcat ? Page.accUpdate : Page.accConcat,
       state
     ))
     .mergeAll()

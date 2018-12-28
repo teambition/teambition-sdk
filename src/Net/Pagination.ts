@@ -101,10 +101,10 @@ export type OriginalResponse<T> = {
   totalSize?: number
 }
 
-export function accWithoutConcat<T>(state: PageCountState<T>, resp: T[]): PageCountState<T>
-export function accWithoutConcat<T>(state: PageTokenState<T>, resp: OriginalResponse<T>): PageTokenState<T>
-export function accWithoutConcat<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T>
-export function accWithoutConcat<T>(
+export function accUpdate<T>(state: PageCountState<T>, resp: T[]): PageCountState<T>
+export function accUpdate<T>(state: PageTokenState<T>, resp: OriginalResponse<T>): PageTokenState<T>
+export function accUpdate<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T>
+export function accUpdate<T>(
   state: PolyState<T>,
   resp: OriginalResponse<T> | T[]
 ): PolyState<T> {
@@ -131,11 +131,11 @@ export function accWithoutConcat<T>(
   }
 }
 
-export function acc<T>(state: PageCountState<T>, resp: T[]): PageCountState<T>
-export function acc<T>(state: PageTokenState<T>, resp: OriginalResponse<T>): PageTokenState<T>
-export function acc<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T>
-export function acc<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T> {
-  const nextState = accWithoutConcat(state, resp)
+export function accConcat<T>(state: PageCountState<T>, resp: T[]): PageCountState<T>
+export function accConcat<T>(state: PageTokenState<T>, resp: OriginalResponse<T>): PageTokenState<T>
+export function accConcat<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T>
+export function accConcat<T>(state: PolyState<T>, resp: OriginalResponse<T> | T[]): PolyState<T> {
+  const nextState = accUpdate(state, resp)
   if (nextState === state) {
     return nextState // 没有对应的操作，将 state 原样返回
   }

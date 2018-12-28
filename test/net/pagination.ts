@@ -82,7 +82,7 @@ describe('Pagination Spec', () => {
       const source$ = Observable.empty()
       const expandOp = page.expand(
         () => Observable.of(sampleResponse),
-        page.acc,
+        page.accConcat,
         page.defaultState<number>('')
       )
       let isCompleted = false
@@ -111,7 +111,7 @@ describe('Pagination Spec', () => {
           }
           return Observable.of(sampleResponse)
         },
-        page.acc,
+        page.accConcat,
         page.defaultState<number>('')
       )
       let isCompleted = false
@@ -132,7 +132,7 @@ describe('Pagination Spec', () => {
       const source$ = Observable.throw(sampleError)
       const expandOp = page.expand(
         () => Observable.of(sampleResponse),
-        page.acc,
+        page.accConcat,
         page.defaultState<number>('')
       )
       let isErrorPassedThrough = false
@@ -158,7 +158,7 @@ describe('Pagination Spec', () => {
       })
       const expandOp = page.expand(
         () => Observable.of(sampleResponse),
-        page.acc,
+        page.accConcat,
         page.defaultState<number>('')
       )
       yield source$.pipe(expandOp).mergeAll().do((x) => {
@@ -172,7 +172,7 @@ describe('Pagination Spec', () => {
       const source$ = Observable.interval(10).take(3)
       const expandOp = page.expand(
         () => Observable.of(sampleResponse).delay(25),
-        page.acc,
+        page.accConcat,
         page.defaultState<number>('')
       )
       const page$ = source$.pipe(expandOp).mergeAll().publishReplay(1).refCount()
@@ -211,7 +211,7 @@ describe('Pagination Spec', () => {
           }
           return Observable.of(sampleResponse)
         },
-        page.acc,
+        page.accConcat,
         page.defaultState<number>('')
       )
       yield Observable.from(['first load', 'second load'])
@@ -240,7 +240,7 @@ describe('Pagination Spec', () => {
           }
           return Observable.of(sampleNextResponse)
         },
-        page.acc,
+        page.accConcat,
         {
           ...page.defaultState(''),
           nextPage: 2,
