@@ -527,6 +527,20 @@ describe('Net test', () => {
         })
     })
 
+    it('should pass-through all-complete result set (without padding requests)', function* () {
+      const completeEvent = { ...sampleEvent, ...partialEvent }
+
+      mockEventsGet(_projectId, [ completeEvent ])
+
+      yield net.lift(getEventsWithRequired(sdkFetch, _projectId)).changes()
+        .subscribeOn(Scheduler.asap)
+        .take(1)
+        .do(([ event ]) => {
+          expect(spyFetch.callCount).to.equal(1)
+          expectToDeepEqualForFieldsOfTheExpected(event, completeEvent)
+        })
+    })
+
     it('padding: should emit once for one change update on a result set of size >= 2', function* () {
       mockEventsGet(_projectId, [])
 
