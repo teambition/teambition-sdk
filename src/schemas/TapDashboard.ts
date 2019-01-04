@@ -12,7 +12,7 @@ import {
 } from 'teambition-types'
 
 import {
-  GraphData
+  TapGraphData
 } from './TapChart'
 
 export type TapDashboardDisplay = {
@@ -43,7 +43,7 @@ export interface TapDashboard<T extends FilterRequest | FilterResponse> {
 
   filter: T
 
-  graphData: GraphData[]
+  graphData: TapGraphData[]
 }
 
 const schema: SchemaDef<TapDashboard<FilterRequest | FilterResponse>> = {

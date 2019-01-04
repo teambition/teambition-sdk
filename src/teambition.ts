@@ -59,6 +59,7 @@ declare module 'teambition-types' {
   export type TagCategoryId = string & { kind: 'TagCategoryId' }
   export type TagId = string & { kind: 'TagId' }
   export type TapChartId = string & { kind: 'TapChartId' }
+  export type TapChartName = string & { kind: 'TapChartName' }
   export type TapDashboardId = string & { kind: 'TapDashboardId' }
   export type TaskDependencyId = string & { kind: 'TaskDependencyId' }
   export type TaskflowId = string & { kind: 'TaskflowId' }
@@ -334,6 +335,10 @@ declare module 'teambition-types' {
 
   export type TapSelectSection = 'storypoint' | 'worktime'
 
+  export type TapDateSeries = 'day' | 'week' | 'month' | 'year'
+
+  export type TapChartType = 'pie' | 'bar' | 'line'
+
   export interface TapDashboardSection {
     _id: TapSelectSection
     name: string
@@ -344,6 +349,8 @@ declare module 'teambition-types' {
     column: R
     dataType: D
     refData: U
+    name: string
+    format: null | TapDateSeries
   }
 
   export interface TapGenericFilterRequest {
@@ -388,45 +395,45 @@ declare module 'teambition-types' {
     testplanId?: TestplanId
   }
 
-  export type TapGenericFilterResponse = Array<
-    TapFilterTarget<'projectId', 'type/MongoId', ProjectId[]> |
-    TapFilterTarget<'executorId', 'type/MongoId', UserId[]> |
-    TapFilterTarget<'executorGroup', 'type/MongoId', TeamId[]> |
-    TapFilterTarget<'stageId', 'type/MongoId', StageId[]> |
-    TapFilterTarget<'organizationId', 'type/MongoId', OrganizationId[]> |
-    TapFilterTarget<'creatorId', 'type/MongoId', UserId[]> |
-    TapFilterTarget<'creatorGroup', 'type/MongoId', TeamId[]> |
-    TapFilterTarget<'tasklistId', 'type/MongoId', TasklistId[]> |
-    TapFilterTarget<'createBegin', 'type/Date', string> |
-    TapFilterTarget<'createEnd', 'type/Date', string> |
-    TapFilterTarget<'createRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'dueBegin', 'type/Date', string> |
-    TapFilterTarget<'dueEnd', 'type/Date', string> |
-    TapFilterTarget<'dueRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'accBegin', 'type/Date', string> |
-    TapFilterTarget<'accEnd', 'type/Date', string> |
-    TapFilterTarget<'accRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'startBegin', 'type/Date', string> |
-    TapFilterTarget<'startEnd', 'type/Date', string> |
-    TapFilterTarget<'startRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'rangeBegin', 'type/Date', string> |
-    TapFilterTarget<'rangeEnd', 'type/Date', string> |
-    TapFilterTarget<'rangeRelative', 'type/String', TapSupportedRelative> |
-    TapFilterTarget<'isDone', 'type/Boolean', boolean> |
-    TapFilterTarget<'isArchived', 'type/Boolean', boolean> |
-    TapFilterTarget<'priority', 'type/Number', number> |
-    TapFilterTarget<'isOverdue', 'type/Boolean', boolean> |
-    TapFilterTarget<'limit', 'type/Number', number> |
-    TapFilterTarget<'isSubtask', 'type/Boolean', boolean> |
-    TapFilterTarget<'pageCount', 'type/Number', number> |
-    TapFilterTarget<'pageNum', 'type/Number', number> |
-    TapFilterTarget<'sprintId', 'type/MongoId', SprintId[]> |
-    TapFilterTarget<'weekend', 'type/Number', number[]> |
-    TapFilterTarget<'holiday', 'type/DateCollection', string[]> |
-    TapFilterTarget<'groupField', 'type/String', string> |
-    TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
-    TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
-    TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]> |
-    TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]>
-    >
+  export type TapFilterItem= TapFilterTarget<'projectId', 'type/MongoId', ProjectId[]> |
+  TapFilterTarget<'executorId', 'type/MongoId', UserId[]> |
+  TapFilterTarget<'executorGroup', 'type/MongoId', TeamId[]> |
+  TapFilterTarget<'stageId', 'type/MongoId', StageId[]> |
+  TapFilterTarget<'organizationId', 'type/MongoId', OrganizationId[]> |
+  TapFilterTarget<'creatorId', 'type/MongoId', UserId[]> |
+  TapFilterTarget<'creatorGroup', 'type/MongoId', TeamId[]> |
+  TapFilterTarget<'tasklistId', 'type/MongoId', TasklistId[]> |
+  TapFilterTarget<'createBegin', 'type/Date', string> |
+  TapFilterTarget<'createEnd', 'type/Date', string> |
+  TapFilterTarget<'createRelative', 'type/String', TapSupportedRelative> |
+  TapFilterTarget<'dueBegin', 'type/Date', string> |
+  TapFilterTarget<'dueEnd', 'type/Date', string> |
+  TapFilterTarget<'dueRelative', 'type/String', TapSupportedRelative> |
+  TapFilterTarget<'accBegin', 'type/Date', string> |
+  TapFilterTarget<'accEnd', 'type/Date', string> |
+  TapFilterTarget<'accRelative', 'type/String', TapSupportedRelative> |
+  TapFilterTarget<'startBegin', 'type/Date', string> |
+  TapFilterTarget<'startEnd', 'type/Date', string> |
+  TapFilterTarget<'startRelative', 'type/String', TapSupportedRelative> |
+  TapFilterTarget<'rangeBegin', 'type/Date', string> |
+  TapFilterTarget<'rangeEnd', 'type/Date', string> |
+  TapFilterTarget<'rangeRelative', 'type/String', TapSupportedRelative> |
+  TapFilterTarget<'isDone', 'type/Boolean', boolean> |
+  TapFilterTarget<'isArchived', 'type/Boolean', boolean> |
+  TapFilterTarget<'priority', 'type/Number', number> |
+  TapFilterTarget<'isOverdue', 'type/Boolean', boolean> |
+  TapFilterTarget<'limit', 'type/Number', number> |
+  TapFilterTarget<'isSubtask', 'type/Boolean', boolean> |
+  TapFilterTarget<'pageCount', 'type/Number', number> |
+  TapFilterTarget<'pageNum', 'type/Number', number> |
+  TapFilterTarget<'sprintId', 'type/MongoId', SprintId[]> |
+  TapFilterTarget<'weekend', 'type/Number', number[]> |
+  TapFilterTarget<'holiday', 'type/DateCollection', string[]> |
+  TapFilterTarget<'groupField', 'type/String', string> |
+  TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
+  TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
+  TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]> |
+  TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]>
+
+  export type TapGenericFilterResponse = TapFilterItem[]
 }
