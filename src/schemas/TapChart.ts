@@ -4,6 +4,7 @@ import { Moment } from 'moment'
 
 import {
   TapChartId,
+  TapFilterItem,
   TapSelectSection,
   TapDashboardSection,
   TapGenericFilterRequest as FilterRequest,
@@ -22,7 +23,7 @@ export interface TapGraphCol {
   baseType: TapGraphColType
 }
 
-export type GraphData = {
+export type TapGraphData = {
   name: string
   cols: TapGraphCol[];
   rows: any[][];
@@ -152,7 +153,14 @@ export type TapGraphVisualizationSettingsSet =
 
 // tapChart definition
 export interface TapChart<T extends FilterRequest | FilterResponse> {
+
   _id: TapChartId
+
+  chartType?: TapChartType
+
+  analysis_dimension?: TapFilterItem | null
+
+  compare_dimension?: TapFilterItem | null
 
   exhibit: TapChartExhibitType
 
@@ -166,14 +174,26 @@ export interface TapChart<T extends FilterRequest | FilterResponse> {
 
   filter: T
 
-  graphData: GraphData
-  visualizationSettings: TapGraphVisualizationSettingsSet
+  graphData: TapGraphData[]
 }
 
 const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
+
+  chartType: {
+    type: RDBType.STRING
+  },
+
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+
+  analysis_dimension: {
+    type: RDBType.OBJECT
+  },
+
+  compare_dimension: {
+    type: RDBType.OBJECT
   },
 
   exhibit: {
@@ -205,10 +225,6 @@ const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
   },
 
   graphData: {
-    type: RDBType.OBJECT
-  },
-
-  visualizationSettings: {
     type: RDBType.OBJECT
   }
 }
