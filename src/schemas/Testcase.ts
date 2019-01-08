@@ -38,6 +38,8 @@ export interface TestcaseSchema {
   title: string
   created: string
   updated: string
+  versionUpdated: string
+  syncDate: string | null
   project: ProjectSchema | null
   testplan: TestplanSchema | null
   commongroup: CommonGroupSchema | null
@@ -148,6 +150,9 @@ const schema: SchemaDef<TestcaseSchema> = {
   steps: {
     type: RDBType.OBJECT
   },
+  syncDate: {
+    type: RDBType.DATE_TIME
+  },
   testhub: {
     type: Relationship.oneToOne,
     virtual: {
@@ -171,7 +176,10 @@ const schema: SchemaDef<TestcaseSchema> = {
   },
   updated: {
     type: RDBType.DATE_TIME
-  }
+  },
+  versionUpdated: {
+    type: RDBType.DATE_TIME
+  },
 }
 
 schemaColl.add({ name: 'Testcase', schema })
