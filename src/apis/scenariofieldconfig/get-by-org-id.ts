@@ -1,43 +1,52 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken } from 'reactivedb'
 
 import { OrganizationId, ScenarioFieldConfigObjectType } from 'teambition-types'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { ScenarioFieldConfigSchema, TaskScenarioFieldConfigSchema, EventScenarioFieldConfigSchema } from '../../schemas'
+import {
+  ScenarioFieldConfigSchema,
+  TaskScenarioFieldConfigSchema,
+  EventScenarioFieldConfigSchema
+} from '../../schemas'
 import { ApiResult } from '../../Net'
+import { OriginalResponse } from '../../Net/Pagination'
+import { withCustomFields } from './with-custom-fields'
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: 'task',
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: 'event',
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): Observable<EventScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
+  query?: GetOrgScenarioFieldConfigsOptions
 ): Observable<ScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
+  options?: GetOrgScenarioFieldConfigsOptions
 ) {
-  return this.get<{ nextPageToken: string, result: ScenarioFieldConfigSchema[] }>(
-    `organizations/${organizationId}/scenariofieldconfigs`,
-    { ...query, objectType },
-  ).map(({ result }) => result)
+  const url = `organizations/${organizationId}/scenariofieldconfigs`
+  const query = { ...options, objectType }
+
+  return this.get<OriginalResponse<ScenarioFieldConfigSchema>>(url, query).map(
+    (resp) => {
+      return resp.result
+    }
+  )
 }
 
 declare module '../../SDKFetch' {
@@ -52,31 +61,30 @@ export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: 'task',
-  query?: object
-): QueryToken<TaskScenarioFieldConfigSchema>
+  query?: GetOrgScenarioFieldConfigsOptions
+): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: 'event',
-  query?: object
-): QueryToken<EventScenarioFieldConfigSchema>
+  query?: GetOrgScenarioFieldConfigsOptions
+): Observable<EventScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
-): QueryToken<ScenarioFieldConfigSchema>
+  query?: GetOrgScenarioFieldConfigsOptions
+): Observable<ScenarioFieldConfigSchema[]>
 
 export function getOrgScenarioFieldConfigs(
   this: SDK,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  query?: object
-  // todo: 待 RDB 类型修复后，将 any 移除
-): any {
-  return this.lift({
+  query: GetOrgScenarioFieldConfigsOptions = {}
+): Observable<ScenarioFieldConfigSchema[]> {
+  const token = this.lift({
     cacheValidate: CacheStrategy.Request,
     tableName: 'ScenarioFieldConfig',
     request: this.fetch.getOrgScenarioFieldConfigs(
@@ -85,13 +93,16 @@ export function getOrgScenarioFieldConfigs(
       query
     ),
     query: {
-      where: [
-        { _boundToObjectId: organizationId },
-        { objectType },
-      ],
+      where: [{ _boundToObjectId: organizationId }, { objectType }]
     },
     excludeFields: ['taskflowstatuses'] // 企业接口不关心该字段
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)
+
+  if (!query.withCustomfields) {
+    return token.changes()
+  }
+
+  return token.changes().pipe(withCustomFields(this))
 }
 
 declare module '../../SDK' {
@@ -101,3 +112,8 @@ declare module '../../SDK' {
 }
 
 SDK.prototype.getOrgScenarioFieldConfigs = getOrgScenarioFieldConfigs
+
+export interface GetOrgScenarioFieldConfigsOptions {
+  sort?: string
+  withCustomfields?: boolean
+}

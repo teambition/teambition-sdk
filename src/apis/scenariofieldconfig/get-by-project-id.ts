@@ -1,43 +1,48 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken } from 'reactivedb'
 
 import { ProjectId, ScenarioFieldConfigObjectType } from 'teambition-types'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { ScenarioFieldConfigSchema, TaskScenarioFieldConfigSchema, EventScenarioFieldConfigSchema } from '../../schemas'
+import {
+  ScenarioFieldConfigSchema,
+  TaskScenarioFieldConfigSchema,
+  EventScenarioFieldConfigSchema
+} from '../../schemas'
 import { ApiResult } from '../../Net'
+import { withCustomFields } from './with-custom-fields'
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: 'task',
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: 'event',
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): Observable<EventScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus?: boolean
+  options?: GetScenarioFieldConfigsOptions
 ): Observable<ScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus = false
+  options: GetScenarioFieldConfigsOptions = {}
 ) {
-  return this.get<ScenarioFieldConfigSchema[]>(
-    `projects/${projectId}/scenariofieldconfigs`,
-    { objectType, withTaskflowstatus },
-  )
+  const url = `projects/${projectId}/scenariofieldconfigs`
+  const { withTaskflowstatus, withCustomfields } = options
+  const query = { objectType, withTaskflowstatus, withCustomfields }
+
+  return this.get<ScenarioFieldConfigSchema[]>(url, query)
 }
 
 declare module '../../SDKFetch' {
@@ -53,52 +58,57 @@ export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: 'task',
-  withTaskflowstatus?: boolean
-): QueryToken<TaskScenarioFieldConfigSchema>
+  options?: GetScenarioFieldConfigsOptions
+): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: 'event',
-  withTaskflowstatus?: boolean
-): QueryToken<EventScenarioFieldConfigSchema>
+  options?: GetScenarioFieldConfigsOptions
+): Observable<EventScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus?: boolean
-): QueryToken<ScenarioFieldConfigSchema>
+  options?: GetScenarioFieldConfigsOptions
+): Observable<ScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  withTaskflowstatus = false
-  // todo: 待 RDB 类型修复后，将 any 移除
-): any {
-  return this.lift({
+  options: GetScenarioFieldConfigsOptions = {}
+): Observable<ScenarioFieldConfigSchema[]> {
+  const token = this.lift({
     cacheValidate: CacheStrategy.Request,
     tableName: 'ScenarioFieldConfig',
-    request: this.fetch.getScenarioFieldConfigs(
-      projectId,
-      objectType,
-      withTaskflowstatus
-    ),
+    request: this.fetch.getScenarioFieldConfigs(projectId, objectType, options),
     query: {
-      where: [
-        { _boundToObjectId: projectId },
-        { objectType },
-      ],
+      where: [{ _boundToObjectId: projectId }, { objectType }]
     },
     assocFields: {
-      ...(
-        withTaskflowstatus
-          ? { taskflowstatuses: ['_id', '_taskflowId', 'name', 'kind', 'rejectStatusIds', 'pos'] }
-          : {}
-      )
+      ...(options.withTaskflowstatus
+        ? {
+            taskflowstatuses: [
+              '_id',
+              '_taskflowId',
+              'name',
+              'kind',
+              'rejectStatusIds',
+              'pos'
+            ]
+          }
+        : {})
     }
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)
+
+  if (!options.withCustomfields) {
+    return token.changes()
+  }
+
+  return token.changes().pipe(withCustomFields(this))
 }
 
 declare module '../../SDK' {
@@ -109,3 +119,8 @@ declare module '../../SDK' {
 }
 
 SDK.prototype.getScenarioFieldConfigs = getScenarioFieldConfigs
+
+export interface GetScenarioFieldConfigsOptions {
+  withTaskflowstatus?: boolean
+  withCustomfields?: boolean
+}

@@ -7,6 +7,7 @@ import {
   ScenarioFieldType,
   TaskOfficialScenarioFieldType
 } from 'teambition-types'
+import { CustomFieldSchema } from './CustomField'
 
 export interface ScenarioFieldSchema<T = ScenarioFieldType> {
   _id: ScenarioFieldId
@@ -23,6 +24,7 @@ export interface NoteScenarioFieldSchema extends ScenarioFieldSchema {
 
 export interface CustomScenarioFieldSchema extends ScenarioFieldSchema<CustomScenarioFieldType> {
   _customfieldId: CustomFieldId
+  customfield?: CustomFieldSchema
 }
 
 export type TaskScenarioFieldSchema =
