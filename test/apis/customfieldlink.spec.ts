@@ -1,11 +1,12 @@
 import { describe, before, beforeEach, afterEach, it, after } from 'tman'
-import { Scheduler } from 'rxjs'
+import { Scheduler, Observable } from 'rxjs'
 import { expect } from 'chai'
 
 import { SDKFetch, createSdk, SDK } from '../'
 import { customFieldLink } from '../fixtures/customfieldlinks.fixture'
 import { mock, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
-import { ProjectId } from 'teambition-types'
+import { ProjectId, CustomFieldId } from 'teambition-types'
+import { CustomFieldLinkSchema } from '../../src'
 
 const fetchMock = require('fetch-mock')
 
@@ -57,6 +58,21 @@ describe('CustomFieldLinkApi spec: ', () => {
     mockResponse(customFieldLinks)
 
     yield sdk.getCustomFieldLinks(projectId, 'application')
+      .values()
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        expectToDeepEqualForFieldsOfTheExpected(result, customFieldLinks[0])
+      })
+  })
+
+  it('should return a CustomFieldLink derived from CustomField', function*() {
+    const customFieldLinks: CustomFieldLinkSchema[] = [customFieldLink as any]
+    const customFieldId = customFieldLink._customfieldId as CustomFieldId
+
+    yield sdk
+      .getLinkByCustomFieldId(customFieldId, {
+        request: Observable.of(customFieldLinks)
+      })
       .values()
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
