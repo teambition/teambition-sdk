@@ -53,6 +53,28 @@ export const taskScenarioFieldConfig = {
       required: false,
       displayed: true,
       _roleIds: []
+    },
+    {
+      _id: '5ba363ef7317c10001982891',
+      _customfieldId: '5b33326d984ed80001c4d2b7',
+      fieldType: 'customfield',
+      _roleIds: [],
+      displayed: false,
+      required: false,
+      customfield: {
+        _id: '5b33326d984ed80001c4d2b7',
+        name: '中文',
+        description: '',
+        type: 'date',
+        boundType: 'application',
+        externalUrl: '',
+        choices: [],
+        _organizationId: '5ab48cb599d4ad00010e06cc',
+        _creatorId: '569ee653f87e2d3e6ece85b8',
+        categoryIds: [],
+        created: '2018-06-27T06:45:01.555Z',
+        updated: '2018-06-27T06:45:01.555Z'
+      }
     }
   ],
   created: '2018-03-01T03:33:38.829Z',
