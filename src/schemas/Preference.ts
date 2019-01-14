@@ -45,6 +45,7 @@ export interface PreferenceSchema {
   switcherOn: boolean
   memberBarMode: string
   isUsePanel: boolean
+  activityMode: 'text' | 'markdown'
 }
 
 const Schema: SchemaDef<PreferenceSchema> = {
@@ -138,6 +139,9 @@ const Schema: SchemaDef<PreferenceSchema> = {
   },
   tips: {
     type: RDBType.OBJECT
+  },
+  activityMode: {
+    type: RDBType.STRING
   }
 }
 
