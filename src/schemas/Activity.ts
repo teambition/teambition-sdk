@@ -101,6 +101,7 @@ export interface ActivitySchema {
       fileName: string
       objectType: 'work'
     }
+    renderMode?: 'markdown' | 'text'
   }
   created: number
   creator: ExecutorOrCreator
