@@ -32,7 +32,7 @@ describe('CustomFieldLinkApi request spec: ', () => {
   it('should return a CustomFieldLink array', function* () {
     const projectId = customFieldLink._projectId as ProjectId
     const customFieldLinks = [customFieldLink]
-    const url = `/projects/${projectId}/customfieldlinks?boundType=application&_=666`
+    const url = `/projects/${projectId}/customfieldlinks?boundType=application&withRootCommongroup=true&_=666`
 
     fetchMock.once(url, customFieldLinks)
 
