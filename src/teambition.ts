@@ -339,18 +339,33 @@ declare module 'teambition-types' {
 
   export type TapChartType = 'pie' | 'bar' | 'line'
 
+  export type TapDimensionBaseDataType = 'string' | 'datetime' | 'dropDown' | 'text' | 'boolean' | 'int'
+
+  export type TapChartOperator = '~' | '=' | '<' | '>=' | 'in'
+
+  export type TapCustomFieldChoiceItem = { _id: string, value: string }
+
+  type TapDimensionType = {
+    dataType: TapDimensionBaseDataType
+    column: TapBaseRefType
+    format: null | TapDateSeries
+    name: string
+    choices: null | TapCustomFieldChoiceItem[]
+  }
+
   export interface TapDashboardSection {
-    _id: TapSelectSection
+    section: TapSelectSection
     name: string
   }
 
-  export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType, U> = {
+  export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType | TapDimensionBaseDataType, U> = {
     component: TapFilterComponent
     column: R
     dataType: D
     refData: U
     name: string
-    format: null | TapDateSeries
+    choices?: null | TapCustomFieldChoiceItem[]
+    op?: TapChartOperator
   }
 
   export interface TapGenericFilterRequest {
@@ -379,7 +394,7 @@ declare module 'teambition-types' {
     rangeRelative?: string
     isDone?: boolean
     isArchived?: boolean
-    priority?: number
+    priority?: TaskPriority
     isOverdue?: boolean
     limit?: number
     isSubtask?: boolean
@@ -393,6 +408,13 @@ declare module 'teambition-types' {
     taskflowstatusId?: TaskflowStatusId[]
     dateSeries?: string[]
     testplanId?: TestplanId
+    accomplished?: string
+    created?: string
+    startDate?: string
+    involveMembers?: UserId[]
+    scenariofieldconfigId?: ScenarioFieldConfigId
+    tagIds?: string[]
+    isDue?: boolean
   }
 
   export type TapFilterItem= TapFilterTarget<'projectId', 'type/MongoId', ProjectId[]> |
@@ -420,7 +442,7 @@ declare module 'teambition-types' {
   TapFilterTarget<'rangeRelative', 'type/String', TapSupportedRelative> |
   TapFilterTarget<'isDone', 'type/Boolean', boolean> |
   TapFilterTarget<'isArchived', 'type/Boolean', boolean> |
-  TapFilterTarget<'priority', 'type/Number', number> |
+  TapFilterTarget<'priority', 'type/Number', TaskPriority> |
   TapFilterTarget<'isOverdue', 'type/Boolean', boolean> |
   TapFilterTarget<'limit', 'type/Number', number> |
   TapFilterTarget<'isSubtask', 'type/Boolean', boolean> |
@@ -433,7 +455,14 @@ declare module 'teambition-types' {
   TapFilterTarget<'taskflowId', 'type/MongoId', TaskflowId[]> |
   TapFilterTarget<'taskflowstatusId', 'type/MongoId', TaskflowStatusId[]> |
   TapFilterTarget<'dateSeries', 'type/String', TapSupportedDateSeries[]> |
-  TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]>
+  TapFilterTarget<'testplanId', 'type/MongoId', TestplanId[]> |
+  TapFilterTarget<'accomplished', 'datetime', string> |
+  TapFilterTarget<'startDate', 'datetime', string> |
+  TapFilterTarget<'created', 'datetime', string> |
+  TapFilterTarget<'involveMembers', 'string', UserId[]> |
+  TapFilterTarget<'scenariofieldconfigId', 'int', ScenarioFieldConfigId> |
+  TapFilterTarget<'tagIds', 'string', string> |
+  TapFilterTarget<'isDue', 'boolean', boolean>
 
   export type TapGenericFilterResponse = TapFilterItem[]
 }

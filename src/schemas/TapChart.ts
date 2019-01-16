@@ -3,15 +3,18 @@ import { schemaColl } from './schemas'
 import { Moment } from 'moment'
 
 import {
+  ProjectId,
   TapChartId,
-  TapFilterItem,
+  TapChartName,
+  TapDimensionType,
   TapSelectSection,
   TapDashboardSection,
+  TapChartType as TapChoiceChartType,
   TapGenericFilterRequest as FilterRequest,
   TapGenericFilterResponse as FilterResponse
 } from 'teambition-types'
 
-export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview'
+export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview' | 'customset'
 
 // tapGraph definition
 export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String'
@@ -24,7 +27,8 @@ export interface TapGraphCol {
 }
 
 export type TapGraphData = {
-  name: string
+  name: TapChartName
+  title: string
   cols: TapGraphCol[];
   rows: any[][];
   visualizationSettings: TapGraphVisualizationSettingsSet;
@@ -149,30 +153,35 @@ export type TapGraphVisualizationSettingsSet =
   TapGraphVisualizationSettings<'number', TapGraphNumberDisplay> |
   TapGraphVisualizationSettings<'table', TapGraphTableDisplay> |
   TapGraphVisualizationSettings<'details', TapGraphDetailsDisplay> |
-  TapGraphVisualizationSettings<'overview', TapGraphOverviewDisplay>
+  TapGraphVisualizationSettings<'overview', TapGraphOverviewDisplay> |
+  TapGraphVisualizationSettings<'customset', TapGraphOverviewDisplay>
 
 // tapChart definition
 export interface TapChart<T extends FilterRequest | FilterResponse> {
 
   _id: TapChartId
 
-  chartType?: TapChartType
+  _projectId: ProjectId
 
-  analysis_dimension?: TapFilterItem | null
+  chartType: TapChoiceChartType
 
-  compare_dimension?: TapFilterItem | null
+  analysis_dimension?: TapDimensionType | null
+
+  compare_dimension?: TapDimensionType | null
 
   exhibit: TapChartExhibitType
 
   sections: TapDashboardSection[]
   selectedSection: TapSelectSection
 
-  report: string
+  report: TapChartName
 
   name: string
   desc: string
 
   filter: T
+
+  type: 'tdr' | 'tdr'
 
   graphData: TapGraphData[]
 }
@@ -186,6 +195,15 @@ const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+
+  _projectId: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+
+  type: {
+    type: RDBType.STRING
   },
 
   analysis_dimension: {
