@@ -10,11 +10,12 @@ import { SDKFetch } from '../../SDKFetch'
 export function getCustomFieldLinksFetch(
   this: SDKFetch,
   projectId: ProjectId,
-  boundType: CustomFieldBoundType
+  boundType: CustomFieldBoundType,
+  { withRootCommongroup = true }: GetCustomFieldLinksOptions = {}
 ): Observable<CustomFieldLinkSchema[]> {
   return this.get<CustomFieldLinkSchema[]>(
     `projects/${projectId}/customfieldlinks`,
-    { boundType }
+    { boundType, withRootCommongroup }
   )
 }
 
@@ -51,3 +52,7 @@ declare module '../../SDK' {
 }
 
 SDK.prototype.getCustomFieldLinks = getCustomFieldLinks
+
+interface GetCustomFieldLinksOptions {
+  withRootCommongroup?: boolean
+}

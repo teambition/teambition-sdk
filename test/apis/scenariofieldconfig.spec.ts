@@ -793,7 +793,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
         expect(result).to.deep.equal(nextConfig)
       })
 
-    const customfieldlinksUrl = `/projects/${projectId}/customfieldlinks?boundType=application&_=666`
+    const customfieldlinksUrl = `/projects/${projectId}/customfieldlinks?boundType=application&withRootCommongroup=true&_=666`
     fetchMock.getOnce(customfieldlinksUrl, [customFieldLink])
 
     // 缓存 CustomFieldLink 数据
