@@ -10,6 +10,7 @@ export interface TaskflowSchema {
   boundToObjectType: 'project' | 'organization'
   created: string
   name: string
+  objectType: 'task' | 'testcase'
   taskflowstatuses?: TaskflowStatusSnippet[]
   updated: string
 }
@@ -32,6 +33,9 @@ const schema: SchemaDef<TaskflowSchema> = {
     type: RDBType.DATE_TIME
   },
   name: {
+    type: RDBType.STRING
+  },
+  objectType: {
     type: RDBType.STRING
   },
   taskflowstatuses: {

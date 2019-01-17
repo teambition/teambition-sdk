@@ -5,7 +5,8 @@ import {
   RoleId,
   ScenarioFieldId,
   ScenarioFieldType,
-  TaskOfficialScenarioFieldType
+  TaskOfficialScenarioFieldType,
+  TestcaseOfficialScenarioFieldType,
 } from 'teambition-types'
 import { CustomFieldSchema } from './CustomField'
 
@@ -36,3 +37,6 @@ export type EventScenarioFieldSchema =
   CustomScenarioFieldSchema |
   NoteScenarioFieldSchema |
   ScenarioFieldSchema<EventOfficialScenarioFieldType>
+
+export type TestcaseScenarioFieldSchema =
+  ScenarioFieldSchema<TestcaseOfficialScenarioFieldType>

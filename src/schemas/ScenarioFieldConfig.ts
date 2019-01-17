@@ -7,12 +7,18 @@ import {
   ScenarioFieldConfigId,
   ScenarioFieldConfigObjectType,
   ScenarioProTemplateConfigType,
+  TestcaseScenarioFieldIcon,
   TaskflowId,
   TaskScenarioFieldIcon,
   UserId,
   OrganizationId
 } from 'teambition-types'
-import { ScenarioFieldSchema, EventScenarioFieldSchema, TaskScenarioFieldSchema } from './ScenarioField'
+import {
+  ScenarioFieldSchema,
+  EventScenarioFieldSchema,
+  TaskScenarioFieldSchema,
+  TestcaseScenarioFieldSchema
+} from './ScenarioField'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface ScenarioFieldConfigSchema {
@@ -51,6 +57,16 @@ export interface EventScenarioFieldConfigSchema extends ScenarioFieldConfigSchem
   scenariofields: EventScenarioFieldSchema[]
   _taskflowId: null
   proTemplateConfigType: null
+}
+
+export interface TestcaseScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
+  icon: TestcaseScenarioFieldIcon
+  objectType: 'testcase'
+  scenariofields: TestcaseScenarioFieldSchema[]
+
+  proTemplateConfigType: null
+  _taskflowId: TaskflowId
+  taskflowstatuses?: TaskflowStatusSnippet[]
 }
 
 const schema: SchemaDef<

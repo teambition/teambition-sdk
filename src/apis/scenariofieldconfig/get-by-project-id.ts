@@ -6,7 +6,8 @@ import { SDKFetch } from '../../SDKFetch'
 import {
   ScenarioFieldConfigSchema,
   TaskScenarioFieldConfigSchema,
-  EventScenarioFieldConfigSchema
+  EventScenarioFieldConfigSchema,
+  TestcaseScenarioFieldConfigSchema,
 } from '../../schemas'
 import { ApiResult } from '../../Net'
 import { withCustomFields } from './with-custom-fields'
@@ -24,6 +25,13 @@ export function getScenarioFieldConfigsFetch(
   objectType: 'event',
   options?: GetScenarioFieldConfigsFetchOptions
 ): Observable<EventScenarioFieldConfigSchema[]>
+
+export function getScenarioFieldConfigsFetch(
+  this: SDKFetch,
+  projectId: ProjectId,
+  objectType: 'testcase',
+  options?: GetScenarioFieldConfigsFetchOptions
+): Observable<TestcaseScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
@@ -69,6 +77,13 @@ export function getScenarioFieldConfigs(
   objectType: 'event',
   options?: GetScenarioFieldConfigsOptions
 ): Observable<EventScenarioFieldConfigSchema[]>
+
+export function getScenarioFieldConfigs(
+  this: SDK,
+  projectId: ProjectId,
+  objectType: 'testcase',
+  options?: GetScenarioFieldConfigsOptions
+): Observable<TestcaseScenarioFieldConfigSchema[]>
 
 export function getScenarioFieldConfigs(
   this: SDK,
