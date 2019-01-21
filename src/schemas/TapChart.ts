@@ -1,5 +1,4 @@
 import { RDBType, SchemaDef } from 'reactivedb/interface'
-import { schemaColl } from './schemas'
 import { Moment } from 'moment'
 
 import {
@@ -186,7 +185,7 @@ export interface TapChart<T extends FilterRequest | FilterResponse> {
   graphData: TapGraphData[]
 }
 
-const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
+export const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
 
   chartType: {
     type: RDBType.STRING
@@ -198,8 +197,7 @@ const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
   },
 
   _projectId: {
-    type: RDBType.STRING,
-    primaryKey: true
+    type: RDBType.STRING
   },
 
   type: {
@@ -247,4 +245,4 @@ const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
   }
 }
 
-schemaColl.add({ schema, name: 'TapChart' })
+// schemaColl.add({ schema, name: 'TapChart' })
