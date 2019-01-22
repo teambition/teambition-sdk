@@ -415,6 +415,7 @@ declare module 'teambition-types' {
     scenariofieldconfigId?: ScenarioFieldConfigId
     tagIds?: string[]
     isDue?: boolean
+    proTemplateConfigType?: ScenarioProTemplateConfigType
   }
 
   export type TapFilterItem =
@@ -464,6 +465,7 @@ declare module 'teambition-types' {
     | TapFilterTarget<'scenariofieldconfigId', 'int', ScenarioFieldConfigId>
     | TapFilterTarget<'tagIds', 'string', string>
     | TapFilterTarget<'isDue', 'boolean', boolean>
+    | TapFilterTarget<'proTemplateConfigType', 'string', ScenarioProTemplateConfigType>
 
   export type TapGenericFilterResponse = TapFilterItem[]
 }
