@@ -185,6 +185,64 @@ export const eventScenarioFieldConfig = {
   displayed: false
 }
 
+export const testcaseScenarioFieldConfig = {
+  _id: '5c18fa52327a84000134c7ad',
+  _originalId: '5bab361101927b000138e883',
+  name: '测试用例',
+  _creatorId: '56efaff50e5a879506e2dbb4',
+  type: 'default',
+  objectType: 'testcase',
+  boundToObjectType: 'project',
+  _boundToObjectId: '5c18fa52bceb0f0011a3da5b',
+  _projectId: '5c18fa52bceb0f0011a3da5b',
+  _taskflowId: '5c18fa52bceb0f0011a3da5d',
+  icon: 'testcase',
+  proTemplateConfigType: null,
+  scenariofields: [
+    {
+      default: '',
+      displayed: true,
+      fieldType: 'precondition',
+      required: false,
+      _customfieldId: null,
+      _id: '5c18fa52327a84000134c7a9',
+      _roleIds: []
+    },
+    {
+      default: '',
+      displayed: true,
+      fieldType: 'steps',
+      required: false,
+      _customfieldId: null,
+      _id: '5c18fa52327a84000134c7a',
+      _roleIds: []
+    },
+    {
+      default: '',
+      displayed: true,
+      fieldType: 'caseType',
+      required: false,
+      _customfieldId: null,
+      _id: '5c18fa52327a84000134c7ab',
+      _roleIds: []
+    },
+    {
+      default: '',
+      displayed: true,
+      fieldType: 'priority',
+      required: false,
+      _customfieldId: null,
+      _id: '5c18fa52327a84000134c7ac',
+      _roleIds: [],
+    }
+  ],
+  created: '2017-11-02T03:05:59.121Z',
+  updated: '2017-11-02T03:05:59.121Z',
+  hasChanged: false,
+  isDefault: true,
+  displayed: false
+}
+
 export const orgTaskScenarioFieldConfig = {
   ...taskScenarioFieldConfig,
   boundToObjectType: 'organization',

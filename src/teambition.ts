@@ -104,9 +104,13 @@ declare module 'teambition-types' {
   export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
   export type ReminderRuleType = 'startDate' | 'dueDate' | 'customize' | 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'
   export type ReminderUnit = 'minute' | 'hour' | 'day'
-  export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon
-  export type ScenarioFieldConfigObjectType = 'task' | 'event'
-  export type ScenarioFieldType = CustomScenarioFieldType | TaskOfficialScenarioFieldType | EventOfficialScenarioFieldType
+  export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon | TestcaseScenarioFieldIcon
+  export type ScenarioFieldConfigObjectType = 'task' | 'event' | 'testcase'
+  export type ScenarioFieldType =
+    | CustomScenarioFieldType
+    | TaskOfficialScenarioFieldType
+    | EventOfficialScenarioFieldType
+    | TestcaseOfficialScenarioFieldType
   export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
   export type SmartGroupType = 'story' | 'sprint' | 'bug'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban'
@@ -121,6 +125,8 @@ declare module 'teambition-types' {
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
     | 'forum'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
+  export type TestcaseOfficialScenarioFieldType = 'precondition' | 'priority' | 'steps' | 'caseType'
+  export type TestcaseScenarioFieldIcon = 'testcase'
   export type TestcasePriority = -1 | 0 | 1 | 2 | 3 | 4 | 5
   export type TestcaseStepType = {
     _id: TestcaseStepId

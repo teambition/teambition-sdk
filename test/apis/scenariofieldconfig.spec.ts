@@ -6,6 +6,7 @@ import { SDKFetch, createSdk, SDK, ScenarioFieldConfigSchema } from '../'
 import {
   taskScenarioFieldConfig,
   eventScenarioFieldConfig,
+  testcaseScenarioFieldConfig,
   orgTaskScenarioFieldConfig,
   orgEventScenarioFieldConfig
 } from '../fixtures/scenariofieldconfigs.fixture'
@@ -67,6 +68,19 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
 
     yield sdkFetch
       .getScenarioFieldConfigs(projectId, 'event', { withTaskflowstatus: true })
+      .subscribeOn(Scheduler.asap)
+      .do((result) => expect(result).to.deep.equal(configs))
+  })
+
+  it('should return a TestcaseScenarioFieldConfig array', function*() {
+    const projectId = testcaseScenarioFieldConfig._projectId as ProjectId
+    const configs = [testcaseScenarioFieldConfig]
+    const url = `/projects/${projectId}/scenariofieldconfigs?objectType=testcase&withTaskflowstatus=true&withCustomfields=true&_=666`
+
+    fetchMock.getOnce(url, configs)
+
+    yield sdkFetch
+      .getScenarioFieldConfigs(projectId, 'testcase', { withTaskflowstatus: true })
       .subscribeOn(Scheduler.asap)
       .do((result) => expect(result).to.deep.equal(configs))
   })
@@ -352,6 +366,21 @@ describe('ScenarioFieldConfigApi spec: ', () => {
 
     yield sdk
       .getScenarioFieldConfigs(projectId, 'event')
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        assertScenarioFieldConfig(result, configs[0])
+      })
+  })
+
+  it('should return a TestcaseScenarioFieldConfig array', function*() {
+    const projectId = testcaseScenarioFieldConfig._projectId as ProjectId
+    const configs = [testcaseScenarioFieldConfig]
+
+    fetchMock.getOnce('*', configs)
+
+    yield sdk
+      .getScenarioFieldConfigs(projectId, 'testcase')
       .take(1)
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
