@@ -17,6 +17,7 @@ export interface ProjectSchema {
   _parendId: ProjectId
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
+  _sourceId: ProjectId | null
   applications?: {
     _id: ApplicationId
     name: string
@@ -110,6 +111,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.STRING
   },
   _rootCollectionId: {
+    type: RDBType.STRING
+  },
+  _sourceId: {
     type: RDBType.STRING
   },
   // can not join
