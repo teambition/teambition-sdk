@@ -1,20 +1,24 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
-import { schemaColl } from './schemas'
+import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { Moment } from 'moment'
 
 import {
-  UserId,
+  ProjectId,
   TapChartId,
-  TapDashboardId,
-  ExecutorOrCreator,
+  TapChartName,
+  TapDimensionType,
+  TapSelectSection,
+  TapDashboardSection,
+  TapChartType as TapChoiceChartType,
   TapGenericFilterRequest as FilterRequest,
   TapGenericFilterResponse as FilterResponse
 } from 'teambition-types'
 
-export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details'
+export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview' | 'customset'
 
 // tapGraph definition
 export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String'
+
+export type TapChartExhibitType = 'small' | 'big'
 
 export interface TapGraphCol {
   name: string
@@ -22,8 +26,11 @@ export interface TapGraphCol {
 }
 
 export type TapGraphData = {
-  cols: TapGraphCol[],
-  rows: any[][]
+  name: TapChartName
+  title: string
+  cols: TapGraphCol[];
+  rows: any[][];
+  visualizationSettings: TapGraphVisualizationSettingsSet;
 }
 
 export interface TapGraphNullableDimDisplay {
@@ -124,6 +131,10 @@ export interface TapGraphDetailsDisplay extends TapGraphTableDisplay {
   preset: string
 }
 
+export interface TapGraphOverviewDisplay {
+
+}
+
 export type TapDisplaySet = TapGraphLineDisplay | TapGraphBarDisplay | TapGraphPieDisplay | TapGraphLineBarDisplay |
                             TapGraphNumberDisplay | TapGraphTableDisplay | TapGraphDetailsDisplay
 
@@ -140,93 +151,99 @@ export type TapGraphVisualizationSettingsSet =
   TapGraphVisualizationSettings<'linebar', TapGraphLineBarDisplay> |
   TapGraphVisualizationSettings<'number', TapGraphNumberDisplay> |
   TapGraphVisualizationSettings<'table', TapGraphTableDisplay> |
-  TapGraphVisualizationSettings<'details', TapGraphDetailsDisplay>
+  TapGraphVisualizationSettings<'details', TapGraphDetailsDisplay> |
+  TapGraphVisualizationSettings<'overview', TapGraphOverviewDisplay> |
+  TapGraphVisualizationSettings<'customset', TapGraphOverviewDisplay>
 
 // tapChart definition
 export interface TapChart<T extends FilterRequest | FilterResponse> {
+
   _id: TapChartId
 
-  _creatorId: UserId
-  creator?: ExecutorOrCreator
+  _projectId: ProjectId
 
-  _tapdashboardId: TapDashboardId
-  tapdashboard?: {
-    _id: TapDashboardId,
-    name: string
-  }
+  chartType: TapChoiceChartType
+
+  analysis_dimension?: TapDimensionType | null
+
+  compare_dimension?: TapDimensionType | null
+
+  exhibit: TapChartExhibitType
+
+  sections: TapDashboardSection[]
+  selectedSection: TapSelectSection
+
+  report: TapChartName
 
   name: string
   desc: string
 
-  created: string
-  updated: string
-
   filter: T
-  filterList: FilterResponse
 
-  graphData: TapGraphData
-  visualizationSettings: TapGraphVisualizationSettingsSet
+  type: 'tdr' | 'tdr'
+
+  graphData: TapGraphData[]
 }
 
-const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
+export const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
+
   _id: {
     type: RDBType.STRING,
     primaryKey: true
   },
 
-  _creatorId: {
+  _projectId: {
     type: RDBType.STRING
-  },
-  creator: {
-    type: Relationship.oneToOne,
-    virtual: {
-      name: 'User',
-      where: (userTable: any) => ({
-        _creatorId: userTable._id
-      })
-    }
   },
 
-  _tapdashboardId: {
-    type: RDBType.STRING
-  },
-  tapdashboard: {
-    type: Relationship.oneToOne,
-    virtual: {
-      name: 'TapDashboard',
-      where: (dashboardTable: any) => ({
-        _tapdashboardId: dashboardTable._id
-      })
-    }
+  analysis_dimension: {
+    type: RDBType.OBJECT
   },
 
-  name: {
+  chartType: {
     type: RDBType.STRING
   },
+
+  compare_dimension: {
+    type: RDBType.OBJECT
+  },
+
   desc: {
     type: RDBType.STRING
   },
 
-  created: {
-    type: RDBType.DATE_TIME
-  },
-  updated: {
-    type: RDBType.DATE_TIME
+  exhibit: {
+    type: RDBType.STRING
   },
 
   filter: {
-    type: RDBType.OBJECT
-  },
-  filterList: {
     type: RDBType.OBJECT
   },
 
   graphData: {
     type: RDBType.OBJECT
   },
-  visualizationSettings: {
+
+  name: {
+    type: RDBType.STRING
+  },
+
+  type: {
+    type: RDBType.STRING
+  },
+
+  report: {
+    type: RDBType.STRING
+  },
+
+  selectedSection: {
+    type: RDBType.STRING
+  },
+
+  sections: {
     type: RDBType.OBJECT
   }
+
 }
 
-schemaColl.add({ schema, name: 'TapChart' })
+// schemaColl.add({ schema, name: 'TapChart' })
