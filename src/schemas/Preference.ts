@@ -38,6 +38,7 @@ export interface PreferenceSchema {
   projectOrder: ProjectOrder
   inboxSortMode: string
   openWindowMode: string
+  activityMode: 'text' | 'markdown'
   postMode: 'html' | 'markdown'
   quickCreateTask: boolean
   quickReply: boolean
@@ -53,6 +54,9 @@ const Schema: SchemaDef<PreferenceSchema> = {
     primaryKey: true
   },
   _userId: {
+    type: RDBType.STRING
+  },
+  activityMode: {
     type: RDBType.STRING
   },
   emails: {
