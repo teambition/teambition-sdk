@@ -4,8 +4,9 @@ import {
   UserId,
   SmartGroupId,
   SmartGroupViewType,
-  SwimAxisLane,
+  BoardAxisType,
   SmartGroupType,
+  TaskflowId,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -40,8 +41,10 @@ export interface SmartGroupSchema {
   type?: SmartGroupType
   view: {
     type: SmartGroupViewType
-    vertical?: SwimAxisLane
-    horizontal?: SwimAxisLane
+    vertical?: BoardAxisType
+    horizontal?: BoardAxisType
+    _verticalId?: TaskflowId
+    _horizontalId?: TaskflowId
   },
   orderBy: TaskSortMethod
   filter: string
