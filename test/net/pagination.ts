@@ -620,6 +620,34 @@ describe(`${expandPage.name}`, () => {
       })
   })
 
+  it('should send POST request on options.method: post', () => {
+    fetchMock.post((url: string, request: any) => url.match(testUrl) && request.body.q === 'q', {
+      nextPageToken: 'ghjk',
+      totalSize: 66,
+      result: [6, 7, 8, 9, 10]
+    })
+
+    const currState: page.PageTokenState<number> = {
+      kind: page.Kind.PageToken,
+      urlPath,
+      nextPageToken: 'asdf' as page.PageToken,
+      totalSize: 66,
+      result: [1, 2, 3, 4, 5],
+      nextPage: 2,
+      hasMore: true,
+      pageSize: 5,
+      limit: 5,
+      urlQuery: { q: 'q' }
+    }
+
+    return sdkFetch.expandPage<number>(currState, { method: 'post' })
+      .take(1)
+      .toPromise()
+      .then((resultState) => {
+        expect(resultState.result).to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+      })
+  })
+
   it('should allow mapFn to receive current response headers as an argument', () => {
     fetchMock.get(new RegExp(testUrl), {
       headers: { 'x-request-id': '20180608' },
