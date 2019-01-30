@@ -6,6 +6,8 @@ import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/toPromise'
 import 'rxjs/add/operator/concatMap'
 import 'rxjs/add/operator/take'
+import * as URL from 'url'
+import * as PATH from 'path'
 import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Net } from '../Net'
@@ -21,6 +23,23 @@ import { WSMsgToDBHandler, WSMsgHandler } from '../utils'
 declare const global: any
 
 const ctx = typeof global === 'undefined' ? window : global
+
+const socketUrlToHostPath = (socketUrl: string) => {
+  const postfix = '/websocket'
+
+  const url = URL.parse(socketUrl)
+  const host = URL.format({ ...url, pathname: undefined })
+  // 由于 `socketUrl`
+  // 1. 若是 http 协议，那么 `pathname` 有值，至少是 `/`；
+  // 2. 若是 ws 协议，那么 `pathname` 可能没有值；
+  // 因此，这里使用 PATH 包来完善处理路径结合的逻辑，生成正确 `path`。
+  let path = url.pathname || ''
+  if (path.slice(-postfix.length) !== postfix) {
+    path = PATH.join(path, postfix)
+  }
+
+  return { host, path }
+}
 
 export class SocketClient {
   private _isDebug = false
@@ -78,6 +97,17 @@ export class SocketClient {
     ctx['console']['log']('socket debug start')
   }
 
+  /**
+   * 常见的 url 参数有（它们的值一般写在配置文件里）
+   *  - `https://messaging.__domain__`（如公有云部署）
+   *  - `wss://__host__/messaging`（如私有云部署）
+   *
+   * 注意：`url` 参数并不是最终被用来与服务器端链接的 url；目前 teambition
+   * 服务端要求 websocket 链接的目标 url 以 `/websocket` 结尾，
+   * 所以参数里提供的 url 如果不是以 `/websocket` 结尾（一般配置都会
+   * 省略这个路径片段），请求时会在 url 的路径上加上 `websocket` 片段，
+   * 如：`https://messaging.teambition.net/websocket`。
+   */
   setSocketUrl(url: string): void {
     this._socketUrl = url
   }
@@ -165,14 +195,15 @@ export class SocketClient {
   }
 
   private _connect(): Promise<void> {
+    const { host, path } = socketUrlToHostPath(this._socketUrl)
     return this._getUserMeStream
       .take(1)
       .toPromise()
       .then(userMe => {
         if (this._client) {
           this._client
-            .connect(this._socketUrl, {
-              path: '/websocket',
+            .connect(host, {
+              path,
               token: userMe.tcmToken as string
             })
         } else {

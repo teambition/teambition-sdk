@@ -89,7 +89,7 @@ export function reParseQuery(uri: string): string {
   return uri
 }
 
-const context = typeof window !== 'undefined' ? window : global
+export const context = typeof window !== 'undefined' ? window : global
 
 const originFetch = context['fetch']
 
