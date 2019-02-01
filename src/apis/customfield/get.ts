@@ -39,6 +39,10 @@ export function getCustomField(
     request: req,
     query: {
       where: { _id: customFieldId }
+    },
+    assocFields: {
+      creator: ['_id', 'name', 'avatarUrl'],
+      locker: ['_id', 'name', 'avatarUrl']
     }
   })
 }

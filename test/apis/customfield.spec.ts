@@ -4,7 +4,7 @@ import { expect } from 'chai'
 
 import { SDKFetch, createSdk, SDK } from '../'
 import { expectToDeepEqualForFieldsOfTheExpected } from '../utils'
-import { CustomFieldId, OrganizationId } from 'teambition-types'
+import { CustomFieldId, OrganizationId, UserSnippet } from 'teambition-types'
 import { customField } from '../fixtures/customfields.fixture'
 
 const fetchMock = require('fetch-mock')
@@ -96,6 +96,7 @@ describe('CustomFieldApi spec: ', () => {
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
         expectToDeepEqualForFieldsOfTheExpected(customField, result)
+        expect(result.creator).to.have.property('_id')
         expect(fetchMock.called()).to.be.true
       })
   })
@@ -103,9 +104,15 @@ describe('CustomFieldApi spec: ', () => {
   it('should lock a CustomField', function*() {
     const orgId = customField._organizationId as OrganizationId
     const customFieldId = customField._id as CustomFieldId
+    const locker = { _id: 'mock-locker-id' } as UserSnippet
 
     fetchMock.getOnce('*', customField)
-    fetchMock.putOnce('*', { ...customField, isLocked: true })
+    fetchMock.putOnce('*', {
+      ...customField,
+      isLocked: true,
+      _lockerId: locker._id,
+      locker
+    })
 
     const customField$ = sdk
       .getCustomField(customFieldId)
@@ -114,6 +121,7 @@ describe('CustomFieldApi spec: ', () => {
 
     yield customField$.do(([result]) => {
       expect(result.isLocked).to.be.false
+      expect(result.locker).to.be.null
     })
 
     yield sdk
@@ -125,6 +133,7 @@ describe('CustomFieldApi spec: ', () => {
 
     yield customField$.do(([result]) => {
       expect(result.isLocked).to.be.true
+      expect(result.locker).to.have.property('_id')
     })
   })
 })
