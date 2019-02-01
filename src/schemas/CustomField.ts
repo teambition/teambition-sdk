@@ -1,6 +1,6 @@
-import { SchemaDef, RDBType } from 'reactivedb/interface'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { CustomFieldType, CustomFieldBoundType, CustomFieldCategoryId, AdvancedCustomField } from 'teambition-types'
+import { CustomFieldType, CustomFieldBoundType, CustomFieldCategoryId, AdvancedCustomField, UserSnippet } from 'teambition-types'
 import { CustomFieldId, OrganizationId, ProjectId, RoleId, UserId, AdvancedCustomFieldId } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
@@ -9,6 +9,7 @@ export interface CustomFieldSchema {
   _advancedCustomfieldId: AdvancedCustomFieldId
   _creatorId: UserId
   _id: CustomFieldId
+  _lockerId: UserId | null
   _organizationId: OrganizationId
   _projectId?: ProjectId
   _roleIds: RoleId[]
@@ -20,6 +21,8 @@ export interface CustomFieldSchema {
   description: string
   displayed: boolean
   externalUrl?: string
+  isLocked: boolean
+  locker: UserSnippet | null
   name: string
   pos: number
   type: CustomFieldType
@@ -35,6 +38,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
     type: RDBType.STRING
   },
   _creatorId: {
+    type: RDBType.STRING
+  },
+  _lockerId: {
     type: RDBType.STRING
   },
   _organizationId: {
@@ -69,6 +75,18 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   externalUrl: {
     type: RDBType.STRING
+  },
+  isLocked: {
+    type: RDBType.BOOLEAN
+  },
+  locker: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _lockerId: userTable._id
+      })
+    }
   },
   name: {
     type: RDBType.STRING
