@@ -6,6 +6,7 @@ import { SDKFetch, createSdk, SDK } from '../'
 import { expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 import { CustomFieldId, OrganizationId, UserSnippet } from 'teambition-types'
 import { customField } from '../fixtures/customfields.fixture'
+import { CustomFieldSchema } from '../../src'
 
 const fetchMock = require('fetch-mock')
 
@@ -135,5 +136,32 @@ describe('CustomFieldApi spec: ', () => {
       expect(result.isLocked).to.be.true
       expect(result.locker).to.have.property('_id')
     })
+  })
+
+  it('should return a CustomField including projects', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const projects = ['mock-project-name']
+
+    yield sdk
+      .getCustomField(customFieldId, {
+        request: Observable.of({ _id: customFieldId } as CustomFieldSchema)
+      })
+      .values()
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        expect(result.projects).to.be.undefined
+      })
+
+    fetchMock.getOnce('*', { _id: customFieldId, projects: projects })
+
+    yield sdk
+      .getCustomField(customFieldId, { withProjects: true })
+      .values()
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        expect(result.projects).to.deep.equal(projects)
+      })
+
+    expect(fetchMock.called()).to.be.true
   })
 })

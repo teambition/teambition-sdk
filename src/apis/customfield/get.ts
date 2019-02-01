@@ -24,6 +24,7 @@ SDKFetch.prototype.getCustomField = getCustomFieldFetch
 
 export interface GetCustomFieldOptions {
   request?: Observable<CustomFieldSchema> | Observable<CustomFieldSchema[]>
+  withProjects?: boolean
 }
 
 export function getCustomField(
@@ -43,7 +44,9 @@ export function getCustomField(
     assocFields: {
       creator: ['_id', 'name', 'avatarUrl'],
       locker: ['_id', 'name', 'avatarUrl']
-    }
+    },
+    required: options.withProjects ? ['projects'] : void 0,
+    padding: () => this.fetch.getCustomField(customFieldId)
   })
 }
 

@@ -25,6 +25,5 @@ export const customField = {
     name: '^^',
     avatarUrl:
       'http://tcs.project.ci/thumbnail/011cc1cca4efbdb8fa33eee7d5e84f1fa8e4/w/100/h/100'
-  },
-  projects: []
+  }
 }
