@@ -40,6 +40,9 @@ export function getCustomFieldLinks(
       orderBy: [
         { fieldName: 'pos', orderBy: 'ASC' }
       ],
+    },
+    assocFields: {
+      locker: ['_id', 'name', 'avatarUrl']
     }
   })
 }

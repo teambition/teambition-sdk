@@ -1,1 +1,2 @@
 import './get'
+import './put'
