@@ -18,6 +18,7 @@ export interface CustomFieldSchema {
   categoryIds: CustomFieldCategoryId[]
   choices: CustomFieldChoiceSchema[]
   created: string
+  creator?: UserSnippet
   description: string
   displayed: boolean
   externalUrl?: string
@@ -25,6 +26,7 @@ export interface CustomFieldSchema {
   locker: UserSnippet | null
   name: string
   pos: number
+  projects?: string[]
   type: CustomFieldType
   updated: string
 }
@@ -67,6 +69,15 @@ const schema: SchemaDef<CustomFieldSchema> = {
   created: {
     type: RDBType.DATE_TIME
   },
+  creator: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _creatorId: userTable._id
+      })
+    }
+  },
   description: {
     type: RDBType.STRING
   },
@@ -93,6 +104,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   pos: {
     type: RDBType.NUMBER
+  },
+  projects: {
+    type: RDBType.OBJECT
   },
   type: {
     type: RDBType.STRING
