@@ -1,6 +1,6 @@
-import { SchemaDef, RDBType } from 'reactivedb/interface'
+import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { CustomFieldType, CustomFieldBoundType, AdvancedCustomField, CustomFieldSubtype } from 'teambition-types'
+import { CustomFieldType, CustomFieldBoundType, AdvancedCustomField, CustomFieldSubtype, UserId, UserSnippet } from 'teambition-types'
 import { CustomFieldId, CustomFieldLinkId, ProjectId, RoleId, CustomFieldCategoryId } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
@@ -8,6 +8,7 @@ import { CustomFieldChoiceSchema } from './CustomFieldChoice'
 export interface CustomFieldLinkBaseSchema {
   _customfieldId: CustomFieldId
   _id: CustomFieldLinkId
+  _lockerId: UserId | null
   _projectId: ProjectId
   _roleIds: RoleId[]
   advancedCustomfield: AdvancedCustomField | null
@@ -17,7 +18,9 @@ export interface CustomFieldLinkBaseSchema {
   description: string
   displayed: boolean
   externalUrl?: string // 可能字段不存在
+  isLocked: boolean
   isSingleSelection?: boolean
+  locker: UserSnippet | null
   name: string
   pos: number
   type: CustomFieldType
@@ -40,6 +43,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
     primaryKey: true
   },
   _customfieldId: {
+    type: RDBType.STRING
+  },
+  _lockerId: {
     type: RDBType.STRING
   },
   _projectId: {
@@ -69,8 +75,20 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   externalUrl: {
     type: RDBType.STRING
   },
+  isLocked: {
+    type: RDBType.BOOLEAN
+  },
   isSingleSelection: {
     type: RDBType.BOOLEAN
+  },
+  locker: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _lockerId: userTable._id
+      })
+    }
   },
   name: {
     type: RDBType.STRING
