@@ -4,7 +4,7 @@ import { expect } from 'chai'
 
 import { SDKFetch, createSdk, SDK } from '../'
 import { expectToDeepEqualForFieldsOfTheExpected } from '../utils'
-import { CustomFieldId } from 'teambition-types'
+import { CustomFieldId, OrganizationId } from 'teambition-types'
 import { customField } from '../fixtures/customfields.fixture'
 
 const fetchMock = require('fetch-mock')
@@ -40,6 +40,21 @@ describe('CustomFieldApi request spec: ', () => {
       .subscribeOn(Scheduler.asap)
       .do((result) => {
         expect(result).to.deep.equal(customField)
+      })
+  })
+
+  it('should lock a CustomField', function*() {
+    const orgId = customField._organizationId as OrganizationId
+    const customFieldId = customField._id as CustomFieldId
+    const url = `/organizations/${orgId}/customfields/${customFieldId}/islocked`
+
+    fetchMock.putOnce(url, { ...customField, isLocked: true })
+
+    yield sdkFetch
+      .lockCustomField(orgId, customFieldId, true)
+      .subscribeOn(Scheduler.asap)
+      .do((result) => {
+        expect(result.isLocked).to.be.true
       })
   })
 })
@@ -83,5 +98,33 @@ describe('CustomFieldApi spec: ', () => {
         expectToDeepEqualForFieldsOfTheExpected(customField, result)
         expect(fetchMock.called()).to.be.true
       })
+  })
+
+  it('should lock a CustomField', function*() {
+    const orgId = customField._organizationId as OrganizationId
+    const customFieldId = customField._id as CustomFieldId
+
+    fetchMock.getOnce('*', customField)
+    fetchMock.putOnce('*', { ...customField, isLocked: true })
+
+    const customField$ = sdk
+      .getCustomField(customFieldId)
+      .values()
+      .subscribeOn(Scheduler.asap)
+
+    yield customField$.do(([result]) => {
+      expect(result.isLocked).to.be.false
+    })
+
+    yield sdk
+      .lockCustomField(orgId, customFieldId, true)
+      .subscribeOn(Scheduler.asap)
+      .do((result) => {
+        expect(result.isLocked).to.be.true
+      })
+
+    yield customField$.do(([result]) => {
+      expect(result.isLocked).to.be.true
+    })
   })
 })
