@@ -73,11 +73,18 @@ export class TaskAPI {
                 .take(1)
                 // 返回所有
                 .concatMap(() => {
-                  return TaskModel.getMyTasksByScope(userId, scope, parentIdLike)
-                    .map((tasks) => ({
+                  // 当请求任务数据返回空数组时，数据不会被缓存
+                  // 那么 `TaskModel.getMyTasksByScope` 可能返回 null 值
+                  // https://github.com/teambition/teambition-sdk/commit/1963b0dfc860f39894a7936d37677d881b6a6b6a
+                  const tasks$ = TaskModel.getMyTasksByScope(userId, scope, parentIdLike) ||
+                    Observable.of([] as TaskData[])
+
+                  return tasks$.map((tasks) => {
+                    return {
                       nextPageToken: resp.nextPageToken, // 能够获取下一页
                       result: tasks
-                    }))
+                    }
+                  })
                 })
             })
         })
