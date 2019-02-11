@@ -154,22 +154,9 @@ export default class DataBase {
               .mergeAll()
               .skip(signals.length - 1)
               .map(() => null)
-          } else if (cache instanceof Collection) {
-            const schemaName = cache.schemaName
-            if (schemaName) {
-              const collectionName = cache.index
-              const collections = this._schemaMap.get(schemaName)
-              const pos = collections.indexOf(collectionName)
-              collections.splice(pos, 1)
-            }
-            const models = cache.elements
-            forEach(models, _modelName => {
-              const model: Model<any> = DataBase.data.get(index)
-              model.removeFromCollection(index)
-            })
           }
-          cache.destroy()
-          DataBase.data.delete(index)
+
+          this.deleteCache(cache)
         }
         observer.next(signal)
         observer.complete()
@@ -177,6 +164,34 @@ export default class DataBase {
       return () => clearTimeout(timer)
     })
       .concatMap((x: Observable<void>) => x)
+  }
+
+  // note: 该方法内仅做同步计算，不做异步计算。
+  deleteCache(cache: Model<any> | Collection<any>): void {
+    const index = cache.index
+    if (cache instanceof Collection) {
+      this.removeCollection(cache)
+    }
+    cache.destroy()
+    DataBase.data.delete(index)
+  }
+
+  private removeCollection(cache: Collection<any>): void {
+    const schemaName = cache.schemaName
+    const index = cache.index
+    const models = cache.elements
+
+    if (schemaName) {
+      const collectionName = cache.index
+      const collections = this._schemaMap.get(schemaName)
+      const pos = collections.indexOf(collectionName)
+      collections.splice(pos, 1)
+    }
+
+    forEach(models, _modelName => {
+      const model: Model<any> = DataBase.data.get(index)
+      model.removeFromCollection(index)
+    })
   }
 
   updateOne<T>(index: string, patch: any): Observable<T> {
