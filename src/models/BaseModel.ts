@@ -76,7 +76,7 @@ export default class Model {
     const cache: any = DataBase.data.get(index)
     if (cache) {
       if (cache.checkEmpty && cache.checkEmpty()) {
-        DataBase.data.delete(index)
+        Model.DataBase.deleteCache(cache)
         return null
       } else {
         return Model.DataBase.get<T>(index)
