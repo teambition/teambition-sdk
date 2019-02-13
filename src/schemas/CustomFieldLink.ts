@@ -18,6 +18,7 @@ export interface CustomFieldLinkBaseSchema {
   description: string
   displayed: boolean
   externalUrl?: string // 可能字段不存在
+  isLinkLocked?: boolean
   isLocked: boolean
   isSingleSelection?: boolean
   locker: UserSnippet | null
@@ -74,6 +75,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   },
   externalUrl: {
     type: RDBType.STRING
+  },
+  isLinkLocked: {
+    type: RDBType.BOOLEAN
   },
   isLocked: {
     type: RDBType.BOOLEAN
