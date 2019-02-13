@@ -23,6 +23,7 @@ export interface CustomFieldLinkBaseSchema {
 }
 
 export interface NormalCustomFieldLinkSchema extends CustomFieldLinkBaseSchema {
+  isLinkLocked?: boolean
   type: Exclude<CustomFieldType, 'commongroup'>
 }
 
@@ -67,6 +68,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   },
   externalUrl: {
     type: RDBType.STRING
+  },
+  isLinkLocked: {
+    type: RDBType.BOOLEAN
   },
   name: {
     type: RDBType.STRING
