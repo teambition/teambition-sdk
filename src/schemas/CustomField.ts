@@ -20,6 +20,7 @@ export interface CustomFieldSchema {
   description: string
   displayed: boolean
   externalUrl?: string
+  isSingleSelection?: boolean
   name: string
   pos: number
   type: CustomFieldType
@@ -69,6 +70,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   externalUrl: {
     type: RDBType.STRING
+  },
+  isSingleSelection: {
+    type: RDBType.BOOLEAN
   },
   name: {
     type: RDBType.STRING
