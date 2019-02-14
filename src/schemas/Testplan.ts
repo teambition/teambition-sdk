@@ -1,4 +1,4 @@
-import { RDBType, SchemaDef } from 'reactivedb/interface'
+import { RDBType, SchemaDef } from '../db'
 import { ProjectId, TesthubId, TestplanId, UserId } from 'teambition-types'
 import { schemaColl } from './schemas'
 
