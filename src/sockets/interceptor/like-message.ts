@@ -1,6 +1,6 @@
 import 'rxjs/add/observable/forkJoin'
 import { Observable } from 'rxjs/Observable'
-import { ExecutorResult } from 'reactivedb'
+import { ExecutorResult } from 'reactivedb/interface'
 import { MsgToDBHandler } from '../Middleware'
 import { mapMsgTypeToTable } from '../MapToTable'
 
