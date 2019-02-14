@@ -1,4 +1,4 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
+import { RDBType, Relationship, SchemaDef } from '../db'
 import { CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption, OrganizationId, TaskDivisionType } from 'teambition-types'
 import {
   ProjectId,

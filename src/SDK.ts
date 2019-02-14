@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable'
-import { Database } from 'reactivedb'
+import { Database } from './db'
 import { Net } from './Net'
 import { forEach, isNonNullable } from './utils'
 import { SDKFetch } from './SDKFetch'

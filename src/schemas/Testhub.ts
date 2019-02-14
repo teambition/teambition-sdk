@@ -1,4 +1,4 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
+import { RDBType, Relationship, SchemaDef } from '../db'
 import { OrganizationId, TesthubId, UserId, ExecutorOrCreator } from 'teambition-types'
 import { CommonGroupSchema } from './CommonGroup'
 import { schemaColl } from './schemas'
