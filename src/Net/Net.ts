@@ -11,10 +11,8 @@ import { Observable } from 'rxjs/Observable'
 import { OperatorFunction } from 'rxjs/interfaces'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { exhaustMap } from 'rxjs/operators/exhaustMap'
-import { QueryToken, SelectorMeta, ProxySelector } from 'reactivedb/proxy'
-import { JoinMode, Predicate, Query } from 'reactivedb/interface'
-import { Database } from 'reactivedb'
 
+import { createQueryToken, Database, JoinMode, Predicate, ProxySelector, Query, QueryToken, SelectorMeta } from '../db'
 import { forEach, isNonNullable, ParsedWSMsg, WSMsgToDBHandler, GeneralSchemaDef } from '../utils'
 import { SDKLogger } from '../utils/Logger'
 
@@ -329,7 +327,7 @@ export class Net {
       proxySelector: cacheControl$
     })
 
-    return new QueryToken(cacheControl$).map(this.validate(result))
+    return createQueryToken(cacheControl$).map(this.validate(result))
   }
 
   bufferCUDResponse<T>(result: CUDApiResult<T>) {
@@ -381,7 +379,7 @@ export class Net {
             .delayWhen((v) => database.upsert(tableName, v))
             .do(() => this.requestMap.set(cacheKey, true))
             .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
-          token = new QueryToken(selector$)
+          token = createQueryToken(selector$)
         } else {
           token = dbGetWithSelfJoinEnabled<T>(database, tableName, q)
         }
@@ -391,7 +389,7 @@ export class Net {
         const selector$ = response$
           .delayWhen((v) => database.upsert(tableName, v))
           .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
-        return new QueryToken(selector$)
+        return createQueryToken(selector$)
       default:
         throw new TypeError('unreachable code path')
     }

@@ -1,4 +1,4 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
+import { RDBType, Relationship, SchemaDef } from '../db'
 import {
   ProjectId, ScenarioFieldConfigId, CustomFieldValue, ExecutorOrCreator, TestplanId, CommonGroupId,
   TestcaseId, TestcaseType, TestcaseStepType, TestcasePriority, UserId, TaskflowStatusId, OrganizationId

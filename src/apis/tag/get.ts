@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken } from 'reactivedb'
 
+import { QueryToken } from '../../db'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId, OrganizationId, TagType } from 'teambition-types'
