@@ -24,4 +24,6 @@ export { SDK } from './SDK'
 export { SDKFetch, HttpHeaders } from './SDKFetch'
 export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$, Page } from './Net'
 
+export { Database, ExecutorResult, QueryToken, OrderDescription, Query, Predicate } from './db'
+
 // export const SocketClient: Client = sdk.socket
