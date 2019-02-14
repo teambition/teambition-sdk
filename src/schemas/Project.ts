@@ -1,4 +1,4 @@
-import { RDBType, SchemaDef, Relationship } from 'reactivedb/interface'
+import { RDBType, SchemaDef, Relationship } from '../db'
 import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet, PermissionBinding, TasklistId } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
