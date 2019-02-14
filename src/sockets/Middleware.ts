@@ -2,13 +2,13 @@ import 'rxjs/add/operator/publish'
 import 'rxjs/add/operator/takeUntil'
 import 'rxjs/add/operator/takeLast'
 import 'rxjs/add/observable/merge'
-import { Database } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subscription } from 'rxjs/Subscription'
 import { ConnectableObservable } from 'rxjs/observable/ConnectableObservable'
 import { Subject } from 'rxjs/Subject'
 
+import { Database } from '../db'
 import { forEach, ParsedWSMsg, createProxy, eventToRE, WSMsgToDBHandler } from '../utils'
 
 export type Flags = {
