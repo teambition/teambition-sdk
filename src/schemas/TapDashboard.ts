@@ -1,4 +1,4 @@
-import { RDBType, SchemaDef } from 'reactivedb/interface'
+import { RDBType, SchemaDef } from '../db'
 import { schemaColl } from './schemas'
 
 import {

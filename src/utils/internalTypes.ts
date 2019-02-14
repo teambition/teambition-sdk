@@ -3,9 +3,8 @@
  * 有多个文件需要用到的，可以放此处。
  */
 
-import { SchemaDef } from 'reactivedb/interface'
-import { Database } from 'reactivedb'
 import { Observable } from 'rxjs/Observable'
+import { Database, SchemaDef } from '../db'
 
 export type GeneralSchemaDef = SchemaDef<{}>
 

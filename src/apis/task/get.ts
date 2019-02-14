@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken } from 'reactivedb'
+import { QueryToken } from '../../db'
 import { SDKFetch } from '../../SDKFetch'
 import { SDK, CacheStrategy } from '../../SDK'
 import { TaskSchema } from '../../schemas/Task'
