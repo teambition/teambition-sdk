@@ -18,6 +18,7 @@ export interface CustomFieldLinkBaseSchema {
   description: string
   displayed: boolean
   externalUrl?: string // 可能字段不存在
+  isLinkLocked?: boolean
   isLocked: boolean
   locker: UserSnippet | null
   name: string
@@ -26,7 +27,6 @@ export interface CustomFieldLinkBaseSchema {
 }
 
 export interface NormalCustomFieldLinkSchema extends CustomFieldLinkBaseSchema {
-  isLinkLocked?: boolean
   type: Exclude<CustomFieldType, 'commongroup'>
 }
 
