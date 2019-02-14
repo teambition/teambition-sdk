@@ -1,4 +1,4 @@
-import { QueryToken } from 'reactivedb'
+import { QueryToken } from '../../db'
 import { SDK, CacheStrategy } from '../../SDK'
 import { ProjectId, UserId } from 'teambition-types'
 import { PostSchema } from '../../schemas/Post'

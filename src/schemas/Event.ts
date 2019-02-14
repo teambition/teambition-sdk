@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
+import { SchemaDef, RDBType, Relationship } from '../db'
 import { schemaColl } from './schemas'
 import {
   VisibleOption,

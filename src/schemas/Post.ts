@@ -6,7 +6,7 @@ import {
   ProjectId,
   VisibleOption
 } from 'teambition-types'
-import { SchemaDef, RDBType, Relationship } from 'reactivedb/interface'
+import { SchemaDef, RDBType, Relationship } from '../db'
 import { schemaColl } from './schemas'
 import { FileSchema } from './File'
 

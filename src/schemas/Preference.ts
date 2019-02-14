@@ -7,7 +7,7 @@ import {
   OrganizationId,
   ProjectPortalMode
 } from 'teambition-types'
-import { RDBType, SchemaDef } from 'reactivedb/interface'
+import { RDBType, SchemaDef } from '../db'
 import { schemaColl } from './schemas'
 
 export interface PreferenceTipMap {

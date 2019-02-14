@@ -1,5 +1,5 @@
 import 'rxjs/add/operator/toArray'
-import { QueryToken } from 'reactivedb'
+import { QueryToken } from '../../db'
 import { SDK, CacheStrategy } from '../../SDK'
 import { EventSchema } from '../../schemas/Event'
 import { EventGenerator } from './EventGenerator'

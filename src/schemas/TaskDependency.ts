@@ -1,4 +1,4 @@
-import { RDBType, Relationship, SchemaDef } from 'reactivedb/interface'
+import { RDBType, Relationship, SchemaDef } from '../db'
 import {
   TaskDependencyId,
   TaskDependencyKind,
