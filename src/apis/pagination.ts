@@ -10,6 +10,11 @@ export type RequestOptions<T, K> = SDKFetchOptions & {
   mapFn?: MapFunc<T, K>
   includeHeaders?: true
   wrapped?: false
+  /**
+   * 设置请求使用的 HTTP 方法，默认使用 'get'，如果查询内容
+   * 不适合使用 GET 方法，可以提供 'post' 设置使用 POST 方法。
+   */
+  method?: 'get' | 'post'
 }
 
 function toUrlQuery<T>(state: Page.PolyState<T>, perRequestPageSize?: number, perRequestUrlQuery?: {}): {} {
@@ -42,13 +47,16 @@ export function page<T, K = T>(
   state: Page.PolyState<K>,
   options: RequestOptions<T, K> = {}
 ): Observable<any> {
-  const { pageSize, urlQuery, mapFn, ...requestOptions } = options
+  const { pageSize, urlQuery, mapFn, method, ...requestOptions } = options
   const paginationUrlQuery = toUrlQuery(state, pageSize, urlQuery)
+  const httpMethod = method || 'get'
+  const request$ = this[httpMethod]<T[] | Page.OriginalResponse<T>>(
+    state.urlPath,
+    paginationUrlQuery,
+    { ...requestOptions, wrapped: false, includeHeaders: true }
+  )
 
-  return this
-    .get<T[] | Page.OriginalResponse<T>>(state.urlPath, paginationUrlQuery, {
-      ...requestOptions, wrapped: false, includeHeaders: true
-    })
+  return request$
     .map(({ headers, body }) => {
       switch (state.kind) {
         case Page.Kind.PageCount: {
