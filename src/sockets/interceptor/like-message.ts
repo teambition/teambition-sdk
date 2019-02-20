@@ -1,8 +1,19 @@
 import 'rxjs/add/observable/forkJoin'
 import { Observable } from 'rxjs/Observable'
 import { ExecutorResult } from '../../db'
+import { SDKLogger } from '../../utils/Logger'
 import { MsgToDBHandler } from '../Middleware'
 import { mapMsgTypeToTable } from '../MapToTable'
+
+// todo(dingwen): 等不需要时移除
+const toJSON = <T>(maybeProxyObj: T): T => {
+  try {
+    return JSON.parse(JSON.stringify(maybeProxyObj))
+  } catch (e) {
+    SDKLogger.warn(e)
+    return maybeProxyObj
+  }
+}
 
 /**
  * 处理 socket 推送点赞数据变动的场景下
@@ -22,14 +33,15 @@ export const redirectLike: MsgToDBHandler = (msg, db) => {
   }
 
   const ops: Observable<ExecutorResult>[] = []
+  const dataObj = toJSON(data)
 
   const like = mapMsgTypeToTable.getTableInfo('like')
-  ops.push(db.upsert(like!.tabName, { ...data, [like!.pkName]: `${id}:like` }))
+  ops.push(db.upsert(like!.tabName, { ...dataObj, [like!.pkName]: `${id}:like` }))
 
   const tabInfo = mapMsgTypeToTable.getTableInfo(type)
   if (tabInfo && tabInfo.tabName === 'Task') {
     const task = tabInfo
-    ops.push(db.upsert(task.tabName, { ...data, [task.pkName]: id }))
+    ops.push(db.upsert(task.tabName, { ...dataObj, [task.pkName]: id }))
   }
 
   return Observable.forkJoin(ops)
