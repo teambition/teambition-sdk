@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.53-alpha.0-idb",
+  "version": "0.12.53-alpha.1-idb",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
