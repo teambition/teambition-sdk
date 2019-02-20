@@ -15,6 +15,9 @@ export interface SmartGroupSchema {
   _creatorId: UserId
   name: string
   description: string
+  taskCount?: {
+    total: number
+  }
   type?: SmartGroupType
   view: {
     type: SmartGroupViewType
@@ -48,6 +51,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
   },
   name: {
     type: RDBType.STRING,
+  },
+  taskCount: {
+    type: RDBType.OBJECT,
   },
   type: {
     type: RDBType.STRING,
