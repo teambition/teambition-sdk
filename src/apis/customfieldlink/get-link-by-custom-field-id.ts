@@ -23,6 +23,9 @@ export function getLinkByCustomFieldId(
     request: req,
     query: {
       where: { _customfieldId: customFieldId }
+    },
+    assocFields: {
+      locker: ['_id', 'name', 'avatarUrl']
     }
   })
 }
