@@ -154,6 +154,10 @@ export class SocketClient {
     return this._connect()
   }
 
+  getConsumerId() {
+    return this._consumerId
+  }
+
   /**
    * uri 格式: :type/:id
    * eg: projects, organizations/554c83b1b2c809b4715d17b0
