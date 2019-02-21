@@ -12,7 +12,7 @@ import { Observable } from 'rxjs/Observable'
 import { ReplaySubject } from 'rxjs/ReplaySubject'
 import { Net } from '../Net'
 import { Database } from 'reactivedb'
-import { SDKFetch } from '../SDKFetch'
+import { SDKFetch, SDKFetchOptions } from '../SDKFetch'
 import { socketHandler, createMsgToDBHandler, createMsgHandler } from './EventMaps'
 import { Interceptors, Proxy } from './Middleware'
 import * as Consumer from 'snapper-consumer'
@@ -154,6 +154,10 @@ export class SocketClient {
     return this._connect()
   }
 
+  getConsumerId() {
+    return this._consumerId
+  }
+
   /**
    * uri 格式: :type/:id
    * eg: projects, organizations/554c83b1b2c809b4715d17b0
@@ -253,19 +257,21 @@ export class SocketClient {
 export function leaveRoom(
   this: SDKFetch,
   room: string,
-  consumerId: string
+  consumerId: string,
+  options?: SDKFetchOptions
 ) {
   // http delete 不允许有 body， 但是这里就是有 body
-  return this.delete<void>(`${room}/subscribe`, { consumerId })
+  return this.delete<void>(`${room}/subscribe`, { consumerId }, options)
     .toPromise()
 }
 
 export function joinRoom(
   this: SDKFetch,
   room: string,
-  consumerId: string
+  consumerId: string,
+  options?: SDKFetchOptions
 ) {
-  return this.post<void>(`${room}/subscribe`, { consumerId })
+  return this.post<void>(`${room}/subscribe`, { consumerId }, options)
     .toPromise()
 }
 
