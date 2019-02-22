@@ -92,3 +92,15 @@ export interface GraphQLClientOption {
   host: string
   headers: object
 }
+
+// 给 queryString 上附上这两个类型信息让 graph 接口能够识别参数类型和返回值类型
+export interface GraphQLMeta {
+  result: unknown
+  variables: unknown
+}
+
+export type GraphQLQuery = string | (string & GraphQLMeta)
+
+export type GraphQLVariables<Q, V extends Variables> = Q extends GraphQLMeta ? Q['variables'] : V
+
+export type GraphQLResult<Q, R> = Q extends GraphQLMeta ? Q['result'] : R
