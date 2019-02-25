@@ -1,28 +1,31 @@
 import { SchemaDef, RDBType } from 'reactivedb/interface'
 import { schemaColl } from './schemas'
-import { OrganizationId, ProjectId, ProjectTagId, UserId, DefaultColors, PermissionBinding } from 'teambition-types'
+import { OrganizationId, ProjectId, ProjectTagId, UserId, PermissionBinding, ProjectTagVisibleOption } from 'teambition-types'
 
 export interface ProjectTagSchema {
+  _creatorId?: UserId
   _id: ProjectTagId
   _organizationId: OrganizationId
-  name: string
-  pos: number
-  projectIds: ProjectId[] // 该分组下的项目的 ids
+  ancestorIds: ProjectTagId[]
   childProjectIds: ProjectId[] // 该分组子分组（递归）下的项目的 ids
-  _creatorId?: UserId
+  created: string
+  hasChild: boolean
   isDeleted: boolean
   isStar: boolean
-  hasChild: boolean
-  projectCount: number
-  ancestorIds: ProjectTagId[]
-  style: string
-  color: DefaultColors
-  created: string
-  updated: string
+  name: string
   permissionBinding?: PermissionBinding
+  pos: number
+  projectCount: number
+  projectIds: ProjectId[] // 该分组下的项目的 ids
+  style: string
+  updated: string
+  visible: ProjectTagVisibleOption
 }
 
 const schema: SchemaDef<ProjectTagSchema> = {
+  _creatorId: {
+    type: RDBType.STRING
+  },
   _id: {
     type: RDBType.STRING,
     primaryKey: true
@@ -30,17 +33,11 @@ const schema: SchemaDef<ProjectTagSchema> = {
   _organizationId: {
     type: RDBType.STRING
   },
-  _creatorId: {
-    type: RDBType.STRING
-  },
   ancestorIds: {
     type: RDBType.LITERAL_ARRAY
   },
   childProjectIds: {
     type: RDBType.LITERAL_ARRAY
-  },
-  color: {
-    type: RDBType.STRING
   },
   created: {
     type: RDBType.DATE_TIME
@@ -74,6 +71,9 @@ const schema: SchemaDef<ProjectTagSchema> = {
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  visible: {
+    type: RDBType.STRING
   }
 }
 
