@@ -101,6 +101,7 @@ declare module 'teambition-types' {
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
   export type JoinProjectRole = 'default' | 'owner'
   export type ProjectStatusDegree = 'normal' | 'risky' | 'urgent'
+  export type ProjectTagVisibleOption = 'organization' | 'involves'
   export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
   export type ReminderRuleType = 'startDate' | 'dueDate' | 'customize' | 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'
   export type ReminderUnit = 'minute' | 'hour' | 'day'
