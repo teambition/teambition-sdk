@@ -2,6 +2,7 @@ import { RDBType, SchemaDef } from 'reactivedb/interface'
 import { Moment } from 'moment'
 
 import {
+  TaskId,
   ProjectId,
   TapChartId,
   TapChartName,
@@ -16,7 +17,7 @@ import {
 export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview' | 'customset'
 
 // tapGraph definition
-export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String'
+export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String' | 'type/Task'
 
 export type TapChartExhibitType = 'small' | 'big'
 
@@ -30,6 +31,7 @@ export type TapGraphData = {
   title: string
   cols: TapGraphCol[];
   rows: any[][];
+  taskIds: TaskId[][][];
   visualizationSettings: TapGraphVisualizationSettingsSet;
 }
 
@@ -180,7 +182,7 @@ export interface TapChart<T extends FilterRequest | FilterResponse> {
 
   filter: T
 
-  type: 'tdr' | 'tdr'
+  type: 'tdr' | 'udr'
 
   graphData: TapGraphData[]
 }
