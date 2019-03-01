@@ -29,7 +29,6 @@ type MethodParams = {
   url: string,
   body?: any,
   _opts: any,
-  errorAdapter$: Subject<HttpErrorMessage>,
   includeHeaders: boolean
 }
 
@@ -57,7 +56,7 @@ const coverRxAjaxHeadersBug = (normHeaders: {}) => {
 export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
 
 export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): Observable<any> => {
-  const { url, body, _opts, errorAdapter$, includeHeaders } = params
+  const { url, body, _opts, includeHeaders } = params
 
   /* istanbul ignore if */
   if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
@@ -84,13 +83,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
           statusText: e.xhr.statusText,
           headers: headers.length ? parseHeaders(headers) : new Headers()
         })
-        const requestInfo = { method, url, body }
-        const errorResponseClone = errorResponse.clone()
-
-        setTimeout(() => {
-          errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
-        }, 10)
-        return Observable.throw({ ...requestInfo, error: errorResponse })
+        return Observable.throw({ method, url, body, error: errorResponse })
       })
   } else { // 测试用分支
     return Observable.create((observer: Observer<any>) => {
@@ -123,13 +116,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
           observer.complete()
         })
         .catch((errorResponse: Response) => {
-          const requestInfo = { method, url, body }
-          const errorResponseClone = errorResponse.clone()
-
-          setTimeout(() => {
-            errorAdapter$.next({ ...requestInfo, error: errorResponseClone })
-          }, 10)
-          observer.error({ ...requestInfo, error: errorResponse })
+          observer.error({ method, url, body, error: errorResponse })
         })
     })
   }
@@ -225,7 +212,18 @@ export class Http<T> {
   }
 
   send(): Observable<T> {
-    return this.request ? this.mapFn(this.request) : Observable.empty()
+    if (!this.request) {
+      return Observable.empty<T>()
+    }
+    const response$ = this.mapFn(this.request)
+    return response$
+      .catch((msg: HttpErrorMessage) => {
+        const msgClone = { ...msg, error: msg.error.clone() }
+        setTimeout(() => {
+          this.errorAdapter$.next(msgClone)
+        }, 10)
+        return Observable.throw(msg)
+      })
   }
 
   clone() {
@@ -243,7 +241,6 @@ export class Http<T> {
   private params = (): MethodParams => ({
     url: this.url,
     _opts: this._opts,
-    errorAdapter$: this.errorAdapter$,
     includeHeaders: this.includeHeaders
   })
 }

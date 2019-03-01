@@ -179,19 +179,30 @@ export default describe('net/http', () => {
     })
   })
 
-  it('should emit usable error: Response at both original$ and errorAdaptor$', function* () {
+  it('should emit usable same error message at both original$ and errorAdaptor$', function* () {
     const status = 429
     const body = { text: 'busy' }
     fetchMock.mock(url, { body, method: 'get', status })
 
     const errorAdaptor$ = new Subject<HttpErrorMessage>()
     const fetchInstance2 = new Http(url, errorAdaptor$)
+    // 要验证：内部 mapFn 对报错的特殊处理对原请求流和 errorAdaptor$ 都生效
+    fetchInstance2['mapFn'] = ((source) => {
+      return source.catch((msg: HttpErrorMessage) => {
+        msg['requestId'] = '123'
+        return Observable.throw(msg)
+      })
+    })
 
     const caught$ = fetchInstance2.get()
       .send()
       .catch((res: HttpErrorMessage) => Observable.of(res)) as Observable<HttpErrorMessage>
 
     yield Observable.zip(caught$, errorAdaptor$)
+      .do(([{ error: _e1, ...restCaught }, { error: _e2, ...restErrorMsg }]) => {
+        expect(restErrorMsg['requestId']).to.equal('123')
+        expect(restErrorMsg).to.deep.equal(restCaught)
+      })
       .flatMap(([caught, adaptor]) => {
         return Observable.zip(
           Observable.fromPromise(caught.error.json()),
