@@ -418,10 +418,11 @@ declare module 'teambition-types' {
     created?: string
     startDate?: string
     involveMembers?: UserId[]
-    scenariofieldconfigId?: ScenarioFieldConfigId
+    scenariofieldconfigId?: ScenarioFieldConfigId[]
     tagIds?: string[]
     isDue?: boolean
     proTemplateConfigType?: ScenarioProTemplateConfigType
+    isDuedateExist?: boolean
   }
 
   export type TapFilterItem =
@@ -468,10 +469,11 @@ declare module 'teambition-types' {
     | TapFilterTarget<'startDate', 'datetime', string>
     | TapFilterTarget<'created', 'datetime', string>
     | TapFilterTarget<'involveMembers', 'string', UserId[]>
-    | TapFilterTarget<'scenariofieldconfigId', 'int', ScenarioFieldConfigId>
+    | TapFilterTarget<'scenariofieldconfigId', 'int', ScenarioFieldConfigId[]>
     | TapFilterTarget<'tagIds', 'string', string>
     | TapFilterTarget<'isDue', 'boolean', boolean>
     | TapFilterTarget<'proTemplateConfigType', 'string', ScenarioProTemplateConfigType>
+    | TapFilterTarget<'isDuedateExist', 'boolean', boolean>
 
   export type TapGenericFilterResponse = TapFilterItem[]
 }
