@@ -6,6 +6,15 @@ import { OrganizationSchema } from './Organization'
 import { UserPaymentPlan } from './UserMe'
 import { Role } from './CustomRole'
 
+type AlienType = {
+  refId: string
+  url: string
+  extra: {
+    url: string
+    settingUrl: string
+  }
+}
+
 export interface ProjectSchema {
   _creatorId: UserId
   _defaultCollectionId: CollectionId
@@ -18,6 +27,7 @@ export interface ProjectSchema {
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
   _sourceId: ProjectId | null // 从项目模板创建的项目，记录源项目模板的 id
+  alien?: AlienType
   applications?: {
     _id: ApplicationId
     name: string
@@ -115,6 +125,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   _sourceId: {
     type: RDBType.STRING
+  },
+  alien: {
+    type: RDBType.OBJECT
   },
   // can not join
   applications: {
