@@ -385,17 +385,17 @@ export class Net {
         } else {
           token = dbGetWithSelfJoinEnabled<T>(database, tableName, q)
         }
-        token.map(this.validate(result))
         break
       case CacheStrategy.Cache:
         const selector$ = response$
           .delayWhen((v) => database.upsert(tableName, v))
           .concatMap(() => dbGetWithSelfJoinEnabled<T>(database, tableName, q).selector$)
-        return new QueryToken(selector$)
+        token = new QueryToken(selector$)
+        break
       default:
         throw new TypeError('unreachable code path')
     }
-    return token
+    return token.map(this.validate(result))
   }
 
   private getInfoFromResult<T>(result: ApiResult<T, CacheStrategy>) {
