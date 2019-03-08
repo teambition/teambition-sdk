@@ -6,7 +6,7 @@ import { spy } from 'sinon'
 import * as SinonChai from 'sinon-chai'
 import '../../src/schemas'
 import { schemaColl, CacheStrategy } from '../../src/SDK'
-import { Net, Backend, SDKFetch, forEach, uuid, Http, EventSchema } from '..'
+import { Net, Backend, SDKFetch, forEach, uuid, EventSchema } from '..'
 import { ApiResult } from '../../src/Net/Net'
 import { createMsgToDBHandler } from '../../src/sockets/EventMaps'
 import { normalEvent, projectEvents } from '../fixtures/events.fixture'
@@ -435,9 +435,17 @@ describe('Net test', () => {
     const _projectId = sampleEvent._projectId
     const partialEvent = { _id: uuid(), _projectId }
     const eventUrlPath = (eventId: string) => `api/events/${eventId}}`
-    const getEventsWithRequired = (fetch: SDKFetch, projectId: string) => {
+    const cacheStrategies = {
+      'Request': CacheStrategy.Request,
+      'Cache': CacheStrategy.Cache
+    }
+    const getEventsWithRequired = <T extends CacheStrategy>(
+      fetch: SDKFetch,
+      cacheValidate: T,
+      projectId: string
+    ) => {
       return {
-        cacheValidate: CacheStrategy.Request,
+        cacheValidate,
         request: fetch.get<any>(path),
         query: {
           where: { _projectId: projectId },
@@ -449,7 +457,7 @@ describe('Net test', () => {
         ],
         required: ['startDate'],
         padding: (id: string) => fetch.get<any>(eventUrlPath(id))
-      } as ApiResult<typeof sampleEvent, CacheStrategy.Request>
+      } as ApiResult<typeof sampleEvent, T>
     }
 
     let spyFetch: sinon.SinonSpy
@@ -470,158 +478,168 @@ describe('Net test', () => {
       spyFetch.restore()
     })
 
-    it('should handle Array type response and validate cache', function* () {
-      mockEventsGet(_projectId, projectEvents)
+    forEach(cacheStrategies, (cacheStrategy, name) => {
+      it(`should handle Array type response and validate cache (use cache strategy: ${name})`, function* () {
+        mockEventsGet(_projectId, projectEvents)
 
-      const stream$ = net.lift(getEventsWithRequired(sdkFetch, _projectId)).changes()
+        const stream$ = net.lift(getEventsWithRequired(sdkFetch, cacheStrategy, _projectId)).changes()
 
-      subscription = stream$.subscribe()
+        subscription = stream$.subscribe()
 
-      yield stream$.take(1)
+        yield stream$.take(1)
 
-      mockEventGet(partialEvent._id, { ...sampleEvent, ...partialEvent })
+        mockEventGet(partialEvent._id, { ...sampleEvent, ...partialEvent })
 
-      yield database.insert('Event', partialEvent)
+        yield database.insert('Event', partialEvent)
 
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do((events) => {
-          expect(spyFetch.callCount).to.equal(2)
-          expect(events.length).to.equal(projectEvents.length + 1)
-        })
-
-    })
-
-    it('should handle empty Array', function* () {
-      mockEventsGet(_projectId, [])
-
-      const stream$ = net.lift(getEventsWithRequired(sdkFetch, _projectId)).changes()
-
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
-
-      mockEventGet(partialEvent._id, { ...sampleEvent, ...partialEvent })
-
-      yield database.insert('Event', partialEvent)
-
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do((events) => {
-          expect(spyFetch.callCount).to.equal(2)
-          expect(events.length).to.equal(1)
-        })
-    })
-
-    it('should pass-through empty result set (without padding requests)', function* () {
-      mockEventsGet(_projectId, [])
-
-      yield net.lift(getEventsWithRequired(sdkFetch, _projectId)).changes()
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do((events) => {
-          expect(spyFetch.callCount).to.equal(1)
-          expect(events).to.deep.equal([])
-        })
-    })
-
-    it('should pass-through all-complete result set (without padding requests)', function* () {
-      const completeEvent = { ...sampleEvent, ...partialEvent }
-
-      mockEventsGet(_projectId, [ completeEvent ])
-
-      yield net.lift(getEventsWithRequired(sdkFetch, _projectId)).changes()
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do(([ event ]) => {
-          expect(spyFetch.callCount).to.equal(1)
-          expectToDeepEqualForFieldsOfTheExpected(event, completeEvent)
-        })
-    })
-
-    it('padding: should emit once for one change update on a result set of size >= 2', function* () {
-      mockEventsGet(_projectId, [])
-
-      const partialEvent1 = partialEvent
-      const partialEvent2 = { ...partialEvent, _id: uuid() }
-      const completeEvent1 = { ...sampleEvent, ...partialEvent1 }
-      const completeEvent2 = { ...sampleEvent, ...partialEvent2 }
-
-      const stream$ = net.lift(getEventsWithRequired(sdkFetch, _projectId)).changes()
-
-      subscription = stream$.subscribe()
-
-      yield stream$.take(1)
-
-      mockEventGet(partialEvent1._id, completeEvent1)
-      mockEventGet(partialEvent2._id, completeEvent2)
-
-      yield database.insert('Event', [partialEvent1, partialEvent2])
-
-      let emitCount = 0
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .do((events) => {
-          emitCount++
-          // 确认推出的数据个数和内容是正确的
-          expect(events).to.have.lengthOf(2)
-          events.forEach((event) => {
-            if (event._id === partialEvent1._id) {
-              expectToDeepEqualForFieldsOfTheExpected(event, completeEvent1)
-            } else if (event._id === partialEvent2._id) {
-              expectToDeepEqualForFieldsOfTheExpected(event, completeEvent2)
-            } else {
-              throw new Error('should emit padded data')
-            }
+        yield stream$
+          .subscribeOn(Scheduler.asap)
+          .take(1)
+          .do((events) => {
+            expect(spyFetch.callCount).to.equal(2)
+            expect(events.length).to.equal(projectEvents.length + 1)
           })
-        })
-        .takeUntil(Observable.timer(100)) // 给一个较长的时间，确定没有再推出数据
-        .do({ complete: () => {
-          expect(emitCount).to.equal(1)
-        } })
+      })
     })
 
-    it('should get result from cached Response and validate cache', function* () {
-      mockEventsGet(_projectId, projectEvents)
+    forEach(cacheStrategies, (cacheStrategy, name) => {
+      it(`should handle empty Array (use cache strategy: ${name})`, function* () {
+        mockEventsGet(_projectId, [])
 
-      const getToken = () => net.lift(getEventsWithRequired(sdkFetch, _projectId))
+        const stream$ = net.lift(getEventsWithRequired(sdkFetch, cacheStrategy, _projectId)).changes()
 
-      yield getToken()
-        .values()
-        .do(rs => {
-          projectEvents.forEach((expected, i) => {
-            expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+        subscription = stream$.subscribe()
+
+        yield stream$.take(1)
+
+        mockEventGet(partialEvent._id, { ...sampleEvent, ...partialEvent })
+
+        yield database.insert('Event', partialEvent)
+
+        yield stream$
+          .subscribeOn(Scheduler.asap)
+          .take(1)
+          .do((events) => {
+            expect(spyFetch.callCount).to.equal(2)
+            expect(events.length).to.equal(1)
           })
-        })
-      spyFetch.restore()
-      spyFetch = spy(sdkFetch, 'get')
+      })
+    })
 
-      const stream$ = getToken()
-        .changes()
+    forEach(cacheStrategies, (cacheStrategy, name) => {
+      it(`should pass-through empty result set (without padding requests; use cache strategy: ${name})`, function* () {
+        mockEventsGet(_projectId, [])
 
-      subscription = stream$.subscribe()
+        yield net.lift(getEventsWithRequired(sdkFetch, cacheStrategy, _projectId)).changes()
+          .subscribeOn(Scheduler.asap)
+          .take(1)
+          .do((events) => {
+            expect(spyFetch.callCount).to.equal(1)
+            expect(events).to.deep.equal([])
+          })
+      })
+    })
 
-      yield stream$.take(1)
+    forEach(cacheStrategies, (cacheStrategy, name) => {
+      it(`should pass-through all-complete result set (without padding requests; use cache strategy: ${name})`, function* () {
+        const completeEvent = { ...sampleEvent, ...partialEvent }
 
-      mockEventGet(partialEvent._id, { ...sampleEvent, ...partialEvent })
+        mockEventsGet(_projectId, [ completeEvent ])
 
-      yield database.insert('Event', partialEvent)
+        yield net.lift(getEventsWithRequired(sdkFetch, cacheStrategy, _projectId)).changes()
+          .subscribeOn(Scheduler.asap)
+          .take(1)
+          .do(([ event ]) => {
+            expect(spyFetch.callCount).to.equal(1)
+            expectToDeepEqualForFieldsOfTheExpected(event, completeEvent)
+          })
+      })
+    })
 
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
+    forEach(cacheStrategies, (cacheStrategy, name) => {
+      it(`should emit once for one change update on a result set of size >= 2 (use cache strategy: ${name})`, function* () {
+        mockEventsGet(_projectId, [])
 
-      // 多请求一次，保证 padding 被执行之后，再次从 ReactiveDB 里面拿数据的时候应该能拿到完整的数据
-      yield stream$
-        .subscribeOn(Scheduler.asap)
-        .take(1)
-        .do((events) => {
-           expect(spyFetch.callCount).to.equal(2)
-           expect(events.length).to.equal(projectEvents.length + 1)
-        })
+        const partialEvent1 = partialEvent
+        const partialEvent2 = { ...partialEvent, _id: uuid() }
+        const completeEvent1 = { ...sampleEvent, ...partialEvent1 }
+        const completeEvent2 = { ...sampleEvent, ...partialEvent2 }
 
+        const stream$ = net.lift(getEventsWithRequired(sdkFetch, cacheStrategy, _projectId)).changes()
+
+        subscription = stream$.subscribe()
+
+        yield stream$.take(1)
+
+        mockEventGet(partialEvent1._id, completeEvent1)
+        mockEventGet(partialEvent2._id, completeEvent2)
+
+        yield database.insert('Event', [partialEvent1, partialEvent2])
+
+        let emitCount = 0
+        yield stream$
+          .subscribeOn(Scheduler.asap)
+          .do((events) => {
+            emitCount++
+            // 确认推出的数据个数和内容是正确的
+            expect(events).to.have.lengthOf(2)
+            events.forEach((event) => {
+              if (event._id === partialEvent1._id) {
+                expectToDeepEqualForFieldsOfTheExpected(event, completeEvent1)
+              } else if (event._id === partialEvent2._id) {
+                expectToDeepEqualForFieldsOfTheExpected(event, completeEvent2)
+              } else {
+                throw new Error('should emit padded data')
+              }
+            })
+          })
+          .takeUntil(Observable.timer(100)) // 给一个较长的时间，确定没有再推出数据
+          .do({ complete: () => {
+            expect(emitCount).to.equal(1)
+          } })
+      })
+    })
+
+    forEach(cacheStrategies, (cacheStrategy, name) => {
+      it(`should get result from cached Response and validate cache (use cache strategy: ${name})`, function* () {
+        mockEventsGet(_projectId, projectEvents)
+
+        const getToken = () => net.lift(getEventsWithRequired(sdkFetch, cacheStrategy, _projectId))
+
+        yield getToken()
+          .values()
+          .do(rs => {
+            projectEvents.forEach((expected, i) => {
+              expectToDeepEqualForFieldsOfTheExpected(rs[i], expected)
+            })
+          })
+        spyFetch.restore()
+        spyFetch = spy(sdkFetch, 'get')
+
+        const stream$ = getToken()
+          .changes()
+
+        subscription = stream$.subscribe()
+
+        yield stream$.take(1)
+
+        mockEventGet(partialEvent._id, { ...sampleEvent, ...partialEvent })
+
+        yield database.insert('Event', partialEvent)
+
+        yield stream$
+          .subscribeOn(Scheduler.asap)
+          .take(1)
+
+        // 多请求一次，保证 padding 被执行之后，再次从 ReactiveDB 里面拿数据的时候应该能拿到完整的数据
+        yield stream$
+          .subscribeOn(Scheduler.asap)
+          .take(1)
+          .do((events) => {
+             expect(spyFetch.callCount).to.equal(2)
+             expect(events.length).to.equal(projectEvents.length + 1)
+          })
+      })
     })
   })
 
