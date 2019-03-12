@@ -112,6 +112,7 @@ declare module 'teambition-types' {
     | EventOfficialScenarioFieldType
     | TestcaseOfficialScenarioFieldType
   export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
+  export type SmartGroupPredefinedIcon = 'taskToday' | 'taskUndone' | 'taskDone' | 'taskNotAssigned' | 'taskMyExecuted'
   export type SmartGroupType = 'custom' | 'story' | 'sprint' | 'bug' | 'story.custom' | 'bug.custom' | 'sprint.custom'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban' | 'list'
   export type TaskSortMethod = 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'startdate_desc' | 'custom'

@@ -5,19 +5,12 @@ import {
   SmartGroupId,
   SmartGroupViewType,
   BoardAxisType,
+  SmartGroupPredefinedIcon,
   SmartGroupType,
   TaskflowId,
   TaskSortMethod
 } from 'teambition-types'
 import { schemaColl } from './schemas'
-
-export enum SmartGroupPredefinedIcon {
-  TaskToday = 'taskToday',
-  TaskUndone = 'taskUndone',
-  TaskDone = 'taskDone',
-  TaskNotAssigned = 'taskNotAssigned',
-  TaskMyExecuted = 'taskMyExecuted'
-}
 
 export interface SmartGroupSchema {
   _id: SmartGroupId
