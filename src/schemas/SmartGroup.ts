@@ -7,6 +7,7 @@ import {
   BoardAxisType,
   SmartGroupType,
   TaskflowId,
+  TaskSortMethod
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -16,16 +17,6 @@ export enum SmartGroupPredefinedIcon {
   TaskDone = 'taskDone',
   TaskNotAssigned = 'taskNotAssigned',
   TaskMyExecuted = 'taskMyExecuted'
-}
-
-export enum TaskSortMethod {
-  CUSTOM = 'custom',
-  PRIORITY = 'priority',
-  STARTDATE = 'startdate',
-  STARTDATE_DESC = 'startdate_desc',
-  DUEDATE = 'duedate',
-  CREATED_ASC = 'created_asc',
-  CREATED_DESC = 'created_desc',
 }
 
 export interface SmartGroupSchema {
@@ -46,7 +37,7 @@ export interface SmartGroupSchema {
     _verticalId?: TaskflowId
     _horizontalId?: TaskflowId
   },
-  orderBy: TaskSortMethod
+  orderBy?: TaskSortMethod
   filter: string
   created: string
   updated: string
