@@ -2,7 +2,7 @@ import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
 import { createSdk, SDK, SocketMock, UserMe } from '../index'
 import userMe from '../fixtures/user.fixture'
-import { mock, restore } from '../utils'
+import { mock, restore, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
 describe('UserApi request spec', () => {
   let sdk: SDK
@@ -24,7 +24,7 @@ describe('UserApi request spec', () => {
     yield sdk.getUserMe()
       .values()
       .do(([user]) => {
-        expect(user).to.deep.equal(userMe)
+        expectToDeepEqualForFieldsOfTheExpected(user, userMe)
       })
   })
 
