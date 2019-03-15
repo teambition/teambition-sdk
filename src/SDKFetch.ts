@@ -118,7 +118,7 @@ export class SDKFetch {
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
       const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get().send() as any)
+      dist = Observable.defer(() => http.setUrl(urlWithTail).get()['request'])
         .publishReplay<any>(1)
         .refCount()
         .finally(() => {

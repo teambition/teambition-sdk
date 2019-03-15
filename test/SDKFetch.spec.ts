@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 import { Observable, Scheduler } from 'rxjs'
+import { map as rxMap } from 'rxjs/operators'
 import { describe, it, beforeEach, afterEach } from 'tman'
 import { SDK, SDKFetch, forEach, Http, HttpErrorMessage, headers2Object, createSdk } from '.'
 import { clone } from './'
@@ -182,6 +183,18 @@ describe('SDKFetch', () => {
     yield Observable.of(fetchMock.calls(urlMatcher).length)
       .do((numberOfRequestsReceived) => {
         expect(numberOfRequestsReceived).to.equal(2)
+      })
+  })
+
+  it('should only apply `Http` object `mapFn`(internal-use only) once for each request sent', function* () {
+    fetchMock.mock(urlMatcher, { body: 'hello' })
+
+    const httpObj = sdkFetch.get<string>(path, {}, { wrapped: true })
+    httpObj['mapFn'] = rxMap((s) => `${s} world`)
+
+    yield httpObj.send()
+      .do((response) => {
+        expect(response).to.equal('hello world')
       })
   })
 
