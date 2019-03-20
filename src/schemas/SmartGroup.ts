@@ -1,11 +1,14 @@
 import { RDBType, SchemaDef } from 'reactivedb/interface'
 import {
+  BoardAxisType,
   ProjectId,
-  UserId,
   SmartGroupId,
   SmartGroupViewType,
-  SwimAxisLane,
+  SmartGroupPredefinedIcon,
   SmartGroupType,
+  TaskSortMethod,
+  TaskflowId,
+  UserId,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -15,15 +18,19 @@ export interface SmartGroupSchema {
   _creatorId: UserId
   name: string
   description: string
+  icon: SmartGroupPredefinedIcon | null
   taskCount?: {
     total: number
   }
   type?: SmartGroupType
   view: {
     type: SmartGroupViewType
-    vertical: SwimAxisLane
-    horizontal: SwimAxisLane
+    vertical?: BoardAxisType
+    horizontal?: BoardAxisType
+    _verticalId?: TaskflowId
+    _horizontalId?: TaskflowId
   },
+  orderBy?: TaskSortMethod
   filter: string
   created: string
   updated: string
@@ -49,7 +56,13 @@ const schema: SchemaDef<SmartGroupSchema> = {
   filter: {
     type: RDBType.STRING,
   },
+  icon: {
+    type: RDBType.STRING,
+  },
   name: {
+    type: RDBType.STRING,
+  },
+  orderBy: {
     type: RDBType.STRING,
   },
   taskCount: {

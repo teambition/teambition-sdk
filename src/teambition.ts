@@ -113,11 +113,13 @@ declare module 'teambition-types' {
     | EventOfficialScenarioFieldType
     | TestcaseOfficialScenarioFieldType
   export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
-  export type SmartGroupType = 'story' | 'sprint' | 'bug'
-  export type SmartGroupViewType = 'table' | 'time' | 'kanban'
+  export type SmartGroupPredefinedIcon = 'taskToday' | 'taskUndone' | 'taskDone' | 'taskNotAssigned' | 'taskMyExecuted'
+  export type SmartGroupType = 'custom' | 'story' | 'sprint' | 'bug' | 'story.custom' | 'bug.custom' | 'sprint.custom'
+  export type SmartGroupViewType = 'table' | 'time' | 'kanban' | 'list'
   export type TaskSortMethod = 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'startdate_desc' | 'custom'
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
     | 'taskType' | 'rating' | 'storyPoint'
+  export type BoardAxisType = 'iterationSprint' | 'priority' | 'stage' | 'taskflowStatus' | 'taskflow' | 'scenarioConfig'
   export type TagType = 'organization' | 'project'
   export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
   export type TaskDivisionType = 'scenariofields' | 'subtasks' | 'links'
