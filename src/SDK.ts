@@ -6,7 +6,10 @@ import { SDKFetch } from './SDKFetch'
 import * as socket from './sockets'
 import * as socketInterceptor from './sockets/interceptor'
 import { schemaColl } from './schemas'
-import { SchemaColl, Variables, GraphQLRequest, GraphQLResponse, GraphQLClientOption } from './utils/internalTypes'
+import {
+  SchemaColl, Variables, GraphQLRequest, GraphQLResponse,
+  GraphQLClientOption, GraphQLQuery, GraphQLVariables, GraphQLResult,
+} from './utils/internalTypes'
 
 export const schemas: SchemaColl = []
 
@@ -60,11 +63,26 @@ export class SDK {
     }
   }
 
-  graph<T extends object>(query: string, variables: Variables, withHeaders: true): Observable<T & { headers: Headers }>
-  graph<T extends object>(query: string, variables: Variables, withHeaders: false): Observable<T>
-  graph<T extends object>(query: string, variables?: Variables): Observable<T>
-  graph<T extends object>(query: string): Observable<T>
-  graph<T extends object>(query: string, variables?: Variables, withHeaders: boolean = false) {
+  graph<R extends object, V extends Variables = Variables, Q extends GraphQLQuery = string>(
+    query: Q,
+    variables: GraphQLVariables<Q, V>,
+    withHeaders: true,
+  ): Observable<GraphQLResult<Q, R> & { headers: Headers }>
+  graph<R extends object, V extends Variables = Variables, Q extends GraphQLQuery = string>(
+    query: Q,
+    variables: GraphQLVariables<Q, V>,
+    withHeaders: false,
+  ): Observable<GraphQLResult<Q, R>>
+  graph<R extends object, V extends Variables = Variables, Q extends GraphQLQuery = string>(
+    query: Q,
+    variables: GraphQLVariables<Q, V>,
+  ): Observable<GraphQLResult<Q, R>>
+  graph<R extends object, Q extends GraphQLQuery = string>(query: Q): Observable<GraphQLResult<Q, R>>
+  graph<R extends object, V extends Variables = Variables, Q extends GraphQLQuery = string>(
+    query: Q,
+    variables?: GraphQLVariables<Q, V>,
+    withHeaders: boolean = false,
+  ) {
     if (!isNonNullable(this.graphQLClientOption)) {
       throw Error('GraphQL server should be specified.')
     }
@@ -75,7 +93,7 @@ export class SDK {
     })
 
     return this.fetch
-      .post<GraphQLResponse<T>>(
+      .post<GraphQLResponse<R>>(
         this.graphQLClientOption.host,
         requestBody,
         { ...this.graphQLClientOption, includeHeaders: true }
