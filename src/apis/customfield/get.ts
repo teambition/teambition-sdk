@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken } from 'reactivedb'
-
 import { CustomFieldId } from 'teambition-types'
+
+import { QueryToken } from '../../db'
 import { CacheStrategy } from '../../Net'
 import { CustomFieldSchema } from '../../schemas'
 import { SDK } from '../../SDK'

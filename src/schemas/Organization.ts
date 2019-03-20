@@ -1,4 +1,4 @@
-import { SchemaDef, RDBType } from 'reactivedb/interface'
+import { SchemaDef, RDBType } from '../db'
 import { OrganizationId, ProjectId, RoleId, UserId, CollectionId, ExecutorOrCreator } from 'teambition-types'
 
 import { Role } from './CustomRole'

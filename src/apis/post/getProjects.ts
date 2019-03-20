@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable'
-import { QueryToken, OrderDescription } from 'reactivedb'
+import { OrderDescription, QueryToken } from '../../db'
 import { SDK, CacheStrategy } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId } from 'teambition-types'
