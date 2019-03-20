@@ -25,6 +25,7 @@ export type TcmToken = string & { kind: 'TcmToken' }
 
 export interface UserMe {
   _id: UserId
+  openId?: string // staffId
   email: string
   name: string
   avatarUrl: string
@@ -215,6 +216,9 @@ const Schema: SchemaDef<UserMe> = {
   },
   notification: {
     type: RDBType.OBJECT
+  },
+  openId: {
+    type: RDBType.STRING
   },
   phone: {
     type: RDBType.STRING
