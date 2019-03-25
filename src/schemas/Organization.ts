@@ -12,7 +12,10 @@ export interface OrganizationDividerSchema {
 export interface OrganizationPaymentPlan {
   _objectId: OrganizationId
   expired: string
+  isBasic: boolean
+  isExceedMember: boolean
   isExpired: boolean
+  isStrictExceedMember: boolean
   isTrialExpired: boolean
   membersCount: number
   objectType: 'organization'
