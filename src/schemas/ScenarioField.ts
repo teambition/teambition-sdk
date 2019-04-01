@@ -25,7 +25,7 @@ export interface NoteScenarioFieldSchema extends ScenarioFieldSchema {
 
 export interface CustomScenarioFieldSchema extends ScenarioFieldSchema<CustomScenarioFieldType> {
   _customfieldId: CustomFieldId
-  customfield?: CustomFieldSchema
+  customfield?: CustomFieldSchema | null // 返回 null 表示该字段不存在已经被删了
 }
 
 export type TaskScenarioFieldSchema =

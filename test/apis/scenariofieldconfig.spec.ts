@@ -819,4 +819,166 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       expect(fetchMock.called(customFieldUrl)).to.be.true
     })
   })
+
+  it('should not fetch CustomField when using withCustomfields=true & CustomField=null (Project)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const projectId = 'mock-project-id' as ProjectId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: projectId,
+      objectType,
+      scenariofields: [
+        {
+          fieldType: 'customfield',
+          _customfieldId: customFieldId,
+          customfield: null
+        } as CustomScenarioFieldSchema
+      ] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', [config])
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getScenarioFieldConfigs(projectId, objectType)
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        // 缺少 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expect(resultScenarioField.customfield).to.be.null
+
+        // 缺少 CustomField 数据，默认不会发送请求进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.false
+      })
+  })
+
+  it('should fetch CustomField when using withCustomfields=true & CustomField=undefined (Project)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+    const customScenarioField = {
+      fieldType: 'customfield',
+      _customfieldId: customFieldId
+    } as CustomScenarioFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const projectId = 'mock-project-id' as ProjectId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: projectId,
+      objectType,
+      scenariofields: [customScenarioField] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', [config])
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getScenarioFieldConfigs(projectId, objectType)
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        // 填补了 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expectToDeepEqualForFieldsOfTheExpected(
+          resultScenarioField.customfield,
+          customField
+        )
+
+        // 由于 CustomField=undefined 那么发送请求进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.true
+      })
+  })
+
+  it('should not fetch CustomField when using withCustomfields=true & CustomField=null (Organization)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const orgId = 'mock-org-id' as OrganizationId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: orgId,
+      objectType,
+      scenariofields: [
+        {
+          fieldType: 'customfield',
+          _customfieldId: customFieldId,
+          customfield: null
+        } as CustomScenarioFieldSchema
+      ] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', { result: [config] })
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getOrgScenarioFieldConfigs(orgId, objectType)
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        // 缺少 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expect(resultScenarioField.customfield).to.be.null
+
+        // 缺少 CustomField 数据，默认不会发送请求进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.false
+      })
+  })
+
+  it('should fetch CustomField when using withCustomfields=true & CustomField=undefined (Organization)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+    const customScenarioField = {
+      fieldType: 'customfield',
+      _customfieldId: customFieldId
+    } as CustomScenarioFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const orgId = 'mock-org-id' as OrganizationId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: orgId,
+      objectType,
+      scenariofields: [customScenarioField] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', { result: [config] })
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getOrgScenarioFieldConfigs(orgId, objectType)
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        // 填补了 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expectToDeepEqualForFieldsOfTheExpected(
+          resultScenarioField.customfield,
+          customField
+        )
+
+        // 由于 CustomField=undefined 那么发送请求进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.true
+      })
+  })
 })
