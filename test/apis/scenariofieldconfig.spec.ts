@@ -23,6 +23,7 @@ import {
   CustomFieldSchema,
   CustomFieldLinkSchema
 } from '../../src'
+import { WithCustomFieldsOptions } from '../../src/apis/scenariofieldconfig/with-custom-fields'
 
 const fetchMock = require('fetch-mock')
 
@@ -80,7 +81,9 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.getOnce(url, configs)
 
     yield sdkFetch
-      .getScenarioFieldConfigs(projectId, 'testcase', { withTaskflowstatus: true })
+      .getScenarioFieldConfigs(projectId, 'testcase', {
+        withTaskflowstatus: true
+      })
       .subscribeOn(Scheduler.asap)
       .do((result) => expect(result).to.deep.equal(configs))
   })
@@ -299,7 +302,11 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.restore()
   })
 
-  const assertScenarioFieldConfig = (actual: any, expected: any) => {
+  const assertScenarioFieldConfig = (
+    actual: any,
+    expected: any,
+    options: WithCustomFieldsOptions = {}
+  ) => {
     // 除 scenariofields 之外
     expectToDeepEqualForFieldsOfTheExpected(actual, expected, 'scenariofields')
 
@@ -315,7 +322,10 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       )
 
       // 断言 customfield 数据存在
-      if (scenarioField.fieldType === 'customfield') {
+      if (
+        scenarioField.fieldType === 'customfield' &&
+        (scenarioFieldExpected.customfield || options.forcePaddingCustomField)
+      ) {
         expectToDeepEqualForFieldsOfTheExpected(
           scenarioField.customfield,
           scenarioFieldExpected.customfield
@@ -709,12 +719,16 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.getOnce('*', { result: [config] })
 
     const configs$ = sdk
-      .getOrgScenarioFieldConfigs(orgId, objectType)
+      .getOrgScenarioFieldConfigs(orgId, objectType, {
+        forcePaddingCustomField: true
+      })
       .take(1)
       .subscribeOn(Scheduler.asap)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(result, config)
+      assertScenarioFieldConfig(result, config, {
+        forcePaddingCustomField: true
+      })
     })
 
     const customFieldId = 'mock-cf-id' as CustomFieldId
@@ -740,10 +754,14 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.getOnce('*', customField)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(result, {
-        ...config,
-        scenariofields: [{ ...nextScenarioField, customfield: customField }]
-      })
+      assertScenarioFieldConfig(
+        result,
+        {
+          ...config,
+          scenariofields: [{ ...nextScenarioField, customfield: customField }]
+        },
+        { forcePaddingCustomField: true }
+      )
     })
   })
 
@@ -761,12 +779,16 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.getOnce('*', [config])
 
     const configs$ = sdk
-      .getScenarioFieldConfigs(projectId, objectType)
+      .getScenarioFieldConfigs(projectId, objectType, {
+        forcePaddingCustomField: true
+      })
       .take(1)
       .subscribeOn(Scheduler.asap)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(result, config)
+      assertScenarioFieldConfig(result, config, {
+        forcePaddingCustomField: true
+      })
     })
 
     const customFieldId = 'mock-cf-id' as CustomFieldId
@@ -810,13 +832,207 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.getOnce(customFieldUrl, 403)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(result, {
-        ...config,
-        ...nextConfig,
-        scenariofields: [{ ...nextScenarioField, customfield: customField }]
-      })
+      assertScenarioFieldConfig(
+        result,
+        {
+          ...config,
+          ...nextConfig,
+          scenariofields: [{ ...nextScenarioField, customfield: customField }]
+        },
+        { forcePaddingCustomField: true }
+      )
 
       expect(fetchMock.called(customFieldUrl)).to.be.true
     })
+  })
+
+  it('should not fetch CustomField when using withCustomfields=true & forcePaddingCustomField=false (Project)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const projectId = 'mock-project-id' as ProjectId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: projectId,
+      objectType,
+      scenariofields: [
+        {
+          fieldType: 'customfield',
+          _customfieldId: customFieldId
+        } as CustomScenarioFieldSchema
+      ] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', [config])
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getScenarioFieldConfigs(projectId, objectType)
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        assertScenarioFieldConfig(result, config)
+
+        // 缺少 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expect(resultScenarioField.customfield).to.be.undefined
+
+        // 缺少 CustomField 数据，默认不会发送请示进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.false
+      })
+  })
+
+  it('should fetch CustomField when using withCustomfields=true & forcePaddingCustomField=true (Project)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+    const customScenarioField = {
+      fieldType: 'customfield',
+      _customfieldId: customFieldId
+    } as CustomScenarioFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const projectId = 'mock-project-id' as ProjectId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: projectId,
+      objectType,
+      scenariofields: [customScenarioField] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', [config])
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getScenarioFieldConfigs(projectId, objectType, {
+        forcePaddingCustomField: true
+      })
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        assertScenarioFieldConfig(
+          result,
+          {
+            ...config,
+            scenariofields: [
+              { ...customScenarioField, customfield: customField }
+            ]
+          },
+          { forcePaddingCustomField: true }
+        )
+
+        // 缺少 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expectToDeepEqualForFieldsOfTheExpected(
+          resultScenarioField.customfield,
+          customField
+        )
+
+        // 缺少 CustomField 数据，由于 forcePaddingCustomField=true 那么发送请示进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.true
+      })
+  })
+
+  it('should not fetch CustomField when using withCustomfields=true & forcePaddingCustomField=false (Organization)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const orgId = 'mock-org-id' as OrganizationId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: orgId,
+      objectType,
+      scenariofields: [
+        {
+          fieldType: 'customfield',
+          _customfieldId: customFieldId
+        } as CustomScenarioFieldSchema
+      ] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', { result: [config] })
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getOrgScenarioFieldConfigs(orgId, objectType)
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        assertScenarioFieldConfig(result, config)
+
+        // 缺少 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expect(resultScenarioField.customfield).to.be.undefined
+
+        // 缺少 CustomField 数据，默认不会发送请示进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.false
+      })
+  })
+
+  it('should fetch CustomField when using withCustomfields=true & forcePaddingCustomField=true (Organization)', function*() {
+    const customFieldId = 'mock-cf-id' as CustomFieldId
+    const customField = { _id: customFieldId } as CustomFieldSchema
+    const customScenarioField = {
+      fieldType: 'customfield',
+      _customfieldId: customFieldId
+    } as CustomScenarioFieldSchema
+
+    const configId = 'mock-sfc-id' as ScenarioFieldConfigId
+    const orgId = 'mock-org-id' as OrganizationId
+    const objectType = 'task'
+    const config = {
+      _id: configId,
+      _boundToObjectId: orgId,
+      objectType,
+      scenariofields: [customScenarioField] as ScenarioFieldSchema[]
+    } as ScenarioFieldConfigSchema
+
+    fetchMock.getOnce('*', { result: [config] })
+
+    const customFieldUrl = `/customfields/${customFieldId}?_=666`
+    fetchMock.getOnce(customFieldUrl, customField)
+
+    yield sdk
+      .getOrgScenarioFieldConfigs(orgId, objectType, {
+        forcePaddingCustomField: true
+      })
+      .take(1)
+      .subscribeOn(Scheduler.asap)
+      .do(([result]) => {
+        assertScenarioFieldConfig(
+          result,
+          {
+            ...config,
+            scenariofields: [
+              { ...customScenarioField, customfield: customField }
+            ]
+          },
+          { forcePaddingCustomField: true }
+        )
+
+        // 缺少 CustomField 数据
+        const resultScenarioField = result
+          .scenariofields[0] as CustomScenarioFieldSchema
+        expectToDeepEqualForFieldsOfTheExpected(
+          resultScenarioField.customfield,
+          customField
+        )
+
+        // 缺少 CustomField 数据，由于 forcePaddingCustomField=true 那么发送请示进行获取
+        expect(fetchMock.called(customFieldUrl)).to.be.true
+      })
   })
 })

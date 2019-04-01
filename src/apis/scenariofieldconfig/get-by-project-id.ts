@@ -7,10 +7,10 @@ import {
   ScenarioFieldConfigSchema,
   TaskScenarioFieldConfigSchema,
   EventScenarioFieldConfigSchema,
-  TestcaseScenarioFieldConfigSchema,
+  TestcaseScenarioFieldConfigSchema
 } from '../../schemas'
 import { ApiResult } from '../../Net'
-import { withCustomFields } from './with-custom-fields'
+import { withCustomFields, WithCustomFieldsOptions } from './with-custom-fields'
 
 export function getScenarioFieldConfigsFetch(
   this: SDKFetch,
@@ -124,7 +124,7 @@ export function getScenarioFieldConfigs(
     }
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)
 
-  return token.changes().pipe(withCustomFields(this))
+  return token.changes().pipe(withCustomFields(this, options))
 }
 
 declare module '../../SDK' {
@@ -136,7 +136,8 @@ declare module '../../SDK' {
 
 SDK.prototype.getScenarioFieldConfigs = getScenarioFieldConfigs
 
-export interface GetScenarioFieldConfigsOptions {
+export interface GetScenarioFieldConfigsOptions
+  extends WithCustomFieldsOptions {
   withTaskflowstatus?: boolean
 }
 
