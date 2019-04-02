@@ -83,29 +83,44 @@ const getCustomField = (
 ): Observable<CustomFieldSchema | void> => {
   const empty$ = Observable.of([])
   const customFieldId = scenarioField._customfieldId
-  const customField$ = scenarioField.customfield
-    ? Observable.of(scenarioField.customfield) // 自带 CustomField 数据
-    : options.forcePaddingCustomField
-    ? void 0 // 缺少 CustomField 数据，当 forcePaddingWhenNotFound=true 那么发送请求进行获取
-    : Observable.of([] as CustomFieldSchema[]) // 缺少 CustomField 数据，不在乎
 
-  // 从企业里请求 CustomField 数据
-  return sdk
-    .getCustomField(customFieldId, { request: customField$ })
-    .changes()
-    .pipe(
+  // 自带 CustomField 数据
+  const customField$ = scenarioField.customfield
+    ? Observable.of(scenarioField.customfield)
+    : void 0
+
+  // [fallback] 缺少 CustomField 数据，当 forcePaddingCustomField=true 那么发送请求进行获取
+  const customFieldPadding$ =
+    options.forcePaddingCustomField &&
+    // 从企业里请求 CustomField 数据
+    sdk.fetch.getCustomField(customFieldId).pipe(
+      map((resp) => [resp]),
       catchError(() => {
         // 可能不是企业成员，请求数据失败
-        // 那么读取 CustomFieldLink 数据
-        return sdk
-          .getLinkByCustomFieldId(customFieldId, { request: empty$ })
-          .changes()
-          .pipe(
-            map(([link]) => {
-              // 将 CustomFieldLink 当做 CustomField 使用
-              return link ? [linkToCustomField(link) as CustomFieldSchema] : []
-            })
-          )
+        // 由于 ScenarioField.CustomField 数据终究是可选的，因此认为这个失败不是致命的
+        // 返回 empty 允许程序继续工作
+        return Observable.of([] as CustomFieldSchema[])
+      })
+    )
+
+  // [fallback] 缺少 CustomField 数据，将 CustomFieldLink 当做 CustomField 使用
+  const customFieldLink$ = sdk
+    .getLinkByCustomFieldId(customFieldId, { request: empty$ })
+    .changes()
+    .pipe(
+      map(([link]) => {
+        return link ? [linkToCustomField(link) as CustomFieldSchema] : []
+      })
+    )
+
+  return sdk
+    .getCustomField(customFieldId, {
+      request: customField$ || customFieldPadding$ || empty$
+    })
+    .changes()
+    .pipe(
+      switchMap(([customField]) => {
+        return customField ? Observable.of([customField]) : customFieldLink$
       }),
       map(([customField]) => {
         return customField ? customField : void 0
