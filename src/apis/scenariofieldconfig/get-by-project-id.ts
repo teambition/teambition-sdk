@@ -7,7 +7,7 @@ import {
   ScenarioFieldConfigSchema,
   TaskScenarioFieldConfigSchema,
   EventScenarioFieldConfigSchema,
-  TestcaseScenarioFieldConfigSchema
+  TestcaseScenarioFieldConfigSchema,
 } from '../../schemas'
 import { ApiResult } from '../../Net'
 import { withCustomFields, WithCustomFieldsOptions } from './with-custom-fields'
