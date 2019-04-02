@@ -858,7 +858,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
           .scenariofields[0] as CustomScenarioFieldSchema
         expect(resultScenarioField.customfield).to.be.undefined
 
-        // 缺少 CustomField 数据，默认不会发送请示进行获取
+        // 缺少 CustomField 数据，默认不会发送请求进行获取
         expect(fetchMock.called(customFieldUrl)).to.be.false
       })
   })
@@ -893,7 +893,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .take(1)
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        // 缺少 CustomField 数据
+        // 填补了 CustomField 数据
         const resultScenarioField = result
           .scenariofields[0] as CustomScenarioFieldSchema
         expectToDeepEqualForFieldsOfTheExpected(
@@ -901,7 +901,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
           customField
         )
 
-        // 缺少 CustomField 数据，由于 forcePaddingCustomField=true 那么发送请示进行获取
+        // 由于 forcePaddingCustomField=true 那么发送请求进行获取
         expect(fetchMock.called(customFieldUrl)).to.be.true
       })
   })
@@ -940,7 +940,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
           .scenariofields[0] as CustomScenarioFieldSchema
         expect(resultScenarioField.customfield).to.be.undefined
 
-        // 缺少 CustomField 数据，默认不会发送请示进行获取
+        // 缺少 CustomField 数据，默认不会发送请求进行获取
         expect(fetchMock.called(customFieldUrl)).to.be.false
       })
   })
@@ -975,7 +975,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .take(1)
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        // 缺少 CustomField 数据
+        // 填补了 CustomField 数据
         const resultScenarioField = result
           .scenariofields[0] as CustomScenarioFieldSchema
         expectToDeepEqualForFieldsOfTheExpected(
@@ -983,7 +983,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
           customField
         )
 
-        // 缺少 CustomField 数据，由于 forcePaddingCustomField=true 那么发送请示进行获取
+        // 由于 forcePaddingCustomField=true 那么发送请求进行获取
         expect(fetchMock.called(customFieldUrl)).to.be.true
       })
   })
