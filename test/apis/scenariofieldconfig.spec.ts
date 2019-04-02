@@ -23,7 +23,6 @@ import {
   CustomFieldSchema,
   CustomFieldLinkSchema
 } from '../../src'
-import { WithCustomFieldsOptions } from '../../src/apis/scenariofieldconfig/with-custom-fields'
 
 const fetchMock = require('fetch-mock')
 
@@ -302,11 +301,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.restore()
   })
 
-  const assertScenarioFieldConfig = (
-    actual: any,
-    expected: any,
-    options: WithCustomFieldsOptions = {}
-  ) => {
+  const assertScenarioFieldConfig = (actual: any, expected: any) => {
     // 除 scenariofields 之外
     expectToDeepEqualForFieldsOfTheExpected(actual, expected, 'scenariofields')
 
@@ -322,10 +317,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       )
 
       // 断言 customfield 数据存在
-      if (
-        scenarioField.fieldType === 'customfield' &&
-        (scenarioFieldExpected.customfield || options.forcePaddingCustomField)
-      ) {
+      if (scenarioField.fieldType === 'customfield') {
         expectToDeepEqualForFieldsOfTheExpected(
           scenarioField.customfield,
           scenarioFieldExpected.customfield
@@ -726,9 +718,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .subscribeOn(Scheduler.asap)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(result, config, {
-        forcePaddingCustomField: true
-      })
+      assertScenarioFieldConfig(result, config)
     })
 
     const customFieldId = 'mock-cf-id' as CustomFieldId
@@ -754,14 +744,10 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.getOnce('*', customField)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(
-        result,
-        {
-          ...config,
-          scenariofields: [{ ...nextScenarioField, customfield: customField }]
-        },
-        { forcePaddingCustomField: true }
-      )
+      assertScenarioFieldConfig(result, {
+        ...config,
+        scenariofields: [{ ...nextScenarioField, customfield: customField }]
+      })
     })
   })
 
@@ -786,9 +772,7 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .subscribeOn(Scheduler.asap)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(result, config, {
-        forcePaddingCustomField: true
-      })
+      assertScenarioFieldConfig(result, config)
     })
 
     const customFieldId = 'mock-cf-id' as CustomFieldId
@@ -832,15 +816,11 @@ describe('ScenarioFieldConfigApi spec: ', () => {
     fetchMock.getOnce(customFieldUrl, 403)
 
     yield configs$.do(([result]) => {
-      assertScenarioFieldConfig(
-        result,
-        {
-          ...config,
-          ...nextConfig,
-          scenariofields: [{ ...nextScenarioField, customfield: customField }]
-        },
-        { forcePaddingCustomField: true }
-      )
+      assertScenarioFieldConfig(result, {
+        ...config,
+        ...nextConfig,
+        scenariofields: [{ ...nextScenarioField, customfield: customField }]
+      })
 
       expect(fetchMock.called(customFieldUrl)).to.be.true
     })
@@ -875,8 +855,6 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .take(1)
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        assertScenarioFieldConfig(result, config)
-
         // 缺少 CustomField 数据
         const resultScenarioField = result
           .scenariofields[0] as CustomScenarioFieldSchema
@@ -917,17 +895,6 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .take(1)
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        assertScenarioFieldConfig(
-          result,
-          {
-            ...config,
-            scenariofields: [
-              { ...customScenarioField, customfield: customField }
-            ]
-          },
-          { forcePaddingCustomField: true }
-        )
-
         // 缺少 CustomField 数据
         const resultScenarioField = result
           .scenariofields[0] as CustomScenarioFieldSchema
@@ -970,8 +937,6 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .take(1)
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        assertScenarioFieldConfig(result, config)
-
         // 缺少 CustomField 数据
         const resultScenarioField = result
           .scenariofields[0] as CustomScenarioFieldSchema
@@ -1012,17 +977,6 @@ describe('ScenarioFieldConfigApi spec: ', () => {
       .take(1)
       .subscribeOn(Scheduler.asap)
       .do(([result]) => {
-        assertScenarioFieldConfig(
-          result,
-          {
-            ...config,
-            scenariofields: [
-              { ...customScenarioField, customfield: customField }
-            ]
-          },
-          { forcePaddingCustomField: true }
-        )
-
         // 缺少 CustomField 数据
         const resultScenarioField = result
           .scenariofields[0] as CustomScenarioFieldSchema
