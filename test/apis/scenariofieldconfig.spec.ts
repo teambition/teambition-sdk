@@ -80,9 +80,7 @@ describe('ScenarioFieldConfigApi request spec: ', () => {
     fetchMock.getOnce(url, configs)
 
     yield sdkFetch
-      .getScenarioFieldConfigs(projectId, 'testcase', {
-        withTaskflowstatus: true
-      })
+      .getScenarioFieldConfigs(projectId, 'testcase', { withTaskflowstatus: true })
       .subscribeOn(Scheduler.asap)
       .do((result) => expect(result).to.deep.equal(configs))
   })
