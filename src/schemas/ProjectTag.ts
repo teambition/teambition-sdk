@@ -17,6 +17,7 @@ export interface ProjectTagSchema {
   pos: number
   projectCount: number
   projectIds: ProjectId[] // 该分组下的项目的 ids
+  strictVisible: boolean // false 时为逆继承可见
   style: string
   updated: string
   visible: ProjectTagVisibleOption
@@ -65,6 +66,9 @@ const schema: SchemaDef<ProjectTagSchema> = {
   },
   projectIds: {
     type: RDBType.LITERAL_ARRAY
+  },
+  strictVisible: {
+    type: RDBType.BOOLEAN
   },
   style: {
     type: RDBType.STRING
