@@ -10,7 +10,7 @@ import {
 } from '../../schemas'
 import { ApiResult } from '../../Net'
 import { OriginalResponse } from '../../Net/Pagination'
-import { withCustomFields, WithCustomFieldsOptions } from './with-custom-fields'
+import { withCustomFields } from './with-custom-fields'
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
@@ -97,7 +97,7 @@ export function getOrgScenarioFieldConfigs(
     excludeFields: ['taskflowstatuses'] // 企业接口不关心该字段
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)
 
-  return token.changes().pipe(withCustomFields(this, query))
+  return token.changes().pipe(withCustomFields(this))
 }
 
 declare module '../../SDK' {
@@ -108,8 +108,7 @@ declare module '../../SDK' {
 
 SDK.prototype.getOrgScenarioFieldConfigs = getOrgScenarioFieldConfigs
 
-export interface GetOrgScenarioFieldConfigsOptions
-  extends WithCustomFieldsOptions {
+export interface GetOrgScenarioFieldConfigsOptions {
   sort?: string
 }
 

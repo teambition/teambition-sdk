@@ -13,10 +13,7 @@ import {
 } from '../../schemas'
 import { SDK } from '../../SDK'
 
-export const withCustomFields = (
-  sdk: SDK,
-  options: WithCustomFieldsOptions
-) => (
+export const withCustomFields = (sdk: SDK) => (
   configs$: Observable<ScenarioFieldConfigSchema[]>
 ): Observable<ScenarioFieldConfigSchema[]> => {
   return configs$.pipe(
@@ -25,17 +22,12 @@ export const withCustomFields = (
         return Observable.of(configs)
       }
 
-      return combineLatest(
-        configs.map(normalizeScenarioFieldConfig(sdk, options))
-      )
+      return combineLatest(configs.map(normalizeScenarioFieldConfig(sdk)))
     })
   )
 }
 
-const normalizeScenarioFieldConfig = (
-  sdk: SDK,
-  options: WithCustomFieldsOptions
-) => (
+const normalizeScenarioFieldConfig = (sdk: SDK) => (
   config: ScenarioFieldConfigSchema
 ): Observable<ScenarioFieldConfigSchema> => {
   if (config.scenariofields.length === 0) {
@@ -43,7 +35,7 @@ const normalizeScenarioFieldConfig = (
   }
 
   const scenarioFields$ = combineLatest(
-    config.scenariofields.map(normalizeScenarioField(sdk, options))
+    config.scenariofields.map(normalizeScenarioField(sdk))
   )
 
   return scenarioFields$.pipe(
@@ -58,14 +50,14 @@ const normalizeScenarioFieldConfig = (
   )
 }
 
-const normalizeScenarioField = (sdk: SDK, options: WithCustomFieldsOptions) => (
+const normalizeScenarioField = (sdk: SDK) => (
   scenarioField: ScenarioFieldSchema
 ): Observable<ScenarioFieldSchema> => {
   if (!isCustomScenarioFieldSchema(scenarioField)) {
     return Observable.of(scenarioField)
   }
 
-  return getCustomField(sdk, scenarioField, options).pipe(
+  return getCustomField(sdk, scenarioField).pipe(
     map(
       (customField): CustomScenarioFieldSchema => {
         return customField
@@ -87,8 +79,7 @@ const normalizeScenarioField = (sdk: SDK, options: WithCustomFieldsOptions) => (
  */
 const getCustomField = (
   sdk: SDK,
-  scenarioField: CustomScenarioFieldSchema,
-  options: WithCustomFieldsOptions
+  scenarioField: CustomScenarioFieldSchema
 ): Observable<CustomFieldSchema | void> => {
   const empty$ = Observable.of([])
   const customFieldId = scenarioField._customfieldId
@@ -100,9 +91,10 @@ const getCustomField = (
     ? Observable.of(scenarioField.customfield)
     : void 0
 
-  // 缺少 CustomField 数据，当 forcePaddingCustomField=true 那么发送请求进行获取
+  // 缺少 CustomField 数据，当 CustomField 还存在那么发送请求进行获取
   const customFieldPadding$ =
-    options.forcePaddingCustomField &&
+    // 除非 CustomField 没有被删
+    scenarioField.customfield !== null &&
     // 从企业里请求 CustomField 数据
     sdk.fetch.getCustomField(customFieldId).pipe(
       map((resp) => [resp]),
@@ -155,11 +147,4 @@ export const isCustomScenarioFieldSchema = (
   it: ScenarioFieldSchema
 ): it is CustomScenarioFieldSchema => {
   return it.fieldType === 'customfield'
-}
-
-export interface WithCustomFieldsOptions {
-  /**
-   * 当缺少 CustomField 数据，总会发送请求进行获取
-   */
-  forcePaddingCustomField?: boolean
 }
