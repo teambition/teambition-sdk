@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.56-alpha.5-sfcpaddingcustomfield",
+  "version": "0.12.56-alpha.6-sfcpaddingcustomfield",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
