@@ -5,6 +5,7 @@ import {
   RoleId,
   ScenarioFieldId,
   ScenarioFieldType,
+  TaskRole,
   TaskOfficialScenarioFieldType,
   TestcaseOfficialScenarioFieldType,
 } from 'teambition-types'
@@ -13,7 +14,9 @@ import { CustomFieldSchema } from './CustomField'
 export interface ScenarioFieldSchema<T = ScenarioFieldType> {
   _id: ScenarioFieldId
   fieldType: T
-  _roleIds: RoleId[]
+  _roleIds?: RoleId[] // deprecated
+  allowedRoleIds: RoleId[] | null // 编辑权限白名单，若为 null 代表不限制，任何角色有编辑权限
+  allowedTaskRoles: TaskRole[] // 创建者和执行者编辑权限
   displayed: boolean
   required: boolean
 }

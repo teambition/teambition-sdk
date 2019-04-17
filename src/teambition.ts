@@ -126,6 +126,7 @@ declare module 'teambition-types' {
   export type TaskDivisionType = 'scenariofields' | 'subtasks' | 'links'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = 0 | 1 | 2
+  export type TaskRole = 'executor' | 'creator'
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
     | 'forum'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
