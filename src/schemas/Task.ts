@@ -18,6 +18,7 @@ import { ProjectSchema } from './Project'
 import { SprintSchema } from './Sprint'
 import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
+import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface TaskSchema {
   _id: TaskId
@@ -75,6 +76,7 @@ export interface TaskSchema {
   stage: Pick<StageSchema, '_id' | 'name' | 'order'>
   storyPoint: string
   sprint?: SprintSchema
+  taskflowstatus?: TaskflowStatusSnippet | null
   tasklist?: {
     _id: TasklistId
     title: string
@@ -288,6 +290,15 @@ const schema: SchemaDef<TaskSchema> = {
   },
   tags: {
     type: RDBType.OBJECT
+  },
+  taskflowstatus: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'TaskflowStatus',
+      where: (taskflowStatusTable: any) => ({
+        _taskflowstatusId: taskflowStatusTable._id
+      })
+    }
   },
   tasklist: {
     type: Relationship.oneToOne,
