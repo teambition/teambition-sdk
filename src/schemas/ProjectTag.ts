@@ -15,7 +15,7 @@ export interface ProjectTagSchema {
   name: string
   permissionBinding?: PermissionBinding
   pos: number
-  projectCount: number
+  projectCount?: number // 兼容 withProjectCount = true 的场景，推荐使用 getProjectTagsCount 获取分组项目数量
   projectIds: ProjectId[] // 该分组下的项目的 ids
   strictVisible: boolean // false 时为逆继承可见
   style: string
