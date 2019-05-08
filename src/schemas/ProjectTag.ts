@@ -9,7 +9,6 @@ export interface ProjectTagSchema {
   ancestorIds: ProjectTagId[]
   childProjectIds: ProjectId[] // 该分组子分组（递归）下的项目的 ids
   created: string
-  currentProjectCount?: number
   hasChild: boolean
   isDeleted: boolean
   isStar: boolean
@@ -43,9 +42,6 @@ const schema: SchemaDef<ProjectTagSchema> = {
   },
   created: {
     type: RDBType.DATE_TIME
-  },
-  currentProjectCount: {
-    type: RDBType.NUMBER
   },
   hasChild: {
     type: RDBType.BOOLEAN
