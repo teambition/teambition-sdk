@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.59-alpha.5-currprojcount",
+  "version": "0.12.59-beta.0-ga",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
