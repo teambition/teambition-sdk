@@ -87,6 +87,7 @@ declare module 'teambition-types' {
 // types
 
 declare module 'teambition-types' {
+  export type Actor = 'executor' | 'creator'
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work'
   export type CustomFieldSubtype = 'story' | 'bug'
