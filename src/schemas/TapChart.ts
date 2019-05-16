@@ -6,6 +6,7 @@ import {
   ProjectId,
   TapChartId,
   TapChartName,
+  TapDataSettings,
   TapDimensionType,
   TapSelectSection,
   TapDashboardSection,
@@ -161,6 +162,8 @@ export type TapGraphVisualizationSettingsSet =
 export interface TapChart<T extends FilterRequest | FilterResponse> {
 
   _id: TapChartId
+
+  settings?: TapDataSettings
 
   _projectId: ProjectId
 

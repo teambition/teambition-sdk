@@ -342,9 +342,11 @@ declare module 'teambition-types' {
 
   export type TapSupportedDateSeries = '0to3' | '3to6' | '6to10' | '10to14' | '14plus'
 
+  export type TapSupportedWeekSeries = '1w' | '1to2w' | '2to4w' | '4wplus'
+
   export type TapFilterComponent = 'member' | 'singleSprint' | 'Mixed'
 
-  export type TapSelectSection = 'storypoint' | 'worktime'
+  export type TapSelectSection = 'storypoint' | 'worktime' | 'taskcount' | 'taskpercent'
 
   export type TapDateSeries = 'day' | 'week' | 'month' | 'year'
 
@@ -377,6 +379,13 @@ declare module 'teambition-types' {
     name: string
     choices?: null | TapCustomFieldChoiceItem[]
     op?: TapChartOperator
+  }
+
+  export interface TapDataSettings {
+    timeCycle?: TapDateSeries
+    taskType?: ScenarioFieldConfigId
+    startOfDeliveryCycle?: TaskflowStatusId
+    endOfDeliveryCycle?: TaskflowStatusId
   }
 
   export interface TapGenericFilterRequest {
@@ -417,17 +426,18 @@ declare module 'teambition-types' {
     groupField?: string
     taskflowId?: TaskflowId[]
     taskflowstatusId?: TaskflowStatusId[]
-    dateSeries?: string[]
+    dateSeries?: TapSupportedDateSeries[]
     testplanId?: TestplanId
     accomplished?: string
     created?: string
     startDate?: string
     involveMembers?: UserId[]
     scenariofieldconfigId?: ScenarioFieldConfigId[]
-    tagIds?: string[]
+    tagIds?: TagId[]
     isDue?: boolean
-    proTemplateConfigType?: ScenarioProTemplateConfigType
+    proTemplateConfigType?: ScenarioProTemplateConfigType[]
     isDuedateExist?: boolean
+    weekSeries?: TapSupportedWeekSeries[]
   }
 
   export type TapFilterItem =
@@ -475,10 +485,11 @@ declare module 'teambition-types' {
     | TapFilterTarget<'created', 'datetime', string>
     | TapFilterTarget<'involveMembers', 'string', UserId[]>
     | TapFilterTarget<'scenariofieldconfigId', 'int', ScenarioFieldConfigId[]>
-    | TapFilterTarget<'tagIds', 'string', string>
+    | TapFilterTarget<'tagIds', 'string', TagId[]>
     | TapFilterTarget<'isDue', 'boolean', boolean>
     | TapFilterTarget<'proTemplateConfigType', 'string', ScenarioProTemplateConfigType>
     | TapFilterTarget<'isDuedateExist', 'boolean', boolean>
+    | TapFilterTarget<'weekSeries', 'type/String', TapSupportedWeekSeries[]>
 
   export type TapGenericFilterResponse = TapFilterItem[]
 }
