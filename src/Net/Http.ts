@@ -78,7 +78,11 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
       })
       .catch((e: AjaxError) => {
         const headers = e.xhr.getAllResponseHeaders()
-        const errorResponse = new Response(new Blob([JSON.stringify(e.xhr.response)]), {
+        // 不使用原生 xhr 上的 response（`e.xhr.response`），避免 IE 上的兼容性问题
+        // （IE 11 上不会自动将 responseType 为 json 的 response 解析为对象，而是
+        // 返回字符串）。详见：https://github.com/ReactiveX/rxjs/issues/1381
+        const response = e.response
+        const errorResponse = new Response(new Blob([JSON.stringify(response)]), {
           status: e.xhr.status,
           statusText: e.xhr.statusText,
           headers: headers.length ? parseHeaders(headers) : new Headers()
