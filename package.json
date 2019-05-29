@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.60",
+  "version": "0.12.62-alpha.4-scenariofieldconfigspagesize",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
