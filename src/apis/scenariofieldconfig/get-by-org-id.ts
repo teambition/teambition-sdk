@@ -11,6 +11,7 @@ import {
 import { ApiResult } from '../../Net'
 import { OriginalResponse } from '../../Net/Pagination'
 import { withCustomFields } from './with-custom-fields'
+import { Omit } from '../../utils'
 
 export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
@@ -37,10 +38,15 @@ export function getOrgScenarioFieldConfigsFetch(
   this: SDKFetch,
   organizationId: OrganizationId,
   objectType: ScenarioFieldConfigObjectType,
-  { sort, withCustomfields = true }: GetOrgScenarioFieldConfigsFetchOptions = {}
+  {
+    sort,
+    withCustomfields = true,
+    pageToken,
+    pageSize
+  }: GetOrgScenarioFieldConfigsFetchOptions = {}
 ) {
   const url = `organizations/${organizationId}/scenariofieldconfigs`
-  const query = { sort, withCustomfields, objectType }
+  const query = { sort, withCustomfields, objectType, pageToken, pageSize }
 
   return this.get<OriginalResponse<ScenarioFieldConfigSchema>>(url, query).map(
     (resp) => {
@@ -108,11 +114,14 @@ declare module '../../SDK' {
 
 SDK.prototype.getOrgScenarioFieldConfigs = getOrgScenarioFieldConfigs
 
-export interface GetOrgScenarioFieldConfigsOptions {
-  sort?: string
-}
+export type GetOrgScenarioFieldConfigsOptions = Omit<
+  GetOrgScenarioFieldConfigsFetchOptions,
+  'withCustomfields'
+>
 
 export interface GetOrgScenarioFieldConfigsFetchOptions {
   sort?: string
   withCustomfields?: boolean
+  pageToken?: string
+  pageSize?: string
 }
