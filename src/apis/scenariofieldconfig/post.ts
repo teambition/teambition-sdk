@@ -4,7 +4,8 @@ import {
   ProjectId,
   ScenarioFieldConfigObjectType,
   ScenarioFieldConfigId,
-  OrganizationId
+  OrganizationId,
+  TaskflowId
 } from 'teambition-types'
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
@@ -18,32 +19,36 @@ export function bulkAddScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: 'task',
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function bulkAddScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: 'event',
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ): Observable<EventScenarioFieldConfigSchema[]>
 
 export function bulkAddScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ): Observable<ScenarioFieldConfigSchema[]>
 
 export function bulkAddScenarioFieldConfigsFetch(
   this: SDKFetch,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ) {
   return this.post<ScenarioFieldConfigSchema[]>(
     `projects/${projectId}/scenariofieldconfigs/bulk`,
-    { objectType, scenariofieldconfigIds }
+    { objectType, scenariofieldconfigIds, _taskflowId: taskflowId }
   )
 }
 
@@ -59,28 +64,32 @@ export function bulkAddScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: 'task',
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ): Observable<TaskScenarioFieldConfigSchema[]>
 
 export function bulkAddScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: 'event',
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ): Observable<EventScenarioFieldConfigSchema[]>
 
 export function bulkAddScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ): Observable<ScenarioFieldConfigSchema[]>
 
 export function bulkAddScenarioFieldConfigs(
   this: SDK,
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
-  scenariofieldconfigIds: ScenarioFieldConfigId[]
+  scenariofieldconfigIds: ScenarioFieldConfigId[],
+  taskflowId?: TaskflowId
 ) {
   return this.lift({
     tableName: 'ScenarioFieldConfig',
@@ -88,7 +97,8 @@ export function bulkAddScenarioFieldConfigs(
     request: this.fetch.bulkAddScenarioFieldConfigs(
       projectId,
       objectType,
-      scenariofieldconfigIds
+      scenariofieldconfigIds,
+      taskflowId
     )
   })
 }
