@@ -15,6 +15,7 @@ import {
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { ProjectSchema } from './Project'
+import { ScenarioFieldConfigSchema } from './ScenarioFieldConfig'
 import { SprintSchema } from './Sprint'
 import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
@@ -84,7 +85,8 @@ export interface TaskSchema {
   objectType: 'task'
   type: 'task' // todo(dingwen): deprecate
   isFavorite: boolean,
-  project?: Pick<ProjectSchema, '_id' | 'name'>,
+  project?: Pick<ProjectSchema, '_id' | 'name' | 'uniqueIdPrefix'>,
+  scenariofieldconfig?: Pick<ScenarioFieldConfigSchema, '_id' | 'icon' | 'name'>,
   uniqueId: number
   url: string
   workTime: {
@@ -245,6 +247,15 @@ const schema: SchemaDef<TaskSchema> = {
   },
   reminder: {
     type: RDBType.OBJECT
+  },
+  scenariofieldconfig: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'ScenarioFieldConfig',
+      where: (scenariofieldconfigTable: any) => {
+        return { _scenariofieldconfigId: scenariofieldconfigTable._id }
+      }
+    }
   },
   shareStatus: {
     type: RDBType.NUMBER
