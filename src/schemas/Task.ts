@@ -84,7 +84,7 @@ export interface TaskSchema {
   objectType: 'task'
   type: 'task' // todo(dingwen): deprecate
   isFavorite: boolean,
-  project?: Pick<ProjectSchema, '_id' | 'name'>,
+  project?: Pick<ProjectSchema, '_id' | 'name' | 'uniqueIdPrefix'>,
   uniqueId: number
   url: string
   workTime: {
