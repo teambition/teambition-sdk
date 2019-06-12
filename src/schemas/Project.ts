@@ -26,6 +26,7 @@ export interface ProjectSchema {
   _parendId: ProjectId
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
+  _suspendedId: UserId | null
   _sourceId: ProjectId | null // 从项目模板创建的项目，记录源项目模板的 id
   alien?: AlienType
   applications?: {
@@ -40,6 +41,7 @@ export interface ProjectSchema {
   creator: ExecutorOrCreator
   customfields: CustomFieldValue[]
   description: string
+  dueDate: string | null
   eventsCount: number
   hasOrgRight: number
   hasRight: number
@@ -74,6 +76,9 @@ export interface ProjectSchema {
   shortLink?: string
   sortMethod: TaskSortMethod
   starsCount: number
+  startDate: string | null
+  suspendedAt: string | null
+  suspendedBy: UserSnippet | null
   syncCountsAt: string //  a Date
   tagsCount: number
   taskDefaultInvolvesVisibility: {
@@ -123,6 +128,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   _rootCollectionId: {
     type: RDBType.STRING
   },
+  _suspendedId: {
+    type: RDBType.STRING
+  },
   _sourceId: {
     type: RDBType.STRING
   },
@@ -155,6 +163,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.OBJECT
   },
   description: {
+    type: RDBType.STRING
+  },
+  dueDate: {
     type: RDBType.STRING
   },
   eventsCount: {
@@ -252,6 +263,21 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   starsCount: {
     type: RDBType.NUMBER
+  },
+  startDate: {
+    type: RDBType.STRING
+  },
+  suspendedAt: {
+    type: RDBType.STRING
+  },
+  suspendedBy: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _suspendedId: userTable._id
+      })
+    }
   },
   syncCountsAt: {
     type: RDBType.DATE_TIME
