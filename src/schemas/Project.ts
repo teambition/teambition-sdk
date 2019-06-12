@@ -26,7 +26,7 @@ export interface ProjectSchema {
   _parendId: ProjectId
   _roleId: RoleId | null
   _rootCollectionId: CollectionId
-  _suspendedId: UserId | null
+  _suspendedById: UserId | null
   _sourceId: ProjectId | null // 从项目模板创建的项目，记录源项目模板的 id
   alien?: AlienType
   applications?: {
@@ -41,7 +41,7 @@ export interface ProjectSchema {
   creator: ExecutorOrCreator
   customfields: CustomFieldValue[]
   description: string
-  dueDate: string | null
+  endDate: string | null
   eventsCount: number
   hasOrgRight: number
   hasRight: number
@@ -128,7 +128,7 @@ const Schema: SchemaDef<ProjectSchema> = {
   _rootCollectionId: {
     type: RDBType.STRING
   },
-  _suspendedId: {
+  _suspendedById: {
     type: RDBType.STRING
   },
   _sourceId: {
@@ -165,7 +165,7 @@ const Schema: SchemaDef<ProjectSchema> = {
   description: {
     type: RDBType.STRING
   },
-  dueDate: {
+  endDate: {
     type: RDBType.STRING
   },
   eventsCount: {
@@ -275,7 +275,7 @@ const Schema: SchemaDef<ProjectSchema> = {
     virtual: {
       name: 'User',
       where: (userTable: any) => ({
-        _suspendedId: userTable._id
+        _suspendedById: userTable._id
       })
     }
   },
