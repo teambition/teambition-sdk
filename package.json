@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.63-alpha.14-tapsus",
+  "version": "0.12.62-alpha.14-tapsus",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
