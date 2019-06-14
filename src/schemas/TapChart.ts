@@ -1,4 +1,3 @@
-import { RDBType, SchemaDef } from '../db'
 import { Moment } from 'moment'
 
 import {
@@ -6,6 +5,7 @@ import {
   ProjectId,
   TapChartId,
   TapChartName,
+  TapDataSettings,
   TapDimensionType,
   TapSelectSection,
   TapDashboardSection,
@@ -162,6 +162,8 @@ export interface TapChart<T extends FilterRequest | FilterResponse> {
 
   _id: TapChartId
 
+  settings?: TapDataSettings
+
   _projectId: ProjectId
 
   chartType: TapChoiceChartType
@@ -182,70 +184,9 @@ export interface TapChart<T extends FilterRequest | FilterResponse> {
 
   filter: T
 
+  dynamicFilter?: T
+
   type: 'tdr' | 'udr'
 
   graphData: TapGraphData[]
 }
-
-export const schema: SchemaDef<TapChart<FilterRequest | FilterResponse>> = {
-
-  _id: {
-    type: RDBType.STRING,
-    primaryKey: true
-  },
-
-  _projectId: {
-    type: RDBType.STRING
-  },
-
-  analysis_dimension: {
-    type: RDBType.OBJECT
-  },
-
-  chartType: {
-    type: RDBType.STRING
-  },
-
-  compare_dimension: {
-    type: RDBType.OBJECT
-  },
-
-  desc: {
-    type: RDBType.STRING
-  },
-
-  exhibit: {
-    type: RDBType.STRING
-  },
-
-  filter: {
-    type: RDBType.OBJECT
-  },
-
-  graphData: {
-    type: RDBType.OBJECT
-  },
-
-  name: {
-    type: RDBType.STRING
-  },
-
-  type: {
-    type: RDBType.STRING
-  },
-
-  report: {
-    type: RDBType.STRING
-  },
-
-  selectedSection: {
-    type: RDBType.STRING
-  },
-
-  sections: {
-    type: RDBType.OBJECT
-  }
-
-}
-
-// schemaColl.add({ schema, name: 'TapChart' })
