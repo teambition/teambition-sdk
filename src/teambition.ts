@@ -141,7 +141,48 @@ declare module 'teambition-types' {
   export type TestcaseType = 'function' | 'performance' | 'config' | 'deployment' | 'security' | 'api' | 'other'
   export type UserLevel = -2 | -1 | 0 | 1 | 2
   export type VisibleOption = 'members' | 'involves'
-  export type TapChartName = string & { kind: 'TapChartName' }
+  export type TapChartName =
+    // udr start
+    | 'custom'
+    | 'executordistributiontasks'
+    | 'prioritydistributiontasks'
+    | 'groupdonetasks'
+    | 'donetasks'
+    | 'periodcompletetasks'
+    | 'executortasks'
+    | 'executordonetasks'
+    | 'executorduetasks'
+    | 'sprintdistributionbugs'
+    | 'executordistributionbugs'
+    | 'creatordistributionbugs'
+    | 'prioritydistributionbugs'
+    | 'taskstatusistributionbugs'
+    | 'executortaskstatusbugs'
+    // udr end & tdr start
+    | 'overview_report'
+    | 'scrum_sprint_taskflow'
+    | 'general_project_burndown'
+    | 'general_project_trend'
+    | 'worktime_task'
+    | 'delivery_cycle'
+    | 'scrum_sprint_burndown'
+    | 'scrum_sprint_burnup'
+    | 'scrum_sprint_analysis'
+    | 'scrum_team_speed'
+    | 'scrum_bug_age_report'
+    | 'scrum_bug_trend'
+    | 'scrum_bug_accumulative_trend'
+    | 'all_testcase_status_distribution'
+    | 'all_testcase_trend'
+    // 概览预览支持的 chartName
+    | 'total'
+    | 'done_detail'
+    | 'undone_detail'
+    | 'overdue_detail'
+    | 'unassigned_detail'
+    | 'ontimedone_detail'
+    | 'duetoday_detail'
+    | 'overduedone_detail'
 }
 
 declare module 'teambition-types' {
