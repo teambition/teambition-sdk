@@ -9,6 +9,7 @@ import {
   TaskSortMethod,
   TaskflowId,
   UserId,
+  ScenarioFieldConfigId,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -27,7 +28,7 @@ export interface SmartGroupSchema {
     type: SmartGroupViewType
     vertical?: BoardAxisType
     horizontal?: BoardAxisType
-    _verticalId?: TaskflowId
+    _verticalId?: TaskflowId | ScenarioFieldConfigId
     _horizontalId?: TaskflowId
   },
   orderBy?: TaskSortMethod
