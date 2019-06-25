@@ -7,6 +7,7 @@ import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
+import { getStatusText } from 'http-status-codes'
 import { testable } from '../testable'
 import { forEach, isNonNullable, parseHeaders } from '../utils'
 
@@ -70,10 +71,23 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
     })
       .map(value => {
         const respBody = value.response
+        const respXHR = value.xhr
+        const respHeaders = parseHeaders(respXHR.getAllResponseHeaders())
+        const realStatusCode = Number(respHeaders.get('x-http-status')) || respXHR.status
+        if (realStatusCode >= 400) {
+          Object.defineProperties(respXHR, {
+            'status': { value: realStatusCode },
+            'statusText': { value: getStatusText(realStatusCode) || 'error' }
+          })
+          throw new AjaxError(
+            'ajax error',
+            respXHR,
+            value.request
+          )
+        }
         if (!includeHeaders) {
           return respBody
         }
-        const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
         return { headers: respHeaders, body: respBody }
       })
       .catch((e: AjaxError) => {
@@ -101,10 +115,15 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
       let headers: Headers
       fetch(url, _options)
         .then((response: Response): Promise<string> => {
-          if (response.status >= 200 && response.status < 400) {
+          const realStatusCode = Number(response.headers.get('x-http-status')) || response.status
+          if (realStatusCode >= 200 && realStatusCode < 400) {
             headers = response.headers
             return response.text()
           } else {
+            Object.defineProperties(response, {
+              'status': { value: realStatusCode },
+              'statusText': { value: getStatusText(realStatusCode) || 'error ' }
+            })
             throw response
           }
         })
