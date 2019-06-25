@@ -119,6 +119,7 @@ declare module 'teambition-types' {
   export type SmartGroupType = 'custom' | 'story' | 'sprint' | 'bug' | 'story.custom' | 'bug.custom' | 'sprint.custom'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban' | 'list'
   export type TaskSortMethod = 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'startdate_desc' | 'custom'
+    | 'updated_asc' | 'updated_desc'
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
     | 'taskType' | 'rating' | 'storyPoint'
   export type BoardAxisType = 'iterationSprint' | 'priority' | 'stage' | 'taskflowStatus' | 'taskflow' | 'scenarioConfig' | 'scenarioConfigStatus'
