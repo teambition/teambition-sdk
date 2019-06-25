@@ -1,10 +1,10 @@
 /// <reference path="./teambition.ts" />
 import 'tslib'
 
-import { forEach, clone, uuid, concat, dropEle, hasMorePages, pagination, eventToRE } from './utils'
+import { forEach, clone, uuid, concat, dropEle, hasMorePages, pagination, eventToRE, parseHeaders } from './utils'
 
 export { hasMorePages, pagination }
-export const Utils = { forEach, clone, uuid, concat, dropEle }
+export const Utils = { forEach, clone, uuid, concat, dropEle, parseHeaders }
 export { eventParser } from './sockets/EventParser'
 
 // export apis
