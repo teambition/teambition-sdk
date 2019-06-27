@@ -7,7 +7,6 @@ import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
-import { getStatusText } from 'http-status-codes'
 import { testable } from '../testable'
 import { forEach, isNonNullable, parseHeaders } from '../utils'
 
@@ -75,10 +74,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
         const respHeaders = parseHeaders(respXHR.getAllResponseHeaders())
         const realStatusCode = Number(respHeaders.get('x-http-status')) || respXHR.status
         if (realStatusCode >= 400) {
-          Object.defineProperties(respXHR, {
-            'status': { value: realStatusCode },
-            'statusText': { value: getStatusText(realStatusCode) || 'error' }
-          })
+          Object.defineProperty(respXHR, 'status', { value: realStatusCode })
           throw new AjaxError(
             'ajax error',
             respXHR,
@@ -120,10 +116,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
             headers = response.headers
             return response.text()
           } else {
-            Object.defineProperties(response, {
-              'status': { value: realStatusCode },
-              'statusText': { value: getStatusText(realStatusCode) || 'error ' }
-            })
+            Object.defineProperty(response, 'status', { value: realStatusCode })
             throw response
           }
         })
