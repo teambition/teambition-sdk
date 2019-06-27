@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.61",
+  "version": "0.12.63-alpha.16-alihttperr",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
