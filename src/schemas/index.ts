@@ -75,6 +75,8 @@ import './CustomField'
 export * from './CustomField'
 import './CustomFieldCategory'
 export * from './CustomFieldCategory'
+// import './CustomFieldEntity' // 目前不需建表
+export * from './CustomFieldEntity'
 // import './CustomFieldChoice' // 目前不需建表
 export * from './CustomFieldChoice'
 import './CustomFieldLink'
