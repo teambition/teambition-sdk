@@ -23,6 +23,7 @@ declare module 'teambition-types' {
   export type CommonGroupId = string & { kind: 'CommonGroupId' }
   export type CustomFieldCategoryId = string & { kind: 'CustomFieldCategoryId' }
   export type CustomFieldChoiceId = string & { kind: 'CustomFieldChoiceId' }
+  export type CustomFieldEntityId = string & { kind: 'CustomFieldEntityId' }
   export type CustomFieldId = string & { kind: 'CustomFieldId' }
   export type CustomFieldLinkId = string & { kind: 'CustomFieldLinkId' }
   export type CustomFieldValueId = string & { kind: 'CustomFieldValueId' }
