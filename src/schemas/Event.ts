@@ -4,6 +4,7 @@ import {
   VisibleOption,
   EventId,
   UserId,
+  OrganizationId,
   ProjectId,
   TagId,
   ExecutorOrCreator,
@@ -17,7 +18,7 @@ export interface EventSchema {
   attachmentsCount: number
   title: string
   creator: ExecutorOrCreator
-  involvers: any
+  involvers: ExecutorOrCreator[]
   content: string
   commentsCount: number
   location: string
@@ -26,7 +27,13 @@ export interface EventSchema {
   untilDate: string
   isAllDay: boolean
   involveMembers: UserId[]
-  _projectId: ProjectId
+  /**
+   * todo(dingwen): 定义为 _organizationId?: OrganizationId 更准确，
+   * 因为目前并没有 null 值的情况。目前的写法是为了保持与 TaskSchema 一致，
+   * 之后一起修改。
+   */
+  _organizationId: OrganizationId | null
+  _projectId: ProjectId | null
   _scenariofieldconfigId?: ScenarioFieldConfigId
   _sourceId: EventId
   sourceDate: string
@@ -45,7 +52,7 @@ export interface EventSchema {
   isFavorite: boolean
   objectlinksCount: number
   likesCount: number
-  project: {
+  project?: {
     _id: ProjectId
     name: string
   }
@@ -66,6 +73,9 @@ const schema: SchemaDef<EventSchema> = {
   _id: {
     type: RDBType.STRING,
     primaryKey: true
+  },
+  _organizationId: {
+    type: RDBType.STRING
   },
   _projectId: {
     type: RDBType.STRING
