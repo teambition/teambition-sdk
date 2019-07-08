@@ -4,6 +4,7 @@ import {
   VisibleOption,
   EventId,
   UserId,
+  OrganizationId,
   ProjectId,
   TagId,
   ExecutorOrCreator,
@@ -17,7 +18,7 @@ export interface EventSchema {
   attachmentsCount: number
   title: string
   creator: ExecutorOrCreator
-  involvers: any
+  involvers: ExecutorOrCreator[]
   content: string
   commentsCount: number
   location: string
@@ -26,7 +27,8 @@ export interface EventSchema {
   untilDate: string
   isAllDay: boolean
   involveMembers: UserId[]
-  _projectId: ProjectId
+  _organizationId: OrganizationId | null
+  _projectId: ProjectId | null
   _scenariofieldconfigId?: ScenarioFieldConfigId
   _sourceId: EventId
   sourceDate: string
@@ -45,7 +47,7 @@ export interface EventSchema {
   isFavorite: boolean
   objectlinksCount: number
   likesCount: number
-  project: {
+  project?: {
     _id: ProjectId
     name: string
   }
@@ -74,6 +76,9 @@ const schema: SchemaDef<EventSchema> = {
     type: RDBType.STRING
   },
   _sourceId: {
+    type: RDBType.STRING
+  },
+  _organizationId: {
     type: RDBType.STRING
   },
   attachmentsCount: {
