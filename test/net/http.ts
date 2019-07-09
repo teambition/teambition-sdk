@@ -179,6 +179,35 @@ export default describe('net/http', () => {
     })
   })
 
+  allowedMethods.forEach(httpMethod => {
+    [400, 401, 403, 404, 500].forEach(status => {
+      it(`should handle ${status} status for ${httpMethod} with x-http-status header`, function* () {
+        const responseData = {
+          body: { test: 'test' },
+          method: httpMethod,
+          status: 200,
+          headers: {
+            'X-Http-Status': status,
+          }
+        }
+        const body = { body: 'body' }
+        fetchMock.mock(url, responseData)
+        yield fetchInstance[httpMethod](path, httpMethod === 'get' ? null : body)
+          .send()
+          .catch((res: HttpErrorMessage) => {
+            if (fetchMock.lastOptions()) {
+              expect(fetchMock.lastOptions().method).to.equal(httpMethod)
+            }
+            expect(res.error.status).to.equal(status)
+            expect(res.method).to.equal(httpMethod)
+            expect(res.url).to.equal(url)
+            return Observable.empty()
+          })
+          .subscribeOn(Scheduler.asap)
+      })
+    })
+  })
+
   it('should emit usable same error message at both original$ and errorAdaptor$', function* () {
     const status = 429
     const body = { text: 'busy' }

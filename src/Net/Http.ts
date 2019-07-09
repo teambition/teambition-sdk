@@ -53,6 +53,24 @@ const coverRxAjaxHeadersBug = (normHeaders: {}) => {
   })
 }
 
+/**
+ * 检查 respHeaders 里是否有 x-http-status 字段可用，如果有，
+ * 优先使用其值作为上层应用需要的 status。
+ *
+ * 注意：会对传入的 resp 参数有副作用，可能会改变其内的
+ * status 字段对应值。
+ */
+const normResponseStatus = (resp: Response | XMLHttpRequest, respHeaders: Headers) => {
+  // respXHR.status 放到 Number 里面
+  // 保证当 x-http-status 为 '0'(truthy) 时，表达式结果仍以 x-http-status 为准
+  const realStatusCode = Number(respHeaders.get('x-http-status') || resp.status)
+  if (realStatusCode >= 400 && realStatusCode !== resp.status) {
+    // 因为标准中 XHR 对象的 status 值是只读的，
+    // 这里使用 Object.defineProperty 来强制修改 status 为实际值。
+    Object.defineProperty(resp, 'status', { value: realStatusCode })
+  }
+}
+
 export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
 
 export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): Observable<any> => {
@@ -70,10 +88,19 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
     })
       .map(value => {
         const respBody = value.response
+        const respXHR = value.xhr
+        const respHeaders = parseHeaders(respXHR.getAllResponseHeaders())
+        normResponseStatus(respXHR, respHeaders) // note: 对 respXHR 有副作用
+        if (respXHR.status >= 400) {
+          throw new AjaxError(
+            `ajax error ${ respXHR.status }`,
+            respXHR,
+            value.request
+          )
+        }
         if (!includeHeaders) {
           return respBody
         }
-        const respHeaders = parseHeaders(value.xhr.getAllResponseHeaders())
         return { headers: respHeaders, body: respBody }
       })
       .catch((e: AjaxError) => {
@@ -101,6 +128,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
       let headers: Headers
       fetch(url, _options)
         .then((response: Response): Promise<string> => {
+          normResponseStatus(response, response.headers) // note: 对 response 有副作用
           if (response.status >= 200 && response.status < 400) {
             headers = response.headers
             return response.text()
