@@ -28,7 +28,7 @@ export interface SmartGroupSchema {
     type: SmartGroupViewType
     vertical?: BoardAxisType
     horizontal?: BoardAxisType
-    _verticalId?: TaskflowId | ScenarioFieldConfigId
+    _verticalIds?: ScenarioFieldConfigId[]
     _horizontalId?: TaskflowId
   },
   orderBy?: TaskSortMethod
