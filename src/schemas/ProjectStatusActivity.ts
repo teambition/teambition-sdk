@@ -8,7 +8,7 @@ export interface ProjectStatusActivitySchema {
   action: string
   boundToObjectType: string
   canRecall: boolean
-  content: { content: string; degree: ProjectStatusDegree }
+  content: { content: string; degree: ProjectStatusDegree; name: string }
   created: string
   creator: UserSnippet
   isDeleted: boolean
