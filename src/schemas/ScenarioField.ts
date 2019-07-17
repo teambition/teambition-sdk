@@ -1,7 +1,6 @@
 import {
   Actor,
   CustomFieldId,
-  CustomFieldEntityId,
   CustomScenarioFieldType,
   EventOfficialScenarioFieldType,
   RoleId,
@@ -11,7 +10,6 @@ import {
   TestcaseOfficialScenarioFieldType,
 } from 'teambition-types'
 import { CustomFieldSchema } from './CustomField'
-import { CustomFieldEntitySchema } from './CustomFieldEntity'
 
 export interface ScenarioFieldSchema<T = ScenarioFieldType> {
   _id: ScenarioFieldId
@@ -30,9 +28,7 @@ export interface NoteScenarioFieldSchema extends ScenarioFieldSchema {
 
 export interface CustomScenarioFieldSchema extends ScenarioFieldSchema<CustomScenarioFieldType> {
   _customfieldId: CustomFieldId
-  _customfieldentityId?: CustomFieldEntityId // 自定义字段添加副本前的场景字段上不存在此字段
   customfield?: CustomFieldSchema | null // 返回 null 表示该字段不存在已经被删了
-  customfieldentity?: CustomFieldEntitySchema
 }
 
 export type TaskScenarioFieldSchema =
