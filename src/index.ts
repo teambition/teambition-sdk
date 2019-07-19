@@ -26,4 +26,6 @@ export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$, Page } from './
 
 export { Database, ExecutorResult, QueryToken, OrderDescription, Query, Predicate } from './db'
 
+export { GraphQLQuery, GraphQLMeta, GraphQLVariables, GraphQLResult } from './utils'
+
 // export const SocketClient: Client = sdk.socket
