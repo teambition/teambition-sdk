@@ -77,6 +77,12 @@ export interface ProjectSchema {
   sortMethod: TaskSortMethod
   starsCount: number
   startDate: string | null
+  statusDegree: {
+    name?: string
+    content?: string
+    degree?: 'normal' | 'risky' | 'urgent'
+    updated: string
+  }
   suspendedAt: string | null
   suspendedBy?: UserSnippet | null // 有可能不存在
   syncCountsAt: string //  a Date
@@ -266,6 +272,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   startDate: {
     type: RDBType.STRING
+  },
+  statusDegree: {
+    type: RDBType.OBJECT
   },
   suspendedAt: {
     type: RDBType.STRING
