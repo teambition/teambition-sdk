@@ -1,24 +1,25 @@
-import { ProjectTemplateId, UserId, OrganizationId, ExecutorOrCreator } from 'teambition-types'
+import { ProjectTemplateId, UserId, OrganizationId, ExecutorOrCreator, ProjectTemplateVisibleOption } from 'teambition-types'
 
 export interface ProjectTemplateSchema {
+  _creatorId: UserId
   _id: ProjectTemplateId
   _organizationId?: OrganizationId | null
-
-  _creatorId: UserId
-  creator?: ExecutorOrCreator
-
-  name: string
-  logo: string
-  lang?: string
-  description: string
-
   banners: string[]
   categories: string[]
-  subtype?: string[]
-
-  isDemo: boolean
-  isDeleted: boolean
-
   created: string
+  creator?: ExecutorOrCreator
+  description: string
+  isDeleted: boolean
+  isDemo: boolean
+  isDraft: boolean
+  isPro?: boolean
+  lang?: string
+  logo: string
+  name: string
+  permissionBinding?: {
+    permissions: string[]
+  }
+  subtype?: string[]
   updated: string
+  visible: ProjectTemplateVisibleOption
 }
