@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.63",
+  "version": "0.12.65-alpha.1-ptemp",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
