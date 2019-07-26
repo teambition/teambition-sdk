@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.64",
+  "version": "0.12.65-alpha.3-smartgroupviewtasklayer",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
