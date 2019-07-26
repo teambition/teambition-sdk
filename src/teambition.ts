@@ -120,6 +120,7 @@ declare module 'teambition-types' {
   export type SmartGroupPredefinedIcon = 'taskToday' | 'taskUndone' | 'taskDone' | 'taskNotAssigned' | 'taskMyExecuted'
   export type SmartGroupType = 'custom' | 'story' | 'sprint' | 'bug' | 'story.custom' | 'bug.custom' | 'sprint.custom'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban' | 'list'
+  export type SmartGroupViewTaskLayer = 'all' | 'onlyTopLevel' | 'exceptTopLevel'
   export type TaskSortMethod = 'duedate' | 'priority' | 'created_asc' | 'created_desc' | 'startdate' | 'startdate_desc' | 'custom'
     | 'updated_asc' | 'updated_desc'
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
