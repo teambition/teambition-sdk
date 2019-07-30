@@ -97,8 +97,8 @@ export interface ProjectSchema {
   updated: string
   visibility: 'project' | 'organization' | 'all'
   worksCount: number
-  proTemplateType?: 'scrum'
-  normalType: 'taskflow' | null
+  proTemplateType?: string // 如 'scrum'
+  normalType: string /*如 'taskflow'*/ | null
   windowModeOfAddTask: 'large' | 'default'
 }
 
