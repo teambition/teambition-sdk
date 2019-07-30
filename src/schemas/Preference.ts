@@ -27,7 +27,7 @@ export interface PreferenceSchema {
   notification: Record<string, Partial<Record<'email' | 'mobile', boolean>>>
   emails: Record<string, boolean>
   lastNoticeDate?: string
-  lastWorkspace: 'personal' | OrganizationId
+  lastWorkspace: OrganizationId
   myTaskExecuteSort: string
   myTaskInvolvesSort: string
   myTaskCreatedSort: string
