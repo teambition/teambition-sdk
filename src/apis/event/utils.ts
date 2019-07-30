@@ -29,21 +29,23 @@ export const isAllDay = (e: Readonly<EventSchema>): boolean => {
 
 const msPerDay = 24 * 60 * 60 * 1000
 
-// epoch time in current time zone
-const epochTime = new Date(1970, 0, 1).valueOf()
-
 /**
  * LEGACY 全天日程的定义：开始时间为零点，结束时间为第二天零点，或
  * 接下来第 n 天零点，的日程。
  * 注意：零点判断根据当地时区得。
  */
 export function isAllDayLegacy(e: Readonly<EventSchema>): boolean {
-  const startTime = new Date(e.startDate).valueOf()
+  const startDate = new Date(e.startDate)
+  const startAtZeroOClock = startDate.getHours() === 0
+    && startDate.getMinutes() === 0
+    && startDate.getSeconds() === 0
+    && startDate.getMilliseconds() === 0
 
-  if ((startTime - epochTime) % msPerDay !== 0) {
+  if (!startAtZeroOClock) {
     return false
   }
 
+  const startTime = startDate.valueOf()
   const duration = new Date(e.endDate).valueOf() - startTime
 
   return duration > 0 && duration % msPerDay === 0
