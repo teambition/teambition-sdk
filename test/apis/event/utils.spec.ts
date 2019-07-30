@@ -108,15 +108,15 @@ describe('Event-related util functions', () => {
   })
 
   it(`${e.dateToTime.name}() takes date info from input string, and returns zero o'clock of the date in current timezone in string`, () => {
-    const expected = '2017-11-30T05:00:00.000Z'
+    const expected = '2017-11-30T06:00:00.000Z'
     expect(e.dateToTime('2017-11-30')).to.equal(expected)
     expect(e.dateToTime('2017-11-30T00:00:00Z')).to.equal(expected)
     expect(e.dateToTime('2017-11-30T02:58:09.293Z')).to.equal(expected)
   })
 
   it(`${e.timeToDate.name}() takes from input string the date info as interpreted in current timezone, and returns it as 'YYYY-MM-DD'`, () => {
-    expect(e.timeToDate('2017-11-30T05:00:00Z')).to.equal('2017-11-30')
-    expect(e.timeToDate('2017-11-30T04:59:59Z')).to.equal('2017-11-29')
+    expect(e.timeToDate('2017-11-30T06:00:00Z')).to.equal('2017-11-30')
+    expect(e.timeToDate('2017-11-30T05:59:59Z')).to.equal('2017-11-29')
   })
 
   it('normFromAllDayAttrs() should return orginal startDate/endDate for object without allday info', () => {
@@ -246,8 +246,8 @@ describe('normalization of allday attrs with recurrence', () => {
     normedAllDay = {
       isAllDay: true,
       recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171221T050000Z;UNTIL=20171231T050000Z',
-        'EXDATE:20171225T050000Z,20171226T050000Z'
+        'RRULE:FREQ=DAILY;DTSTART=20171221T060000Z;UNTIL=20171231T060000Z',
+        'EXDATE:20171225T060000Z,20171226T060000Z'
       ]
     }
     rawNonAllDay = {
@@ -270,8 +270,8 @@ describe('normalization of allday attrs with recurrence', () => {
     expect(e.normFromAllDayAttrs(rawAllDay)).to.deep.equal({
       isAllDay: true,
       recurrence: [
-        'RRULE:FREQ=DAILY;DTSTART=20171221T050000Z;UNTIL=20171231T050000Z',
-        'EXDATE:20171225T050000Z,20171226T050000Z'
+        'RRULE:FREQ=DAILY;DTSTART=20171221T060000Z;UNTIL=20171231T060000Z',
+        'EXDATE:20171225T060000Z,20171226T060000Z'
       ]
     })
   })

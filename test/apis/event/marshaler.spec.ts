@@ -92,8 +92,8 @@ describe('Event API interface spec', () => {
     }
     const event2 = {
       isAllDay: true,
-      startDate: '2018-01-07T05:00:00.000Z',
-      endDate: '2018-01-08T05:00:00.000Z',
+      startDate: '2018-01-07T06:00:00.000Z',
+      endDate: '2018-01-08T06:00:00.000Z',
       title: 'allday'
     }
     const patch2 = { ...patch1, isAllDay: false }
@@ -111,8 +111,8 @@ describe('Event API interface spec', () => {
   \tif patch.isAllDay === true`, () => {
     const event1 = {
       isAllDay: true,
-      startDate: '2018-01-07T05:00:00.000Z',
-      endDate: '2018-01-08T05:00:00.000Z',
+      startDate: '2018-01-07T06:00:00.000Z',
+      endDate: '2018-01-08T06:00:00.000Z',
       title: 'allday'
     }
     const patch1 = {
@@ -170,8 +170,8 @@ describe('Event API interface spec', () => {
   it(`${marshaler.deparse.name}() adds back allDayStart/allDayEnd and drops startDate/endDate for allday model`, () => {
     const model = {
       isAllDay: true,
-      startDate: '2018-01-07T05:00:00.000Z',
-      endDate: '2018-01-08T05:00:00.000Z',
+      startDate: '2018-01-07T06:00:00.000Z',
+      endDate: '2018-01-08T06:00:00.000Z',
       title: 'allday'
     }
     const deparsed = marshaler.deparse(model as any)
@@ -193,7 +193,7 @@ describe('Event API interface spec', () => {
     const nonAllDayEvent = parsedResponse
     const nonAllDayPatch = { endDate: '2018-01-08T07:30:00.000Z' }
     const allDayEvent = { ...nonAllDayEvent, isAllDay: true, title: 'allday' }
-    const allDayPatch = { endDate: '2018-01-08T05:00:00.000Z' }
+    const allDayPatch = { endDate: '2018-01-08T06:00:00.000Z' }
     const sampleData = [[nonAllDayEvent, nonAllDayPatch], [allDayEvent, allDayPatch]]
 
     sampleData.forEach(([event, patch]) => {
@@ -220,8 +220,8 @@ describe('Event API interface spec', () => {
     }
     const event2 = {
       isAllDay: true,
-      startDate: '2018-01-07T05:00:00.000Z',
-      endDate: '2018-01-08T05:00:00.000Z',
+      startDate: '2018-01-07T06:00:00.000Z',
+      endDate: '2018-01-08T06:00:00.000Z',
       title: 'allday'
     }
     const patch2 = { ...patch1, isAllDay: false }
@@ -239,13 +239,13 @@ describe('Event API interface spec', () => {
   \tif patch.isAllDay ===true`, () => {
     const event1 = {
       isAllDay: true,
-      startDate: '2018-01-07T05:00:00.000Z',
-      endDate: '2018-01-08T05:00:00.000Z',
+      startDate: '2018-01-07T06:00:00.000Z',
+      endDate: '2018-01-08T06:00:00.000Z',
       title: 'allday'
     }
     const patch1 = {
-      startDate: '2018-01-08T05:00:00.000Z',
-      endDate: '2018-01-09T05:00:00.000Z'
+      startDate: '2018-01-08T06:00:00.000Z',
+      endDate: '2018-01-09T06:00:00.000Z'
     }
     const event2 = {
       isAllDay: false,
