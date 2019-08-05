@@ -1,5 +1,6 @@
 import { describe, beforeEach, afterEach, it } from 'tman'
 import { expect } from 'chai'
+import { Observable, Subscription } from 'rxjs'
 import {
   createSdkWithoutRDB,
   loadRDB,
@@ -16,6 +17,7 @@ import userMe from '../fixtures/user.fixture'
 import { task } from '../fixtures/tasks.fixture'
 import * as myFixture from '../fixtures/my.fixture'
 import { EventGenerator } from '../../src/apis/event/EventGenerator'
+import { CacheStrategy } from '../../src'
 
 import { mock, restore, equals, expectToDeepEqualForFieldsOfTheExpected } from '../utils'
 
@@ -212,6 +214,67 @@ describe('Async load reactivedb Spec', () => {
         yield sdk.database.get('Post', { where: { _id: fixture._id } })
           .values()
           .do((r) => equals(r, [fixture]))
+      })
+    })
+
+    describe('ProxySelector spec when reactivedb async load in', () => {
+
+      let proxySelectorSubs: Subscription
+
+      afterEach(() => {
+        proxySelectorSubs.unsubscribe()
+      })
+
+      it('proxySelector$ should end mirroring selector$', function* () {
+        let selectorNexted: boolean
+        let completed: boolean = false
+        proxySelectorSubs = sdk.lift({
+          request: Observable.of(projectPosts),
+          cacheValidate: CacheStrategy.Cache,
+          tableName: 'Post',
+          query: { where: {} }
+        })
+          .selector$
+          .do({
+            next: () => {
+              selectorNexted = true
+            },
+            complete: () => {
+              completed = true
+            }
+          })
+          .subscribe()
+
+        // 在 rdb 被载入之前，selector$ 会先推出一个 proxySelector,
+        // 这里重置为 false，确保最终检查的值代表 rdb 被载入之后，
+        // 推出了正式的 selector。
+        selectorNexted = false
+
+        yield loadRDB(sdk)
+
+        expect(selectorNexted).to.equal(true)
+        expect(completed).to.be.true
+      })
+
+      it('proxySelector$ should end mirroring selector$ when it errors', function* () {
+        let errored: boolean = false
+        proxySelectorSubs = sdk.lift({
+          request: Observable.throw(new Error('request fail')),
+          cacheValidate: CacheStrategy.Cache,
+          tableName: 'Post',
+          query: { where: {} }
+        })
+          .selector$
+          .catch(() => {
+            errored = true
+            return Observable.empty()
+          })
+          .subscribe()
+
+        yield loadRDB(sdk)
+          .catch(() => Observable.empty()) // 避免抛错导致干扰测试
+
+        expect(errored).to.be.true
       })
     })
 
