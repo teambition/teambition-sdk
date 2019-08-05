@@ -288,9 +288,9 @@ export class Net {
 
           p = selector$
             .do({
-              next(selector) {
-                cacheControl$.next(selector)
-              }
+              next: (selector) => cacheControl$.next(selector),
+              complete: () => cacheControl$.complete(),
+              error: (err) => cacheControl$.error(err)
             })
           break
         default:
@@ -305,9 +305,9 @@ export class Net {
     this.persistedDataBuffer.length = 0
 
     return Observable.from(asyncQueue).concatAll().do({
-      error: async (err: Observable<Error>) => {
-        const errObj = await err.toPromise()
-        SDKLogger.error(errObj.message)
+      error: (err) => {
+        const errmsg = err && err.message || String(err)
+        SDKLogger.error(errmsg)
       }
     })
   }
