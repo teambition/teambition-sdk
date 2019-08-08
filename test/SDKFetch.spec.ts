@@ -170,7 +170,23 @@ describe('SDKFetch', () => {
       })
   })
 
-  it('shouldn not re-use a matching request A if A is in finished', function* () {
+  it('should re-use a matching request A even if subscriber count has dropped to zero previously', function* () {
+    fetchMock.mock(urlMatcher, Observable.of({ body: { 'A': 'aaaa' } }).delay(10).toPromise())
+
+    const getA = sdkFetch.get(path, { value: 'A' })
+    const getANext = sdkFetch.get(path, { value: 'A' })
+
+    yield Observable.from([ getA, getANext ], Scheduler.asap)
+      .switch() // 确保 getA 的订阅与 getANext 的订阅在时间上是隔离的，
+                // 也就是在 getANext 被订阅前，请求源的订阅数降到了 0
+      .do((response) => {
+        expect(response).to.deep.equal({ 'A': 'aaaa' })
+      })
+
+    expect(fetchMock.calls(urlMatcher).length).to.equal(1)
+  })
+
+  it('should not re-use a matching request A if A is finished', function* () {
     fetchMock.mock(urlMatcher, { body: { 'A': 'aaaa' } })
 
     const getA = sdkFetch.get(path, { value: 'A' })
@@ -180,10 +196,7 @@ describe('SDKFetch', () => {
       .take(3)
       .subscribeOn(Scheduler.asap)
 
-    yield Observable.of(fetchMock.calls(urlMatcher).length)
-      .do((numberOfRequestsReceived) => {
-        expect(numberOfRequestsReceived).to.equal(2)
-      })
+    expect(fetchMock.calls(urlMatcher).length).to.equal(2)
   })
 
   it('should only apply `Http` object `mapFn`(internal-use only) once for each request sent', function* () {
