@@ -2,7 +2,7 @@ import 'rxjs/add/observable/defer'
 import 'rxjs/add/observable/throw'
 import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/publishReplay'
+import 'rxjs/add/operator/shareReplay'
 import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
@@ -119,8 +119,7 @@ export class SDKFetch {
       const tail = SDKFetch.fetchTail || Date.now()
       const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
       dist = Observable.defer(() => http.setUrl(urlWithTail).get()['request'])
-        .publishReplay<any>(1)
-        .refCount()
+        .shareReplay<any>(1)
         .finally(() => {
           SDKFetch.FetchStack.delete(urlWithQuery)
         })
