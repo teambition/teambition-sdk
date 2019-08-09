@@ -93,6 +93,197 @@ describe('SDKFetch setters and getters', () => {
   })
 })
 
+describe('Batch service', () => {
+
+  let sdkFetch: SDKFetch
+
+  const batchMap = {
+    'projects': 'projects/bulk',
+    'tasks': 'tasks/bulk'
+  }
+
+  const pathGetter = (resource: string) => batchMap[resource]
+  const pathAdaptor = (p: string, query?: { _id: string }) => {
+    const regex = /^([^\/]*)(\/([a-z0-9]{24}))?$/
+    const match = regex.exec(p)
+
+    return match && {
+      resource: match[1],
+      id: query && query._id || match[3]
+    }
+  }
+
+  beforeEach(() => {
+    sdkFetch = new SDKFetch()
+  })
+
+  afterEach(() => {
+    fetchMock.restore()
+  })
+
+  it('multiple request of same resource should batch', function* () {
+    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { defaultBufferTime: 1 } })
+    const projectSingle = 'projects'
+    const [data1, data2, data3] = [{
+      _id: '1', name: '111'
+    }, {
+      _id: '2', name: '222'
+    }, {
+      _id: '3', name: '333'
+    }]
+
+    const taskSingle = 'tasks'
+    const [data4, data5, data6] = [{
+      _id: '4', name: '444'
+    }, {
+      _id: '5', name: '555'
+    }, {
+      _id: '6', name: '666'
+    }]
+
+    fetchMock.get(new RegExp(projectSingle), { result: [data1, data2, data3] }, { query: { _ids: ['1', '2', '3'] } })
+    fetchMock.get(new RegExp(taskSingle), { result: [data4, data5, data6] }, { query: { _ids: ['1', '2', '3'] } })
+
+    const options = { batch: true }
+
+    yield Observable.forkJoin(
+      sdkFetch.get(projectSingle, { _id: '1' }, options).do(res => expect(res).to.deep.equal(data1)),
+      sdkFetch.get(projectSingle, { _id: '2' }, options).do(res => expect(res).to.deep.equal(data2)),
+      sdkFetch.get(projectSingle, { _id: '3' }, options).do(res => expect(res).to.deep.equal(data3)),
+      sdkFetch.get(taskSingle, { _id: '4' }, options).do(res => expect(res).to.deep.equal(data4)),
+      sdkFetch.get(taskSingle, { _id: '5' }, options).do(res => expect(res).to.deep.equal(data5)),
+      sdkFetch.get(taskSingle, { _id: '6' }, options).do(res => expect(res).to.deep.equal(data6)),
+    ).subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(fetchMock.calls().matched.length).to.equal(2)
+      })
+  })
+
+  it('with headers options should work', function* () {
+    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { defaultBufferTime: 1 } })
+    const projectSingle = 'projects'
+    const [data1, data2, data3] = [{
+      _id: '1', name: '111'
+    }, {
+      _id: '2', name: '222'
+    }, {
+      _id: '3', name: '333'
+    }]
+
+    fetchMock.get(new RegExp(projectSingle), { result: [data1, data2, data3] }, { query: { _ids: ['1', '2', '3'] } })
+
+    const options = { batch: true }
+
+    yield Observable.forkJoin(
+      sdkFetch.get(projectSingle, { _id: '1' }, { ...options, includeHeaders: true })
+        .do(res => {
+          expect(res).haveOwnProperty('headers')
+          expect(res.body).to.deep.equal(data1)
+        }),
+      sdkFetch.get(projectSingle, { _id: '2' }, options).do(res => expect(res).to.deep.equal(data2)),
+      sdkFetch.get(projectSingle, { _id: '3' }, options).do(res => expect(res).to.deep.equal(data3)),
+    ).subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(fetchMock.calls().matched.length).to.equal(1)
+      })
+  })
+
+  it('request after buffer time should go alone', function* () {
+    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { defaultBufferTime: 1 } })
+    const projectSingle = 'projects'
+    const [data1, data2, data3] = [{
+      _id: '1', name: '111'
+    }, {
+      _id: '2', name: '222'
+    }, {
+      _id: '3', name: '333'
+    }]
+
+    fetchMock.get(new RegExp(projectSingle), { result: [data1, data2, data3] }, { query: { _ids: ['1', '2', '3'] } })
+
+    const options = { batch: true }
+
+    yield Observable.forkJoin(
+      sdkFetch.get(projectSingle, { _id: '1' }, options).do(res => expect(res).to.deep.equal(data1)),
+      sdkFetch.get(projectSingle, { _id: '2' }, options).do(res => expect(res).to.deep.equal(data2)),
+      Observable.timer(2).take(1).switchMap(() => {
+        return sdkFetch.get(projectSingle, { _id: '3' }, options).do(res => expect(res).to.deep.equal(data3))
+      })
+    ).subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(fetchMock.calls().matched.length).to.equal(2)
+      })
+  })
+
+  it('request excess part should go alone', function* () {
+    sdkFetch.runBatchService(pathGetter, { batchConfig: { maxBufferCount: 3, defaultBufferTime: 1 }, pathAdaptor })
+    const projectSingle = 'projects'
+    const [data1, data2, data3, data4, data5] = [{
+      _id: '1', name: '111'
+    }, {
+      _id: '2', name: '222'
+    }, {
+      _id: '3', name: '333'
+    }, {
+      _id: '4', name: '444'
+    }, {
+      _id: '5', name: '555'
+    }]
+
+    fetchMock.getOnce(new RegExp(projectSingle), { result: [data1, data2, data4] }, { query: { _ids: ['1', '2', '4'] } })
+    fetchMock.getOnce(new RegExp(projectSingle), { result: [data5] }, { query: { _ids: ['5'] } })
+    fetchMock.getOnce(new RegExp(projectSingle), { result: [data3] }, { query: { _ids: ['3'] } })
+
+    const options = { batch: true }
+
+    yield Observable.forkJoin(
+      sdkFetch.get(projectSingle, { _id: '1' }, options).do(res => expect(res).to.deep.equal(data1)),
+      sdkFetch.get(projectSingle, { _id: '2' }, options).do(res => expect(res).to.deep.equal(data2)),
+      sdkFetch.get(projectSingle, { _id: '4' }, options).do(res => expect(res).to.deep.equal(data4)),
+      sdkFetch.get(projectSingle, { _id: '5' }, options).do(res => expect(res).to.deep.equal(data5)),
+       Observable.timer(2).take(1).switchMap(() => {
+        return sdkFetch.get(projectSingle, { _id: '3' }, options).do(res => expect(res).to.deep.equal(data3))
+      })
+    ).subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(fetchMock.calls().matched.length).to.equal(3)
+      })
+  })
+
+  it('append query should be added on request', function* () {
+    sdkFetch.runBatchService(pathGetter, {
+      pathAdaptor,
+      batchConfig: { defaultBufferTime: 1 },
+      batchQuery: { _organizationId: '12345' }
+    })
+    const projectSingle = 'projects'
+    const [data1, data2, data3] = [{
+      _id: '1', name: '111'
+    }, {
+      _id: '2', name: '222'
+    }, {
+      _id: '3', name: '333'
+    }]
+
+    fetchMock.get(
+      new RegExp(projectSingle),
+      { result: [data1, data2, data3] },
+      { query: { _ids: ['1', '2', '3'], _organizationId: '12345' } }
+    )
+
+    const options = { batch: true }
+
+    yield Observable.forkJoin(
+      sdkFetch.get(projectSingle, { _id: '1' }, options).do(res => expect(res).to.deep.equal(data1)),
+      sdkFetch.get(projectSingle, { _id: '2' }, options).do(res => expect(res).to.deep.equal(data2)),
+      sdkFetch.get(projectSingle, { _id: '3' }, options).do(res => expect(res).to.deep.equal(data3)),
+    ).subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(fetchMock.calls().matched.length).to.equal(1)
+      })
+  })
+})
+
 describe('SDKFetch', () => {
 
   let sdkFetch: SDKFetch
@@ -106,6 +297,17 @@ describe('SDKFetch', () => {
 
   afterEach(() => {
     fetchMock.restore()
+  })
+
+  it('fetch mock', function* () {
+    const data = { test: '1' }
+    fetchMock.get(urlMatcher, data, { query: { ids: ['123', '234'] } })
+
+    yield sdkFetch.get(path, { ids: ['123', '234'] })
+      .subscribeOn(Scheduler.asap)
+      .do((res) => {
+        expect(res).to.deep.equal(data)
+      })
   })
 
   it('get should use correctly timestamped url', function* () {
