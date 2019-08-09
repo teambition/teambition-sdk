@@ -9,6 +9,7 @@ import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHea
 import { UserMe } from './schemas/UserMe'
 import { forEach, uuid } from './utils'
 import { SDKLogger } from './utils/Logger'
+import { batchService, SingleRequest, BatchConfig, FallbackWhen } from './Net'
 
 export type SDKFetchOptions = {
   apiHost?: string
@@ -40,6 +41,15 @@ export type SDKFetchOptions = {
    * response headers。默认为 false，仅返回 response body。
    */
   includeHeaders?: boolean
+  batch?: SingleRequest | boolean
+}
+
+export interface BatchOptions {
+  batchConfig?: BatchConfig,
+  batchQuery?: {} | ((resource: string) => {})
+  sdkFetchOptions?: SDKFetchOptions & { wrapped?: false, batch?: false, includeHeaders?: true }
+  responseMatcher?: <T>(resp: any, id: string, resource: string) => T | undefined
+  pathAdaptor?: (path: string, query?: any) => SingleRequest | null | undefined
 }
 
 export namespace HttpHeaders {
@@ -69,7 +79,7 @@ export namespace HttpHeaders {
 
 const getUnnamedOptions = (options: SDKFetchOptions) => {
   const {
-    apiHost, token, headers, wrapped, includeHeaders, disableRequestId,
+    apiHost, token, headers, wrapped, includeHeaders, disableRequestId, batch,
     ...unnamed
   } = options
   return unnamed
@@ -82,13 +92,41 @@ export const defaultSDKFetchHeaders = () => ({
 })
 
 export class SDKFetch {
+  private batchRequest?: ReturnType<typeof batchService>
+  private pathAdaptor?: BatchOptions['pathAdaptor']
+  batchAll?: boolean
 
   constructor(
     private apiHost: string = 'https://www.teambition.com/api',
     private token: string = '',
     private headers: {} = defaultSDKFetchHeaders(),
     private options: {} = {}
-  ) {}
+  ) { }
+
+  runBatchService(
+    batchPathGetter: (resource: string) => string,
+    {
+      batchConfig, batchQuery = {}, sdkFetchOptions = {},
+      responseMatcher = (resp, id) => resp.result.find((r: any) => r._id === id),
+      pathAdaptor
+    }: BatchOptions = {}
+  ) {
+    this.batchRequest = batchService(
+      ({ resource, ids }) => this.get(
+        batchPathGetter(resource),
+        { _ids: ids, ...(typeof batchQuery === 'function' ? (batchQuery as any)(resource) : batchQuery) },
+        { ...sdkFetchOptions, wrapped: false, batch: false, includeHeaders: true }
+      ),
+      (resp: HttpResponseWithHeaders<any>, id, resource) => {
+        const matched = responseMatcher(resp.body, id, resource)
+        return matched && {
+          headers: resp.headers,
+          body: matched
+        } as any
+      }, batchConfig)
+
+    this.pathAdaptor = pathAdaptor
+  }
 
   static FetchStack = new Map<string, Observable<any>>()
   static fetchTail: string | undefined | 0
@@ -108,16 +146,41 @@ export class SDKFetch {
   get<T>(path: string, query?: any, options?: SDKFetchOptions): Observable<T>
 
   get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
-    const url = this.urlWithPath(path, options.apiHost)
-    const urlWithQuery = appendQueryString(url, toQueryString(query))
+    if ((this.batchAll || options.batch) && options.batch !== false && this.batchRequest) {
+      const batchInput = options.batch && typeof options.batch !== 'boolean'
+        ? options.batch
+        : this.pathAdaptor && this.pathAdaptor(path, query)
+
+      if (batchInput) {
+        return this.batch<T>(
+          batchInput.resource,
+          batchInput.id,
+          Observable.defer(() => this.pureGet(path, query, {
+            ...options,
+            wrapped: false,
+            includeHeaders: true
+          }) as Observable<HttpResponseWithHeaders<T>>),
+          0,
+          options.includeHeaders
+        )
+      }
+    }
+
+    return this.pureGet(path, query, options)
+  }
+
+  private pureGet<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
     const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
     let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
 
     this.setOptionsPerRequest(http, options)
 
+    const url = this.urlWithPath(path, options.apiHost)
+    const urlWithQuery = appendQueryString(url, toQueryString(query))
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
-      const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
+      const urlWithTail = appendQueryString(urlWithQuery, `_=${tail}`)
+
       dist = Observable.defer(() => http.setUrl(urlWithTail).get()['request'])
         .shareReplay<any>(1)
         .finally(() => {
@@ -131,6 +194,23 @@ export class SDKFetch {
 
     http['request'] = dist
     return options.wrapped ? http : http.send()
+  }
+
+  batch<T>(
+    resource: string,
+    id: string,
+    fallback?: Observable<HttpResponseWithHeaders<T>>,
+    fallbackWhen?: FallbackWhen,
+    includeHeaders?: boolean
+  ): Observable<T> | Observable<HttpResponseWithHeaders<T>> {
+    return this.batchRequest
+      ? this.batchRequest<HttpResponseWithHeaders<T>>(
+        { resource, id },
+        fallback!,
+        fallbackWhen!
+      )
+        .map(res => includeHeaders ? res : res.body)
+      : Observable.throw('Batch Service Not Running') as any
   }
 
   private urlWithPath(path: string, apiHost?: string): string {
