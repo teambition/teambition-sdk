@@ -19,6 +19,7 @@ export interface PreferenceSchema {
   _userId: UserId
   language: string                        // @isayme: 优先使用 `UserMe.language`
   showProjects?: ProjectId[]
+  collectBehaviorLogs: boolean
   organization: { isShowChildTeams: boolean }
   tasklist?: Record<string, TasklistId[]> // 键类型为 ProjectId
   tips: PreferenceTipMap
@@ -58,6 +59,9 @@ const Schema: SchemaDef<PreferenceSchema> = {
   },
   activityMode: {
     type: RDBType.STRING
+  },
+  collectBehaviorLogs: {
+    type: RDBType.BOOLEAN
   },
   emails: {
     type: RDBType.OBJECT
