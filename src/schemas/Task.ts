@@ -19,6 +19,9 @@ import { SprintSchema } from './Sprint'
 import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
+import { Omit } from '../utils'
+
+type Parent = Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
 
 export interface TaskSchema {
   _id: TaskId
@@ -70,7 +73,7 @@ export interface TaskSchema {
   }
   executor: ExecutorOrCreator | null
   _taskId: TaskId // id of the parent task
-  parent: Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
+  parent: Parent & Partial<Omit<TaskSchema, keyof Parent>>
   progress: number
   rating: 0 | 1 | 2 | 3 | 4 | 5
   stage: Pick<StageSchema, '_id' | 'name' | 'order'>
