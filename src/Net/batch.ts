@@ -14,8 +14,9 @@ import { materialize } from 'rxjs/operators/materialize'
 import { dematerialize } from 'rxjs/operators/dematerialize'
 import { catchError } from 'rxjs/operators/catchError'
 import { tap } from 'rxjs/operators/tap'
+import { debounceTime } from 'rxjs/operators/debounceTime'
 
-function uniq(arr: any[]) {
+function uniq(arr: string[]) {
   const obj = {}
   for (let i = 0; i < arr.length; i++) {
       if (!obj[arr[i]]) {
@@ -72,6 +73,7 @@ export interface BatchConfig {
   defaultBufferTime?: number
   maxBufferCount?: number
   bufferTimer?: (groupedRequests$: GroupedObservable<string, BatchRequest>) => Observable<any>
+  maxConcurrent?: number
 }
 
 export type RequestMethod = (output: BatchedRequest) => Observable<any>
@@ -83,9 +85,11 @@ export const batchService = (
   {
     defaultBufferTime = 50, maxBufferCount = 50,
     bufferTimer = () => timer(defaultBufferTime),
+    maxConcurrent = 0
   }: BatchConfig = {}
 ): BatchRequestMethod => {
   let id = 0
+  const concurrent: number[] = []
   const request$$ = new Subject<BatchRequest>()
   const alone$$ = new Subject<number>()
 
@@ -93,7 +97,16 @@ export const batchService = (
     groupBy(
       request => request.resource,
       undefined,
-      bufferTimer,
+      grouped => {
+        if (concurrent.length < maxConcurrent) {
+          // console.info(concurrent)
+          return grouped.pipe(
+            tap<BatchRequest>(br => concurrent.push(br.batchId)),
+            debounceTime(0)
+          )
+        }
+        return bufferTimer(grouped)
+      },
     ),
     mergeMap(grouped => grouped
       .pipe(
@@ -152,6 +165,8 @@ export const batchService = (
       return () => {
         aloneSubs && aloneSubs.unsubscribe()
         subs.unsubscribe()
+        const concurrentIndex = concurrent.indexOf(batchId)
+        concurrentIndex > -1 && concurrent.splice(concurrentIndex, 1)
       }
     })
   }
