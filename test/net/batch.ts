@@ -107,15 +107,15 @@ describe('batch test', () => {
   })
 
   it('buffer timer', function* () {
-    const batchRequest = batchService(requestMethod(0), getMatched, { bufferTimer: grouped => grouped.debounceTime(3) })
+    const batchRequest = batchService(requestMethod(0), getMatched, { bufferTimer: grouped => grouped.debounceTime(10) })
 
     yield Observable.forkJoin(
       batchRequest({ resource: 'task', id: '1' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
       batchRequest({ resource: 'task', id: '2' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '2' })),
-      Observable.timer(2).take(1).switchMapTo(
+      Observable.timer(5).take(1).switchMapTo(
         batchRequest({ resource: 'task', id: '3' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '3' })),
       ),
-      Observable.timer(8).take(1).switchMapTo(
+      Observable.timer(20).take(1).switchMapTo(
         batchRequest({ resource: 'task', id: '4' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '4' })),
       )
     ).subscribeOn(Scheduler.asap)
@@ -131,6 +131,30 @@ describe('batch test', () => {
       batchRequest({ resource: 'task', id: '1' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
       batchRequest({ resource: 'task', id: '1' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
       batchRequest({ resource: 'task', id: '3' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '3' })),
+    ).subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(requestCalledLength).to.equal(1)
+      })
+  })
+
+  it('max concurrent', function* () {
+    const batchRequest = batchService(requestMethod(10), getMatched, { defaultBufferTime: 10, maxConcurrent: 2 })
+    const fallback2 = { resource: 'task-fallback', id: '2' }
+    const fallback4 = { resource: 'task-fallback', id: '4' }
+
+    yield Observable.forkJoin(
+      batchRequest({ resource: 'task', id: '2' }, Observable.of(fallback2).delay(10))
+        .do(res => expect(res).to.deep.equal({ resource: 'task-fallback', id: '2' })),
+      Observable.timer(2).take(1).switchMapTo(
+        batchRequest({ resource: 'task', id: '4' }, Observable.of(fallback4).delay(10))
+          .do(res => expect(res).to.deep.equal({ resource: 'task-fallback', id: '4' })),
+      ),
+      Observable.timer(4).take(1).switchMapTo(
+        batchRequest({ resource: 'task', id: '1' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
+      ),
+      Observable.timer(6).take(1).switchMapTo(
+        batchRequest({ resource: 'task', id: '3' }).do(res => expect(res).to.deep.equal({ resource: 'task', id: '3' })),
+      ),
     ).subscribeOn(Scheduler.asap)
       .do(() => {
         expect(requestCalledLength).to.equal(1)
