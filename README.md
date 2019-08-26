@@ -9,10 +9,21 @@
 
 ## 安装
 
-```
+```bash
 npm install teambition-sdk --save-dev
 ```
 如果要求在不支持 Fetch API 的浏览器运行，请安装 polyfill 如 [whatwg-fetch](https://github.com/github/fetch)。
+
+## 开发
+
+目前主分支是 `release`，而 `master` 只应用于部分处于维护状态的老项目。常用命令如：
+
+```bash
+yarn               # 安装依赖
+npm run build_test # 构建测试
+npm test           # 跑一遍完整测试
+npm watch          # 在开发时，以监听模式跑测试，每次代码修改都会重跑测试，帮助及时发现问题
+```
 
 ## 设计理念
 
@@ -213,8 +224,11 @@ export default class TaskView {
 ## publish script
 ```bash
 # only publish sdk
-npm version xxx
-npm run publish_sdk
+npm run preversion   # 查询 npm 官方库，获取当前发布的最新正式版本和最高的预发版本号，避免打版本时出错
+npm version v0.12.68 # 打正式版本 0.12.68（包括创建相应标签）
+npm version v0.12.69-alpha.0-readme # 打预发版本 0.12.69-alpha.0-readme（包括创建相应标签）
+npm run publish_sdk  # 在本地 build 当前代码并发布到 npm 官方库
+# 完成发布后，推荐将相应标签（tag）推到远端，如 `git push origin v0.12.69-alpha.0-readme`
 
 # publish sdk, mock and socket
 npm version xxx
