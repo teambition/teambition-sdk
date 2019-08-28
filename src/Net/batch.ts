@@ -88,10 +88,12 @@ export const batchService = (
     maxConcurrent = 0
   }: BatchConfig = {}
 ): BatchRequestMethod => {
-  let id = 0
+  let uid = 1
   const concurrent: number[] = []
   const request$$ = new Subject<BatchRequest>()
   const alone$$ = new Subject<number>()
+
+  const batchStack: Record<string, Record<string, number>> = {}
 
   const batch$ = request$$.pipe(
     groupBy(
@@ -99,7 +101,6 @@ export const batchService = (
       undefined,
       grouped => {
         if (concurrent.length < maxConcurrent) {
-          // console.info(concurrent)
           return grouped.pipe(
             tap<BatchRequest>(br => concurrent.push(br.batchId)),
             debounceTime(0)
@@ -139,7 +140,9 @@ export const batchService = (
     fallbackWhen: FallbackWhen = fallback ? FallbackWhen.Both : FallbackWhen.Never
   ) => {
     return Observable.create((observer: Observer<T>) => {
-      const batchId = id++
+      const resourceStack = batchStack[request.resource]
+      const stackId = resourceStack && resourceStack[request.id]
+      const batchId = stackId || uid
 
       const subs = batch$.pipe(
         filter(({ resource, batchIds }) =>
@@ -160,13 +163,23 @@ export const batchService = (
         mergeMap(() => fallback)
       ).subscribe(observer)
 
-      request$$.next({ batchId, fallbackWhen: fallback ? fallbackWhen : FallbackWhen.Never, ...request })
+      if (!stackId) {
+        request$$.next({ batchId, fallbackWhen: fallback ? fallbackWhen : FallbackWhen.Never, ...request })
+        uid++
+        if (resourceStack) {
+          resourceStack[request.id] = batchId
+        } else {
+          batchStack[request.resource] = { [request.id]: batchId }
+        }
+      }
 
       return () => {
         aloneSubs && aloneSubs.unsubscribe()
         subs.unsubscribe()
         const concurrentIndex = concurrent.indexOf(batchId)
         concurrentIndex > -1 && concurrent.splice(concurrentIndex, 1)
+
+        batchStack[request.resource] && delete batchStack[request.resource][request.id]
       }
     })
   }
