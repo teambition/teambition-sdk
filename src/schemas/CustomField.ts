@@ -1,6 +1,6 @@
 import { SchemaDef, RDBType, Relationship } from '../db'
 import { schemaColl } from './schemas'
-import { CustomFieldType, CustomFieldBoundType, CustomFieldCategoryId, AdvancedCustomField, UserSnippet } from 'teambition-types'
+import { CustomFieldType, CustomFieldBoundType, CustomFieldCategoryId, AdvancedCustomField, UserSnippet, CustomFieldSubtype } from 'teambition-types'
 import { CustomFieldId, OrganizationId, ProjectId, RoleId, UserId, AdvancedCustomFieldId } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
@@ -28,6 +28,7 @@ export interface CustomFieldSchema {
   name: string
   pos: number
   projects?: string[]
+  subtype?: CustomFieldSubtype // 仅当 需求分类/缺陷分类 才有
   type: CustomFieldType
   updated: string
 }
@@ -111,6 +112,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   projects: {
     type: RDBType.OBJECT
+  },
+  subtype: {
+    type: RDBType.STRING
   },
   type: {
     type: RDBType.STRING
