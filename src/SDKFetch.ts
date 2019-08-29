@@ -9,7 +9,7 @@ import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHea
 import { UserMe } from './schemas/UserMe'
 import { forEach, uuid } from './utils'
 import { SDKLogger } from './utils/Logger'
-import { batchService, SingleRequest, BatchConfig, FallbackWhen } from './Net'
+import { batchService, SingleRequest, BatchConfig, FallbackWhen, BatchRequestMethod } from './Net'
 
 export type SDKFetchOptions = {
   apiHost?: string
@@ -41,15 +41,15 @@ export type SDKFetchOptions = {
    * response headers。默认为 false，仅返回 response body。
    */
   includeHeaders?: boolean
-  batch?: SingleRequest | boolean
+  batch?: SingleRequest<string> | boolean
 }
 
 export interface BatchOptions {
-  batchConfig?: BatchConfig,
+  batchConfig?: BatchConfig<string>,
   batchQuery?: {} | ((resource: string) => {})
   sdkFetchOptions?: SDKFetchOptions & { wrapped?: false, batch?: false, includeHeaders?: true }
   responseMatcher?: <T>(resp: any, id: string, resource: string) => T | undefined
-  pathAdaptor?: (path: string, query?: any) => SingleRequest | null | undefined
+  pathAdaptor?: (path: string, query?: any) => SingleRequest<string> | null | undefined
 }
 
 export namespace HttpHeaders {
@@ -92,7 +92,7 @@ export const defaultSDKFetchHeaders = () => ({
 })
 
 export class SDKFetch {
-  private batchRequest?: ReturnType<typeof batchService>
+  private batchRequest?: BatchRequestMethod<{ [k: string]: HttpResponseWithHeaders<any> }>
   private pathAdaptor?: BatchOptions['pathAdaptor']
   batchAll?: boolean
 
@@ -111,18 +111,18 @@ export class SDKFetch {
       pathAdaptor
     }: BatchOptions = {}
   ) {
-    this.batchRequest = batchService(
-      ({ resource, ids }) => this.get(
+    this.batchRequest = batchService<any, HttpResponseWithHeaders<any>>(
+      (resource, ids) => this.get(
         batchPathGetter(resource),
         { _ids: ids, ...(typeof batchQuery === 'function' ? (batchQuery as any)(resource) : batchQuery) },
         { ...sdkFetchOptions, wrapped: false, batch: false, includeHeaders: true }
       ),
-      (resp: HttpResponseWithHeaders<any>, id, resource) => {
+      (resp, id, resource) => {
         const matched = responseMatcher(resp.body, id, resource)
         return matched && {
           headers: resp.headers,
           body: matched
-        } as any
+        }
       }, batchConfig)
 
     this.pathAdaptor = pathAdaptor
@@ -205,7 +205,7 @@ export class SDKFetch {
   ): Observable<T> | Observable<HttpResponseWithHeaders<T>> {
     return this.batchRequest
       ? this.batchRequest<HttpResponseWithHeaders<T>>(
-        { resource, id },
+        resource, id,
         fallback!,
         fallbackWhen!
       )
