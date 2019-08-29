@@ -26,18 +26,18 @@ function uniq(arr: string[]) {
   return Object.keys(obj)
 }
 
-export interface SingleRequest {
-  resource: string
+export interface SingleRequest<R extends string> {
+  resource: R
   id: string
 }
 
-interface BatchRequest extends SingleRequest {
+interface BatchRequest<R extends string> extends SingleRequest<R> {
   batchId: number
   fallbackWhen: FallbackWhen
 }
 
-export interface BatchedRequest {
-  resource: string
+export interface BatchedRequest<R extends string> {
+  resource: R
   ids: string[]
 }
 
@@ -63,34 +63,51 @@ export const enum FallbackWhen {
   Both = 3,
 }
 
-export interface BatchRequestMethod {
-  <T>(request: SingleRequest, fallback: Observable<T>, fallbackWhen: FallbackWhen): Observable<T>
-  <T>(request: SingleRequest, fallback: Observable<T> | undefined, fallbackWhen: undefined): Observable<T>
-  <T>(request: SingleRequest, fallback?: Observable<T>): Observable<T>
+export interface BatchRequestMethod<RM extends {} = {}> {
+  <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
+    resourceName: K,
+    resourceId: string,
+    fallback: Observable<[T] extends [never] ? RM[K] : T>,
+    fallbackWhen: FallbackWhen,
+  ): Observable<[T] extends [never] ? RM[K] : T>
+  <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
+    resourceName: K,
+    resourceId: string,
+    fallback: Observable<[T] extends [never] ? RM[K] : T> | undefined,
+    fallbackWhen: undefined,
+  ): Observable<[T] extends [never] ? RM[K] : T>
+  <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
+    resourceName: K,
+    resourceId: string,
+    fallback?: Observable<[T] extends [never] ? RM[K] : T>,
+  ): Observable<[T] extends [never] ? RM[K] : T>
 }
 
-export interface BatchConfig {
+export interface BatchConfig<M extends string> {
   defaultBufferTime?: number
   maxBufferCount?: number
-  bufferTimer?: (groupedRequests$: GroupedObservable<string, BatchRequest>) => Observable<any>
+  bufferTimer?: (groupedRequests$: GroupedObservable<M, BatchRequest<M>>) => Observable<any>
   maxConcurrent?: number
 }
 
-export type RequestMethod = (output: BatchedRequest) => Observable<any>
-export type GetMatched = <T>(result: any, id: string, resource: string) => T | undefined | never
+export type RequestMethod<K extends string, R extends {} = {}> = (resource: K, ids: string[]) => Observable<R>
+export type GetMatched<RM extends {} = {}, R extends {} = {}> =
+  (result: R, id: string, resource: KeyofStringOnly<RM>) => RM[typeof resource] | undefined | never
 
-export const batchService = (
-  requestMethod: RequestMethod,
-  getMatched: GetMatched,
+type KeyofStringOnly<T extends {}> = Extract<keyof T, string>
+
+export const batchService = <RM extends {} = {}, R extends {} = {}>(
+  requestMethod: RequestMethod<KeyofStringOnly<RM>, R>,
+  getMatched: GetMatched<RM, R>,
   {
     defaultBufferTime = 50, maxBufferCount = 50,
     bufferTimer = () => timer(defaultBufferTime),
     maxConcurrent = 0
-  }: BatchConfig = {}
-): BatchRequestMethod => {
+  }: BatchConfig<KeyofStringOnly<RM>> = {}
+): BatchRequestMethod<RM> => {
   let uid = 1
   const concurrent: number[] = []
-  const request$$ = new Subject<BatchRequest>()
+  const request$$ = new Subject<BatchRequest<KeyofStringOnly<RM>>>()
   const alone$$ = new Subject<number>()
 
   const batchStack: Record<string, Record<string, number>> = {}
@@ -102,7 +119,7 @@ export const batchService = (
       grouped => {
         if (concurrent.length < maxConcurrent) {
           return grouped.pipe(
-            tap<BatchRequest>(br => concurrent.push(br.batchId)),
+            tap<BatchRequest<KeyofStringOnly<RM>>>(br => concurrent.push(br.batchId)),
             debounceTime(0)
           )
         }
@@ -116,10 +133,10 @@ export const batchService = (
         tap(requests => requests.length === 1 && alone$$.next(requests[0].batchId)),
         filter(requests => requests.length > 1 || !(requests[0].fallbackWhen & FallbackWhen.Alone)),
         mergeMap(requests =>
-          Observable.defer(() => requestMethod({
-            resource: grouped.key,
-            ids: uniq(requests.map(r => r.id))
-          }))
+          Observable.defer(() => requestMethod(
+            grouped.key,
+            uniq(requests.map(r => r.id)),
+          ))
             .pipe(
               materialize(),
               map(notification => ({
@@ -134,23 +151,24 @@ export const batchService = (
     share(),
   )
 
-  return <T>(
-    request: SingleRequest,
-    fallback?: Observable<T>,
+  return <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
+    resourceName: K,
+    resourceId: string,
+    fallback?: Observable<[T] extends [never] ? RM[K] : T>,
     fallbackWhen: FallbackWhen = fallback ? FallbackWhen.Both : FallbackWhen.Never
   ) => {
-    return Observable.create((observer: Observer<T>) => {
-      const resourceStack = batchStack[request.resource]
-      const stackId = resourceStack && resourceStack[request.id]
+    return Observable.create((observer: Observer<[T] extends [never] ? RM[K] : T>) => {
+      const resourceStack = batchStack[resourceName]
+      const stackId = resourceStack && resourceStack[resourceId]
       const batchId = stackId || uid
 
       const subs = batch$.pipe(
         filter(({ resource, batchIds }) =>
-          resource === request.resource && batchIds.indexOf(batchId) > -1
+          resource === resourceName && batchIds.indexOf(batchId) > -1
         ),
         map(result => result.notification),
         dematerialize(),
-        map(result => getMatched<T>(result, request.id, request.resource)),
+        map(result => getMatched(result, resourceId, resourceName)),
         first(Boolean),
         catchError(e => (fallbackWhen & FallbackWhen.Error) && fallback
           ? fallback
@@ -164,12 +182,17 @@ export const batchService = (
       ).subscribe(observer)
 
       if (!stackId) {
-        request$$.next({ batchId, fallbackWhen: fallback ? fallbackWhen : FallbackWhen.Never, ...request })
+        request$$.next({
+          batchId,
+          fallbackWhen: fallback ? fallbackWhen : FallbackWhen.Never,
+          resource: resourceName,
+          id: resourceId,
+        })
         uid++
         if (resourceStack) {
-          resourceStack[request.id] = batchId
+          resourceStack[resourceId] = batchId
         } else {
-          batchStack[request.resource] = { [request.id]: batchId }
+          batchStack[resourceName] = { [resourceId]: batchId }
         }
       }
 
@@ -179,7 +202,7 @@ export const batchService = (
         const concurrentIndex = concurrent.indexOf(batchId)
         concurrentIndex > -1 && concurrent.splice(concurrentIndex, 1)
 
-        batchStack[request.resource] && delete batchStack[request.resource][request.id]
+        batchStack[resourceName] && delete batchStack[resourceName][resourceId]
       }
     })
   }
