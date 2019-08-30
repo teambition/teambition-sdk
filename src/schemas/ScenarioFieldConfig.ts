@@ -37,6 +37,7 @@ export interface ScenarioFieldConfigSchema {
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
   type: 'default' | 'official' | 'normal'
+  proTemplateConfigType?: string | null
   updated: string
 }
 
