@@ -80,7 +80,7 @@ export interface BatchRequestMethod<RM extends {} = {}> {
 
 export interface BatchConfig<M extends string> {
   bufferTime?: number
-  maxBufferCount?: number | ((resource: string) => number)
+  maxBufferCount?: number | ((resource: M) => number)
   bufferTimer?: (groupedRequests$: GroupedObservable<M, BatchRequest<M>>) => Observable<any>
   maxConcurrent?: number
 }
