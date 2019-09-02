@@ -27,7 +27,7 @@ describe('batch test', () => {
   })
 
   it('basic function', function* () {
-    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { defaultBufferTime: 1 })
+    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { bufferTime: 1 })
 
     yield Observable.forkJoin(
       batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
@@ -40,7 +40,7 @@ describe('batch test', () => {
   })
 
   it('fallback when alone', function* () {
-    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { defaultBufferTime: 1 })
+    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { bufferTime: 1 })
     const fallback = { resource: 'task-fallback', id: '1' }
 
     yield batchRequest('task', '1', Observable.of(fallback), FallbackWhen.Alone)
@@ -51,7 +51,7 @@ describe('batch test', () => {
   })
 
   it('fallback when error', function* () {
-    const batchRequest = batchService<RM, R>(() => Observable.throw(Error('error')), getMatched, { defaultBufferTime: 1 })
+    const batchRequest = batchService<RM, R>(() => Observable.throw(Error('error')), getMatched, { bufferTime: 1 })
     const fallback = { resource: 'task-fallback', id: '1' }
 
     yield batchRequest('task', '1', Observable.of(fallback), FallbackWhen.Error)
@@ -68,7 +68,7 @@ describe('batch test', () => {
       }
       return requestMethod(0)(resource, ids)
     }
-    const batchRequest = batchService<RM, R>(requestMethodError, getMatched, { defaultBufferTime: 1 })
+    const batchRequest = batchService<RM, R>(requestMethodError, getMatched, { bufferTime: 1 })
     let errorCount = 0
 
     Observable.forkJoin(
@@ -85,7 +85,7 @@ describe('batch test', () => {
   })
 
   it('max buffer count', function* () {
-    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { maxBufferCount: 2, defaultBufferTime: 1 })
+    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { maxBufferCount: 2, bufferTime: 1 })
 
     yield Observable.forkJoin(
       batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
@@ -98,7 +98,7 @@ describe('batch test', () => {
   })
 
   it('buffer time', function* () {
-    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { defaultBufferTime: 1 })
+    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { bufferTime: 1 })
 
     yield Observable.forkJoin(
       batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
@@ -131,7 +131,7 @@ describe('batch test', () => {
   })
 
   it('duplicate request', function* () {
-    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { defaultBufferTime: 1 })
+    const batchRequest = batchService<RM, R>(requestMethod(0), getMatched, { bufferTime: 1 })
 
     yield Observable.forkJoin(
       batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
@@ -144,7 +144,7 @@ describe('batch test', () => {
   })
 
   it('max concurrent', function* () {
-    const batchRequest = batchService<RM, R>(requestMethod(10), getMatched, { defaultBufferTime: 10, maxConcurrent: 2 })
+    const batchRequest = batchService<RM, R>(requestMethod(10), getMatched, { bufferTime: 10, maxConcurrent: 2 })
     const fallback2 = { resource: 'task-fallback', id: '2' }
     const fallback4 = { resource: 'task-fallback', id: '4' }
 
@@ -168,7 +168,7 @@ describe('batch test', () => {
   })
 
   it('duplicate request with reuse request', function* () {
-    const batchRequest = batchService<RM, R>(requestMethod(10), getMatched, { defaultBufferTime: 5, maxBufferCount: 2 })
+    const batchRequest = batchService<RM, R>(requestMethod(10), getMatched, { bufferTime: 5, maxBufferCount: 2 })
 
     yield Observable.forkJoin(
       batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
