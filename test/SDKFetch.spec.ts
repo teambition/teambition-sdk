@@ -122,7 +122,7 @@ describe('Batch service', () => {
   })
 
   it('multiple request of same resource should batch', function* () {
-    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { defaultBufferTime: 1 } })
+    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { bufferTime: 1 } })
     const projectSingle = 'projects'
     const [data1, data2, data3] = [{
       _id: '1', name: '111'
@@ -160,7 +160,7 @@ describe('Batch service', () => {
   })
 
   it('with headers options should work', function* () {
-    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { defaultBufferTime: 1 } })
+    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { bufferTime: 1 } })
     const projectSingle = 'projects'
     const [data1, data2, data3] = [{
       _id: '1', name: '111'
@@ -189,7 +189,7 @@ describe('Batch service', () => {
   })
 
   it('request after buffer time should go alone', function* () {
-    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { defaultBufferTime: 1 } })
+    sdkFetch.runBatchService(pathGetter, { pathAdaptor, batchConfig: { bufferTime: 1 } })
     const projectSingle = 'projects'
     const [data1, data2, data3] = [{
       _id: '1', name: '111'
@@ -216,7 +216,7 @@ describe('Batch service', () => {
   })
 
   it('request excess part should go alone', function* () {
-    sdkFetch.runBatchService(pathGetter, { batchConfig: { maxBufferCount: 3, defaultBufferTime: 1 }, pathAdaptor })
+    sdkFetch.runBatchService(pathGetter, { batchConfig: { maxBufferCount: 3, bufferTime: 1 }, pathAdaptor })
     const projectSingle = 'projects'
     const [data1, data2, data3, data4, data5] = [{
       _id: '1', name: '111'
@@ -253,7 +253,7 @@ describe('Batch service', () => {
   it('append query should be added on request', function* () {
     sdkFetch.runBatchService(pathGetter, {
       pathAdaptor,
-      batchConfig: { defaultBufferTime: 1 },
+      batchConfig: { bufferTime: 1 },
       batchQuery: { _organizationId: '12345' }
     })
     const projectSingle = 'projects'

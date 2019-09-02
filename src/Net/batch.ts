@@ -64,43 +64,40 @@ export const enum FallbackWhen {
 }
 
 export interface BatchRequestMethod<RM extends {} = {}> {
-  <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
+  <K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>, T = RM[K]>(
     resourceName: K,
     resourceId: string,
-    fallback: Observable<[T] extends [never] ? RM[K] : T>,
-    fallbackWhen: FallbackWhen,
-  ): Observable<[T] extends [never] ? RM[K] : T>
-  <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
-    resourceName: K,
+    fallback?: Observable<T>,
+    fallbackWhen?: FallbackWhen
+  ): Observable<T>
+  <R>(
+    resourceName: string,
     resourceId: string,
-    fallback: Observable<[T] extends [never] ? RM[K] : T> | undefined,
-    fallbackWhen: undefined,
-  ): Observable<[T] extends [never] ? RM[K] : T>
-  <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
-    resourceName: K,
-    resourceId: string,
-    fallback?: Observable<[T] extends [never] ? RM[K] : T>,
-  ): Observable<[T] extends [never] ? RM[K] : T>
+    fallback?: Observable<R>,
+    fallbackWhen?: FallbackWhen
+  ): Observable<R>
 }
 
 export interface BatchConfig<M extends string> {
-  defaultBufferTime?: number
-  maxBufferCount?: number
+  bufferTime?: number
+  maxBufferCount?: number | ((resource: string) => number)
   bufferTimer?: (groupedRequests$: GroupedObservable<M, BatchRequest<M>>) => Observable<any>
   maxConcurrent?: number
 }
 
 export type RequestMethod<K extends string, R extends {} = {}> = (resource: K, ids: string[]) => Observable<R>
-export type GetMatched<RM extends {} = {}, R extends {} = {}> =
+export type GetMatched<RM extends {} = StringObj, R extends {} = {}> =
   (result: R, id: string, resource: KeyofStringOnly<RM>) => RM[typeof resource] | undefined | never
 
-type KeyofStringOnly<T extends {}> = Extract<keyof T, string>
+export type KeyofStringOnly<T extends {}> = Extract<keyof T, string>
 
-export const batchService = <RM extends {} = {}, R extends {} = {}>(
+type StringObj = { [key: string]: any }
+
+export const batchService = <RM extends {} = StringObj, R extends {} = {}>(
   requestMethod: RequestMethod<KeyofStringOnly<RM>, R>,
   getMatched: GetMatched<RM, R>,
   {
-    defaultBufferTime = 50, maxBufferCount = 50,
+    bufferTime: defaultBufferTime = 50, maxBufferCount = 50,
     bufferTimer = () => timer(defaultBufferTime),
     maxConcurrent = 0
   }: BatchConfig<KeyofStringOnly<RM>> = {}
@@ -128,7 +125,7 @@ export const batchService = <RM extends {} = {}, R extends {} = {}>(
     ),
     mergeMap(grouped => grouped
       .pipe(
-        bufferCount(maxBufferCount),
+        bufferCount(typeof maxBufferCount === 'function' ? maxBufferCount(grouped.key) : maxBufferCount ),
         // 当只有一个请求在集合中时，做特殊处理，并在其 fallback 为 alone 时从当前流中过滤掉
         tap(requests => requests.length === 1 && alone$$.next(requests[0].batchId)),
         filter(requests => requests.length > 1 || !(requests[0].fallbackWhen & FallbackWhen.Alone)),
@@ -151,13 +148,13 @@ export const batchService = <RM extends {} = {}, R extends {} = {}>(
     share(),
   )
 
-  return <T = never, K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>>(
+  return <K extends KeyofStringOnly<RM> = KeyofStringOnly<RM>, T = RM[K]>(
     resourceName: K,
     resourceId: string,
-    fallback?: Observable<[T] extends [never] ? RM[K] : T>,
+    fallback?: Observable<T>,
     fallbackWhen: FallbackWhen = fallback ? FallbackWhen.Both : FallbackWhen.Never
   ) => {
-    return Observable.create((observer: Observer<[T] extends [never] ? RM[K] : T>) => {
+    return Observable.create((observer: Observer<T>) => {
       const resourceStack = batchStack[resourceName]
       const stackId = resourceStack && resourceStack[resourceId]
       const batchId = stackId || uid
