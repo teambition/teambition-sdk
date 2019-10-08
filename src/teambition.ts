@@ -90,7 +90,7 @@ declare module 'teambition-types' {
 declare module 'teambition-types' {
   export type Actor = 'executor' | 'creator'
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
-  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work'
+  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work' | 'cascading'
   export type CustomFieldSubtype = 'story' | 'bug'
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
