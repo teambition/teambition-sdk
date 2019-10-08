@@ -4,6 +4,7 @@ import { CustomFieldType, CustomFieldBoundType, CustomFieldCategoryId, AdvancedC
 import { CustomFieldId, OrganizationId, ProjectId, RoleId, UserId, AdvancedCustomFieldId } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
+import { CustomFieldCascadingPayloadSchema } from './CustomFieldCascading'
 
 export interface CustomFieldSchema {
   _advancedCustomfieldId: AdvancedCustomFieldId
@@ -26,6 +27,7 @@ export interface CustomFieldSchema {
   isSingleSelection?: boolean
   locker: UserSnippet | null
   name: string
+  payload?: CustomFieldCascadingPayloadSchema
   pos: number
   projects?: string[]
   subtype?: CustomFieldSubtype // 仅当 需求分类/缺陷分类 才有
@@ -106,6 +108,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   name: {
     type: RDBType.STRING
+  },
+  payload: {
+    type: RDBType.OBJECT
   },
   pos: {
     type: RDBType.NUMBER
