@@ -1,9 +1,10 @@
-import { RDBType, SchemaDef } from '../db'
+import { RDBType, SchemaDef, Relationship } from '../db'
 import {
   BoardAxisType,
   ProjectId,
   SmartGroupId,
   SmartGroupViewType,
+  SmartGroupViewVisibilityType,
   SmartGroupPredefinedIcon,
   SmartGroupType,
   TaskSortMethod,
@@ -11,6 +12,7 @@ import {
   UserId,
   ScenarioFieldConfigId,
   SmartGroupViewTaskLayer,
+  ExecutorOrCreator,
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
@@ -35,8 +37,10 @@ export interface SmartGroupSchema {
   },
   orderBy?: TaskSortMethod
   filter: string
+  creator: ExecutorOrCreator
   created: string
   updated: string
+  visibility: SmartGroupViewVisibilityType
 }
 
 const schema: SchemaDef<SmartGroupSchema> = {
@@ -52,6 +56,15 @@ const schema: SchemaDef<SmartGroupSchema> = {
   },
   created: {
     type: RDBType.DATE_TIME,
+  },
+  creator: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'User',
+      where: (userTable: any) => ({
+        _creatorId: userTable._id
+      })
+    }
   },
   description: {
     type: RDBType.STRING,
@@ -79,7 +92,10 @@ const schema: SchemaDef<SmartGroupSchema> = {
   },
   view: {
     type: RDBType.OBJECT,
-  }
+  },
+  visibility: {
+    type: RDBType.STRING,
+  },
 }
 
 schemaColl.add({ name: 'SmartGroup', schema })

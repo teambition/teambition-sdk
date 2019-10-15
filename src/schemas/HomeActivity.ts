@@ -15,6 +15,7 @@ import { TeamSchema } from './Team'
 import { UserMe } from './UserMe'
 
 import { ExecutorOrCreator, ProjectId, UserId } from 'teambition-types'
+import { SmartGroupSchema } from '../../test'
 
 export namespace HomeActivityType {
   // 必有字段
@@ -142,6 +143,14 @@ export namespace HomeActivityType {
     }
   }
 
+  // 视图
+  export type SmartGroup = {
+    type: 'smartgroup'
+    content: Common & {
+      smartgroup: Pick<SmartGroupSchema, '_id' | 'name' | 'type'>
+    }
+  }
+
   // 未知
   export type Unknown = {
     type: 'unknown'
@@ -151,7 +160,7 @@ export namespace HomeActivityType {
   export type Union =
     | User | Invite
     | Task | Post | Event | Work | Works | Collection | Entry
-    | Tasklist | Tag | Project | Application | Organization | Team | Unknown
+    | Tasklist | Tag | Project | Application | Organization | Team | SmartGroup | Unknown
 }
 
 export type HomeActivityBase = {
@@ -186,6 +195,7 @@ export type UnknownHomeActivity = HomeActivityBase & HomeActivityType.Unknown
 export type UserHomeActivity = HomeActivityBase & HomeActivityType.User
 export type WorkHomeActivity = HomeActivityBase & HomeActivityType.Work
 export type WorksHomeActivity = HomeActivityBase & HomeActivityType.Works
+export type SmartGroupHomeActivity = HomeActivityBase & HomeActivityType.SmartGroup
 
 const schema: SchemaDef<HomeActivitySchema> = {
   _boundToObjectId: { type: RDBType.STRING },
