@@ -8,6 +8,7 @@ import { FileSchema } from './File'
 import { OrganizationSchema } from './Organization'
 import { PostSchema } from './Post'
 import { ProjectSchema } from './Project'
+import { SmartGroupSchema } from './SmartGroup'
 import { TaskSchema } from './Task'
 import { TagSchema } from './Tag'
 import { TasklistSchema } from './Tasklist'
@@ -142,6 +143,14 @@ export namespace HomeActivityType {
     }
   }
 
+  // 视图
+  export type SmartGroup = {
+    type: 'smartgroup'
+    content: Common & {
+      smartgroup: Pick<SmartGroupSchema, '_id' | 'name' | 'type'>
+    }
+  }
+
   // 未知
   export type Unknown = {
     type: 'unknown'
@@ -151,7 +160,7 @@ export namespace HomeActivityType {
   export type Union =
     | User | Invite
     | Task | Post | Event | Work | Works | Collection | Entry
-    | Tasklist | Tag | Project | Application | Organization | Team | Unknown
+    | Tasklist | Tag | Project | Application | Organization | Team | SmartGroup | Unknown
 }
 
 export type HomeActivityBase = {
@@ -178,6 +187,7 @@ export type InviteHomeActivity = HomeActivityBase & HomeActivityType.Invite
 export type OrganizationHomeActivity = HomeActivityBase & HomeActivityType.Organization
 export type PostHomeActivity = HomeActivityBase & HomeActivityType.Post
 export type ProjectHomeActivity = HomeActivityBase & HomeActivityType.Project
+export type SmartGroupHomeActivity = HomeActivityBase & HomeActivityType.SmartGroup
 export type TagHomeActivity = HomeActivityBase & HomeActivityType.Tag
 export type TaskHomeActivity = HomeActivityBase & HomeActivityType.Task
 export type TasklistHomeActivity = HomeActivityBase & HomeActivityType.Tasklist
