@@ -23,6 +23,7 @@ export interface CustomFieldLinkBaseSchema {
   isLocked: boolean
   isSingleSelection?: boolean
   locker: UserSnippet | null
+  mustSelectLeaf?: boolean
   name: string
   pos: number
   type: CustomFieldType
@@ -97,6 +98,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
         _lockerId: userTable._id
       })
     }
+  },
+  mustSelectLeaf: {
+    type: RDBType.BOOLEAN
   },
   name: {
     type: RDBType.STRING
