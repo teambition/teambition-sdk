@@ -25,6 +25,7 @@ export interface CustomFieldSchema {
   isLocked: boolean
   isSingleSelection?: boolean
   locker: UserSnippet | null
+  mustSelectLeaf?: boolean
   name: string
   pos: number
   projects?: string[]
