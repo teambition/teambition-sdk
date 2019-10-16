@@ -25,6 +25,7 @@ export interface CustomFieldSchema {
   isLocked: boolean
   isSingleSelection?: boolean
   locker: UserSnippet | null
+  mustSelectLeaf?: boolean
   name: string
   pos: number
   projects?: string[]
@@ -103,6 +104,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
         _lockerId: userTable._id
       })
     }
+  },
+  mustSelectLeaf: {
+    type: RDBType.BOOLEAN
   },
   name: {
     type: RDBType.STRING
