@@ -1,7 +1,7 @@
 import { RDBType, Relationship, SchemaDef } from '../db'
 import {
   ProjectId, ScenarioFieldConfigId, CustomFieldValue, ExecutorOrCreator, TestplanId, CommonGroupId,
-  TestcaseId, TestcaseType, TestcaseStepType, TestcasePriority, UserId, TaskflowStatusId, OrganizationId
+  TagId, TestcaseId, TestcaseType, TestcaseStepType, TestcasePriority, UserId, TaskflowStatusId, OrganizationId
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { ProjectSchema } from './Project'
@@ -35,6 +35,7 @@ export interface TestcaseSchema {
   precondition: string
   priority: TestcasePriority
   steps: TestcaseStepType[]
+  tagIds: TagId[]
   title: string
   created: string
   updated: string
@@ -152,6 +153,9 @@ const schema: SchemaDef<TestcaseSchema> = {
   },
   syncDate: {
     type: RDBType.DATE_TIME
+  },
+  tagIds: {
+    type: RDBType.LITERAL_ARRAY
   },
   testhub: {
     type: Relationship.oneToOne,
