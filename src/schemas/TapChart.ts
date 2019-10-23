@@ -24,6 +24,7 @@ export type TapChartExhibitType = 'small' | 'big'
 export interface TapGraphCol {
   name: string
   baseType: TapGraphColType
+  column?: string
 }
 
 export type TapGraphData = {
@@ -105,6 +106,10 @@ export type TapGraphLineBarPreset = {
 } | {
   name: 'generic'
   colorScheme: 'blue'
+  barColumns: number[]
+  lineColumns: number[]
+} | {
+  name: 'scrumBug'
   barColumns: number[]
   lineColumns: number[]
 }
