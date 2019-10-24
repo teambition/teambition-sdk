@@ -178,13 +178,13 @@ export const batchService = <RM extends {} = StringObj, R extends {} = {}>(
         mergeMap(() => fallback)
       ).subscribe(observer)
 
+      request$$.next({
+        batchId,
+        fallbackWhen: fallback ? fallbackWhen : FallbackWhen.Never,
+        resource: resourceName,
+        id: resourceId,
+      })
       if (!stackId) {
-        request$$.next({
-          batchId,
-          fallbackWhen: fallback ? fallbackWhen : FallbackWhen.Never,
-          resource: resourceName,
-          id: resourceId,
-        })
         uid++
         if (resourceStack) {
           resourceStack[resourceId] = batchId
