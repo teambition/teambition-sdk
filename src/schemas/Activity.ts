@@ -57,6 +57,7 @@ export interface ActivitySchema {
   action: string
   boundToObjectType: DetailObjectTypes
   content: {
+    robotsource?: string
     comment: string
     content: string
     attachments: File[]
