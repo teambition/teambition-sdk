@@ -12,6 +12,7 @@ export interface ProjectTemplateSchema {
   isDeleted: boolean
   isDemo: boolean
   isDraft: boolean
+  isExtendedTemplate?: boolean
   isPro?: boolean
   lang?: string
   logo: string
@@ -19,7 +20,7 @@ export interface ProjectTemplateSchema {
   permissionBinding?: {
     permissions: string[]
   }
-  subtype?: string[]
+  subtype?: string
   updated: string
   visible: ProjectTemplateVisibleOption
 }
