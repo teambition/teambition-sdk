@@ -19,7 +19,8 @@ export interface ProjectTemplateSchema {
   permissionBinding?: {
     permissions: string[]
   }
-  subtype?: string[]
+  subtype?: string
   updated: string
   visible: ProjectTemplateVisibleOption
+  isExtendedTemplate?: boolean
 }
