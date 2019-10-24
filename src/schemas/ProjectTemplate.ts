@@ -9,6 +9,7 @@ export interface ProjectTemplateSchema {
   created: string
   creator?: ExecutorOrCreator
   description: string
+  isExtendedTemplate?: boolean
   isDeleted: boolean
   isDemo: boolean
   isDraft: boolean
@@ -19,7 +20,7 @@ export interface ProjectTemplateSchema {
   permissionBinding?: {
     permissions: string[]
   }
-  subtype?: string[]
+  subtype?: string
   updated: string
   visible: ProjectTemplateVisibleOption
 }
