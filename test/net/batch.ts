@@ -181,4 +181,17 @@ describe('batch test', () => {
         expect(requestCalledLength).to.equal(1)
       })
   })
+
+  it('duplicate request wile not complete yet', function* () {
+    const batchRequest = batchService<RM, R>(requestMethod(20), getMatched, { bufferTime: 5 })
+
+    yield Observable.forkJoin(
+      batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
+      batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
+      batchRequest('task', '1').do(res => expect(res).to.deep.equal({ resource: 'task', id: '1' })),
+    ).subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(requestCalledLength).to.equal(1)
+      })
+  })
 })
