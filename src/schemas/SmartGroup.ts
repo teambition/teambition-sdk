@@ -16,6 +16,11 @@ import {
 } from 'teambition-types'
 import { schemaColl } from './schemas'
 
+enum SortOrder {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
 export interface SmartGroupSchema {
   _id: SmartGroupId
   _projectId: ProjectId
@@ -35,6 +40,10 @@ export interface SmartGroupSchema {
     _horizontalId?: TaskflowId
     taskLayer?: SmartGroupViewTaskLayer
     tableCellDescriptorList?: Array<{}> // 自定义视图表格视图默认排序依赖于该字段，具体请查阅相关代码
+    tableSortBy?: {  // 具体参考自定义视图表格视图 sortBy 字段
+      key: string
+      order: SortOrder
+    }
   },
   orderBy?: TaskSortMethod
   filter: string
