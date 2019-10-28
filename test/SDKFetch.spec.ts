@@ -17,10 +17,8 @@ describe('SDKFetch setters and getters', () => {
 
   let sdkFetch: SDKFetch
 
-  const getterSetterGood = (getter: string, setter: string, newValue: any, newResult?: any) => {
-    if (arguments.length - 2 === 3) {
-      newResult = newValue
-    }
+  const getterSetterGood = (getter: string, setter: string, newValue: any, ...optionalArgs: any[]) => {
+    const newResult = optionalArgs.length === 0 ? newValue : optionalArgs[0]
 
     // before setter is called
     expect(sdkFetch[getter]()).to.not.deep.equal(newResult)
@@ -39,11 +37,21 @@ describe('SDKFetch setters and getters', () => {
     getterSetterGood('getAPIHost', 'setAPIHost', 'https://www.example.com')
   })
 
-  it('setHeaders/getHeaders should write/read internal state correctly', () => {
+  it('setHeaders/getHeaders should write/read internal state correctly - merge: true', () => {
     const newHeader = { 'X-Request-Id': '2333' }
     const headers = sdkFetch.getHeaders()
 
-    getterSetterGood('getHeaders', 'setHeaders', newHeader, { ...headers, ...newHeader })
+    expect(sdkFetch.getHeaders()).to.not.deep.equal({ ...headers, ...newHeader })
+    sdkFetch.setHeaders(newHeader, true)
+    expect(sdkFetch.getHeaders()).to.deep.equal({ ...headers, ...newHeader })
+  })
+
+  it('setHeaders/getHeaders should write/read internal state correctly - merge: false', () => {
+    const newHeader = { 'X-Request-Id': '2333' }
+
+    expect(sdkFetch.getHeaders()).to.not.deep.equal(newHeader)
+    sdkFetch.setHeaders(newHeader, false)
+    expect(sdkFetch.getHeaders()).to.deep.equal(newHeader)
   })
 
   it('setToken/getToken should write/read internal state correctly', () => {

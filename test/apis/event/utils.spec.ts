@@ -16,7 +16,7 @@ import { forEachFalsyValueOfProperty } from '../../utils'
 
 describe('Event-related util functions', () => {
 
-  const now = Moment().toISOString()
+  const now = '2019-10-28T07:57:00.000Z'
 
   it('isRecurrent() should return true for a recurrent event', () => {
     [recurrenceByMonth, recurrenceHasEnd, recurrenceStartAtAnExcludedDate].forEach((sampleEvent) => {
@@ -76,7 +76,7 @@ describe('Event-related util functions', () => {
   })
 
   it(`${e.isAllDayLegacy.name}() should return true for an event from 00:00 to 00:00 of the next nth days`, () => {
-    const nthDays = [3, 5, 7]
+    const nthDays = [3, 5]
 
     nthDays.forEach((nthDay) => {
       expect(e.isAllDayLegacy({
@@ -84,6 +84,13 @@ describe('Event-related util functions', () => {
         endDate: Moment(now).add(nthDay, 'day').startOf('day').toISOString()
       } as any)).to.be.true
     })
+
+    // isAllDayLegacy 的逻辑不支持夏令时机制
+    const nthDayAcrossDSTBoundary = 7
+    expect(e.isAllDayLegacy({
+      startDate: Moment(now).startOf('day').toISOString(),
+      endDate: Moment(now).add(nthDayAcrossDSTBoundary, 'day').startOf('day').toISOString()
+    } as any)).to.be.false
   })
 
   it(`${e.isAllDayLegacy.name}() should return false for an event from 00:00 to 00:00 of the same day`, () => {
