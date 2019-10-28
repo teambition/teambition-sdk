@@ -34,6 +34,7 @@ export interface SmartGroupSchema {
     _verticalIds?: ScenarioFieldConfigId[]
     _horizontalId?: TaskflowId
     taskLayer?: SmartGroupViewTaskLayer
+    tableCellDescriptorList?: Array<{}> // 自定义视图表格视图默认排序依赖于该字段，具体请查阅相关代码
   },
   orderBy?: TaskSortMethod
   filter: string
