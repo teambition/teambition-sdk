@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.71-alpha.3-projcustomview",
+  "version": "0.12.71-alpha.4-customviewoption",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
