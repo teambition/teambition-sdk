@@ -288,4 +288,43 @@ export default describe('net/http', () => {
       expect(fetchMock.calls(url)).lengthOf(1)
     })
   })
+
+  it('setMethods() should replace original http methods', function* () {
+    const replacementResults = {
+      get: false,
+      put: false,
+      delete: false,
+      post: false,
+    }
+
+    const genMethod = (method: http.AllowedHttpMethod) => {
+      return (params: http.MethodParams) => {
+        replacementResults[method] = true
+        return http.createMethod(method)(params)
+      }
+    }
+
+    Http.setMethods({
+      get: genMethod('get'),
+      put: genMethod('put'),
+      delete: genMethod('delete'),
+      post: genMethod('post'),
+    })
+    fetchMock.mock(url, {})
+    yield Observable.forkJoin(
+      fetchInstance.get().send(),
+      fetchInstance.put().send(),
+      fetchInstance.delete().send(),
+      fetchInstance.post().send(),
+    )
+    .subscribeOn(Scheduler.asap)
+    .do(() => {
+      expect(replacementResults).to.deep.equal({
+        get: true,
+        put: true,
+        delete: true,
+        post: true,
+      })
+    })
+  })
 })
