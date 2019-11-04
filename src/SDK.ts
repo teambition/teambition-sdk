@@ -108,4 +108,7 @@ export class SDK {
       })
   }
 
+  replaceFetchClient(fetchClient: SDKFetch) {
+    this.fetch = fetchClient
+  }
 }

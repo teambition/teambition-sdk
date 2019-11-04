@@ -22,7 +22,7 @@ export { Socket, eventToRE as socketEventToRE }
 
 export { SDK } from './SDK'
 export { SDKFetch, HttpHeaders } from './SDKFetch'
-export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$, Page } from './Net'
+export { Net, CacheStrategy, Http, FetchClientErrorMessage as HttpErrorMessage, FetchError$ as HttpError$, Page, FetchClient } from './Net'
 
 export { Database, ExecutorResult, QueryToken, OrderDescription, Query, Predicate } from './db'
 

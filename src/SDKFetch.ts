@@ -5,7 +5,8 @@ import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/shareReplay'
 import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
-import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
+import { FetchClient, FetchClientErrorMessage, FetchClientResponseWithHeaders } from './Net/FetchClient'
+import { getHttpWithResponseHeaders, Http } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
 import { forEach, uuid } from './utils'
 import { SDKLogger } from './utils/Logger'
@@ -87,7 +88,8 @@ export class SDKFetch {
     private apiHost: string = 'https://www.teambition.com/api',
     private token: string = '',
     private headers: {} = defaultSDKFetchHeaders(),
-    private options: {} = {}
+    private options: {} = {},
+    private FetchClientClass: typeof FetchClient = Http
   ) {}
 
   static FetchStack = new Map<string, Observable<any>>()
@@ -95,23 +97,23 @@ export class SDKFetch {
 
   get<T>(path: string, query: any, options: SDKFetchOptions & {
     wrapped: true, includeHeaders: true
-  }): Http<HttpResponseWithHeaders<T>>
+  }): FetchClient<FetchClientResponseWithHeaders<T>>
 
   get<T>(path: string, query: any, options: SDKFetchOptions & {
     wrapped: true
-  }): Http<T>
+  }): FetchClient<T>
 
   get<T>(path: string, query: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): Observable<FetchClientResponseWithHeaders<T>>
 
   get<T>(path: string, query?: any, options?: SDKFetchOptions): Observable<T>
 
   get<T>(path: string, query?: any, options: SDKFetchOptions = {}) {
     const url = this.urlWithPath(path, options.apiHost)
     const urlWithQuery = appendQueryString(url, toQueryString(query))
-    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
-    let dist: Observable<T> | Observable<HttpResponseWithHeaders<T>>
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new this.FetchClientClass<T>()
+    let dist: Observable<T> | Observable<FetchClientResponseWithHeaders<T>>
 
     this.setOptionsPerRequest(http, options)
 
@@ -140,20 +142,20 @@ export class SDKFetch {
 
   post<T>(path: string, body: any, options: SDKFetchOptions & {
     wrapped: true, includeHeaders: true
-  }): Http<HttpResponseWithHeaders<T>>
+  }): FetchClient<FetchClientResponseWithHeaders<T>>
 
   post<T>(path: string, body: any, options: SDKFetchOptions & {
     wrapped: true
-  }): Http<T>
+  }): FetchClient<T>
 
   post<T>(path: string, body: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): Observable<FetchClientResponseWithHeaders<T>>
 
   post<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
 
   post<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
-    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new this.FetchClientClass<T>()
     const url = this.urlWithPath(path, options.apiHost)
 
     this.setOptionsPerRequest(http, options)
@@ -165,20 +167,20 @@ export class SDKFetch {
 
   put<T>(path: string, body: any, options: SDKFetchOptions & {
     wrapped: true, includeHeaders: true
-  }): Http<HttpResponseWithHeaders<T>>
+  }): FetchClient<FetchClientResponseWithHeaders<T>>
 
   put<T>(path: string, body: any, options: SDKFetchOptions & {
     wrapped: true
-  }): Http<T>
+  }): FetchClient<T>
 
   put<T>(path: string, body: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): Observable<FetchClientResponseWithHeaders<T>>
 
   put<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
 
   put<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
-    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new this.FetchClientClass<T>()
     const url = this.urlWithPath(path, options.apiHost)
 
     this.setOptionsPerRequest(http, options)
@@ -190,20 +192,20 @@ export class SDKFetch {
 
   delete<T>(path: string, body: any, options: SDKFetchOptions & {
     wrapped: true, includeHeaders: true
-  }): Http<HttpResponseWithHeaders<T>>
+  }): FetchClient<FetchClientResponseWithHeaders<T>>
 
   delete<T>(path: string, body: any, options: SDKFetchOptions & {
     wrapped: true
-  }): Http<T>
+  }): FetchClient<T>
 
   delete<T>(path: string, body: any, options: SDKFetchOptions & {
     includeHeaders: true
-  }): Observable<HttpResponseWithHeaders<T>>
+  }): Observable<FetchClientResponseWithHeaders<T>>
 
   delete<T>(path: string, body?: any, options?: SDKFetchOptions): Observable<T>
 
   delete<T>(path: string, body?: any, options: SDKFetchOptions = {}) {
-    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new Http<T>()
+    const http = options.includeHeaders ? getHttpWithResponseHeaders<T>() : new this.FetchClientClass<T>()
     const url = this.urlWithPath(path, options.apiHost)
 
     this.setOptionsPerRequest(http, options)
@@ -249,8 +251,17 @@ export class SDKFetch {
     return { ...this.options }
   }
 
+  setFetchClientClass(FetchClientClass: typeof FetchClient) {
+    this.FetchClientClass = FetchClientClass
+    return this
+  }
+
+  getFetchClientClass() {
+    return this.FetchClientClass
+  }
+
   private setOptionsPerRequest(
-    http: Http<any>,
+    client: FetchClient<any>,
     fetchOptions: SDKFetchOptions
   ): void {
     const { disableRequestId } = fetchOptions
@@ -259,11 +270,11 @@ export class SDKFetch {
     const headers = merge
       ? HttpHeaders.create(this.headers, { customHeaders: customHeaders, disableRequestId })
       : HttpHeaders.create(customHeaders, { disableRequestId })
-    http.setHeaders(headers)
+    client.setHeaders(headers)
 
     const token = fetchOptions.token || this.token
     if (token) {
-      http.setToken(token)
+      client.setToken(token)
     }
 
     let options = getUnnamedOptions(fetchOptions)
@@ -271,12 +282,12 @@ export class SDKFetch {
       options = this.options
     }
     if (Object.keys(options).length > 0) {
-      http.setOpts(options)
+      client.setOpts(options)
     }
 
     // todo(dingwen): 待实现更有效的 HTTP interceptor，替换这里的实现。
-    http['mapFn'] = ((source) => {
-      return source.catch((error: HttpErrorMessage) => {
+    client['mapFn'] = ((source) => {
+      return source.catch((error: FetchClientErrorMessage) => {
         if (!fetchOptions.disableRequestId) {
           error['requestId'] = headers[HttpHeaders.Key.RequestId]
         }
