@@ -407,7 +407,7 @@ declare module 'teambition-types' {
 
   export type TapDateSeries = 'day' | 'week' | 'month' | 'year'
 
-  export type TapChartType = 'pie' | 'bar' | 'line'
+  export type TapChartType = 'pie' | 'bar' | 'line' | 'area' | 'scatter'
 
   export type TapDimensionBaseDataType = 'string' | 'datetime' | 'dropDown' | 'text' | 'boolean' | 'int'
 

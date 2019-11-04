@@ -14,7 +14,7 @@ import {
   TapGenericFilterResponse as FilterResponse
 } from 'teambition-types'
 
-export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview' | 'customset'
+export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview' | 'customset' | 'area' | 'scatter'
 
 // tapGraph definition
 export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String' | 'type/Task'
@@ -27,6 +27,12 @@ export interface TapGraphCol {
   column?: string
 }
 
+export interface TapGraphSpecial {
+  cols: TapGraphCol[]
+  rows: any[][]
+  type?: 'control_line'
+}
+
 export type TapGraphData = {
   name: TapChartName
   title: string
@@ -34,6 +40,7 @@ export type TapGraphData = {
   rows: any[][];
   taskIds: TaskId[][][];
   visualizationSettings: TapGraphVisualizationSettingsSet;
+  special: TapGraphSpecial[];
 }
 
 export interface TapGraphNullableDimDisplay {
@@ -74,6 +81,14 @@ export interface TapGraphCoordGridDisplay {
   // should be filled by client
   // restriction: axes.x.scale should be 'timeseries' when weekends provided
   weekends?: Moment[][]
+}
+
+export interface TapGraphAreaDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay {
+  showPointMarker: boolean
+}
+
+export interface TapGraphScatterDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay {
+  showPointMarker: boolean
 }
 
 export interface TapGraphLineDisplay extends TapGraphCoordGridDisplay, TapGraphStackDisplay, TapGraphNullableDimDisplay {
@@ -160,7 +175,9 @@ export type TapGraphVisualizationSettingsSet =
   TapGraphVisualizationSettings<'table', TapGraphTableDisplay> |
   TapGraphVisualizationSettings<'details', TapGraphDetailsDisplay> |
   TapGraphVisualizationSettings<'overview', TapGraphOverviewDisplay> |
-  TapGraphVisualizationSettings<'customset', TapGraphOverviewDisplay>
+  TapGraphVisualizationSettings<'customset', TapGraphOverviewDisplay> |
+  TapGraphVisualizationSettings<'area', TapGraphAreaDisplay> |
+  TapGraphVisualizationSettings<'scatter', TapGraphScatterDisplay>
 
 // tapChart definition
 export interface TapChart<T extends FilterRequest | FilterResponse> {
