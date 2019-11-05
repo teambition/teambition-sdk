@@ -32,6 +32,7 @@ export interface SmartGroupSchema {
     _verticalIds?: ScenarioFieldConfigId[]
     _horizontalId?: TaskflowId
     taskLayer?: SmartGroupViewTaskLayer
+    tableSeeThroughSubtasks?: boolean
   },
   orderBy?: TaskSortMethod
   filter: string
