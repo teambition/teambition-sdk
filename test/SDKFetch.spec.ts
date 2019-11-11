@@ -2,10 +2,11 @@ import { expect } from 'chai'
 import { Observable, Scheduler } from 'rxjs'
 import { map as rxMap } from 'rxjs/operators'
 import { describe, it, beforeEach, afterEach } from 'tman'
-import { SDK, SDKFetch, forEach, Http, HttpErrorMessage, headers2Object, createSdk } from '.'
+import { SDK, SDKFetch, forEach, HttpErrorMessage, headers2Object, createSdk } from '.'
 import { clone } from './'
 
 import { defaultSDKFetchHeaders, HttpHeaders } from '../src/SDKFetch'
+import { WebClient } from '../src/Net/WebClient'
 
 const fetchMock = require('fetch-mock')
 
@@ -223,7 +224,7 @@ describe('SDKFetch', () => {
     it(`method ${httpMethod} should be able to return Http object`, function* () {
       const responseData = { body: { test: 'test' } }
       const body = { body: 'body' }
-      let httpObj: Http<any>
+      let httpObj: WebClient<any>
       let raw: any
       fetchMock.mock(urlMatcher, responseData)
 

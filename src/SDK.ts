@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { Database } from './db'
-import { Net } from './Net'
+import { Net, WebClient } from './Net'
 import { forEach, isNonNullable } from './utils'
 import { SDKFetch } from './SDKFetch'
 import * as socket from './sockets'
@@ -21,7 +21,7 @@ export class SDK {
   private graphQLClientOption: GraphQLClientOption | null = null
 
   net = new Net(this.schemas)
-  fetch = new SDKFetch()
+  fetch: SDKFetch
 
   socketClient: socket.Client
   database: Database | undefined
@@ -31,7 +31,13 @@ export class SDK {
     return this.net.lift(ApiResult)
   }
 
-  constructor() {
+  constructor(
+    webClientFactory?: new <T>() => WebClient<T>
+  ) {
+    this.fetch = new SDKFetch()
+    if (webClientFactory) {
+      this.fetch.setWebClientFactory(webClientFactory)
+    }
     this.socketClient = new socket.Client(
       this.fetch,
       this.net,
