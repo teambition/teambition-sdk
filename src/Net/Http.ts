@@ -7,31 +7,9 @@ import 'rxjs/add/operator/publishReplay'
 import { AjaxError } from 'rxjs/observable/dom/AjaxObservable'
 import { Observable } from 'rxjs/Observable'
 import { Observer } from 'rxjs/Observer'
-import { Subject } from 'rxjs/Subject'
 import { testable } from '../testable'
 import { forEach, isNonNullable, parseHeaders } from '../utils'
-
-export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
-
-export interface HttpErrorMessage {
-  method: AllowedHttpMethod
-  url: string
-  error: Response
-  body?: any
-  [userDefinedKey: string]: any
-}
-
-export interface HttpResponseWithHeaders<T = any> {
-  headers: Headers,
-  body: T
-}
-
-type MethodParams = {
-  url: string,
-  body?: any,
-  _opts: any,
-  includeHeaders: boolean
-}
+import { WebClient, AllowedHttpMethod, MethodParams } from './WebClient'
 
 const rxAjaxDefaultHeaderKey2NormKey = {
   'X-Requested-With': 'x-requested-with',
@@ -72,11 +50,8 @@ const normResponseStatus = (resp: Response | XMLHttpRequest, respHeaders: Header
   }
 }
 
-export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
-
 export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): Observable<any> => {
   const { url, body, _opts, includeHeaders } = params
-
   /* istanbul ignore if */
   if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
     coverRxAjaxHeadersBug(_opts.headers)
@@ -155,19 +130,7 @@ export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams
   }
 }
 
-export const getHttpWithResponseHeaders = <T>(
-  url?: string,
-  errorAdapter$?: Subject<HttpErrorMessage>
-): Http<HttpResponseWithHeaders<T>> => {
-  return new Http<HttpResponseWithHeaders<T>>(url, errorAdapter$, true)
-}
-
-export class Http<T> {
-  private errorAdapter$: Subject<HttpErrorMessage>
-  private cloned = false
-  private request: Observable<T> | undefined
-  public mapFn: (v$: Observable<T>) => Observable<any> = (dist$ => dist$)
-
+export class Http<T> extends WebClient<T> {
   private static get = createMethod('get')
   private static put = createMethod('put')
   private static post = createMethod('post')
@@ -178,85 +141,29 @@ export class Http<T> {
     credentials: 'include'
   })
 
-  constructor(
-    private url: string = '',
-    errorAdapter$?: Subject<HttpErrorMessage>,
-    private readonly includeHeaders: boolean = false
-  ) {
-    if (errorAdapter$) {
-      this.errorAdapter$ = errorAdapter$
-    } else {
-      this.errorAdapter$ = HttpError$ as Subject<HttpErrorMessage>
+  protected _opts: any = Http.defaultOpts()
+
+  protected prepareRequest(method: AllowedHttpMethod, body?: any) {
+    switch (method) {
+      case 'get':
+        this.request = Http.get(this.params)
+        return this
+      case 'post':
+        this.request = Http.post({ ...this.params, body })
+        return this
+      case 'put':
+        this.request = Http.put({ ...this.params, body })
+        return this
+      case 'delete':
+        this.request = Http.delete({ ...this.params, body })
+        return this
     }
-  }
-
-  private _opts: any = Http.defaultOpts()
-
-  // todo(dingwen): 实现更可控、支持多层叠加的 interceptor
-  // map<U>(fn: (stream$: Observable<T>) => Observable<U>) {
-  //   this.mapFn = fn
-  //   return this as any as Http<U>
-  // }
-
-  setUrl(url: string) {
-    this.url = url
-    return this
-  }
-
-  setHeaders(headers: any) {
-    this._opts.headers = { ...this._opts.headers, ...headers }
-    return this
-  }
-
-  setToken(token: string) {
-    delete this._opts.credentials
-    this._opts.headers.Authorization = `OAuth2 ${token}`
-    return this
-  }
-
-  setOpts(opts: any) {
-    this._opts = { ...this._opts, ...opts }
     return this
   }
 
   restore() {
     this._opts = Http.defaultOpts()
     return this
-  }
-
-  get() {
-    this.request = Http.get(this.params())
-    return this
-  }
-
-  post(body?: any) {
-    this.request = Http.post({ ...this.params(), body })
-    return this
-  }
-
-  put(body?: any) {
-    this.request = Http.put({ ...this.params(), body })
-    return this
-  }
-
-  delete(body?: any) {
-    this.request = Http.delete({ ...this.params(), body })
-    return this
-  }
-
-  send(): Observable<T> {
-    if (!this.request) {
-      return Observable.empty<T>()
-    }
-    const response$ = this.mapFn(this.request)
-    return response$
-      .catch((msg: HttpErrorMessage) => {
-        const msgClone = { ...msg, error: msg.error.clone() }
-        setTimeout(() => {
-          this.errorAdapter$.next(msgClone)
-        }, 10)
-        return Observable.throw(msg)
-      })
   }
 
   clone() {
@@ -271,9 +178,4 @@ export class Http<T> {
     return result
   }
 
-  private params = (): MethodParams => ({
-    url: this.url,
-    _opts: this._opts,
-    includeHeaders: this.includeHeaders
-  })
 }

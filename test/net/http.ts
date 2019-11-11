@@ -4,6 +4,7 @@ import { describe, it, beforeEach, afterEach } from 'tman'
 
 import { HttpErrorMessage, Http } from '../index'
 import * as http from '../../src/Net/Http'
+import { getClientInstance } from '../../src/Net/WebClient'
 
 const fetchMock = require('fetch-mock')
 
@@ -144,7 +145,7 @@ export default describe('net/http', () => {
         method: httpMethod
       })
 
-      const fetchInstance2 = http.getHttpWithResponseHeaders(url)
+      const fetchInstance2 = getClientInstance(http.Http, true, url)
       fetchInstance2.setHeaders({ 'X-Request-Id': sampleValue })
 
       yield fetchInstance2[httpMethod](path, httpMethod === 'get' || httpMethod === 'delete' ? null : body)
