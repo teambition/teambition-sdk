@@ -40,6 +40,12 @@ export type SDKFetchOptions = {
    * response headers。默认为 false，仅返回 response body。
    */
   includeHeaders?: boolean
+
+  /**
+   * 当设置为 false 时，将强制浏览器不缓存请求，仅对 GET 类型生效,
+   * 默认为 false
+   */
+  cache?: boolean
 }
 
 export namespace HttpHeaders {
@@ -117,8 +123,11 @@ export class SDKFetch {
 
     if (!SDKFetch.FetchStack.has(urlWithQuery)) {
       const tail = SDKFetch.fetchTail || Date.now()
-      const urlWithTail = appendQueryString(urlWithQuery, `_=${ tail }`)
-      dist = Observable.defer(() => http.setUrl(urlWithTail).get()['request'])
+      let requestUrl = urlWithQuery
+      if (!options.cache) {
+        requestUrl = appendQueryString(urlWithQuery, `_=${ tail }`)
+      }
+      dist = Observable.defer(() => http.setUrl(requestUrl).get()['request'])
         .shareReplay<any>(1)
         .finally(() => {
           SDKFetch.FetchStack.delete(urlWithQuery)
