@@ -4,3 +4,4 @@ export * from './WebClient'
 export * from './Network'
 import * as Page from './Pagination'
 export { Page }
+export * from './batch'
