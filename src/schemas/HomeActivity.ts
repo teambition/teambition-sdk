@@ -154,7 +154,9 @@ export namespace HomeActivityType {
   // 未知
   export type Unknown = {
     type: 'unknown'
-    content: Common
+    content: Common & {
+      unftitle?: string
+    }
   }
 
   export type Union =
