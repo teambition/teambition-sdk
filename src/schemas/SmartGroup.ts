@@ -39,6 +39,7 @@ export interface SmartGroupSchema {
       key: string
       order: 'asc' | 'desc'
     }
+    tableSeeThroughSubtasks?: boolean
   },
   orderBy?: TaskSortMethod
   filter: string
