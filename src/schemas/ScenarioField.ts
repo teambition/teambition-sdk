@@ -33,6 +33,8 @@ export interface CustomScenarioFieldSchema extends ScenarioFieldSchema<CustomSce
   _customfieldentityId?: CustomFieldEntityId // 自定义字段添加副本前的场景字段上不存在此字段
   customfield?: CustomFieldSchema | null // 返回 null 表示该字段不存在已经被删了
   customfieldentity?: CustomFieldEntitySchema
+  default?: string | string[]
+  placeholder?: string
 }
 
 export type TaskScenarioFieldSchema =
