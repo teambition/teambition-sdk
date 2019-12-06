@@ -19,6 +19,7 @@ declare module 'teambition-types' {
   export type ActivityId = string & { kind: 'ActivityId' }
   export type AdvancedCustomFieldId = string & { kind: 'AdvancedCustomFieldId' }
   export type ApplicationId = string & { kind: 'ApplicationId' }
+  export type AssignmentLinkId = string & { kind: 'AssignmentLink' }
   export type CollectionId = string & { kind: 'CollectionId' }
   export type CommonGroupId = string & { kind: 'CommonGroupId' }
   export type CustomFieldCategoryId = string & { kind: 'CustomFieldCategoryId' }
@@ -89,6 +90,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type Actor = 'executor' | 'creator'
+  export type AssignmentType = 'teambition' | 'aone'
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work' | 'cascading'
   export type CustomFieldSubtype = 'story' | 'bug'
