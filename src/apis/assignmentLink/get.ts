@@ -1,7 +1,8 @@
+import 'rxjs/add/operator/pluck'
 import { Observable } from 'rxjs/Observable'
-import { QueryToken } from '../../db'
+// import { QueryToken } from '../../db'
 import { SDKFetch } from '../../SDKFetch'
-import { SDK, CacheStrategy } from '../../SDK'
+// import { SDK, CacheStrategy } from '../../SDK'
 import { ProjectId } from 'teambition-types'
 import { AssignmentLinkSchema } from '../../schemas/AssignmentLink'
 
