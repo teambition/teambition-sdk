@@ -127,6 +127,7 @@ declare module 'teambition-types' {
   export type SwimAxisLane = 'sprint' | 'subtask' | 'executor' | 'stage' | 'priority' | 'isDone'
     | 'taskType' | 'rating' | 'storyPoint'
   export type BoardAxisType = 'iterationSprint' | 'priority' | 'stage' | 'taskflowStatus' | 'taskflow' | 'scenarioConfig' | 'scenarioConfigStatus'
+    | 'dueDate' | 'updated' | 'executor'
   export type TagType = 'organization' | 'project'
   export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
   export type TaskDivisionType = 'scenariofields' | 'subtasks' | 'links'
