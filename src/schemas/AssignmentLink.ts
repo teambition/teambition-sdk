@@ -19,7 +19,7 @@ export interface AssignmentLinkSchema {
     logo: string
     _id: string
     name: string
-  }
+  } | null
 }
 
 const schema: SchemaDef<AssignmentLinkSchema> = {
