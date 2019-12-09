@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable'
-import { SDK, CacheStrategy } from '../../SDK'
+import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
 import { ProjectId, AssignmentLinkId } from 'teambition-types'
 

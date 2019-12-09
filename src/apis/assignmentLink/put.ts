@@ -4,9 +4,11 @@ import { SDKFetch } from '../../SDKFetch'
 import { ProjectId, AssignmentLinkId } from 'teambition-types'
 import { AssignmentLinkSchema } from '../../schemas/AssignmentLink'
 
-type AssignmentLink = Pick<
-  AssignmentLinkSchema,
-  'name' | '_assignedProjectId' | '_executorId' | 'assignmentType'
+type AssignmentLink = Partial<
+  Pick<
+    AssignmentLinkSchema,
+    'name' | '_assignedProjectId' | '_executorId' | 'assignmentType'
+  >
 >
 
 export function updateAssignmentLinkFetch(
