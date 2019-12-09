@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.73-alpha.2-assignlinks",
+  "version": "0.12.73-alpha.4-assignment",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
