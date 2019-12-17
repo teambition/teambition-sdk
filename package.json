@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.73-alpha.9-flowstatus",
+  "version": "0.12.73-alpha.10-setHttpMethods",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
