@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.73-alpha.11-milestone",
+  "version": "0.12.73-alpha.14-milestone.and.lagtime",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
