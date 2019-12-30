@@ -117,7 +117,6 @@ export function getScenarioFieldConfigs(
               'name',
               'kind',
               'rejectStatusIds',
-              'hasTaskflowEngineConfig',
               'pos'
             ]
           }
