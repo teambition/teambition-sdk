@@ -5,7 +5,6 @@ import { TaskflowId, TaskflowStatusId, UserId } from 'teambition-types'
 export interface TaskflowStatusSnippet {
   _id: TaskflowStatusId
   _taskflowId: TaskflowId
-  hasTaskflowEngineConfig: boolean
   kind: 'start' | 'end' | 'unset'
   name: string
   pos: number
@@ -29,9 +28,6 @@ const schema: SchemaDef<TaskflowStatusSchema> = {
   },
   _taskflowId: {
     type: RDBType.STRING
-  },
-  hasTaskflowEngineConfig: {
-    type: RDBType.BOOLEAN
   },
   created: {
     type: RDBType.DATE_TIME
