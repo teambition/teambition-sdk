@@ -249,6 +249,43 @@ export default describe('net/http', () => {
       .subscribeOn(Scheduler.asap)
   })
 
+  it('should emit non-standard error message to original$, while not errorAdaptor$', function* () {
+    const status = 500
+    fetchMock.mock(url, { method: 'get', status })
+
+    const nonStandardError = new TypeError('hello')
+    const errorAdaptor$ = new Subject<HttpErrorMessage>()
+    const fetchInstance2 = new Http(url, errorAdaptor$)
+    // 要验证：内部 mapFn 对报错的特殊处理对原请求流和 errorAdaptor$ 都生效
+    fetchInstance2['mapFn'] = ((source) => {
+      return source.catch((_e) => {
+        // 不管源报错，这里抛出一个不符合预期的报错，确认能处理这种意外的报错
+        return Observable.throw(nonStandardError)
+      })
+    })
+
+    const caught$ = fetchInstance2.get()
+      .send()
+      .catch((res: any) => Observable.of(res))
+
+    yield Observable.merge(
+      caught$.map((x) => ({ kind: 'caught', value: x })),
+      errorAdaptor$.map((x) => ({ kind: 'errorAdaptor', value: x })).takeUntil(Observable.timer(20))
+    )
+      .do(({ kind, value: e }) => {
+        if (kind === 'errorAdaptor') {
+          throw 'errorAdaptor$ should not emit non-standard error'
+        }
+        expect(e.name).to.equal(nonStandardError.name)
+        expect(e.message).to.equal(nonStandardError.message)
+      })
+      .catch(() => {
+        expect('Should not reach here!').to.equal('')
+        return Observable.empty()
+      })
+      .subscribeOn(Scheduler.asap)
+  })
+
   it('createMethod() should give response text when it cannot be parsed successfully', function* () {
     const letJSONparseThrow = '[1, 2, 3,]'
     fetchMock.getOnce(url, letJSONparseThrow)

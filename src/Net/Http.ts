@@ -251,10 +251,13 @@ export class Http<T> {
     const response$ = this.mapFn(this.request)
     return response$
       .catch((msg: HttpErrorMessage) => {
-        const msgClone = { ...msg, error: msg.error.clone() }
-        setTimeout(() => {
-          this.errorAdapter$.next(msgClone)
-        }, 10)
+        // 标准格式的报错才走 errorAdaptor$（目前用于直通应用界面全局 Toast）
+        if (msg.error && msg.error.clone) {
+          const msgClone = { ...msg, error: msg.error.clone() }
+          setTimeout(() => {
+            this.errorAdapter$.next(msgClone)
+          }, 10)
+        }
         return Observable.throw(msg)
       })
   }
