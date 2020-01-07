@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.73-beta.2-sethttpmethod",
+  "version": "0.12.74-alpha.2-milestone",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
