@@ -100,6 +100,9 @@ export interface ProjectSchema {
   proTemplateType?: string // 如 'scrum'
   normalType: string /*如 'taskflow'*/ | null
   windowModeOfAddTask: 'large' | 'default'
+  payload?: {
+    autoTaskScheduling?: boolean
+  }
 }
 
 const Schema: SchemaDef<ProjectSchema> = {
@@ -233,6 +236,9 @@ const Schema: SchemaDef<ProjectSchema> = {
         _ownerId: userTable._id
       })
     }
+  },
+  payload: {
+    type: RDBType.OBJECT
   },
   permissionBinding: {
     type: RDBType.OBJECT
