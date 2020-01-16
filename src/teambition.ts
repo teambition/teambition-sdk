@@ -428,6 +428,18 @@ declare module 'teambition-types' {
     name: string
   }
 
+  export interface TapChartProject {
+    id: ProjectId
+    logo: string
+    name: string
+  }
+
+  export interface TapCrossUser {
+    id: UserId
+    avatarUrl: string
+    name: string
+  }
+
   export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType | TapDimensionBaseDataType, U> = {
     component: TapFilterComponent
     column: R
@@ -446,6 +458,7 @@ declare module 'teambition-types' {
   }
 
   export interface TapGenericFilterRequest {
+    projects?: ProjectId[]
     projectId?: ProjectId[]
     executorId?: UserId[]
     executorGroup?: TeamId[]
