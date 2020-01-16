@@ -19,6 +19,7 @@ import { SprintSchema } from './Sprint'
 import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
+import { ScenarioFieldConfigSchema } from './ScenarioFieldConfig'
 import { Omit } from '../utils'
 
 type Parent = Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
@@ -37,6 +38,7 @@ export interface TaskSchema {
   isDone: boolean
   isArchived: boolean
   isDeleted: boolean
+  isTopInProject: boolean
   created: string
   creator?: ExecutorOrCreator
   updated: string
@@ -76,6 +78,7 @@ export interface TaskSchema {
   parent: Parent & Partial<Omit<TaskSchema, keyof Parent>>
   progress: number
   rating: 0 | 1 | 2 | 3 | 4 | 5
+  scenariofieldconfig?: Pick<ScenarioFieldConfigSchema, '_id' | 'name' | 'icon'> | null
   stage: Pick<StageSchema, '_id' | 'name' | 'order'>
   storyPoint: string
   sprint?: SprintSchema
@@ -201,6 +204,9 @@ const schema: SchemaDef<TaskSchema> = {
   isFavorite: {
     type: RDBType.BOOLEAN
   },
+  isTopInProject: {
+    type: RDBType.BOOLEAN
+  },
   likesCount: {
     type: RDBType.NUMBER
   },
@@ -248,6 +254,15 @@ const schema: SchemaDef<TaskSchema> = {
   },
   reminder: {
     type: RDBType.OBJECT
+  },
+  scenariofieldconfig: {
+    type: Relationship.oneToOne,
+    virtual: {
+      name: 'ScenarioFieldConfig',
+      where: (scenariofieldconfigTable: any) => {
+        return { _scenariofieldconfigId: scenariofieldconfigTable._id }
+      }
+    }
   },
   shareStatus: {
     type: RDBType.NUMBER
