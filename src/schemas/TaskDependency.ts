@@ -14,6 +14,7 @@ export type TaskDependencySchema<T = ''> = {
   _toId: TaskId
   _creatorId: UserId
   kind: TaskDependencyKind
+  lagTime: number
   created: string
   updated: string
 } & (T extends 'with-task' ? {
@@ -49,6 +50,9 @@ const schema: SchemaDef<TaskDependencySchema<'with-task'>> = {
   },
   kind: {
     type: RDBType.STRING,
+  },
+  lagTime: {
+    type: RDBType.NUMBER,
   },
   to: {
     type: Relationship.oneToOne,

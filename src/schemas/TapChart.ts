@@ -1,10 +1,14 @@
 import { Moment } from 'moment'
 
 import {
+  UserId,
   TaskId,
   ProjectId,
+  OrganizationId,
   TapChartId,
   TapChartName,
+  TapCrossUser,
+  TapChartProject,
   TapDataSettings,
   TapDimensionType,
   TapSelectSection,
@@ -179,14 +183,10 @@ export type TapGraphVisualizationSettingsSet =
   TapGraphVisualizationSettings<'area', TapGraphAreaDisplay> |
   TapGraphVisualizationSettings<'bubble', TapGraphBubbleDisplay>
 
-// tapChart definition
-export interface TapChart<T extends FilterRequest | FilterResponse> {
-
+export interface TapBaseChart <T extends FilterRequest | FilterResponse> {
   _id: TapChartId
 
   settings?: TapDataSettings
-
-  _projectId: ProjectId
 
   chartType: TapChoiceChartType
 
@@ -213,4 +213,19 @@ export interface TapChart<T extends FilterRequest | FilterResponse> {
   graphData: TapGraphData[]
 
   link?: string
+
+  creator: UserId
+}
+
+export interface TapInnerChart<T> extends TapBaseChart<T> {
+  _projectId: ProjectId
+  savedDisabled: boolean
+  export?: boolean
+}
+
+export interface TapCrossChart<T> extends TapBaseChart<T> {
+  _organizationId: OrganizationId
+  projects: TapChartProject[]
+  description: string
+  involveMembers: TapCrossUser[]
 }

@@ -19,6 +19,7 @@ declare module 'teambition-types' {
   export type ActivityId = string & { kind: 'ActivityId' }
   export type AdvancedCustomFieldId = string & { kind: 'AdvancedCustomFieldId' }
   export type ApplicationId = string & { kind: 'ApplicationId' }
+  export type AssignmentLinkId = string & { kind: 'AssignmentLink' }
   export type CollectionId = string & { kind: 'CollectionId' }
   export type CommonGroupId = string & { kind: 'CommonGroupId' }
   export type CustomFieldCategoryId = string & { kind: 'CustomFieldCategoryId' }
@@ -89,6 +90,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type Actor = 'executor' | 'creator'
+  export type AssignmentType = 'teambition' | 'aone'
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work' | 'cascading'
   export type CustomFieldSubtype = 'story' | 'bug'
@@ -116,7 +118,7 @@ declare module 'teambition-types' {
     | TaskOfficialScenarioFieldType
     | EventOfficialScenarioFieldType
     | TestcaseOfficialScenarioFieldType
-  export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask'
+  export type ScenarioProTemplateConfigType = 'story' | 'bug' | 'subtask' | 'milestone'
   export type SmartGroupPredefinedIcon = 'taskToday' | 'taskUndone' | 'taskDone' | 'taskNotAssigned' | 'taskMyExecuted'
   export type SmartGroupType = 'custom' | 'story' | 'sprint' | 'bug' | 'story.custom' | 'bug.custom' | 'sprint.custom'
   export type SmartGroupViewType = 'table' | 'time' | 'kanban' | 'list'
@@ -131,9 +133,9 @@ declare module 'teambition-types' {
   export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
   export type TaskDivisionType = 'scenariofields' | 'subtasks' | 'links'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
-  export type TaskPriority = 0 | 1 | 2
+  export type TaskPriority = -10 | 0 | 1 | 2
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
-    | 'forum'
+    | 'forum' | 'milestone'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
   export type TestcaseOfficialScenarioFieldType = 'precondition' | 'priority' | 'steps' | 'caseType'
   export type TestcaseScenarioFieldIcon = 'testcase'
@@ -428,6 +430,18 @@ declare module 'teambition-types' {
     name: string
   }
 
+  export interface TapChartProject {
+    id: ProjectId
+    logo: string
+    name: string
+  }
+
+  export interface TapCrossUser {
+    id: UserId
+    avatarUrl: string
+    name: string
+  }
+
   export type TapFilterTarget<R extends TapBaseRefType, D extends TapBaseDataType | TapDimensionBaseDataType, U> = {
     component: TapFilterComponent
     column: R
@@ -446,6 +460,7 @@ declare module 'teambition-types' {
   }
 
   export interface TapGenericFilterRequest {
+    projects?: ProjectId[]
     projectId?: ProjectId[]
     executorId?: UserId[]
     executorGroup?: TeamId[]

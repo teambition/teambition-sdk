@@ -26,7 +26,7 @@ export interface HttpResponseWithHeaders<T = any> {
   body: T
 }
 
-type MethodParams = {
+export type MethodParams = {
   url: string,
   body?: any,
   _opts: any,
@@ -74,7 +74,7 @@ const normResponseStatus = (resp: Response | XMLHttpRequest, respHeaders: Header
 
 export const HttpError$ = new Subject<HttpErrorMessage>() as any as Observable<HttpErrorMessage>
 
-export const createMethod = (method: AllowedHttpMethod) => (params: MethodParams): Observable<any> => {
+export const createMethod = (method: AllowedHttpMethod): CreateHttpMethod => (params: MethodParams) => {
   const { url, body, _opts, includeHeaders } = params
 
   /* istanbul ignore if */
@@ -162,6 +162,14 @@ export const getHttpWithResponseHeaders = <T>(
   return new Http<HttpResponseWithHeaders<T>>(url, errorAdapter$, true)
 }
 
+type CreateHttpMethod = (params: MethodParams) => Observable<any>
+interface SetHttpMethodsOptions {
+  get: CreateHttpMethod
+  put: CreateHttpMethod
+  post: CreateHttpMethod
+  delete: CreateHttpMethod
+}
+
 export class Http<T> {
   private errorAdapter$: Subject<HttpErrorMessage>
   private cloned = false
@@ -172,6 +180,13 @@ export class Http<T> {
   private static put = createMethod('put')
   private static post = createMethod('post')
   private static delete = createMethod('delete')
+
+  public static setMethods(options: SetHttpMethodsOptions) {
+    Http.get = options.get
+    Http.put = options.put
+    Http.post = options.post
+    Http.delete = options.delete
+  }
 
   private static defaultOpts = () => ({
     headers: {},
