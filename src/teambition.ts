@@ -90,6 +90,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type Actor = 'executor' | 'creator'
+  export type ApprovalStatus = -1 | 1 | 2
   export type AssignmentType = 'teambition' | 'aone'
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work' | 'cascading'
@@ -565,4 +566,16 @@ declare module 'teambition-types' {
     | TapFilterTarget<'weekSeries', 'type/String', TapSupportedWeekSeries[]>
 
   export type TapGenericFilterResponse = TapFilterItem[]
+
+  export interface ApprovalSchema {
+    status: ApprovalStatus
+    nodes: string[]
+    taskId: TaskId
+    created: string
+    updated: string
+    orderId: string // 审批单 ID
+    approvalFlowName: string
+    creator: ExecutorOrCreator
+    url: string
+  }
 }
