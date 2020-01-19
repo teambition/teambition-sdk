@@ -565,4 +565,22 @@ declare module 'teambition-types' {
     | TapFilterTarget<'weekSeries', 'type/String', TapSupportedWeekSeries[]>
 
   export type TapGenericFilterResponse = TapFilterItem[]
+
+  // 审批应用与审批状态
+  export enum ApprovalStatus {
+    Rejected = 0,
+    Pending,
+    Approved,
+  }
+
+  export interface ApprovalStatusSchema {
+    status: ApprovalStatus
+    nodes: string[]
+    taskId: TaskId
+    created: string
+    updated: string
+    orderId: string // 审批单 ID
+    approvalFlowName: string
+    creator: ExecutorOrCreator
+  }
 }
