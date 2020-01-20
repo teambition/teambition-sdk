@@ -1,5 +1,5 @@
 import { RDBType, SchemaDef } from '../db'
-import { SprintId, ProjectId, UserId } from 'teambition-types'
+import { SprintId, ProjectId, UserId, UserSnippet } from 'teambition-types'
 import { schemaColl } from './schemas'
 
 export interface SprintSchema {
@@ -14,6 +14,9 @@ export interface SprintSchema {
   noStoryPointTaskCount: number
   created: string
   updated: string
+  description: string
+  executor: UserSnippet | null
+  _executorId: UserId | null
 }
 
 const schema: SchemaDef<SprintSchema> = {
@@ -24,14 +27,23 @@ const schema: SchemaDef<SprintSchema> = {
   _creatorId: {
     type: RDBType.STRING
   },
+  _executorId: {
+    type: RDBType.STRING
+  },
   _projectId: {
     type: RDBType.STRING
   },
   created: {
     type: RDBType.DATE_TIME
   },
+  description: {
+    type: RDBType.STRING
+  },
   dueDate: {
     type: RDBType.DATE_TIME
+  },
+  executor: {
+    type: RDBType.OBJECT
   },
   isDeleted: {
     type: RDBType.BOOLEAN
