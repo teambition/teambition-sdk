@@ -90,7 +90,7 @@ declare module 'teambition-types' {
 
 declare module 'teambition-types' {
   export type Actor = 'executor' | 'creator'
-  export type ApprovalStatus = 0 | 1 | 2
+  export type ApprovalStatus = -1 | 1 | 2
   export type AssignmentType = 'teambition' | 'aone'
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work' | 'cascading'
