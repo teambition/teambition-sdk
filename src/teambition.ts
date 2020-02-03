@@ -76,6 +76,7 @@ declare module 'teambition-types' {
   export type UserId = string & { kind: 'UserId' }
   export type VersionId = string & { kind: 'VersionId' }
   export type WorkId = string & { kind: 'WorkId' }
+  export type TaskPosId = string & { kind: 'TaskPosId' }
 }
 
 // computed id
