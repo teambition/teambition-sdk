@@ -139,4 +139,12 @@ describe('TableInfoByMessageType + schemas + TableAlias spec', () => {
     })
   })
 
+  it('should map `taskpos`(case-insensitive) to `TaskPos`', () => {
+    ['TaskPos', 'taskPos'].forEach((msgType) => {
+      expect(mapToTable.getTableInfo(msgType)).to.deep.equal({
+        pkName: '_id', tabName: 'TaskPos'
+      })
+    })
+  })
+
 })
