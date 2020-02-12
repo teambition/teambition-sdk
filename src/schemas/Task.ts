@@ -1,5 +1,8 @@
 import { RDBType, Relationship, SchemaDef } from '../db'
-import { CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption, OrganizationId, TaskDivisionType } from 'teambition-types'
+import {
+  CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption,
+  OrganizationId, TaskDivisionType, ApprovalSchema
+} from 'teambition-types'
 import {
   ProjectId,
   ScenarioFieldConfigId,
@@ -98,6 +101,7 @@ export interface TaskSchema {
     usedTime: number
     unit: string
   }
+  approve?: Pick<ApprovalSchema, 'status'> | ApprovalSchema
 }
 
 const schema: SchemaDef<TaskSchema> = {
@@ -145,6 +149,9 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.LITERAL_ARRAY
   },
   ancestors: {
+    type: RDBType.OBJECT
+  },
+  approve: {
     type: RDBType.OBJECT
   },
   attachmentsCount: {
