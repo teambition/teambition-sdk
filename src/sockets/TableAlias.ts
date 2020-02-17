@@ -15,7 +15,6 @@ export default {
   ChatMessages: 'Activity',
   Activities: 'Activity',
   HomeActivities: 'HomeActivity',
-  TaskflowStatus: 'TaskflowStatus', // 会被作为复数形式去除最后的s
   CustomFieldCategories: 'CustomFieldCategory',
   Dependency: 'TaskDependency',
   Dependencies: 'TaskDependency',
