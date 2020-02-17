@@ -14,7 +14,8 @@ describe('TableInfoByMessageType spec', () => {
     { name: 'Event', schema: { _id: { primaryKey: true } } },
     { name: 'Activity', schema: { _id: { primaryKey: true } } },
     { name: 'CustomFieldLink', schema: { _id: { primaryKey: true } } },
-    { name: 'Alias', schema: { _id: { primaryKey: true } } }
+    { name: 'Alias', schema: { _id: { primaryKey: true } } },
+    { name: 'TaskFlowStatus', schema: { _id: { primaryKey: true } } }
   ]
 
   schemas.forEach((schemaInfo: any) => {
@@ -44,6 +45,12 @@ describe('TableInfoByMessageType spec', () => {
     const target = { pkName: '_id', tabName: 'Event' }
     expect(mapToTable.getTableInfo('events')).to.deep.equal(target)
     expect(mapToTable.getTableInfo('Events')).to.deep.equal(target)
+  })
+
+  it('should map a singular form message `ssss` or `SsSs` to its table info', () => {
+    const target = { pkName: '_id', tabName: 'TaskFlowStatus' }
+    expect(mapToTable.getTableInfo('taskflowstatus')).to.deep.equal(target)
+    expect(mapToTable.getTableInfo('TaskFlowStatus')).to.deep.equal(target)
   })
 
   it('should return null when no table info is defined for the message `type-ies`', () => {

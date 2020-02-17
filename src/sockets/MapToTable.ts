@@ -25,15 +25,15 @@ export class TableInfoByMessageType {
   }
 
   private getTableName(msgType: string): string | undefined {
-    const msgtypes = msgType.toLowerCase()
+    const msgtype = msgType.toLowerCase()
 
-    const alias = this.tabAliasByLowerCase[msgtypes]
+    const alias = this.tabAliasByLowerCase[msgtype]
     if (alias) {
       return this.tableAlias[alias]
     }
 
-    const msgtype = cutTrailingS(msgtypes)
     return this.tabNameByLowerCase[msgtype]
+     || this.tabNameByLowerCase[cutTrailingS(msgtype)]
   }
 
   getTableInfo(msgType: string): TableInfo | null {
