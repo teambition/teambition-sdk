@@ -5,6 +5,8 @@ import './Collection'
 export * from './Collection'
 import './CustomRole'
 export * from './CustomRole'
+import './CustomApplication'
+export * from './CustomApplication'
 // import './DashboardCard' // 目前不需建表
 export * from './DashboardCard'
 import './DefaultRole'
