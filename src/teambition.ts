@@ -192,6 +192,7 @@ declare module 'teambition-types' {
     | 'ontimedone_detail'
     | 'duetoday_detail'
     | 'overduedone_detail'
+    | 'noduetime_detail'
 }
 
 declare module 'teambition-types' {
