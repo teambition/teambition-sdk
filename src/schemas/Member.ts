@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from '../db'
-import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId } from 'teambition-types'
+import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId, MemberIdentityId } from 'teambition-types'
 import { ProjectSchema } from './Project'
 import { schemaColl } from './schemas'
 import { UserPaymentPlan } from './UserMe'
@@ -34,6 +34,7 @@ export interface GeneralMemberSchema {
   joined: string
   latestActived: string
   location: string
+  memberIdentityIds: MemberIdentityId[]
   name: string
   nickname: string
   nicknamePinyin: string
@@ -76,6 +77,7 @@ const Schema: SchemaDef<GeneralMemberSchema> = {
   joined: { type: RDBType.DATE_TIME },
   latestActived: { type: RDBType.DATE_TIME },
   location: { type: RDBType.STRING },
+  memberIdentityIds: { type: RDBType.LITERAL_ARRAY },
   name: { type: RDBType.STRING },
   nickname: { type: RDBType.STRING },
   nicknamePinyin: { type: RDBType.STRING },

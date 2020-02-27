@@ -39,6 +39,7 @@ declare module 'teambition-types' {
   export type GroupId = string & { kind: 'GroupId' }
   export type HomeActivityId = string & { kind: 'HomeActivityId' }
   export type MemberId = string & { kind: 'MemberId' }
+  export type MemberIdentityId = string & { kind: 'MemberIdentityId' }
   export type MessageId = string & { kind: 'MessageId' }
   export type ObjectLinkId = string & { kind: 'ObjectLinkId' }
   export type OrganizationId = string & { kind: 'OrganizationId' }

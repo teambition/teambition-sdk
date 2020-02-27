@@ -1,5 +1,5 @@
 import { RDBType, SchemaDef, Relationship } from '../db'
-import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet, PermissionBinding, TasklistId } from 'teambition-types'
+import { CustomFieldValue, ExecutorOrCreator, TaskSortMethod, UserSnippet, PermissionBinding, TasklistId, MemberIdentityId } from 'teambition-types'
 import { ProjectId, UserId, OrganizationId, RoleId, CollectionId, ApplicationId } from 'teambition-types'
 import { schemaColl } from './schemas'
 import { OrganizationSchema } from './Organization'
@@ -53,6 +53,7 @@ export interface ProjectSchema {
   isSuspended: boolean
   isTemplate: boolean
   logo: string
+  memberIdentityIds?: MemberIdentityId[]
   membersCount: number
   name: string
   organization?: Pick<OrganizationSchema,
@@ -209,6 +210,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   logo: {
     type: RDBType.STRING
+  },
+  memberIdentityIds: {
+    type: RDBType.LITERAL_ARRAY
   },
   membersCount: {
     type: RDBType.NUMBER
