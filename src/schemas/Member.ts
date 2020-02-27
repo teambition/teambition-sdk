@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from '../db'
-import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId } from 'teambition-types'
+import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId, MemberIdentityId } from 'teambition-types'
 import { ProjectSchema } from './Project'
 import { schemaColl } from './schemas'
 import { UserPaymentPlan } from './UserMe'
@@ -24,6 +24,7 @@ export interface GeneralMemberSchema {
   _memberId: MemberId
   _roleId: RoleId
   _userId: UserId
+  memberIdentityIds: MemberIdentityId[]
   avatarUrl: string
   boundToObjectType: 'project' | 'organization'
   email: string
@@ -66,6 +67,7 @@ const Schema: SchemaDef<GeneralMemberSchema> = {
   _memberId: { type: RDBType.STRING },
   _roleId: { type: RDBType.STRING },
   _userId: { type: RDBType.STRING },
+  memberIdentityIds: { type: RDBType.LITERAL_ARRAY },
   avatarUrl: { type: RDBType.STRING },
   boundToObjectType: { type: RDBType.STRING },
   email: { type: RDBType.STRING },
