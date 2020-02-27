@@ -31,6 +31,8 @@ import './Preference'
 export * from './Preference'
 import './Project'
 export * from './Project'
+import './ProjectRole'
+export * from './ProjectRole'
 import './ProjectTag'
 export * from './ProjectTag'
 // import './ProjectTemplate' // 目前不需建表

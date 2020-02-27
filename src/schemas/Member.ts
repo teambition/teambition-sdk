@@ -1,5 +1,5 @@
 import { SchemaDef, RDBType } from '../db'
-import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId } from 'teambition-types'
+import { MemberId, OrganizationId, ProjectId, RoleId, TeamId, UserId, ProjectRoleId } from 'teambition-types'
 import { ProjectSchema } from './Project'
 import { schemaColl } from './schemas'
 import { UserPaymentPlan } from './UserMe'
@@ -23,6 +23,7 @@ export interface GeneralMemberSchema {
   _id: string // 兼容新（MemberId）和旧（UserId），当完成迁移，换为更准确的 MemberId
   _memberId: MemberId
   _roleId: RoleId
+  _projectRoleId: ProjectRoleId // todo(shaowei): 仅在 boundObject 为 project 时存在
   _userId: UserId
   avatarUrl: string
   boundToObjectType: 'project' | 'organization'
@@ -65,6 +66,7 @@ const Schema: SchemaDef<GeneralMemberSchema> = {
   _id: { type: RDBType.STRING, primaryKey: true },
   _memberId: { type: RDBType.STRING },
   _roleId: { type: RDBType.STRING },
+  _projectRoleId: { type: RDBType.STRING },
   _userId: { type: RDBType.STRING },
   avatarUrl: { type: RDBType.STRING },
   boundToObjectType: { type: RDBType.STRING },

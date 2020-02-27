@@ -48,6 +48,7 @@ declare module 'teambition-types' {
   export type ProjectId = string & { kind: 'ProjectId' }
   export type ProjectPortalMode = 'grid' | 'list' | 'table'
   export type ProjectOrder = 'updated' | 'name' | 'recentVisit'
+  export type ProjectRoleId = string & { kind: 'ProjectRoleId' }
   export type ProjectStatusActivityId = string & { kind: 'ProjectStatusActivityId' }
   export type ProjectTagId = string & { kind: 'ProjectTagId' }
   export type ProjectTemplateId = string & { kind: 'ProjectTemplateId' }
