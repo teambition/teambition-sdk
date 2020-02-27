@@ -2,6 +2,7 @@ export const customFieldLink = {
   boundType: 'application',
   pos: 65536,
   _roleIds: [],
+  allowedMemberIdentityIds: [],
   _projectId: '5a977492a4e7b30012b6436b',
   _id: '5a977492a4e7b30012b6437a',
   name: '缺陷类型',
