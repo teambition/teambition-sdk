@@ -9,6 +9,7 @@ import {
   ScenarioFieldType,
   TaskOfficialScenarioFieldType,
   TestcaseOfficialScenarioFieldType,
+  MemberIdentityId,
 } from 'teambition-types'
 import { CustomFieldSchema } from './CustomField'
 import { CustomFieldEntitySchema } from './CustomFieldEntity'
@@ -19,6 +20,7 @@ export interface ScenarioFieldSchema<T = ScenarioFieldType> {
   _roleIds?: RoleId[] // deprecated
   allowedActors: Actor[] // 创建者和执行者编辑权限
   allowedRoleIds: RoleId[] | null // 编辑权限白名单，若为 null 代表不限制，任何角色有编辑权限
+  allowedMemberIdentityIds: MemberIdentityId[] // 编辑权限成员角色白名单
   displayed: boolean
   required: boolean
 }
