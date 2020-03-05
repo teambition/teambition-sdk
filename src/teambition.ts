@@ -22,6 +22,7 @@ declare module 'teambition-types' {
   export type AssignmentLinkId = string & { kind: 'AssignmentLink' }
   export type CollectionId = string & { kind: 'CollectionId' }
   export type CommonGroupId = string & { kind: 'CommonGroupId' }
+  export type CustomApplicationId = string & { kind: 'CustomApplication' }
   export type CustomFieldCategoryId = string & { kind: 'CustomFieldCategoryId' }
   export type CustomFieldChoiceId = string & { kind: 'CustomFieldChoiceId' }
   export type CustomFieldEntityId = string & { kind: 'CustomFieldEntityId' }
