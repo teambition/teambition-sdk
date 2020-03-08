@@ -1,6 +1,8 @@
 import { SchemaDef, RDBType, Relationship } from '../db'
 import { schemaColl } from './schemas'
-import { TaskflowId, UserId, ProjectId, OrganizationId } from 'teambition-types'
+import {
+  TaskflowId, UserId, ProjectId, OrganizationId, CustomFieldRelevantSetting
+} from 'teambition-types'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface TaskflowSchema {
@@ -11,6 +13,7 @@ export interface TaskflowSchema {
   created: string
   name: string
   objectType: 'task' | 'testcase'
+  setting: CustomFieldRelevantSetting
   taskflowstatuses?: TaskflowStatusSnippet[]
   updated: string
 }
@@ -37,6 +40,9 @@ const schema: SchemaDef<TaskflowSchema> = {
   },
   objectType: {
     type: RDBType.STRING
+  },
+  setting: {
+    type: RDBType.OBJECT
   },
   taskflowstatuses: {
     type: Relationship.oneToMany,
