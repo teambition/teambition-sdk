@@ -1,7 +1,10 @@
 import { SchemaDef, RDBType, Relationship } from '../db'
 import { schemaColl } from './schemas'
 import { CustomFieldType, CustomFieldBoundType, AdvancedCustomField, CustomFieldSubtype, UserId, UserSnippet } from 'teambition-types'
-import { CustomFieldId, CustomFieldLinkId, ProjectId, RoleId, CustomFieldCategoryId, CustomFieldEntityId } from 'teambition-types'
+import {
+  CustomFieldId, CustomFieldLinkId, ProjectId, RoleId, CustomFieldCategoryId,
+  CustomFieldEntityId, CustomFieldRelevantSetting
+} from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
 
@@ -25,6 +28,7 @@ export interface CustomFieldLinkBaseSchema {
   locker: UserSnippet | null
   name: string
   pos: number
+  setting?: CustomFieldRelevantSetting
   type: CustomFieldType
 }
 
@@ -103,6 +107,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   },
   pos: {
     type: RDBType.NUMBER
+  },
+  setting: {
+    type: RDBType.OBJECT
   },
   type: {
     type: RDBType.STRING
