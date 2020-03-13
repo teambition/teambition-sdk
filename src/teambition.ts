@@ -45,6 +45,8 @@ declare module 'teambition-types' {
   export type OrganizationId = string & { kind: 'OrganizationId' }
   export type PostId = string & { kind: 'PostId' }
   export type PreferenceId = string & { kind: 'PreferenceId' }
+  export type PriorityGroupId = string & { kind: 'PriorityGroupId' }
+  export type PriorityOptionId = string & { kind: 'PriorityOptionId' }
   export type ProjectBoardId = string & { kind: 'ProjectBoardId' }
   export type ProjectId = string & { kind: 'ProjectId' }
   export type ProjectPortalMode = 'grid' | 'list' | 'table'
@@ -138,7 +140,7 @@ declare module 'teambition-types' {
   export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
   export type TaskDivisionType = 'scenariofields' | 'subtasks' | 'links'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
-  export type TaskPriority = -10 | 0 | 1 | 2
+  export type TaskPriority = -10 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | null
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
     | 'forum' | 'milestone'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
