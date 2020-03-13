@@ -44,6 +44,8 @@ declare module 'teambition-types' {
   export type OrganizationId = string & { kind: 'OrganizationId' }
   export type PostId = string & { kind: 'PostId' }
   export type PreferenceId = string & { kind: 'PreferenceId' }
+  export type PriorityGroupId = string & { kind: 'PriorityGroupId' }
+  export type PriorityOptionId = string & { kind: 'PriorityOptionId' }
   export type ProjectBoardId = string & { kind: 'ProjectBoardId' }
   export type ProjectId = string & { kind: 'ProjectId' }
   export type ProjectPortalMode = 'grid' | 'list' | 'table'
@@ -108,6 +110,7 @@ declare module 'teambition-types' {
   export type EventOfficialScenarioFieldType = 'content' | 'location' | 'tag'
   export type EventScenarioFieldIcon = 'event' | 'lecture' | 'training' | 'workshop' | 'forum' | 'seminar' | 'personal'
   export type JoinProjectRole = 'default' | 'owner'
+  export type PriorityOptionValue = -10 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
   export type ProjectStatusDegree = 'normal' | 'risky' | 'urgent'
   export type ProjectTagVisibleOption = 'organization' | 'involves'
   export type ProjectTemplateVisibleOption = 'organization' | 'involves'
