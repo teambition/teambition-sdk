@@ -18,7 +18,19 @@ import {
   TapGenericFilterResponse as FilterResponse
 } from 'teambition-types'
 
-export type TapChartType = 'line' | 'bar' | 'linebar' | 'pie' | 'number' | 'table' | 'details' | 'overview' | 'customset' | 'area' | 'bubble'
+export type TapChartType =
+  | 'line'
+  | 'bar'
+  | 'linebar'
+  | 'pie'
+  | 'number'
+  | 'table'
+  | 'details'
+  | 'overview'
+  | 'customset'
+  | 'area'
+  | 'bubble'
+  | 'multiDetails'
 
 // tapGraph definition
 export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String' | 'type/Task'
@@ -181,7 +193,8 @@ export type TapGraphVisualizationSettingsSet =
   TapGraphVisualizationSettings<'overview', TapGraphOverviewDisplay> |
   TapGraphVisualizationSettings<'customset', TapGraphOverviewDisplay> |
   TapGraphVisualizationSettings<'area', TapGraphAreaDisplay> |
-  TapGraphVisualizationSettings<'bubble', TapGraphBubbleDisplay>
+  TapGraphVisualizationSettings<'bubble', TapGraphBubbleDisplay> |
+  TapGraphVisualizationSettings<'multiDetails', TapGraphOverviewDisplay>
 
 export interface TapBaseChart <T extends FilterRequest | FilterResponse> {
   _id: TapChartId
