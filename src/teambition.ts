@@ -402,7 +402,7 @@ declare module 'teambition-types' {
 
   export type TapBaseDataType = 'type/MongoId' | 'type/Date' | 'type/DateCollection' | 'type/Number' | 'type/String' | 'type/Boolean'
 
-  export type TapSupportedRelative = 'all' | 'past7days' | 'pastmonth' | 'past3months'
+  export type TapSupportedRelative = 'all' | 'past7days' | 'pastmonth' | 'past3months' | 'past30days'
 
   export type TapSupportedDateSeries = '0to3' | '3to6' | '6to10' | '10to14' | '14plus'
 
@@ -515,6 +515,7 @@ declare module 'teambition-types' {
     proTemplateConfigType?: ScenarioProTemplateConfigType[]
     isDuedateExist?: boolean
     weekSeries?: TapSupportedWeekSeries[]
+    date?: string
   }
 
   export type TapFilterItem =
@@ -567,6 +568,7 @@ declare module 'teambition-types' {
     | TapFilterTarget<'proTemplateConfigType', 'string', ScenarioProTemplateConfigType>
     | TapFilterTarget<'isDuedateExist', 'boolean', boolean>
     | TapFilterTarget<'weekSeries', 'type/String', TapSupportedWeekSeries[]>
+    | TapFilterTarget<'date', 'type/Date', string>
 
   export type TapGenericFilterResponse = TapFilterItem[]
 
