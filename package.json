@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.77-alpha.3-scenariosetting",
+  "version": "0.12.77-alpha.6-dinganalytics",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
