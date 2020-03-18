@@ -27,6 +27,10 @@ export interface CustomApplicationSchema {
   payload: {
     _smartgroupId: SmartGroupId
   }
+  setting?: {
+    editable?: boolean
+  }
+  source?: string
   title: LangData
   type: CustomApplicationType
   updated: string
@@ -63,6 +67,12 @@ const schema: SchemaDef<CustomApplicationSchema> = {
   },
   payload: {
     type: RDBType.OBJECT
+  },
+  setting: {
+    type: RDBType.OBJECT
+  },
+  source: {
+    type: RDBType.STRING
   },
   title: {
     type: RDBType.OBJECT

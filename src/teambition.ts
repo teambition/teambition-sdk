@@ -217,6 +217,12 @@ declare module 'teambition-types' {
     meta?: {}
   }
 
+  export interface CustomFieldRelevantSetting {
+    editable?: boolean
+    quotable?: boolean
+    removable?: boolean
+  }
+
   export interface CustomFieldWorkSnapshotItem {
     _id: FileId
     fileType: string

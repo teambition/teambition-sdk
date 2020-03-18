@@ -38,6 +38,10 @@ export interface ScenarioFieldConfigSchema {
   scenariofields: ScenarioFieldSchema[]
   type: 'default' | 'official' | 'normal'
   proTemplateConfigType?: string | null
+  setting?: {
+    removable?: boolean
+    taskflowChangeable?: boolean
+  }
   updated: string
 }
 
@@ -120,6 +124,9 @@ const schema: SchemaDef<
       type: RDBType.STRING
     },
     scenariofields: {
+      type: RDBType.OBJECT
+    },
+    setting: {
       type: RDBType.OBJECT
     },
     taskflowstatuses: {
