@@ -101,7 +101,8 @@ export interface TaskSchema {
     usedTime: number
     unit: string
   }
-  approve?: Pick<ApprovalSchema, 'status'> | ApprovalSchema
+  approve?: Pick<ApprovalSchema, 'status'> | ApprovalSchema,
+  effort: number | null
 }
 
 const schema: SchemaDef<TaskSchema> = {
@@ -192,6 +193,9 @@ const schema: SchemaDef<TaskSchema> = {
         _executorId: userTable._id
       })
     }
+  },
+  effort: {
+    type: RDBType.NUMBER
   },
   involvers: {
     type: RDBType.OBJECT
