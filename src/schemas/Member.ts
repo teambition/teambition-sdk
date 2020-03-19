@@ -24,7 +24,6 @@ export interface GeneralMemberSchema {
   _memberId: MemberId
   _roleId: RoleId
   _userId: UserId
-  memberIdentityIds: MemberIdentityId[]
   avatarUrl: string
   boundToObjectType: 'project' | 'organization'
   email: string
@@ -35,6 +34,7 @@ export interface GeneralMemberSchema {
   joined: string
   latestActived: string
   location: string
+  memberIdentityIds: MemberIdentityId[]
   name: string
   nickname: string
   nicknamePinyin: string
@@ -67,7 +67,6 @@ const Schema: SchemaDef<GeneralMemberSchema> = {
   _memberId: { type: RDBType.STRING },
   _roleId: { type: RDBType.STRING },
   _userId: { type: RDBType.STRING },
-  memberIdentityIds: { type: RDBType.LITERAL_ARRAY },
   avatarUrl: { type: RDBType.STRING },
   boundToObjectType: { type: RDBType.STRING },
   email: { type: RDBType.STRING },
@@ -78,6 +77,7 @@ const Schema: SchemaDef<GeneralMemberSchema> = {
   joined: { type: RDBType.DATE_TIME },
   latestActived: { type: RDBType.DATE_TIME },
   location: { type: RDBType.STRING },
+  memberIdentityIds: { type: RDBType.LITERAL_ARRAY },
   name: { type: RDBType.STRING },
   nickname: { type: RDBType.STRING },
   nicknamePinyin: { type: RDBType.STRING },

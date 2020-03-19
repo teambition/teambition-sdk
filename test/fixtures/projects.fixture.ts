@@ -79,6 +79,7 @@ export const normalProject = {
   ],
   _roleId: '5874c001a84ddc0c85c4054e',
   _orgRoleId: 1,
+  memberIdentityIds: [],
   unreadCount: 84,
   pushStatus: false,
   role: {
