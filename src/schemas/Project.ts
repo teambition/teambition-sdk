@@ -56,6 +56,7 @@ export interface ProjectSchema {
   memberIdentityIds?: MemberIdentityId[]
   membersCount: number
   name: string
+  openId?: string
   organization?: Pick<OrganizationSchema,
     | '_id'
     | 'description'
@@ -218,6 +219,9 @@ const Schema: SchemaDef<ProjectSchema> = {
     type: RDBType.NUMBER
   },
   name: {
+    type: RDBType.STRING
+  },
+  openId: {
     type: RDBType.STRING
   },
   orgLevel: {
