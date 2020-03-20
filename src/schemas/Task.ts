@@ -70,6 +70,7 @@ export interface TaskSchema {
   attachmentsCount: number
   likesCount: number
   objectlinksCount: number
+  openId?: string
   shareStatus: number
   reminder: Reminder
   subtaskCount: {
@@ -224,6 +225,9 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.NUMBER
   },
   objectType: {
+    type: RDBType.STRING
+  },
+  openId: {
     type: RDBType.STRING
   },
   parent: {
