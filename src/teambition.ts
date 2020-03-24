@@ -145,7 +145,7 @@ declare module 'teambition-types' {
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
     | 'forum' | 'milestone'
   export type TeamMemberStatus = 'in' | 'quited' | 'disabled'
-  export type TestcaseOfficialScenarioFieldType = 'precondition' | 'priority' | 'steps' | 'caseType'
+  export type TestcaseOfficialScenarioFieldType = 'precondition' | 'priority' | 'steps' | 'caseType' | 'tag'
   export type TestcaseScenarioFieldIcon = 'testcase'
   export type TestcasePriority = -1 | 0 | 1 | 2 | 3 | 4 | 5
   export type TestcaseStepType = {

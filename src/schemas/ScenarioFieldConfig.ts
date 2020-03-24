@@ -76,7 +76,8 @@ export interface TestcaseScenarioFieldConfigSchema extends ScenarioFieldConfigSc
 
 const schema: SchemaDef<
   TaskScenarioFieldConfigSchema
-  | EventScenarioFieldConfigSchema> = {
+  | EventScenarioFieldConfigSchema
+  | TestcaseScenarioFieldConfigSchema> = {
     _boundToObjectId: {
       type: RDBType.STRING
     },
