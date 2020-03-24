@@ -50,4 +50,5 @@ export type EventScenarioFieldSchema =
   ScenarioFieldSchema<EventOfficialScenarioFieldType>
 
 export type TestcaseScenarioFieldSchema =
+  CustomScenarioFieldSchema |
   ScenarioFieldSchema<TestcaseOfficialScenarioFieldType>
