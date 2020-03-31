@@ -1,6 +1,9 @@
 import { SchemaDef, RDBType, Relationship } from '../db'
 import { schemaColl } from './schemas'
-import { CustomFieldType, CustomFieldBoundType, AdvancedCustomField, CustomFieldSubtype, UserId, UserSnippet } from 'teambition-types'
+import {
+  CustomFieldType, CustomFieldBoundType, AdvancedCustomField,
+  CustomFieldSubtype, UserId, UserSnippet, MemberIdentityId
+} from 'teambition-types'
 import {
   CustomFieldId, CustomFieldLinkId, ProjectId, RoleId, CustomFieldCategoryId,
   CustomFieldEntityId, CustomFieldRelevantSetting
@@ -15,6 +18,7 @@ export interface CustomFieldLinkBaseSchema {
   _lockerId: UserId | null
   _projectId: ProjectId
   _roleIds: RoleId[]
+  allowedMemberIdentityIds: MemberIdentityId[]  // 编辑权限成员角色白名单
   advancedCustomfield: AdvancedCustomField | null
   boundType: CustomFieldBoundType
   categoryIds: CustomFieldCategoryId[]
@@ -65,6 +69,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   },
   advancedCustomfield: {
     type: RDBType.OBJECT
+  },
+  allowedMemberIdentityIds: {
+    type: RDBType.LITERAL_ARRAY,
   },
   description: {
     type: RDBType.STRING
