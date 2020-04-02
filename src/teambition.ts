@@ -38,6 +38,7 @@ declare module 'teambition-types' {
   export type FileId = string & { kind: 'FileId' }
   export type GroupId = string & { kind: 'GroupId' }
   export type HomeActivityId = string & { kind: 'HomeActivityId' }
+  export type KanbanConfigId = string & { kind: 'KanbanConfigId' }
   export type MemberId = string & { kind: 'MemberId' }
   export type MemberIdentityId = string & { kind: 'MemberIdentityId' }
   export type MessageId = string & { kind: 'MessageId' }
