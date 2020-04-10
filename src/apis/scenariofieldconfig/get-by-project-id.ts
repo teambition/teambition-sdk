@@ -45,12 +45,18 @@ export function getScenarioFieldConfigsFetch(
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
   {
+    appendCommonGroupChoices,
     withTaskflowstatus,
-    withCustomfields = true
+    withCustomfields = true,
   }: GetScenarioFieldConfigsFetchOptions = {}
 ) {
   const url = `projects/${projectId}/scenariofieldconfigs`
-  const query = { objectType, withTaskflowstatus, withCustomfields }
+  const query = {
+    objectType,
+    withTaskflowstatus,
+    withCustomfields,
+    appendCommonGroupChoices,
+  }
 
   return this.get<ScenarioFieldConfigSchema[]>(url, query)
 }
@@ -103,10 +109,10 @@ export function getScenarioFieldConfigs(
     tableName: 'ScenarioFieldConfig',
     request: this.fetch.getScenarioFieldConfigs(projectId, objectType, {
       ...options,
-      withCustomfields: true
+      withCustomfields: true,
     }),
     query: {
-      where: [{ _boundToObjectId: projectId }, { objectType }]
+      where: [{ _boundToObjectId: projectId }, { objectType }],
     },
     assocFields: {
       ...(options.withTaskflowstatus
@@ -118,14 +124,14 @@ export function getScenarioFieldConfigs(
               'kind',
               'rejectStatusIds',
               'hasTaskflowEngineConfig',
-              'pos'
-            ]
+              'pos',
+            ],
           }
-        : {})
-    }
+        : {}),
+    },
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)
 
-  return token.changes().pipe(withCustomFields(this))
+  return token.changes().pipe(withCustomFields(this, options))
 }
 
 declare module '../../SDK' {
@@ -138,10 +144,12 @@ declare module '../../SDK' {
 SDK.prototype.getScenarioFieldConfigs = getScenarioFieldConfigs
 
 export interface GetScenarioFieldConfigsOptions {
+  appendCommonGroupChoices?: boolean
   withTaskflowstatus?: boolean
 }
 
 export interface GetScenarioFieldConfigsFetchOptions {
+  appendCommonGroupChoices?: boolean
   withTaskflowstatus?: boolean
   withCustomfields?: boolean
 }
