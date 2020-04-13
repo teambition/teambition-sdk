@@ -593,4 +593,13 @@ declare module 'teambition-types' {
     creator: ExecutorOrCreator
     url: string
   }
+
+  export interface UrgeSchema {
+    from: UserSnippet
+    to: UserSnippet
+    objectType: DetailObjectType
+    _objectId: DetailObjectId
+    created: string
+    updated: string
+  }
 }
