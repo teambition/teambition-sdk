@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.79-beta.1-kanbanconfig",
+  "version": "0.12.80-alpha.2-taskurge",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
