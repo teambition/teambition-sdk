@@ -45,12 +45,18 @@ export function getScenarioFieldConfigsFetch(
   projectId: ProjectId,
   objectType: ScenarioFieldConfigObjectType,
   {
+    appendCommonGroupChoices,
     withTaskflowstatus,
     withCustomfields = true
   }: GetScenarioFieldConfigsFetchOptions = {}
 ) {
   const url = `projects/${projectId}/scenariofieldconfigs`
-  const query = { objectType, withTaskflowstatus, withCustomfields }
+  const query = {
+    objectType,
+    withTaskflowstatus,
+    withCustomfields,
+    appendCommonGroupChoices,
+  }
 
   return this.get<ScenarioFieldConfigSchema[]>(url, query)
 }
@@ -125,7 +131,7 @@ export function getScenarioFieldConfigs(
     }
   } as ApiResult<ScenarioFieldConfigSchema, CacheStrategy.Request>)
 
-  return token.changes().pipe(withCustomFields(this))
+  return token.changes().pipe(withCustomFields(this, options))
 }
 
 declare module '../../SDK' {
@@ -138,10 +144,12 @@ declare module '../../SDK' {
 SDK.prototype.getScenarioFieldConfigs = getScenarioFieldConfigs
 
 export interface GetScenarioFieldConfigsOptions {
+  appendCommonGroupChoices?: boolean
   withTaskflowstatus?: boolean
 }
 
 export interface GetScenarioFieldConfigsFetchOptions {
+  appendCommonGroupChoices?: boolean
   withTaskflowstatus?: boolean
   withCustomfields?: boolean
 }

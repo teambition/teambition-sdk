@@ -13,7 +13,11 @@ import {
 } from '../../schemas'
 import { SDK } from '../../SDK'
 
-export const withCustomFields = (sdk: SDK) => (
+export interface WithCustomFieldsOptions {
+  appendCommonGroupChoices?: boolean
+}
+
+export const withCustomFields = (sdk: SDK, options: WithCustomFieldsOptions = {}) => (
   configs$: Observable<ScenarioFieldConfigSchema[]>
 ): Observable<ScenarioFieldConfigSchema[]> => {
   return configs$.pipe(
@@ -22,12 +26,12 @@ export const withCustomFields = (sdk: SDK) => (
         return Observable.of(configs)
       }
 
-      return combineLatest(configs.map(normalizeScenarioFieldConfig(sdk)))
+      return combineLatest(configs.map(normalizeScenarioFieldConfig(sdk, options)))
     })
   )
 }
 
-const normalizeScenarioFieldConfig = (sdk: SDK) => (
+const normalizeScenarioFieldConfig = (sdk: SDK, options: WithCustomFieldsOptions) => (
   config: ScenarioFieldConfigSchema
 ): Observable<ScenarioFieldConfigSchema> => {
   if (config.scenariofields.length === 0) {
@@ -35,7 +39,7 @@ const normalizeScenarioFieldConfig = (sdk: SDK) => (
   }
 
   const scenarioFields$ = combineLatest(
-    config.scenariofields.map(normalizeScenarioField(sdk))
+    config.scenariofields.map(normalizeScenarioField(sdk, options))
   )
 
   return scenarioFields$.pipe(
@@ -50,14 +54,14 @@ const normalizeScenarioFieldConfig = (sdk: SDK) => (
   )
 }
 
-const normalizeScenarioField = (sdk: SDK) => (
+const normalizeScenarioField = (sdk: SDK, options: WithCustomFieldsOptions) => (
   scenarioField: ScenarioFieldSchema
 ): Observable<ScenarioFieldSchema> => {
   if (!isCustomScenarioFieldSchema(scenarioField)) {
     return Observable.of(scenarioField)
   }
 
-  return getCustomField(sdk, scenarioField).pipe(
+  return getCustomField(sdk, scenarioField, options).pipe(
     map(
       (customField): CustomScenarioFieldSchema => {
         return customField
@@ -76,10 +80,18 @@ const normalizeScenarioField = (sdk: SDK) => (
  * 但后端没有处理 ScenarioFieldConfig 消息推送，推送数据里还是缺少 CustomField 数据，
  * 不过后端会保证推送 CustomFieldLink 变化，因此可以依赖 scenarioField.customfield + CustomFieldLink 来解决问题，
  * 这块逻辑相当于将 ScenarioFieldConfig 跟 CustomField 和 CustomFieldLink 进行关联。
+ *
+ * 另：
+ * 当时添加 getScenarioFieldConfigs/getOrgScenarioFieldConfigs 时，
+ * 想着放在 SDK 方便使用，避免同样代码在 web、org-admin-web 各自实现一遍；
+ * 后来出现一个“任务类型自定义字段预览”问题，这个问题在 web、org-admin-web 都会发生，
+ * 因此决定在 SDK 这里进行修复，于是写下了这块代码；
+ * 不曾想今日（2020-04-14）再来耕耘，甚是悔恨。
  */
 const getCustomField = (
   sdk: SDK,
-  scenarioField: CustomScenarioFieldSchema
+  scenarioField: CustomScenarioFieldSchema,
+  options: WithCustomFieldsOptions
 ): Observable<CustomFieldSchema | void> => {
   const empty$ = Observable.of([])
   const customFieldId = scenarioField._customfieldId
@@ -87,9 +99,26 @@ const getCustomField = (
   // 自带 CustomField 数据
   // 1. 当 withCustomfields=true 时，请求接口（getScenarioFieldConfigs/getOrgScenarioFieldConfigs）会返回 CustomField 数据，除非被删
   // 2. 但 ScenarioFieldConfig 推送数据里，仍是缺失 CustomField 数据
-  const customField$ = scenarioField.customfield
-    ? Observable.of(scenarioField.customfield)
-    : void 0
+  let customField$: Observable<CustomFieldSchema> | undefined
+  let withChoices = false
+  let choicesDeleted = false
+  if (scenarioField.customfield) {
+    let customField = scenarioField.customfield
+    if (customField.type === 'commongroup') {
+      if (options.appendCommonGroupChoices) {
+        // 带有有效的 需求分类/缺陷分类 choices 数据
+        withChoices = true
+      } else {
+        // 由于 需求分类/缺陷分类 choices 只当 appendCommonGroupChoices=true 才有效，因此置空避免存入 RDB 缓存
+        // 另，本希望后端返回 undefined 但可能导致依赖 choices=[] 地方出现问题
+        // 再者，既然存在 appendCommonGroupChoices 这个特殊了，而且这特殊存在就是为了解决这类问题，因此用于此 if 条件认为是合适的
+        const { choices, ...choicesDropped } = customField
+        customField = choicesDropped as CustomFieldSchema
+        choicesDeleted = true
+      }
+    }
+    customField$ = Observable.of(customField)
+  }
 
   // 缺少 CustomField 数据，当 CustomField 还存在那么发送请求进行获取
   const customFieldPadding$ =
@@ -120,11 +149,19 @@ const getCustomField = (
 
   return sdk
     .getCustomField(customFieldId, {
-      request: customField$ || customFieldPadding$ || empty$
+      request: customField$ || customFieldPadding$ || empty$,
+      // 既然 scenarioField.customfield.choices 字段有效，合理要求 RDB 输出有效 choices 字段
+      withChoices: withChoices,
+      // 同上缘由，如若 RDB 缓存缺少 choices 字段，使用 customField$ 即可填补
+      padding: withChoices && customField$ ? customField$ : void 0,
     })
     .changes()
     .pipe(
       switchMap(([customField]) => {
+        if (customField && !customField.choices && choicesDeleted) {
+          customField = { ...customField, choices: [] }
+        }
+
         return customField ? Observable.of([customField]) : customFieldLink$
       }),
       map(([customField]) => {
