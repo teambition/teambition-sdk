@@ -14,6 +14,10 @@ export interface PreferenceTipMap {
   [key: string]: boolean | string
 }
 
+export interface CustomPortalMap {
+  [key: string]: boolean
+}
+
 export interface PreferenceSchema {
   _id: PreferenceId
   _userId: UserId
@@ -47,6 +51,7 @@ export interface PreferenceSchema {
   switcherOn: boolean
   memberBarMode: string
   isUsePanel: boolean
+  customPortal: CustomPortalMap
 }
 
 const Schema: SchemaDef<PreferenceSchema> = {
@@ -145,6 +150,9 @@ const Schema: SchemaDef<PreferenceSchema> = {
     type: RDBType.OBJECT
   },
   tips: {
+    type: RDBType.OBJECT
+  },
+  customPortal: {
     type: RDBType.OBJECT
   }
 }
