@@ -33,6 +33,7 @@ export interface ScenarioFieldConfigSchema {
   hasChanged: boolean
   icon: ScenarioFieldConfigIcon
   isDefault: boolean
+  isTraceEnabled: boolean
   name: string
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
@@ -113,6 +114,9 @@ const schema: SchemaDef<
       type: RDBType.STRING
     },
     isDefault: {
+      type: RDBType.BOOLEAN
+    },
+    isTraceEnabled: {
       type: RDBType.BOOLEAN
     },
     name: {
