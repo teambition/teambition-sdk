@@ -23,6 +23,7 @@ import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
 import { ScenarioFieldConfigSchema } from './ScenarioFieldConfig'
+import { TraceSchema } from './Trace'
 import { Omit } from '../utils'
 
 type Parent = Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
@@ -91,6 +92,7 @@ export interface TaskSchema {
     _id: TasklistId
     title: string
   }
+  trace?: TraceSchema
   objectType: 'task'
   type: 'task' // todo(dingwen): deprecate
   isFavorite: boolean,
@@ -341,6 +343,9 @@ const schema: SchemaDef<TaskSchema> = {
         _tasklistId: tasklistTable._id
       })
     }
+  },
+  trace: {
+    type: RDBType.OBJECT
   },
   type: {
     type: RDBType.STRING
