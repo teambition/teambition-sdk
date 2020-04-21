@@ -10,6 +10,7 @@ export enum KanbanConfigDisplayedField {
   creator = 'creator',
   created = 'created',
   accomplished = 'accomplished',
+  effort = 'effort',
 }
 
 export interface KanbanConfigSchema {
