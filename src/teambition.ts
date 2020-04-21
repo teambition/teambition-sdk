@@ -78,6 +78,7 @@ declare module 'teambition-types' {
   export type TesthubId = string & { kind: 'TesthubId' }
   export type TestplanId = string & { kind: 'TestplanId' }
   export type TestcaseStepId = string & { kind: 'TestcaseStepId' }
+  export type TraceId = string & { kind: 'TraceId' }
   export type UserId = string & { kind: 'UserId' }
   export type VersionId = string & { kind: 'VersionId' }
   export type WorkId = string & { kind: 'WorkId' }
@@ -140,7 +141,7 @@ declare module 'teambition-types' {
     | 'dueDate' | 'updated'
   export type TagType = 'organization' | 'project'
   export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
-  export type TaskDivisionType = 'scenariofields' | 'subtasks' | 'links'
+  export type TaskDivisionType = 'scenariofields' | 'traces' | 'subtasks' | 'links'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'
   export type TaskPriority = -10 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | null
   export type TaskScenarioFieldIcon = 'task' | 'requirement' | 'bug' | 'hr' | 'resource' | 'order' | 'salesLead' | 'subtask' | 'call' | 'visit'
