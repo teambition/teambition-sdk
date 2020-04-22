@@ -594,4 +594,17 @@ declare module 'teambition-types' {
     creator: ExecutorOrCreator
     url: string
   }
+
+  export interface UrgeSchema {
+    _boundToObjectId: DetailObjectId
+    boundToObjectType: DetailObjectType
+    /**
+     * 首次 催办 时间
+     */
+    created: string
+    /**
+     * 最后 催办 时间
+     */
+    updated: string
+  }
 }

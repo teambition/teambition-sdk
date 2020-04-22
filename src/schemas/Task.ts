@@ -1,7 +1,7 @@
 import { RDBType, Relationship, SchemaDef } from '../db'
 import {
   CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption,
-  OrganizationId, TaskDivisionType, ApprovalSchema
+  OrganizationId, TaskDivisionType, ApprovalSchema, UrgeSchema
 } from 'teambition-types'
 import {
   ProjectId,
@@ -104,6 +104,7 @@ export interface TaskSchema {
   }
   approve?: Pick<ApprovalSchema, 'status'> | ApprovalSchema
   effort: number | null
+  urge?: UrgeSchema
 }
 
 const schema: SchemaDef<TaskSchema> = {
@@ -350,6 +351,9 @@ const schema: SchemaDef<TaskSchema> = {
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  urge: {
+    type: RDBType.OBJECT
   },
   url: {
     type: RDBType.STRING
