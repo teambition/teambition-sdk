@@ -596,8 +596,13 @@ declare module 'teambition-types' {
   }
 
   export interface UrgeSchema {
+    _id: string
     _boundToObjectId: DetailObjectId
     boundToObjectType: DetailObjectType
+    /**
+     * 是否已读
+     */
+    readStatus: boolean
     /**
      * 首次 催办 时间
      */
