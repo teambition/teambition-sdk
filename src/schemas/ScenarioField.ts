@@ -39,6 +39,14 @@ export interface CustomScenarioFieldSchema extends ScenarioFieldSchema<CustomSce
   placeholder?: string
 }
 
+export interface ApplicationScenarioFieldSchema extends CustomScenarioFieldSchema {
+  setting: {
+    exportable: boolean // 可导出
+    displayable: boolean // 可展示
+    filterable: boolean // 可筛选
+  }
+}
+
 export type TaskScenarioFieldSchema =
   CustomScenarioFieldSchema |
   NoteScenarioFieldSchema |

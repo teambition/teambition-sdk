@@ -3,7 +3,8 @@ import { schemaColl } from './schemas'
 import { CustomFieldType, CustomFieldBoundType, CustomFieldCategoryId, AdvancedCustomField, UserSnippet, CustomFieldSubtype } from 'teambition-types'
 import {
   CustomFieldId, OrganizationId, ProjectId, RoleId, UserId,
-  AdvancedCustomFieldId, CustomFieldRelevantSetting
+  AdvancedCustomFieldId, CustomFieldRelevantSetting,
+  ApplicationId,
 } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
@@ -11,6 +12,7 @@ import { CustomFieldCascadingPayloadSchema } from './CustomFieldCascading'
 
 export interface CustomFieldSchema {
   _advancedCustomfieldId: AdvancedCustomFieldId
+  _boundToObjectId: ApplicationId
   _creatorId: UserId
   _id: CustomFieldId
   _lockerId: UserId | null
@@ -18,6 +20,7 @@ export interface CustomFieldSchema {
   _projectId?: ProjectId
   _roleIds: RoleId[]
   advancedCustomfield: AdvancedCustomField
+  boundToObjectType: 'app'
   boundType: CustomFieldBoundType
   categoryIds: CustomFieldCategoryId[]
   choices: CustomFieldChoiceSchema[]
@@ -34,6 +37,7 @@ export interface CustomFieldSchema {
   pos: number
   projects?: string[]
   setting?: CustomFieldRelevantSetting
+  source?: string
   subtype?: CustomFieldSubtype // 仅当 需求分类/缺陷分类 才有
   type: CustomFieldType
   updated: string
@@ -45,6 +49,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
     primaryKey: true
   },
   _advancedCustomfieldId: {
+    type: RDBType.STRING
+  },
+  _boundToObjectId: {
     type: RDBType.STRING
   },
   _creatorId: {
@@ -64,6 +71,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   advancedCustomfield: {
     type: RDBType.OBJECT
+  },
+  boundToObjectType: {
+    type: RDBType.STRING
   },
   boundType: {
     type: RDBType.STRING
@@ -124,6 +134,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   projects: {
     type: RDBType.OBJECT
+  },
+  source: {
+    type: RDBType.STRING
   },
   subtype: {
     type: RDBType.STRING
