@@ -34,6 +34,7 @@ export interface CustomFieldSchema {
   pos: number
   projects?: string[]
   setting?: CustomFieldRelevantSetting
+  source?: string
   subtype?: CustomFieldSubtype // 仅当 需求分类/缺陷分类 才有
   type: CustomFieldType
   updated: string
@@ -124,6 +125,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   projects: {
     type: RDBType.OBJECT
+  },
+  source: {
+    type: RDBType.STRING
   },
   subtype: {
     type: RDBType.STRING
