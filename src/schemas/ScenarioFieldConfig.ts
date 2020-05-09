@@ -11,7 +11,8 @@ import {
   TaskflowId,
   TaskScenarioFieldIcon,
   UserId,
-  OrganizationId
+  OrganizationId,
+  ApplicationId,
 } from 'teambition-types'
 import {
   ScenarioFieldSchema,
@@ -22,12 +23,12 @@ import {
 import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface ScenarioFieldConfigSchema {
-  _boundToObjectId: OrganizationId | ProjectId | null
+  _boundToObjectId: OrganizationId | ProjectId | ApplicationId | null
   _creatorId: UserId
   _id: ScenarioFieldConfigId
   _originalId: ScenarioFieldConfigId | null
   _projectId: ProjectId
-  boundToObjectType: 'organization' | 'project'
+  boundToObjectType: 'organization' | 'project' | 'app'
   created: string
   displayed: boolean
   hasChanged: boolean

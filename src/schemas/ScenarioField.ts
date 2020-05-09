@@ -23,6 +23,11 @@ export interface ScenarioFieldSchema<T = ScenarioFieldType> {
   allowedMemberIdentityIds: MemberIdentityId[] // 编辑权限成员角色白名单
   displayed: boolean
   required: boolean
+  setting: {
+    exportable: boolean // 可导出
+    displayable: boolean // 可展示
+    filterable: boolean // 可筛选
+  }
 }
 
 export interface NoteScenarioFieldSchema extends ScenarioFieldSchema {
