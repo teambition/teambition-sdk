@@ -106,8 +106,8 @@ declare module 'teambition-types' {
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
   export type DefaultColors = 'gray' | 'red' | 'yellow' | 'green' | 'blue' | 'purple' | 'cyan'
-  export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work' | 'testcase'
-  export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works' | 'testcases'
+  export type DetailObjectType = 'entry' | 'event' | 'post' | 'task' | 'work' | 'testcase' | 'trace'
+  export type DetailObjectTypes = 'entries' | 'events' | 'posts' | 'tasks' | 'works' | 'testcases' | 'traces'
   export type DivisionType = TaskDivisionType
   export type EntryStatus = 'confirmed' | 'approved'
   export type EntryType = 1 | -1

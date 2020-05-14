@@ -12,6 +12,7 @@ export interface TraceSchema {
   content: string
   created: string
   creator: UserSnippet
+  objectType: 'trace'
   raw: string
   renderMode: 'html'
   status: number
@@ -50,6 +51,9 @@ const schema: SchemaDef<TraceSchema> = {
         _creatorId: userTable._id
       })
     }
+  },
+  objectType: {
+    type: RDBType.STRING,
   },
   raw: {
     type: RDBType.STRING,
