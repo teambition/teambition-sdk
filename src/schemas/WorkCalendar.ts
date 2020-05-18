@@ -2,10 +2,13 @@ import { OrganizationId, WorkCalendarId } from 'teambition-types'
 import { RDBType, SchemaDef } from '../db'
 import { schemaColl } from './schemas'
 
+type CalendarRuleTime = string[]
+
 export interface WorkCalendarRule {
+  name?: string
   rule?: string
-  time: string[]
-  type: 'holiday' | 'workday'
+  time: CalendarRuleTime
+  kind: 'holiday' | 'workday'
   start?: string
   until?: string
 }
