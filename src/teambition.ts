@@ -613,4 +613,10 @@ declare module 'teambition-types' {
      */
     updated: string
   }
+
+  export interface TaskRelation {
+    _projectId: ProjectId
+    _stageId: StageId
+    _tasklistId: TasklistId
+  }
 }

@@ -1,7 +1,7 @@
 import { RDBType, Relationship, SchemaDef } from '../db'
 import {
   CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption,
-  OrganizationId, TaskDivisionType, ApprovalSchema, UrgeSchema
+  OrganizationId, TaskDivisionType, ApprovalSchema, UrgeSchema, TaskRelation,
 } from 'teambition-types'
 import {
   ProjectId,
@@ -83,6 +83,7 @@ export interface TaskSchema {
   parent: Parent & Partial<Omit<TaskSchema, keyof Parent>>
   progress: number
   rating: 0 | 1 | 2 | 3 | 4 | 5
+  relations: TaskRelation[]
   scenariofieldconfig?: Pick<ScenarioFieldConfigSchema, '_id' | 'name' | 'icon'> | null
   stage: Pick<StageSchema, '_id' | 'name' | 'order'>
   storyPoint: string
@@ -271,6 +272,9 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.OBJECT
   },
   reminder: {
+    type: RDBType.OBJECT
+  },
+  relations: {
     type: RDBType.OBJECT
   },
   scenariofieldconfig: {
