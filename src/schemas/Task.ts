@@ -21,10 +21,20 @@ import { ProjectSchema } from './Project'
 import { SprintSchema } from './Sprint'
 import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
+import { TasklistSchema } from './Tasklist'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
 import { ScenarioFieldConfigSchema } from './ScenarioFieldConfig'
 import { TraceSchema } from './Trace'
 import { Omit } from '../utils'
+
+export interface TaskRelation {
+  _projectId: ProjectId
+  _stageId: StageId
+  _tasklistId: TasklistId
+  project: Pick<ProjectSchema, '_id' | 'name' | 'logo'>
+  stage: Pick<StageSchema, '_id' | 'name'>
+  tasklist: Pick<TasklistSchema, '_id' | 'title'>
+}
 
 type Parent = Pick<TaskSchema, '_id' | '_creatorId' | '_executorId' | 'content' | 'isDone'>
 
@@ -83,6 +93,8 @@ export interface TaskSchema {
   parent: Parent & Partial<Omit<TaskSchema, keyof Parent>>
   progress: number
   rating: 0 | 1 | 2 | 3 | 4 | 5
+  relations?: TaskRelation[]
+  relationsStr?: string
   scenariofieldconfig?: Pick<ScenarioFieldConfigSchema, '_id' | 'name' | 'icon'> | null
   stage: Pick<StageSchema, '_id' | 'name' | 'order'>
   storyPoint: string
@@ -272,6 +284,12 @@ const schema: SchemaDef<TaskSchema> = {
   },
   reminder: {
     type: RDBType.OBJECT
+  },
+  relations: {
+    type: RDBType.OBJECT
+  },
+  relationsStr: {
+    type: RDBType.STRING
   },
   scenariofieldconfig: {
     type: Relationship.oneToOne,
