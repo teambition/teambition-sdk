@@ -52,6 +52,7 @@ declare module 'teambition-types' {
   export type ProjectId = string & { kind: 'ProjectId' }
   export type ProjectPortalMode = 'grid' | 'list' | 'table'
   export type ProjectOrder = 'updated' | 'name' | 'recentVisit'
+  export type ProjectReminderId = string & { kind: 'ProjectReminderId' }
   export type ProjectStatusActivityId = string & { kind: 'ProjectStatusActivityId' }
   export type ProjectTagId = string & { kind: 'ProjectTagId' }
   export type ProjectTemplateId = string & { kind: 'ProjectTemplateId' }
@@ -73,6 +74,7 @@ declare module 'teambition-types' {
   export type TaskId = string & { kind: 'TaskId' }
   export type TasklistId = string & { kind: 'TasklistId' }
   export type TaskPrivilegeId = string & { kind: 'TaskPrivilegeId' }
+  export type TaskReminderId = string & { kind: 'TaskReminderId' }
   export type TeamId = string & { kind: 'TeamId' }
   export type TestcaseId = string & { kind: 'TestcaseId' }
   export type TesthubId = string & { kind: 'TesthubId' }
@@ -117,9 +119,6 @@ declare module 'teambition-types' {
   export type ProjectStatusDegree = 'normal' | 'risky' | 'urgent'
   export type ProjectTagVisibleOption = 'organization' | 'involves'
   export type ProjectTemplateVisibleOption = 'organization' | 'involves'
-  export type ReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
-  export type ReminderRuleType = 'startDate' | 'dueDate' | 'customize' | 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'
-  export type ReminderUnit = 'minute' | 'hour' | 'day'
   export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon | TestcaseScenarioFieldIcon
   export type ScenarioFieldConfigObjectType = 'task' | 'event' | 'testcase'
   export type ScenarioFieldType =
@@ -244,35 +243,6 @@ declare module 'teambition-types' {
     type: CustomFieldType
     value: Array<CustomFieldSnapshotItem> | Array<CustomFieldWorkSnapshotItem>
     values: string[] // deprecated
-  }
-
-  export interface OnTimeReminderRule {
-    type: Extract<ReminderRuleType, 'startDate' | 'dueDate'>
-    date: null
-  }
-
-  export interface AbsoluteReminderRule {
-    type: Extract<ReminderRuleType, 'customize'>
-    date: string
-  }
-
-  export interface RelativeReminderRule {
-    type: Extract<ReminderRuleType, 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'>
-    date: null
-    relative: {
-      unit: ReminderUnit
-      value: number
-    }
-  }
-
-  export type ReminderRule = OnTimeReminderRule | AbsoluteReminderRule | RelativeReminderRule
-
-  export interface Reminder {
-    date: string  // 兼容旧版本，新功能开发请使用 rules
-    type: ReminderType  // 兼容旧版本，新功能开发请使用 rules
-    members: UserId[]
-    rules: ReminderRule[]
-    _creatorId: UserId
   }
 
   export interface LikeSchema {
