@@ -119,6 +119,9 @@ declare module 'teambition-types' {
   export type ProjectStatusDegree = 'normal' | 'risky' | 'urgent'
   export type ProjectTagVisibleOption = 'organization' | 'involves'
   export type ProjectTemplateVisibleOption = 'organization' | 'involves'
+  export type DeprecatedReminderType = 'customize' | 'dueDate' | 'startDate' | 'unset'  // 兼容旧版本，新功能开发请使用 ReminderRuleType
+  export type DeprecatedReminderRuleType = 'startDate' | 'dueDate' | 'customize' | 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'
+  export type DeprecatedReminderUnit = 'minute' | 'hour' | 'day'
   export type ScenarioFieldConfigIcon = TaskScenarioFieldIcon | EventScenarioFieldIcon | TestcaseScenarioFieldIcon
   export type ScenarioFieldConfigObjectType = 'task' | 'event' | 'testcase'
   export type ScenarioFieldType =
@@ -243,6 +246,38 @@ declare module 'teambition-types' {
     type: CustomFieldType
     value: Array<CustomFieldSnapshotItem> | Array<CustomFieldWorkSnapshotItem>
     values: string[] // deprecated
+  }
+
+  export interface OnTimeReminderRule {
+    type: Extract<DeprecatedReminderRuleType, 'startDate' | 'dueDate'>
+    date: null
+  }
+
+  export interface AbsoluteReminderRule {
+    type: Extract<DeprecatedReminderRuleType, 'customize'>
+    date: string
+  }
+
+  export interface RelativeReminderRule {
+    type: Extract<DeprecatedReminderRuleType, 'beforeStartDate' | 'beforeDueDate' | 'afterStartDate' | 'afterDueDate'>
+    date: null
+    relative: {
+      unit: DeprecatedReminderUnit
+      value: number
+    }
+  }
+
+  /**
+   * @deprecated 提醒规则，兼容字段，不推荐使用
+   */
+  export type DeprecatedReminderRule = OnTimeReminderRule | AbsoluteReminderRule | RelativeReminderRule
+
+  export interface DeprecatedReminder {
+    date: string  // 兼容旧版本，新功能开发请使用 rules
+    type: DeprecatedReminderType  // 兼容旧版本，新功能开发请使用 rules
+    members: UserId[]
+    rules: DeprecatedReminderRule[]
+    _creatorId: UserId
   }
 
   export interface LikeSchema {

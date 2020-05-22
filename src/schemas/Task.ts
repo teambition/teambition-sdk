@@ -1,6 +1,6 @@
 import { RDBType, Relationship, SchemaDef } from '../db'
 import {
-  CustomFieldValue, ExecutorOrCreator, VisibleOption,
+  CustomFieldValue, ExecutorOrCreator, DeprecatedReminder, VisibleOption,
   OrganizationId, TaskDivisionType, ApprovalSchema, UrgeSchema
 } from 'teambition-types'
 import {
@@ -84,6 +84,7 @@ export interface TaskSchema {
   objectlinksCount: number
   openId?: string
   shareStatus: number
+  reminder: DeprecatedReminder
   subtaskCount: {
     total: number
     done: number
@@ -281,6 +282,12 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.NUMBER
   },
   recurrence: {
+    type: RDBType.OBJECT
+  },
+  /**
+   * @deprecated
+   */
+  reminder: {
     type: RDBType.OBJECT
   },
   relations: {
