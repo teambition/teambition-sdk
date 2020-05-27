@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.84",
+  "version": "0.12.85-beta.0-taskreminders",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
