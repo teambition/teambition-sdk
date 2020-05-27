@@ -11,28 +11,31 @@ import {
   TaskflowId,
   TaskScenarioFieldIcon,
   UserId,
-  OrganizationId
+  OrganizationId,
+  ApplicationId,
 } from 'teambition-types'
 import {
   ScenarioFieldSchema,
   EventScenarioFieldSchema,
   TaskScenarioFieldSchema,
-  TestcaseScenarioFieldSchema
+  TestcaseScenarioFieldSchema,
+  ApplicationScenarioFieldSchema,
 } from './ScenarioField'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
 
 export interface ScenarioFieldConfigSchema {
-  _boundToObjectId: OrganizationId | ProjectId | null
+  _boundToObjectId: OrganizationId | ProjectId | ApplicationId | null
   _creatorId: UserId
   _id: ScenarioFieldConfigId
   _originalId: ScenarioFieldConfigId | null
   _projectId: ProjectId
-  boundToObjectType: 'organization' | 'project'
+  boundToObjectType: 'organization' | 'project' | 'app'
   created: string
   displayed: boolean
   hasChanged: boolean
   icon: ScenarioFieldConfigIcon
   isDefault: boolean
+  isTraceEnabled: boolean
   name: string
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
@@ -74,77 +77,86 @@ export interface TestcaseScenarioFieldConfigSchema extends ScenarioFieldConfigSc
   taskflowstatuses?: TaskflowStatusSnippet[]
 }
 
+export interface ApplicationScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
+  scenariofields: ApplicationScenarioFieldSchema[]
+}
+
 const schema: SchemaDef<
-  TaskScenarioFieldConfigSchema
+  | TaskScenarioFieldConfigSchema
   | EventScenarioFieldConfigSchema
-  | TestcaseScenarioFieldConfigSchema> = {
-    _boundToObjectId: {
-      type: RDBType.STRING
-    },
-    _creatorId: {
-      type: RDBType.STRING
-    },
-    _id: {
-      type: RDBType.STRING,
-      primaryKey: true
-    },
-    _originalId: {
-      type: RDBType.STRING
-    },
-    _projectId: {
-      type: RDBType.STRING
-    },
-    _taskflowId: {
-      type: RDBType.STRING
-    },
-    boundToObjectType: {
-      type: RDBType.STRING
-    },
-    created: {
-      type: RDBType.DATE_TIME
-    },
-    displayed: {
-      type: RDBType.BOOLEAN
-    },
-    hasChanged: {
-      type: RDBType.BOOLEAN
-    },
-    icon: {
-      type: RDBType.STRING
-    },
-    isDefault: {
-      type: RDBType.BOOLEAN
-    },
-    name: {
-      type: RDBType.STRING
-    },
-    objectType: {
-      type: RDBType.STRING
-    },
-    proTemplateConfigType: {
-      type: RDBType.STRING
-    },
-    scenariofields: {
-      type: RDBType.OBJECT
-    },
-    setting: {
-      type: RDBType.OBJECT
-    },
-    taskflowstatuses: {
-      type: Relationship.oneToMany,
-      virtual: {
-        name: 'TaskflowStatus',
-        where: (taskflowStatusTable: any) => ({
-          _taskflowId: taskflowStatusTable._taskflowId
-        })
-      }
-    },
-    type: {
-      type: RDBType.STRING
-    },
-    updated: {
-      type: RDBType.DATE_TIME
+  | TestcaseScenarioFieldConfigSchema
+  | ApplicationScenarioFieldConfigSchema
+> = {
+  _boundToObjectId: {
+    type: RDBType.STRING
+  },
+  _creatorId: {
+    type: RDBType.STRING
+  },
+  _id: {
+    type: RDBType.STRING,
+    primaryKey: true
+  },
+  _originalId: {
+    type: RDBType.STRING
+  },
+  _projectId: {
+    type: RDBType.STRING
+  },
+  _taskflowId: {
+    type: RDBType.STRING
+  },
+  boundToObjectType: {
+    type: RDBType.STRING
+  },
+  created: {
+    type: RDBType.DATE_TIME
+  },
+  displayed: {
+    type: RDBType.BOOLEAN
+  },
+  hasChanged: {
+    type: RDBType.BOOLEAN
+  },
+  icon: {
+    type: RDBType.STRING
+  },
+  isDefault: {
+    type: RDBType.BOOLEAN
+  },
+  isTraceEnabled: {
+    type: RDBType.BOOLEAN
+  },
+  name: {
+    type: RDBType.STRING
+  },
+  objectType: {
+    type: RDBType.STRING
+  },
+  proTemplateConfigType: {
+    type: RDBType.STRING
+  },
+  scenariofields: {
+    type: RDBType.OBJECT
+  },
+  setting: {
+    type: RDBType.OBJECT
+  },
+  taskflowstatuses: {
+    type: Relationship.oneToMany,
+    virtual: {
+      name: 'TaskflowStatus',
+      where: (taskflowStatusTable: any) => ({
+        _taskflowId: taskflowStatusTable._taskflowId
+      })
     }
+  },
+  type: {
+    type: RDBType.STRING
+  },
+  updated: {
+    type: RDBType.DATE_TIME
   }
+}
 
 schemaColl.add({ schema, name: 'ScenarioFieldConfig' })
