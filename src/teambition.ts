@@ -102,6 +102,7 @@ declare module 'teambition-types' {
   export type Actor = 'executor' | 'creator'
   export type ApprovalStatus = -1 | 1 | 2
   export type AssignmentType = 'teambition' | 'aone'
+  export type BasicScenarioFieldType = TaskBasicScenarioFieldType
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
   export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work' | 'cascading'
   export type CustomFieldSubtype = 'story' | 'bug'
@@ -142,6 +143,7 @@ declare module 'teambition-types' {
   export type BoardAxisType = 'iterationSprint' | 'priority' | 'stage' | 'taskflowStatus' | 'taskflow' | 'scenarioConfig' | 'scenarioConfigStatus'
     | 'dueDate' | 'updated'
   export type TagType = 'organization' | 'project'
+  export type TaskBasicScenarioFieldType = 'executor' | 'startDate' | 'dueDate'
   export type TaskDependencyKind = 'start_start' | 'start_finish' | 'finish_start' | 'finish_finish'
   export type TaskDivisionType = 'scenariofields' | 'trace' | 'subtasks' | 'links'
   export type TaskOfficialScenarioFieldType = 'note' | 'priority' | 'tag' | 'worktimes' | 'storyPoint' | 'taskProgress' | 'rating' | 'sprint'

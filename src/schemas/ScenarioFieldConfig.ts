@@ -13,6 +13,8 @@ import {
   UserId,
   OrganizationId,
   ApplicationId,
+  BasicScenarioFieldType,
+  TaskBasicScenarioFieldType,
 } from 'teambition-types'
 import {
   ScenarioFieldSchema,
@@ -29,6 +31,7 @@ export interface ScenarioFieldConfigSchema {
   _id: ScenarioFieldConfigId
   _originalId: ScenarioFieldConfigId | null
   _projectId: ProjectId
+  basicfields: ScenarioFieldSchema<BasicScenarioFieldType>[]
   boundToObjectType: 'organization' | 'project' | 'app'
   created: string
   displayed: boolean
@@ -49,6 +52,7 @@ export interface ScenarioFieldConfigSchema {
 }
 
 export interface TaskScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
+  basicfields: ScenarioFieldSchema<TaskBasicScenarioFieldType>[]
   icon: TaskScenarioFieldIcon
   objectType: 'task'
   scenariofields: TaskScenarioFieldSchema[]
@@ -105,6 +109,9 @@ const schema: SchemaDef<
   },
   _taskflowId: {
     type: RDBType.STRING
+  },
+  basicfields: {
+    type: RDBType.OBJECT
   },
   boundToObjectType: {
     type: RDBType.STRING
