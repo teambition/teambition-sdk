@@ -10,6 +10,7 @@ import {
   TaskOfficialScenarioFieldType,
   TestcaseOfficialScenarioFieldType,
   MemberIdentityId,
+  BasicScenarioFieldType,
 } from 'teambition-types'
 import { CustomFieldSchema } from './CustomField'
 import { CustomFieldEntitySchema } from './CustomFieldEntity'
@@ -29,6 +30,10 @@ export interface NoteScenarioFieldSchema extends ScenarioFieldSchema {
   fieldType: 'note'
   default: string
 }
+
+export type BasicScenarioFieldSchema<
+  T extends BasicScenarioFieldType = BasicScenarioFieldType
+> = ScenarioFieldSchema<T>
 
 export interface CustomScenarioFieldSchema extends ScenarioFieldSchema<CustomScenarioFieldType> {
   _customfieldId: CustomFieldId
