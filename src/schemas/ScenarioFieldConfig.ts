@@ -29,6 +29,7 @@ export interface ScenarioFieldConfigSchema {
   _id: ScenarioFieldConfigId
   _originalId: ScenarioFieldConfigId | null
   _projectId: ProjectId
+  basicfields: ScenarioFieldSchema[]
   boundToObjectType: 'organization' | 'project' | 'app'
   created: string
   displayed: boolean
@@ -105,6 +106,9 @@ const schema: SchemaDef<
   },
   _taskflowId: {
     type: RDBType.STRING
+  },
+  basicfields: {
+    type: RDBType.OBJECT
   },
   boundToObjectType: {
     type: RDBType.STRING
