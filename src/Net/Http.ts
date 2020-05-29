@@ -10,6 +10,7 @@ import { Observer } from 'rxjs/Observer'
 import { Subject } from 'rxjs/Subject'
 import { testable } from '../testable'
 import { forEach, isNonNullable, parseHeaders } from '../utils'
+import { Perf } from '../utils/perf'
 
 export type AllowedHttpMethod = 'get' | 'post' | 'put' | 'delete'
 
@@ -80,6 +81,9 @@ export const createMethod = (method: AllowedHttpMethod): CreateHttpMethod => (pa
   /* istanbul ignore if */
   if (testable.UseXMLHTTPRequest && typeof window !== 'undefined') {
     coverRxAjaxHeadersBug(_opts.headers)
+    // perf 打点
+    const measureReq = Perf.time({ url, method })
+
     return Observable.ajax({
       url, body, method,
       headers: _opts.headers,
@@ -103,6 +107,14 @@ export const createMethod = (method: AllowedHttpMethod): CreateHttpMethod => (pa
           return respBody
         }
         return { headers: respHeaders, body: respBody }
+      })
+      .do({
+        next() {
+          measureReq({ success: true })
+        },
+        error() {
+          measureReq({ success: false })
+        }
       })
       .catch((e: AjaxError) => {
         const headers = e.xhr.getAllResponseHeaders()
