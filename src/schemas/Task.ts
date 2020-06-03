@@ -1,6 +1,6 @@
 import { RDBType, Relationship, SchemaDef } from '../db'
 import {
-  CustomFieldValue, ExecutorOrCreator, Reminder, VisibleOption,
+  CustomFieldValue, ExecutorOrCreator, DeprecatedReminder, VisibleOption,
   OrganizationId, TaskDivisionType, ApprovalSchema, UrgeSchema
 } from 'teambition-types'
 import {
@@ -39,6 +39,7 @@ export interface TaskSchema {
   divisions?: TaskDivisionType[]
   dueDate: string | null
   priority: TaskPriority
+  hasReminder: boolean
   isDone: boolean
   isArchived: boolean
   isDeleted: boolean
@@ -73,7 +74,10 @@ export interface TaskSchema {
   objectlinksCount: number
   openId?: string
   shareStatus: number
-  reminder: Reminder
+  /**
+   * @deprecated 兼容字段
+   */
+  reminder: DeprecatedReminder
   subtaskCount: {
     total: number
     done: number
@@ -204,6 +208,7 @@ const schema: SchemaDef<TaskSchema> = {
   involvers: {
     type: RDBType.OBJECT
   },
+  hasReminder: { type: RDBType.BOOLEAN },
   involveMembers: {
     type: RDBType.LITERAL_ARRAY
   },
