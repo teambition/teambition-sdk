@@ -44,6 +44,7 @@ export interface ScenarioFieldConfigSchema {
   setting?: {
     removable?: boolean
     taskflowChangeable?: boolean
+    subtaskSfcIds?: ScenarioFieldConfigId[]
   }
   updated: string
 }
