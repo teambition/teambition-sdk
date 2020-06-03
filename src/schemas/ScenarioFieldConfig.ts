@@ -39,6 +39,7 @@ export interface ScenarioFieldConfigSchema {
   name: string
   objectType: ScenarioFieldConfigObjectType
   scenariofields: ScenarioFieldSchema[]
+  subtaskSfcIds: ScenarioFieldConfigId[]
   type: 'default' | 'official' | 'normal'
   proTemplateConfigType?: string | null
   setting?: {
@@ -137,6 +138,9 @@ const schema: SchemaDef<
     type: RDBType.STRING
   },
   scenariofields: {
+    type: RDBType.OBJECT
+  },
+  subtaskSfcIds: {
     type: RDBType.OBJECT
   },
   setting: {
