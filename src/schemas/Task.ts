@@ -23,7 +23,7 @@ import { StageSchema } from './Stage'
 import { TagSchema } from './Tag'
 import { TasklistSchema } from './Tasklist'
 import { TaskflowStatusSnippet } from './TaskflowStatus'
-import { ScenarioFieldConfigSchema } from './ScenarioFieldConfig'
+import { TaskScenarioFieldConfigSchema } from './ScenarioFieldConfig'
 import { TraceSchema } from './Trace'
 import { Omit } from '../utils'
 
@@ -99,7 +99,9 @@ export interface TaskSchema {
   rating: 0 | 1 | 2 | 3 | 4 | 5
   relations?: TaskRelation[]
   relationsString?: string
-  scenariofieldconfig?: Pick<ScenarioFieldConfigSchema, '_id' | 'name' | 'icon'> | null
+  scenariofieldconfig?:
+    | Pick<TaskScenarioFieldConfigSchema, '_id' | 'name' | 'icon'>
+    | null
   stage: Pick<StageSchema, '_id' | 'name' | 'order'>
   storyPoint: string
   sprint?: SprintSchema
