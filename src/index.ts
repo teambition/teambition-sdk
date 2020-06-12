@@ -1,7 +1,8 @@
 /// <reference path="./teambition.ts" />
 import 'tslib'
-
+import { Observable } from 'rxjs/Observable'
 import { forEach, clone, uuid, concat, dropEle, hasMorePages, pagination, eventToRE, parseHeaders } from './utils'
+import { GlobalHttpPerf$ as Perf$, PerfPacket } from './utils/perf'
 
 export { hasMorePages, pagination }
 export const Utils = { forEach, clone, uuid, concat, dropEle, parseHeaders }
@@ -27,5 +28,6 @@ export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$, Page, batchServ
 export { Database, ExecutorResult, QueryToken, OrderDescription, Query, Predicate } from './db'
 
 export { GraphQLQuery, GraphQLMeta, GraphQLVariables, GraphQLResult } from './utils'
+export const GlobalHttpPerf$ = Perf$ as Observable<PerfPacket>
 
 // export const SocketClient: Client = sdk.socket
