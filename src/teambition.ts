@@ -203,7 +203,21 @@ declare module 'teambition-types' {
     | 'duetoday_detail'
     | 'overduedone_detail'
     | 'noduetime_detail'
-}
+    // multi analytics
+    | 'personal_summary'
+    | 'personal_trend'
+    | 'personal_insight_metric'
+    | 'team_insight'
+    | 'team_summary'
+    | 'team_trend'
+    | 'team_task_list'
+    | 'team_member_week_done_top'
+    | 'team_member_overdue_top'
+    | 'team_space_week_done_top'
+    | 'team_space_overdue_top'
+    | 'team_task_used_percent'
+    | 'personal_radar_chart'
+  }
 
 declare module 'teambition-types' {
 
