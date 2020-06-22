@@ -210,6 +210,10 @@ declare module 'teambition-types' {
     | 'personal_summary'
     | 'personal_trend'
     | 'personal_insight_metric'
+    | 'personal_radar_chart'
+    | 'personal_impact_on_produce_task'
+    | 'personal_task_time_analysis'
+    | 'personal_cooperation_analysis'
     | 'team_insight'
     | 'team_summary'
     | 'team_trend'
@@ -219,7 +223,6 @@ declare module 'teambition-types' {
     | 'team_space_week_done_top'
     | 'team_space_overdue_top'
     | 'team_task_used_percent'
-    | 'personal_radar_chart'
   }
 
 declare module 'teambition-types' {
