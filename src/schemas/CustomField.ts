@@ -29,6 +29,7 @@ export interface CustomFieldSchema {
   description: string
   displayed: boolean
   externalUrl?: string
+  fieldName?: string // 应用自定义字段
   isLocked: boolean
   isSingleSelection?: boolean
   locker: UserSnippet | null
@@ -37,7 +38,7 @@ export interface CustomFieldSchema {
   pos: number
   projects?: string[]
   setting?: CustomFieldRelevantSetting
-  source?: string
+  source?: string // 应用自定义字段
   subtype?: CustomFieldSubtype // 仅当 需求分类/缺陷分类 才有
   type: CustomFieldType
   updated: string
@@ -103,6 +104,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
     type: RDBType.BOOLEAN
   },
   externalUrl: {
+    type: RDBType.STRING
+  },
+  fieldName: {
     type: RDBType.STRING
   },
   isLocked: {
