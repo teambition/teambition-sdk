@@ -220,6 +220,9 @@ declare module 'teambition-types' {
     | 'team_space_overdue_top'
     | 'team_task_used_percent'
     | 'personal_radar_chart'
+    | 'personal_impact_on_produce_task'
+    | 'personal_task_time_analysis'
+    | 'personal_cooperation_analysis'
   }
 
 declare module 'teambition-types' {
