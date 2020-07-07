@@ -10,7 +10,7 @@ export interface PerfPacket {
 export const GlobalHttpPerf$ = new Subject<PerfPacket>()
 
 const timeEnd = (label: string, data: object) => {
-  if (!performance) {
+  if (!performance || !performance.mark || !performance.measure) {
     return
   }
 
@@ -36,7 +36,7 @@ const timeEnd = (label: string, data: object) => {
 
 export const Perf = {
   time(data: Partial<PerfPacket> = {}) {
-    if (!performance) {
+    if (!performance || !performance.mark || !performance.measure) {
       return () => void 0
     }
 
