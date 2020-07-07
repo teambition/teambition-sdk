@@ -2,7 +2,7 @@ import { ScenarioFieldConfigId } from 'teambition-types'
 
 import { SDK } from '../../SDK'
 import { SDKFetch } from '../../SDKFetch'
-import { ScenarioFieldConfigSchema, ScenarioFieldSchema } from '../../schemas'
+import { ScenarioFieldConfigSchema, ScenarioFieldSchema, BasicScenarioFieldSchema } from '../../schemas'
 
 export function updateScenarioFieldConfigFieldsFetch(
   this: SDKFetch,
@@ -17,13 +17,28 @@ export function updateScenarioFieldConfigFieldsFetch(
   return this.put<typeof body>(url, body)
 }
 
+export function updateScenarioFieldConfigBasicFieldsFetch(
+  this: SDKFetch,
+  scenarioFieldConfigId: ScenarioFieldConfigId,
+  basicfields: Partial<BasicScenarioFieldSchema>[]
+) {
+  const url = `scenariofieldconfigs/${scenarioFieldConfigId}/basicfields`
+  const body: Pick<ScenarioFieldConfigSchema, 'basicfields'> = {
+    basicfields: basicfields as BasicScenarioFieldSchema[]
+  }
+
+  return this.put<typeof body>(url, body)
+}
+
 declare module '../../SDKFetch' {
   interface SDKFetch {
     updateScenarioFieldConfigFields: typeof updateScenarioFieldConfigFieldsFetch
+    updateScenarioFieldConfigBasicFields: typeof updateScenarioFieldConfigBasicFieldsFetch
   }
 }
 
 SDKFetch.prototype.updateScenarioFieldConfigFields = updateScenarioFieldConfigFieldsFetch
+SDKFetch.prototype.updateScenarioFieldConfigBasicFields = updateScenarioFieldConfigBasicFieldsFetch
 
 export function updateScenarioFieldConfigFields(
   this: SDK,
@@ -41,10 +56,28 @@ export function updateScenarioFieldConfigFields(
   })
 }
 
+export function updateScenarioFieldConfigBasicFields(
+  this: SDK,
+  scenarioFieldConfigId: ScenarioFieldConfigId,
+  basicfields: Partial<BasicScenarioFieldSchema>[]
+) {
+  return this.lift({
+    tableName: 'ScenarioFieldConfig',
+    method: 'update',
+    request: this.fetch.updateScenarioFieldConfigBasicFields(
+      scenarioFieldConfigId,
+      basicfields
+    ),
+    clause: { _id: scenarioFieldConfigId }
+  })
+}
+
 declare module '../../SDK' {
   interface SDK {
     updateScenarioFieldConfigFields: typeof updateScenarioFieldConfigFields
+    updateScenarioFieldConfigBasicFields: typeof updateScenarioFieldConfigBasicFields
   }
 }
 
 SDK.prototype.updateScenarioFieldConfigFields = updateScenarioFieldConfigFields
+SDK.prototype.updateScenarioFieldConfigBasicFields = updateScenarioFieldConfigBasicFields
