@@ -40,6 +40,7 @@ export interface OrganizationSchema {
   isExpired: boolean
   isPublic: boolean
   logo: string
+  labels?: string[]
   name: string
   owner?: ExecutorOrCreator
   pinyin: string
@@ -66,6 +67,7 @@ const Schema: SchemaDef<OrganizationSchema> = {
   isExpired: { type: RDBType.BOOLEAN },
   isPublic: { type: RDBType.BOOLEAN },
   logo: { type: RDBType.STRING },
+  labels: { type: RDBType.OBJECT },
   name: { type: RDBType.STRING },
   owner: { type: RDBType.OBJECT },
   pinyin: { type: RDBType.STRING },
