@@ -53,6 +53,7 @@ export interface ProjectSchema {
   isSuspended: boolean
   isTemplate: boolean
   logo: string
+  labels?: string[]
   memberIdentityIds?: MemberIdentityId[]
   membersCount: number
   name: string
@@ -211,6 +212,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   logo: {
     type: RDBType.STRING
+  },
+  labels: {
+    type: RDBType.OBJECT
   },
   memberIdentityIds: {
     type: RDBType.LITERAL_ARRAY
