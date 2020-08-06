@@ -11,6 +11,7 @@ export interface ProjectReminderSchema {
   isDeleted: boolean
   receivers: TaskReminderReceiverBaseOnRole[]
   rule: string
+  updated: string
 }
 
 const schema: SchemaDef<ProjectReminderSchema> = {
@@ -20,6 +21,7 @@ const schema: SchemaDef<ProjectReminderSchema> = {
   isDeleted: { type: RDBType.BOOLEAN },
   receivers: { type: RDBType.OBJECT },
   rule: { type: RDBType.STRING },
+  updated: { type: RDBType.DATE_TIME },
 }
 
 schemaColl.add({ schema, name: 'ProjectReminder' })

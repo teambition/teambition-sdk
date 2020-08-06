@@ -31,7 +31,10 @@ function getProjectReminders(
 ) {
   return this.lift<ProjectReminderSchema>({
     cacheValidate: CacheStrategy.Request,
-    query: { where: {  _projectId: projectId } },
+    query: {
+      where: {  _projectId: projectId },
+      orderBy: [{ fieldName: 'updated' }]
+    },
     request: this.fetch.getProjectReminders(projectId),
     tableName: 'ProjectReminder',
   })
