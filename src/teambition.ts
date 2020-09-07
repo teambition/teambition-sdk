@@ -214,6 +214,7 @@ declare module 'teambition-types' {
     | 'personal_impact_on_produce_task'
     | 'personal_task_time_analysis'
     | 'personal_cooperation_analysis'
+    | 'personal_insight_metric_trend'
     | 'team_insight'
     | 'team_summary'
     | 'team_trend'
