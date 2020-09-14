@@ -50,6 +50,7 @@ export interface OrganizationSchema {
   py: string
   staffTypes: string[]
   role: Role
+  isBindDD: boolean
 }
 
 const Schema: SchemaDef<OrganizationSchema> = {
@@ -76,7 +77,8 @@ const Schema: SchemaDef<OrganizationSchema> = {
   projectIds: { type: RDBType.LITERAL_ARRAY },
   py: { type: RDBType.STRING },
   role: { type: RDBType.OBJECT },
-  staffTypes: { type: RDBType.OBJECT }
+  staffTypes: { type: RDBType.OBJECT },
+  isBindDD: { type: RDBType.BOOLEAN }
 }
 
 schemaColl.add({ name: 'Organization', schema: Schema })
