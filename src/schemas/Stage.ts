@@ -12,6 +12,7 @@ export interface StageSchema {
   totalCount: number
   isArchived: boolean
   isLocked?: boolean
+  isDefault?: boolean
 }
 
 const schema: SchemaDef<StageSchema> = {
@@ -42,6 +43,9 @@ const schema: SchemaDef<StageSchema> = {
   },
   totalCount: {
     type: RDBType.NUMBER
+  },
+  isDefault: {
+    type: RDBType.BOOLEAN
   }
 }
 
