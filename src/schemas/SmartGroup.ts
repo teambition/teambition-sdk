@@ -21,6 +21,7 @@ export interface SmartGroupSchema {
   _projectId: ProjectId
   _creatorId: UserId
   name: string
+  isGlobal: boolean
   description: string
   icon: SmartGroupPredefinedIcon | null
   taskCount?: {
@@ -80,6 +81,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
   },
   icon: {
     type: RDBType.STRING,
+  },
+  isGlobal: {
+    type: RDBType.BOOLEAN,
   },
   name: {
     type: RDBType.STRING,
