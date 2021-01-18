@@ -125,6 +125,7 @@ export interface TaskSchema {
   approve?: Pick<ApprovalSchema, 'status'> | ApprovalSchema
   effort: number | null
   urge?: UrgeSchema
+  customPos?: Record<string, string>
 }
 
 const schema: SchemaDef<TaskSchema> = {
@@ -392,6 +393,9 @@ const schema: SchemaDef<TaskSchema> = {
     type: RDBType.STRING
   },
   workTime: {
+    type: RDBType.OBJECT
+  },
+  customPos: {
     type: RDBType.OBJECT
   }
 }
