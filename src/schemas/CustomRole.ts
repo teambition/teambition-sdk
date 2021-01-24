@@ -1,12 +1,13 @@
 import { SchemaDef, RDBType } from '../db'
 import { schemaColl } from './schemas'
-import { CustomRoleId, CustomRoleType, OrganizationId, UserId } from 'teambition-types'
+import { CustomRoleId, CustomRoleType, OrganizationId, ProjectId, UserId } from 'teambition-types'
 
 export interface CustomRoleSchema<T extends CustomRoleType = CustomRoleType> {
   _id: CustomRoleId
   name: string
   _creatorId: UserId
   _organizationId: OrganizationId
+  _projectId?: ProjectId
   updated: string
   created: string
   isDefault: boolean
@@ -26,6 +27,9 @@ const schema: SchemaDef<CustomRoleSchema> = {
     primaryKey: true
   },
   _organizationId: {
+    type: RDBType.STRING
+  },
+  _projectId: {
     type: RDBType.STRING
   },
   created: {

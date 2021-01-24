@@ -24,6 +24,7 @@ export interface GeneralMemberSchema {
   _memberId: MemberId
   _roleId: RoleId
   _userId: UserId
+  roleIds: RoleId[]
   avatarUrl: string
   boundToObjectType: 'project' | 'organization'
   email: string
@@ -67,6 +68,7 @@ const Schema: SchemaDef<GeneralMemberSchema> = {
   _memberId: { type: RDBType.STRING },
   _roleId: { type: RDBType.STRING },
   _userId: { type: RDBType.STRING },
+  roleIds: { type: RDBType.LITERAL_ARRAY },
   avatarUrl: { type: RDBType.STRING },
   boundToObjectType: { type: RDBType.STRING },
   email: { type: RDBType.STRING },
