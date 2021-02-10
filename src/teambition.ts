@@ -1,7 +1,5 @@
 // abstract
 
-import { Role } from "./schemas/CustomRole"
-
 declare module 'teambition-types' {
   /**
    * 可以用于获取 schema 类型上一些对象类型字段的键名，如：
@@ -339,6 +337,22 @@ declare module 'teambition-types' {
     invitorId: string
     signCode: string
   }
+
+  export interface CustomRoleSchema<T extends CustomRoleType = CustomRoleType> {
+    _id: CustomRoleId
+    name: string
+    _creatorId: UserId
+    _organizationId: OrganizationId
+    _projectId?: ProjectId
+    updated: string
+    created: string
+    isDefault: boolean
+    level: number
+    permissions: string[]
+    type: T
+  }
+
+  export type Role = CustomRoleSchema<'project' | 'organization'>
 
   export interface PermissionBinding {
     level: UserLevel
