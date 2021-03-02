@@ -47,6 +47,7 @@ export interface SmartGroupSchema {
   created: string
   updated: string
   visibility: SmartGroupViewVisibilityType
+  isGlobal: boolean
 }
 
 const schema: SchemaDef<SmartGroupSchema> = {
@@ -102,6 +103,9 @@ const schema: SchemaDef<SmartGroupSchema> = {
   visibility: {
     type: RDBType.STRING,
   },
+  isGlobal: {
+    type: RDBType.BOOLEAN
+  }
 }
 
 schemaColl.add({ name: 'SmartGroup', schema })
