@@ -107,6 +107,9 @@ export interface ProjectSchema {
   payload?: {
     autoTaskScheduling?: boolean
   }
+  preference?: {
+    taskViewMode?: 'scenarioConfigStatus' | 'stage'
+  }
 }
 
 const Schema: SchemaDef<ProjectSchema> = {
@@ -340,6 +343,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   windowModeOfAddTask: {
     type: RDBType.STRING
   },
+  preference: {
+    type: RDBType.OBJECT
+  }
 }
 
 schemaColl.add({ name: 'Project', schema: Schema })
