@@ -106,6 +106,9 @@ export interface ProjectSchema {
   payload?: {
     autoTaskScheduling?: boolean
   }
+  preference?: {
+    taskViewMode: 'scenarioConfigStatus' | 'stage'
+  }
 }
 
 const Schema: SchemaDef<ProjectSchema> = {
