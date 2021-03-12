@@ -47,10 +47,11 @@ export function getScenarioFieldConfigsFetch(
   {
     appendCommonGroupChoices,
     withTaskflowstatus,
-    withCustomfields = true
-  }: GetScenarioFieldConfigsFetchOptions = {}
+    withCustomfields = true,
+    v2 = false,
+  }: GetScenarioFieldConfigsFetchOptions = {},
 ) {
-  const url = `projects/${projectId}/scenariofieldconfigs`
+  const url = v2 ? `v2/projects/${projectId}/scenariofieldconfigs` : `projects/${projectId}/scenariofieldconfigs`
   const query = {
     objectType,
     withTaskflowstatus,
@@ -152,4 +153,5 @@ export interface GetScenarioFieldConfigsFetchOptions {
   appendCommonGroupChoices?: boolean
   withTaskflowstatus?: boolean
   withCustomfields?: boolean
+  v2?: boolean
 }

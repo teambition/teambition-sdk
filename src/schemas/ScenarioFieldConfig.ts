@@ -50,6 +50,7 @@ export interface ScenarioFieldConfigSchema {
     subtaskSfcIds?: ScenarioFieldConfigId[]
   }
   updated: string
+  source?: string
 }
 
 export interface TaskScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
@@ -170,7 +171,10 @@ const schema: SchemaDef<
   },
   updated: {
     type: RDBType.DATE_TIME
-  }
+  },
+  source: {
+    type: RDBType.STRING
+  },
 }
 
 schemaColl.add({ schema, name: 'ScenarioFieldConfig' })
