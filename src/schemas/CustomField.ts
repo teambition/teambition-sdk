@@ -16,11 +16,12 @@ export interface CustomFieldSchema {
   _creatorId: UserId
   _id: CustomFieldId
   _lockerId: UserId | null
-  _organizationId: OrganizationId
+  _organizationId: OrganizationId | null
   _projectId?: ProjectId
   _roleIds: RoleId[]
+  _originalId?: CustomFieldId | null
   advancedCustomfield: AdvancedCustomField
-  boundToObjectType: 'app'
+  boundToObjectType: 'app' | 'project' | 'organization'
   boundType: CustomFieldBoundType
   categoryIds: CustomFieldCategoryId[]
   choices: CustomFieldChoiceSchema[]
@@ -69,6 +70,9 @@ const schema: SchemaDef<CustomFieldSchema> = {
   },
   _roleIds: {
     type: RDBType.LITERAL_ARRAY
+  },
+  _originalId: {
+    type: RDBType.STRING
   },
   advancedCustomfield: {
     type: RDBType.OBJECT

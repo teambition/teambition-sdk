@@ -48,7 +48,7 @@ export function getScenarioFieldConfigsFetch(
     appendCommonGroupChoices,
     withTaskflowstatus,
     withCustomfields = true
-  }: GetScenarioFieldConfigsFetchOptions = {}
+  }: GetScenarioFieldConfigsFetchOptions = {},
 ) {
   const url = `projects/${projectId}/scenariofieldconfigs`
   const query = {
