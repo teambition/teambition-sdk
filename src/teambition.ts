@@ -263,6 +263,10 @@ declare module 'teambition-types' {
   }
 
   export interface CustomFieldValue {
+    snapshot?: {
+      name: string
+      type: CustomFieldType
+    }
     _customfieldId: CustomFieldId
     type: CustomFieldType
     value: Array<CustomFieldSnapshotItem> | Array<CustomFieldWorkSnapshotItem>
