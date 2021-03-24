@@ -84,6 +84,12 @@ export interface TestcaseScenarioFieldConfigSchema extends ScenarioFieldConfigSc
 
 export interface ApplicationScenarioFieldConfigSchema extends ScenarioFieldConfigSchema {
   scenariofields: ApplicationScenarioFieldSchema[]
+  preference?: {
+    workhourUnit: 'hour' | 'day' | 'minute'
+    workhourUnitValue: number
+    projectId: ProjectId
+    organizationId: OrganizationId
+  }
 }
 
 const schema: SchemaDef<
@@ -164,6 +170,9 @@ const schema: SchemaDef<
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  preference: {
+    type: RDBType.OBJECT
   }
 }
 
