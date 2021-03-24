@@ -20,6 +20,9 @@ export interface TestplanSchema {
   testcaseCount: TestplanCasesCount
   testhubIds: TesthubId[]
   updated: string
+  isSuspended: boolean
+  suspendedByUserId: UserId
+  suspendedDate: string
 }
 
 const schema: SchemaDef<TestplanSchema> = {
@@ -56,6 +59,15 @@ const schema: SchemaDef<TestplanSchema> = {
   },
   updated: {
     type: RDBType.DATE_TIME
+  },
+  isSuspended: {
+    type: RDBType.BOOLEAN
+  },
+  suspendedByUserId: {
+    type: RDBType.STRING
+  },
+  suspendedDate: {
+    type: RDBType.STRING
   }
 }
 
