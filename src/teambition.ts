@@ -1,5 +1,7 @@
 // abstract
 
+import { Role } from "./schemas/CustomRole"
+
 declare module 'teambition-types' {
   /**
    * 可以用于获取 schema 类型上一些对象类型字段的键名，如：
@@ -348,6 +350,8 @@ declare module 'teambition-types' {
     joinProjectRole: JoinProjectRole
     externalRoleIds: CustomRoleId[]   // 项目分组所授予的项目角色 id 列表
     memberRoleId: CustomRoleId | null  // 项目成员的项目角色 id
+    memberRoleIds: RoleId[]
+    memberRoles: Role[]
   }
 
   export interface UserSnippet {

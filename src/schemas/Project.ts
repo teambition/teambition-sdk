@@ -76,6 +76,7 @@ export interface ProjectSchema {
   pushStatus: boolean
   py: string
   role: Role
+  roles: Role[]
   shortLink?: string
   sortMethod: TaskSortMethod
   starsCount: number
@@ -278,6 +279,9 @@ const Schema: SchemaDef<ProjectSchema> = {
   },
   role: {
     type: RDBType.OBJECT
+  },
+  roles: {
+    type: RDBType.LITERAL_ARRAY
   },
   shortLink: {
     type: RDBType.STRING
