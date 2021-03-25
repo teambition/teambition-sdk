@@ -1,5 +1,5 @@
 import { RDBType, SchemaDef } from '../db'
-import { ProjectId, TesthubId, TestplanId, UserId } from 'teambition-types'
+import { ProjectId, TesthubId, TestplanId, UserId, UserSnippet } from 'teambition-types'
 import { schemaColl } from './schemas'
 
 export type TestplanCasesCount = {
@@ -21,8 +21,9 @@ export interface TestplanSchema {
   testhubIds: TesthubId[]
   updated: string
   isSuspended: boolean
-  suspendedByUserId: UserId
-  suspendedDate: string
+  suspendedByUserId: UserId | null
+  suspendedDate: string | null
+  suspendedByUser?: UserSnippet | null
 }
 
 const schema: SchemaDef<TestplanSchema> = {
@@ -68,6 +69,9 @@ const schema: SchemaDef<TestplanSchema> = {
   },
   suspendedDate: {
     type: RDBType.STRING
+  },
+  suspendedByUser: {
+    type: RDBType.OBJECT
   }
 }
 
