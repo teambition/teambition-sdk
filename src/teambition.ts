@@ -494,7 +494,7 @@ declare module 'teambition-types' {
 
   export type TapChartType = 'pie' | 'bar' | 'line' | 'area' | 'scatter'
 
-  export type TapDimensionBaseDataType = 'string' | 'datetime' | 'dropDown' | 'text' | 'boolean' | 'int'
+  export type TapDimensionBaseDataType = 'string' | 'datetime' | 'dropDown' | 'text' | 'boolean' | 'int' | 'commongroup'
 
   export type TapChartOperator = '~' | '=' | '<' | '>=' | 'in'
 
@@ -594,6 +594,7 @@ declare module 'teambition-types' {
     isDuedateExist?: boolean
     weekSeries?: TapSupportedWeekSeries[]
     date?: string
+    commongroup?: string
   }
 
   export type TapFilterItem =
@@ -647,6 +648,7 @@ declare module 'teambition-types' {
     | TapFilterTarget<'isDuedateExist', 'boolean', boolean>
     | TapFilterTarget<'weekSeries', 'type/String', TapSupportedWeekSeries[]>
     | TapFilterTarget<'date', 'type/Date', string>
+    | TapFilterTarget<'commongroup', 'commongroup', CommonGroupId>
 
   export type TapGenericFilterResponse = TapFilterItem[]
 
