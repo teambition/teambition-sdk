@@ -136,7 +136,9 @@ export class SDKAsyncJob {
           const nextTimes = times + 1
           return this.polling<T>(key, nextInterval, nextTimes, callbacks)
         }
-
+        if (callbacks.onDone) {
+          callbacks.onDone(res)
+        }
         return of(res)
       })
   }
