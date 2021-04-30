@@ -10,6 +10,7 @@ import {
   SchemaColl, Variables, GraphQLRequest, GraphQLResponse,
   GraphQLClientOption, GraphQLQuery, GraphQLVariables, GraphQLResult,
 } from './utils/internalTypes'
+import { SDKAsyncJob } from './SDKAsyncJob';
 
 export const schemas: SchemaColl = []
 
@@ -22,6 +23,7 @@ export class SDK {
 
   net = new Net(this.schemas)
   fetch = new SDKFetch()
+  asyncJob = new SDKAsyncJob(this.fetch)
 
   socketClient: socket.Client
   database: Database | undefined
