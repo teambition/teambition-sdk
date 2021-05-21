@@ -23,6 +23,7 @@ export { Socket, eventToRE as socketEventToRE }
 
 export { SDK } from './SDK'
 export { SDKFetch, HttpHeaders } from './SDKFetch'
+export { SDKAsyncJob, AsyncJobOptions } from './SDKAsyncJob'
 export { Net, CacheStrategy, Http, HttpErrorMessage, HttpError$, Page, batchService, FallbackWhen } from './Net'
 
 export { Database, ExecutorResult, QueryToken, OrderDescription, Query, Predicate } from './db'
