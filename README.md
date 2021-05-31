@@ -25,6 +25,21 @@ npm test           # 跑一遍完整测试
 npm watch          # 在开发时，以监听模式跑测试，每次代码修改都会重跑测试，帮助及时发现问题
 ```
 
+## 发布
+注意目前发布要求使用 NPM 二步验证，请参考[文档](https://docs.npmjs.com/configuring-two-factor-authentication#sending-a-one-time-password-from-the-command-line)，在发布命令后面跟随 `--otp=验证码`。
+```bash
+# only publish sdk
+npm run preversion   # 查询 npm 官方库，获取当前发布的最新正式版本和最高的预发版本号，避免打版本时出错
+npm version v0.12.68 # 打正式版本 0.12.68（包括创建相应标签）
+npm version v0.12.69-alpha.0-readme # 打预发版本 0.12.69-alpha.0-readme（包括创建相应标签）
+npm run publish_sdk  # 在本地 build 当前代码并发布到 npm 官方库
+# 完成发布后，推荐将相应标签（tag）推到远端，如 `git push origin v0.12.69-alpha.0-readme`
+
+# publish sdk, mock and socket
+npm version xxx
+npm run publish_all
+```
+
 ## 设计理念
 
 SDK 主要解决的是数据同步的问题。通俗点讲，就是在前端使用数据模型模拟出数据库的增删改查等操作。
@@ -220,17 +235,3 @@ export default class TaskView {
 ```
 
 在这种场景下，关于 task 的任何变更 (tasklist 变更，executor 变更，stage 变更等等，权限变化) 都能让相关的数据自动更新，从而简化 View 层的逻辑。
-
-## publish script
-```bash
-# only publish sdk
-npm run preversion   # 查询 npm 官方库，获取当前发布的最新正式版本和最高的预发版本号，避免打版本时出错
-npm version v0.12.68 # 打正式版本 0.12.68（包括创建相应标签）
-npm version v0.12.69-alpha.0-readme # 打预发版本 0.12.69-alpha.0-readme（包括创建相应标签）
-npm run publish_sdk  # 在本地 build 当前代码并发布到 npm 官方库
-# 完成发布后，推荐将相应标签（tag）推到远端，如 `git push origin v0.12.69-alpha.0-readme`
-
-# publish sdk, mock and socket
-npm version xxx
-npm run publish_all
-```
