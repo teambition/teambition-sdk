@@ -25,6 +25,18 @@ export interface OrganizationPaymentPlan {
   trialType: string
 }
 
+export interface OrganizationLicense {
+  membersCount: number
+  expired: string
+  payType: 'org' | 'org:2' | 'base'
+  isTrial: boolean
+  isExpired: boolean
+}
+
+type OrganizationLicenseKey = 'currentLicense' | 'trialLicense' | 'payLicense'
+
+export type OrganizationLicenseMap = Record<OrganizationLicenseKey, OrganizationLicense | null>
+
 export interface OrganizationSchema {
   _creatorId: UserId
   _defaultCollectionId: CollectionId
@@ -41,6 +53,7 @@ export interface OrganizationSchema {
   isPublic: boolean
   logo: string
   labels?: string[]
+  licenseMap: OrganizationLicenseMap
   name: string
   owner?: ExecutorOrCreator
   pinyin: string
@@ -68,6 +81,7 @@ const Schema: SchemaDef<OrganizationSchema> = {
   isPublic: { type: RDBType.BOOLEAN },
   logo: { type: RDBType.STRING },
   labels: { type: RDBType.OBJECT },
+  licenseMap: { type: RDBType.OBJECT },
   name: { type: RDBType.STRING },
   owner: { type: RDBType.OBJECT },
   pinyin: { type: RDBType.STRING },
