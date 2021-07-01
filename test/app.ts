@@ -10,6 +10,7 @@ export * from './utils/httpErrorSpec'
 export * from './mock/MockSpec'
 
 import './SDKFetch.spec'
+import './SDKAsyncJob.spec'
 import './mock'
 import './apis'
 import './sockets'

@@ -7,8 +7,7 @@ import 'rxjs/add/operator/finally'
 import { Observable } from 'rxjs/Observable'
 import { Http, HttpErrorMessage, HttpResponseWithHeaders, getHttpWithResponseHeaders } from './Net/Http'
 import { UserMe } from './schemas/UserMe'
-import { forEach, uuid } from './utils'
-import { SDKLogger } from './utils/Logger'
+import { appendQueryString, toQueryString, uuid } from './utils'
 
 export type SDKFetchOptions = {
   apiHost?: string
@@ -293,52 +292,4 @@ export class SDKFetch {
   getUserMe() {
     return this.get<UserMe>('users/me')
   }
-}
-
-const appendQueryString = (url: string, queryString: string) => {
-  if (!queryString) {
-    return url
-  }
-  if (url.slice(-1) === '?') { // '?' 是最后一个字符
-    return `${url}${queryString}`
-  }
-  return url.indexOf('?') === -1
-    ? `${url}?${queryString}`  // '?' 不存在
-    : `${url}&${queryString}`  // '?' 存在，其后还有其他字符
-}
-
-const toQueryString = (query: any) => {
-  if (typeof query !== 'object' || !query) {
-    return ''
-  }
-  const result: string[] = []
-  forEach(query, (val: any, key: string) => {
-    if (key === '_') {
-      SDKLogger.warn('query should not contain key \'_\', it will be ignored')
-    } else if (Array.isArray(val)) {
-      val.forEach(_val => {
-        result.push(`${key}=${encoded(_val)}`)
-      })
-    } else if (typeof val !== 'undefined') {
-      result.push(`${key}=${encoded(val)}`)
-    }
-  })
-  return result.join('&')
-}
-
-/**
- * encodeURIComponent 不会修改的字符有 A-Z a-z 0-9 - _ . ! ~ * ' ( )
- * - 参考自 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent#Description
- * 而被修改的字符，都会以 percent-encoding 方法替换
- * - 参考自 https://tools.ietf.org/html/rfc3986#section-2.4
- * - percent-encoding 的方法参考自 https://tools.ietf.org/html/rfc3986#section-2.1
- */
-const encodedRegExp = /^(%(\d|[a-fA-F]){2}|[a-zA-Z0-9]|-|_|\.|!|~|\*|'|\(|\))*$/
-//                       ^percent-encoded^ ^^^^^^^^^^^^^escaped^^^^^^^^^^^^^w
-
-const encoded = (value: {} | null): string => {
-  const maybeEncoded = String(value)
-  return encodedRegExp.test(maybeEncoded)
-    ? maybeEncoded
-    : encodeURIComponent(maybeEncoded)
 }
