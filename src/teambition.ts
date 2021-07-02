@@ -252,7 +252,7 @@ declare module 'teambition-types' {
     removable?: boolean
   }
 
-  export interface CustomFieldWorkSnapshotItem {
+  export interface CustomFieldWorkSnapshotItem<T = unknown> {
     _id: FileId
     fileType: string
     fileName: string
@@ -260,6 +260,8 @@ declare module 'teambition-types' {
     thumbnail: string
     thumbnailUrl: string
     fileCategory: string
+    source?: string
+    rawData?: T
   }
 
   export interface CustomFieldValue {
