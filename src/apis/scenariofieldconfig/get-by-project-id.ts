@@ -50,7 +50,7 @@ export function getScenarioFieldConfigsFetch(
     withCustomfields = true
   }: GetScenarioFieldConfigsFetchOptions = {},
 ) {
-  const url = `projects/${projectId}/scenariofieldconfigs`
+  const url = `v2/projects/${projectId}/scenariofieldconfigs`
   const query = {
     objectType,
     withTaskflowstatus,

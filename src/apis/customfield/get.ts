@@ -11,7 +11,7 @@ export function getCustomFieldFetch(
   this: SDKFetch,
   customFieldId: CustomFieldId
 ): Observable<CustomFieldSchema> {
-  return this.get<CustomFieldSchema>(`customfields/${customFieldId}`)
+  return this.get<CustomFieldSchema>(`v2/customfields/${customFieldId}`)
 }
 
 declare module '../../SDKFetch' {
