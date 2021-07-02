@@ -10,8 +10,14 @@ import {
 import { RDBType, SchemaDef } from '../db'
 import { schemaColl } from './schemas'
 
-export interface PreferenceTipMap {
+export type PreferenceTipMap = {
   [key: string]: boolean | string
+} & {
+  customPortal?: CustomPortalMap
+}
+
+export interface CustomPortalMap {
+  [key: string]: boolean
 }
 
 export interface PreferenceSchema {
@@ -146,7 +152,7 @@ const Schema: SchemaDef<PreferenceSchema> = {
   },
   tips: {
     type: RDBType.OBJECT
-  }
+  },
 }
 
 schemaColl.add({ name: 'Preference', schema: Schema })
