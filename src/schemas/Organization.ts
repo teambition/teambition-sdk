@@ -9,20 +9,124 @@ export interface OrganizationDividerSchema {
   pos: number
 }
 
+/**
+ * 付费类型
+ * https://thoughts.teambition.com/workspaces/59bdd86a7fef2900012872a2/docs/5a1d1070671a3000014aa81d
+ */
+export enum OrganizationPaymentPlanType {
+  /**
+   * 免费版
+   */
+  Basic = 'basic',
+
+  /**
+   * 专业版
+   */
+  Pro = 'org',
+
+  /**
+   * 老企业版（专业版 + 无限人数）
+   */
+  Old = 'org:1',
+
+  /**
+   * 旗舰版（所有功能）
+   */
+  Unlimited = 'org:2',
+}
+
 export interface OrganizationPaymentPlan {
-  _objectId: OrganizationId
-  expired: string
-  isBasic: boolean
-  isExceedMember: boolean
-  isExpired: boolean
-  isStrictExceedMember: boolean
-  isTrialExpired: boolean
-  membersCount: number
-  objectType: 'organization'
-  payType: string
-  status: string
-  trialExpired: string
-  trialType: string
+  /**
+   * 付费主体
+   */
+  readonly _objectId: OrganizationId
+
+  /**
+   * 付费主体类型
+   */
+  readonly objectType: 'organization'
+
+  /**
+   * 付费类型
+   * - `basic` 免费版
+   * - `org` 专业版
+   * - `org:1` 4990 老企业 + 无限人数版
+   * - `org:2` 旗舰版
+   * - `null | ""` 两个类型都等价 `org`
+   */
+  readonly payType: OrganizationPaymentPlanType | '' | null
+
+  /**
+   * 付费到期时间
+   */
+  readonly expired: string
+
+  /**
+   * 付费到期剩余天数
+   */
+  readonly days: number
+
+  /**
+   * 付费已到期（依据服务器时间）
+   */
+  readonly isExpired: boolean
+
+  /**
+   * 付费已到期，保留当前版本，限制 10 人使用
+   */
+  readonly isBasic: boolean
+
+  /**
+   * 试用类型
+   * - `org` 专业版
+   * - `org:2` 旗舰版
+   */
+  readonly trialType: OrganizationPaymentPlanType.Pro | OrganizationPaymentPlanType.Unlimited | ''
+
+  /**
+   * 试用到期时间
+   */
+  readonly trialExpired: string | null
+
+  /**
+   * 试用到期剩余天数
+   */
+  readonly trialDays: number | undefined
+
+  /**
+   * 试用已到期（依据服务器时间）
+   */
+  readonly isTrialExpired: boolean
+
+  /**
+   * 已经试用过哪些
+   */
+  readonly historyTrialTypes: Array<OrganizationPaymentPlanType.Pro | OrganizationPaymentPlanType.Unlimited>
+
+  /**
+   * 企业成员限额
+   */
+  readonly membersCount: number
+
+  /**
+   * 企业成员超额（软阻拦）
+   */
+  readonly isExceedMember: boolean
+
+  /**
+   * 企业成员超额（硬阻拦）
+   */
+  readonly isStrictExceedMember: boolean
+
+  /**
+   * 企业成员超额剩余天数
+   */
+  readonly exceedMemberLeftDays: number
+
+  /**
+   * 由个人专业版迁移而来
+   */
+  readonly createdFrom4990User: boolean
 }
 
 export interface OrganizationLicense {
