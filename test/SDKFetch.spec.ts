@@ -142,6 +142,51 @@ describe('SDKFetch', () => {
       })
   })
 
+  it('`cache` should effected', function* () {
+    fetchMock.get(urlMatcher, {})
+
+    // 无 query 的 GET
+    yield sdkFetch.get(path, null, { cache: true })
+      .subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(fetchMock.lastUrl(urlMatcher).indexOf('?_=')).to.equal(-1)
+      })
+
+    // 有 query 的 GET
+    const query = { value: 'A' }
+    yield sdkFetch.get(path, query, { cache: true })
+      .subscribeOn(Scheduler.asap)
+      .do(() => {
+        expect(fetchMock.lastUrl(urlMatcher).indexOf('&_=')).to.equal(-1)
+      })
+  })
+
+  it('`cache` default should be `false`', function* () {
+    fetchMock.get(urlMatcher, {})
+
+    // 无 query 的 GET
+    yield sdkFetch.get(path)
+      .subscribeOn(Scheduler.asap)
+      .do(() => {
+        const delimiter = '?_='
+        const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
+        expect(prefix).to.equal(testUrl)
+        expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
+      })
+
+    // 带 query 的 GET
+    const query = { value: 'A' }
+    const urlWithQuery = testUrl + '?value=A'
+    yield sdkFetch.get(path, query)
+      .subscribeOn(Scheduler.asap)
+      .do(() => {
+        const delimiter = '&_='
+        const [prefix, timestamp] = fetchMock.lastUrl(urlMatcher).split(delimiter, 2)
+        expect(prefix).to.equal(urlWithQuery)
+        expect(new Date(Number(timestamp)).valueOf()).to.closeTo(new Date().valueOf(), 100)
+      })
+  })
+
   it('get with empty query object should work correctly', function* () {
     fetchMock.get(urlMatcher, {})
 
