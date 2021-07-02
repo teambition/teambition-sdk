@@ -32,6 +32,7 @@ export type TapChartType =
   | 'bubble'
   | 'multiDetails'
   | 'polar'
+  | 'sunburst'
 
 // tapGraph definition
 export type TapGraphColType = 'type/Date' | 'type/DateTime' | 'type/Integer' | 'type/String' | 'type/Task'
@@ -200,7 +201,8 @@ export type TapGraphVisualizationSettingsSet =
   TapGraphVisualizationSettings<'area', TapGraphAreaDisplay> |
   TapGraphVisualizationSettings<'bubble', TapGraphBubbleDisplay> |
   TapGraphVisualizationSettings<'multiDetails', TapGraphOverviewDisplay> |
-  TapGraphVisualizationSettings<'polar', TapGraphPolarDisplay>
+  TapGraphVisualizationSettings<'polar', TapGraphPolarDisplay> |
+  TapGraphVisualizationSettings<'sunburst', TapGraphPieDisplay>
 
 export interface TapBaseChart <T extends FilterRequest | FilterResponse> {
   _id: TapChartId
