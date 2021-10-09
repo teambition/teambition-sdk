@@ -104,7 +104,9 @@ declare module 'teambition-types' {
   export type AssignmentType = 'teambition' | 'aone'
   export type BasicScenarioFieldType = TaskBasicScenarioFieldType | EventBasicScenarioFieldType
   export type CustomFieldBoundType = 'member' | 'project' | 'application'
-  export type CustomFieldType = 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text' | 'lookup' | 'commongroup' | 'work' | 'cascading'
+  export type CustomFieldType =
+    | 'date' | 'dropDown' | 'multipleChoice' | 'number' | 'text'
+    | 'lookup' | 'commongroup' | 'work' | 'cascading' | 'lookup2'
   export type CustomFieldSubtype = 'story' | 'bug'
   export type CustomRoleType = 'project' | 'organization'
   export type CustomScenarioFieldType = 'customfield'
