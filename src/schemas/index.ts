@@ -89,7 +89,6 @@ export * from './CustomFieldCategory'
 export * from './CustomFieldEntity'
 // import './CustomFieldChoice' // 目前不需建表
 export * from './CustomFieldChoice'
-export * from './CustomFieldCascading'
 import './CustomFieldLink'
 export * from './CustomFieldLink'
 export * from './ScenarioField'

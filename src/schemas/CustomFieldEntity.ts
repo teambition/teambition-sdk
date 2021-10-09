@@ -5,7 +5,6 @@ import {
 
 import { CustomFieldSchema } from './CustomField'
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
-import { CustomFieldCascadingPayloadSchema } from './CustomFieldCascading'
 
 export interface CustomFieldEntitySchema {
   _id: CustomFieldEntityId
@@ -21,6 +20,6 @@ export interface CustomFieldEntitySchema {
   modifier: ExecutorOrCreator
   created: string
   updated: string
-  payload?: CustomFieldCascadingPayloadSchema
+  payload?: any
   projects: string[]
 }
