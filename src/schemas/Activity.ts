@@ -50,6 +50,14 @@ export interface Share {
   description: string
 }
 
+export interface DingFile {
+  spaceId: string
+  fileId: string
+  fileName: string
+  fileSize: number
+  fileType: string
+}
+
 export interface ActivitySchema {
   _boundToObjectId: DetailObjectId
   _creatorId: UserId
@@ -61,6 +69,7 @@ export interface ActivitySchema {
     comment: string
     content: string
     attachments: File[]
+    dingFiles?: DingFile[]
     voice: Voice
     mentionsArray: string[]
     mentions: {
