@@ -34,6 +34,7 @@ export interface CustomFieldLinkBaseSchema {
   pos: number
   setting?: CustomFieldRelevantSetting
   type: CustomFieldType
+  payload?: any
 }
 
 export interface NormalCustomFieldLinkSchema extends CustomFieldLinkBaseSchema {
@@ -123,6 +124,9 @@ const schema: SchemaDef<CustomFieldLinkSchema> = {
   },
   subtype: {
     type: RDBType.STRING
+  },
+  payload: {
+    type: RDBType.OBJECT
   }
 }
 

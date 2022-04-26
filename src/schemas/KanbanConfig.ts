@@ -18,7 +18,7 @@ export interface KanbanConfigSchema {
   _projectId: ProjectId
   _scenariofieldconfigId: ScenarioFieldConfigId
   created: string
-  displayedFields: ReadonlyArray<KanbanConfigDisplayedField>
+  displayedFields: ReadonlyArray<KanbanConfigDisplayedField> & ReadonlyArray<string>
   updated: string
 }
 
