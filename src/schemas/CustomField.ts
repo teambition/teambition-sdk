@@ -8,7 +8,6 @@ import {
 } from 'teambition-types'
 
 import { CustomFieldChoiceSchema } from './CustomFieldChoice'
-import { CustomFieldCascadingPayloadSchema } from './CustomFieldCascading'
 
 export interface CustomFieldSchema {
   _advancedCustomfieldId: AdvancedCustomFieldId
@@ -35,7 +34,7 @@ export interface CustomFieldSchema {
   isSingleSelection?: boolean
   locker: UserSnippet | null
   name: string
-  payload?: CustomFieldCascadingPayloadSchema
+  payload?: any
   pos: number
   projects?: string[]
   setting?: CustomFieldRelevantSetting
