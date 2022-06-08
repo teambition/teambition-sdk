@@ -46,8 +46,13 @@ export interface SmartGroupSchema {
   creator: ExecutorOrCreator
   created: string
   updated: string
+  /**
+   * visibility 是对 visible 的解析，真正对可见性起作用的是 visible 的第一项
+   */
   visibility: SmartGroupViewVisibilityType
+  visible: string[]
   isGlobal: boolean
+  labels: string[]
 }
 
 const schema: SchemaDef<SmartGroupSchema> = {
@@ -103,8 +108,14 @@ const schema: SchemaDef<SmartGroupSchema> = {
   visibility: {
     type: RDBType.STRING,
   },
+  visible: {
+    type: RDBType.LITERAL_ARRAY,
+  },
   isGlobal: {
     type: RDBType.BOOLEAN
+  },
+  labels: {
+    type: RDBType.LITERAL_ARRAY
   }
 }
 
