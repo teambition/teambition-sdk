@@ -12,6 +12,7 @@ export interface TaskflowSchema {
   boundToObjectType: 'project' | 'organization'
   created: string
   name: string
+  payload: any
   objectType: 'task' | 'testcase'
   setting?: CustomFieldRelevantSetting
   taskflowstatuses?: TaskflowStatusSnippet[]
@@ -37,6 +38,9 @@ const schema: SchemaDef<TaskflowSchema> = {
   },
   name: {
     type: RDBType.STRING
+  },
+  payload: {
+    type: RDBType.OBJECT
   },
   objectType: {
     type: RDBType.STRING

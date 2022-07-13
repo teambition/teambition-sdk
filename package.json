@@ -1,6 +1,6 @@
 {
   "name": "teambition-sdk",
-  "version": "0.12.94",
+  "version": "0.12.95-alpha.6-taskflow",
   "description": "Front-End SDK for Teambition",
   "main": "./index.js",
   "typings": "./index.d.ts",
