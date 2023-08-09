@@ -66,6 +66,7 @@ export interface ActivitySchema {
     mentions: {
       [index: string]: string
     }
+    quote?: string
     share: Share
     attachmentsName: string
     creator: string
