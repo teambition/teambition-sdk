@@ -56,7 +56,7 @@ export type TapGraphData = {
   title: string
   cols: TapGraphCol[];
   rows: any[][];
-  taskIds: TaskId[][][];
+  ids: TaskId[][][] | ProjectId[][][];
   visualizationSettings: TapGraphVisualizationSettingsSet;
   special: TapGraphSpecial[];
 }
