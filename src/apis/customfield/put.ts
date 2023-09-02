@@ -9,7 +9,7 @@ export function lockCustomFieldFetch(
   customFieldId: CustomFieldId,
   isLocked: boolean
 ) {
-  const url = `organizations/${orgId}/customfields/${customFieldId}/islocked`
+  const url = `v2/organizations/${orgId}/customfields/${customFieldId}/is-locked`
   const body = { isLocked: isLocked }
 
   return this.put<CustomFieldSchema>(url, body)
